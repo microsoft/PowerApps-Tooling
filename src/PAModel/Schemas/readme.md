@@ -1,0 +1,2 @@
+﻿Get the schema objects and converters from: 
+ https://msazure.visualstudio.com/OneAgile/_git/PowerApps-Client?path=%2Fsrc%2FCloud%2FDocumentServer.Core%2FDocument%2FDocument%2FPersistence%2FSerialization%2FSchemas&version=GBmaster&_a=contents
