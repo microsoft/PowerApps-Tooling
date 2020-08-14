@@ -79,7 +79,7 @@ namespace PAModel
         private static void LoadSourceFiles(MsApp app, DirectoryReader directory)
         {
             // Sources
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa*"))
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
                 var sf = PAConverter.ReadSource(file._fullpath);
                 app._sources.Add(sf.ControlName, sf);
@@ -111,8 +111,12 @@ namespace PAModel
             {                
                 var text = PAConverter.GetPAText(control);
 
-                string filename = control.ControlName +".pa1";
+                string filename = control.ControlName +".pa";
                 dir.WriteAllText(CodeDir, filename, text);
+
+                // Temporary write out of JSON for roundtripping
+                string jsonContentFile = control.ControlName + ".pa1";
+                dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 
                 // SourceFormat assumed to include everything. 
                 // $$$ Split out into view state? 

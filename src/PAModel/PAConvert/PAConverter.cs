@@ -1,4 +1,5 @@
 ﻿using Microsoft.AppMagic.Authoring.Persistence;
+using PAModel.PAConvert;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,17 +16,19 @@ namespace PAModel
     {
         internal static SourceFile ReadSource(string path)
         {
-            var header = "//! PAFile:0.1";
+            // Ignore .pa file for now, use Json for roundtrip
+
+            //var header = "//! PAFile:0.1";
 
             var text = File.ReadAllText(path);
-            if (!text.StartsWith(header))
-            {
-                throw new InvalidOperationException($"Illegal pa source file. Missing header");
-            }
-            var json = text.Substring(header.Length);
+            //if (!text.StartsWith(header))
+            //{
+            //    throw new InvalidOperationException($"Illegal pa source file. Missing header");
+            //}
+            //var json = text.Substring(header.Length);
 
 
-            var control = JsonSerializer.Deserialize<ControlInfoJson>(json, Utility._jsonOpts);
+            var control = JsonSerializer.Deserialize<ControlInfoJson>(text, Utility._jsonOpts);
 
 
             return SourceFile.New(control);
@@ -38,22 +41,7 @@ namespace PAModel
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("//! PAFile:0.1"); // some generic header
 
-            var json = JsonSerializer.Serialize(sf.Value, Utility._jsonOpts);
-            sb.AppendLine(json);
-
-            /*
-            sb.AppendLine("//! Kind:" + sf.Kind);
-            sb.AppendLine("//! TemplateName:" + sf.TemplateName);
-            sb.AppendLine("//! Locale:Invariant");
-            sb.AppendLine();
-
-            // $$$ Todo, use a real .pa format. 
-            foreach(var rule in Formulas(control.TopParent) )
-            {
-                sb.AppendLine($"{rule.Property} := {rule.InvariantScript}");
-
-                sb.AppendLine();
-            }*/
+            new PAWriter(sb).WriteControl(control.TopParent);
 
             return sb.ToString();
         }
