@@ -11,7 +11,7 @@ namespace PAModel
     public class MsAppTest
     {
         // Given an msapp (original source of truth), stress test the conversions
-        public static void StressTest(string pathToMsApp)
+        public static bool StressTest(string pathToMsApp)
         {
             string outFile = Path.GetTempFileName() + ".msapp";
 
@@ -33,12 +33,13 @@ namespace PAModel
             var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
 
             msapp2.SaveAsMsApp(outFile); // Write out .pa files. 
-            MsAppTest.Compare(pathToMsApp, outFile, log);
+            var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+            return ok;
         }
 
         public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
         {
-            Dictionary<string, int> comp = new Dictionary<string, int>();
+            Dictionary<string, string> comp = new Dictionary<string, string>();
             var h1 = Test(pathToZip1, log, comp, true);
             var h2 = Test(pathToZip2, log, comp, false);
 
@@ -60,8 +61,8 @@ namespace PAModel
         // Get a hash for the MsApp file. 
         // First pass adds file/hash to comp. 
         // Second pass checks hash equality and removes files from comp. 
-        // AFter second pass, comp should be 0. any files in comp where missing from 2nd pass. 
-        public static string Test(string pathToZip, TextWriter log, Dictionary<string,int> comp, bool first)
+        // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass. 
+        public static string Test(string pathToZip, TextWriter log, Dictionary<string,string> comp, bool first)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -76,12 +77,14 @@ namespace PAModel
                     if (e.FullName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                     {
                         var je = e.ToJson();
+                        /*
                         str = JsonSerializer.Serialize(je, new JsonSerializerOptions
                         {
                             IgnoreNullValues = true,
                             WriteIndented = false,
                         });
-                        // str = je.ToString();
+                         str = je.ToString();
+                         */
 
 
                         StringBuilder sb2 = new StringBuilder();
@@ -98,18 +101,21 @@ namespace PAModel
                     {
                         if (first)
                         {
-                            comp.Add(e.FullName, str.GetHashCode());
+                            comp.Add(e.FullName, str);
                         }
                         else
                         {
-                            int hash2;
-                            if (comp.TryGetValue(e.FullName, out hash2))
+                            string otherContents;
+                            if (comp.TryGetValue(e.FullName, out otherContents))
                             {
-                                if (hash2 != str.GetHashCode())
+                                if (otherContents != str)
                                 {
                                     // Fail! Mismatch 
                                     Console.WriteLine("FAIL: hash mismatch: " + e.FullName);
 
+                                    // Write out normalized form. Easier to spot the diff. 
+                                    File.WriteAllText(@"c:\temp\a1.json", otherContents);
+                                    File.WriteAllText(@"c:\temp\b1.json", str);
                                 }
                                 else
                                 {
@@ -177,6 +183,7 @@ namespace PAModel
                             sb.Append(indent);
                             sb.AppendLine("{");
 
+                            sb.Append(indent);
                             sb.Append(prop.Name);
                             Check(sb, prop.Value, indent + "  ");
 

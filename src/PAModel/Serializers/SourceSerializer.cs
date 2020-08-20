@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace PAModel
 {
@@ -34,6 +35,7 @@ namespace PAModel
             // $$$ Duplicate with MsAppSerializer? 
             var app = new MsApp();
 
+           
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -43,6 +45,14 @@ namespace PAModel
                 switch (file.Kind)
                 {
                     default:
+                        // $$$ fix naming 
+                        if (file._relativeName.EndsWith("entropy.json"))
+                        {
+                            app._entropy = file.ToObject<Entropy>();
+
+                            break;
+                        }
+
                         // Track any unrecognized files so we can save back.
                         app.AddFile(file.ToFileEntry());
                         break;
@@ -78,19 +88,25 @@ namespace PAModel
 
         private static void LoadSourceFiles(MsApp app, DirectoryReader directory)
         {
+            // Ignoring real pa1 files, can't parse them yet. 
             // Sources
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
-            {
-                var sf = PAConverter.ReadSource(file._fullpath);
-                app._sources.Add(sf.ControlName, sf);
-            }
-
-            // Extra metadata files for data components 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
-                var json = file.ToObject<MsApp.DataComponentInfo>();
-                app._dataComponents.Add(json.TemplateGuid, json);
-            }
+                bool isDataComponentManifest = file._fullpath.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
+                if (isDataComponentManifest)
+                {
+                    var json = file.ToObject< MinDataComponentManifest>();
+                    app._dataComponents.Add(json.TemplateGuid, json);
+                }
+                else
+                {
+                    var text = File.ReadAllText(file._fullpath);
+                    var control = JsonSerializer.Deserialize<ControlInfoJson>(text, Utility._jsonOpts);
+
+                    var sf = SourceFile.New(control);
+                    app._sources.Add(sf.ControlName, sf);
+                }                
+            }          
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
@@ -98,7 +114,7 @@ namespace PAModel
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
             {
                 var dataSource = file.ToObject<DataSourceEntry>();
-                app._dataSources[dataSource.Name] = dataSource;
+                app.AddDataSourceForLoad(dataSource);                
             }
         }
 
@@ -111,11 +127,11 @@ namespace PAModel
             {                
                 var text = PAConverter.GetPAText(control);
 
-                string filename = control.ControlName +".pa";
+                string filename = control.ControlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);
 
                 // Temporary write out of JSON for roundtripping
-                string jsonContentFile = control.ControlName + ".pa1";
+                string jsonContentFile = control.ControlName + ".json";
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 
                 // SourceFormat assumed to include everything. 
@@ -126,10 +142,10 @@ namespace PAModel
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 
-            foreach(var dataComponent in app._dataComponents.Values)
+            foreach(MinDataComponentManifest dataComponent in app._dataComponents.Values)
             {
                 string controlName = dataComponent.Name;
-                dir.WriteAllJson(CodeDir, controlName + "_dc.json", dataComponent);
+                dir.WriteAllJson(CodeDir, controlName + ".manifest.json", dataComponent);
             }
 
             // Expansions....    
@@ -137,9 +153,18 @@ namespace PAModel
             WriteIgnoreFiles(app, dir);
 
             // Data Sources  - write out each individual source. 
-            foreach (var dataSource in app._dataSources.Values)
+            HashSet<string> filenames = new HashSet<string>();
+            foreach (var dataSource in app.GetDataSources())
             {
-                string filename = dataSource.Name + ".json";
+                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
+                // Also be determinstic. 
+                string filename = dataSource.GetUniqueName()+ ".json";
+                
+                if (!filenames.Add(filename))
+                {
+                    // Danger - overwriting file! 
+                    throw new NotImplementedException($"duplicate - overwriting {filename}");
+                }
                 dir.WriteAllJson(DataSourcesDir, filename, dataSource);
             }
 
@@ -159,6 +184,8 @@ namespace PAModel
                 }
                 dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
             }
+
+            dir.WriteAllJson(OtherDir, "entropy.json", app._entropy);
                         
             dir.WriteAllJson(OtherDir, FileKind.Header, app._header);
             dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
@@ -168,7 +195,7 @@ namespace PAModel
         // Ignore these. but they help give more visibility into some of the json encoded fields.
         private static void WriteIgnoreFiles(this MsApp app, DirectoryWriter directory)
         {
-            foreach (var x in app._dataSources.Values)
+            foreach (var x in app.GetDataSources())
             {
                 // DataEntityMetadataJson is a large json-encoded string for the IR. 
                 if (x.DataEntityMetadataJson != null && x.DataEntityMetadataJson.Count > 0)
