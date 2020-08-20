@@ -97,6 +97,11 @@ namespace PAModel
         {
             var root = Path.Combine(_directory, subdir);
 
+            if (!Directory.Exists(root))
+            {
+                return new Entry[0];
+            }
+
             var fullPaths = Directory.EnumerateFiles(root, pattern, SearchOption.AllDirectories);
 
             var entries = from fullPath in fullPaths

@@ -12,11 +12,10 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
-
-    // $$$ Same as DataSourceEntry?
-    // Just the set of properties we write publicly.
     public class DataSourceModel
     {
+        public const string DataComponentType = "DataComponent";
+
         // Name is what shows up in formulas. 
         public string Name { get; set; } // "MSNWeather",
 
@@ -27,7 +26,35 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         // For Sharepoint:
         public string DatasetName { get; set; } // "https://microsoft.sharepoint.com/teams/Test85a"
         public string TableName { get; set; } // a guid 
-                                              // DataEntityMetadataJson -- The big one!!!!
+        
+        public string RelatedEntityName { get; set; }
+
+        public string GetUniqueName()
+        {
+            if (this.IsDataComponent)
+            {
+                return $"datacomponent-{this.Name}";
+            }
+
+            if (this.RelatedEntityName != null)
+            {
+                return $"{this.RelatedEntityName}-{Name}";
+            }
+            
+            return this.Name;
+        }
+
+        // DataEntityMetadataJson -- The big one!!!!
+
+        // Used for Data components. (Type=="DataComponent")
+        // Key back to component name. 
+        // This field is added to aide in merging DataComponent data sources into regular data sources.
+        // We really should point ot the ComponentInstance, not template. 
+        // public string DataComponentTemplate { get; set; } // "Component1"
+        public DataComponentSourcesJson.Entry DataComponentDetails { get; set; }
+
+        // Don't serialize. 
+        internal bool IsDataComponent => this.DataComponentDetails != null;
 
         public string GetSharepointListName()
         {
@@ -39,12 +66,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             }
             return this.DatasetName.Substring(i + phrase.Length);
         }
-/*
-    }
 
-    // 
-    public class DataSourceEntry : DataSourceModel 
-    {*/
         // Key is guid, value is Json-encoded metadata. 
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
         public string TableDefinition { get; set; } // used for 
@@ -55,7 +77,10 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 
-    public class DataSourceEntry : DataSourceModel { }
+    public class DataSourceEntry : DataSourceModel
+    {
+        
+    }
 
     public class DataSourcesJson
     {

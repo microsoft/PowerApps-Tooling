@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PAModel
 {
@@ -39,6 +40,8 @@ namespace PAModel
 
             // encodes quote as \" rather than unicode. 
             opts.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+
+            opts.Converters.Add(new JsonStringEnumConverter());
 
             opts.Converters.Add(new JsonDateTimeConverter());
             opts.Converters.Add(new JsonVersionConverter());

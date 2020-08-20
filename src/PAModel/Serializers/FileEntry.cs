@@ -32,8 +32,7 @@ namespace PAModel
 
         // Category so 
         ControlSrc,
-        ComponentSrc,
-
+        ComponentSrc,        
     }
 
     // Represent a file from disk or a Zip archive. 

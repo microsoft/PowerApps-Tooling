@@ -1,6 +1,7 @@
 ﻿using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PAModel
 {
@@ -13,39 +14,36 @@ namespace PAModel
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
         // Key is Control Name.
+        // Includes both Controls and Components. 
         internal Dictionary<string, SourceFile> _sources = new Dictionary<string, SourceFile>();
 
         // Various data sources        
         // This is references\dataSources.json
-        internal Dictionary<string, DataSourceEntry> _dataSources = new Dictionary<string, DataSourceEntry>();
+        // Also includes entries for DataSources made from a DataComponent
+        // private Dictionary<string, DataSourceEntry> _dataSources = new Dictionary<string, DataSourceEntry>();
+        // List instead of Dict  since we don't have a unique key. Name can be reused. 
+        private List<DataSourceEntry> _dataSources = new List<DataSourceEntry>();
 
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
 
 
-        // The various pieces of a data component, grouped together. 
-        // All of this should be retrieved from the .pa file. 
-        internal class DataComponentInfo
-        {
-            // Name matches Control.TopParent.Name
-            public string Name => _metadata.Name; // eg, "Component1"
-
-            public string TemplateGuid => _metadata.TemplateName; // a guid
-
-            // Portion of ComponentsMetadata.json 
-            public DataComponentsMetadataJson.Entry _metadata { get; set; }
-
-            // Portion of DataComponentTeplates.json
-            public DataComponentTemplatesJson.Entry _template { get; set; }
-
-            // Portion of Components\*.json 
-            public DataComponentSourcesJson.Entry _dcsources { get; set; }
-
-            // public ControlInfoJson _sources;
-        }
+        // Save for roundtripping.
+        internal Entropy _entropy = new Entropy();
 
         // Map of String-->Guid for DataComponents.
-        internal Dictionary<string, DataComponentInfo> _dataComponents = new Dictionary<string, DataComponentInfo>();
+        internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
+
+        internal void AddDataSourceForLoad(DataSourceEntry ds)
+        {
+            // Don't allow overlaps;
+            // Names are not unique. 
+            _dataSources.Add(ds);
+        }
+        internal IEnumerable<DataSourceEntry> GetDataSources()
+        {
+            return _dataSources;
+        }
 
         // Called after loading. This will check internal fields and fill in consistency data. 
         internal void OnLoadComplete()
@@ -58,12 +56,12 @@ namespace PAModel
         // Chevron scenario. 
         public void UpdateDataSource(DataSourceEntry dataSource)
         {
-            DataSourceEntry existing;
-            if (!_dataSources.TryGetValue(dataSource.Name, out existing))
+            DataSourceEntry existing = _dataSources.Where(x => x.Name == dataSource.Name).FirstOrDefault();
+            if (existing == null)
             {
                 throw new NotSupportedException($"Can't add a new data source '{dataSource.Name}'. Just update existing.");
             }
-            
+
             if (existing.ApiId != dataSource.ApiId)
             {
                 throw new NotSupportedException($"Can't change data source type from {existing.ApiId} to {dataSource.ApiId}");
@@ -82,7 +80,7 @@ namespace PAModel
             // - Properties.json
             //    - LocalConnectionReferences
 
-            foreach(DataSourceEntry x in this._dataSources.Values)
+            foreach(DataSourceEntry x in this.GetDataSources())
             {
                 if (x.Name == dataSource.Name)
                 {
@@ -150,6 +148,57 @@ namespace PAModel
             prop.DocumentAppType = "DesktopOrTablet";
 #endif
         }
-              
+
+        // Tempalte is the guid. 
+        // Throw on missing. 
+        internal MinDataComponentManifest LookupDCByTemplateName(string dataComponentTemplate)
+        {
+            return (from x in this._dataComponents.Values
+                    where x.TemplateGuid == dataComponentTemplate
+                    select x).First();
+        }
+
+        // Find the controlId for the dataComponent instance of this particular template. 
+        internal IEnumerable<string> LookupControlIdsByTemplateName(string templateGuid)
+        {
+            foreach(var source in this._sources.Values)
+            {
+                ControlInfoJson controlJson = source.Value;
+
+                foreach (var child in controlJson.TopParent.Children)
+                {
+                    if (child.Template.Name == templateGuid)
+                    {
+                        yield return child.ControlUniqueId;
+                    }
+                }
+
+                    /*
+                    var all = WalkAll(controlJson.TopParent);
+                    foreach(ControlInfoJson.Item item in all)
+                    {
+                        if (item.Template.Name == templateGuid)
+                        {
+                            yield return item.ControlUniqueId;
+                        }
+                    }*/
+                }
+        }
+
+        internal static IEnumerable<ControlInfoJson.Item> WalkAll(ControlInfoJson.Item x)
+        {
+            yield return x;
+            if (x.Children != null)
+            {
+                foreach(var child in x.Children)
+                {
+                    var subItems = WalkAll(child);
+                    foreach (var subItem in subItems)
+                    {
+                        yield return subItem;
+                    }
+                }
+            }
+        }
     }    
 }
