@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace PAModel
     }
 
     // Represent a file from disk or a Zip archive. 
+    [DebuggerDisplay("{Name}")]
     class FileEntry
     {
         // Name relative to root. Can be triaged to a FileKind

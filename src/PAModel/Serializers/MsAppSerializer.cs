@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Linq;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace PAModel
 {
@@ -99,6 +100,9 @@ namespace PAModel
                     }
                 }
 
+                // Normalize logo filename. 
+                app.NormalizeLogoFile();
+
                 if (dcmetadata?.Components != null)
                 {
                     foreach (var x in dcmetadata.Components)
@@ -151,6 +155,53 @@ namespace PAModel
             app._unknownFiles.Add(entry.Name, entry);
         }
 
+        // Logo file has a random filename that is continually regenerated, which creates Noisy Diffs.        
+        // Find the file - based on the PublishInfo.LogoFileName and pull it out. 
+        // Normalize name (logo.jpg), touchup PublishInfo so that it's stable.
+        // Save the old name in Entropy so that we can still roundtrip. 
+        private static void NormalizeLogoFile(this MsApp app)
+        {
+            // May be null or "" 
+            var oldLogoName = app._publishInfo.LogoFileName;
+            if (!string.IsNullOrEmpty(oldLogoName))
+            {
+                string newLogoName = "logo" + Path.GetExtension(oldLogoName);
+                
+                FileEntry logoFile;
+                var oldKey = @"Resources\" + oldLogoName;
+                if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
+                {
+                    app._unknownFiles.Remove(oldKey);
+
+                    logoFile.Name = @"Resources\" + newLogoName;
+                    app._logoFile = logoFile;
+
+
+                    app._entropy.SetLogoFileName(oldLogoName);
+                    app._publishInfo.LogoFileName = newLogoName;
+                }
+            }
+        }
+
+        // Get the original logo file (using entropy to get the old name) 
+        // And return a touched publishInfo pointing to it.
+        private static (PublishInfoJson, FileEntry) DenormalizeLogoFile(this MsApp app)
+        {
+            FileEntry logoFile = null;
+            var publishInfo = app._publishInfo.JsonClone();
+
+            if (!string.IsNullOrEmpty(publishInfo.LogoFileName))
+            {
+                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name);
+                logoFile = new FileEntry
+                {
+                    Name = @"Resources\" + publishInfo.LogoFileName,
+                    RawBytes = app._logoFile.RawBytes
+                };
+            }
+
+            return (publishInfo, logoFile);
+        }
 
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(this MsApp app, string fullpathToMsApp)
@@ -169,11 +220,14 @@ namespace PAModel
             {
                 foreach (FileEntry entry in app.GetMsAppFiles())
                 {
-                    var e = z.CreateEntry(entry.Name);
-                    using (var dest = e.Open())
+                    if (entry != null)
                     {
-                        dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
-                    }
+                        var e = z.CreateEntry(entry.Name);
+                        using (var dest = e.Open())
+                        {
+                            dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+                        }
+                    }                
                 }
             }
         }
@@ -193,7 +247,10 @@ namespace PAModel
             yield return ToFile(FileKind.Header, header);
 
             yield return ToFile(FileKind.Properties, app._properties);
-            yield return ToFile(FileKind.PublishInfo, app._publishInfo);
+
+            var (publishInfo, logoFile) = app.DenormalizeLogoFile();
+            yield return logoFile;
+            yield return ToFile(FileKind.PublishInfo, publishInfo);
 
             // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
             var dataSources = new DataSourcesJson

@@ -13,7 +13,7 @@ namespace PAModel
         // Json serialize these. 
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
-
+        public string OldLogoFileName { get; set; }
 
         public void SetHeaderLastSaved(DateTime? x)
         {
@@ -38,5 +38,10 @@ namespace PAModel
             // DateTime.Now.ToUniversalTime().Ticks.ToString();
             return version;
         }
+
+        public void SetLogoFileName(string oldLogoName)
+        {
+            this.OldLogoFileName = oldLogoName;
+        }        
     }
 }
