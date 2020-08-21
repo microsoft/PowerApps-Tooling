@@ -98,6 +98,12 @@ namespace PAModel
             LoadDataSources(app, dir);
             LoadSourceFiles(app, dir);
 
+
+            // Defaults. 
+            // - DynamicTypes.Json, Resources.Json , Templates.Json - could all be empty
+            // - Themes.json- default to
+
+
             app.OnLoadComplete();
 
             return app;
