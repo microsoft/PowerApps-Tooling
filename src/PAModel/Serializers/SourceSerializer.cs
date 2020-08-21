@@ -93,12 +93,34 @@ namespace PAModel
                 }
             }
 
+            app.GetLogoFileFromUnknowns();
+
             LoadDataSources(app, dir);
             LoadSourceFiles(app, dir);
 
             app.OnLoadComplete();
 
             return app;
+        }
+
+        // The publish info points to the logo file. Grab it from the unknowns. 
+        private static void GetLogoFileFromUnknowns(this MsApp app)
+        {
+            // Logo file. 
+            if (!string.IsNullOrEmpty(app._publishInfo.LogoFileName))
+            {
+                string key = @"Resources\" + app._publishInfo.LogoFileName;
+                FileEntry logoFile;
+                if (app._unknownFiles.TryGetValue(key, out logoFile))
+                {
+                    app._unknownFiles.Remove(key);
+                    app._logoFile = logoFile;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Missing logo file {key}");
+                }
+            }
         }
 
         private static void LoadSourceFiles(MsApp app, DirectoryReader directory)
@@ -188,6 +210,12 @@ namespace PAModel
                     throw new NotImplementedException($"duplicate - overwriting {filename}");
                 }
                 dir.WriteAllJson(DataSourcesDir, filename, dataSource);
+            }
+
+
+            if (app._logoFile != null)
+            {
+                dir.WriteAllBytes(OtherDir, app._logoFile.Name, app._logoFile.RawBytes);
             }
 
             // Loose files. 

@@ -7,6 +7,8 @@ namespace PAModel
 {
     // Must be flexible about what files we see in the .msapp
     // In-memory representation for the app model (not the same as on-disk representation)
+    // - This should already be "normalized" on load. 
+    // - Serializing shoudn't mutate any state. 
     public class MsApp
     {
         // Track all unknown "files". Ensures round-tripping isn't lossy.         
@@ -27,6 +29,8 @@ namespace PAModel
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
         internal PublishInfoJson _publishInfo;
+
+        internal FileEntry _logoFile;
 
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
