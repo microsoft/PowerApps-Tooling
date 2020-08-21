@@ -121,5 +121,14 @@ namespace PAModel
                 throw new NotSupportedException("There are fields in json we don't recognize");
             }
         }
+
+        // Useful when we need to mutate an object (such as adding back properties) 
+        // but don't want to mutate the original.
+        public static T JsonClone<T>(this T obj)
+        {
+            var str = JsonSerializer.Serialize(obj, _jsonOpts);
+            var obj2 = JsonSerializer.Deserialize<T>(str, _jsonOpts);
+            return obj2;
+        }
     }
 }

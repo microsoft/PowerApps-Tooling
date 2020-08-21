@@ -65,7 +65,14 @@ namespace PAModel
 
                         case FileKind.Header:
                             app._header = ToObject<HeaderJson>(entry);
+                            app._entropy.SetHeaderLastSaved(app._header.LastSavedDateTimeUTC);
+                            app._header.LastSavedDateTimeUTC = null;
                             break;
+
+                        case FileKind.PublishInfo:
+                            app._publishInfo = ToObject<PublishInfoJson>(entry);
+                            break;
+                                                    
 
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
@@ -180,8 +187,13 @@ namespace PAModel
                 yield return file;
             }
 
-            yield return ToFile(FileKind.Header, app._header);
+
+            var header = app._header.JsonClone();
+            header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
+            yield return ToFile(FileKind.Header, header);
+
             yield return ToFile(FileKind.Properties, app._properties);
+            yield return ToFile(FileKind.PublishInfo, app._publishInfo);
 
             // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
             var dataSources = new DataSourcesJson

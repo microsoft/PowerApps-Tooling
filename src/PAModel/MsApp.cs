@@ -26,13 +26,16 @@ namespace PAModel
 
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
-
+        internal PublishInfoJson _publishInfo;
 
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
 
-        // Map of String-->Guid for DataComponents.
+        // Information about data components. 
+        // TemplateGuid --> Info
         internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
+        
+        
 
         internal void AddDataSourceForLoad(DataSourceEntry ds)
         {
@@ -49,7 +52,14 @@ namespace PAModel
         internal void OnLoadComplete()
         {
             // Do integrity checks. 
-            // PopulateDataSourcesFromRawFile();
+            if (this._header == null)
+            {
+                throw new InvalidOperationException($"Missing header file");
+            }
+            if (this._properties == null)
+            {
+                throw new InvalidOperationException($"Missing properties file");
+            }
         }
 
         // $$$ Update a datasource? 

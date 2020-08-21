@@ -13,6 +13,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public Version DocVersion { get; set; }
         public Version MinVersionToLoad { get; set; }
         public Version MSAppStructureVersion { get; set; }
-        public DateTime LastSavedDateTimeUTC { get; set; }
+        public DateTime? LastSavedDateTimeUTC { get; set; }
     }
 }

@@ -45,25 +45,26 @@ namespace PAModel
                 switch (file.Kind)
                 {
                     default:
-                        // $$$ fix naming 
-                        if (file._relativeName.EndsWith("entropy.json"))
-                        {
-                            app._entropy = file.ToObject<Entropy>();
-
-                            break;
-                        }
-
                         // Track any unrecognized files so we can save back.
                         app.AddFile(file.ToFileEntry());
                         break;
 
-                    case FileKind.Properties:
-                        app._properties = file.ToObject<DocumentPropertiesJson>();
+                    case FileKind.Entropy:
+                        app._entropy = file.ToObject<Entropy>();
                         break;
 
+
                     case FileKind.Header:
-                        app._header = file.ToObject<HeaderJson>();
-                        break;
+                    case FileKind.Properties:
+                        throw new NotSupportedException($"Old format");
+                    /*
+                case FileKind.Properties:
+                    app._properties = file.ToObject<DocumentPropertiesJson>();
+                    break;
+
+                case FileKind.Header:
+                    app._header = file.ToObject<HeaderJson>();
+                    break;*/
 
                     case FileKind.ComponentSrc:
                     case FileKind.ControlSrc:
@@ -77,6 +78,20 @@ namespace PAModel
                         break;
                 }
             } // each loose file in '\other' 
+
+
+            foreach (var file in dir.EnumerateFiles(CodeDir, "*.json"))
+            {
+                switch (file.Kind)
+                {
+                    case FileKind.CanvasManifest:
+                        var manifest = file.ToObject<CanvasManifestJson>();
+                        app._properties = manifest.Properties;
+                        app._header = manifest.Header;
+                        app._publishInfo = manifest.PublishInfo;
+                        break;
+                }
+            }
 
             LoadDataSources(app, dir);
             LoadSourceFiles(app, dir);
@@ -92,6 +107,11 @@ namespace PAModel
             // Sources
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
+                if (file.Kind == FileKind.CanvasManifest)
+                {
+                    continue;
+                }
+
                 bool isDataComponentManifest = file._fullpath.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
                 if (isDataComponentManifest)
                 {
@@ -100,6 +120,8 @@ namespace PAModel
                 }
                 else
                 {
+                    // Json peer to a .pa file. 
+                    // Eventually, get rid of the json and do everything from .pa.
                     var text = File.ReadAllText(file._fullpath);
                     var control = JsonSerializer.Deserialize<ControlInfoJson>(text, Utility._jsonOpts);
 
@@ -185,11 +207,17 @@ namespace PAModel
                 dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
             }
 
-            dir.WriteAllJson(OtherDir, "entropy.json", app._entropy);
-                        
-            dir.WriteAllJson(OtherDir, FileKind.Header, app._header);
-            dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
+            dir.WriteAllJson(OtherDir, FileKind.Entropy, app._entropy);
 
+            //dir.WriteAllJson(OtherDir, FileKind.Header, app._header);
+            //dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
+            var manifest = new CanvasManifestJson
+            {
+                Properties = app._properties,
+                Header = app._header,
+                PublishInfo = app._publishInfo
+            };
+            dir.WriteAllJson(CodeDir, FileKind.CanvasManifest, manifest);
         }
 
         // Ignore these. but they help give more visibility into some of the json encoded fields.
