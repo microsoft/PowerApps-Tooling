@@ -14,6 +14,7 @@ namespace PAModel
 
         Properties,
         Header,
+        AppCheckerResult,
 
         // Used for dataComponents
         ComponentsMetadata,
@@ -33,6 +34,10 @@ namespace PAModel
         // Category so 
         ControlSrc,
         ComponentSrc,        
+
+        // Unique to source file 
+        Entropy,
+        CanvasManifest
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -69,6 +74,7 @@ namespace PAModel
         {
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
+            {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
             {"ComponentsMetadata.json", FileKind.ComponentsMetadata },
             {@"Resources\PublishInfo.json", FileKind.PublishInfo },
             {@"References\DataComponentSources.json", FileKind.DataComponentSources },
@@ -78,13 +84,10 @@ namespace PAModel
             {@"References\Templates.json", FileKind.Templates },
             {@"References\Resources.json", FileKind.Resources },
             {@"References\DynamicTypes.json", FileKind.DynamicTypes },
-                  
 
-            // Ignore:
-            // - ref\themes
-            // - ref\templates
-            // - ref\resoure
-            // - ref\
+            {"Entropy.json", FileKind.Entropy },
+            {"CanvasManifest.json", FileKind.CanvasManifest }
+            
         };
 
 

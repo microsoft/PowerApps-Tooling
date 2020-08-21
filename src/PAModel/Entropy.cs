@@ -12,6 +12,17 @@ namespace PAModel
     {
         // Json serialize these. 
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
+        public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
+
+
+        public void SetHeaderLastSaved(DateTime? x)
+        {
+            this.HeaderLastSavedDateTimeUTC = x;            
+        }
+        public DateTime? GetHeaderLastSaved()
+        {
+            return this.HeaderLastSavedDateTimeUTC;
+        }
 
         public void SetTemplateVersion(string dataComponentGuid, string version)
         {
