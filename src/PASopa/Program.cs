@@ -63,13 +63,13 @@ namespace PASopa
                 // Test that we can repack 
                 {
                     MsApp msApp2 = SourceSerializer.LoadFromSource(outDir);
-                    // string outFile = Path.GetTempFileName() + ".msapp";
-                    string outFile = @"D:\dev\pa2\Samples\Guido\NewDcs\test.zip";
-                    msApp2.SaveAsMsApp(outFile);
+                    using (var temp = new TempFile())
+                    {
+                        msApp2.SaveAsMsApp(temp.FullPath);
 
-                    // Will print error on mismatch
-                    bool ok = MsAppTest.Compare(msAppPath, outFile, TextWriter.Null);
-                    File.Delete(outFile);
+                        // Will print error on mismatch
+                        bool ok = MsAppTest.Compare(msAppPath, temp.FullPath, TextWriter.Null);
+                    }
                 }
             } else if (mode == "-pack")
             {

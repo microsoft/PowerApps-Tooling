@@ -29,6 +29,9 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
 
+        // For analysis.
+        internal ControlInfoJson _sources; 
+
         internal void Apply(TemplateMetadataJson x)
         {
             x.Validate();

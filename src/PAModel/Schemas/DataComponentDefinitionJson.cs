@@ -4,6 +4,8 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using System.Text.Json;
+
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
     public enum DataComponentDependencyKind
@@ -61,5 +63,16 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string ControlUniqueId { get; set; }
         public DataComponentDefinitionKind DataComponentKind { get; set; }
         public DataComponentDataDependencyJson[] DataComponentExternalDependencies { get; set; }
+    }
+
+
+    internal class ComponentDefinitionInfoJson
+    {
+        public string Name { get; set; }
+        public string LastModifiedTimestamp { get; set; } //  "637335420246436668",
+        public ControlInfoJson.RuleEntry[] Rules {get;set;}
+
+        public JsonElement ControlPropertyState { get; set; }
+        public JsonElement Children { get; set; }
     }
 }

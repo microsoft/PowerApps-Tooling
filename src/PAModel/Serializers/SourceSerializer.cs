@@ -35,7 +35,26 @@ namespace PAModel
             // $$$ Duplicate with MsAppSerializer? 
             var app = new MsApp();
 
-           
+            // Do the manifest check (and version check) first. 
+            foreach (var file in dir.EnumerateFiles(CodeDir, "*.json"))
+            {
+                switch (file.Kind)
+                {
+                    case FileKind.CanvasManifest:
+                        var manifest = file.ToObject<CanvasManifestJson>();
+
+                        if (manifest.FormatVersion > CanvasManifestJson.BetaVersion)
+                        {
+                            throw new NotSupportedException($"This tool only supports {CanvasManifestJson.BetaVersion}, the manifest version is {manifest.FormatVersion}");
+                        }
+
+                        app._properties = manifest.Properties;
+                        app._header = manifest.Header;
+                        app._publishInfo = manifest.PublishInfo;
+                        break;
+                }
+            }
+
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -79,19 +98,6 @@ namespace PAModel
                 }
             } // each loose file in '\other' 
 
-
-            foreach (var file in dir.EnumerateFiles(CodeDir, "*.json"))
-            {
-                switch (file.Kind)
-                {
-                    case FileKind.CanvasManifest:
-                        var manifest = file.ToObject<CanvasManifestJson>();
-                        app._properties = manifest.Properties;
-                        app._header = manifest.Header;
-                        app._publishInfo = manifest.PublishInfo;
-                        break;
-                }
-            }
 
             app.GetLogoFileFromUnknowns();
 
@@ -161,6 +167,7 @@ namespace PAModel
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
         {
+            // Will include subdirectories. 
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
             {
                 var dataSource = file.ToObject<DataSourceEntry>();
@@ -247,6 +254,7 @@ namespace PAModel
             //dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
             var manifest = new CanvasManifestJson
             {
+                FormatVersion =  CanvasManifestJson.BetaVersion,
                 Properties = app._properties,
                 Header = app._header,
                 PublishInfo = app._publishInfo

@@ -45,15 +45,23 @@ namespace PAModel
         public void WriteAllText(string subdir, string filename, string text)
         {
             string path = Path.Combine(_directory, subdir, filename);
-            Utility.EnsureFileDirExists(path);
+            EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }
 
         public void WriteAllBytes(string subdir, string filename, byte[] bytes)
         {
             string path = Path.Combine(_directory, subdir, filename);
-            Utility.EnsureFileDirExists(path);
+            EnsureFileDirExists(path);
             File.WriteAllBytes(path, bytes);
+        }
+
+        // System.IO.File's built in functions fail if the directory doesn't already exist. 
+        // Must pre-create it before writing. 
+        private static void EnsureFileDirExists(string path)
+        {
+            System.IO.FileInfo file = new System.IO.FileInfo(path);
+            file.Directory.Create(); // If the directory already exists, this method does nothing.
         }
     }
 

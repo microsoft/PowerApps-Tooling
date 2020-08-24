@@ -10,6 +10,8 @@ using System.Text.Json;
 using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using PAModel.Serializers;
 
 namespace PAModel
 {
@@ -101,7 +103,7 @@ namespace PAModel
                 }
 
                 // Normalize logo filename. 
-                app.NormalizeLogoFile();
+                app.TranformLogoOnLoad();
 
                 if (dcmetadata?.Components != null)
                 {
@@ -144,64 +146,20 @@ namespace PAModel
                     }
                 }
             }
-
+                                    
             app.OnLoadComplete();
+
+            app.TransformTemplatesOnLoad();
 
             return app;
         }
+
 
         internal static void AddFile(this MsApp app, FileEntry entry)
         {
             app._unknownFiles.Add(entry.Name, entry);
         }
 
-        // Logo file has a random filename that is continually regenerated, which creates Noisy Diffs.        
-        // Find the file - based on the PublishInfo.LogoFileName and pull it out. 
-        // Normalize name (logo.jpg), touchup PublishInfo so that it's stable.
-        // Save the old name in Entropy so that we can still roundtrip. 
-        private static void NormalizeLogoFile(this MsApp app)
-        {
-            // May be null or "" 
-            var oldLogoName = app._publishInfo.LogoFileName;
-            if (!string.IsNullOrEmpty(oldLogoName))
-            {
-                string newLogoName = "logo" + Path.GetExtension(oldLogoName);
-                
-                FileEntry logoFile;
-                var oldKey = @"Resources\" + oldLogoName;
-                if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
-                {
-                    app._unknownFiles.Remove(oldKey);
-
-                    logoFile.Name = @"Resources\" + newLogoName;
-                    app._logoFile = logoFile;
-
-
-                    app._entropy.SetLogoFileName(oldLogoName);
-                    app._publishInfo.LogoFileName = newLogoName;
-                }
-            }
-        }
-
-        // Get the original logo file (using entropy to get the old name) 
-        // And return a touched publishInfo pointing to it.
-        private static (PublishInfoJson, FileEntry) DenormalizeLogoFile(this MsApp app)
-        {
-            FileEntry logoFile = null;
-            var publishInfo = app._publishInfo.JsonClone();
-
-            if (!string.IsNullOrEmpty(publishInfo.LogoFileName))
-            {
-                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name);
-                logoFile = new FileEntry
-                {
-                    Name = @"Resources\" + publishInfo.LogoFileName,
-                    RawBytes = app._logoFile.RawBytes
-                };
-            }
-
-            return (publishInfo, logoFile);
-        }
 
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(this MsApp app, string fullpathToMsApp)
@@ -248,7 +206,7 @@ namespace PAModel
 
             yield return ToFile(FileKind.Properties, app._properties);
 
-            var (publishInfo, logoFile) = app.DenormalizeLogoFile();
+            var (publishInfo, logoFile) = app.TransformLogoOnSave();
             yield return logoFile;
             yield return ToFile(FileKind.PublishInfo, publishInfo);
 
@@ -259,10 +217,15 @@ namespace PAModel
             };
             yield return ToFile(FileKind.DataSources, dataSources);
 
+            // Rehydrate sources that used a data component. 
 
             foreach (var sourceFile in app._sources.Values)
             {
-                yield return sourceFile.ToMsAppFile();
+                var sf = sourceFile;
+                
+                sf = app.RehydrateOnSave(sf);                
+
+                yield return sf.ToMsAppFile();
             }
             
             var dcmetadataList = new List< DataComponentsMetadataJson.Entry>();
@@ -285,33 +248,11 @@ namespace PAModel
                 {
                     Name = dc.TemplateGuid,
                     Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
-                    // Version = "637334794322679636", // $$$ Fix!!!
                     IsComponentLocked = false,
                     ComponentChangedSinceFileImport = true,
                     ComponentAllowCustomization = true,
                     CustomProperties = dc.CustomProperties,
-                    DataComponentDefinitionKey = dc.DataComponentDefinitionKey
-                    /*
-                    DataComponentDefinitionKey = new DataComponentDefinitionJson
-                    {
-                        LogicalName = dc.Name,
-                        PreferredName = dc.Name,
-                        DataComponentKind = DataComponentDefinitionKind.Extension,
-                        DependentEntityName = dc.DependentEntityName,
-                        ControlUniqueId = controlId, // 15? 
-                        DataComponentExternalDependencies = new DataComponentDataDependencyJson[]
-                            {
-                                new DataComponentDataDependencyJson
-                            {
-                                DataComponentExternalDependencyKind = DataComponentDependencyKind.Cds,
-                                DataComponentCdsDependency = new CdsDataDependencyJson
-                                {
-                                    LogicalName = dc.DependentEntityName,
-                                    DataSetName = dc.DataSetName
-                                }
-                            }
-                            }
-                    }*/
+                    DataComponentDefinitionKey = dc.DataComponentDefinitionKey                  
                 };
 
                 // Rehydrate fields. 
@@ -336,34 +277,12 @@ namespace PAModel
 
 
             // Rehydrate the DataComponent DataSource file. 
-            {
-                /*
-                IEnumerable<DataComponentSourcesJson.Entry> ds =
-                    from item in app._dataSources.Values.Where(x => x.IsDataComponent)
-                    let dc = app.LookupDCByTemplateName(item.DataComponentTemplate)
-                    select
-                    new DataComponentSourcesJson.Entry
-                    {
-                        AssociatedDataComponentTemplate = item.DataComponentTemplate,
-                        Name = item.Name,
-                        Type = DataComponentSourcesJson.NativeCDSDataSourceInfo,
-                        IsSampleData = false,
-                        IsWritable = true,
-                        DataComponentKind = "Extension",
-                        DatasetName = dc.DataSetName,
-                        EntitySetName = item.Name,
-                        LogicalName = dc.DataSetName,
-                        PreferredName = item.Name,
-                        IsHidden = false,
-                        DependentEntityName = dc.DependentEntityName
-                    };
-                    */
+            {              
                 IEnumerable<DataComponentSourcesJson.Entry> ds =
                    from item in app.GetDataSources().Where(x => x.IsDataComponent)
                    select item.DataComponentDetails;
 
                 var dsArray = ds.ToArray();
-                // if (dsArray.Length > 0)
                 
                 // backcompat-nit: if we have any DC, then always emit the DC Sources file, even if empty.
                 if (dcmetadataList.Count > 0)
@@ -375,6 +294,7 @@ namespace PAModel
                 }
             }
         }
+
 
         internal static FileEntry ToFile<T>(FileKind kind, T value)
         {
