@@ -97,14 +97,6 @@ namespace PAModel
             }
         }
 
-        // System.IO.File's built in functions fail if the directory doesn't already exist. 
-        // Must pre-create it before writing. 
-        public static void EnsureFileDirExists(string path)
-        {
-            System.IO.FileInfo file = new System.IO.FileInfo(path);
-            file.Directory.Create(); // If the directory already exists, this method does nothing.
-        }
-
         // full:     C:\foo
         // basePath: c:\foo\bar\hi.txt
         // returns "bar\hi.txt"

@@ -64,6 +64,17 @@ namespace PAModel
             {
                 throw new InvalidOperationException($"Missing properties file");
             }
+
+
+            // Associate a data component with its sources. 
+            foreach (var kv in this._sources.Values)
+            {
+                if (kv.Kind == SourceKind.DataComponent)
+                {
+                    MinDataComponentManifest dc = this._dataComponents[kv.TemplateName];
+                    dc._sources = kv.Value;
+                }
+            }
         }
 
         // $$$ Update a datasource? 

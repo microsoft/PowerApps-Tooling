@@ -12,29 +12,35 @@ namespace PAModel
     {
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
-        {
-            string outFile = Path.GetTempFileName() + ".msapp";
+        {            
+            using (var temp1 = new TempFile())
+            {
+                string outFile = temp1.FullPath;
 
-            var log = TextWriter.Null;
+                var log = TextWriter.Null;
 
-            // MsApp --> Model
-            var msapp = MsAppSerializer.Load(pathToMsApp); // read 
+                // MsApp --> Model
+                var msapp = MsAppSerializer.Load(pathToMsApp); // read 
 
-            // Model --> MsApp
-            msapp.SaveAsMsApp(outFile);
-            MsAppTest.Compare(pathToMsApp, outFile, log);
+                // Model --> MsApp
+                msapp.SaveAsMsApp(outFile);
+                MsAppTest.Compare(pathToMsApp, outFile, log);
 
 
-            // Model --> Source 
-            string outSrcDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            msapp.SaveAsSource(outSrcDir);
+                // Model --> Source 
+                using (var tempDir = new TempDir())
+                {
+                    string outSrcDir = tempDir.Dir;
+                    msapp.SaveAsSource(outSrcDir);
 
-            // Source --> Model
-            var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
+                    // Source --> Model
+                    var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
 
-            msapp2.SaveAsMsApp(outFile); // Write out .pa files. 
-            var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
-            return ok;
+                    msapp2.SaveAsMsApp(outFile); // Write out .pa files. 
+                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                    return ok;
+                }
+            }
         }
 
         public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
@@ -176,24 +182,25 @@ namespace PAModel
                 case JsonValueKind.Object:
                     // We have a bug wehere we double emit the same field. 
                     HashSet<string> dups = new HashSet<string>();
+
+                    sb.Append(indent);
+                    sb.AppendLine("{");
+                    indent = indent + "  ";
                     foreach (var prop in e.EnumerateObject().OrderBy(x => x.Name))
                     {
                         if (dups.Add(prop.Name))
                         {
                             sb.Append(indent);
-                            sb.AppendLine("{");
-
-                            sb.Append(indent);
                             sb.Append(prop.Name);
                             Check(sb, prop.Value, indent + "  ");
-
-                            sb.Append(indent);
-                            sb.AppendLine("}");
                         } else
                         {
 
                         }
                     }
+                    sb.Append(indent);
+                    sb.AppendLine("}");
+
                     break;
 
                 default:

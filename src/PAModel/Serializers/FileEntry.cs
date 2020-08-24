@@ -36,7 +36,7 @@ namespace PAModel
         ControlSrc,
         ComponentSrc,        
 
-        // Unique to source file 
+        // Unique to source format. 
         Entropy,
         CanvasManifest
     }

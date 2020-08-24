@@ -21,10 +21,14 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             // The PA formulas!
             public string InvariantScript { get; set; }
 
-            [JsonExtensionData]
-            public Dictionary<string, JsonElement> ExtensionData { get; set; }
+            //[JsonExtensionData]
+            //public Dictionary<string, JsonElement> ExtensionData { get; set; }
+
+            public string Category { get; set; }
+
+            public string RuleProviderType { get; set; } // usually "Unknown"
         }
-        
+
         public class Template
         {
             public const string DataComponentId = "http://microsoft.com/appmagic/DataComponent";
@@ -33,8 +37,16 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             // Very important for data components.
             public string Name { get; set; }
 
+            public string Version { get; set; }
+            public string LastModifiedTimestamp {get;set;}
+
+            // Used with templates. 
+            public bool? IsComponentDefinition { get; set; }
+            public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; }
+
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
+
         }
 
         public class Item
@@ -49,6 +61,17 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
+
+
+            public Dictionary<string, RuleEntry> GetRules()
+            {
+                var rules = new Dictionary<string, ControlInfoJson.RuleEntry>();
+                foreach (var rule in this.Rules)
+                {
+                    rules[rule.Property] = rule;
+                }
+                return rules;
+            }
         }
 
         public Item TopParent { get; set; }

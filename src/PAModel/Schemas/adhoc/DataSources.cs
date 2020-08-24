@@ -29,16 +29,17 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         
         public string RelatedEntityName { get; set; }
 
+        // Get a unique filename. Can include \ directory character to place in subdirs. 
         public string GetUniqueName()
         {
             if (this.IsDataComponent)
             {
-                return $"datacomponent-{this.Name}";
+                return $@"datacomponent\{this.Name}";
             }
 
             if (this.RelatedEntityName != null)
             {
-                return $"{this.RelatedEntityName}-{Name}";
+                return $@"{this.RelatedEntityName}\{Name}";
             }
             
             return this.Name;
