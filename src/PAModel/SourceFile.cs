@@ -41,7 +41,7 @@ namespace PAModel
             if (this.Kind == SourceKind.Control)
             {
                 return $"Controls\\{ControlId}.json";
-            } else if (this.Kind == SourceKind.DataComponent)
+            } else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent)
             {
                 return $"Components\\{ControlId}.json";
             }
@@ -65,10 +65,12 @@ namespace PAModel
             var x = sf.Value.TopParent;
             if (x.Template.Id == ControlInfoJson.Template.DataComponentId)
             {
-                sf.Kind = SourceKind.DataComponent;
-                // $$$ Regular UX component?
+                sf.Kind = SourceKind.DataComponent;                
             }
-            else
+            else if (x.Template.Id == ControlInfoJson.Template.UxComponentId)
+            {
+                sf.Kind = SourceKind.UxComponent;
+            } else 
             {
                 // UX Control has many different Template ids. 
                 sf.Kind = SourceKind.Control;

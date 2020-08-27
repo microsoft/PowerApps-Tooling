@@ -34,7 +34,7 @@ namespace PAModel
             // Apply transforms. 
             var app = new MsApp();
 
-            DataComponentsMetadataJson dcmetadata = null;
+            ComponentsMetadataJson dcmetadata = null;
             DataComponentTemplatesJson dctemplate = null;
             DataComponentSourcesJson dcsources  = null;
 
@@ -56,7 +56,7 @@ namespace PAModel
                             dctemplate = ToObject<DataComponentTemplatesJson>(entry);
                             break;
                         case FileKind.ComponentsMetadata:
-                            dcmetadata = ToObject<DataComponentsMetadataJson>(entry);
+                            dcmetadata = ToObject<ComponentsMetadataJson>(entry);
                             break;
                         case FileKind.DataComponentSources:
                             dcsources = ToObject<DataComponentSourcesJson>(entry);
@@ -109,13 +109,14 @@ namespace PAModel
                 {
                     foreach (var x in dcmetadata.Components)
                     {
-                        var dc = app._dataComponents.GetOrCreate(x.TemplateName);                        
-                        dc.Apply(x);
+                        var dc = MinDataComponentManifest.Create(x);
+                        app._dataComponents.Add(x.TemplateName, dc); // should be unique.
                     }
                 }
 
+                // Only for data-compoents. 
                 if (dctemplate?.ComponentTemplates != null)
-                {
+                {                    
                     foreach (var x in dctemplate.ComponentTemplates)
                     {
                         MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
@@ -126,6 +127,8 @@ namespace PAModel
 
                 if (dcsources?.DataSources != null)
                 {
+                    // Component Data sources only appear if the data component is actually 
+                    // used as a data source in this app. 
                     foreach (var x in dcsources.DataSources)
                     {
                         if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
@@ -213,9 +216,13 @@ namespace PAModel
             // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
             var dataSources = new DataSourcesJson
             {
-                DataSources = app.GetDataSources().Where(x => !x.IsDataComponent).ToArray()
+                DataSources = app.GetDataSources()
+                    .Where(x => !x.IsDataComponent)
+                    // .OrderBy(x => x.GetUniqueName())
+                    .OrderBy(x => x.Name)
+                    .ToArray()
             };
-            yield return ToFile(FileKind.DataSources, dataSources);
+            yield return ToFile(FileKind.DataSources, dataSources);            
 
             // Rehydrate sources that used a data component. 
 
@@ -228,12 +235,12 @@ namespace PAModel
                 yield return sf.ToMsAppFile();
             }
             
-            var dcmetadataList = new List< DataComponentsMetadataJson.Entry>();
+            var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
 
             foreach (MinDataComponentManifest dc in app._dataComponents.Values)
             {
-                dcmetadataList.Add(new DataComponentsMetadataJson.Entry
+                dcmetadataList.Add(new ComponentsMetadataJson.Entry
                 {
                     Name = dc.Name,
                     TemplateName = dc.TemplateGuid,
@@ -241,34 +248,41 @@ namespace PAModel
                     AllowCustomization = true,
                 });
 
-                // Need to looup ControlUniqueId. 
-                var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
-
-                var template = new TemplateMetadataJson
+                if (dc.IsDataComponent)
                 {
-                    Name = dc.TemplateGuid,
-                    Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
-                    IsComponentLocked = false,
-                    ComponentChangedSinceFileImport = true,
-                    ComponentAllowCustomization = true,
-                    CustomProperties = dc.CustomProperties,
-                    DataComponentDefinitionKey = dc.DataComponentDefinitionKey                  
-                };
+                    // Need to looup ControlUniqueId. 
+                    var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
 
-                // Rehydrate fields. 
-                template.DataComponentDefinitionKey.ControlUniqueId = controlId;
 
-                dctemplate.Add(template);
+                    var template = new TemplateMetadataJson
+                    {
+                        Name = dc.TemplateGuid,
+                        Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
+                        IsComponentLocked = false,
+                        ComponentChangedSinceFileImport = true,
+                        ComponentAllowCustomization = true,
+                        CustomProperties = dc.CustomProperties,
+                        DataComponentDefinitionKey = dc.DataComponentDefinitionKey
+                    };
+
+                    // Rehydrate fields. 
+                    template.DataComponentDefinitionKey.ControlUniqueId = controlId;
+
+                    dctemplate.Add(template);
+                }
             }
 
             if (dcmetadataList.Count > 0)
             {
                 // If the components file is present, then write out all files. 
-                yield return ToFile(FileKind.ComponentsMetadata, new DataComponentsMetadataJson
+                yield return ToFile(FileKind.ComponentsMetadata, new ComponentsMetadataJson
                 {
-                     Components = dcmetadataList.ToArray()
+                    Components = dcmetadataList.ToArray()
                 });
-            
+            }
+
+            if (dctemplate.Count > 0)
+            { 
                 yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
                 {
                      ComponentTemplates = dctemplate.ToArray()
@@ -285,7 +299,8 @@ namespace PAModel
                 var dsArray = ds.ToArray();
                 
                 // backcompat-nit: if we have any DC, then always emit the DC Sources file, even if empty.
-                if (dcmetadataList.Count > 0)
+                // if (dcmetadataList.Count > 0)
+                if (dctemplate.Count > 0 || dsArray.Length > 0)
                 {
                     yield return ToFile(FileKind.DataComponentSources, new DataComponentSourcesJson
                     {
@@ -301,6 +316,9 @@ namespace PAModel
             var filename = FileEntry.GetFilenameForKind(kind);
 
             var jsonStr = JsonSerializer.Serialize(value, Utility._jsonOpts);
+
+            jsonStr = JsonNormalizer.Normalize(jsonStr);
+
             var bytes = Encoding.UTF8.GetBytes(jsonStr);
 
             return new FileEntry { Name = filename, RawBytes = bytes };

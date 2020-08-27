@@ -69,7 +69,7 @@ namespace PAModel
             // Associate a data component with its sources. 
             foreach (var kv in this._sources.Values)
             {
-                if (kv.Kind == SourceKind.DataComponent)
+                if (kv.Kind == SourceKind.DataComponent || kv.Kind == SourceKind.UxComponent)
                 {
                     MinDataComponentManifest dc = this._dataComponents[kv.TemplateName];
                     dc._sources = kv.Value;
