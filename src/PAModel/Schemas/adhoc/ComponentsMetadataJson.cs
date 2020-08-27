@@ -22,16 +22,19 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string Description { get; set; }
 
         // $$$ we may allow multiple...
-        public string DependentEntityName { get; set; } // "acount" 
-        public string DataSetName { get; set; } // "default.cds"
+        //public string DependentEntityName { get; set; } // "acount" 
+        //public string DataSetName { get; set; } // "default.cds"
 
         public JsonElement[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
 
         // For analysis.
-        internal ControlInfoJson _sources; 
+        internal ControlInfoJson _sources;
 
+        internal bool IsDataComponent => this.DataComponentDefinitionKey != null;
+
+        // Only data components have this. 
         internal void Apply(TemplateMetadataJson x)
         {
             x.Validate();
@@ -45,15 +48,20 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             this.DataComponentDefinitionKey.ControlUniqueId = null; 
 
             this.CustomProperties = x.CustomProperties;
-            this.DependentEntityName = x.DataComponentDefinitionKey.DependentEntityName;
-            this.DataSetName = x.DataComponentDefinitionKey.DataComponentExternalDependencies[0].DataComponentCdsDependency.DataSetName;
+            //this.DependentEntityName = x.DataComponentDefinitionKey.DependentEntityName;
+            //this.DataSetName = x.DataComponentDefinitionKey.DataComponentExternalDependencies[0].DataComponentCdsDependency.DataSetName;
         }
 
-        internal void Apply(DataComponentsMetadataJson.Entry x)
+        // A component will always have this. 
+        internal static MinDataComponentManifest Create(ComponentsMetadataJson.Entry x)
         {
-            this.Name = x.Name;
-            this.Description = x.Description;
-            SetGuid(x.TemplateName);
+            var dc = new MinDataComponentManifest
+            {
+                Name = x.Name,
+                Description = x.Description
+            };
+            dc.SetGuid(x.TemplateName);
+            return dc;
         }
 
         private void SetGuid(string guid)
@@ -148,9 +156,9 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     
 
 
-
+    // This is used for both UI components and data components. 
     // Writes to \ComponentsMetadata.json
-    public class DataComponentsMetadataJson
+    public class ComponentsMetadataJson
     {
         public class Entry
         {

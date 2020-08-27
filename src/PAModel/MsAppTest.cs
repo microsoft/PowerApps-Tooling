@@ -92,10 +92,13 @@ namespace PAModel
                          str = je.ToString();
                          */
 
-
+#if true
                         StringBuilder sb2 = new StringBuilder();
                         Check(sb2, je); ;
                         str = sb2.ToString();
+#else
+                        str = Hack1.Normalize(je);
+#endif
                     }
                     else
                     {
@@ -132,7 +135,7 @@ namespace PAModel
                             else
                             {
                                 // Missing file!
-                                Console.WriteLine("FAIL: 1st is missing " + e.FullName);
+                                Console.WriteLine("FAIL: 2nd has added file: " + e.FullName);
                             }
                         }                        
                     }
@@ -201,6 +204,12 @@ namespace PAModel
                     sb.Append(indent);
                     sb.AppendLine("}");
 
+                    break;
+
+                case JsonValueKind.Number:
+                    // Normalize numbers. 3 and 3.0  should compare equals. 
+                    sb.Append(indent);
+                    sb.AppendLine(e.GetDouble().ToString());
                     break;
 
                 default:

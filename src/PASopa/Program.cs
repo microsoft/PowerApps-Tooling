@@ -9,7 +9,7 @@ namespace PASopa
     // Mode: Extract 
 
     class Program
-    {    
+    {
         static void Main(string[] args)
         {
             // $$$ MErge in with ADIX PAC

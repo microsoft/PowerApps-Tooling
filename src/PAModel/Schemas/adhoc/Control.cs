@@ -21,6 +21,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             // The PA formulas!
             public string InvariantScript { get; set; }
 
+            public string NameMap { get; set; }
+
             //[JsonExtensionData]
             //public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
@@ -32,6 +34,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public class Template
         {
             public const string DataComponentId = "http://microsoft.com/appmagic/DataComponent";
+            public const string UxComponentId = "http://microsoft.com/appmagic/Component";
             public string Id { get; set; }
 
             // Very important for data components.
