@@ -1,4 +1,32 @@
 
+This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control. 
+This is similar to the "SolutionPackager" for CDS. 
+
+This aggressively ensures the msapps can faithfully roundtrip - and unpacking will immediately do a sanity test and repack and compare.  
+
+# File Format
+
+This is the resulting folder structure after an extraction: 
+
+1. \src\ - the control and component files. This contains the sources. 
+   1. CanvasManifest.json - a manifest file. This contains what is normally in the header, properties, and publishInfo. 
+   2. *.json - the raw control.json file. 
+   3. *.pa1 - the scripts extracted from the control.json file. 
+1. \other\ - all miscellaneous files needed to recreate the .msapp
+   1. entropy.json - volatile elements (like timestamps) are extracted to this file. This helps reduce noisy diffs in other files while ensuring that we can still round trip. 
+   2. Holds other files from the msapp, such as what is in \references
+1. \DataSources\ - a file per datasource.     
+
+
+# Usage
+There is a test console app to drive this. The official way to consume this is through the PowerApps CLI https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli . 
+
+```
+pasopa.exe  -unpack PathToMyApp.msapp FolderToExtractTo
+```
+
+
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
