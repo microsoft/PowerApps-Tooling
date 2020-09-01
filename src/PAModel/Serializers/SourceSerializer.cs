@@ -89,7 +89,7 @@ namespace PAModel
                     case FileKind.ControlSrc:
                         {
                             // !!! Shouldn't find any here -  were explicit in source
-                            throw new InvalidOperationException($"Unexpected source file: " + file._fullpath);
+                            throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
                             //var control = ToObject<ControlInfoJson>(fullPath);
                             //var sf = SourceFile.New(control);
                             //app._sources.Add(sf.ControlName, sf);
@@ -146,7 +146,7 @@ namespace PAModel
                     continue;
                 }
 
-                bool isDataComponentManifest = file._fullpath.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
+                bool isDataComponentManifest = file._relativeName.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
                 if (isDataComponentManifest)
                 {
                     var json = file.ToObject< MinDataComponentManifest>();
@@ -155,11 +155,13 @@ namespace PAModel
                 else
                 {
                     // Json peer to a .pa file. 
-                    // Eventually, get rid of the json and do everything from .pa.
-                    var text = File.ReadAllText(file._fullpath);
-                    var control = JsonSerializer.Deserialize<ControlInfoJson>(text, Utility._jsonOpts);
+                    // Eventually, get rid of the json and do everything from .pa.                   
+                    var control = file.ToObject<ControlInfoJson>();
 
                     var sf = SourceFile.New(control);
+
+                    // If a source file already exists, check the source directory for duplicate filenames.
+                    // Could be multiple that escape to the same value. 
                     app._sources.Add(sf.ControlName, sf);
                 }                
             }          
@@ -179,6 +181,7 @@ namespace PAModel
         public static void SaveAsSource(this MsApp app, string directory2)
         {
             var dir = new DirectoryWriter(directory2);
+            dir.DeleteAllSubdirs();
 
             foreach (var control in app._sources.Values)
             {                

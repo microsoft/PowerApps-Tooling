@@ -19,7 +19,12 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     {
         public string Name { get; set; } // a name, "Component1"
         public string TemplateGuid { get; set; } // a guid 
-        public string Description { get; set; }
+                                                 // public string Description { get; set; }
+
+        // Other properties in ComponentsMetadataJson.Entry
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+
 
         // $$$ we may allow multiple...
         //public string DependentEntityName { get; set; } // "acount" 
@@ -58,7 +63,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             var dc = new MinDataComponentManifest
             {
                 Name = x.Name,
-                Description = x.Description
+                // Description = x.Description
+                 ExtensionData = x.ExtensionData
             };
             dc.SetGuid(x.TemplateName);
             return dc;
@@ -165,13 +171,12 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             public string Name { get; set;  } // "Component1";
             public string TemplateName { get; set; } // "a70e51d571ae4649a16b8bf1622ffdac";
 
-            public string Description { get; set; }
-            public bool AllowCustomization { get; set; }
+            // public string Description { get; set; }
+            //public bool AllowCustomization { get; set; }
 
-            //[JsonExtensionData]
-            //public Dictionary<string, JsonElement> ExtensionData { get; set; }
+            [JsonExtensionData]
+            public Dictionary<string, JsonElement> ExtensionData { get; set; }
         }
-
         public Entry[] Components { get; set; }
 
         //[JsonExtensionData]
