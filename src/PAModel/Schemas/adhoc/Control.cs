@@ -56,7 +56,9 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         {
             public string Name { get; set; } // Control name 
             public string ControlUniqueId { get; set; }
-            
+
+            public string VariantName { get; set; } = string.Empty;
+
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
 
