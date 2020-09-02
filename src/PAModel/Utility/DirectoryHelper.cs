@@ -17,6 +17,20 @@ namespace PAModel
             this._directory = directory;
         }
 
+        // Remove all subdirectories. This is important to avoid have previous
+        // artifacts in the directories that we then pull back when round-tripping.
+        public void DeleteAllSubdirs()
+        {
+            if (!Directory.Exists(_directory))
+            {
+                Directory.CreateDirectory(_directory);
+            }
+            foreach (var dir in Directory.EnumerateDirectories(_directory))
+            {
+                Directory.Delete(dir, recursive: true);
+            }
+        }
+
         public void WriteAllJson<T>(string subdir, FileKind kind, T obj)
         {
             string filename = FileEntry.GetFilenameForKind(kind);
@@ -33,7 +47,7 @@ namespace PAModel
 
         public void WriteDoubleEncodedJson(string subdir, string filename, string jsonStr)
         {
-            if (jsonStr != "{}")
+            if (!string.IsNullOrWhiteSpace(jsonStr) && jsonStr != "{}")
             {
                 var je = JsonDocument.Parse(jsonStr).RootElement;
 
@@ -44,14 +58,14 @@ namespace PAModel
 
         public void WriteAllText(string subdir, string filename, string text)
         {
-            string path = Path.Combine(_directory, subdir, filename);
+            string path = Path.Combine(_directory, subdir, Utility.EscapeFilename(filename));
             EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }
 
         public void WriteAllBytes(string subdir, string filename, byte[] bytes)
         {
-            string path = Path.Combine(_directory, subdir, filename);
+            string path = Path.Combine(_directory, subdir, Utility.EscapeFilename(filename));
             EnsureFileDirExists(path);
             File.WriteAllBytes(path, bytes);
         }
@@ -79,9 +93,14 @@ namespace PAModel
         // A file that can be read. 
         public class Entry
         {
-            internal string _fullpath;
+            private string _fullpath;
             public FileKind Kind;
             internal string _relativeName;
+
+            public Entry(string fullPath)
+            {
+                this._fullpath = fullPath;
+            }
 
             // FileEntry is the same structure we get back from a Zip file. 
             public FileEntry ToFileEntry()
@@ -114,10 +133,9 @@ namespace PAModel
 
             var entries = from fullPath in fullPaths
                           let relativePath = Utility.GetRelativePath(fullPath, root)
-                          select new Entry
+                          select new Entry(fullPath)
                           {
-                              _relativeName = relativePath,
-                              _fullpath = fullPath,
+                              _relativeName = Utility.UnEscapeFilename(relativePath),
                               Kind = FileEntry.TriageKind(relativePath)
                           };
 

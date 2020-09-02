@@ -64,6 +64,10 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
             public Item[] Children { get; set; }
 
+            // Added later. Don't emit false. 
+            // $$$ Or, remove from ExtensionData?
+            // public bool HasDynamicProperties { get; set; }
+
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
 

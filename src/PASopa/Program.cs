@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Text.Json;
@@ -26,14 +27,20 @@ namespace PASopa
             {
                 // Roundtrip all .msapps in a folder. 
                 string msAppPathDir = args[1];
+                int countTotal = 0;
+                int countPass = 0;
                 Console.WriteLine("Test roundtripping all .msapps in : " + msAppPathDir);
-                foreach(var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp"))
+                foreach(var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.AllDirectories))
                 {
-                    
+                    Stopwatch sw = Stopwatch.StartNew();
                     bool ok = MsAppTest.StressTest(msAppPath);
                     var str = ok ? "Pass" : "FAIL";
-                    Console.WriteLine($"Test: {Path.GetFileName(msAppPath)}: {str}");
-                }                
+                    countTotal++;
+                    if (ok) { countPass++; }
+                    sw.Stop();
+                    Console.WriteLine($"Test: {Path.GetFileName(msAppPath)}: {str}  ({sw.ElapsedMilliseconds/1000}s)");
+                }
+                Console.WriteLine($"{countPass}/{countTotal}  ({countPass * 100 / countTotal}% passed");
             }
             else if (mode == "-unpack")
             {

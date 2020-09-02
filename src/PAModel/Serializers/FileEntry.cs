@@ -22,6 +22,10 @@ namespace PAModel
         DataComponentSources,
         DataComponentTemplates,
 
+
+        // If this file is present, it's an older format. 
+        OldEntityJSon,
+
         // Resourcs 
         PublishInfo,
 
@@ -74,6 +78,7 @@ namespace PAModel
 
         internal static Dictionary<string, FileKind> _fileKinds = new Dictionary<string, FileKind>(StringComparer.OrdinalIgnoreCase)
         {
+            {"Entities.json", FileKind.OldEntityJSon },
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
             {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
