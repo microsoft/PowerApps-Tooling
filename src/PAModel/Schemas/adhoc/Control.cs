@@ -26,9 +26,10 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             //[JsonExtensionData]
             //public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
+            // Duplicate, present in template as well
             public string Category { get; set; }
 
-            public string RuleProviderType { get; set; } // usually "Unknown"
+            public string RuleProviderType { get; set; } = "Unknown";
         }
 
         public class Template

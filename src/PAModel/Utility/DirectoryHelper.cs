@@ -117,6 +117,11 @@ namespace PAModel
                 var str = File.ReadAllText(_fullpath);
                 return JsonSerializer.Deserialize<T>(str, Utility._jsonOpts);
             }
+
+            public string GetContents()
+            {
+                return File.ReadAllText(_fullpath);
+            }
         }      
 
         // Returns file entries. 

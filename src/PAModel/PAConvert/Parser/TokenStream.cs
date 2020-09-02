@@ -28,7 +28,7 @@ namespace PAModel.PAConvert.Parser
             _charCount = _text.Length;
         }
 
-        private bool Eof => _currentPos >= _charCount;
+        public bool Eof => _currentPos >= _charCount;
         private char CurrentChar => _currentPos < _charCount ? _text[_currentPos] : '\0';
 
         private char NextChar()
@@ -63,7 +63,7 @@ namespace PAModel.PAConvert.Parser
         }
 
 
-        public Token GetNextToken(bool expectedExpression)
+        public Token GetNextToken(bool expectedExpression = false)
         {
             for (; ; )
             {
@@ -94,7 +94,7 @@ namespace PAModel.PAConvert.Parser
             if (CharacterUtils.IsSpace(ch))
                 return SkipSpaces();
             if (CharacterUtils.IsNewLineCharacter(ch))
-                return SkipSpaces();
+                return SkipNewLines();
 
             return GetPunctuator();
 
@@ -113,13 +113,16 @@ namespace PAModel.PAConvert.Parser
 
         private Token GetMultiLineExpressionToken()
         {
-            var indentMin = _indentationLevel.Peek();
+            NextChar();
+            var indentMin = PeekCurrentIndentationLevel();
+            if (indentMin < _indentationLevel.Peek())
+                return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
             _sb.Length = 0;
             StringBuilder lineBuilder = new StringBuilder();
             var lineIndent = PeekCurrentIndentationLevel();
-            while (indentMin < lineIndent)
+            while (indentMin <= lineIndent)
             {
-                _currentPos += lineIndent;
+                _currentPos += indentMin -1;
                 
                 lineBuilder.Length = 0;
                 while (!CharacterUtils.IsNewLineCharacter(NextChar()))
@@ -127,7 +130,11 @@ namespace PAModel.PAConvert.Parser
                     lineBuilder.Append(CurrentChar);
                 }
                 _sb.AppendLine(lineBuilder.ToString());
+                if (NextChar() == '\n')
+                    NextChar();
+                lineIndent = PeekCurrentIndentationLevel();
             }
+            _currentPos--;
 
             return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
         }
@@ -135,6 +142,7 @@ namespace PAModel.PAConvert.Parser
         private Token GetSingleLineExpressionToken()
         {
             _sb.Length = 0;
+            _sb.Append(CurrentChar);
             // Advance to end of line
             while (!CharacterUtils.IsNewLineCharacter(NextChar()))
             {
@@ -169,16 +177,18 @@ namespace PAModel.PAConvert.Parser
             for (; ; )
             {
                 content = _sb.ToString();
-                if (!TryGetPunctuator(content, out kind))
+                if (!TryGetPunctuator(content, out TokenKind maybeKind))
                     break;
+
+                kind = maybeKind;
 
                 ++punctuatorLength;
                 _sb.Append(PeekChar(_sb.Length));
             }
 
-            while (--punctuatorLength >= 0)
+            while (punctuatorLength-- > 0)
                 NextChar();
-            return new Token(kind, GetSpan(), content);
+            return new Token(kind, GetSpan(), content.Substring(0, _sb.Length-1));
         }
 
         private bool TryGetPunctuator(string maybe, out TokenKind kind)
@@ -310,14 +320,14 @@ namespace PAModel.PAConvert.Parser
             if (indentation > currentIndentation)
             {
                 _indentationLevel.Push(indentation);
-                return new Token(TokenKind.Indent, GetSpan(), _text.Substring(_currentTokenPos, _currentTokenPos - _currentPos));
+                return new Token(TokenKind.Indent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos));
             }
 
             // Dedent handling
-            while (_indentationLevel.Peek() < indentation)
+            while (_indentationLevel.Peek() > indentation)
             {
                 _indentationLevel.Pop();
-                _pendingDedents.Enqueue(new Token(TokenKind.Dedent, GetSpan(), _text.Substring(_currentTokenPos, _currentTokenPos - _currentPos)));
+                _pendingDedents.Enqueue(new Token(TokenKind.Dedent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos)));
             }
 
             if (indentation == _indentationLevel.Peek())
