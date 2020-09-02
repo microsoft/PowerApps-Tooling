@@ -20,7 +20,16 @@ namespace PAModel
                 var log = TextWriter.Null;
 
                 // MsApp --> Model
-                var msapp = MsAppSerializer.Load(pathToMsApp); // read 
+                MsApp msapp;
+                try
+                {
+                    msapp = MsAppSerializer.Load(pathToMsApp); // read 
+                }
+                catch (NotSupportedException e)
+                {
+                    Console.WriteLine($"Too old: {pathToMsApp}");
+                    return false;
+                }
 
                 // Model --> MsApp
                 msapp.SaveAsMsApp(outFile);

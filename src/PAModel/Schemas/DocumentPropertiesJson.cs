@@ -5,6 +5,8 @@
 //------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 // $$$ Pull in the enums 
 using SomeEnum = System.String;
@@ -41,9 +43,13 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public bool ContainsThirdPartyPcfControls { get; set; } // defaults to false
         public double? ErrorCount { get; set; }
         public string InstrumentationKey { get; set; }
-        public bool EnableInstrumentation { get; set; } // default to false
         public Dictionary<string, int> ControlCount { get; set; }
         public double? DeserializationLoadTime { get; set; }
         public double? AnalysisLoadTime { get; set; }
+
+        // Keys that are optional, or added later (and may or may not appear) will be captured here.
+        // public bool EnableInstrumentation { get; set; } // default to false
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 }

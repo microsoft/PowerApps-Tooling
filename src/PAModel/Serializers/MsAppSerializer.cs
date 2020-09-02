@@ -52,6 +52,9 @@ namespace PAModel
                             app.AddFile(FileEntry.FromZip(entry));
                             break;
 
+                        case FileKind.OldEntityJSon:
+                            throw new NotSupportedException($"This is using an older msapp format that is not supported.");
+
                         case FileKind.DataComponentTemplates:
                             dctemplate = ToObject<DataComponentTemplatesJson>(entry);
                             break;
@@ -244,8 +247,9 @@ namespace PAModel
                 {
                     Name = dc.Name,
                     TemplateName = dc.TemplateGuid,
-                    Description = dc.Description,
-                    AllowCustomization = true,
+                    //Description = dc.Description,
+                    //AllowCustomization = true,
+                    ExtensionData = dc.ExtensionData
                 });
 
                 if (dc.IsDataComponent)
