@@ -10,8 +10,6 @@ namespace PAModel.PAConvert
         private int _indentLevel;
         private string IndentString { get { return new string(' ', _indentLevel * 4); } }
 
-        private const string PropertyDelimiterToken = " :=";
-
         private StringBuilder _sb;
 
 
@@ -27,7 +25,11 @@ namespace PAModel.PAConvert
 
         public void WriteControl(ControlInfoJson.Item control)
         {
-            WriteLine($"control {control.Name} : {control.Template.Name}");
+            var controlTemplate = control.Template.Name;
+            if (control.VariantName.Length > 0)
+                controlTemplate += $"{PAConstants.ControlVariantSeparator} {control.VariantName}";
+
+            WriteLine($"{PAConstants.ControlKeyword} {control.Name} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
             _indentLevel++;
 
             foreach (var rule in control.Rules)
@@ -39,7 +41,7 @@ namespace PAModel.PAConvert
                 }
                 else
                 {
-                    WriteLine(rule.Property + PropertyDelimiterToken + " " + rule.InvariantScript);
+                    WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken + " " + rule.InvariantScript);
                 }
             }
 
@@ -55,7 +57,7 @@ namespace PAModel.PAConvert
 
         private void WriteMultilineRule(ControlInfoJson.RuleEntry rule)
         {
-            WriteLine(rule.Property + PropertyDelimiterToken);
+            WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken);
             _indentLevel++;
 
             foreach (var line in rule.InvariantScript.Split('\n'))
