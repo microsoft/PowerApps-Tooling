@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Linq;
 using System.Collections.Generic;
+using PAModel.PAConvert.Parser;
 
 namespace PAModel
 {
@@ -164,7 +165,13 @@ namespace PAModel
                     // Could be multiple that escape to the same value. 
                     app._sources.Add(sf.ControlName, sf);
                 }                
-            }          
+            }
+            
+            //foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
+            //{
+            //    var item = new Parser(file.GetContents()).ParseControl();
+            //    var control = new ControlInfoJson() { TopParent = item };
+            //}
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
