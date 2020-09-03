@@ -29,7 +29,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             // Duplicate, present in template as well
             public string Category { get; set; }
 
-            public string RuleProviderType { get; set; } = "Unknown";
+            public string RuleProviderType { get; set; } // = "Unknown";
         }
 
         public class Template

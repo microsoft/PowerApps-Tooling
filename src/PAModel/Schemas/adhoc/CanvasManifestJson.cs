@@ -7,9 +7,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     // Manifest combines the various property/header/publish files into one. 
     class CanvasManifestJson
     {
-        public static Version BetaVersion = new Version(0, 1);
-
         // Format version. 
+        // this is most critical for verisoning. 
         public Version FormatVersion { get; set; }
 
         // $$$ Contains lots of noisy data

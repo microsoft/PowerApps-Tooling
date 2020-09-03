@@ -25,11 +25,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
-
-        // $$$ we may allow multiple...
-        //public string DependentEntityName { get; set; } // "acount" 
-        //public string DataSetName { get; set; } // "default.cds"
-
         public JsonElement[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
@@ -53,8 +48,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             this.DataComponentDefinitionKey.ControlUniqueId = null; 
 
             this.CustomProperties = x.CustomProperties;
-            //this.DependentEntityName = x.DataComponentDefinitionKey.DependentEntityName;
-            //this.DataSetName = x.DataComponentDefinitionKey.DataComponentExternalDependencies[0].DataComponentCdsDependency.DataSetName;
         }
 
         // A component will always have this. 
@@ -63,8 +56,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             var dc = new MinDataComponentManifest
             {
                 Name = x.Name,
-                // Description = x.Description
-                 ExtensionData = x.ExtensionData
+                ExtensionData = x.ExtensionData
             };
             dc.SetGuid(x.TemplateName);
             return dc;
@@ -100,19 +92,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
             public string Name { get; set; } // Name of data source, eg, Component1_Table
             public string Type { get; set; } // NativeCDSDataSourceInfo
-
-            /*
-            public bool IsSampleData { get; set; } // false
-            public bool IsWritable { get; set; } //  true,
-            public string DataComponentKind { get; set; } // "Extension",
-            public string DatasetName { get; set; } //  "default.cds",
-            public string EntitySetName { get; set; } //  "Component1_Table",
-            public string LogicalName { get; set; } //  "default.cds",
-            public string PreferredName { get; set; } //  "Component1_Table",
-            public bool IsHidden { get; set; } //  false,
-            public string DependentEntityName { get; set; } // "account"
-            */
-            // $$$ 
+                     
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
         }

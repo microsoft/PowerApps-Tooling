@@ -13,6 +13,8 @@ namespace PASopa
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
+
             // $$$ MErge in with ADIX PAC
             var mode = args[0].ToLower();
             if (mode =="-test")
@@ -22,6 +24,7 @@ namespace PASopa
 
                 // Test round-tripping 
                 MsAppTest.StressTest(msAppPath);
+                return;
             }
             if (mode == "-testall")
             {
@@ -89,7 +92,14 @@ namespace PASopa
                 msApp.SaveAsMsApp(outDir);
             } else
             {
-                Console.WriteLine("Unrecognized mode");
+                Console.WriteLine(
+@"Usage
+
+-unpack PathToApp.msapp PathToNewSourceFolder
+-unpack PathToApp.msapp  // infers source folder
+-pack   NewPathToApp.msapp PathToSourceFolder
+
+");
             }
             
         }        
