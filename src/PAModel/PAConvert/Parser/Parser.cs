@@ -23,14 +23,18 @@ namespace PAModel.PAConvert.Parser
             _tokenizer = new TokenStream(_content);
         }
 
-        internal ControlInfoJson.Item ParseControl(bool skipStart = false)
+        internal ControlInfoJson.Item ParseControl(string parent = "")
         {
             var control = new ControlInfoJson.Item();
-            if (!skipStart)
+            if (parent == string.Empty)
             {
                 var token = _tokenizer.GetNextToken();
                 if (token.Kind != TokenKind.Control)
                     throw new InvalidOperationException($"Unexpected token {token.Kind}, expected {TokenKind.Control}");
+            } 
+            else
+            {
+                control.Parent = parent;
             }
             var identToken = _tokenizer.GetNextToken();
             if (identToken.Kind != TokenKind.Identifier)
@@ -78,7 +82,7 @@ namespace PAModel.PAConvert.Parser
                         rules.Add(rule);
                         break;
                     case TokenKind.Control:
-                        var child = ParseControl(skipStart: true);
+                        var child = ParseControl(parent: control.Name);
                         children.Add(child);
                         break;
                     default:
