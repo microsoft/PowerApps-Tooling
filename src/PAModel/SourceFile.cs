@@ -48,6 +48,16 @@ namespace PAModel
             throw new NotImplementedException($"Unrecognized source kind:" + this.Kind);
         }
 
+        private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
+        {
+            return control.Children.Concat(control.Children.SelectMany(child => Flatten(child)));
+        }
+
+        public IEnumerable<ControlInfoJson.Item> Flatten()
+        {
+            return (new ControlInfoJson.Item[]{ Value.TopParent }).Concat(Flatten(Value.TopParent));
+        }
+
         public FileEntry ToMsAppFile()
         {
             var file = MsAppSerializer.ToFile(FileKind.Unknown, this.Value);

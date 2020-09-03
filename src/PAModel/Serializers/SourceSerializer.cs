@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Linq;
 using System.Collections.Generic;
 using PAModel.PAConvert.Parser;
+using PAModel.PAConvert;
 
 namespace PAModel
 {
@@ -166,12 +167,20 @@ namespace PAModel
                     app._sources.Add(sf.ControlName, sf);
                 }                
             }
-            
-            //foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
-            //{
-            //    var item = new Parser(file.GetContents()).ParseControl();
-            //    var control = new ControlInfoJson() { TopParent = item };
-            //}
+
+            var controlState = new Dictionary<string, ControlExtraData>();
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.roundtrip"))
+            {
+                var controlState = new Dictionary<string, ControlExtraData>();
+            }
+
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
+            {
+                var item = new Parser(file.GetContents()).ParseControl();
+                var control = new ControlInfoJson() { TopParent = item };
+            }
+
+
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
@@ -197,9 +206,19 @@ namespace PAModel
                 string filename = control.ControlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);
 
-                // Temporary write out of JSON for roundtripping
+                var extraData = new Dictionary<string, ControlExtraData>();
+                foreach (var item in control.Flatten())
+                {
+                    extraData.Add(item.Name, new ControlExtraData(item));
+                }
+                // Write out of extraContent for roundtripping 
+                string extraContent = control.ControlName + ".roundtrip";
+                dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+
+                // Temporary write out of JSON for roundtripping 
                 string jsonContentFile = control.ControlName + ".json";
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
+
 
                 // SourceFormat assumed to include everything. 
                 // $$$ Split out into view state? 
@@ -209,7 +228,7 @@ namespace PAModel
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 
-            foreach(MinDataComponentManifest dataComponent in app._dataComponents.Values)
+            foreach (MinDataComponentManifest dataComponent in app._dataComponents.Values)
             {
                 string controlName = dataComponent.Name;
                 dir.WriteAllJson(CodeDir, controlName + ".manifest.json", dataComponent);
