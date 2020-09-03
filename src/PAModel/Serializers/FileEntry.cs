@@ -75,7 +75,7 @@ namespace PAModel
             };
         }
 
-
+        // Map from path in .msapp to type. 
         internal static Dictionary<string, FileKind> _fileKinds = new Dictionary<string, FileKind>(StringComparer.OrdinalIgnoreCase)
         {
             {"Entities.json", FileKind.OldEntityJSon },
@@ -92,6 +92,7 @@ namespace PAModel
             {@"References\Resources.json", FileKind.Resources },
             {@"References\DynamicTypes.json", FileKind.DynamicTypes },
 
+            // Files that only appear in Source
             {"Entropy.json", FileKind.Entropy },
             {"CanvasManifest.json", FileKind.CanvasManifest }
             

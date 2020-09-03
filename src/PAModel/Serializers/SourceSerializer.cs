@@ -11,6 +11,8 @@ namespace PAModel
     // Read/Write to a source format. 
     public static partial class SourceSerializer
     {
+        public static Version CurrentSourceVersion = new Version(0, 1);
+
         // Layout is:
         //  src\
         //  DataSources\
@@ -31,22 +33,27 @@ namespace PAModel
 
         public static MsApp LoadFromSource(string directory2)
         {
+            if (!Directory.Exists(directory2))
+            {
+                throw new InvalidOperationException($"No directory {directory2}");
+            }
             var dir = new DirectoryReader(directory2);
             
             // $$$ Duplicate with MsAppSerializer? 
             var app = new MsApp();
 
             // Do the manifest check (and version check) first. 
-            foreach (var file in dir.EnumerateFiles(CodeDir, "*.json"))
+            // MAnifest lives in top-level directory. 
+            foreach (var file in dir.EnumerateFiles("", "*.json"))
             {
                 switch (file.Kind)
                 {
                     case FileKind.CanvasManifest:
                         var manifest = file.ToObject<CanvasManifestJson>();
 
-                        if (manifest.FormatVersion > CanvasManifestJson.BetaVersion)
+                        if (manifest.FormatVersion != CurrentSourceVersion)
                         {
-                            throw new NotSupportedException($"This tool only supports {CanvasManifestJson.BetaVersion}, the manifest version is {manifest.FormatVersion}");
+                            throw new NotSupportedException($"This tool only supports {CurrentSourceVersion}, the manifest version is {manifest.FormatVersion}");
                         }
 
                         app._properties = manifest.Properties;
@@ -55,13 +62,16 @@ namespace PAModel
                         break;
                 }
             }
+            if (app._header == null)
+            {
+                // Manifest not found. 
+                throw new NotSupportedException($"Can't find CanvasManifest.json file - is sources an old version?");
+            }
 
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
                 // Special files like Header / Properties 
-                //var relativeName = Utility.GetRelativePath(fullPath, root);
-                //var kind = FileEntry.TriageKind(relativeName);
                 switch (file.Kind)
                 {
                     default:
@@ -77,25 +87,12 @@ namespace PAModel
                     case FileKind.Header:
                     case FileKind.Properties:
                         throw new NotSupportedException($"Old format");
-                    /*
-                case FileKind.Properties:
-                    app._properties = file.ToObject<DocumentPropertiesJson>();
-                    break;
-
-                case FileKind.Header:
-                    app._header = file.ToObject<HeaderJson>();
-                    break;*/
 
                     case FileKind.ComponentSrc:
-                    case FileKind.ControlSrc:
-                        {
-                            // !!! Shouldn't find any here -  were explicit in source
-                            throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
-                            //var control = ToObject<ControlInfoJson>(fullPath);
-                            //var sf = SourceFile.New(control);
-                            //app._sources.Add(sf.ControlName, sf);
-                        }
-                        break;
+                    case FileKind.ControlSrc:                        
+                        // Shouldn't find any here -  were explicit in source
+                        throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
+                        
                 }
             } // each loose file in '\other' 
 
@@ -166,12 +163,6 @@ namespace PAModel
                     app._sources.Add(sf.ControlName, sf);
                 }                
             }
-            
-            //foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
-            //{
-            //    var item = new Parser(file.GetContents()).ParseControl();
-            //    var control = new ControlInfoJson() { TopParent = item };
-            //}
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
@@ -264,12 +255,12 @@ namespace PAModel
             //dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
             var manifest = new CanvasManifestJson
             {
-                FormatVersion =  CanvasManifestJson.BetaVersion,
+                FormatVersion =  CurrentSourceVersion,
                 Properties = app._properties,
                 Header = app._header,
                 PublishInfo = app._publishInfo
             };
-            dir.WriteAllJson(CodeDir, FileKind.CanvasManifest, manifest);
+            dir.WriteAllJson("", FileKind.CanvasManifest, manifest);
         }
 
         // Ignore these. but they help give more visibility into some of the json encoded fields.
