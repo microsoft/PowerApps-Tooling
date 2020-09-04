@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace PAModel.PAConvert.Parser
@@ -10,8 +11,10 @@ namespace PAModel.PAConvert.Parser
     {
         private string _content;
         private TokenStream _tokenizer;
+        private Dictionary<string, ControlInfoJson.Item> _controlStates;
+        private Dictionary<string, ControlInfoJson.Template> _templates;
 
-        public Parser(string contents)
+        public Parser(string contents, Dictionary<string, ControlInfoJson.Item> controlStates, Dictionary<string, ControlInfoJson.Template> templates)
         {
             var header = "//! PAFile:0.1";
 
@@ -21,21 +24,32 @@ namespace PAModel.PAConvert.Parser
             }
             _content = contents.Substring(header.Length+1);
             _tokenizer = new TokenStream(_content);
+
+            _controlStates = controlStates;
+            _templates = templates;
         }
 
-        internal ControlInfoJson.Item ParseControl(bool skipStart = false)
+        internal ControlInfoJson.Item ParseControl(string parent = "")
         {
-            var control = new ControlInfoJson.Item();
-            if (!skipStart)
+            if (parent == string.Empty)
             {
                 var token = _tokenizer.GetNextToken();
                 if (token.Kind != TokenKind.Control)
                     throw new InvalidOperationException($"Unexpected token {token.Kind}, expected {TokenKind.Control}");
             }
+            
             var identToken = _tokenizer.GetNextToken();
             if (identToken.Kind != TokenKind.Identifier)
                 throw new InvalidOperationException($"Unexpected token {identToken.Kind}, expected {TokenKind.Identifier}");
-            control.Name = identToken.Content;
+
+            var name = identToken.Content;
+            if (!_controlStates.TryGetValue(name, out var control))
+                control = new ControlInfoJson.Item(); // Should have an arg for defaults maybe?
+
+            control.Name = name;
+            if (parent != string.Empty)
+                control.Parent = parent;
+
 
             var templateSeparator = _tokenizer.GetNextToken();
             if (templateSeparator.Kind != TokenKind.TemplateSeparator)
@@ -44,8 +58,13 @@ namespace PAModel.PAConvert.Parser
             var templateToken = _tokenizer.GetNextToken();
             if (templateToken.Kind != TokenKind.Identifier)
                 throw new InvalidOperationException($"Unexpected token {templateToken.Kind}, expected {TokenKind.Identifier}");
-            var template = new ControlInfoJson.Template();
-            template.Name = templateToken.Content;
+
+            if (!_templates.TryGetValue(templateToken.Content, out var template))
+            {
+                template = new ControlInfoJson.Template(); // This seems like a problem, maybe we can't recreate templates without npm ref?
+                template.Name = templateToken.Content;
+            }
+
             control.Template = template;
 
             var next = _tokenizer.GetNextToken();
@@ -66,7 +85,7 @@ namespace PAModel.PAConvert.Parser
 
             next = _tokenizer.GetNextToken();
 
-            var rules = new List<ControlInfoJson.RuleEntry>();
+            var paRules = new Dictionary<string, string>();
             var children = new List<ControlInfoJson.Item>();
 
             while (!_tokenizer.Eof && next.Kind != TokenKind.Dedent)
@@ -75,10 +94,10 @@ namespace PAModel.PAConvert.Parser
                 {
                     case TokenKind.Identifier:
                         var rule = ParseRule(next.Content);
-                        rules.Add(rule);
+                        paRules.Add(rule.propertyName, rule.script);
                         break;
                     case TokenKind.Control:
-                        var child = ParseControl(skipStart: true);
+                        var child = ParseControl(parent: control.Name);
                         children.Add(child);
                         break;
                     default:
@@ -88,16 +107,31 @@ namespace PAModel.PAConvert.Parser
             }
 
             control.Children = children.ToArray();
-            control.Rules = rules.ToArray();
+
+            foreach (var rule in control.Rules)
+            {
+                if (paRules.TryGetValue(rule.Property, out var script))
+                {
+                    rule.InvariantScript = script;
+                    paRules.Remove(rule.Property);
+                }
+            }
+            if (paRules.Any())
+            {
+                var rulesList = control.Rules.ToList();
+                foreach (var rulePair in paRules)
+                { 
+                    // Needs sensible defaults for other props (maybe from template
+                    rulesList.Add(new ControlInfoJson.RuleEntry() { Property = rulePair.Key, InvariantScript = rulePair.Value }); 
+                }
+                control.Rules = rulesList.ToArray();
+            }
 
             return control;
         }
 
-        private ControlInfoJson.RuleEntry ParseRule(string propertyName)
-        {
-            var rule = new ControlInfoJson.RuleEntry();
-            rule.Property = propertyName;
-
+        private (string propertyName, string script) ParseRule(string propertyName)
+        {   
             var propertySeparator = _tokenizer.GetNextToken();
             if (propertySeparator.Kind != TokenKind.PropertyStart)
                 throw new InvalidOperationException($"Unexpected token {propertySeparator.Kind}, expected {TokenKind.PropertyStart}");
@@ -106,9 +140,7 @@ namespace PAModel.PAConvert.Parser
             if (ruleScript.Kind != TokenKind.PAExpression)
                 throw new InvalidOperationException($"Unexpected token {ruleScript.Kind}, expected {TokenKind.PAExpression}");
 
-            rule.InvariantScript = ruleScript.Content;
-
-            return rule;
+            return (propertyName, ruleScript.Content);
         }
     }
 }

@@ -94,8 +94,9 @@ namespace PAModel
 
             // Files that only appear in Source
             {"Entropy.json", FileKind.Entropy },
-            {"CanvasManifest.json", FileKind.CanvasManifest }
-            
+            {"CanvasManifest.json", FileKind.CanvasManifest },
+            {"ControlTemplates.json", FileKind.Templates }
+
         };
 
 

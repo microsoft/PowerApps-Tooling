@@ -66,7 +66,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     }
 
 
-    internal class ComponentDefinitionInfoJson
+    public class ComponentDefinitionInfoJson
     {
         public string Name { get; set; }
         public string LastModifiedTimestamp { get; set; } //  "637335420246436668",
