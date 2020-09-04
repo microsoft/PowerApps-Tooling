@@ -1,4 +1,6 @@
-﻿using Microsoft.AppMagic.Authoring.Persistence;
+﻿//#define USEPA
+
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -163,12 +165,14 @@ namespace PAModel
                 }
                 else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
                 {                   // WIP
-                    // // Json peer to a .pa file. 
-                    // var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
-                    // var filename = Path.GetFileName(file._relativeName);
-                    // var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
+#if USEPA
+                                    // Json peer to a .pa file. 
+                    var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
+                    var filename = Path.GetFileName(file._relativeName);
+                    var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
 
-                    // controlData.Add(controlName, controlExtraData);
+                    controlData.Add(controlName, controlExtraData);
+#endif
                 } 
                 else
                 {
@@ -183,23 +187,24 @@ namespace PAModel
                 }
             }
 
-            // foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
-            // {
-            //     var filename = Path.GetFileName(file._relativeName);
-            //     var controlName = filename.Remove(filename.IndexOf(".pa1"));
-            //     if (!controlData.TryGetValue(controlName, out var controlState))
-            //         throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
+#if USEPA
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
+            {
+                var filename = Path.GetFileName(file._relativeName);
+                var controlName = filename.Remove(filename.IndexOf(".pa1"));
+                if (!controlData.TryGetValue(controlName, out var controlState))
+                    throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
 
-            //     var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
-            //     var control = new ControlInfoJson() { TopParent = item };
+                var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
+                var control = new ControlInfoJson() { TopParent = item };
 
-            //     var sf = SourceFile.New(control);
+                var sf = SourceFile.New(control);
 
-            //     // If a source file already exists, check the source directory for duplicate filenames.
-            //     // Could be multiple that escape to the same value. 
-            //     app._sources.Add(sf.ControlName, sf);
-
-            // }
+                // If a source file already exists, check the source directory for duplicate filenames.
+                // Could be multiple that escape to the same value. 
+                app._sources.Add(sf.ControlName, sf);
+            }
+#endif
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
@@ -221,10 +226,11 @@ namespace PAModel
 
             foreach (var control in app._sources.Values)
             {
-                // Temporary write out of JSON for roundtripping 
+                // Temporary write out of JSON for roundtripping
+#if !USEPA
                 string jsonContentFile = control.ControlName + ".json";
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
-
+#endif
 
                 var text = PAConverter.GetPAText(control);
                 var controlName = control.ControlName;

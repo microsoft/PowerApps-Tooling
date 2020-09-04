@@ -93,7 +93,7 @@ namespace PAModel.PAConvert.Parser
                 return GetIdentOrKeyword();
             if (CharacterUtils.IsSpace(ch))
                 return SkipSpaces();
-            if (CharacterUtils.IsNewLineCharacter(ch))
+            if (IsNewLine(ch))
                 return SkipNewLines();
 
             return GetPunctuator();
@@ -101,11 +101,23 @@ namespace PAModel.PAConvert.Parser
             // Add comment support
         }
 
+        private bool IsNewLine(char ch)
+        {
+            if (ch == '\r')
+            {
+                if (PeekChar(1) == '\n')
+                    NextChar();
+                return true;
+            }
+
+            return ch == '\n';
+        }
+
         private Token GetExpressionToken()
         {
             SkipSpaces();
             var ch = CurrentChar;
-            if (CharacterUtils.IsNewLineCharacter(ch))
+            if (IsNewLine(ch))
                 return GetMultiLineExpressionToken();
             else
                 return GetSingleLineExpressionToken();
@@ -120,22 +132,26 @@ namespace PAModel.PAConvert.Parser
             _sb.Length = 0;
             StringBuilder lineBuilder = new StringBuilder();
             var lineIndent = PeekCurrentIndentationLevel();
+            var newLine = false;
+
             while (indentMin <= lineIndent)
             {
                 _currentPos += indentMin -1;
-                
+                if (newLine)
+                    _sb.AppendLine();
+
                 lineBuilder.Length = 0;
-                while (!CharacterUtils.IsNewLineCharacter(NextChar()))
+                while (!IsNewLine(NextChar()))
                 {
                     lineBuilder.Append(CurrentChar);
                 }
-                _sb.AppendLine(lineBuilder.ToString());
-                if (NextChar() == '\n')
+                _sb.Append(lineBuilder.ToString());
+                if (CharacterUtils.IsLineTerm(CurrentChar))
                     NextChar();
                 lineIndent = PeekCurrentIndentationLevel();
+                newLine = true;
             }
             _currentPos--;
-
             return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
         }
 
@@ -144,7 +160,7 @@ namespace PAModel.PAConvert.Parser
             _sb.Length = 0;
             _sb.Append(CurrentChar);
             // Advance to end of line
-            while (!CharacterUtils.IsNewLineCharacter(NextChar()))
+            while (!IsNewLine(NextChar()))
             {
                 _sb.Append(CurrentChar);
             }
@@ -161,7 +177,7 @@ namespace PAModel.PAConvert.Parser
         }
         private Token SkipNewLines()
         {
-            while (CharacterUtils.IsNewLineCharacter(NextChar()))
+            while (IsNewLine(NextChar()))
             {
             }
             return null;
@@ -277,7 +293,7 @@ namespace PAModel.PAConvert.Parser
                         break;
                     }
                 }
-                else if (CharacterUtils.IsNewLineCharacter(CurrentChar))
+                else if (IsNewLine(CurrentChar))
                 {
                     // Terminate an identifier on a new line character
                     // Don't include the new line in the identifier

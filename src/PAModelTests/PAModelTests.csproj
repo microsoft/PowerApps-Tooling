@@ -18,13 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Apps\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Apps\MyWeather.msapp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="Apps\*.msapp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

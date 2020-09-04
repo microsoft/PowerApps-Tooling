@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 
 namespace PAModel.PAConvert.Parser
 {
@@ -74,8 +75,6 @@ namespace PAModel.PAConvert.Parser
 
         public static bool IsIdentDelimiter(char ch) => ch == PAConstants.IdentifierDelimiter;
 
-        public static bool IsNewLineCharacter(char ch) => ch == '\n' || ch == '\r';
-
         public static bool IsSpace(char ch)
         {
             if (ch >= 128)
@@ -84,8 +83,6 @@ namespace PAModel.PAConvert.Parser
             switch (ch)
             {
                 case ' ':
-                case '\r':
-                // character tabulation
                 case '\u0009':
                 // line tabulation
                 case '\u000B':
@@ -116,6 +113,5 @@ namespace PAModel.PAConvert.Parser
 
             return false;
         }
-
     }
 }
