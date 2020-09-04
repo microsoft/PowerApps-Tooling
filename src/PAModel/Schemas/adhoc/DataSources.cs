@@ -85,6 +85,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
     public class DataSourcesJson
     {
+        // Order here is random on server. 
         public DataSourceEntry[] DataSources { get; set; }
 
         // Requires everything to have this...

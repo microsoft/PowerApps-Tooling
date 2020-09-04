@@ -157,6 +157,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
         }
+
+        // Order her is random on server. 
         public Entry[] Components { get; set; }
 
         //[JsonExtensionData]

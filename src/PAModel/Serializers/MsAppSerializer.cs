@@ -96,9 +96,11 @@ namespace PAModel
                                 var dataSources = ToObject<DataSourcesJson>(entry);
                                 Utility.EnsureNoExtraData(dataSources.ExtensionData);
 
+                                int iOrder = 0;
                                 foreach (var ds in dataSources.DataSources)
                                 {
-                                    app.AddDataSourceForLoad(ds);
+                                    app.AddDataSourceForLoad(ds, iOrder);
+                                    iOrder++;
                                 }
                             }
                             break;
@@ -110,21 +112,28 @@ namespace PAModel
 
                 if (dcmetadata?.Components != null)
                 {
+                    int order = 0;
                     foreach (var x in dcmetadata.Components)
                     {
                         var dc = MinDataComponentManifest.Create(x);
                         app._dataComponents.Add(x.TemplateName, dc); // should be unique.
+
+                        app._entropy.Add(x, order);
+                        order++;
                     }
                 }
 
                 // Only for data-compoents. 
                 if (dctemplate?.ComponentTemplates != null)
-                {                    
+                {
+                    int order = 0;
                     foreach (var x in dctemplate.ComponentTemplates)
                     {
                         MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
                         app._entropy.SetTemplateVersion(x.Name, x.Version);
+                        app._entropy.Add(x, order);
                         dc.Apply(x);
+                        order++;
                     }
                 }
 
@@ -155,7 +164,7 @@ namespace PAModel
                                     
             app.OnLoadComplete();
 
-            app.TransformTemplatesOnLoad();
+            // app.TransformTemplatesOnLoad(); 
 
             return app;
         }
@@ -221,8 +230,7 @@ namespace PAModel
             {
                 DataSources = app.GetDataSources()
                     .Where(x => !x.IsDataComponent)
-                    // .OrderBy(x => x.GetUniqueName())
-                    .OrderBy(x => x.Name)
+                    .OrderBy(x => app._entropy.GetOrder(x))
                     .ToArray()
             };
             yield return ToFile(FileKind.DataSources, dataSources);            
@@ -233,7 +241,7 @@ namespace PAModel
             {
                 var sf = sourceFile;
                 
-                sf = app.RehydrateOnSave(sf);                
+                // sf = app.RehydrateOnSave(sf);                
 
                 yield return sf.ToMsAppFile();
             }
@@ -272,7 +280,7 @@ namespace PAModel
                     // Rehydrate fields. 
                     template.DataComponentDefinitionKey.ControlUniqueId = controlId;
 
-                    dctemplate.Add(template);
+                    dctemplate.Add(template);                    
                 }
             }
 
@@ -281,7 +289,9 @@ namespace PAModel
                 // If the components file is present, then write out all files. 
                 yield return ToFile(FileKind.ComponentsMetadata, new ComponentsMetadataJson
                 {
-                    Components = dcmetadataList.ToArray()
+                    Components = dcmetadataList
+                            .OrderBy(x => app._entropy.GetOrder(x))
+                            .ToArray()
                 });
             }
 
@@ -289,7 +299,9 @@ namespace PAModel
             { 
                 yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
                 {
-                     ComponentTemplates = dctemplate.ToArray()
+                     ComponentTemplates = dctemplate
+                        .OrderBy(x => app._entropy.GetOrder(x))
+                        .ToArray()
                 });
             }
 

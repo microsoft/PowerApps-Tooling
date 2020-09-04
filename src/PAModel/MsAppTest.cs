@@ -172,6 +172,7 @@ namespace PAModel
                     sb.Append(indent);
                     sb.AppendLine("[");
 
+#if false
                     Dictionary<int, string> parts = new Dictionary<int, string>();
 
                     // Deterministic order for array output. 
@@ -187,7 +188,12 @@ namespace PAModel
                     {
                         sb.AppendLine(kv.Value);
                     }
-
+#else
+                    foreach (var x in e.EnumerateArray())
+                    {                        
+                        Check(sb, x, indent + "  ");
+                    }
+#endif
                     sb.Append(indent);
                     sb.AppendLine("]");
                     break;
