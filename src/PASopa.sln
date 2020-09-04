@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PASopa", "PASopa\PASopa.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAModel", "PAModel\PAModel.csproj", "{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAModelTests", "PAModelTests\PAModelTests.csproj", "{8AD94CC0-7330-4880-A8E0-177B37CDB27B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAModelTests", "PAModelTests\PAModelTests.csproj", "{8AD94CC0-7330-4880-A8E0-177B37CDB27B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4993E606-484B-46D9-892E-7AE9CE8D4423}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +32,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8AD94CC0-7330-4880-A8E0-177B37CDB27B} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C936F8B1-DE7A-4401-95D5-5E199210F960}
