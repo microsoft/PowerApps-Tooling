@@ -50,7 +50,7 @@ namespace PAModel
 
         private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
         {
-            return control.Children.Concat(control.Children.SelectMany(child => Flatten(child)));
+            return control.Children?.Concat(control.Children.SelectMany(child => Flatten(child))) ?? Enumerable.Empty<ControlInfoJson.Item>();
         }
 
         public IEnumerable<ControlInfoJson.Item> Flatten()
