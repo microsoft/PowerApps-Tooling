@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using PAModel.PAConvert.Parser;
 using PAModel.PAConvert;
+using System.Data;
 
 namespace PAModel
 {
@@ -141,10 +142,19 @@ namespace PAModel
         {
             // Ignoring real pa1 files, can't parse them yet. 
             // Sources
+            var templates = new Dictionary<string, ControlInfoJson.Template>();
+            var controlData = new Dictionary<string, Dictionary<string, ControlInfoJson.Item>>();
+
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
                 if (file.Kind == FileKind.CanvasManifest)
                 {
+                    continue;
+                }
+
+                if (file.Kind == FileKind.Templates)
+                {
+                    templates = file.ToObject<Dictionary<string, ControlInfoJson.Template>>();
                     continue;
                 }
 
@@ -154,10 +164,18 @@ namespace PAModel
                     var json = file.ToObject< MinDataComponentManifest>();
                     app._dataComponents.Add(json.TemplateGuid, json);
                 }
+                else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
+                {                   // WIP
+                    // // Json peer to a .pa file. 
+                    // var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
+                    // var filename = Path.GetFileName(file._relativeName);
+                    // var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
+
+                    // controlData.Add(controlName, controlExtraData);
+                } 
                 else
                 {
-                    // Json peer to a .pa file. 
-                    // Eventually, get rid of the json and do everything from .pa.                   
+                    // Eventually, get rid of the json and do everything from .pa.s                   
                     var control = file.ToObject<ControlInfoJson>();
 
                     var sf = SourceFile.New(control);
@@ -165,22 +183,26 @@ namespace PAModel
                     // If a source file already exists, check the source directory for duplicate filenames.
                     // Could be multiple that escape to the same value. 
                     app._sources.Add(sf.ControlName, sf);
-                }                
+                }
             }
 
-            var controlState = new Dictionary<string, ControlExtraData>();
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.roundtrip"))
-            {
-                var controlState = new Dictionary<string, ControlExtraData>();
-            }
+            // foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
+            // {
+            //     var filename = Path.GetFileName(file._relativeName);
+            //     var controlName = filename.Remove(filename.IndexOf(".pa1"));
+            //     if (!controlData.TryGetValue(controlName, out var controlState))
+            //         throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
 
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
-            {
-                var item = new Parser(file.GetContents()).ParseControl();
-                var control = new ControlInfoJson() { TopParent = item };
-            }
+            //     var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
+            //     var control = new ControlInfoJson() { TopParent = item };
 
+            //     var sf = SourceFile.New(control);
 
+            //     // If a source file already exists, check the source directory for duplicate filenames.
+            //     // Could be multiple that escape to the same value. 
+            //     app._sources.Add(sf.ControlName, sf);
+
+            // }
         }
 
         private static void LoadDataSources(MsApp app, DirectoryReader directory)
@@ -198,33 +220,49 @@ namespace PAModel
         {
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
+            var templates = new Dictionary<string, ControlInfoJson.Template>();
 
             foreach (var control in app._sources.Values)
-            {                
-                var text = PAConverter.GetPAText(control);
-
-                string filename = control.ControlName +".pa1";
-                dir.WriteAllText(CodeDir, filename, text);
-
-                var extraData = new Dictionary<string, ControlExtraData>();
-                foreach (var item in control.Flatten())
-                {
-                    extraData.Add(item.Name, new ControlExtraData(item));
-                }
-                // Write out of extraContent for roundtripping 
-                string extraContent = control.ControlName + ".roundtrip";
-                dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
-
+            {
                 // Temporary write out of JSON for roundtripping 
                 string jsonContentFile = control.ControlName + ".json";
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 
 
-                // SourceFormat assumed to include everything. 
-                // $$$ Split out into view state? 
-                // Write out raw JSON for things that can't be PA
-                // WriteFile(control.ToMsAppFile(), directory);
+                var text = PAConverter.GetPAText(control);
+                var controlName = control.ControlName;
+                string filename = controlName +".pa1";
+                dir.WriteAllText(CodeDir, filename, text);
+
+                var extraData = new Dictionary<string, ControlInfoJson.Item>();
+                foreach (var item in control.Flatten().ToList())
+                {
+                    var name = item.Name;
+                    if (!templates.ContainsKey(item.Template.Name))
+                    {
+                        templates.Add(item.Template.Name, item.Template);
+                    }
+                    item.Name = null;
+                    item.Parent = null;
+                    item.Template = null;
+                    foreach (var rule in item.Rules)
+                    {
+                        rule.InvariantScript = null;
+                    }
+                    item.Children = null;
+
+                    extraData.Add(name, item);
+                }
+
+                // Write out of all the other state for roundtripping 
+                string extraContent = controlName + ".editorstate.json";
+                dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
+
+            // Write out the used templates
+            // These could be created as part of build tooling, and are from the control.json files for now
+            dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(templates, Utility._jsonOpts));
+
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 

@@ -93,8 +93,9 @@ namespace PAModel
             {@"References\DynamicTypes.json", FileKind.DynamicTypes },
 
             {"Entropy.json", FileKind.Entropy },
-            {"CanvasManifest.json", FileKind.CanvasManifest }
-            
+            {"CanvasManifest.json", FileKind.CanvasManifest },
+            {"ControlTemplates.json", FileKind.Templates }
+
         };
 
 

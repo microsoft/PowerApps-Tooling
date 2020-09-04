@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
     // $$$ todo - get real definition
-    class ControlInfoJson
+    public class ControlInfoJson
     {
         public class RuleEntry
         {
