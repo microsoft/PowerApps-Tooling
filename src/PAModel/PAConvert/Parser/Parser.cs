@@ -115,6 +115,10 @@ namespace PAModel.PAConvert.Parser
                     rule.InvariantScript = script;
                     paRules.Remove(rule.Property);
                 }
+                else
+                {
+                    rule.InvariantScript = string.Empty;
+                }
             }
             if (paRules.Any())
             {

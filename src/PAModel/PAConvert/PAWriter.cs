@@ -34,6 +34,9 @@ namespace PAModel.PAConvert
 
             foreach (var rule in control.Rules)
             {
+                if (rule.InvariantScript == string.Empty)
+                    continue;
+
                 var isMultiline = rule.InvariantScript.Contains("\n");
                 if (isMultiline)
                 {
