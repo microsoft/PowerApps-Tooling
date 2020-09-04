@@ -1,17 +1,10 @@
-﻿using Microsoft.AppMagic.Authoring.Persistence;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.IO.Compression;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text.Json;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Runtime.CompilerServices;
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace PAModel
 {
