@@ -40,12 +40,14 @@ namespace PAModel
         internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
         
         
-
-        internal void AddDataSourceForLoad(DataSourceEntry ds)
+        // iOrder is used to preserve ordering value for round-tripping. 
+        internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)
         {
             // Don't allow overlaps;
             // Names are not unique. 
             _dataSources.Add(ds);
+
+            this._entropy.Add(ds, order);            
         }
         internal IEnumerable<DataSourceEntry> GetDataSources()
         {

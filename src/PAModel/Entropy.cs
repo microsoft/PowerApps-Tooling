@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.AppMagic.Authoring.Persistence;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace PAModel
 {
@@ -14,6 +16,43 @@ namespace PAModel
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
+
+        // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         
+        public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>();
+
+
+        public int GetOrder(DataSourceEntry dataSource)
+        {
+            return this.OrderDataSource.GetOrDefault<string,int>(dataSource.GetUniqueName(), -1);
+        }
+        public void Add(DataSourceEntry entry, int? order)
+        {
+            if (order.HasValue)
+            {
+                this.OrderDataSource[entry.GetUniqueName()] = order.Value;
+            }
+        }
+
+        public int GetOrder(ComponentsMetadataJson.Entry entry)
+        {
+            return this.OrderComponentMetadata.GetOrDefault<string, int>(entry.TemplateName, -1);
+        }
+        public void Add(ComponentsMetadataJson.Entry entry, int order)
+        {
+            this.OrderComponentMetadata[entry.TemplateName] = order;
+        }
+
+        public int GetOrder(TemplateMetadataJson entry)
+        {
+            return this.OrderTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        }
+        public void Add(TemplateMetadataJson entry, int order)
+        {
+            this.OrderTemplate[entry.Name] = order;
+        }
+
 
         public void SetHeaderLastSaved(DateTime? x)
         {
