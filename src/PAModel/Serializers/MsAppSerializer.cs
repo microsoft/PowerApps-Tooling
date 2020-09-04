@@ -1,4 +1,7 @@
-﻿using Microsoft.AppMagic.Authoring.Persistence;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -148,8 +151,6 @@ namespace PAModel
                             throw new NotImplementedException(x.Type);
                         }
                         
-                        // var dc = app._dataComponents.GetOrCreate(x.AssociatedDataComponentTemplate);
-                        // dc._dcsources = x;
                         var ds = new DataSourceEntry
                         {
                              Name = x.Name,

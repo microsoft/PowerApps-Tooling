@@ -1,4 +1,7 @@
-﻿using Microsoft.AppMagic.Authoring.Persistence;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
