@@ -37,14 +37,14 @@ namespace PAModel
         public void WriteAllJson<T>(string subdir, FileKind kind, T obj)
         {
             string filename = FileEntry.GetFilenameForKind(kind);
-            var text = JsonSerializer.Serialize<T>(obj, Utility._jsonOpts);
-            WriteAllText(subdir, filename, text);
+            WriteAllJson(subdir, filename, obj);
         }
 
 
         public void WriteAllJson<T>(string subdir, string filename, T obj)
         {
             var text = JsonSerializer.Serialize<T>(obj, Utility._jsonOpts);
+            text = JsonNormalizer.Normalize(text);
             WriteAllText(subdir, filename, text);
         }
 

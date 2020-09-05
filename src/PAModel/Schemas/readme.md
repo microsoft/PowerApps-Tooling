@@ -2,7 +2,7 @@
 This tool must be able to faithfully roundtrip an .msapp file to text and back. The contents of the .msapp are primarily json. 
 
 ## Challenges 
-1. Json is not a "canonical" representation - it can vary with whitespace, object property ordering, trailing 0s in a number, etc. 
+1. Json is not a "canonical" representation - it can vary with whitespace, object property ordering, trailing 0s in a number, string escapes, etc. 
 1. Json arrays are ordered, but the server arrays in the .msapp are often still unordered - so round tripping needs to normalize order. 
 1. The server emits things like timestamps and version numbers - which will cause "noisy diffs". 
 1. The server schema may vary as new properties are added. Roundtripping needs to preservrve 

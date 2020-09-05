@@ -19,6 +19,7 @@ namespace PAModel
         Properties,
         Header,
         AppCheckerResult,
+        Checksum,
 
         // Used for dataComponents
         ComponentsMetadata,
@@ -84,6 +85,7 @@ namespace PAModel
             {"Entities.json", FileKind.OldEntityJSon },
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
+            {ChecksumMaker.ChecksumName, FileKind.Checksum },
             {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
             {"ComponentsMetadata.json", FileKind.ComponentsMetadata },
             {@"Resources\PublishInfo.json", FileKind.PublishInfo },
