@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using PAModel.PAConvert.Parser;
 using PAModel.PAConvert;
 using System.Data;
+using PAModel.Schemas.adhoc;
 
 namespace PAModel
 {
@@ -40,6 +41,14 @@ namespace PAModel
 
         public static MsApp LoadFromSource(string directory2)
         {
+            if (File.Exists(directory2))
+            {
+                if (directory2.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ArgumentException($"Must point to a source directory, not an msapp file ({directory2}");
+                }
+            }
+
             if (!Directory.Exists(directory2))
             {
                 throw new InvalidOperationException($"No directory {directory2}");
@@ -90,6 +99,9 @@ namespace PAModel
                         app._entropy = file.ToObject<Entropy>();
                         break;
 
+                    case FileKind.Checksum:
+                        app._checksum = file.ToObject<ChecksumJson>();
+                        break;
 
                     case FileKind.Header:
                     case FileKind.Properties:
@@ -298,6 +310,10 @@ namespace PAModel
                 dir.WriteAllJson(DataSourcesDir, filename, dataSource);
             }
 
+            if (app._checksum != null)
+            {
+                dir.WriteAllJson(OtherDir, FileKind.Checksum, app._checksum);
+            }
 
             if (app._logoFile != null)
             {
@@ -310,15 +326,15 @@ namespace PAModel
                 // Standardize the .json files so they're determinsitc and comparable
                 if (file.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
-                    // $$$ JsonWriter still not deterministic. 
                     ReadOnlyMemory<byte> span = file.RawBytes;
                     var je = JsonDocument.Parse(span).RootElement;
-
-                    // $$$ Don't mutate. 
-                    var bytes = je.ToBytes();
-                    file.RawBytes = bytes;
+                    var jsonStr = JsonNormalizer.Normalize(je);
+                    dir.WriteAllText(OtherDir, file.Name, jsonStr); 
                 }
-                dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
+                else
+                {
+                    dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
+                }
             }
 
             dir.WriteAllJson(OtherDir, FileKind.Entropy, app._entropy);

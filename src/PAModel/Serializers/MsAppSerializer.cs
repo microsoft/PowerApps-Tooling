@@ -15,6 +15,7 @@ using System.Text;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using PAModel.Serializers;
+using PAModel.Schemas.adhoc;
 
 namespace PAModel
 {
@@ -37,14 +38,23 @@ namespace PAModel
             // Apply transforms. 
             var app = new MsApp();
 
+            app._checksum = new ChecksumJson(); // default empty. Will get overwritten if the file is present.
+
             ComponentsMetadataJson dcmetadata = null;
             DataComponentTemplatesJson dctemplate = null;
             DataComponentSourcesJson dcsources  = null;
+
+            //string actualChecksum = ChecksumMaker.GetChecksum(fullpathToMsApp);
+
+            ChecksumMaker checksumMaker = new ChecksumMaker();
+            // app._checksum
 
             using (var z = ZipFile.OpenRead(fullpathToMsApp))
             {
                 foreach (var entry in z.Entries)
                 {
+                    checksumMaker.AddFile(entry.FullName, entry.ToBytes());
+
                     var fullName = entry.FullName;
                     var kind = FileEntry.TriageKind(fullName);
 
@@ -53,6 +63,10 @@ namespace PAModel
                         default:
                             // Track any unrecognized files so we can save back.
                             app.AddFile(FileEntry.FromZip(entry));
+                            break;
+
+                        case FileKind.Checksum:
+                            app._checksum = ToObject<ChecksumJson>(entry);
                             break;
 
                         case FileKind.OldEntityJSon:
@@ -108,7 +122,18 @@ namespace PAModel
                             }
                             break;
                     }
+                } // foreach zip entry
+
+
+                // Checksums?
+                var currentChecksum = checksumMaker.GetChecksum();
+                if (app._checksum.Checksum != null && app._checksum.Checksum != currentChecksum)
+                {
+                    // The server checksum doesn't match the actual contents. 
+                    // likely has been tampered. 
+                    Console.WriteLine($"Warning... checksum doesn't match on extract");
                 }
+                app._checksum.Checksum = currentChecksum;
 
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
@@ -180,16 +205,21 @@ namespace PAModel
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(this MsApp app, string fullpathToMsApp)
         {
-            if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
+            if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
+                fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                // $$$ allow zips
-                // throw new InvalidOperationException("Only works for .msapp files");
+                
+                throw new InvalidOperationException("Only works for .msapp files");
             }
 
             if (File.Exists(fullpathToMsApp)) // Overwrite!
             {
                 File.Delete(fullpathToMsApp);
             }
+
+
+            var checksum = new ChecksumMaker();
+
             using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
             {
                 foreach (FileEntry entry in app.GetMsAppFiles())
@@ -200,8 +230,34 @@ namespace PAModel
                         using (var dest = e.Open())
                         {
                             dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+                            checksum.AddFile(entry.Name, entry.RawBytes);
                         }
                     }                
+                }
+
+                
+                {
+                    var hash = checksum.GetChecksum();
+
+
+                    if (hash != app._checksum.Checksum)
+                    {
+                        // We had offline edits!
+                        Console.WriteLine($"WARNING!! Sources have changed since when they were unpacked.");
+                    }
+
+                    var checksumJson = new ChecksumJson
+                    {
+                        Checksum = hash,
+                        ChecksumServer = app._checksum.ChecksumServer
+                    };
+
+                    var entry = ToFile(FileKind.Checksum, checksumJson);
+                    var e = z.CreateEntry(entry.Name);
+                    using (var dest = e.Open())
+                    {
+                        dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+                    }
                 }
             }
         }

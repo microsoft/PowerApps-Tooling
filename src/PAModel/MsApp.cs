@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using PAModel.Schemas.adhoc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,10 @@ namespace PAModel
         // TemplateGuid --> Info
         internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
         
-        
+        // checksum from existin msapp. 
+        internal ChecksumJson _checksum;
+
+
         // iOrder is used to preserve ordering value for round-tripping. 
         internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)
         {
