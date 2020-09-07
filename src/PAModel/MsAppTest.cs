@@ -232,7 +232,7 @@ namespace PAModel
 
                 default:
                     sb.Append(indent);
-                    sb.AppendLine(e.ToString());
+                    sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
                     break;
             }
         }

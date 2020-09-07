@@ -116,5 +116,43 @@ namespace PAModel.PAConvert.Parser
 
             return false;
         }
+
+        public static string EscapeName(string name)
+        {
+            int nameLen = name.Length;
+
+            bool fEscaping = !IsIdentStart(name[0]) || IsIdentDelimiter(name[0]);
+            bool fFirst = true;
+
+            StringBuilder sb = new StringBuilder(name.Length);
+            for (int i = fEscaping ? 0 : 1; i < nameLen; i++)
+            {
+                char ch = name[i];
+                fEscaping = fEscaping || !IsSimpleIdentCh(ch);
+
+                if (!fEscaping)
+                    continue;
+
+                if (fFirst)
+                {
+                    sb.Append(PAConstants.IdentifierDelimiter);
+                    sb.Append(name, 0, i);
+                    fFirst = false;
+                }
+
+                if (ch == PAConstants.IdentifierDelimiter)
+                    sb.Append(ch);
+
+                sb.Append(ch);
+            }
+
+            if (fEscaping)
+            {
+                sb.Append(PAConstants.IdentifierDelimiter);
+                return sb.ToString();
+            }
+
+            return name;
+        }
     }
 }

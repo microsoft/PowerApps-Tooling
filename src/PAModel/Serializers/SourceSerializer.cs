@@ -179,7 +179,8 @@ namespace PAModel
                 } 
                 else
                 {
-                    // Eventually, get rid of the json and do everything from .pa.s                   
+#if !USEPA
+                    // Eventually, get rid of the json and do everything from .pa          
                     var control = file.ToObject<ControlInfoJson>();
 
                     var sf = SourceFile.New(control);
@@ -187,6 +188,7 @@ namespace PAModel
                     // If a source file already exists, check the source directory for duplicate filenames.
                     // Could be multiple that escape to the same value. 
                     app._sources.Add(sf.ControlName, sf);
+#endif
                 }
             }
 
@@ -198,14 +200,26 @@ namespace PAModel
                 if (!controlData.TryGetValue(controlName, out var controlState))
                     throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
 
-                var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
-                var control = new ControlInfoJson() { TopParent = item };
+                try
+                {
+                    var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
 
-                var sf = SourceFile.New(control);
 
-                // If a source file already exists, check the source directory for duplicate filenames.
-                // Could be multiple that escape to the same value. 
-                app._sources.Add(sf.ControlName, sf);
+                    var control = new ControlInfoJson() { TopParent = item };
+
+                    var sf = SourceFile.New(control);
+
+                    // If a source file already exists, check the source directory for duplicate filenames.
+                    // Could be multiple that escape to the same value. 
+                    app._sources.Add(sf.ControlName, sf);
+                }
+                catch
+                {
+                    Console.WriteLine(
+                        "Parsing failed for file " + filename + "\n" +
+                        "This tool is still in development, please open an issue on our github page with a copy of your app");
+                }
+
             }
 #endif
         }
