@@ -17,7 +17,7 @@ namespace PAModel.PAConvert.Parser
         private readonly StringBuilder _sb;
         private Stack<int> _indentationLevel; // space count expected per block level
 
-        private Queue<Token> _pendingDedents; // used for handling multiple dedent tokens
+        private Stack<Token> _pendingTokens;
 
         public TokenStream(string text)
         {
@@ -25,7 +25,7 @@ namespace PAModel.PAConvert.Parser
             _indentationLevel = new Stack<int>();
             _indentationLevel.Push(0);
 
-            _pendingDedents = new Queue<Token>();
+            _pendingTokens = new Stack<Token>();
 
             _text = text;
             _charCount = _text.Length;
@@ -65,6 +65,11 @@ namespace PAModel.PAConvert.Parser
             return new TokenSpan(_currentTokenPos, _currentPos);
         }
 
+        public void  ReplaceToken(Token tok)
+        {
+            _pendingTokens.Push(tok);
+        }
+
 
         public Token GetNextToken(bool expectedExpression = false)
         {
@@ -72,8 +77,8 @@ namespace PAModel.PAConvert.Parser
             {
                 if (Eof)
                     return null;
-                if (_pendingDedents.Any())
-                    return _pendingDedents.Dequeue();
+                if (_pendingTokens.Any())
+                    return _pendingTokens.Pop();
 
                 var tok = Dispatch(expectedExpression);
                 if (tok != null)
@@ -118,7 +123,8 @@ namespace PAModel.PAConvert.Parser
 
         private Token GetExpressionToken()
         {
-            SkipSpaces();
+            if (CurrentChar == ' ')
+                NextChar();
             var ch = CurrentChar;
             if (IsNewLine(ch))
                 return GetMultiLineExpressionToken();
@@ -346,12 +352,12 @@ namespace PAModel.PAConvert.Parser
             while (_indentationLevel.Peek() > indentation)
             {
                 _indentationLevel.Pop();
-                _pendingDedents.Enqueue(new Token(TokenKind.Dedent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos)));
+                _pendingTokens.Push(new Token(TokenKind.Dedent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos)));
             }
 
             if (indentation == _indentationLevel.Peek())
             {
-                return _pendingDedents.Dequeue();
+                return _pendingTokens.Pop();
             }
 
             throw new NotImplementedException( "Dedent mismatch error");

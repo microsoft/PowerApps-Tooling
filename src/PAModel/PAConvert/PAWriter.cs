@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using PAModel.PAConvert.Parser;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,11 +29,11 @@ namespace PAModel.PAConvert
 
         public void WriteControl(ControlInfoJson.Item control)
         {
-            var controlTemplate = control.Template.Name;
+            var controlTemplate = CharacterUtils.EscapeName(control.Template.Name);
             if (control.VariantName.Length > 0)
-                controlTemplate += $"{PAConstants.ControlVariantSeparator} {control.VariantName}";
+                controlTemplate += $"{PAConstants.ControlVariantSeparator} {CharacterUtils.EscapeName(control.VariantName)}";
 
-            WriteLine($"{PAConstants.ControlKeyword} {control.Name} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
+            WriteLine($"{PAConstants.ControlKeyword} {CharacterUtils.EscapeName(control.Name)} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
             _indentLevel++;
 
             foreach (var rule in control.Rules)
@@ -40,14 +41,16 @@ namespace PAModel.PAConvert
                 if (rule.InvariantScript == string.Empty)
                     continue;
 
-                var isMultiline = rule.InvariantScript.Contains("\n");
+                var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n");
+
+                var isMultiline = script.Contains("\n");
                 if (isMultiline)
                 {
-                    WriteMultilineRule(rule);
+                    WriteMultilineRule(rule.Property, script);
                 }
                 else
                 {
-                    WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken + " " + rule.InvariantScript);
+                    WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken + " " + script);
                 }
             }
 
@@ -61,14 +64,14 @@ namespace PAModel.PAConvert
             _indentLevel--;
         }
 
-        private void WriteMultilineRule(ControlInfoJson.RuleEntry rule)
+        private void WriteMultilineRule(string property, string script)
         {
-            WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken);
+            WriteLine(property + " " + PAConstants.PropertyDelimiterToken);
             _indentLevel++;
 
-            foreach (var line in rule.InvariantScript.Split('\n'))
+            foreach (var line in script.TrimStart().Split('\n'))
             {
-                WriteLine(line.Trim('\r','\n'));
+                WriteLine(line.Trim('\n'));
             }
             _indentLevel--;
         }

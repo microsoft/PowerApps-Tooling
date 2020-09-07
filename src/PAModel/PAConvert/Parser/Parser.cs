@@ -83,6 +83,15 @@ namespace PAModel.PAConvert.Parser
 
             if (next.Kind != TokenKind.Indent)
             {
+                // Handle empty control special case
+                if (next.Kind == TokenKind.Control)
+                {
+                    _tokenizer.ReplaceToken(next);
+                    control.Children = new ControlInfoJson.Item[0];
+                    foreach (var rule in control.Rules)
+                        rule.InvariantScript = string.Empty;
+                }
+
                 return control;
             }
 
@@ -106,6 +115,7 @@ namespace PAModel.PAConvert.Parser
                     default:
                         throw new InvalidOperationException($"Unexpected token {next.Kind}");
                 }
+
                 next = _tokenizer.GetNextToken();
             }
 
