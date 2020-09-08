@@ -89,6 +89,10 @@ namespace PAModel
             {
                 foreach (ZipArchiveEntry e in z.Entries.OrderBy(x => x.FullName))
                 {
+                    if (e.Name.EndsWith(ChecksumMaker.ChecksumName))
+                    {
+                        continue;
+                    }
                     string str;
 
                     // Compute a "smart" hash. Tolerant to whitespace in Json serialization.

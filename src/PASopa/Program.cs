@@ -16,6 +16,9 @@ namespace PASopa
     {
         static void Main(string[] args)
         {
+            //new ChecksumMaker().ComputeChecksum("");
+            //new ChecksumMaker().ComputeChecksum(@"D:\dev\pa2\Samples\Guido\NewDcs\TestSuite\MyWeather.msapp");
+
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
             // $$$ MErge in with ADIX PAC
@@ -87,12 +90,12 @@ namespace PASopa
             } else if (mode == "-pack")
             {
                 string msAppPath = args[1];
-                string outDir = args[2];
+                string inputDir = args[2];
 
-                Console.WriteLine($"Pack: {outDir} --> {msAppPath} ");
+                Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
-                MsApp msApp = SourceSerializer.LoadFromSource(msAppPath);
-                msApp.SaveAsMsApp(outDir);
+                MsApp msApp = SourceSerializer.LoadFromSource(inputDir);
+                msApp.SaveAsMsApp(msAppPath);
             } else
             {
                 Console.WriteLine(
