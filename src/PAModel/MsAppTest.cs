@@ -264,8 +264,9 @@ namespace PAModel
                             }
                             catch { } // Not Json. 
                         }
-                        
-                        sb.AppendLine(str);
+
+                        // sb.AppendLine(str);
+                        sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
                     }
                     break;
 
