@@ -154,6 +154,33 @@ namespace PAModel
                 return Version + "_" + str;
             }
         }  
+
+        // 
+        internal static string NormFormulaWhitespace(string s)
+        {
+            StringBuilder sb = new StringBuilder();
+            var lastCharIsWhitespace = true;
+            foreach(var ch in s)
+            {
+                bool isWhitespace = (ch == '\t') || (ch == ' ') || (ch == '\r') || (ch == '\n');
+                if (isWhitespace)
+                {
+                    if (!lastCharIsWhitespace)
+                    {
+                        sb.Append(' ');
+                    }
+                    lastCharIsWhitespace = true;
+                } else
+                {
+                    sb.Append(ch);
+                    lastCharIsWhitespace = false;
+                }
+            }
+            // Don't include trailing. 
+            while((sb.Length > 1) && sb[sb.Length-1] == ' ') { sb.Length--;  }
+
+            return sb.ToString();
+        }
        
         // Traverse the Json object in a deterministic way
         private static void ChecksumJson(Context ctx, IncrementalHash hash, JsonElement je)
@@ -178,7 +205,15 @@ namespace PAModel
                         if (propertyNames.Add(prop.Name))
                         {
                             var kind = prop.Value.ValueKind;
-                            if (kind != JsonValueKind.Null && kind != JsonValueKind.False)
+
+                            if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
+                            {
+                                // Invariant script can contain Formulas. 
+                                var str2 = prop.Value.GetString();
+                                str2 = NormFormulaWhitespace(str2);
+                                hash.AppendData(str2);
+                            }
+                            else if (kind != JsonValueKind.Null && kind != JsonValueKind.False)
                             {
                                 hash.AppendData(prop.Name);
                                 ctx.Push(prop.Name);
@@ -215,7 +250,7 @@ namespace PAModel
                     }
                     else
                     {
-                        str = str.Replace("\r\n", "\n"); // Normalize line endings. 
+                        str = str.TrimStart().Replace("\r\n", "\n"); // Normalize line endings. 
                         hash.AppendData(str);
                     }
                     break;

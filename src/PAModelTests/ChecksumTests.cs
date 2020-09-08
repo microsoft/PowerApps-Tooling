@@ -11,7 +11,7 @@ namespace PAModelTests
     public class ChecksumTests
     {
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "C1_/zrpJtNl1yARfrGQmlGzz40f1D0OwYERVGSSzF3Inqs=")]
+        [DataRow("MyWeather.msapp", "C1_0NR4SJOpBD7nc5k/6JoBp0822aEFJyOBo9a7AOvr/Qw=")]
         public void TestChecksum(string filename, string expectedChecksum)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
@@ -20,6 +20,16 @@ namespace PAModelTests
             var actualChecksum = ChecksumMaker.GetChecksum(root);
 
             Assert.AreEqual(expectedChecksum, actualChecksum);
+        }
+
+        [DataTestMethod]
+        [DataRow("a  bc", "a bc")] 
+        [DataRow("  a  b   ", "a b")] // leading, trailing 
+        [DataRow("a\t\r\nb", "a b")] // other chars
+        public void TestNormWhitespace(string test, string expected)
+        {
+            var val = ChecksumMaker.NormFormulaWhitespace(test);
+            Assert.AreEqual(expected, val);
         }
     }
 }
