@@ -74,7 +74,7 @@ namespace PAModel.PAConvert.Parser
             }
 
             control.Template = template;
-            if (isComponent)
+            if (isComponent && control.Template.IsComponentDefinition != null)
             {
                 control.Template.IsComponentDefinition = true;
                 control.Template.ComponentDefinitionInfo = null;
