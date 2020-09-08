@@ -46,7 +46,8 @@ namespace PAModel
 
         // Unique to source format. 
         Entropy,
-        CanvasManifest
+        CanvasManifest,
+        Connections
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -100,7 +101,8 @@ namespace PAModel
             // Files that only appear in Source
             {"Entropy.json", FileKind.Entropy },
             {"CanvasManifest.json", FileKind.CanvasManifest },
-            {"ControlTemplates.json", FileKind.Templates }
+            {"ControlTemplates.json", FileKind.Templates },
+            {"Connections.json", FileKind.Connections }
 
         };
 

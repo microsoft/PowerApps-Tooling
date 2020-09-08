@@ -138,6 +138,13 @@ namespace PAModel
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
+                if (app._properties.LocalConnectionReferences != null)
+                {
+                    var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+                    app._connections = cxs;
+                    app._properties.LocalConnectionReferences = null;
+                }
+
                 if (dcmetadata?.Components != null)
                 {
                     int order = 0;
@@ -232,33 +239,35 @@ namespace PAModel
                             dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
                             checksum.AddFile(entry.Name, entry.RawBytes);
                         }
-                    }                
-                }
-
-                
-                {
-                    var hash = checksum.GetChecksum();
-
-
-                    if (hash != app._checksum.Checksum)
-                    {
-                        // We had offline edits!
-                        Console.WriteLine($"WARNING!! Sources have changed since when they were unpacked.");
-                    }
-
-                    var checksumJson = new ChecksumJson
-                    {
-                        Checksum = hash,
-                        ChecksumServer = app._checksum.ChecksumServer
-                    };
-
-                    var entry = ToFile(FileKind.Checksum, checksumJson);
-                    var e = z.CreateEntry(entry.Name);
-                    using (var dest = e.Open())
-                    {
-                        dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
                     }
                 }
+
+                ComputeAndWriteChecksum(app, checksum, z);
+            }
+        }
+
+        private static void ComputeAndWriteChecksum(MsApp app, ChecksumMaker checksum, ZipArchive z)
+        {
+            var hash = checksum.GetChecksum();
+
+
+            if (hash != app._checksum.Checksum)
+            {
+                // We had offline edits!
+                Console.WriteLine($"WARNING!! Sources have changed since when they were unpacked.");
+            }
+
+            var checksumJson = new ChecksumJson
+            {
+                Checksum = hash,
+                ChecksumServer = app._checksum.ChecksumServer
+            };
+
+            var entry = ToFile(FileKind.Checksum, checksumJson);
+            var e = z.CreateEntry(entry.Name);
+            using (var dest = e.Open())
+            {
+                dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
             }
         }
 
@@ -276,7 +285,14 @@ namespace PAModel
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
             yield return ToFile(FileKind.Header, header);
 
-            yield return ToFile(FileKind.Properties, app._properties);
+            
+            var props = app._properties.JsonClone();
+            if (app._connections != null)
+            {
+                var json = Utility.JsonSerialize(app._connections);
+                props.LocalConnectionReferences = json;
+            }
+            yield return ToFile(FileKind.Properties, props);
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
             yield return logoFile;

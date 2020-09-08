@@ -71,6 +71,16 @@ namespace PAModel
 
         // https://stackoverflow.com/questions/58138793/system-text-json-jsonelement-toobject-workaround
 
+        public static string JsonSerialize<T>(T obj)
+        {
+            return JsonSerializer.Serialize<T>(obj, _jsonOpts);
+        }
+
+        public static T JsonParse<T>(string json)
+        {
+            return JsonSerializer.Deserialize<T>(json, _jsonOpts);
+        }
+
         public static T ToObject<T>(this JsonElement element)
         {
             var json = element.GetRawText();
@@ -148,6 +158,7 @@ namespace PAModel
                 (ch >= '0' && ch <= '9') ||
                 (ch >= 'a' && ch <= 'z') ||
                 (ch >= 'A' && ch <= 'Z') ||
+                (ch == '[' || ch == ']') || // common in SQL connection names 
                 (ch == '_') ||
                 (ch == '.') ||
                 (ch == ' ') || // allow spaces, very common.  

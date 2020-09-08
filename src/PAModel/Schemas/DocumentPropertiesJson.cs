@@ -20,7 +20,11 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string Name { get; set; }
         public string Id { get; set; }
         public string FileID { get; set; }
+        
+        // Stores the connections 
+        // Dictionary-->Connection object 
         public string LocalConnectionReferences { get; set; }
+
         public string LocalDatabaseReferences { get; set; }
         public string LibraryDependencies { get; set; }
         public string[] AppPreviewFlagsKey { get; set; }

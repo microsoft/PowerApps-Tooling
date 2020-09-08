@@ -57,6 +57,16 @@ namespace PAModel
 
         public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
         {
+            var c1 = ChecksumMaker.GetChecksum(pathToZip1);
+            var c2 = ChecksumMaker.GetChecksum(pathToZip2);
+            if (c1 == c2)
+            {
+                return true;
+            }
+
+            // If there's a checksum mismatch, do a more intensive comparison to find the difference. 
+
+            // Provide a comparison that can be very specific about what the difference is. 
             Dictionary<string, string> comp = new Dictionary<string, string>();
             var h1 = Test(pathToZip1, log, comp, true);
             var h2 = Test(pathToZip2, log, comp, false);
@@ -226,6 +236,37 @@ namespace PAModel
                     sb.Append(indent);
                     sb.AppendLine("}");
 
+                    break;
+
+                case JsonValueKind.String:
+                    {
+                        sb.Append(indent);
+
+                        bool isDoubleEncodedJson = false;
+                        var str = e.ToString();
+                        if (str.Length >0)
+                        {
+                            if (str[0] == '{' && str[str.Length-1] == '}')
+                            {
+                                isDoubleEncodedJson = true;
+
+                                //ReadOnlySequence<byte> span = 
+                                //Utf8JsonReader r = new Utf8JsonReader()
+                                //JsonDocument.TryParseValue()
+                            }
+                        }
+
+                        if (isDoubleEncodedJson)
+                        {
+                            try
+                            {
+                                str = "<json>" + JsonNormalizer.Normalize(str) + "</json>";
+                            }
+                            catch { } // Not Json. 
+                        }
+                        
+                        sb.AppendLine(str);
+                    }
                     break;
 
                 case JsonValueKind.Number:
