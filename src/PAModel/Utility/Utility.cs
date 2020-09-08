@@ -14,6 +14,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+[assembly: InternalsVisibleTo("PAModelTests")]
 namespace PAModel
 {
     // Various utility methods. 
@@ -199,9 +200,13 @@ namespace PAModel
             {
                 return ((int)ch) - '0';
             }
-            if (ch >= 'a' && ch <= 'z')
+            if (ch >= 'a' && ch <= 'f')
             {
-                return ((int)ch) - 'a';
+                return (((int)ch) - 'a') + 10;
+            }
+            if (ch >= 'A' && ch <= 'F')
+            {
+                return (((int)ch) - 'A') + 10;
             }
             throw new InvalidOperationException($"Unrecognized hex char {ch}");
         }
@@ -226,6 +231,7 @@ namespace PAModel
                             ToHex(path[i + 2]) * 16 *16 + 
                             ToHex(path[i + 3]) * 16 + 
                             ToHex(path[i + 4]);
+                        i += 4;
                     } else
                     {
                         // 2 digit
