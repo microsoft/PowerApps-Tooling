@@ -32,13 +32,14 @@ namespace PAModel.PAConvert.Parser
             _templates = templates;
         }
 
-        internal ControlInfoJson.Item ParseControl(string parent = "")
+        internal ControlInfoJson.Item ParseControl(string parent = "", bool isComponent = false)
         {
             if (parent == string.Empty)
             {
                 var token = _tokenizer.GetNextToken();
                 if (token.Kind != TokenKind.Control)
                     throw new InvalidOperationException($"Unexpected token {token.Kind}, expected {TokenKind.Control}");
+                isComponent = token.Content == PAConstants.ComponentKeyword;
             }
             
             var identToken = _tokenizer.GetNextToken();
@@ -67,8 +68,17 @@ namespace PAModel.PAConvert.Parser
                 template = new ControlInfoJson.Template(); // This seems like a problem, maybe we can't recreate templates without npm ref?
                 template.Name = templateToken.Content;
             }
+            else
+            {
+                template = new ControlInfoJson.Template(template);
+            }
 
             control.Template = template;
+            if (isComponent)
+            {
+                control.Template.IsComponentDefinition = true;
+                control.Template.ComponentDefinitionInfo = null;
+            }
 
             var next = _tokenizer.GetNextToken();
             if (next.Kind == TokenKind.VariantSeparator)
@@ -109,7 +119,7 @@ namespace PAModel.PAConvert.Parser
                         paRules.Add(rule.propertyName, rule.script);
                         break;
                     case TokenKind.Control:
-                        var child = ParseControl(parent: control.Name);
+                        var child = ParseControl(parent: control.Name, next.Content == PAConstants.ComponentKeyword);
                         children.Add(child);
                         break;
                     default:

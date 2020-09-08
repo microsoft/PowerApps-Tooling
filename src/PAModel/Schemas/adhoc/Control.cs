@@ -48,6 +48,18 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
+            public Template() { }
+
+            public Template(Template other)
+            {
+                Id = other.Id;
+                Name = other.Name;
+                Version = other.Version;
+                LastModifiedTimestamp = other.LastModifiedTimestamp;
+                IsComponentDefinition = other.IsComponentDefinition;
+                ComponentDefinitionInfo = other.ComponentDefinitionInfo;
+                ExtensionData = other.ExtensionData;
+            }
         }
 
         public class Item
