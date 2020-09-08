@@ -16,9 +16,6 @@ namespace PASopa
     {
         static void Main(string[] args)
         {
-            //new ChecksumMaker().ComputeChecksum("");
-            //new ChecksumMaker().ComputeChecksum(@"D:\dev\pa2\Samples\Guido\NewDcs\TestSuite\MyWeather.msapp");
-
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
             // $$$ MErge in with ADIX PAC
@@ -82,8 +79,7 @@ namespace PASopa
                     using (var temp = new TempFile())
                     {
                         msApp2.SaveAsMsApp(temp.FullPath);
-
-                        // Will print error on mismatch
+                         
                         bool ok = MsAppTest.Compare(msAppPath, temp.FullPath, TextWriter.Null);
                     }
                 }

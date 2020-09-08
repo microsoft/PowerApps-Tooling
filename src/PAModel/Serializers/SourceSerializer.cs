@@ -13,6 +13,8 @@ using PAModel.PAConvert.Parser;
 using PAModel.PAConvert;
 using System.Data;
 using PAModel.Schemas.adhoc;
+using System.Net.Mime;
+using System.Runtime.CompilerServices;
 
 namespace PAModel
 {
@@ -27,6 +29,7 @@ namespace PAModel
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
+        public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
         public const string Ignore = "Ignore"; // Write-only, ignore these files.
 
@@ -121,13 +124,24 @@ namespace PAModel
             LoadDataSources(app, dir);
             LoadSourceFiles(app, dir);
 
+            foreach (var file in dir.EnumerateFiles(ConnectionDir))
+            {
+                // Special files like Header / Properties 
+                switch (file.Kind)
+                {
+                    case FileKind.Connections:
+                        app._connections = file.ToObject<IDictionary<string, ConnectionJson>>();
+                        break;
+                }
+            }
+
 
             // Defaults. 
             // - DynamicTypes.Json, Resources.Json , Templates.Json - could all be empty
             // - Themes.json- default to
 
 
-            app.OnLoadComplete();
+                app.OnLoadComplete();
 
             return app;
         }
@@ -363,6 +377,11 @@ namespace PAModel
                 PublishInfo = app._publishInfo
             };
             dir.WriteAllJson("", FileKind.CanvasManifest, manifest);
+
+            if (app._connections != null)
+            {
+                dir.WriteAllJson(ConnectionDir, FileKind.Connections, app._connections);
+            }
         }
 
         // Ignore these. but they help give more visibility into some of the json encoded fields.
@@ -397,7 +416,6 @@ namespace PAModel
 
 
             // Properties. LocalConnectionReferences 
-            directory.WriteDoubleEncodedJson(Ignore, "Properties_LocalConnectionReferences.json", app._properties.LocalConnectionReferences);
             directory.WriteDoubleEncodedJson(Ignore, "Properties_LocalDatabaseReferences.json", app._properties.LocalDatabaseReferences);
         }   
     }

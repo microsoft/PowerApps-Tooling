@@ -19,10 +19,33 @@ namespace PAModel
     /// </summary>
     public class ChecksumMaker
     {
+        // Given checksum an easy header so that we can identify algorithm version changes. 
+        public string Version = "C1";
+
         public const string ChecksumName = "checksum.json";
 
         // Track a checksum per file and then merge into a single one at the end. 
         private readonly Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
+
+        public static string GetChecksum(string fullpathToMsApp)
+        {
+            using (var zip = ZipFile.OpenRead(fullpathToMsApp))
+            {
+                return GetChecksum(zip);
+            }
+        }
+
+        public static string GetChecksum(ZipArchive zip)
+        {
+            ChecksumMaker checksumMaker = new ChecksumMaker();
+
+            foreach (var entry in zip.Entries)
+            {
+                checksumMaker.AddFile(entry.FullName, entry.ToBytes());
+            }
+
+            return checksumMaker.GetChecksum();
+        }
 
         public void AddFile(string filename, byte[] bytes)
         {
@@ -52,6 +75,45 @@ namespace PAModel
             }
         }
 
+        // These paths are json double-encoded and need a different comparer.
+        private static HashSet<string> _jsonDouble = new HashSet<string>
+        {
+            // "properties.json:"
+            "LocalConnectionReferences",
+            "LocalDatabaseReferences"
+        };
+
+        // Helper for identifying which paths are double encoded. 
+        // All of these should be resolved and fixed by the server. 
+        private class Context
+        {
+            public string Filename;
+            public Stack<string> s = new Stack<string>();
+
+            public void Push(string path)
+            {
+                this.s.Push(path);
+            }
+            public void Pop()
+            {
+                this.s.Pop();
+            }
+
+            public bool IsDoubleEncoded
+            {
+                get
+                {
+                    if (this.s.Count == 1)
+                    {
+                        if (_jsonDouble.Contains(this.s.Peek())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+
         // Add json - handle the non-canonical format. 
         private void AddJsonFile(string filename, byte[] bytes)
         {            
@@ -60,9 +122,11 @@ namespace PAModel
             {
                 JsonElement je = doc.RootElement;
 
+                var ctx = new Context { Filename = filename };
+
                 using (var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
                 {
-                    ChecksumJson(hash, je);
+                    ChecksumJson(ctx, hash, je);
 
                     var key = hash.GetHashAndReset();
                     _files.Add(filename, key);
@@ -87,19 +151,19 @@ namespace PAModel
                 var str = Convert.ToBase64String(h);
 
                 //Console.WriteLine($"  Checksum: {str}");
-                return str;
+                return Version + "_" + str;
             }
         }  
        
         // Traverse the Json object in a deterministic way
-        public static void ChecksumJson(IncrementalHash hash, JsonElement je)
+        private static void ChecksumJson(Context ctx, IncrementalHash hash, JsonElement je)
         {
             switch(je.ValueKind)
             {
                 case JsonValueKind.Array:
                     foreach(var element in je.EnumerateArray())
                     {
-                        ChecksumJson(hash, element);
+                        ChecksumJson(ctx, hash, element);
                     }
                     break;
 
@@ -117,7 +181,9 @@ namespace PAModel
                             if (kind != JsonValueKind.Null && kind != JsonValueKind.False)
                             {
                                 hash.AppendData(prop.Name);
-                                ChecksumJson(hash, prop.Value);
+                                ctx.Push(prop.Name);
+                                ChecksumJson(ctx, hash, prop.Value);
+                                ctx.Pop();
                             }
                         }
                     }
@@ -141,8 +207,17 @@ namespace PAModel
 
                 case JsonValueKind.String:
                     var str = je.GetString();
-                    str = str.Replace("\r\n", "\n"); // Normalize line endings. 
-                    hash.AppendData(str);
+
+                    if (ctx.IsDoubleEncoded && !string.IsNullOrWhiteSpace(str))
+                    {
+                        var je2 = JsonDocument.Parse(str).RootElement;
+                        ChecksumJson(ctx, hash, je2);
+                    }
+                    else
+                    {
+                        str = str.Replace("\r\n", "\n"); // Normalize line endings. 
+                        hash.AppendData(str);
+                    }
                     break;
             }
         }

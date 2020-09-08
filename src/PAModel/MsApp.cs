@@ -34,6 +34,11 @@ namespace PAModel
         internal DocumentPropertiesJson _properties;
         internal PublishInfoJson _publishInfo;
 
+        // Environment-specific information
+        // Extracted from _properties.LocalConnectionReferences
+        // Key is a Connection.Id
+        internal IDictionary<string, ConnectionJson> _connections;
+
         internal FileEntry _logoFile;
 
         // Save for roundtripping.
@@ -84,6 +89,26 @@ namespace PAModel
                     dc._sources = kv.Value;
                 }
             }
+
+            // Integrity checks. 
+            // Make sure every connection has a corresponding data source. 
+            foreach (var kv in this._connections.NullOk())
+            {
+                var connection = kv.Value;
+
+                if (kv.Key != connection.id)
+                {
+                    throw new InvalidOperationException($"Document consistency error. Id mismatch");
+                }
+                foreach(var dataSourceName in connection.dataSources)
+                {
+                    var ds = this._dataSources.Where(x => x.Name == dataSourceName).FirstOrDefault();
+                    if (ds == null)
+                    {
+                        throw new InvalidOperationException($"Document error: Connection '{dataSourceName}' does not have a corresponding data source.");
+                    }
+                }
+            }            
         }
 
         // $$$ Update a datasource? 
