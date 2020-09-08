@@ -27,13 +27,13 @@ namespace PAModel.PAConvert
             _sb.AppendLine(IndentString + line);
         }
 
-        public void WriteControl(ControlInfoJson.Item control)
+        public void WriteControl(ControlInfoJson.Item control, bool isComponent = false)
         {
             var controlTemplate = CharacterUtils.EscapeName(control.Template.Name);
             if (control.VariantName.Length > 0)
                 controlTemplate += $"{PAConstants.ControlVariantSeparator} {CharacterUtils.EscapeName(control.VariantName)}";
 
-            WriteLine($"{PAConstants.ControlKeyword} {CharacterUtils.EscapeName(control.Name)} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
+            WriteLine($"{(isComponent ? PAConstants.ComponentKeyword : PAConstants.ControlKeyword)} {CharacterUtils.EscapeName(control.Name)} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
             _indentLevel++;
 
             foreach (var rule in control.Rules)

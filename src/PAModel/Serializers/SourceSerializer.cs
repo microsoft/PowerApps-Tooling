@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//#define USEPA
+#define USEPA
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using System;

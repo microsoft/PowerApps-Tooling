@@ -17,26 +17,6 @@ namespace PAModel
 {
     internal static class PAConverter
     {
-        internal static SourceFile ReadSource(string path)
-        {
-            // Ignore .pa file for now, use Json for roundtrip
-
-            //var header = "//! PAFile:0.1";
-
-            var text = File.ReadAllText(path);
-            //if (!text.StartsWith(header))
-            //{
-            //    throw new InvalidOperationException($"Illegal pa source file. Missing header");
-            //}
-            //var json = text.Substring(header.Length);
-
-
-            var control = JsonSerializer.Deserialize<ControlInfoJson>(text, Utility._jsonOpts);
-
-
-            return SourceFile.New(control);
-        }
-
         internal static string GetPAText(SourceFile sf)
         {
             ControlInfoJson control = sf.Value;
@@ -44,7 +24,7 @@ namespace PAModel
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("//! PAFile:0.1"); // some generic header
 
-            new PAWriter(sb).WriteControl(control.TopParent);
+            new PAWriter(sb).WriteControl(control.TopParent, sf.Kind != SourceKind.Control);
 
             return sb.ToString();
         }
