@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PAModel.PAConvert.Parser
 {
-    internal struct TokenSpan
+    public struct TokenSpan
     {
         public readonly int Min;
         public readonly int Lim;

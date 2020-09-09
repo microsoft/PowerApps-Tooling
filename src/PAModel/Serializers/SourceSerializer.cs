@@ -193,9 +193,9 @@ namespace PAModel
                     app._dataComponents.Add(json.TemplateGuid, json);
                 }
                 else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
-                {                   // WIP
+                {
 #if USEPA
-                                    // Json peer to a .pa file. 
+                    // Json peer to a .pa file. 
                     var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
                     var filename = Path.GetFileName(file._relativeName);
                     var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
@@ -228,7 +228,16 @@ namespace PAModel
 
                 try
                 {
-                    var item = new Parser(file.GetContents(), controlState, templates).ParseControl();
+                    var parser = new Parser(file._relativeName, file.GetContents(), controlState, templates);                        
+                    var item = parser.ParseControl();
+                    if (parser.HasErrors())
+                    {
+                        parser.WriteErrors();
+                        Console.WriteLine("Skipping adding file to .msapp due to parse errors");
+                        Console.WriteLine("This tool is still in development, if these errors are wrong, please open an issue on our github page with a copy of your app");
+
+                        continue;
+                    }
 
 
                     var control = new ControlInfoJson() { TopParent = item };
