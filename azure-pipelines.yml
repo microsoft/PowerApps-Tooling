@@ -12,7 +12,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use dotnet sdk 3.1'
   inputs:
-    version: 3.1.*
+    version: 3.1.x
     installationPath: '$(Agent.ToolsDirectory)\dotnet'
 
 - task: DotNetCoreCLI@2
