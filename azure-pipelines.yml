@@ -13,13 +13,13 @@ steps:
   displayName: 'Use dotnet sdk 3.1'
   inputs:
     version: 3.1.x
-    installationPath: '$(Agent.ToolsDirectory)\dotnet'
+    installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)\\'
+    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)/'
     
 - task: VSTest@2
   inputs:
@@ -32,8 +32,8 @@ steps:
 
 - task: EsrpCodeSigning@1
   inputs:
-    ConnectedServiceName: ESRPCodeSigningConnection
-    FolderPath: '$(Build.BinariesDirectory)\\${BuildConfiguration)\\PAModel\\'
+    ConnectedServiceName: 'ESRP Android Code Signing'
+    FolderPath: '$(Build.BinariesDirectory)/${BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
