@@ -29,3 +29,46 @@ steps:
     runInParallel: true
     codeCoverageEnabled: true
     configuration: '$(BuildConfiguration)'
+
+- task: EsrpCodeSigning@1
+  inputs:
+    ConnectedServiceName: ESRPCodeSigningConnection
+    FolderPath: '$(Build.BinariesDirectory)\\${BuildConfiguration)\\PAModel\\'
+    Pattern: '*.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "keyCode": "CP-230012",
+             "operationSetCode": "SigntoolSign",
+             "parameters": [
+             {
+                 "parameterName": "OpusName",
+                 "parameterValue": "Microsoft"
+             },
+             {
+                 "parameterName": "OpusInfo",
+                 "parameterValue": "http://www.microsoft.com"
+             },
+             {
+                 "parameterName": "Append",
+                 "parameterValue": "/as"
+             },
+             {
+                 "parameterName": "FileDigest",
+                 "parameterValue": "/fd \"SHA256\""
+             },
+             {
+                 "parameterName": "PageHash",
+                 "parameterValue": "/NPH"
+             },
+             {
+                 "parameterName": "TimeStamp",
+                 "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             }
+             ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         }
+     ]
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
