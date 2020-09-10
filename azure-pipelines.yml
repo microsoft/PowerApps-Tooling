@@ -7,23 +7,31 @@ trigger:
 
 pool:
   vmImage: 'windows-latest'
-
+  
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: UseDotNet@2
+  displayName: 'Use dotnet sdk 3.1'
+  inputs:
+    version: 3.1.*
+    installationPath: '$(Agent.ToolsDirectory)\dotnet'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '**/*.csproj'
+    projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
+    arguments: '--configuration $(BuildConfiguration)'
 
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*Test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+    testAssemblyVer2: '**\PAModelTests.dll'
+    searchFolder: '$(Build.BinariesDirectory)'
     runInParallel: true
     codeCoverageEnabled: true
+    configuration: '$(BuildConfiguration)'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'off'
