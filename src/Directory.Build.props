@@ -25,15 +25,11 @@
 
     <PropertyGroup>
         <SourcePath>$(MSBuildThisFileDirectory)</SourcePath>
-        <BinPath Condition=" '$(BinPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\bin'))\</BinPath>
+        <BinPath Condition=" '$(BinPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\bin'))</BinPath>
         <IntermediatePath Condition=" '$(IntermediatePath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\obj'))\</IntermediatePath>
         <RelativeProjectPath>$([MSBuild]::MakeRelative($(SourcePath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
-
-        <!-- Output path for the configuration/platform combination. -->
-        <BuildConfigurationPath>$(BinPath)$(Configuration)</BuildConfigurationPath>
-        <DefaultRootOutputPath>$(BuildConfigurationPath).$(DefaultPlatform)\</DefaultRootOutputPath>
-        <RootOutputPath Condition=" '$(Platform)' != '' ">$(BuildConfigurationPath).$(Platform)</RootOutputPath>
-        <RootOutputPath>$(RootOutputPath)\</RootOutputPath>
+        
+        <RootOutputPath>$$(BinPath)\$(Configuration)\</RootOutputPath>
 
         <!-- Output path for the project -->
         <ProjectOutputPath>$(RootOutputPath)$(RelativeProjectPath)\</ProjectOutputPath>
@@ -43,10 +39,7 @@
         <OutDir Condition="'$(OutDir)' == ''">$(OutputPath)</OutDir>
 
         <!-- Intermediates path for the configuration/platform combination. -->
-        <ConfigIntermediateOutputPath>$(IntermediatePath)$(Configuration)</ConfigIntermediateOutputPath>
-        <DefaultRootIntermediateOutputPath>$(ConfigIntermediateOutputPath).$(DefaultPlatform)\</DefaultRootIntermediateOutputPath>
-        <ConfigIntermediateOutputPath Condition=" '$(Platform)' != '' ">$(ConfigIntermediateOutputPath).$(Platform)</ConfigIntermediateOutputPath>
-        <RootIntermediateOutputPath>$(ConfigIntermediateOutputPath)\</RootIntermediateOutputPath>
+        <RootIntermediateOutputPath>$(IntermediatePath)\$(Configuration)\</RootIntermediateOutputPath>
 
         <!-- Intermediates path for the project. -->
         <ProjectIntermediateOutputPath>$(RootIntermediateOutputPath)$(RelativeProjectPath)\</ProjectIntermediateOutputPath>
