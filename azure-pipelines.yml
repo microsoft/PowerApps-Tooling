@@ -29,9 +29,3 @@ steps:
     runInParallel: true
     codeCoverageEnabled: true
     configuration: '$(BuildConfiguration)'
-
-- task: NuGetCommand@2
-  inputs:
-    command: 'pack'
-    packagesToPack: '**/*.csproj'
-    versioningScheme: 'off'
