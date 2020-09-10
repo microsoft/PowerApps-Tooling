@@ -9,5 +9,10 @@
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Update="PowerPlatform.Formulas.Tools.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
 </Project>
