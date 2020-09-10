@@ -30,6 +30,8 @@ namespace PAModel
             }
             foreach (var dir in Directory.EnumerateDirectories(_directory))
             {
+                if (dir.EndsWith(".git"))
+                    continue;
                 Directory.Delete(dir, recursive: true);
             }
         }
