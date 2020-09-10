@@ -24,7 +24,7 @@
 
         <dependencies>
             <group targetFramework="netstandard2.0">
-                <dependency id="System.Text.Json" version="4.7.1" exclude="Analyzers" />
+                <dependency id="System.Text.Json" version="4.7.2" exclude="Analyzers" />
             </group>
         </dependencies>
     </metadata>    
