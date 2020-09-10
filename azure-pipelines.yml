@@ -19,7 +19,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)'
+    arguments: '--configuration $(BuildConfiguration) -p:BinPath="$(Build.BinariesDirectory)\"'
     
 - task: VSTest@2
   inputs:
