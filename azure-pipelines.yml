@@ -15,6 +15,12 @@ steps:
     version: 3.1.x
     installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
+# Dotnet 2.1 appears to be required for ESRP signing? seems weird, testing
+- task: UseDotNet@2
+  displayName: 'Use dotnet sdk 2.1'
+  inputs:
+    version: 2.1.x
+    installationPath: '$(Agent.ToolsDirectory)/dotnet'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
@@ -33,7 +39,7 @@ steps:
 - task: EsrpCodeSigning@1
   inputs:
     ConnectedServiceName: 'ESRP Android Code Signing'
-    FolderPath: '$(Build.BinariesDirectory)/${BuildConfiguration)/PAModel/'
+    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
