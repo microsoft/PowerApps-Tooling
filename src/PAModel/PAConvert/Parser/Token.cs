@@ -18,6 +18,20 @@ namespace PAModel.PAConvert.Parser
 
         public TokenKind Kind { get; }
         public TokenSpan Span { get; }
-        public string Content { get; } 
+        public string Content { get; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Token other &&
+                other.Kind == Kind &&
+                other.Span.Min == Span.Min &&
+                other.Span.Lim == Span.Lim &&
+                other.Content == Content;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Kind, Span, Content).GetHashCode();
+        }
     }
 }

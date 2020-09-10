@@ -95,14 +95,18 @@ namespace PAModel.PAConvert.Parser
             }
 
             var ch = CurrentChar;
-            if (CharacterUtils.IsSpace(ch) && CharacterUtils.IsLineTerm(_text[_currentPos - 1]))
-                return GetIndentationToken();
+            if (IsNewLine(ch))
+                return SkipNewLines();
+            if (_currentPos > 1 && CharacterUtils.IsLineTerm(_text[_currentPos - 1]))
+            {
+                var tok = GetIndentationToken();
+                if (tok != null)
+                    return tok;
+            }
             if (CharacterUtils.IsIdentStart(ch))
                 return GetIdentOrKeyword();
             if (CharacterUtils.IsSpace(ch))
                 return SkipSpaces();
-            if (IsNewLine(ch))
-                return SkipNewLines();
 
             return GetPunctuator();
 
@@ -179,15 +183,17 @@ namespace PAModel.PAConvert.Parser
 
         private Token SkipSpaces()
         {
-            while (CharacterUtils.IsSpace(NextChar()))
+            while (CharacterUtils.IsSpace(CurrentChar))
             {
+                NextChar();
             }
             return null;
         }
         private Token SkipNewLines()
         {
-            while (IsNewLine(NextChar()))
+            while (IsNewLine(CurrentChar))
             {
+                NextChar();
             }
             return null;
         }
