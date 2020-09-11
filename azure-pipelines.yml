@@ -58,7 +58,7 @@ steps:
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   inputs:
-    ConnectedServiceName: 'ESRPCodeSigningConnection'
+    ConnectedServiceName: 'ESRP Android Code Signing'
     FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
