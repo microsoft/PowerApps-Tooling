@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Linq;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Various data that we can save for round-tripping.
     // Everything here is optional!!

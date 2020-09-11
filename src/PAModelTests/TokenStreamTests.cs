@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PAModel;
-using PAModel.PAConvert.Parser;
 using System.Collections.Generic;
 
 namespace PAModelTests

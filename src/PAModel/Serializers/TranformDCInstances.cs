@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace PAModel.Serializers
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // To use a DataComponents within the msapp, there must be an instance of it. 
     // The instance is highly redundant with the template definition, and 

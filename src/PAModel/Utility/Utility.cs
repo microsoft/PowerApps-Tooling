@@ -15,7 +15,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 [assembly: InternalsVisibleTo("PAModelTests")]
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Various utility methods. 
     internal static class Utility

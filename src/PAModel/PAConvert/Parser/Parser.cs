@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
-namespace PAModel.PAConvert.Parser
+ 
+namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     public class Parser
     {

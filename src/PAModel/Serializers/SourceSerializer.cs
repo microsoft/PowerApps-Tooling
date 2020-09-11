@@ -3,20 +3,13 @@
 
 #define USEPA
 
-using Microsoft.AppMagic.Authoring.Persistence;
 using System;
-using System.IO;
-using System.Text.Json;
-using System.Linq;
 using System.Collections.Generic;
-using PAModel.PAConvert.Parser;
-using PAModel.PAConvert;
-using System.Data;
-using PAModel.Schemas.adhoc;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Read/Write to a source format. 
     public static partial class SourceSerializer
@@ -228,7 +221,7 @@ namespace PAModel
 
                 try
                 {
-                    var parser = new Parser(file._relativeName, file.GetContents(), controlState, templates);                        
+                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates);                        
                     var item = parser.ParseControl();
                     if (parser.HasErrors())
                     {

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PAModel.PAConvert.Parser
+namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal enum TokenKind
     {

@@ -7,7 +7,7 @@ using System.Security;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Microsoft.AppMagic.Authoring.Persistence
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public class DataSourceModel
     {

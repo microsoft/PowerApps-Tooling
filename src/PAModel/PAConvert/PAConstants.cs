@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PAModel.PAConvert
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public static class PAConstants
     {

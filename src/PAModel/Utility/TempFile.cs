@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     /// <summary>
     /// Return a full path for a temporary file, and delete it at Dispose.

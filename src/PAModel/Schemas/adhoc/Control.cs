@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using System.Collections.Generic;
 using System.Security;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Microsoft.AppMagic.Authoring.Persistence
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // $$$ todo - get real definition
     public class ControlInfoJson

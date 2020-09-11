@@ -9,7 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Raw kinds of files we recognize in the .msapp 
     enum FileKind

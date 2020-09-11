@@ -14,10 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using PAModel.Serializers;
-using PAModel.Schemas.adhoc;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Read/Write to an .msapp file. 
     public static class MsAppSerializer

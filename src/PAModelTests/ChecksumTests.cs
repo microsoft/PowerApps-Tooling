@@ -1,9 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PAModel;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace PAModelTests
 {

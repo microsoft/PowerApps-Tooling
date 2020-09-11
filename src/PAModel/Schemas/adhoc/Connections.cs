@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PAModel.Schemas.adhoc
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // connections are environment specific. 
     // Connections are the credentials. 

@@ -1,13 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
-using PAModel.PAConvert.Parser;
-using System;
-using System.Collections.Generic;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using System.Text;
 
-namespace PAModel.PAConvert
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal class PAWriter
     {

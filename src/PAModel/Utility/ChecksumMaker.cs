@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text.Json;
 using System.IO;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     /// <summary>
     /// Create a checksum over an .msapp file. 

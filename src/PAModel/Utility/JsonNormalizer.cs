@@ -14,7 +14,7 @@ using System.Text.Json.Serialization;
 using System.IO;
 using System.Text.Encodings.Web;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Write out Json in a normalized sorted order. 
     // Orders properties, whitespace/indenting, etc. 

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     enum SourceKind
     {

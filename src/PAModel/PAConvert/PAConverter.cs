@@ -1,19 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
-using PAModel.PAConvert;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.IO.Compression;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class PAConverter
     {
