@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
-using PAModel.Schemas.adhoc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Must be flexible about what files we see in the .msapp
     // In-memory representation for the app model (not the same as on-disk representation)

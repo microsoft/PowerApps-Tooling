@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Microsoft.AppMagic.Persistence.Converters
 {
-    public class JsonDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime>
+    internal class JsonDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime>
     {
         /// <summary>
         /// Assumes input to be universal and formatted according to

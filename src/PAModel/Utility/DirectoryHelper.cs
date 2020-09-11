@@ -7,7 +7,7 @@ using System.IO;
 using System.Text.Json;
 using System.Linq;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Abstraction over file system. 
     // Helps organize full path, relative paths

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using PAModel.PAConvert.Parser;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PAModel.PAConvert
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public class ErrorContainer
     {

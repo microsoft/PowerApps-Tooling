@@ -9,7 +9,7 @@ namespace Microsoft.AppMagic.Persistence.Converters
     /// <summary>
     /// Used to serialize and deserialize <see cref="Version"/>
     /// </summary>
-    public class JsonVersionConverter : System.Text.Json.Serialization.JsonConverter<Version>
+    internal class JsonVersionConverter : System.Text.Json.Serialization.JsonConverter<Version>
     {
         public override Version Read(
             ref Utf8JsonReader reader,

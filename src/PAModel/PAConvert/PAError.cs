@@ -1,12 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using PAModel.PAConvert.Parser;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
-namespace PAModel.PAConvert
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public class PAError
     {

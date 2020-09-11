@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace PAModel.Serializers
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {    
     // Logo file has a random filename that is continually regenerated, which creates Noisy Diffs.        
     // Find the file - based on the PublishInfo.LogoFileName and pull it out. 

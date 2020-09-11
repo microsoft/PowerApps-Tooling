@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30204.51
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PASopa", "PASopa\PASopa.csproj", "{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAModel", "PAModel\PAModel.csproj", "{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.Formulas.Tools", "PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj", "{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAModelTests", "PAModelTests\PAModelTests.csproj", "{8AD94CC0-7330-4880-A8E0-177B37CDB27B}"
 EndProject

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 
-namespace PAModel
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public class MsAppTest
     {

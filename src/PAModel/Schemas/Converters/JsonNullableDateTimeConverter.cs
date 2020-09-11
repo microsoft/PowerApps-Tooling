@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Microsoft.AppMagic.Persistence.Converters
 {
-    public class JsonNullableDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime?>
+    internal class JsonNullableDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime?>
     {
         public override DateTime? Read(
             ref Utf8JsonReader reader,

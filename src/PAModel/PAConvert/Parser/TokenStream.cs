@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PAModel.PAConvert.Parser
+namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class TokenStream
     {

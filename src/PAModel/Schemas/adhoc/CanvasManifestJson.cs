@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.AppMagic.Authoring.Persistence
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Manifest combines the various property/header/publish files into one. 
     class CanvasManifestJson

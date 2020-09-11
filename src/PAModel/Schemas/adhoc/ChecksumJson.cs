@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PAModel.Schemas.adhoc
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     class ChecksumJson
     {
