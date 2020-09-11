@@ -7,9 +7,6 @@ trigger:
 
 pool:
   vmImage: 'windows-latest'
-  
-variables:
-- group: 'Nuget And PSGallery Publishing Data'
 
 steps:
 # - task: NuGetCommand@2
