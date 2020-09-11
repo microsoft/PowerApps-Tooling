@@ -8,12 +8,17 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    // Must be flexible about what files we see in the .msapp
-    // In-memory representation for the app model (not the same as on-disk representation)
-    // - This should already be "normalized" on load. 
-    // - Serializing shoudn't mutate any state. 
-    public class MsApp
+    /// <summary>
+    /// Represents a PowerApps document.  This can be save/loaded from a MsApp or Source representation. 
+    /// This is a full in-memory representation of the msapp file. 
+    /// </summary>
+    public class CanvasDocument
     {
+        // Rules for CanvasDocument
+        // - Save/Load must faithfully roundtrip an msapp exactly. 
+        // - this is an in-memory representation - so it must parse/shard everything on load. 
+        // - Save should not mutate any state. 
+
         // Track all unknown "files". Ensures round-tripping isn't lossy.         
         // Only contains files of FileKind.Unknown
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
@@ -49,6 +54,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
+
+        #region Save/Load 
+        public static CanvasDocument LoadFromMsapp(string fullPathToMsApp)
+        {
+            return MsAppSerializer.Load(fullPathToMsApp);
+        }
+        public static CanvasDocument LoadFromSources(string pathToSourceDirectory)
+        {
+            return SourceSerializer.LoadFromSource(pathToSourceDirectory);
+        }
+        public void SaveToMsApp(string fullPathToMsApp)
+        {
+            MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp);
+        }
+        public void SaveToSources(string pathToSourceDirectory)
+        {
+            SourceSerializer.SaveAsSource(this, pathToSourceDirectory);
+        }
+        #endregion
 
 
         // iOrder is used to preserve ordering value for round-tripping. 
@@ -112,7 +136,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // $$$ Update a datasource? 
         // Chevron scenario. 
-        public void UpdateDataSource(DataSourceEntry dataSource)
+        internal void UpdateDataSource(DataSourceEntry dataSource)
         {
             DataSourceEntry existing = _dataSources.Where(x => x.Name == dataSource.Name).FirstOrDefault();
             if (existing == null)

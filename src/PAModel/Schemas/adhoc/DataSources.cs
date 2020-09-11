@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    public class DataSourceModel
+    internal class DataSourceModel
     {
         public const string DataComponentType = "DataComponent";
 
@@ -75,12 +75,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 
-    public class DataSourceEntry : DataSourceModel
+    internal class DataSourceEntry : DataSourceModel
     {
         
     }
 
-    public class DataSourcesJson
+    internal class DataSourcesJson
     {
         // Order here is random on server. 
         public DataSourceEntry[] DataSources { get; set; }

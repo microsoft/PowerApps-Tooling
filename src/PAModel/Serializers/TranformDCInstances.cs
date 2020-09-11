@@ -17,7 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         // DC template formulas are repeated twice in the ControlInfo Json 
         // At this point, all Templates are read in 
-        public static void TransformTemplatesOnLoad(this MsApp app)
+        public static void TransformTemplatesOnLoad(this CanvasDocument app)
         {
             foreach (var control in app._sources.Values)
             {
@@ -78,7 +78,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // If this sourceFile contains a data-component instance, 
         // and it was minifed, rehydrate it.
-        public static SourceFile RehydrateOnSave(this MsApp app, SourceFile sf)
+        public static SourceFile RehydrateOnSave(this CanvasDocument app, SourceFile sf)
         {
             // foreach (var control in app._sources.Values)
             var control = sf.JsonClone();

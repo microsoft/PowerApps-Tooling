@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    public class MsAppTest
+    internal class MsAppTest
     {
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
@@ -23,7 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var log = TextWriter.Null;
 
                 // MsApp --> Model
-                MsApp msapp;
+                CanvasDocument msapp;
                 try
                 {
                     msapp = MsAppSerializer.Load(pathToMsApp); // read 

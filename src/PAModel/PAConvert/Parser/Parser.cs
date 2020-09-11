@@ -10,7 +10,7 @@ using System.Text;
  
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
-    public class Parser
+    internal class Parser
     {
         private string _content;
         private string _fileName;

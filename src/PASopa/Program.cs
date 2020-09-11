@@ -68,12 +68,12 @@ namespace PASopa
 
                 Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
-                MsApp msApp = MsAppSerializer.Load(msAppPath);
+                CanvasDocument msApp = MsAppSerializer.Load(msAppPath);
                 msApp.SaveAsSource(outDir);
 
                 // Test that we can repack 
                 {
-                    MsApp msApp2 = SourceSerializer.LoadFromSource(outDir);
+                    CanvasDocument msApp2 = SourceSerializer.LoadFromSource(outDir);
                     using (var temp = new TempFile())
                     {
                         msApp2.SaveAsMsApp(temp.FullPath);
@@ -88,7 +88,7 @@ namespace PASopa
 
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
-                MsApp msApp = SourceSerializer.LoadFromSource(inputDir);
+                CanvasDocument msApp = SourceSerializer.LoadFromSource(inputDir);
                 msApp.SaveAsMsApp(msAppPath);
             } else
             {

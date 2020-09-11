@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // $$$ todo - get real definition
-    public class ControlInfoJson
+    internal class ControlInfoJson
     {
         public class RuleEntry
         {

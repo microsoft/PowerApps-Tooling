@@ -18,14 +18,14 @@ using System.Xml.Serialization;
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Read/Write to an .msapp file. 
-    public static class MsAppSerializer
+    internal static class MsAppSerializer
     {
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
             var je = entry.ToJson();
             return je.ToObject<T>();
         }
-        public static MsApp Load(string fullpathToMsApp)
+        public static CanvasDocument Load(string fullpathToMsApp)
         {
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
@@ -34,7 +34,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Read raw files. 
             // Apply transforms. 
-            var app = new MsApp();
+            var app = new CanvasDocument();
 
             app._checksum = new ChecksumJson(); // default empty. Will get overwritten if the file is present.
 
@@ -201,14 +201,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
 
-        internal static void AddFile(this MsApp app, FileEntry entry)
+        internal static void AddFile(this CanvasDocument app, FileEntry entry)
         {
             app._unknownFiles.Add(entry.Name, entry);
         }
 
 
         // Write back out to a msapp file. 
-        public static void SaveAsMsApp(this MsApp app, string fullpathToMsApp)
+        public static void SaveAsMsApp(this CanvasDocument app, string fullpathToMsApp)
         {
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -244,7 +244,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void ComputeAndWriteChecksum(MsApp app, ChecksumMaker checksum, ZipArchive z)
+        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z)
         {
             var hash = checksum.GetChecksum();
 
@@ -270,7 +270,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Get everything that should be stored as a file in the .msapp.
-        private static IEnumerable<FileEntry> GetMsAppFiles(this MsApp app)
+        private static IEnumerable<FileEntry> GetMsAppFiles(this CanvasDocument app)
         {
             // Loose files
             foreach (var file in app._unknownFiles.Values)

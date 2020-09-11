@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    public static class PAConstants
+    internal static class PAConstants
     {
         public const char IdentifierDelimiter = '\'';
 

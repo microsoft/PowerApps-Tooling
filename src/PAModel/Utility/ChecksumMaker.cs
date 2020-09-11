@@ -15,11 +15,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     /// <summary>
     /// Create a checksum over an .msapp file. 
     /// Must be tolerant to JSON files being non-canonical. 
-    /// To aide in computing ... allow checksum is computed out of order .
+    /// To aide in computing, allow checksum is computed out of order .
     /// </summary>
     public class ChecksumMaker
     {
-        // Given checksum an easy header so that we can identify algorithm version changes. 
+        // Given checksum an easy prefix so that we can identify algorithm version changes. 
         public string Version = "C1";
 
         public const string ChecksumName = "checksum.json";

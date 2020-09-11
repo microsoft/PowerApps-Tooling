@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
-    public struct TokenSpan
+    internal struct TokenSpan
     {
         public readonly int Min;
         public readonly int Lim;

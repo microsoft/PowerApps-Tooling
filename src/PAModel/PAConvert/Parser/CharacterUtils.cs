@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
-    public static class CharacterUtils
+    internal static class CharacterUtils
     {
         /// <summary>
         /// Bit masks of the UnicodeCategory enum. A couple extra values are defined
