@@ -76,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
     // We recreate this file from the min version. 
     // Writes to \references\DataComponentSources.json
-    public class DataComponentSourcesJson
+    internal class DataComponentSourcesJson
     {
         public const string NativeCDSDataSourceInfo = "NativeCDSDataSourceInfo";
 
@@ -136,12 +136,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //[JsonExtensionData]
         //public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
-    
+
 
 
     // This is used for both UI components and data components. 
     // Writes to \ComponentsMetadata.json
-    public class ComponentsMetadataJson
+    internal class ComponentsMetadataJson
     {
         public class Entry
         {

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    public class ErrorContainer
+    internal class ErrorContainer
     {
         private List<PAError> _errors;
 

@@ -15,18 +15,19 @@ namespace PAModelTests
         [TestMethod]
         public void Test()
         {
-            var asm = typeof(MsApp).Assembly;
+            var asm = typeof(CanvasDocument).Assembly;
 
+            var ns = "Microsoft.PowerPlatform.Formulas.Tools";
             HashSet<string> allowed = new HashSet<string>()
             {
-                "Microsoft.PowerPlatform.Formulas.MsApp"
+                $"{ns}.CanvasDocument",
+                $"{ns}.ChecksumMaker"
             };
 
             StringBuilder sb = new StringBuilder();
             foreach(var type in asm.GetTypes().Where(t => t.IsPublic))
             {
                 var name = type.FullName;
-                // Assert.IsTrue(allowed.Contains(name), $"Type {name} shoouldn't be public");
                 if (!allowed.Contains(name))
                 {
                     sb.Append(name);
@@ -43,3 +44,4 @@ namespace PAModelTests
         }
     }
 }
+

@@ -6,14 +6,14 @@ using System.Text.Json;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
-    public enum DataComponentDependencyKind
+    internal enum DataComponentDependencyKind
     {
         Cds,
         DataComponent,
         Unknown
     }
 
-    public enum DataComponentDefinitionKind
+    internal enum DataComponentDefinitionKind
     {
         /// <summary>
         /// Data component type mirrors a CDS entity.
@@ -64,7 +64,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     }
 
 
-    public class ComponentDefinitionInfoJson
+    internal class ComponentDefinitionInfoJson
     {
         public string Name { get; set; }
         public string LastModifiedTimestamp { get; set; } //  "637335420246436668",

@@ -12,7 +12,7 @@ using System.Text.Json;
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Read/Write to a source format. 
-    public static partial class SourceSerializer
+    internal static partial class SourceSerializer
     {
         public static Version CurrentSourceVersion = new Version(0, 1);
 
@@ -35,7 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Full fidelity read-write
 
-        public static MsApp LoadFromSource(string directory2)
+        public static CanvasDocument LoadFromSource(string directory2)
         {
             if (File.Exists(directory2))
             {
@@ -52,7 +52,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dir = new DirectoryReader(directory2);
             
             // $$$ Duplicate with MsAppSerializer? 
-            var app = new MsApp();
+            var app = new CanvasDocument();
 
             // Do the manifest check (and version check) first. 
             // MAnifest lives in top-level directory. 
@@ -140,7 +140,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // The publish info points to the logo file. Grab it from the unknowns. 
-        private static void GetLogoFileFromUnknowns(this MsApp app)
+        private static void GetLogoFileFromUnknowns(this CanvasDocument app)
         {
             // Logo file. 
             if (!string.IsNullOrEmpty(app._publishInfo.LogoFileName))
@@ -159,7 +159,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadSourceFiles(MsApp app, DirectoryReader directory)
+        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory)
         {
             // Ignoring real pa1 files, can't parse them yet. 
             // Sources
@@ -252,7 +252,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 #endif
         }
 
-        private static void LoadDataSources(MsApp app, DirectoryReader directory)
+        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
         {
             // Will include subdirectories. 
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
@@ -263,7 +263,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Write out to a directory (this shards it) 
-        public static void SaveAsSource(this MsApp app, string directory2)
+        public static void SaveAsSource(this CanvasDocument app, string directory2)
         {
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
@@ -387,7 +387,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Ignore these. but they help give more visibility into some of the json encoded fields.
-        private static void WriteIgnoreFiles(this MsApp app, DirectoryWriter directory)
+        private static void WriteIgnoreFiles(this CanvasDocument app, DirectoryWriter directory)
         {
             foreach (var x in app.GetDataSources())
             {

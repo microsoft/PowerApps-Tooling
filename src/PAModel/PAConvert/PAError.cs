@@ -5,7 +5,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    public class PAError
+    internal class PAError
     {
         public TokenSpan Span;
         public string Message;
