@@ -1,0 +1,123 @@
+# Build Pipeline for signing PowerPlatform.Formulas.Tools
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+  
+variables:
+- group: 'Nuget And PSGallery Publishing Data'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use dotnet sdk 3.1'
+  inputs:
+    version: 3.1.x
+    installationPath: '$(Agent.ToolsDirectory)/dotnet'
+
+# Dotnet 2.1 appears to be required for ESRP signing? seems weird, testing
+- task: UseDotNet@2
+  displayName: 'Use dotnet sdk 2.1'
+  inputs:
+    version: 2.1.x
+    installationPath: '$(Agent.ToolsDirectory)/dotnet'
+- task: DotNetCoreCLI@2
+  displayName: 'Build PASopa.sln'
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
+    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)/'
+    
+- task: VSTest@2
+  displayName: 'Test PAModelTests.dll'
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\PAModelTests.dll'
+    searchFolder: '$(Build.BinariesDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    configuration: '$(BuildConfiguration)'
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
+  inputs:
+    ConnectedServiceName: 'ESRPCodeSigningConnection'
+    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    Pattern: '*.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "keyCode": "CP-230012",
+             "operationSetCode": "SigntoolSign",
+             "parameters": [
+             {
+                 "parameterName": "OpusName",
+                 "parameterValue": "Microsoft"
+             },
+             {
+                 "parameterName": "OpusInfo",
+                 "parameterValue": "http://www.microsoft.com"
+             },
+             {
+                 "parameterName": "Append",
+                 "parameterValue": "/as"
+             },
+             {
+                 "parameterName": "FileDigest",
+                 "parameterValue": "/fd \"SHA256\""
+             },
+             {
+                 "parameterName": "PageHash",
+                 "parameterValue": "/NPH"
+             },
+             {
+                 "parameterName": "TimeStamp",
+                 "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             }
+             ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         }
+     ]
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
+    
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formulas.Tools.nuspec'
+    versioningScheme: 'off'
+    
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP sign nuget packages'
+  inputs:
+    ConnectedServiceName: ESRPCodeSigningConnection
+    FolderPath: '$(Build.ArtifactStagingDirectory)'
+    Pattern: '*.nupkg'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetSign",
+         "parameters": [],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       },
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetVerify",
+         "parameters": [],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       }
+     ]
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
+    
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
+    publishLocation: 'Container'
