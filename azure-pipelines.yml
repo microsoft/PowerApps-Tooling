@@ -1,7 +1,5 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Build Pipeline for signing PowerPlatform.Formulas.Tools
+
 trigger:
 - master
 
@@ -9,26 +7,6 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-# - task: NuGetCommand@2
-#   displayName: 'Restore PowerApps.Tools Package'
-#   inputs:
-#     restoreSolution: src/Nuget/packages.tools.config
-#     vstsFeed: '7a557a84-8b01-4ea1-bce5-e88f70976347'
-#     includeNuGetOrg: false
-#     restoreDirectory: '$(Agent.BuildDirectory)/p/'
-
-# - task: PowerShell@1
-#   displayName: 'Set PowerApps.Tools Package Path'
-#   inputs:
-#     scriptType: inlineScript
-#     inlineScript: |
-#      $result = [System.IO.File]::ReadAllText("$(Build.SourcesDirectory)/src/Nuget/packages.tools.config") | `
-#      Select-Xml -XPath "/packages/package[@id='PowerApps.Tools']" | `
-#      Select-Object -First 1
-#      $version = $result.Node.version
-     
-#      $path = "$(PackagesPath)\PowerApps.Tools.$version"
-#      Write-Host "##vso[task.setvariable variable=ToolsPackagePath]$path"
 - task: UseDotNet@2
   displayName: 'Use dotnet sdk 3.1'
   inputs:
@@ -42,12 +20,14 @@ steps:
     version: 2.1.x
     installationPath: '$(Agent.ToolsDirectory)/dotnet'
 - task: DotNetCoreCLI@2
+  displayName: 'Build PASopa.sln'
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
     arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)/'
     
 - task: VSTest@2
+  displayName: 'Test PAModelTests.dll'
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: '**\PAModelTests.dll'
@@ -57,6 +37,7 @@ steps:
     configuration: '$(BuildConfiguration)'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP sign PAModel.dll'
   inputs:
     ConnectedServiceName: 'ESRPCodeSigningConnection'
     FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
@@ -103,5 +84,30 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formula.Tools.nuspec'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'NugetVersion'
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP sign nuget packages'
+  inputs:
+    ConnectedServiceName: ESRPCodeSigningConnection
+    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    Pattern: '*.nupkg'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetSign",
+         "parameters": [],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       },
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetVerify",
+         "parameters": [],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       }
+     ]
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
+    
