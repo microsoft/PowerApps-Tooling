@@ -5,6 +5,9 @@ trigger:
 
 pool:
   vmImage: 'windows-latest'
+  
+variables:
+- group: 'Nuget And PSGallery Publishing Data'
 
 steps:
 - task: UseDotNet@2
@@ -91,7 +94,7 @@ steps:
   displayName: 'ESRP sign nuget packages'
   inputs:
     ConnectedServiceName: ESRPCodeSigningConnection
-    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    FolderPath: '$(Build.ArtifactStagingDirectory)'
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -113,3 +116,8 @@ steps:
      ]
     ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
     
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
+    publishLocation: 'Container'
