@@ -29,6 +29,6 @@
         </dependencies>
     </metadata>    
     <files>
-        <file src="PAModel.dll" target="lib\netstandard2.0\" />
+        <file src="Microsoft.PowerPlatform.Formulas.Tools.dll" target="lib\netstandard2.0\" />
     </files>
 </package>

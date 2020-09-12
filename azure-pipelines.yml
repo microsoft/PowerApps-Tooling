@@ -37,7 +37,7 @@ steps:
     configuration: '$(BuildConfiguration)'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP sign PAModel.dll'
+  displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
   inputs:
     ConnectedServiceName: 'ESRPCodeSigningConnection'
     FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
