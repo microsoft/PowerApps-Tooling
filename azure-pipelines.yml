@@ -84,6 +84,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formula.Tools.nuspec'
+    versioningScheme: 'off'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP sign nuget packages'
