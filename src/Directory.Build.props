@@ -1,0 +1,58 @@
+<Project>
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <LangVersion>8.0</LangVersion>
+    </PropertyGroup>
+
+    <!-- If not otherwise specified, the project is building for Debug -->
+    <PropertyGroup Condition=" '$(Configuration)' == '' ">
+        <Configuration>Debug</Configuration>
+    </PropertyGroup>
+
+    <!-- Settings for the Debug configuration. -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Settings for the Release confi guration. -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <SourcePath>$(MSBuildThisFileDirectory)</SourcePath>
+        <BinPath Condition=" '$(BinPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\bin'))</BinPath>
+        <IntermediatePath Condition=" '$(IntermediatePath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\obj'))\</IntermediatePath>
+        <RelativeProjectPath>$([MSBuild]::MakeRelative($(SourcePath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
+        
+        <RootOutputPath>$(BinPath)\$(Configuration)\</RootOutputPath>
+
+        <!-- Output path for the project -->
+        <ProjectOutputPath>$(RootOutputPath)$(RelativeProjectPath)\</ProjectOutputPath>
+
+        <!-- Output path for the project -->
+        <OutputPath Condition="'$(OutputPath)' == ''">$(ProjectOutputPath)</OutputPath>
+        <OutDir Condition="'$(OutDir)' == ''">$(OutputPath)</OutDir>
+
+        <!-- Intermediates path for the configuration/platform combination. -->
+        <RootIntermediateOutputPath>$(IntermediatePath)$(Configuration)\</RootIntermediateOutputPath>
+
+        <!-- Intermediates path for the project. -->
+        <ProjectIntermediateOutputPath>$(RootIntermediateOutputPath)$(RelativeProjectPath)\</ProjectIntermediateOutputPath>
+        <IntermediateOutputPath Condition="'$(IntermediateOutputPath)' == ''">$(ProjectIntermediateOutputPath)</IntermediateOutputPath>
+        <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(IntermediatePath)NugetRestore\$(RelativeProjectPath)</BaseIntermediateOutputPath>
+
+        <!-- Path to Nuget packages -->
+        <PackagesPath Condition=" '$(PackagesPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\pkg'))\</PackagesPath>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RestorePackagesPath>$(PackagesPath)</RestorePackagesPath>
+        <RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
+        <RestoreOutputPath>$(BaseIntermediateOutputPath)</RestoreOutputPath>
+    </PropertyGroup>
+</Project>
