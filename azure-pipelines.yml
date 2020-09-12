@@ -58,14 +58,14 @@ steps:
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   inputs:
-    ConnectedServiceName: 'ESRP Android Code Signing'
+    ConnectedServiceName: 'ESRPCodeSigningConnection'
     FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
          {
-             "keyCode": "CP-236167",
+             "keyCode": "CP-230012",
              "operationSetCode": "SigntoolSign",
              "parameters": [
              {
@@ -75,6 +75,10 @@ steps:
              {
                  "parameterName": "OpusInfo",
                  "parameterValue": "http://www.microsoft.com"
+             },
+             {
+                 "parameterName": "Append",
+                 "parameterValue": "/as"
              },
              {
                  "parameterName": "FileDigest",
@@ -89,13 +93,6 @@ steps:
                  "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
              }
              ],
-             "toolName": "sign",
-             "toolVersion": "1.0"
-         },
-         {
-             "keyCode": "CP-236167",
-             "operationSetCode": "SigntoolVerify",
-             "parameters": [ ],
              "toolName": "sign",
              "toolVersion": "1.0"
          }
