@@ -91,7 +91,7 @@ steps:
   displayName: 'ESRP sign nuget packages'
   inputs:
     ConnectedServiceName: ESRPCodeSigningConnection
-    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    FolderPath: '$(Build.ArtifactStagingDirectory)'
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
     inlineOperation: |
