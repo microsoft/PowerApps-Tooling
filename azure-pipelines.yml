@@ -80,12 +80,14 @@ steps:
      ]
     ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
     
-- task: NuGetCommand@2
+
+- task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
     packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formula.Tools.nuspec'
+    nobuild: true
     versioningScheme: 'off'
-
+    
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP sign nuget packages'
   inputs:
