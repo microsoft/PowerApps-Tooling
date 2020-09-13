@@ -1,48 +1,97 @@
-﻿using System;
+using System;
 using System.IO;
+using CommandLine;
 using SimpleExec;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
 
 namespace targets
 {
+    class Options
+    {
+        [Value(0, MetaName = "target", HelpText = "build target to run; see available with: '--list", Default = "rebuild")]
+        public string Target { get; set; }
+
+        [Option('c', "configuration", Required = false, Default = "Debug")]
+        public string Configuration { get; set; }
+    }
+
     class Program
     {
-        static string rootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
+        static string RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
+        static string BinDir = Path.Combine(RootDir, "bin");
+        static string ObjDir = Path.Combine(RootDir, "obj");
+        static string PkgDir = Path.Combine(RootDir, "pkg");
+        static string LogDir = Path.Combine(ObjDir, "logs");
+        static string TestLogDir = Path.Combine(ObjDir, "testLogs");
+        static Options options;
+
         static void Main(string[] args)
         {
-            var pkgDir = Path.Combine(rootDir, "pkg");
-            var logDir = Path.Combine(rootDir, "obj", "logs");
-            var testLogDir = Path.Combine(rootDir, "obj", "testLogs");
-            var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={logDir}/msbuild.log /flp3:PerformanceSummary;Verbosity=diag;LogFile={logDir}/msbuild.diagnostics.log";
+            var solution = Path.Combine(RootDir, "src/PASoPa.sln");
 
-            var solution = Path.Combine(rootDir, "src/PASoPa.sln");
+            Target("squeaky-clean",
+                () =>
+                {
+                    CleanDirectory(BinDir);
+                    CleanDirectory(ObjDir);
+                    CleanDirectory(PkgDir);
+                });
 
             Target("clean",
-                () => Run("dotnet", $"clean {solution} {logSettings} /nologo"));
+                () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}"));
 
             Target("restore",
                 DependsOn("clean"),
-                () => Run("dotnet", $"restore {solution} {logSettings} /nologo"));
+                () => RunDotnet("restore", $"{solution}"));
 
             Target("build",
-                () => Run("dotnet", $"build {solution} {logSettings} /nologo"));
+                () => RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore"));
 
             Target("test",
-                () => Run("dotnet", $"test {solution} --no-build --logger trx --results-directory {testLogDir} {logSettings} /nologo"));
+                () => RunDotnet("test", $"{solution} --configuration {options.Configuration} --no-build --logger trx --results-directory {TestLogDir}"));
 
             Target("rebuild",
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => Run("dotnet", $"pack --output {pkgDir} --no-build {solution} {logSettings} /nologo"));
+                () => RunDotnet("pack", $" {solution} --configuration {options.Configuration} --output {PkgDir} --no-build"));
 
             Target("ci",
-                DependsOn("rebuild", "test", "pack"));
+                DependsOn("squeaky-clean", "rebuild", "test", "pack"));
 
-            Target("default", DependsOn("rebuild"));
+            Parser.Default.ParseArguments<Options>(args)
+            .WithParsed<Options>(o =>
+                {
+                    options = o;
+                    RunTargetsAndExit(new[] {options.Target},
+                        logPrefix: options.Target,
+                        messageOnly: ex => ex is NonZeroExitCodeException);
+                })
+            .WithNotParsed(errs =>
+            {
+                RunTargetsAndExit(args);
+            });
+        }
 
-             RunTargetsAndExit(args, messageOnly: ex => ex is NonZeroExitCodeException);
+        static void RunDotnet(string verb, string verbArgs)
+        {
+            var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={LogDir}/{verb}-{options.Configuration}.log /flp3:PerformanceSummary;Verbosity=diag;LogFile={LogDir}/{verb}-{options.Configuration}.diagnostics.log";
+            Run("dotnet", $"{verb} {verbArgs} {logSettings} /nologo");
+        }
+
+        static void CleanDirectory(string directoryPath)
+        {
+            directoryPath = Path.GetFullPath(directoryPath);
+            Console.WriteLine($"Cleaning directory: {directoryPath}");
+            try {
+                if (Directory.Exists(directoryPath))
+                {
+                    Directory.Delete(directoryPath, recursive: true);
+                }
+            }
+            catch (AccessViolationException) { /* swallow */ }
+            // catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
     }
 }

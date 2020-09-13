@@ -11,7 +11,10 @@
         "request": "launch",
         "preLaunchTask": "build targets",
         "program": "${workspaceFolder}/targets/bin/Debug/netcoreapp3.1/targets.dll",
-        "args": [],
+        "args": [
+          "build",
+          "-c", "release"
+        ],
         "cwd": "${workspaceFolder}",
         "stopAtEntry": false,
         "console": "internalConsole"
