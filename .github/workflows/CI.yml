@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
 
@@ -20,5 +23,11 @@ jobs:
       with:
         dotnet-version: '3.1.x'
 
-    - name: Build and test
+    - name: Build and test (win)
       run: ./build ci
+      if: ${{ runner.os == 'Windows' }}
+
+    - name: Build only (!win)
+      run: ./build rebuild
+      # 4 out of 15 tests fail when running on e.g. linux (WSL-Debian)
+      if: ${{ runner.os != 'Windows' }}
