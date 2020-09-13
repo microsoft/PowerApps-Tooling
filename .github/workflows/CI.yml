@@ -21,4 +21,4 @@ jobs:
         dotnet-version: '3.1.x'
 
     - name: Build and test
-      run: build ci
+      run: ./build ci
