@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest]
     env:
       DOTNET_NOLOGO: true
 
@@ -31,5 +31,5 @@ jobs:
 
     - name: Build only (!win)
       run: ./build rebuild
-      # 4 out of 15 tests fail when running on e.g. linux (WSL-Ubuntu LTS)
+      # 4 out of 15 tests fail when running on e.g. linux (WSL-Ubuntu LTS) and macOS
       if: ${{ runner.os != 'Windows' }}
