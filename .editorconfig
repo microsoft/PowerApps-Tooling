@@ -1,0 +1,20 @@
+# see https://aka.ms/editorconfigdocs
+root = true
+
+[*]
+indent_style = space
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+
+[*.{json,js}]
+indent_size = 2
+tab_width = 2
+
+[*.{cake,csproj,ps1,psd1,psm1,editorconfig}]
+indent_size = 4
+tab_width = 4
+
+[*.sh]
+end_of_line = lf
+indent_size = 2
