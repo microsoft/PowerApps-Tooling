@@ -1,14 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Persistence.Converters;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -38,7 +36,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return @default;
         }
 
-        public static TValue GetOrCreate<TKey,TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
             where TValue : new()
         {
             TValue value;
@@ -62,7 +60,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             opts.Converters.Add(new JsonDateTimeConverter());
             opts.Converters.Add(new JsonVersionConverter());
-            
+
             opts.WriteIndented = true;
             opts.IgnoreNullValues = true;
 
@@ -135,7 +133,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void EnsureNoExtraData(Dictionary<string, JsonElement> extra)
         {
-            if (extra!= null && extra.Count > 0)
+            if (extra != null && extra.Count > 0)
             {
                 throw new NotSupportedException("There are fields in json we don't recognize");
             }
@@ -164,27 +162,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (ch == '_') ||
                 (ch == '.') ||
                 (ch == ' ') || // allow spaces, very common.  
-                (ch == '\\'); // Allow directory separators. 
+                (ch == '\\' || ch == '/'); // Allow directory separators. 
         }
 
         // For writing out to a director. 
         public static string EscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var ch in path)
+            foreach (var ch in path)
             {
                 if (DontEscapeChar(ch))
                 {
                     sb.Append(ch);
-                } else
+                }
+                else
                 {
-                    
                     var x = (int)ch;
                     if (x <= 255)
                     {
                         sb.Append(EscapeChar);
                         sb.Append(x.ToString("x2"));
-                    } else
+                    }
+                    else
                     {
                         sb.Append(EscapeChar);
                         sb.Append(EscapeChar);
@@ -214,7 +213,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string UnEscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < path.Length; i++)
+            for (int i = 0; i < path.Length; i++)
             {
                 var ch = path[i];
                 if (DontEscapeChar(ch))
@@ -225,18 +224,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     // Unescape 
                     int x;
-                    if (path[i+1] == EscapeChar)
+                    if (path[i + 1] == EscapeChar)
                     {
                         i++;
-                        x = ToHex(path[i + 1]) * 16 *16 * 16+ 
-                            ToHex(path[i + 2]) * 16 *16 + 
-                            ToHex(path[i + 3]) * 16 + 
+                        x = ToHex(path[i + 1]) * 16 * 16 * 16 +
+                            ToHex(path[i + 2]) * 16 * 16 +
+                            ToHex(path[i + 3]) * 16 +
                             ToHex(path[i + 4]);
                         i += 4;
-                    } else
+                    }
+                    else
                     {
                         // 2 digit
-                        x = ToHex(path[i + 1]) * 16 + 
+                        x = ToHex(path[i + 1]) * 16 +
                             ToHex(path[i + 2]);
                         i += 2;
                     }
