@@ -10,12 +10,12 @@ namespace PAModelTests
     public class UtilityTests
     {
         [DataTestMethod]
-        [DataRow("\r\t!$/\\^%", "%0d%09%21%24/\\%5e%25")]
+        [DataRow("\r\t!$/\\^%", "%0d%09%21%24%2f%5c%5e%25")]
         [DataRow("\u4523", "%%4523")]
         public void TestEscaping(string unescaped, string escaped)
         {
-            Assert.AreEqual(Utility.EscapeFilename(unescaped), escaped);
-            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+            Assert.AreEqual(escaped, Utility.EscapeFilename(unescaped));
+            Assert.AreEqual(unescaped, Utility.UnEscapeFilename(escaped));
         }
 
         [TestMethod]
@@ -23,7 +23,7 @@ namespace PAModelTests
         {
             // Not escaped.
             var a = "0123456789AZaz[]_.";
-            Assert.AreEqual(Utility.EscapeFilename(a), a);
+            Assert.AreEqual(a, Utility.EscapeFilename(a));
         }
     }
 }

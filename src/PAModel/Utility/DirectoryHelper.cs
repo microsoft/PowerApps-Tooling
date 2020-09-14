@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -100,11 +100,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             private string _fullpath;
             public FileKind Kind;
-            internal string _relativeName;
+            internal string _relativeDir;
+            internal string _fileName;
 
-            public Entry(string fullPath)
+            public string RelativeName => Path.Combine(_relativeDir, _fileName);
+
+            public Entry(string fullPath, string relativePath)
             {
-                this._fullpath = fullPath;
+                _fullpath = fullPath;
+                _relativeDir = Path.GetDirectoryName(relativePath);
+                _fileName = Utility.UnEscapeFilename(Path.GetFileName(relativePath));
             }
 
             // FileEntry is the same structure we get back from a Zip file. 
@@ -112,8 +117,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return new FileEntry
                 {
-                    Name = this._relativeName.Replace('/', '\\'),
-                    RawBytes = File.ReadAllBytes(this._fullpath)
+                    Name = Path.Combine(_relativeDir, _fileName),
+                    RawBytes = File.ReadAllBytes(_fullpath)
                 };
             }
 
@@ -143,9 +148,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var entries = from fullPath in fullPaths
                           let relativePath = Utility.GetRelativePath(fullPath, root)
-                          select new Entry(fullPath)
+                          select new Entry(fullPath, relativePath)
                           {
-                              _relativeName = Utility.UnEscapeFilename(relativePath),
                               Kind = FileEntry.TriageKind(relativePath)
                           };
 

@@ -161,8 +161,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (ch == '[' || ch == ']') || // common in SQL connection names 
                 (ch == '_') ||
                 (ch == '.') ||
-                (ch == ' ') || // allow spaces, very common.  
-                (ch == '\\' || ch == '/'); // Allow directory separators. 
+                (ch == ' '); // allow spaces, very common.
         }
 
         // For writing out to a director. 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #define USEPA
@@ -106,7 +106,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     case FileKind.ComponentSrc:
                     case FileKind.ControlSrc:                        
                         // Shouldn't find any here -  were explicit in source
-                        throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
+                        throw new InvalidOperationException($"Unexpected source file: " + file.RelativeName);
                         
                 }
             } // each loose file in '\other' 
@@ -179,18 +179,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
                 }
 
-                bool isDataComponentManifest = file._relativeName.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
+                bool isDataComponentManifest = file._fileName.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
                 if (isDataComponentManifest)
                 {
                     var json = file.ToObject< MinDataComponentManifest>();
                     app._dataComponents.Add(json.TemplateGuid, json);
                 }
-                else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
+                else if (file._fileName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
                 {
 #if USEPA
                     // Json peer to a .pa file. 
                     var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
-                    var filename = Path.GetFileName(file._relativeName);
+                    var filename = file._fileName;
                     var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
 
                     controlData.Add(controlName, controlExtraData);
@@ -214,14 +214,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 #if USEPA
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
-                var filename = Path.GetFileName(file._relativeName);
+                var filename = file._fileName;
                 var controlName = filename.Remove(filename.IndexOf(".pa1"));
                 if (!controlData.TryGetValue(controlName, out var controlState))
                     throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
 
                 try
                 {
-                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates);                        
+                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(filename, file.GetContents(), controlState, templates);                        
                     var item = parser.ParseControl();
                     if (parser.HasErrors())
                     {
@@ -353,17 +353,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Loose files. 
             foreach (FileEntry file in app._unknownFiles.Values)
             {
+                var path = Path.GetDirectoryName(file.Name);
+                var filename = Path.GetFileName(file.Name);
+                var targetDir = OtherDir;
+
+                if (!string.IsNullOrEmpty(path))
+                    targetDir = Path.Combine(targetDir, path);
+
                 // Standardize the .json files so they're determinsitc and comparable
                 if (file.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     ReadOnlyMemory<byte> span = file.RawBytes;
                     var je = JsonDocument.Parse(span).RootElement;
                     var jsonStr = JsonNormalizer.Normalize(je);
-                    dir.WriteAllText(OtherDir, file.Name, jsonStr); 
+                    dir.WriteAllText(targetDir, filename, jsonStr); 
                 }
                 else
                 {
-                    dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
+                    dir.WriteAllBytes(targetDir, filename, file.RawBytes);
                 }
             }
 
