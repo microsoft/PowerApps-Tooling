@@ -2,6 +2,7 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <LangVersion>8.0</LangVersion>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <!-- If not otherwise specified, the project is building for Debug -->
@@ -28,7 +29,7 @@
         <BinPath Condition=" '$(BinPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\bin'))</BinPath>
         <IntermediatePath Condition=" '$(IntermediatePath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\obj'))\</IntermediatePath>
         <RelativeProjectPath>$([MSBuild]::MakeRelative($(SourcePath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
-        
+
         <RootOutputPath>$(BinPath)\$(Configuration)\</RootOutputPath>
 
         <!-- Output path for the project -->

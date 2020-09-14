@@ -15,7 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
-        {            
+        {
             using (var temp1 = new TempFile())
             {
                 string outFile = temp1.FullPath;
@@ -26,9 +26,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 CanvasDocument msapp;
                 try
                 {
-                    msapp = MsAppSerializer.Load(pathToMsApp); // read 
+                    msapp = MsAppSerializer.Load(pathToMsApp); // read
                 }
-                catch (NotSupportedException e)
+                catch (NotSupportedException)
                 {
                     Console.WriteLine($"Too old: {pathToMsApp}");
                     return false;
@@ -39,7 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 MsAppTest.Compare(pathToMsApp, outFile, log);
 
 
-                // Model --> Source 
+                // Model --> Source
                 using (var tempDir = new TempDir())
                 {
                     string outSrcDir = tempDir.Dir;
@@ -48,7 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Source --> Model
                     var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
 
-                    msapp2.SaveAsMsApp(outFile); // Write out .pa files. 
+                    msapp2.SaveAsMsApp(outFile); // Write out .pa files.
                     var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
                     return ok;
                 }
@@ -64,15 +64,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return true;
             }
 
-            // If there's a checksum mismatch, do a more intensive comparison to find the difference. 
+            // If there's a checksum mismatch, do a more intensive comparison to find the difference.
 
-            // Provide a comparison that can be very specific about what the difference is. 
+            // Provide a comparison that can be very specific about what the difference is.
             Dictionary<string, string> comp = new Dictionary<string, string>();
             var h1 = Test(pathToZip1, log, comp, true);
             var h2 = Test(pathToZip2, log, comp, false);
 
-            
-            foreach (var kv in comp) // Remaining entries are errors. 
+
+            foreach (var kv in comp) // Remaining entries are errors.
             {
                 Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
             }
@@ -86,10 +86,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return false;
         }
 
-        // Get a hash for the MsApp file. 
-        // First pass adds file/hash to comp. 
-        // Second pass checks hash equality and removes files from comp. 
-        // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass. 
+        // Get a hash for the MsApp file.
+        // First pass adds file/hash to comp.
+        // Second pass checks hash equality and removes files from comp.
+        // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass.
         public static string Test(string pathToZip, TextWriter log, Dictionary<string,string> comp, bool first)
         {
             StringBuilder sb = new StringBuilder();
@@ -145,16 +145,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 if (otherContents != str)
                                 {
-                                    // Fail! Mismatch 
+                                    // Fail! Mismatch
                                     Console.WriteLine("FAIL: hash mismatch: " + e.FullName);
 
-                                    // Write out normalized form. Easier to spot the diff. 
+                                    // Write out normalized form. Easier to spot the diff.
                                     File.WriteAllText(@"c:\temp\a1.json", otherContents);
                                     File.WriteAllText(@"c:\temp\b1.json", str);
                                 }
                                 else
                                 {
-                                    // success                                     
+                                    // success
                                 }
                                 comp.Remove(e.FullName);
                             }
@@ -163,7 +163,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 // Missing file!
                                 Console.WriteLine("FAIL: 2nd has added file: " + e.FullName);
                             }
-                        }                        
+                        }
                     }
 
 
@@ -178,8 +178,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return sb.ToString();
         }
 
-        // Used for comparing equality of 2 json blobs. 
-        // Writing JsonElement is unordered. So do an ordered traversal. 
+        // Used for comparing equality of 2 json blobs.
+        // Writing JsonElement is unordered. So do an ordered traversal.
         //   https://stackoverflow.com/questions/59134564/net-core-3-order-of-serialization-for-jsonpropertyname-system-text-json-seria
         static void Check(StringBuilder sb, JsonElement e, string indent = "")
         {
@@ -192,7 +192,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 #if false
                     Dictionary<int, string> parts = new Dictionary<int, string>();
 
-                    // Deterministic order for array output. 
+                    // Deterministic order for array output.
                     foreach (var x in e.EnumerateArray())
                     {
                         StringBuilder sb2 = new StringBuilder();
@@ -207,7 +207,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
 #else
                     foreach (var x in e.EnumerateArray())
-                    {                        
+                    {
                         Check(sb, x, indent + "  ");
                     }
 #endif
@@ -215,7 +215,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     sb.AppendLine("]");
                     break;
                 case JsonValueKind.Object:
-                    // We have a bug wehere we double emit the same field. 
+                    // We have a bug wehere we double emit the same field.
                     HashSet<string> dups = new HashSet<string>();
 
                     sb.Append(indent);
@@ -250,7 +250,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 isDoubleEncodedJson = true;
 
-                                //ReadOnlySequence<byte> span = 
+                                //ReadOnlySequence<byte> span =
                                 //Utf8JsonReader r = new Utf8JsonReader()
                                 //JsonDocument.TryParseValue()
                             }
@@ -262,7 +262,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 str = "<json>" + JsonNormalizer.Normalize(str) + "</json>";
                             }
-                            catch { } // Not Json. 
+                            catch { } // Not Json.
                         }
 
                         // sb.AppendLine(str);
@@ -271,7 +271,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     break;
 
                 case JsonValueKind.Number:
-                    // Normalize numbers. 3 and 3.0  should compare equals. 
+                    // Normalize numbers. 3 and 3.0  should compare equals.
                     sb.Append(indent);
                     sb.AppendLine(e.GetDouble().ToString());
                     break;
