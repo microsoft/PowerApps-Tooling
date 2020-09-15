@@ -34,7 +34,7 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'VSTest'
-    testResultsFiles: '**/TEST-*.trx'
+    testResultsFiles: '**/*-*.trx'
     mergeTestResults: true
     failTaskOnFailedTests: true
 
@@ -42,7 +42,7 @@ steps:
   displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
   inputs:
     ConnectedServiceName: 'ESRPCodeSigningConnection'
-    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    FolderPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -86,7 +86,7 @@ steps:
 - task: NuGetCommand@2
   inputs:
     command: 'pack'
-    packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formulas.Tools.nuspec'
+    packagesToPack: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/PowerPlatform.Formulas.Tools.nuspec'
     versioningScheme: 'off'
     
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
