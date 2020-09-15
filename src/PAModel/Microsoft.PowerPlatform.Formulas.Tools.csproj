@@ -6,13 +6,32 @@
     <RootNamespace>Microsoft.PowerPlatform.Formulas.Tools</RootNamespace>
   </PropertyGroup>
 
+  <!-- Nuget Properties -->
+  <PropertyGroup>
+    <PackageId>Microsoft.PowerPlatform.Formulas.Tools</PackageId>
+    <Authors>Microsoft</Authors>
+    <Company>crmsdk,Microsoft</Company>
+    <Title>PowerPlatform Canvas App Tools</Title>
+    <PackageLicenseUrl>http://download.microsoft.com/download/E/1/8/E18C0FAD-FEC8-44CD-9A16-98EDC4DAC7A2/LicenseTerms.docx</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Description>Alpha Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
+    <PackageReleaseNotes>
+        Notice: 
+            This package is an ALPHA release. - Use at your own risk.
+            This package is a .NET Standard 2.0 project, intended to work with .NET Framework 4.7.2 or later, and .NET Core 2.2 or later
+            We have not stabilized on Namespace or Class names with this package as of yet and things will change as we move though the preview.
+
+        0.0.1-alpha
+            Intial Alpha release of Microsoft.PowerPlatform.Formulas.Tools
+    </PackageReleaseNotes>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="MinVer" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Update="PowerPlatform.Formulas.Tools.nuspec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  
 </Project>

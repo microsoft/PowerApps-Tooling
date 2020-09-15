@@ -1,7 +1,9 @@
 # Build Pipeline for signing PowerPlatform.Formulas.Tools
 
 trigger:
-- master
+  - master
+
+pr: none
 
 pool:
   vmImage: 'windows-latest'
@@ -23,27 +25,25 @@ steps:
     version: 2.1.x
     installationPath: '$(Agent.ToolsDirectory)/dotnet'
 - task: DotNetCoreCLI@2
-  displayName: 'Build PASopa.sln'
+  displayName: 'Build and test '
   inputs:
-    command: 'build'
-    projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)/'
-    
-- task: VSTest@2
-  displayName: 'Test PAModelTests.dll'
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\PAModelTests.dll'
-    searchFolder: '$(Build.BinariesDirectory)'
-    runInParallel: true
-    codeCoverageEnabled: true
-    configuration: '$(BuildConfiguration)'
+    command: 'run'
+    projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
+    arguments: 'ci -c $(BuildConfiguration)'
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/*-*.trx'
+    searchFolder: '$(Build.SourcesDirectory)/obj/'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1  
   displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
   inputs:
     ConnectedServiceName: 'ESRPCodeSigningConnection'
-    FolderPath: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/'
+    FolderPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
     Pattern: '*.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -81,20 +81,20 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
-    
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'    
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
+  displayName: 'Pack'
   inputs:
-    command: 'pack'
-    packagesToPack: '$(Build.BinariesDirectory)/$(BuildConfiguration)/PAModel/PowerPlatform.Formulas.Tools.nuspec'
-    versioningScheme: 'off'
+    command: 'run'
+    projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
+    arguments: 'pack -c $(BuildConfiguration)'
     
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP sign nuget packages'
   inputs:
     ConnectedServiceName: ESRPCodeSigningConnection
-    FolderPath: '$(Build.ArtifactStagingDirectory)'
+    FolderPath: '$(Build.SourcesDirectory)/pkg/PackResult'
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -118,6 +118,7 @@ steps:
     
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.SourcesDirectory)/pkg/PackResult'
+
     ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
     publishLocation: 'Container'
