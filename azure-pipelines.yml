@@ -35,10 +35,11 @@ steps:
   inputs:
     testResultsFormat: 'VSTest'
     testResultsFiles: '**/*-*.trx'
+    searchFolder: '$(Build.SourcesDirectory)/obj/'
     mergeTestResults: true
     failTaskOnFailedTests: true
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1  
   displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
   inputs:
     ConnectedServiceName: 'ESRPCodeSigningConnection'
