@@ -56,7 +56,7 @@ namespace targets
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {PkgDir} --no-build -p:Packing=true"));
+                () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true"));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
