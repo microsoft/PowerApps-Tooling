@@ -1,7 +1,9 @@
 # Build Pipeline for signing PowerPlatform.Formulas.Tools
 
 trigger:
-- master
+  - master
+
+pr: none
 
 pool:
   vmImage: 'windows-latest'
@@ -23,21 +25,18 @@ steps:
     version: 2.1.x
     installationPath: '$(Agent.ToolsDirectory)/dotnet'
 - task: DotNetCoreCLI@2
-  displayName: 'Build PASopa.sln'
+  displayName: 'Build and test '
   inputs:
-    command: 'build'
-    projects: '$(Build.SourcesDirectory)/src/PASopa.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:BinPath=$(Build.BinariesDirectory)/'
-    
-- task: VSTest@2
-  displayName: 'Test PAModelTests.dll'
+    command: 'run'
+    projects: '"./targets/targets.csproj"'
+    arguments: 'ci -c $(BuildConfiguration)'
+
+- task: PublishTestResults@2
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\PAModelTests.dll'
-    searchFolder: '$(Build.BinariesDirectory)'
-    runInParallel: true
-    codeCoverageEnabled: true
-    configuration: '$(BuildConfiguration)'
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/TEST-*.trx'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
