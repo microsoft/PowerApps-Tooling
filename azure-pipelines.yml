@@ -81,20 +81,20 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
-    
+    ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'    
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
+  displayName: 'Pack'
   inputs:
-    command: 'pack'
-    packagesToPack: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/PowerPlatform.Formulas.Tools.nuspec'
-    versioningScheme: 'off'
+    command: 'run'
+    projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
+    arguments: 'pack -c $(BuildConfiguration)'
     
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP sign nuget packages'
   inputs:
     ConnectedServiceName: ESRPCodeSigningConnection
-    FolderPath: '$(Build.ArtifactStagingDirectory)'
+    FolderPath: '$(Build.SourcesDirectory)/pkg'
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -118,6 +118,7 @@ steps:
     
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.SourcesDirectory)/pkg/PackResult'
+
     ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
     publishLocation: 'Container'
