@@ -28,7 +28,7 @@ steps:
   displayName: 'Build and test '
   inputs:
     command: 'run'
-    projects: '"./targets/targets.csproj"'
+    projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
     arguments: 'ci -c $(BuildConfiguration)'
 
 - task: PublishTestResults@2
