@@ -214,7 +214,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 str2 = NormFormulaWhitespace(str2);
                                 hash.AppendData(str2);
                             }
-                            else if (kind != JsonValueKind.Null && kind != JsonValueKind.False && kind != JsonValueKind.True)
+                            else if (kind != JsonValueKind.Null && kind != JsonValueKind.False)
                             {
                                 hash.AppendData(prop.Name);
                                 ctx.Push(prop.Name);
