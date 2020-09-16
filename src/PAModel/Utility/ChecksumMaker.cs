@@ -1,14 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
 using System.Text.Json;
-using System.IO;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -63,13 +62,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (filename.EndsWith(ChecksumName, StringComparison.OrdinalIgnoreCase))
             {
                 // Ignore the checksum file, else we'd have a circular reference. 
-                return; 
+                return;
             }
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {
                 AddJsonFile(filename, bytes);
-            } else
+            }
+            else
             {
                 _files.Add(filename, bytes);
             }
@@ -78,7 +78,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // These paths are json double-encoded and need a different comparer.
         private static HashSet<string> _jsonDouble = new HashSet<string>
         {
-            // "properties.json:"
             "LocalConnectionReferences",
             "LocalDatabaseReferences"
         };
@@ -92,11 +91,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             public void Push(string path)
             {
-                this.s.Push(path);
+                s.Push(path);
             }
             public void Pop()
             {
-                this.s.Pop();
+                s.Pop();
             }
 
             public bool IsDoubleEncoded
@@ -105,7 +104,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (this.s.Count == 1)
                     {
-                        if (_jsonDouble.Contains(this.s.Peek())) {
+                        if (_jsonDouble.Contains(this.s.Peek()))
+                        {
                             return true;
                         }
                     }
@@ -116,7 +116,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Add json - handle the non-canonical format. 
         private void AddJsonFile(string filename, byte[] bytes)
-        {            
+        {
             var s = new ReadOnlyMemory<byte>(bytes);
             using (var doc = JsonDocument.Parse(s))
             {
@@ -143,24 +143,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (var kv in _files.OrderBy(x => x.Key))
                 {
-                    //Console.WriteLine($"{kv.Key}: {Convert.ToBase64String(kv.Value)}");
                     hash.AppendData(kv.Value);
                 }
 
                 var h = hash.GetHashAndReset();
                 var str = Convert.ToBase64String(h);
 
-                //Console.WriteLine($"  Checksum: {str}");
                 return Version + "_" + str;
             }
-        }  
+        }
 
-        // 
+        // Formula whitespace can differ between platforms, and leading whitespace
+        // is affected by writing to .pa format. Normalize so checksums are
+        // platform independent
         internal static string NormFormulaWhitespace(string s)
         {
             StringBuilder sb = new StringBuilder();
             var lastCharIsWhitespace = true;
-            foreach(var ch in s)
+            foreach (var ch in s)
             {
                 bool isWhitespace = (ch == '\t') || (ch == ' ') || (ch == '\r') || (ch == '\n');
                 if (isWhitespace)
@@ -170,25 +170,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         sb.Append(' ');
                     }
                     lastCharIsWhitespace = true;
-                } else
+                }
+                else
                 {
                     sb.Append(ch);
                     lastCharIsWhitespace = false;
                 }
             }
-            // Don't include trailing. 
-            while((sb.Length > 1) && sb[sb.Length-1] == ' ') { sb.Length--;  }
+            // Don't include trailing whitespace 
+            while ((sb.Length > 1) && sb[sb.Length - 1] == ' ') { sb.Length--; }
 
             return sb.ToString();
         }
-       
+
         // Traverse the Json object in a deterministic way
         private static void ChecksumJson(Context ctx, IncrementalHash hash, JsonElement je)
         {
-            switch(je.ValueKind)
+            switch (je.ValueKind)
             {
                 case JsonValueKind.Array:
-                    foreach(var element in je.EnumerateArray())
+                    foreach (var element in je.EnumerateArray())
                     {
                         ChecksumJson(ctx, hash, element);
                     }
@@ -200,7 +201,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     HashSet<string> propertyNames = new HashSet<string>();
 
                     // Need to determinsitically order the properties. 
-                    foreach (var prop in je.EnumerateObject().OrderBy(x=>x.Name))
+                    foreach (var prop in je.EnumerateObject().OrderBy(x => x.Name))
                     {
                         if (propertyNames.Add(prop.Name))
                         {
@@ -213,7 +214,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 str2 = NormFormulaWhitespace(str2);
                                 hash.AppendData(str2);
                             }
-                            else if (kind != JsonValueKind.Null && kind != JsonValueKind.False)
+                            else if (kind != JsonValueKind.Null)
                             {
                                 hash.AppendData(prop.Name);
                                 ctx.Push(prop.Name);

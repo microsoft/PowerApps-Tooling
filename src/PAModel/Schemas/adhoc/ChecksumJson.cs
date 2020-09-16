@@ -7,12 +7,12 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    class ChecksumJson
+    internal class ChecksumJson
     {
         // Checksum from client
-        public string Checksum { get; set; }
+        public string ClientStampedChecksum { get; set; }
 
         // Checksum produced by server.
-        public string ChecksumServer { get; set; }
+        public string ServerStampedChecksum { get; set; }
     }
 }

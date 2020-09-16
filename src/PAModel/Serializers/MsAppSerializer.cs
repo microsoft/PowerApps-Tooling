@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -125,18 +125,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
-                if (app._checksum.Checksum != null && app._checksum.Checksum != currentChecksum)
+                if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered. 
                     Console.WriteLine($"Warning... checksum doesn't match on extract");
                 }
-                app._checksum.Checksum = currentChecksum;
+                app._checksum.ClientStampedChecksum = currentChecksum;
 
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
-                if (app._properties.LocalConnectionReferences != null)
+                if (app._properties.LocalConnectionReferences != null)  
                 {
                     var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;
@@ -249,7 +249,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var hash = checksum.GetChecksum();
 
 
-            if (hash != app._checksum.Checksum)
+            if (hash != app._checksum.ClientStampedChecksum)
             {
                 // We had offline edits!
                 Console.WriteLine($"WARNING!! Sources have changed since when they were unpacked.");
@@ -257,8 +257,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var checksumJson = new ChecksumJson
             {
-                Checksum = hash,
-                ChecksumServer = app._checksum.ChecksumServer
+                ClientStampedChecksum = hash,
+                ServerStampedChecksum = app._checksum.ServerStampedChecksum
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);
