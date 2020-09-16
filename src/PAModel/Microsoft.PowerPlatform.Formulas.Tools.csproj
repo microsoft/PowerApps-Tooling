@@ -12,6 +12,7 @@
     <Authors>Microsoft</Authors>
     <Company>crmsdk,Microsoft</Company>
     <Title>PowerPlatform Canvas App Tools</Title>
+    <PackageProjectUrl>https://github.com/microsoft/PowerApps-Language-Tooling</PackageProjectUrl>
     <PackageLicenseUrl>http://download.microsoft.com/download/E/1/8/E18C0FAD-FEC8-44CD-9A16-98EDC4DAC7A2/LicenseTerms.docx</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>Alpha Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
