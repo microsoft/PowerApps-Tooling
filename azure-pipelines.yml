@@ -122,3 +122,9 @@ steps:
 
     ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
     publishLocation: 'Container'
+
+- task: tagBuildOrRelease@0
+  inputs:
+    type: 'Build'
+    tags: 'deployable'
+  condition: eq(variables['BuildConfiguration'], 'Release')
