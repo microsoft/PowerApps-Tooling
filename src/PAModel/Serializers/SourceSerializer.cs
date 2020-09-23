@@ -281,7 +281,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in app._templates.UsedTemplates)
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
-                dir.WriteAllText(TemplatesDir, filename, template.Template);
+                dir.WriteAllXML(TemplatesDir, filename, template.Template);
                 if (ControlTemplateParser.TryParseTemplate(template.Template, template.Name, app._properties.DocumentAppType, out var parsedTemplate))
                     templateDefaults.Add(template.Name, parsedTemplate);
             }
