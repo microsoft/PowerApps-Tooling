@@ -65,8 +65,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             var propertyName = includeProperty.Attribute(ControlMetadataXNames.NameAttribute).Value;
             // Explicitly defined props overwrite common props
             if (template.InputDefaults.ContainsKey(propertyName))
-                return; 
-            template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type));
+                return;
+
+            var defaultOverride = includeProperty.Attribute(ControlMetadataXNames.DefaultValueAttribute);
+            if (defaultOverride != null)
+                template.InputDefaults.Add(propertyName, defaultOverride.Value);
+            else 
+                template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type));
         }
 
 
