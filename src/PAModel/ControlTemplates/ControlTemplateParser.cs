@@ -43,12 +43,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                         AddIncludePropertyDefault(includeProperty, type, template);
                     }
                 }
+                return true;
             }
             catch
             {
                 return false;
             }
-            return false;
         }
 
         private static bool AddPropertyDefault(XElement prop, AppType type, ControlTemplate template)

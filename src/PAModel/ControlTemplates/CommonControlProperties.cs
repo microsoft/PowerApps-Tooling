@@ -30,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             if (commonProps == null)
                 return;
 
-            foreach (var property in commonProps.Elements(ControlMetadataXNames.PropertyTag))
+            foreach (var property in commonProps.Root.Elements(ControlMetadataXNames.PropertyTag))
             {
                 ControlProperty controlProperty = ControlTemplateParser.ParseProperty(property);
                 if (controlProperty == null)
