@@ -14,19 +14,19 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             /// <summary>
             /// Template Name, matches ControlInfoJson.Template.Name
             /// </summary>
-            public string Name;
+            public string Name { get; set; }
 
             /// <summary>
-            /// Template Name, matches ControlInfoJson.Template.Name
+            /// Template Version, matches ControlInfoJson.Template.version
             /// </summary>
-            public string Version;
+            public string Version { get; set; }
 
             /// <summary>
             /// Stringified XML control template, from _oam.xml files in PowerApps Codebase
             /// </summary>
-            public string Template;
+            public string Template { get; set; }
         }
 
-        public TemplateJson[] UsedTemplates;
+        public TemplateJson[] UsedTemplates { get; set; }
     }
 }
