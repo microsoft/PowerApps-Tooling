@@ -119,6 +119,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
                             }
                             break;
+                        case FileKind.Templates:
+                            app._templates = ToObject<TemplatesJson>(entry);
+                            break;
                     }
                 } // foreach zip entry
 

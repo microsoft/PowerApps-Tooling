@@ -29,6 +29,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="ControlTemplates/commonStyleProperties.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
     <PackageReference Include="MinVer" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>

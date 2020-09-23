@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -10,7 +10,14 @@ using SomeEnum = System.String;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
-    
+
+    internal enum AppType
+    {
+        DesktopOrTablet = 0,
+        Phone = 1,
+        Web = 2,
+    }
+
     /// <summary>
     /// Schematic class for Properties.json
     /// </summary>
@@ -35,7 +42,7 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public bool? DocumentLayoutMaintainAspectRatio { get; set; }
         public bool? DocumentLayoutLockOrientation { get; set; }
         public string OriginatingVersion { get; set; }
-        public SomeEnum DocumentAppType { get; set; }
+        public AppType DocumentAppType { get; set; }
         public SomeEnum DocumentType { get; set; }
         public SomeEnum AppCreationSource { get; set; }
         public string AppDescription { get; set; }

@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #define USEPA
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -134,7 +135,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // - Themes.json- default to
 
 
-                app.OnLoadComplete();
+            app.OnLoadComplete();
 
             return app;
         }
@@ -262,6 +263,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
+        {
+            
+        }
+
         // Write out to a directory (this shards it) 
         public static void SaveAsSource(this CanvasDocument app, string directory2)
         {
@@ -307,10 +313,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
 
-            // Write out the used templates
+            // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(templates, Utility._jsonOpts));
-
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 
@@ -369,8 +374,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             dir.WriteAllJson(OtherDir, FileKind.Entropy, app._entropy);
 
-            //dir.WriteAllJson(OtherDir, FileKind.Header, app._header);
-            //dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
             var manifest = new CanvasManifestJson
             {
                 FormatVersion =  CurrentSourceVersion,
