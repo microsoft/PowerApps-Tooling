@@ -4,6 +4,7 @@
 #define USEPA
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
+        public const string TemplatesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -265,14 +267,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
         {
-            
+            throw new NotImplementedException();   
         }
 
         // Write out to a directory (this shards it) 
         public static void SaveAsSource(this CanvasDocument app, string directory2)
-        {
+        { 
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
+
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in app._templates.UsedTemplates)
+            {
+                var filename = $"{template.Name}_{template.Version}.xml";
+                dir.WriteAllText(TemplatesDir, filename, template.Template);
+                if (ControlTemplateParser.TryParseTemplate(template.Template, template.Name, app._properties.DocumentAppType, out var parsedTemplate))
+                    templateDefaults.Add(template.Name, parsedTemplate);
+            }
+
+
             var templates = new Dictionary<string, ControlInfoJson.Template>();
 
             foreach (var control in app._sources.Values)
@@ -283,7 +297,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 #endif
 
-                var text = PAConverter.GetPAText(control);
+                var text = PAConverter.GetPAText(control, templateDefaults);
                 var controlName = control.ControlName;
                 string filename = controlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);

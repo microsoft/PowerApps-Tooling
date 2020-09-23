@@ -29,9 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ControlTemplates/commonStyleProperties.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml"/>
   </ItemGroup>
 
 
