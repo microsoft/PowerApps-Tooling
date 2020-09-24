@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,14 +9,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class PAConverter
     {
-        internal static string GetPAText(SourceFile sf)
+        
+        internal static string GetPAText(SourceFile sf,
+            Dictionary<string, ControlTemplate> templates) // Key is template name
         {
             ControlInfoJson control = sf.Value;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("//! PAFile:0.1"); // some generic header
 
-            new PAWriter(sb).WriteControl(control.TopParent, sf.Kind != SourceKind.Control);
+            new PAWriter(sb, templates).WriteControl(control.TopParent, sf.Kind != SourceKind.Control);
 
             return sb.ToString();
         }

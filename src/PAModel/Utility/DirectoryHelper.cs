@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -59,6 +60,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 string path = Path.Combine(_directory, subdir, filename);
                 this.WriteAllJson(subdir, filename, je);
             }
+        }
+
+        public void WriteAllXML(string subdir, string filename, string xmlText)
+        {
+            var xml = XDocument.Parse(xmlText);
+            var text = xml.ToString();
+            WriteAllText(subdir, filename, text);
         }
 
         public void WriteAllText(string subdir, string filename, string text)

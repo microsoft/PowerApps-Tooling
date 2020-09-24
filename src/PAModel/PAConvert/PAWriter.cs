@@ -1,7 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
@@ -12,12 +14,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private string IndentString { get { return new string(' ', _indentLevel * 4); } }
 
         private StringBuilder _sb;
+        private Dictionary<string, ControlTemplate> _templates;
 
-
-        public PAWriter(StringBuilder sb)
+        public PAWriter(StringBuilder sb, Dictionary<string, ControlTemplate> templates)
         {
             _indentLevel = 0;
             _sb = sb;
+            _templates = templates;
         }
         private void WriteLine(string line)
         {
@@ -33,10 +36,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             WriteLine($"{(isComponent ? PAConstants.ComponentKeyword : PAConstants.ControlKeyword)} {CharacterUtils.EscapeName(control.Name)} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
             _indentLevel++;
 
+            _templates.TryGetValue(control.Template.Name, out var template);
+            
+
             foreach (var rule in control.Rules)
             {
                 if (rule.InvariantScript == string.Empty)
                     continue;
+
+                string defaultScript = null;
+                // Strip rules that match the default value
+                if ((template?.InputDefaults.TryGetValue(rule.Property, out defaultScript) ?? false) &&
+                    defaultScript == rule.InvariantScript)
+                {
+                    continue;
+                }
+
 
                 var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n");
 

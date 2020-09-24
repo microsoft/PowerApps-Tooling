@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,12 +16,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         private string _content;
         private string _fileName;
         private TokenStream _tokenizer;
+        // Key is control name
         private Dictionary<string, ControlInfoJson.Item> _controlStates;
+
+        // Keys are template name
         private Dictionary<string, ControlInfoJson.Template> _templates;
+        private Dictionary<string, ControlTemplate> _templateDefaults;
 
         public ErrorContainer _errorContainer;
 
-        public Parser(string fileName, string contents, Dictionary<string, ControlInfoJson.Item> controlStates, Dictionary<string, ControlInfoJson.Template> templates)
+        public Parser(string fileName, string contents,
+            Dictionary<string, ControlInfoJson.Item> controlStates,
+            Dictionary<string, ControlInfoJson.Template> templates,
+            Dictionary<string, ControlTemplate> templateDefaults)
         {
             var header = "//! PAFile:0.1";
 
@@ -35,6 +43,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             _controlStates = controlStates;
             _templates = templates;
+            _templateDefaults = templateDefaults;
         }
 
         internal ControlInfoJson.Item ParseControl(string parent = "", bool isComponent = false)
@@ -152,6 +161,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             control.Children = children.ToArray();
 
+            // Dict of property => default expression
+            Dictionary<string, string> defaults = null;
+            if (_templateDefaults.TryGetValue(template.Name, out var controlTemplate))
+                defaults = new Dictionary<string, string>(controlTemplate.InputDefaults);
+
             foreach (var rule in control.Rules)
             {
                 if (paRules.TryGetValue(rule.Property, out var script))
@@ -161,9 +175,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 }
                 else
                 {
-                    rule.InvariantScript = string.Empty;
+                    var defaultValue = string.Empty;
+                    // Restore default property values that weren't in the .pa file
+                    if (defaults?.TryGetValue(rule.Property, out defaultValue) ?? false)
+                        rule.InvariantScript = defaultValue;
+                    else
+                        rule.InvariantScript = string.Empty;
                 }
             }
+
             if (paRules.Any())
             {
                 var rulesList = control.Rules.ToList();

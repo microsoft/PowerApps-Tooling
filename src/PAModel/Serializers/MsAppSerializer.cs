@@ -119,6 +119,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
                             }
                             break;
+                        case FileKind.Templates:
+                            app._templates = ToObject<TemplatesJson>(entry);
+                            break;
                     }
                 } // foreach zip entry
 
@@ -278,6 +281,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 yield return file;
             }
 
+            yield return ToFile(FileKind.Templates, app._templates);
 
             var header = app._header.JsonClone();
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();

@@ -16,6 +16,7 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow("MyWeather.msapp")]
         [DataRow("Chess_for_Power_Apps_v1.03.msapp")]
+        [DataRow("AppWithLabel.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);

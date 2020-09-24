@@ -1,8 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #define USEPA
 
+using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
+        public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -80,6 +83,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 throw new NotSupportedException($"Can't find CanvasManifest.json file - is sources an old version?");
             }
 
+            // Load template files, recreate References/templates.json
+            LoadTemplateFiles(app, dir, out var templateDefaults);
+
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -115,7 +121,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app.GetLogoFileFromUnknowns();
 
             LoadDataSources(app, dir);
-            LoadSourceFiles(app, dir);
+            LoadSourceFiles(app, dir, templateDefaults);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
@@ -134,9 +140,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // - Themes.json- default to
 
 
-                app.OnLoadComplete();
+            app.OnLoadComplete();
 
             return app;
+        }
+
+        private static void LoadTemplateFiles(CanvasDocument app, DirectoryReader directory, out Dictionary<string, ControlTemplate> loadedTemplates)
+        {
+            loadedTemplates = new Dictionary<string, ControlTemplate>();
+            var templateList = new List<TemplatesJson.TemplateJson>();
+            foreach (var file in directory.EnumerateFiles(PackagesDir, "*.xml")) {
+                var xmlContents = file.GetContents();
+                if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, out var parsedTemplate, out var templateName))
+                    throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
+                loadedTemplates.Add(templateName, parsedTemplate);
+                templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
+            }
+
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
 
         // The publish info points to the logo file. Grab it from the unknowns. 
@@ -159,10 +180,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory)
+        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
         {
-            // Ignoring real pa1 files, can't parse them yet. 
-            // Sources
             var templates = new Dictionary<string, ControlInfoJson.Template>();
             var controlData = new Dictionary<string, Dictionary<string, ControlInfoJson.Item>>();
 
@@ -175,6 +194,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (file.Kind == FileKind.Templates)
                 {
+                    // Maybe we can recreate this from the template defaults instead?
                     templates = file.ToObject<Dictionary<string, ControlInfoJson.Template>>();
                     continue;
                 }
@@ -221,7 +241,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 try
                 {
-                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates);                        
+                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates, templateDefaults);                        
                     var item = parser.ParseControl();
                     if (parser.HasErrors())
                     {
@@ -262,11 +282,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
+        {
+            throw new NotImplementedException();   
+        }
+
         // Write out to a directory (this shards it) 
         public static void SaveAsSource(this CanvasDocument app, string directory2)
-        {
+        { 
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
+
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in app._templates.UsedTemplates)
+            {
+                var filename = $"{template.Name}_{template.Version}.xml";
+                dir.WriteAllXML(PackagesDir, filename, template.Template);
+                if (ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, out var parsedTemplate, out var name))
+                    templateDefaults.Add(name, parsedTemplate);
+            }
+
+
             var templates = new Dictionary<string, ControlInfoJson.Template>();
 
             foreach (var control in app._sources.Values)
@@ -277,7 +314,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 #endif
 
-                var text = PAConverter.GetPAText(control);
+                var text = PAConverter.GetPAText(control, templateDefaults);
                 var controlName = control.ControlName;
                 string filename = controlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);
@@ -307,10 +344,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
 
-            // Write out the used templates
+            // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(templates, Utility._jsonOpts));
-
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 
@@ -369,8 +405,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             dir.WriteAllJson(OtherDir, FileKind.Entropy, app._entropy);
 
-            //dir.WriteAllJson(OtherDir, FileKind.Header, app._header);
-            //dir.WriteAllJson(OtherDir, FileKind.Properties, app._properties);
             var manifest = new CanvasManifestJson
             {
                 FormatVersion =  CurrentSourceVersion,

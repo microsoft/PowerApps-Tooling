@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<properties xmlns="http://openajax.org/metadata" 
+  xmlns:appMagic="http://schemas.microsoft.com/appMagic">
+
+  <!-- Data -->
+  <property name="Text" localizedName="##CommonProperties_Text##" datatype="String" defaultValue="">
+    <title>Caption</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_Text_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Text_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Image" localizedName="##CommonProperties_Image##" datatype="Image" defaultValue="SampleImage" converter="encodeImageUrl" isExpr="true">
+    <title>Image content</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_Image_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Image_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="AccessibleLabel" localizedName="##CommonProperties_AccessibleLabel##" datatype="String" defaultValue="">
+    <title>Accessible label</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_AccessibleLabel_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_AccessibleLabel_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Role" localizedName="##CommonProperties_Role##" datatype="TextRole" defaultValue="%TextRole.RESERVED%.Default" isExpr="true">
+    <title>Role</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_Role_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Role_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Tooltip" localizedName="##CommonProperties_Tooltip##" datatype="String" defaultValue="">
+    <title>Tooltip</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_Tooltip_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Tooltip_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Fill -->
+  <property name="Fill" localizedName="##CommonProperties_Fill##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 0)" converter="argbConverter">
+    <title>Background color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Fill_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Fill_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="HoverFill" localizedName="##CommonProperties_HoverFill##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 0)" converter="argbConverter">
+    <title>Hover Background color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_HoverFill_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_HoverFill_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PressedFill" localizedName="##CommonProperties_PressedFill##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 0)" converter="argbConverter">
+    <title>Click Background color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PressedFill_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PressedFill_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="DisabledFill" localizedName="##CommonProperties_DisabledFill##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 0)" converter="argbConverter">
+    <title>Disabled Background color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_DisabledFill_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_DisabledFill_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Border Radius -->
+  <property name="RadiusTopLeft" localizedName="##CommonProperties_RadiusTopLeft##" datatype="Number" defaultValue="0" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Radius Top Left</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_RadiusTopLeft_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="RadiusTopRight" localizedName="##CommonProperties_RadiusTopRight##" datatype="Number" defaultValue="0" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Radius Top Right</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_RadiusTopRight_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="RadiusBottomLeft" localizedName="##CommonProperties_RadiusBottomLeft##" datatype="Number" defaultValue="0" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Radius Bottom Left</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_RadiusBottomLeft_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="RadiusBottomRight" localizedName="##CommonProperties_RadiusBottomRight##" datatype="Number" defaultValue="0" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Radius Bottom Right</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_RadiusBottomRight_DisplayName##</appMagic:displayName>
+  </property>
+
+  <!-- Text -->
+  <property name="Font" localizedName="##CommonProperties_Font##" datatype="Font" defaultValue="%Font.RESERVED%.'Open Sans'" isExpr="true" converter="fontConverter">
+    <title>font family</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>fontFamily</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Font_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="Size" localizedName="##CommonProperties_Size##" datatype="Number" defaultValue="11" converter="ptConverter">
+    <title>font size</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>fontSize</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Size_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="FontWeight" localizedName="##CommonProperties_FontWeight##" datatype="FontWeight" defaultValue="%FontWeight.RESERVED%.Normal" isExpr="true">
+    <title>font weight</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>fontWeight</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_FontWeight_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="Italic" localizedName="##CommonProperties_Italic##" datatype="boolean" defaultValue="false" converter="italicConverter">
+    <title>italic</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Italic_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="Underline" localizedName="##CommonProperties_Underline##" datatype="boolean" defaultValue="false">
+    <title>underline</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Underline_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="Strikethrough" localizedName="##CommonProperties_Strikethrough##" datatype="boolean" defaultValue="false">
+    <title>underline</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Strikethrough_DisplayName##</appMagic:displayName>
+  </property>
+
+  <!-- Color -->
+  <property name="Color" localizedName="##CommonProperties_Color##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Color_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="HoverColor" localizedName="##CommonProperties_HoverColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>hover color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_HoverColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_HoverColor_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PressedColor" localizedName="##CommonProperties_PressedColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>pressed color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PressedColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PressedColor_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="DisabledColor" localizedName="##CommonProperties_DisabledColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>disabled color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_DisabledColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_DisabledColor_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Border Properties-->
+  <property name="BorderStyle" localizedName="##CommonProperties_BorderStyle##" datatype="BorderStyle" defaultValue="%BorderStyle.RESERVED%.Solid" isExpr="true">
+    <title>Border Style</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>lineStyle</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_BorderStyle_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="BorderThickness" localizedName="##CommonProperties_BorderThickness##" datatype="Number" defaultValue="0" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Border Thickness</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>lineWidth</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_BorderThickness_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_BorderThickness_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="FocusedBorderColor" localizedName="##CommonProperties_FocusedBorderColor##" datatype="Color" isExpr="true" defaultValue="RGBA(101, 128, 187, 1)" converter="argbConverter">
+    <title>Focused Border Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_FocusedBorderColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_FocusedBorderColor_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="FocusedBorderThickness" localizedName="##CommonProperties_FocusedBorderThickness##" datatype="Number" defaultValue="2" converter="pxConverter" nullDefault="0" minimum="0">
+    <title>Focused Border Thickness</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>lineWidth</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_FocusedBorderThickness_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_FocusedBorderThickness_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="BorderColor" localizedName="##CommonProperties_BorderColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>Border Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_BorderColor_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="DisabledBorderColor" localizedName="##CommonProperties_DisabledBorderColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>Disabled Border Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_DisabledBorderColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_DisabledBorderColor_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="HoverBorderColor" localizedName="##CommonProperties_HoverBorderColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>Hover Border Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_HoverBorderColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_HoverBorderColor_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PressedBorderColor" localizedName="##CommonProperties_PressedBorderColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 0, 0, 1)" converter="argbConverter">
+    <title>Pressed Border Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>color</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PressedBorderColor_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PressedBorderColor_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Padding -->
+  <property name="Padding" localizedName="##CommonProperties_Padding##" datatype="Number" defaultValue="0" converter="pxConverter">
+    <title>Padding</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>padding</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Padding_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Padding_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PaddingTop" localizedName="##CommonProperties_PaddingTop##" datatype="Number" defaultValue="0" converter="pxVerticalConverter" nullDefault="0">
+    <title>PaddingTop</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>padding</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PaddingTop_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PaddingTop_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PaddingRight" localizedName="##CommonProperties_PaddingRight##" datatype="Number" defaultValue="0" converter="pxHorizontalConverter" nullDefault="0">
+    <title>PaddingRight</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>padding</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PaddingRight_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PaddingRight_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PaddingBottom" localizedName="##CommonProperties_PaddingBottom##" datatype="Number" defaultValue="0" converter="pxVerticalConverter" nullDefault="0">
+    <title>PaddingBottom</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>padding</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PaddingBottom_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PaddingBottom_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PaddingLeft" localizedName="##CommonProperties_PaddingLeft##" datatype="Number" defaultValue="0" converter="pxHorizontalConverter" nullDefault="0">
+    <title>PaddingLeft</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>padding</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_PaddingLeft_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_PaddingLeft_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Options -->
+  <property name="ShowControls" localizedName="##CommonProperties_ShowControls##" datatype="Boolean" direction="in" defaultValue="true">
+    <title>Show Controls</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ShowControls_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ShowControls_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Visible" localizedName="##CommonProperties_Visible##" datatype="boolean" defaultValue="true">
+    <title>Visible</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Visible_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Visible_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Disabled" localizedName="##CommonProperties_Disabled##" datatype="boolean" defaultValue="false">
+    <title>Disabled</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Disabled_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Disable_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="AutoDisableOnSelect" localizedName="##CommonProperties_AutoDisableOnSelect##" datatype="Boolean" direction="in" defaultValue="true">
+    <title>Disable the control when OnSelect is in progress</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_AutoDisableOnSelect_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_AutoDisableOnSelect_Tooltip##</appMagic:tooltip>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:isInOverflow>true</appMagic:isInOverflow>
+    <appMagic:group>options</appMagic:group>
+  </property>
+  <property name="DisplayMode" localizedName="##CommonProperties_DisplayMode##" datatype="DisplayMode" defaultValue="%DisplayMode.RESERVED%.Edit" isExpr="true">
+    <title>DisplayMode</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>displayMode</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_DisplayMode_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_DisplayMode_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Paragraph -->
+  <property name="Align" localizedName="##CommonProperties_Align##" datatype="Align" defaultValue="%Align.RESERVED%.Left" isExpr="true">
+    <title>align</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>align</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Align_DisplayName##</appMagic:displayName>
+  </property>
+  <property name="VerticalAlign" localizedName="##CommonProperties_VerticalAlign##" datatype="VerticalAlign" defaultValue="%VerticalAlign.RESERVED%.Top" isExpr="true">
+    <title>VerticalAlign</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>verticalAlign</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_VerticalAlign_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_VerticalAlign_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ImagePosition" localizedName="##CommonProperties_ImagePosition##" datatype="ImagePosition" defaultValue="%ImagePosition.RESERVED%.Fill" isExpr="true" converter="imagePositionConverter">
+    <title>ImagePosition</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>imagePosition</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ImagePosition_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ImagePosition_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ShowValue" localizedName="##CommonProperties_ShowValue##" datatype="Boolean" defaultValue="true">
+    <title>Show/hide the value label</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ShowValue_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ShowValue_Tooltip##</appMagic:tooltip>
+  </property>
+  <!-- Behavior Properties(Events)-->
+  <!-- TASK: 74722: What should the datatype be? -->
+  <property name="OnSelect" localizedName="##CommonProperties_OnSelect##" datatype="Boolean" defaultValue="false" direction="in">
+    <title>Click Behavior</title>
+    <appMagic:category>behavior</appMagic:category>
+    <appMagic:displayName>##CommonProperties_OnSelect_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_OnSelect_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="OnChange" localizedName="##CommonProperties_OnChange##" datatype="Boolean" defaultValue="false" direction="in">
+    <title>Change Behavior</title>
+    <appMagic:category>behavior</appMagic:category>
+    <appMagic:displayName>##CommonProperties_OnChange_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_OnChange_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="OnStart" localizedName="##CommonProperties_OnStart##" datatype="Boolean" defaultValue="false" direction="in">
+    <title>Behavior when playback starts</title>
+    <appMagic:category>behavior</appMagic:category>
+    <appMagic:displayName>##CommonProperties_OnStart_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_OnStart_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="OnPause" localizedName="##CommonProperties_OnPause##" datatype="Boolean" defaultValue="false" direction="in">
+    <title>Behavior when playback pauses</title>
+    <appMagic:category>behavior</appMagic:category>
+    <appMagic:displayName>##CommonProperties_OnPause_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_OnPause_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="OnEnd" localizedName="##CommonProperties_OnEnd##" datatype="Boolean" defaultValue="false" direction="in">
+    <title>Behavior when playback ends and stops</title>
+    <appMagic:category>behavior</appMagic:category>
+    <appMagic:displayName>##CommonProperties_OnEnd_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_OnEnd_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="defaultWidth" localizedName="##CommonProperties_defaultWidth##" datatype="Number" defaultValue="100" hidden="true">
+    <title>Default width</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="defaultHeight" localizedName="##CommonProperties_defaultHeight##" datatype="Number" defaultValue="100" hidden="true">
+    <title>Default height</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="minimumWidth" localizedName="##CommonProperties_minimumWidth##" datatype="Number" defaultValue="10" hidden="true">
+    <title>Minimum width</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="minimumHeight" localizedName="##CommonProperties_minimumHeight##" datatype="Number" defaultValue="10" hidden="true">
+    <title>Minimum height</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="maximumWidth" localizedName="##CommonProperties_maximumWidth##" datatype="Number" defaultValue="1366" hidden="true">
+    <title>Maximum width</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="maximumHeight" localizedName="##CommonProperties_maximumHeight##" datatype="Number" defaultValue="768" hidden="true">
+    <title>Maximum height</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+
+  <!-- Position & Size -->
+  <property name="X" localizedName="##CommonProperties_X##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Position on x-axis</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_X_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_X_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Y" localizedName="##CommonProperties_Y##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Position on y-axis</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_Y_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Y_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Width" localizedName="##CommonProperties_Width##" datatype="Number" defaultValue="100" minimum="0" nullDefault="0">
+    <title>Width of control</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>width</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Width_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Width_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="WidthFit" localizedName="##CommonProperties_WidthFit##" datatype="Boolean" defaultValue="false">
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_WidthFit_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_WidthFit_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="Height" localizedName="##CommonProperties_Height##" datatype="Number" defaultValue="100" minimum="0" nullDefault="0">
+    <title>Height of control</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>height</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_Height_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_Height_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="NumberOfColumns" localizedName="##CommonProperties_NumberOfColumns##" datatype="Number" defaultValue="3" phoneDefaultValue="1" hidden="true">
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_NumberOfColumns_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_NumberOfColumns_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="SnapToColumns" localizedName="##CommonProperties_SnapToColumns##" datatype="Boolean" defaultValue="true" hidden="true">
+    <appMagic:displayName>##CommonProperties_SnapToColumns_DisplayName##</appMagic:displayName>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:tooltip>##CommonProperties_SnapToColumns_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutX" localizedName="##CommonProperties_LayoutX##" datatype="Number" hidden="true">
+    <title>X value managed by layout</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="LayoutY" localizedName="##CommonProperties_LayoutY##" datatype="Number" hidden="true">
+    <title>Y value managed by layout</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="LayoutWidth" localizedName="##CommonProperties_LayoutWidth##" datatype="Number" hidden="true">
+    <title>Width value managed by layout</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="LayoutHeight" localizedName="##CommonProperties_LayoutHeight##" datatype="Number" hidden="true">
+    <title>Height value managed by layout</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="ThemeColor" localizedName="##CommonProperties_ThemeColor##" datatype="Color" isExpr="true" defaultValue="RGBA(0, 176, 240, 1)" converter="argbConverter">
+    <title>Theme Color</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_ThemeColor_DisplayName##</appMagic:displayName>
+    <appMagic:helperUI>color</appMagic:helperUI>
+  </property>
+  <property name="ReadOnly" localizedName="##CommonProperties_ReadOnly##" datatype="Boolean" defaultValue="false">
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_ReadOnly_DisplayName##</appMagic:displayName>
+    <appMagic:helperUI>boolean</appMagic:helperUI>
+    <appMagic:tooltip>##CommonProperties_ReadOnly_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="PreserveAspectRatio" localizedName="##CommonProperties_PreserveAspectRatio##" datatype="Boolean" defaultValue="false" hidden="true" styleable="true">
+    <title>used for shape controls to determine if they should preserve aspect ratio when the app size changes at runtime</title>
+    <appMagic:category>design</appMagic:category>
+  </property>
+  <property name="TabIndex" localizedName="##CommonProperties_TabIndex##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Tab Index</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_TabIndex_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_TabIndex_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ResizerGrip" localizedName="##CommonProperties_ResizerGrip##" datatype="String" defaultValue="" hidden="true">
+    <title>Resizer grip</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:displayName>##CommonProperties_ResizerGrip_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ResizerGrip_Tooltip##</appMagic:tooltip>
+  </property>
+
+  <!-- Auto-layout properties -->
+  <property name="LayoutMode" localizedName="##CommonProperties_LayoutMode##" datatype="LayoutMode" defaultValue="%LayoutMode.RESERVED%.Manual" nullDefault="%LayoutMode.RESERVED%.Manual" isExpr="true" hidden="true">
+    <title>Layout Mode</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutMode</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutMode_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutMode_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutDirection" localizedName="##CommonProperties_LayoutDirection##" datatype="LayoutDirection" defaultValue="%LayoutDirection.RESERVED%.Horizontal" nullDefault="%LayoutDirection.RESERVED%.Horizontal" isExpr="true" hidden="true">
+    <title>Layout Direction</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutDirection</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutDirection_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutDirection_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutWrap" localizedName="##CommonProperties_LayoutWrap##" datatype="Boolean" defaultValue="false" hidden="true">
+    <title>Layout Wrap</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutWrap</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutWrap_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutWrap_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutAlignItems" localizedName="##CommonProperties_LayoutAlignItems##" datatype="LayoutAlignItems" defaultValue="%LayoutAlignItems.RESERVED%.Start" nullDefault="%LayoutAlignItems.RESERVED%.Start" isExpr="true" hidden="true">
+    <title>Layout Align</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutAlignItems</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutAlignItems_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutAlignItems_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutJustifyContent" localizedName="##CommonProperties_LayoutJustifyContent##" datatype="LayoutJustifyContent" defaultValue="%LayoutJustifyContent.RESERVED%.Start" nullDefault="%LayoutJustifyContent.RESERVED%.Start" isExpr="true" hidden="true">
+    <title>Layout Justify</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutJustifyContent</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutJustifyContent_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutJustifyContent_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutOverflowX" localizedName="##CommonProperties_LayoutOverflowX##" datatype="LayoutOverflow" defaultValue="%LayoutOverflow.RESERVED%.Hide" nullDefault="%LayoutOverflow.RESERVED%.Hide" isExpr="true" hidden="true">
+    <title>Layout Overflow</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutOverflowX</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutOverflowX_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutOverflowX_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutOverflowY" localizedName="##CommonProperties_LayoutOverflowY##" datatype="LayoutOverflow" defaultValue="%LayoutOverflow.RESERVED%.Hide" nullDefault="%LayoutOverflow.RESERVED%.Hide" isExpr="true" hidden="true">
+    <title>Layout Overflow</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutOverflowY</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutOverflowY_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutOverflowY_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutGap" localizedName="##CommonProperties_LayoutGap##" datatype="Number" defaultValue="0" nullDefault="0" hidden="true">
+    <title>Layout Gap</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutGap</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutGap_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutGap_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="GrowthPortions" localizedName="##CommonProperties_GrowthPortions##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Growth Portions</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>growthPortions</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_GrowthPortions_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_GrowthPortions_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="AlignInContainer" localizedName="##CommonProperties_AlignInContainer##" datatype="AlignInContainer" defaultValue="%AlignInContainer.RESERVED%.SetByContainer" nullDefault="%AlignInContainer.RESERVED%.SetByContainer" isExpr="true">
+    <title>Self Align</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>alignInContainer</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_AlignInContainer_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_AlignInContainer_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutMinHeight" localizedName="##CommonProperties_LayoutMinHeight##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Layout Min Height</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutMinHeight</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutMinHeight_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutMinHeight_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutMaxHeight" localizedName="##CommonProperties_LayoutMaxHeight##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Layout Max Height</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutMaxHeight</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutMaxHeight_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutMaxHeight_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutMinWidth" localizedName="##CommonProperties_LayoutMinWidth##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Layout Min Width</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutMinWidth</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutMinWidth_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutMinWidth_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="LayoutMaxWidth" localizedName="##CommonProperties_LayoutMaxWidth##" datatype="Number" defaultValue="0" nullDefault="0">
+    <title>Layout Max Width</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>layoutMaxWidth</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_LayoutMaxWidth_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_LayoutMaxWidth_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ActualWidth" localizedName="##CommonProperties_ActualWidth##" datatype="Number" direction="out">
+    <title>Actual Width</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>actualWidth</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ActualWidth_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ActualWidth_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ActualHeight" localizedName="##CommonProperties_ActualHeight##" datatype="Number" direction="out">
+    <title>Actual Height</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>actualHeight</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ActualHeight_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ActualHeight_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ActualX" localizedName="##CommonProperties_ActualX##" datatype="Number" direction="out">
+    <title>Actual X</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>actualX</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ActualX_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ActualX_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="ActualY" localizedName="##CommonProperties_ActualY##" datatype="Number" direction="out">
+    <title>Actual Y</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>actualY</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ActualY_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ActualY_Tooltip##</appMagic:tooltip>
+  </property>
+</properties>
