@@ -45,6 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
 
                 string defaultScript = null;
+                // Strip rules that match the default value
                 if ((template?.InputDefaults.TryGetValue(rule.Property, out defaultScript) ?? false) &&
                     defaultScript == rule.InvariantScript)
                 {

@@ -9,7 +9,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class PAConverter
     {
-        internal static string GetPAText(SourceFile sf, Dictionary<string, ControlTemplate> templates)
+        
+        internal static string GetPAText(SourceFile sf,
+            Dictionary<string, ControlTemplate> templates) // Key is template name
         {
             ControlInfoJson control = sf.Value;
 

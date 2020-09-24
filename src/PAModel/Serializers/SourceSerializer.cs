@@ -23,7 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
-        public const string TemplatesDir = "pkgs";
+        public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -149,7 +149,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
-            foreach (var file in directory.EnumerateFiles(TemplatesDir, "*.xml")) {
+            foreach (var file in directory.EnumerateFiles(PackagesDir, "*.xml")) {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, out var parsedTemplate, out var templateName))
                     throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
@@ -298,7 +298,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in app._templates.UsedTemplates)
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
-                dir.WriteAllXML(TemplatesDir, filename, template.Template);
+                dir.WriteAllXML(PackagesDir, filename, template.Template);
                 if (ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, out var parsedTemplate, out var name))
                     templateDefaults.Add(name, parsedTemplate);
             }

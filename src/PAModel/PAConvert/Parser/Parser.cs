@@ -16,7 +16,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         private string _content;
         private string _fileName;
         private TokenStream _tokenizer;
+        // Key is control name
         private Dictionary<string, ControlInfoJson.Item> _controlStates;
+
+        // Keys are template name
         private Dictionary<string, ControlInfoJson.Template> _templates;
         private Dictionary<string, ControlTemplate> _templateDefaults;
 
@@ -158,6 +161,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             control.Children = children.ToArray();
 
+            // Dict of property => default expression
             Dictionary<string, string> defaults = null;
             if (_templateDefaults.TryGetValue(template.Name, out var controlTemplate))
                 defaults = new Dictionary<string, string>(controlTemplate.InputDefaults);
@@ -172,6 +176,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 else
                 {
                     var defaultValue = string.Empty;
+                    // Restore default property values that weren't in the .pa file
                     if (defaults?.TryGetValue(rule.Property, out defaultValue) ?? false)
                         rule.InvariantScript = defaultValue;
                     else

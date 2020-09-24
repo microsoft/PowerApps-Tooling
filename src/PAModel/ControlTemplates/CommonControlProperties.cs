@@ -12,15 +12,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
     internal class CommonControlProperties
     {
-        private readonly Dictionary<string, ControlProperty> _properties;
-        private static readonly Lazy<CommonControlProperties> _lazyCommonControlProperties = new Lazy<CommonControlProperties>(() => new CommonControlProperties());
-        private static readonly string _fileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
+        // Key is property name
+        private readonly Dictionary<string, ControlProperty> _properties = new Dictionary<string, ControlProperty>();
 
-        public static CommonControlProperties Instance => _lazyCommonControlProperties.Value;
+        private static readonly string _fileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
+        private static CommonControlProperties _instance;
+
+        public static CommonControlProperties Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new CommonControlProperties();
+                return _instance;
+            }
+        }
 
         private CommonControlProperties()
         {
-            _properties = new Dictionary<string, ControlProperty>();
             Load();
         }
 
