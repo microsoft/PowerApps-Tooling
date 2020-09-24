@@ -281,6 +281,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 yield return file;
             }
 
+            yield return ToFile(FileKind.Templates, app._templates);
 
             var header = app._header.JsonClone();
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();

@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -5,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
-    public sealed class ControlTemplate
+    internal sealed class ControlTemplate
     {
         public string Name { get; }
         public string Version { get; }

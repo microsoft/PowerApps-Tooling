@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
@@ -8,9 +11,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
     internal class ControlTemplateParser
     {
-        internal static bool TryParseTemplate(string templateString, string name, AppType type, out ControlTemplate template)
+        internal static bool TryParseTemplate(string templateString, AppType type, out ControlTemplate template, out string name)
         {
             template = null;
+            name = string.Empty;
             try
             {
                 var manifest = XDocument.Parse(templateString);
@@ -19,6 +23,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 var widget = manifest.Root;
                 if (widget.Name != ControlMetadataXNames.WidgetTag)
                     return false;
+
+                name = widget.Attribute(ControlMetadataXNames.NameAttribute).Value;
                 var id = widget.Attribute(ControlMetadataXNames.IdAttribute).Value;
                 var version = widget.Attribute(ControlMetadataXNames.VersionAttribute).Value;
 

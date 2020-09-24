@@ -64,6 +64,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Ignore the checksum file, else we'd have a circular reference. 
                 return;
             }
+
+            // TODO: Checksum Algo doesn't handle double-escaped XML well, skip template file for now
+            if (filename == "References\\Templates.json")
+                return;
+
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {

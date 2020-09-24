@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -47,7 +47,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Unique to source format. 
         Entropy,
         CanvasManifest,
-        Connections
+        Connections,
     }
 
     // Represent a file from disk or a Zip archive. 

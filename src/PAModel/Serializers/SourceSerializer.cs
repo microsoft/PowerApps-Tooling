@@ -83,6 +83,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 throw new NotSupportedException($"Can't find CanvasManifest.json file - is sources an old version?");
             }
 
+            // Load template files, recreate References/templates.json
+            LoadTemplateFiles(app, dir, out var templateDefaults);
+
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -118,7 +121,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app.GetLogoFileFromUnknowns();
 
             LoadDataSources(app, dir);
-            LoadSourceFiles(app, dir);
+            LoadSourceFiles(app, dir, templateDefaults);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
@@ -142,6 +145,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return app;
         }
 
+        private static void LoadTemplateFiles(CanvasDocument app, DirectoryReader directory, out Dictionary<string, ControlTemplate> loadedTemplates)
+        {
+            loadedTemplates = new Dictionary<string, ControlTemplate>();
+            var templateList = new List<TemplatesJson.TemplateJson>();
+            foreach (var file in directory.EnumerateFiles(TemplatesDir, "*.xml")) {
+                var xmlContents = file.GetContents();
+                if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, out var parsedTemplate, out var templateName))
+                    throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
+                loadedTemplates.Add(templateName, parsedTemplate);
+                templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
+            }
+
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
+        }
+
         // The publish info points to the logo file. Grab it from the unknowns. 
         private static void GetLogoFileFromUnknowns(this CanvasDocument app)
         {
@@ -162,10 +180,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory)
+        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
         {
-            // Ignoring real pa1 files, can't parse them yet. 
-            // Sources
             var templates = new Dictionary<string, ControlInfoJson.Template>();
             var controlData = new Dictionary<string, Dictionary<string, ControlInfoJson.Item>>();
 
@@ -178,6 +194,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (file.Kind == FileKind.Templates)
                 {
+                    // Maybe we can recreate this from the template defaults instead?
                     templates = file.ToObject<Dictionary<string, ControlInfoJson.Template>>();
                     continue;
                 }
@@ -224,7 +241,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 try
                 {
-                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates);                        
+                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates, templateDefaults);                        
                     var item = parser.ParseControl();
                     if (parser.HasErrors())
                     {
@@ -282,8 +299,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
                 dir.WriteAllXML(TemplatesDir, filename, template.Template);
-                if (ControlTemplateParser.TryParseTemplate(template.Template, template.Name, app._properties.DocumentAppType, out var parsedTemplate))
-                    templateDefaults.Add(template.Name, parsedTemplate);
+                if (ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, out var parsedTemplate, out var name))
+                    templateDefaults.Add(name, parsedTemplate);
             }
 
 

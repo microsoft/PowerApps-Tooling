@@ -1,5 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System.Xml.Linq;
 
+// Taken from Studio code, mostly unused right now
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
     internal static class ControlMetadataXNames
