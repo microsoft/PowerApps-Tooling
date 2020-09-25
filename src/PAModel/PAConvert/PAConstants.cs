@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -11,7 +11,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const char IdentifierDelimiter = '\'';
 
-        public const string PropertyDelimiterToken = ":=";
+        public const string PropertyDelimiterToken = "=";
         public const string ControlTemplateSeparator = ":";
         public const string ControlVariantSeparator = ",";
         public const string ControlKeyword = "control";
