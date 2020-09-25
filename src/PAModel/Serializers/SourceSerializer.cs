@@ -109,6 +109,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._checksum = file.ToObject<ChecksumJson>();
                         break;
 
+                    case FileKind.Themes:
+                        app._themes = file.ToObject<ThemesJson>();
+                        break;
+
                     case FileKind.Header:
                     case FileKind.Properties:
                         throw new NotSupportedException($"Old format");
@@ -258,6 +262,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
 #if USEPA
+            var theme = new Theme(app._themes);
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
                 var filename = Path.GetFileName(file._relativeName);
@@ -266,33 +271,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Console.WriteLine($"No editor state provided for {controlName}, using defaults.");
 
                 AddControl(app, file._relativeName, file.GetContents(),
-                    templateDefaults, controlState, templates);
+                    templateDefaults, theme, controlState, templates);
             }
 #endif
         }
 
         private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults)
         {
+            var theme = new Theme(app._themes);
             var index = 0;
             foreach (var file in paFiles)
             {
                 var filename = Path.GetFileName(file);
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, file, fileEntry.GetContents(), templateDefaults, index: index++);
+                AddControl(app, file, fileEntry.GetContents(), templateDefaults, theme, index: index++);
             }
         }
 
         private static void AddControl(CanvasDocument app, string filePath, string fileContents,
             Dictionary<string, ControlTemplate> templateDefaults,
+            Theme theme,
             Dictionary<string, ControlInfoJson.Item> controlStates = null,
             Dictionary<string, ControlInfoJson.Template> templates = null,
-            int? index = null)
+            int? index = null
+        )
         {
             var filename = Path.GetFileName(filePath);
             try
             {
-                var parser = new Parser.Parser(filePath, fileContents, controlStates, templates, templateDefaults);
+                var parser = new Parser.Parser(filePath, fileContents, controlStates, templates, templateDefaults, theme);
                 var item = parser.ParseControl();
                 if (parser.HasErrors())
                 {
@@ -356,6 +364,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var templates = new Dictionary<string, ControlInfoJson.Template>();
 
+
+            var theme = new Theme(app._themes);
+
             foreach (var control in app._sources.Values)
             {
                 // Temporary write out of JSON for roundtripping
@@ -364,7 +375,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 #endif
 
-                var text = PAConverter.GetPAText(control, templateDefaults);
+                var text = PAConverter.GetPAText(control, templateDefaults, theme);
                 var controlName = control.ControlName;
                 string filename = controlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);
@@ -434,6 +445,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._logoFile != null)
             {
                 dir.WriteAllBytes(OtherDir, app._logoFile.Name, app._logoFile.RawBytes);
+            }
+
+            if (app._themes != null)
+            {
+                dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
             }
 
             // Loose files. 

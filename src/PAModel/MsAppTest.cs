@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -223,6 +223,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     indent = indent + "  ";
                     foreach (var prop in e.EnumerateObject().OrderBy(x => x.Name))
                     {
+                        if (prop.Name == "LocalConnectionReferences") {  }
                         if (dups.Add(prop.Name))
                         {
                             sb.Append(indent);
@@ -263,10 +264,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 str = "<json>" + JsonNormalizer.Normalize(str) + "</json>";
                             }
                             catch { } // Not Json.
+                        } else
+                        {
+                            str = e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n");
                         }
 
-                        // sb.AppendLine(str);
-                        sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
+                        sb.AppendLine(str);
+                        // sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
                     }
                     break;
 

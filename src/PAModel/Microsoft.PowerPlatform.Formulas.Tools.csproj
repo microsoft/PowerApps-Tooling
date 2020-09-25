@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml"/>
+    <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
     <EmbeddedResource Include="Themes/DefaultTheme.json"/>
   </ItemGroup>
 

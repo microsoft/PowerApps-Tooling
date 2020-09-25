@@ -37,8 +37,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
         internal PublishInfoJson _publishInfo;
-
         internal TemplatesJson _templates;
+        internal ThemesJson _themes;
 
         // Environment-specific information
         // Extracted from _properties.LocalConnectionReferences

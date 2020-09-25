@@ -35,7 +35,7 @@ namespace PASopa
                 int countTotal = 0;
                 int countPass = 0;
                 Console.WriteLine("Test roundtripping all .msapps in : " + msAppPathDir);
-                foreach(var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.AllDirectories))
+                foreach(var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
                 {
                     Stopwatch sw = Stopwatch.StartNew();
                     bool ok = MsAppTest.StressTest(msAppPath);

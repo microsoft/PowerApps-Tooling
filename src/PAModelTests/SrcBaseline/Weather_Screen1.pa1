@@ -1,0 +1,30 @@
+//! PAFile:0.1
+control Screen1 : screen
+    Height = Max(App.Height, App.DesignHeight)
+    Width = Max(App.Width, App.DesignWidth)
+    LoadingSpinnerColor = RGBA(56, 96, 178, 1)
+
+    control Label1 : label
+        Text = MSNWeather.CurrentWeather("redmond", "Imperial").responses.weather.current.temp
+        Color = RGBA(0, 0, 0, 1)
+        DisabledColor = RGBA(166, 166, 166, 1)
+        BorderColor = RGBA(0, 18, 107, 1)
+        X = 40
+        Y = 40
+        Width = 560
+        Height = 70
+        ZIndex = 1
+        Size = 21
+
+    control Label2 : label
+        Text = "Hello"
+        Color = RGBA(0, 0, 0, 1)
+        DisabledColor = RGBA(166, 166, 166, 1)
+        BorderColor = RGBA(0, 18, 107, 1)
+        X = 40
+        Y = 130
+        Width = 560
+        Height = 70
+        ZIndex = 2
+        Size = 21
+

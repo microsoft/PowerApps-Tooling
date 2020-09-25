@@ -20,6 +20,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="SrcBaseline\Weather_Screen1.pa1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="SrcBaseline\Weather_Screen1.pa1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj" />
   </ItemGroup>
 
