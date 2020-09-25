@@ -104,59 +104,64 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 control.Template.ComponentDefinitionInfo = null;
             }
 
-            var next = _tokenizer.GetNextToken();
-            if (next.Kind == TokenKind.VariantSeparator)
-            {
-                var variantToken = _tokenizer.GetNextToken();
-                if (variantToken.Kind != TokenKind.Identifier)
-                {
-                    _errorContainer.AddError(variantToken.Span, $"Unexpected token {variantToken.Kind}, expected {TokenKind.Identifier}");
-                    return null;
-                }
-                control.VariantName = variantToken.Content;
-
-                next = _tokenizer.GetNextToken();
-            }
-
-            if (next.Kind != TokenKind.Indent)
-            {
-                // Handle empty control special case
-                if (next.Kind == TokenKind.Control)
-                {
-                    _tokenizer.ReplaceToken(next);
-                    control.Children = new ControlInfoJson.Item[0];
-                    foreach (var rule in control.Rules)
-                        rule.InvariantScript = string.Empty;
-                }
-
-                return control;
-            }
-
-            next = _tokenizer.GetNextToken();
-
             var paRules = new Dictionary<string, string>();
             var children = new List<ControlInfoJson.Item>();
 
-            while (!_tokenizer.Eof && next.Kind != TokenKind.Dedent)
+            var next = _tokenizer.GetNextToken();
+            if (!_tokenizer.Eof)
             {
-                switch (next.Kind)
+
+                if (next.Kind == TokenKind.VariantSeparator)
                 {
-                    case TokenKind.Identifier:
-                        var rule = ParseRule(next.Content);
-                        paRules.Add(rule.propertyName, rule.script);
-                        break;
-                    case TokenKind.Control:
-                        var child = ParseControl(parent: control.Name, next.Content == PAConstants.ComponentKeyword);
-                        children.Add(child);
-                        break;
-                    default:
-                        {
-                            _errorContainer.AddError(next.Span, $"Unexpected token {next.Kind}, expected {TokenKind.Identifier} or {TokenKind.Control}");
-                            return null;
-                        }
+                    var variantToken = _tokenizer.GetNextToken();
+                    if (variantToken.Kind != TokenKind.Identifier)
+                    {
+                        _errorContainer.AddError(variantToken.Span, $"Unexpected token {variantToken.Kind}, expected {TokenKind.Identifier}");
+                        return null;
+                    }
+                    control.VariantName = variantToken.Content;
+
+                    next = _tokenizer.GetNextToken();
+                }
+
+                if (next.Kind != TokenKind.Indent)
+                {
+                    // Handle empty control special case
+                    if (next.Kind == TokenKind.Control)
+                    {
+                        _tokenizer.ReplaceToken(next);
+                        control.Children = new ControlInfoJson.Item[0];
+                        foreach (var rule in control.Rules)
+                            rule.InvariantScript = string.Empty;
+                    }
+
+                    return control;
                 }
 
                 next = _tokenizer.GetNextToken();
+
+                while (!_tokenizer.Eof && next.Kind != TokenKind.Dedent)
+                {
+                    switch (next.Kind)
+                    {
+                        case TokenKind.Identifier:
+                            var rule = ParseRule(next.Content);
+                            paRules.Add(rule.propertyName, rule.script);
+                            break;
+                        case TokenKind.Control:
+                            var child = ParseControl(parent: control.Name, next.Content == PAConstants.ComponentKeyword);
+                            children.Add(child);
+                            break;
+                        default:
+                            {
+                                _errorContainer.AddError(next.Span, $"Unexpected token {next.Kind}, expected {TokenKind.Identifier} or {TokenKind.Control}");
+                                return null;
+                            }
+                    }
+
+                    next = _tokenizer.GetNextToken();
+                }
+
             }
 
             control.Children = children.ToArray();

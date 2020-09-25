@@ -2,15 +2,16 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
     internal class ControlTemplateParser
     {
+        internal static Regex _reservedIdentifierRegex = new Regex(@"%([a-zA-Z]*)\.RESERVED%");
+
+
         internal static bool TryParseTemplate(string templateString, AppType type, out ControlTemplate template, out string name)
         {
             template = null;
@@ -75,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 
             var defaultOverride = includeProperty.Attribute(ControlMetadataXNames.DefaultValueAttribute);
             if (defaultOverride != null)
-                template.InputDefaults.Add(propertyName, defaultOverride.Value);
+                template.InputDefaults.Add(propertyName, UnescapeReservedName(defaultOverride.Value));
             else 
                 template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type));
         }
@@ -93,18 +94,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 
             var defaultValueAttrib = property.Attribute(ControlMetadataXNames.DefaultValueAttribute);
             if (defaultValueAttrib != null)
-                defaultValue = defaultValueAttrib.Value;
+                defaultValue = UnescapeReservedName(defaultValueAttrib.Value);
 
             var phoneDefaultValueAttrib = property.Attribute(ControlMetadataXNames.PhoneDefaultValueAttribute);
             if (phoneDefaultValueAttrib != null)
-                phoneDefaultValue = phoneDefaultValueAttrib.Value;
+                phoneDefaultValue = UnescapeReservedName(phoneDefaultValueAttrib.Value);
 
             var webDefaultValueAttrib = property.Attribute(ControlMetadataXNames.WebDefaultValueAttribute);
             if (webDefaultValueAttrib != null)
-                webDefaultValue = webDefaultValueAttrib.Value;
+                webDefaultValue = UnescapeReservedName(webDefaultValueAttrib.Value);
 
             return new ControlProperty(nameAttr.Value, defaultValue, phoneDefaultValue, webDefaultValue);
         }
 
+        private static string UnescapeReservedName(string expression)
+        {
+            return _reservedIdentifierRegex.Replace(expression, "$1");
+        }
     }
 }

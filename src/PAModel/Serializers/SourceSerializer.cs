@@ -157,6 +157,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(loadedTemplates, app._properties.DocumentAppType);
+
             app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
 
@@ -303,6 +306,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     templateDefaults.Add(name, parsedTemplate);
             }
 
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
 
             var templates = new Dictionary<string, ControlInfoJson.Template>();
 
