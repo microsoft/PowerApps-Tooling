@@ -240,7 +240,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var filename = Path.GetFileName(file._relativeName);
                 var controlName = filename.Remove(filename.IndexOf(".pa1"));
                 if (!controlData.TryGetValue(controlName, out var controlState))
-                    throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
+                    Console.WriteLine($"No editor state provided for {controlName}, using defaults.");
 
                 try
                 {

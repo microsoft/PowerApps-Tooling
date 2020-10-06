@@ -8,7 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
- 
+using System.Text.Json;
+
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Parser
@@ -67,12 +68,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
 
             var name = identToken.Content;
-            if (!_controlStates.TryGetValue(name, out var control))
-                control = new ControlInfoJson.Item(); // Should have an arg for defaults maybe?
-
-            control.Name = name;
-            if (parent != string.Empty)
-                control.Parent = parent;
 
 
             var templateSeparator = _tokenizer.GetNextToken();
@@ -81,21 +76,49 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 _errorContainer.AddError(templateSeparator.Span, $"Unexpected token {templateSeparator.Kind}, expected {TokenKind.TemplateSeparator}");
                 return null;
             }
+
             var templateToken = _tokenizer.GetNextToken();
             if (templateToken.Kind != TokenKind.Identifier)
             {
                 _errorContainer.AddError(templateToken.Span, $"Unexpected token {templateToken.Kind}, expected {TokenKind.Identifier}");
                 return null;
             }
+
+
+            if (!_templateDefaults.TryGetValue(templateToken.Content, out var controlTemplate))
+                controlTemplate = null;
+
             if (!_templates.TryGetValue(templateToken.Content, out var template))
             {
-                template = new ControlInfoJson.Template(); // This seems like a problem, maybe we can't recreate templates without npm ref?
+                template = new ControlInfoJson.Template();
                 template.Name = templateToken.Content;
+                // Try recreating template using template defaults
+                if (controlTemplate != null)
+                {
+                    template.Id = controlTemplate.Id;
+                    template.Version = controlTemplate.Version;
+                    template.IsComponentDefinition = false;
+                    template.LastModifiedTimestamp = "0";
+                    template.ExtensionData.Add("FirstParty", true);
+                    template.ExtensionData.Add("IsCustomGroupControlTemplate", false);
+                    template.ExtensionData.Add("CustomGroupControlTemplateName", "");
+                    template.ExtensionData.Add("OverridableProperties", new object());
+                }
             }
             else
             {
                 template = new ControlInfoJson.Template(template);
             }
+
+            ControlInfoJson.Item control = default;
+            if (!(_controlStates?.TryGetValue(name, out control) ?? false))
+            {
+                control = ControlInfoJson.Item.CreateDefaultControl(controlTemplate);
+            }
+
+            control.Name = name;
+            if (parent != string.Empty)
+                control.Parent = parent;
 
             control.Template = template;
             if (isComponent && control.Template.IsComponentDefinition != null)
@@ -168,7 +191,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             // Dict of property => default expression
             Dictionary<string, string> defaults = null;
-            if (_templateDefaults.TryGetValue(template.Name, out var controlTemplate))
+            if (controlTemplate != null)
                 defaults = new Dictionary<string, string>(controlTemplate.InputDefaults);
 
             foreach (var rule in control.Rules)
