@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -114,7 +115,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var defaultCtrl = new Item();
                 var rules = new List<RuleEntry>();
                 var controlPropertyStates = new List<string>();
-                foreach (var propName in templateDefault?.InputDefaults.Keys)
+                foreach (var propName in templateDefault?.InputDefaults?.Keys ?? Enumerable.Empty<string>())
                 {
                     rules.Add(new RuleEntry()
                         {

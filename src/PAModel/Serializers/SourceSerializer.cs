@@ -303,7 +303,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 if (index.HasValue)
-                    item.ExtensionData?.Add("Index", index);
+                    item.ExtensionData["Index"] = index;
 
                 var control = new ControlInfoJson() { TopParent = item };
 
