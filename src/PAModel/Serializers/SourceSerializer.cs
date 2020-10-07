@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
@@ -28,6 +30,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
         public const string Ignore = "Ignore"; // Write-only, ignore these files.
+
+        private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
 
         private static T ToObject<T>(string fullpath)
         {
@@ -84,7 +88,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Load template files, recreate References/templates.json
-            LoadTemplateFiles(app, dir, out var templateDefaults);
+            LoadTemplateFiles(app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
 
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
@@ -145,11 +149,30 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return app;
         }
 
-        private static void LoadTemplateFiles(CanvasDocument app, DirectoryReader directory, out Dictionary<string, ControlTemplate> loadedTemplates)
+        public static CanvasDocument Create(string appName, string packagesPath, IList<string> paFiles)
+        {
+            var app = new CanvasDocument();
+
+            app._properties = DocumentPropertiesJson.CreateDefault(appName);
+            app._header = HeaderJson.CreateDefault();
+
+            LoadTemplateFiles(app, packagesPath, out var loadedTemplates);
+            app._entropy = new Entropy();
+            app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo" };
+
+            AddDefaultTheme(app);
+
+            CreateControls(app, paFiles, loadedTemplates);
+
+            return app;
+        }
+
+
+        private static void LoadTemplateFiles(CanvasDocument app, string packagesPath, out Dictionary<string, ControlTemplate> loadedTemplates)
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
-            foreach (var file in directory.EnumerateFiles(PackagesDir, "*.xml")) {
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, out var parsedTemplate, out var templateName))
                     throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
@@ -167,7 +190,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void GetLogoFileFromUnknowns(this CanvasDocument app)
         {
             // Logo file. 
-            if (!string.IsNullOrEmpty(app._publishInfo.LogoFileName))
+            if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
             {
                 string key = @"Resources\" + app._publishInfo.LogoFileName;
                 FileEntry logoFile;
@@ -240,40 +263,62 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var filename = Path.GetFileName(file._relativeName);
                 var controlName = filename.Remove(filename.IndexOf(".pa1"));
                 if (!controlData.TryGetValue(controlName, out var controlState))
-                    throw new NotImplementedException("Missing control state json, reconstructing not yet supported");
+                    Console.WriteLine($"No editor state provided for {controlName}, using defaults.");
 
-                try
-                {
-                    var parser = new Microsoft.PowerPlatform.Formulas.Tools.Parser.Parser(file._relativeName, file.GetContents(), controlState, templates, templateDefaults);                        
-                    var item = parser.ParseControl();
-                    if (parser.HasErrors())
-                    {
-                        parser.WriteErrors();
-                        Console.WriteLine("Skipping adding file to .msapp due to parse errors");
-                        Console.WriteLine("This tool is still in development, if these errors are wrong, please open an issue on our github page with a copy of your app");
-
-                        continue;
-                    }
-
-
-                    var control = new ControlInfoJson() { TopParent = item };
-
-                    var sf = SourceFile.New(control);
-
-                    // If a source file already exists, check the source directory for duplicate filenames.
-                    // Could be multiple that escape to the same value. 
-                    app._sources.Add(sf.ControlName, sf);
-                }
-                catch
-                {
-                    Console.WriteLine(
-                        "Parsing failed for file " + filename + "\n" +
-                        "This tool is still in development, please open an issue on our github page with a copy of your app");
-                }
-
+                AddControl(app, file._relativeName, file.GetContents(),
+                    templateDefaults, controlState, templates);
             }
 #endif
         }
+
+        private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults)
+        {
+            var index = 0;
+            foreach (var file in paFiles)
+            {
+                var filename = Path.GetFileName(file);
+                var fileEntry = new DirectoryReader.Entry(file);
+
+                AddControl(app, file, fileEntry.GetContents(), templateDefaults, index: index++);
+            }
+        }
+
+        private static void AddControl(CanvasDocument app, string filePath, string fileContents,
+            Dictionary<string, ControlTemplate> templateDefaults,
+            Dictionary<string, ControlInfoJson.Item> controlStates = null,
+            Dictionary<string, ControlInfoJson.Template> templates = null,
+            int? index = null)
+        {
+            var filename = Path.GetFileName(filePath);
+            try
+            {
+                var parser = new Parser.Parser(filePath, fileContents, controlStates, templates, templateDefaults);
+                var item = parser.ParseControl();
+                if (parser.HasErrors())
+                {
+                    parser.WriteErrors();
+                    Console.WriteLine("Skipping adding file to .msapp due to parse errors");
+                    Console.WriteLine("This tool is still in development, if these errors are wrong, please open an issue on our github page with a copy of your app");
+                    return;
+                }
+
+                if (index.HasValue)
+                    item.ExtensionData?.Add("Index", index);
+
+                var control = new ControlInfoJson() { TopParent = item };
+
+                var sf = SourceFile.New(control);
+
+                app._sources.Add(sf.ControlName, sf);
+            }
+            catch
+            {
+                Console.WriteLine(
+                    "Parsing failed for file " + filename + "\n" +
+                    "This tool is still in development, please open an issue on our github page with a copy of your app");
+            }
+        }
+
 
         private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
         {
@@ -458,6 +503,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Properties. LocalConnectionReferences 
             directory.WriteDoubleEncodedJson(Ignore, "Properties_LocalDatabaseReferences.json", app._properties.LocalDatabaseReferences);
-        }   
+        }
+
+        private static void AddDefaultTheme(CanvasDocument app)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream(_defaultThemefileName);
+            using var reader = new StreamReader(stream);
+
+            var jsonString = reader.ReadToEnd();
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+
+            app.AddFile(new FileEntry { Name = "References\\Themes.json", RawBytes = bytes });
+        }
+
     }
 }

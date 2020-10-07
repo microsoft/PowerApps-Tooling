@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Persistence.Converters;
@@ -124,8 +124,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        // full:     C:\foo
-        // basePath: c:\foo\bar\hi.txt
+        // basePath:     C:\foo
+        // full: c:\foo\bar\hi.txt
         // returns "bar\hi.txt"
         public static string GetRelativePath(string full, string basePath)
         {

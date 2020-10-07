@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -47,7 +47,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             FileEntry logoFile = null;
             var publishInfo = app._publishInfo.JsonClone();
 
-            if (!string.IsNullOrEmpty(publishInfo.LogoFileName))
+            if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
             {
                 publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name);
                 logoFile = new FileEntry

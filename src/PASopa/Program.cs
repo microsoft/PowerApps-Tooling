@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -81,7 +82,8 @@ namespace PASopa
                         bool ok = MsAppTest.Compare(msAppPath, temp.FullPath, TextWriter.Null);
                     }
                 }
-            } else if (mode == "-pack")
+            }
+            else if (mode == "-pack")
             {
                 string msAppPath = args[1];
                 string inputDir = args[2];
@@ -90,14 +92,29 @@ namespace PASopa
 
                 CanvasDocument msApp = SourceSerializer.LoadFromSource(inputDir);
                 msApp.SaveAsMsApp(msAppPath);
-            } else
+            }
+            else if (mode == "-make")
+            {
+                string msAppPath = args[1];
+                string pkgsPath = args[2];
+                string inputPA = args[3];
+
+                Console.WriteLine($"Pack: {inputPA} --> {msAppPath} ");
+
+                var appName = Path.GetFileName(msAppPath);
+
+                var app = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
+                app.SaveAsMsApp(msAppPath);
+            }
+            else
             {
                 Console.WriteLine(
 @"Usage
 
 -unpack PathToApp.msapp PathToNewSourceFolder
 -unpack PathToApp.msapp  // infers source folder
--pack   NewPathToApp.msapp PathToSourceFolder
+-pack  NewPathToApp.msapp PathToSourceFolder
+-make PathToCreateApp.msapp PathToPkgFolder PathToPaFile
 
 ");
             }
