@@ -167,7 +167,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void GetLogoFileFromUnknowns(this CanvasDocument app)
         {
             // Logo file. 
-            if (!string.IsNullOrEmpty(app._publishInfo.LogoFileName))
+            if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
             {
                 string key = @"Resources\" + app._publishInfo.LogoFileName;
                 FileEntry logoFile;
@@ -274,7 +274,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 #endif
         }
-
         private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
         {
             // Will include subdirectories. 

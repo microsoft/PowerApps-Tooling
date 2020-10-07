@@ -74,6 +74,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             SourceSerializer.SaveAsSource(this, pathToSourceDirectory);
         }
+        public static CanvasDocument MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
+        {
+            return MsAppMaker.Create(appName, packagesPath, paFiles);
+        }
         #endregion
 
 

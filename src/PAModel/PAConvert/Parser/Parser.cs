@@ -88,7 +88,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             if (!_templateDefaults.TryGetValue(templateToken.Content, out var controlTemplate))
                 controlTemplate = null;
 
-            if (!_templates.TryGetValue(templateToken.Content, out var template))
+            ControlInfoJson.Template template = default;
+            if (!_templates?.TryGetValue(templateToken.Content, out template) ?? true)
             {
                 template = new ControlInfoJson.Template();
                 template.Name = templateToken.Content;
@@ -99,6 +100,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     template.Version = controlTemplate.Version;
                     template.IsComponentDefinition = false;
                     template.LastModifiedTimestamp = "0";
+                    template.ExtensionData = new Dictionary<string, object>();
                     template.ExtensionData.Add("FirstParty", true);
                     template.ExtensionData.Add("IsCustomGroupControlTemplate", false);
                     template.ExtensionData.Add("CustomGroupControlTemplateName", "");
@@ -111,7 +113,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
 
             ControlInfoJson.Item control = default;
-            if (!(_controlStates?.TryGetValue(name, out control) ?? false))
+            if (!_controlStates?.TryGetValue(name, out control) ?? true)
             {
                 control = ControlInfoJson.Item.CreateDefaultControl(controlTemplate);
             }

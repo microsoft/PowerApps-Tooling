@@ -298,7 +298,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
             yield return logoFile;
-            yield return ToFile(FileKind.PublishInfo, publishInfo);
+
+            if (publishInfo != null)
+                yield return ToFile(FileKind.PublishInfo, publishInfo);
 
             // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
             var dataSources = new DataSourcesJson
