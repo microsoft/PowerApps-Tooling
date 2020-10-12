@@ -53,19 +53,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
         {
             // Add themes first.
             var defaults = new Dictionary<string, string>();
-                        
+
             if (_template != null)
             {
-                foreach (var kv in _template.InputDefaults)
-                {
-                    defaults[kv.Key] = kv.Value;
-                }
+                defaults.AddRange(_template.InputDefaults);
             }
 
-            foreach (var kv in _theme.GetStyle(_styleName))
-            {
-                defaults[kv.Key] = kv.Value;
-            }
+            defaults.AddRange(_theme.GetStyle(_styleName));
 
             return defaults;
         }
