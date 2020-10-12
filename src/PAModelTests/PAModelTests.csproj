@@ -17,14 +17,10 @@
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="SrcBaseline\Weather_Screen1.pa1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="SrcBaseline\Weather_Screen1.pa1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="Templates\*.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
