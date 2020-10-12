@@ -31,19 +31,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
         // Used on writing to source to omit default rules. 
         public bool TryGetDefaultRule(string propertyName, out string defaultScript)
         {
+            // Themes (styles) are higher precedence  then Template XML. 
             var template = _template;
+
+            if (_theme.TryLookup(_styleName, propertyName, out defaultScript))
+            {
+                return true;
+            }
 
             if (template != null && template.InputDefaults.TryGetValue(propertyName, out defaultScript))
             {
                 // Found in template.
                 return true;
             }
-            else
-            {
-                // $$$ Theme needs to deal with the %Reserved% stuff. 
-                return _theme.TryLookup(_styleName, propertyName, out defaultScript);
-            }
-
+            defaultScript = null;
+            return false;            
         }
 
         // Used on reading from source. Get full list of rules for this control. 
@@ -51,17 +53,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
         {
             // Add themes first.
             var defaults = new Dictionary<string, string>();
-
-            foreach (var kv in _theme.GetStyle(_styleName))
-            {
-                defaults[kv.Key] = kv.Value;
-            }
+                        
             if (_template != null)
             {
                 foreach (var kv in _template.InputDefaults)
                 {
                     defaults[kv.Key] = kv.Value;
                 }
+            }
+
+            foreach (var kv in _theme.GetStyle(_styleName))
+            {
+                defaults[kv.Key] = kv.Value;
             }
 
             return defaults;

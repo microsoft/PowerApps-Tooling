@@ -34,7 +34,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var propName = prop.property;
                         var ruleValue = prop.value;
-
+                                                
                         // TODO - share with logic in D:\dev\pa2\PowerApps-Client\src\Cloud\DocumentServer.Core\Document\Document\Theme\ControlStyle.cs
                         // Resolve %%, from palette.
                         {
@@ -48,6 +48,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 ruleValue = ruleValue.Replace(match.Value, resourceValue);
                             }
                         }
+
+                        ruleValue = ControlTemplateParser.UnescapeReservedName(ruleValue);
 
                         _styles.GetOrCreate(styleName).Add(propName, ruleValue);
                     }
@@ -78,12 +80,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     string propName = kv.Key;
                     string script = kv.Value;
-                    
-                        
+
+
                     // TODO - handle %Reserver%
                     if (kv.Value.IndexOf('%') == -1)
                     {
                         d[propName] = script;
+                    } else
+                    {
+
                     }                    
                 }
             }

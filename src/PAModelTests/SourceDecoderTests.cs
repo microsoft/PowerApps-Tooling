@@ -13,7 +13,7 @@ namespace PAModelTests
     public class SourceDecoderTests
     {
         // Compare actual source output. This catches things like:
-        // - are we removing default properties
+        // - are we removing default properties, from both Theme Json and Template xmL?
         // - canonical ordering and stable output 
         [TestMethod]
         public void TestMethod1()
