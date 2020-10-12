@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -12,7 +13,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
         internal static Regex _reservedIdentifierRegex = new Regex(@"%([a-zA-Z]*)\.RESERVED%");
 
 
-        internal static bool TryParseTemplate(string templateString, AppType type, out ControlTemplate template, out string name)
+        internal static bool TryParseTemplate(string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
         {
             template = null;
             name = string.Empty;
@@ -50,6 +51,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                         AddIncludePropertyDefault(includeProperty, type, template);
                     }
                 }
+
+                if (template.Id == "http://microsoft.com/appmagic/gallery" && !TryParseNestedWidgets(widget, type, loadedTemplates))
+                    return false;
+
+                loadedTemplates.Add(name, template);
                 return true;
             }
             catch
@@ -58,12 +64,41 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             }
         }
 
+        private static bool TryParseNestedWidgets(XElement root, AppType type, Dictionary<string, ControlTemplate> loadedTemplates)
+        {
+            var nestedWidgets = root.Element(ControlMetadataXNames.NestedWidgets);
+            if (nestedWidgets == null)
+                return false;
+
+            foreach (var widget in nestedWidgets.Elements(ControlMetadataXNames.DataControlWidgetTag))
+            {
+                var name = widget.Attribute(ControlMetadataXNames.NameAttribute).Value;
+                var id = widget.Attribute(ControlMetadataXNames.IdAttribute).Value;
+                var version = widget.Attribute(ControlMetadataXNames.VersionAttribute).Value;
+
+                var template = new ControlTemplate(name, version, id);
+
+                var properties = widget.Element(ControlMetadataXNames.PropertiesTag);
+                if (properties != null)
+                {
+                    foreach (var prop in properties.Elements(ControlMetadataXNames.PropertyTag))
+                    {
+                        if (!AddPropertyDefault(prop, type, template))
+                            return false;
+                    }
+                }
+
+                loadedTemplates.Add(name, template);
+            }
+            return true;
+        }
+
         private static bool AddPropertyDefault(XElement prop, AppType type, ControlTemplate template)
         {
             var ctrlProp = ParseProperty(prop);
             if (ctrlProp == null)
                 return false;
-            template.InputDefaults.Add(ctrlProp.Name, ctrlProp.GetDefaultValue(type));
+            template.InputDefaults.Add(ctrlProp.Name, ctrlProp.GetDefaultValue(type) ?? string.Empty);
             return true;
         }
 
@@ -78,7 +113,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             if (defaultOverride != null)
                 template.InputDefaults.Add(propertyName, UnescapeReservedName(defaultOverride.Value));
             else 
-                template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type));
+                template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type) ?? string.Empty);
         }
 
 
