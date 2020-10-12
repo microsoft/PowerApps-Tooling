@@ -223,7 +223,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     indent = indent + "  ";
                     foreach (var prop in e.EnumerateObject().OrderBy(x => x.Name))
                     {
-                        if (prop.Name == "LocalConnectionReferences") {  }
                         if (dups.Add(prop.Name))
                         {
                             sb.Append(indent);

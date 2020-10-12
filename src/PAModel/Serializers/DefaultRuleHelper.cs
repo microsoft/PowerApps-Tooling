@@ -24,7 +24,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
             Theme theme)
         {
             _template = template;
-            _styleName = control.StyleName;
+            if (string.IsNullOrEmpty(control.StyleName))
+            {
+                // Default style name if we don't have one -
+                // that can happen when studiostate.json is missing. 
+                _styleName = $"default{control.Template.Name}Style";
+            }
+            else
+            {
+                _styleName = control.StyleName;
+            }
             _theme = theme;
         }
 

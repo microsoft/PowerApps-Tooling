@@ -49,11 +49,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (rule.InvariantScript == string.Empty)
                     continue;
 
-                if (rule.Property == "BorderStyle")
-                {
-
-                }
-
                 defaulter.TryGetDefaultRule(rule.Property, out var defaultScript);
                     
                 if (defaultScript == rule.InvariantScript)
