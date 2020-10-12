@@ -250,10 +250,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             if (str[0] == '{' && str[str.Length-1] == '}')
                             {
                                 isDoubleEncodedJson = true;
-
-                                //ReadOnlySequence<byte> span =
-                                //Utf8JsonReader r = new Utf8JsonReader()
-                                //JsonDocument.TryParseValue()
                             }
                         }
 
@@ -269,8 +265,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             str = e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n");
                         }
 
-                        sb.AppendLine(str);
-                        // sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
+                        sb.AppendLine(str);                        
                     }
                     break;
 

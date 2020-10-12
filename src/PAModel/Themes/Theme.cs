@@ -76,21 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var d = new Dictionary<string, string>();
             if (_styles.TryGetValue(styleName, out var styles))
             {
-                foreach (var kv in styles)
-                {
-                    string propName = kv.Key;
-                    string script = kv.Value;
-
-
-                    // TODO - handle %Reserver%
-                    if (kv.Value.IndexOf('%') == -1)
-                    {
-                        d[propName] = script;
-                    } else
-                    {
-
-                    }                    
-                }
+                d.AddRange(styles);
             }
             return d;
         }
