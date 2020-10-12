@@ -83,7 +83,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.Properties:
                             app._properties = ToObject<DocumentPropertiesJson>(entry);
                             break;
-
+                        case FileKind.Themes:
+                            app._themes = ToObject<ThemesJson>(entry);
+                            break;
                         case FileKind.Header:
                             app._header = ToObject<HeaderJson>(entry);
                             app._entropy.SetHeaderLastSaved(app._header.LastSavedDateTimeUTC);
@@ -280,6 +282,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 yield return file;
             }
+
+            yield return ToFile(FileKind.Themes, app._themes);
 
             yield return ToFile(FileKind.Templates, app._templates);
 

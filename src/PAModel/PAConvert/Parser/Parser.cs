@@ -3,6 +3,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,13 +24,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         // Keys are template name
         private Dictionary<string, ControlInfoJson.Template> _templates;
         private Dictionary<string, ControlTemplate> _templateDefaults;
+        private readonly Theme _theme;
 
         public ErrorContainer _errorContainer;
 
         public Parser(string fileName, string contents,
             Dictionary<string, ControlInfoJson.Item> controlStates,
             Dictionary<string, ControlInfoJson.Template> templates,
-            Dictionary<string, ControlTemplate> templateDefaults)
+            Dictionary<string, ControlTemplate> templateDefaults,
+            Theme theme)
         {
             var header = "//! PAFile:0.1";
 
@@ -45,6 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             _controlStates = controlStates;
             _templates = templates;
             _templateDefaults = templateDefaults;
+            _theme = theme;
         }
 
         internal ControlInfoJson.Item ParseControl(string parent = "", bool isComponent = false)
@@ -129,7 +133,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 control.Template.ComponentDefinitionInfo = null;
             }
 
-            var paRules = new Dictionary<string, string>();
+            var paRules = new Dictionary<string, string>(); // PropertyName --> Script
             var children = new List<ControlInfoJson.Item>();
 
             var next = _tokenizer.GetNextToken();
@@ -192,9 +196,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             control.Children = children.ToArray();
 
             // Dict of property => default expression
-            Dictionary<string, string> defaults = null;
-            if (controlTemplate != null)
-                defaults = new Dictionary<string, string>(controlTemplate.InputDefaults);
+            var defaulter = new DefaultRuleHelper(control, controlTemplate, _theme);
+            var defaults = defaulter.GetDefaultRules();
+
 
             foreach (var rule in control.Rules)
             {

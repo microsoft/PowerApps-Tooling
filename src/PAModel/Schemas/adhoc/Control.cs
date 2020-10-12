@@ -79,6 +79,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // $$$ Or, remove from ExtensionData?
             // public bool HasDynamicProperties { get; set; }
 
+            // For matching up within a Theme.
+            public string StyleName { get; set; }
+
             // Recreatable if missing
             //public string LayoutName { get; set; } = "";
             //public string MetaDataIDKey { get; set; } = "";

@@ -107,7 +107,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             return new ControlProperty(nameAttr.Value, defaultValue, phoneDefaultValue, webDefaultValue);
         }
 
-        private static string UnescapeReservedName(string expression)
+        internal static string UnescapeReservedName(string expression)
         {
             return _reservedIdentifierRegex.Replace(expression, "$1");
         }

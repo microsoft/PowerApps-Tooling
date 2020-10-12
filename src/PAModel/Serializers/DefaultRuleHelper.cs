@@ -1,0 +1,77 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
+{
+    // Provides collection of all default rules.
+    // Used by reader/writer to add/remove default rules - avoid redundancy.
+    // The exact defaulting rules don't actually matter, as long as it's the same for
+    // read and write so that we roundtrip. 
+    internal class DefaultRuleHelper
+    {
+        private ControlTemplate _template;
+        private Theme _theme;
+        private string _styleName;
+
+        public DefaultRuleHelper(
+            ControlInfoJson.Item control,
+            ControlTemplate template,
+            Theme theme)
+        {
+            _template = template;
+            if (string.IsNullOrEmpty(control.StyleName))
+            {
+                // Default style name if we don't have one -
+                // that can happen when studiostate.json is missing. 
+                _styleName = $"default{control.Template.Name}Style";
+            }
+            else
+            {
+                _styleName = control.StyleName;
+            }
+            _theme = theme;
+        }
+
+        // Used on writing to source to omit default rules. 
+        public bool TryGetDefaultRule(string propertyName, out string defaultScript)
+        {
+            // Themes (styles) are higher precedence  then Template XML. 
+            var template = _template;
+
+            if (_theme.TryLookup(_styleName, propertyName, out defaultScript))
+            {
+                return true;
+            }
+
+            if (template != null && template.InputDefaults.TryGetValue(propertyName, out defaultScript))
+            {
+                // Found in template.
+                return true;
+            }
+            defaultScript = null;
+            return false;            
+        }
+
+        // Used on reading from source. Get full list of rules for this control. 
+        public Dictionary<string, string> GetDefaultRules()
+        {
+            // Add themes first.
+            var defaults = new Dictionary<string, string>();
+
+            if (_template != null)
+            {
+                defaults.AddRange(_template.InputDefaults);
+            }
+
+            defaults.AddRange(_theme.GetStyle(_styleName));
+
+            return defaults;
+        }
+
+    }
+}

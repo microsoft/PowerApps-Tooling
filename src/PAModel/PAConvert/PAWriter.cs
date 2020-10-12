@@ -3,6 +3,8 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,12 +17,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private StringBuilder _sb;
         private Dictionary<string, ControlTemplate> _templates;
+        private readonly Theme _theme;
 
-        public PAWriter(StringBuilder sb, Dictionary<string, ControlTemplate> templates)
+        public PAWriter(StringBuilder sb, Dictionary<string, ControlTemplate> templates, Theme theme)
         {
             _indentLevel = 0;
             _sb = sb;
             _templates = templates;
+            _theme = theme;
         }
         private void WriteLine(string line)
         {
@@ -37,21 +41,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _indentLevel++;
 
             _templates.TryGetValue(control.Template.Name, out var template);
-            
 
+            var defaulter = new DefaultRuleHelper(control, template, _theme);
+                
             foreach (var rule in control.Rules)
             {
                 if (rule.InvariantScript == string.Empty)
                     continue;
 
-                string defaultScript = null;
-                // Strip rules that match the default value
-                if ((template?.InputDefaults.TryGetValue(rule.Property, out defaultScript) ?? false) &&
-                    defaultScript == rule.InvariantScript)
+                defaulter.TryGetDefaultRule(rule.Property, out var defaultScript);
+                    
+                if (defaultScript == rule.InvariantScript)
                 {
                     continue;
-                }
-
+                }                
 
                 var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n");
 

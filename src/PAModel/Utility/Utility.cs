@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -25,6 +26,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             if (list == null) return Enumerable.Empty<T>();
             return list;
+        }
+
+        public static void AddRange<TKey,TValue>(
+            this IDictionary<TKey, TValue> thisDictionary,
+            IEnumerable<KeyValuePair<TKey, TValue>> other)
+        {
+            foreach(var kv in other)
+            {
+                thisDictionary[kv.Key] = kv.Value;
+            }
         }
 
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
