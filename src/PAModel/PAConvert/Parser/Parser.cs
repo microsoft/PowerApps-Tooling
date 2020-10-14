@@ -136,6 +136,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             var paRules = new Dictionary<string, string>(); // PropertyName --> Script
             var children = new List<ControlInfoJson.Item>();
 
+            // Dict of property => default expression
+            var defaulter = new DefaultRuleHelper(control, controlTemplate, _theme);
+            var defaults = defaulter.GetDefaultRules();
+
             var next = _tokenizer.GetNextToken();
             if (!_tokenizer.Eof)
             {
@@ -156,15 +160,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 if (next.Kind != TokenKind.Indent)
                 {
                     // Handle empty control special case
-                    if (next.Kind == TokenKind.Control)
+                    if (next.Kind == TokenKind.Control || next.Kind == TokenKind.Dedent)
                     {
-                        _tokenizer.ReplaceToken(next);
+                        if (next.Kind == TokenKind.Control)
+                            _tokenizer.ReplaceToken(next);
+
                         control.Children = new ControlInfoJson.Item[0];
                         foreach (var rule in control.Rules)
-                            rule.InvariantScript = string.Empty;
-                    }
+                        {
+                            var defaultValue = string.Empty;
+                            // Restore default property values that weren't in the .pa file
+                            if (defaults?.TryGetValue(rule.Property, out defaultValue) ?? false)
+                                rule.InvariantScript = defaultValue;
+                            else
+                                rule.InvariantScript = string.Empty;
+                        }
 
-                    return control;
+                        return control;
+                    }
                 }
 
                 next = _tokenizer.GetNextToken();
@@ -194,11 +207,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
 
             control.Children = children.ToArray();
-
-            // Dict of property => default expression
-            var defaulter = new DefaultRuleHelper(control, controlTemplate, _theme);
-            var defaults = defaulter.GetDefaultRules();
-
 
             foreach (var rule in control.Rules)
             {
