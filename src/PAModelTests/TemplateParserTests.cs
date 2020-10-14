@@ -14,7 +14,8 @@ namespace PAModelTests
     [TestClass]
     public class TemplateParserTests
     {
-
+        // This test is validating that the control template parser correctly parses default values for gallery control's nested template
+        // This will likely change after the preprocessor logic to combine nested templates with the parent is added.
         [TestMethod]
         public void TestGalleryNestedTemplateParse()
         {
@@ -32,6 +33,10 @@ namespace PAModelTests
             Assert.AreEqual(2, parsedTemplates.Count);
             Assert.AreEqual("gallery", name);
             Assert.AreEqual("http://microsoft.com/appmagic/gallery", topTemplate.Id);
+
+            Assert.IsTrue(parsedTemplates.TryGetValue("galleryTemplate", out var innerTemplate));
+            Assert.AreEqual("http://microsoft.com/appmagic/galleryTemplate", innerTemplate.Id);
+            Assert.AreEqual("RGBA(0, 0, 0, 0)", innerTemplate.InputDefaults["TemplateFill"]);
         }
     }
 }
