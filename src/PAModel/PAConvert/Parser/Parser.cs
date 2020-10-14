@@ -162,8 +162,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     // Handle empty control special case
                     if (next.Kind == TokenKind.Control || next.Kind == TokenKind.Dedent)
                     {
-                        if (next.Kind == TokenKind.Control)
-                            _tokenizer.ReplaceToken(next);
+                        _tokenizer.ReplaceToken(next);
 
                         control.Children = new ControlInfoJson.Item[0];
                         foreach (var rule in control.Rules)
