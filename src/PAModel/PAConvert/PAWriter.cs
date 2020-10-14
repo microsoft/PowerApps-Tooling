@@ -46,10 +46,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 
             foreach (var rule in control.Rules)
             {
-                if (rule.InvariantScript == string.Empty)
-                    continue;
-
-                defaulter.TryGetDefaultRule(rule.Property, out var defaultScript);
+                if (!defaulter.TryGetDefaultRule(rule.Property, out var defaultScript))
+                    defaultScript = string.Empty;
                     
                 if (defaultScript == rule.InvariantScript)
                 {

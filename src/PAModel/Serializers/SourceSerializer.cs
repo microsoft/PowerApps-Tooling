@@ -178,9 +178,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateList = new List<TemplatesJson.TemplateJson>();
             foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
                 var xmlContents = file.GetContents();
-                if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, out var parsedTemplate, out var templateName))
+                if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                     throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
-                loadedTemplates.Add(templateName, parsedTemplate);
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
@@ -355,8 +354,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
                 dir.WriteAllXML(PackagesDir, filename, template.Template);
-                if (ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, out var parsedTemplate, out var name))
-                    templateDefaults.Add(name, parsedTemplate);
+                if (!ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
+                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -528,9 +527,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             using var reader = new StreamReader(stream);
 
             var jsonString = reader.ReadToEnd();
-            var bytes = Encoding.UTF8.GetBytes(jsonString);
 
-            app.AddFile(new FileEntry { Name = "References\\Themes.json", RawBytes = bytes });
+            app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utility._jsonOpts);
         }
 
     }
