@@ -17,7 +17,7 @@
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SrcBaseline\Weather_Screen1.pa1">
+    <Content Include="SrcBaseline\*.pa1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>    
     <Content Include="Templates\*.xml">
