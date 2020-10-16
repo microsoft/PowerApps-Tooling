@@ -9,8 +9,6 @@ control Screen1 : screen
         Y = 40
         ZIndex = 1
 
-        control galleryTemplate1 : galleryTemplate
-
         control Label1 : label
             Text = ThisItem.'Account Name'
             X = 40

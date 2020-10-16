@@ -37,6 +37,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 {
                     foreach (var prop in properties.Elements(ControlMetadataXNames.PropertyTag))
                     {
+                        if (prop.Attribute(ControlMetadataXNames.DirectionAttribute)?.Value == "out")
+                            continue;
                         if (!AddPropertyDefault(prop, type, template))
                             return false;
                     }
@@ -48,6 +50,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 {
                     foreach (var includeProperty in includeProperties.Elements(ControlMetadataXNames.IncludePropertyTag))
                     {
+                        if (includeProperty.Attribute(ControlMetadataXNames.DirectionAttribute)?.Value == "out")
+                            continue;
                         AddIncludePropertyDefault(includeProperty, type, template);
                     }
                 }
@@ -83,6 +87,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 {
                     foreach (var prop in properties.Elements(ControlMetadataXNames.PropertyTag))
                     {
+                        if (prop.Attribute(ControlMetadataXNames.DirectionAttribute)?.Value == "out")
+                            continue;
+
                         if (!AddPropertyDefault(prop, type, template))
                             return false;
                     }

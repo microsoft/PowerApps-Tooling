@@ -33,6 +33,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void WriteControl(ControlInfoJson.Item control, bool isComponent = false)
         {
+            if (control.SkipWriteToSource)
+                return;
+
             var controlTemplate = CharacterUtils.EscapeName(control.Template.Name);
             if (control.VariantName.Length > 0)
                 controlTemplate += $"{PAConstants.ControlVariantSeparator} {CharacterUtils.EscapeName(control.VariantName)}";

@@ -61,6 +61,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 ComponentDefinitionInfo = other.ComponentDefinitionInfo;
                 ExtensionData = other.ExtensionData;
             }
+
+            public static Template CreateDefaultTemplate(string name, ControlTemplate controlTemplate)
+            {
+                var template = new Template();
+                template.Name = name;
+                // Try recreating template using template defaults
+                if (controlTemplate != null)
+                {
+                    template.Id = controlTemplate.Id;
+                    template.Version = controlTemplate.Version;
+                    template.IsComponentDefinition = false;
+                    template.LastModifiedTimestamp = "0";
+                    template.ExtensionData = new Dictionary<string, object>();
+                    template.ExtensionData.Add("FirstParty", true);
+                    template.ExtensionData.Add("IsCustomGroupControlTemplate", false);
+                    template.ExtensionData.Add("CustomGroupControlTemplateName", "");
+                    template.ExtensionData.Add("OverridableProperties", new object());
+                }
+                return template;
+            }
         }
 
         public class Item
@@ -72,6 +92,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
             public Item[] Children { get; set; }
+            public int PublishOrderIndex { get; set; }
+
 
             public string Type { get; set; } = "ControlInfo";
 
@@ -95,12 +117,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Skippable entirely with server update
             //public readonly string Type = "ControlInfo";
             //public readonly double Index = 0;
-            //public readonly int PublishOrderIndex = 0;
 
 
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }
 
+            /// These properties should be part of the IR and studio state stuff, but not part of the json
+            /// Split these out when refactoring
+            [JsonIgnore]    
+            public bool SkipWriteToSource { get; set; } = false;
+
+            // Not sure if there's a better way of representing this
+            // For galleries, we need to persist the galleryTemplate control name as a child of this
+            // to properly pair up the studio state for roundtripping
+            // This isn't needed otherwise, if we weren't worried about exact round-tripping we could recreate the control
+            public string GalleryTemplateChildName { get; set; } = null;
 
             public Dictionary<string, RuleEntry> GetRules()
             {
@@ -113,6 +144,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             private static int _id = 2;
+            private static int _publishIndex = 0;
             public static Item CreateDefaultControl(ControlTemplate templateDefault)
             {
                 var defaultCtrl = new Item();
@@ -132,12 +164,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 defaultCtrl.Rules = rules.ToArray();
                 defaultCtrl.ControlUniqueId = _id.ToString();
+                defaultCtrl.PublishOrderIndex = _publishIndex;
                 ++_id;
+                ++_publishIndex;
 
                 defaultCtrl.ExtensionData = new Dictionary<string, object>();
                 defaultCtrl.ExtensionData.Add("ControlPropertyState", controlPropertyStates.ToArray());
                 defaultCtrl.ExtensionData.Add("Index", 0.0);
-                defaultCtrl.ExtensionData.Add("PublishOrderIndex", 0);
                 defaultCtrl.ExtensionData.Add("LayoutName", "");
                 defaultCtrl.ExtensionData.Add("MetaDataIDKey", "");
                 defaultCtrl.ExtensionData.Add("PersistMetaDataIDKey", false);

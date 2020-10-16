@@ -29,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         public ErrorContainer _errorContainer;
 
         public Parser(string fileName, string contents,
-            Dictionary<string, ControlInfoJson.Item> controlStates,
+            Dictionary<string, ControlInfoJson.Item> controlStore,
             Dictionary<string, ControlInfoJson.Template> templates,
             Dictionary<string, ControlTemplate> templateDefaults,
             Theme theme)
@@ -45,7 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             _tokenizer = new TokenStream(_content);
             _errorContainer = new ErrorContainer();
 
-            _controlStates = controlStates;
+            _controlStates = controlStore;
             _templates = templates;
             _templateDefaults = templateDefaults;
             _theme = theme;
@@ -95,21 +95,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             ControlInfoJson.Template template = default;
             if (!_templates?.TryGetValue(templateToken.Content, out template) ?? true)
             {
-                template = new ControlInfoJson.Template();
-                template.Name = templateToken.Content;
-                // Try recreating template using template defaults
-                if (controlTemplate != null)
-                {
-                    template.Id = controlTemplate.Id;
-                    template.Version = controlTemplate.Version;
-                    template.IsComponentDefinition = false;
-                    template.LastModifiedTimestamp = "0";
-                    template.ExtensionData = new Dictionary<string, object>();
-                    template.ExtensionData.Add("FirstParty", true);
-                    template.ExtensionData.Add("IsCustomGroupControlTemplate", false);
-                    template.ExtensionData.Add("CustomGroupControlTemplateName", "");
-                    template.ExtensionData.Add("OverridableProperties", new object());
-                }
+                template = ControlInfoJson.Template.CreateDefaultTemplate(templateToken.Content, controlTemplate);
             }
             else
             {
