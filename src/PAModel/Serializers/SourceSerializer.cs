@@ -5,6 +5,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -212,7 +213,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
         {
             var templates = new Dictionary<string, ControlInfoJson.Template>();
-            var controlData = new Dictionary<string, Dictionary<string, ControlInfoJson.Item>>();
+            var controlData = new Dictionary<string, ControlInfoJson.Item>();
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
@@ -242,7 +243,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var filename = Path.GetFileName(file._relativeName);
                     var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
 
-                    controlData.Add(controlName, controlExtraData);
+                    // TODO: Add error checking for duplicate controls
+                    controlData.AddRange(controlExtraData);
 #endif
                 } 
                 else
@@ -260,17 +262,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+
 #if USEPA
             var theme = new Theme(app._themes);
+            var transformer = new SourceTransformer(templateDefaults, theme, controlData);
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
                 var filename = Path.GetFileName(file._relativeName);
                 var controlName = filename.Remove(filename.IndexOf(".pa1"));
-                if (!controlData.TryGetValue(controlName, out var controlState))
-                    Console.WriteLine($"No editor state provided for {controlName}, using defaults.");
 
-                AddControl(app, file._relativeName, file.GetContents(),
-                    templateDefaults, theme, controlState, templates);
+                AddControl(app, transformer, file._relativeName, file.GetContents(),
+                    templateDefaults, theme, controlData, templates);
             }
 #endif
         }
@@ -284,14 +286,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var filename = Path.GetFileName(file);
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, file, fileEntry.GetContents(), templateDefaults, theme, index: index++);
+                AddControl(app, new SourceTransformer(templateDefaults, theme, null), file, fileEntry.GetContents(), templateDefaults, theme, index: index++);
             }
         }
 
-        private static void AddControl(CanvasDocument app, string filePath, string fileContents,
+        private static void AddControl(CanvasDocument app, SourceTransformer transformer, string filePath, string fileContents,
             Dictionary<string, ControlTemplate> templateDefaults,
             Theme theme,
-            Dictionary<string, ControlInfoJson.Item> controlStates = null,
+            Dictionary<string, ControlInfoJson.Item> controlStore = null,
             Dictionary<string, ControlInfoJson.Template> templates = null,
             int? index = null
         )
@@ -299,7 +301,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var filename = Path.GetFileName(filePath);
             try
             {
-                var parser = new Parser.Parser(filePath, fileContents, controlStates, templates, templateDefaults, theme);
+                var parser = new Parser.Parser(filePath, fileContents, controlStore, templates, templateDefaults, theme);
                 var item = parser.ParseControl();
                 if (parser.HasErrors())
                 {
@@ -313,6 +315,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     item.ExtensionData["Index"] = index;
 
                 var control = new ControlInfoJson() { TopParent = item };
+
+                transformer.ApplyAfterParse(control);
 
                 var sf = SourceFile.New(control);
 
@@ -361,13 +365,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
 
+
             var templates = new Dictionary<string, ControlInfoJson.Template>();
-
-
             var theme = new Theme(app._themes);
-
+            var transformer = new SourceTransformer(templateDefaults, theme, null /* not needed for gallery write, implement proper controlstore soon */);
             foreach (var control in app._sources.Values)
             {
+                transformer.ApplyBeforeWrite(control.Value);
+
                 // Temporary write out of JSON for roundtripping
 #if !USEPA
                 string jsonContentFile = control.ControlName + ".json";

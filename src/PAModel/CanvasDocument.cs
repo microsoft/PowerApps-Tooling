@@ -23,7 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Only contains files of FileKind.Unknown
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
-        // Key is Control Name.
+        // Key is Top Parent Control Name.
         // Includes both Controls and Components. 
         internal Dictionary<string, SourceFile> _sources = new Dictionary<string, SourceFile>();
 
