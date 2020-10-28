@@ -1,8 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 
@@ -10,16 +12,66 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class TokenStream
     {
+        private class PositionDetails
+        {
+            private int _currentLine;
+            private int _currentChar;
+            private int _tokenStartLine; // The start of the current token.
+            private int _tokenStartChar; // The start of the current token.
+
+            private readonly string _fileName;
+
+            public int AbsolutePosition { get; private set; }
+
+            public PositionDetails(string fileName)
+            {
+                AbsolutePosition = 0;
+                _currentLine = 0;
+                _currentChar = 0;
+                _tokenStartLine = 0;
+                _tokenStartChar = 0;
+                _fileName = fileName;
+            }
+
+            public void StartToken()
+            {
+                _tokenStartLine = _currentLine;
+                _tokenStartChar = _currentChar;
+            }
+
+            public SourceLocation GetSpan()
+            {
+                return new SourceLocation(_tokenStartLine, _tokenStartChar, _currentLine, _currentChar, _fileName);
+            }
+
+            public void Next()
+            {
+                AbsolutePosition++;
+                _currentChar++;
+            }
+
+            public void AddIndent(int count)
+            {
+                AbsolutePosition += count;
+                _currentChar += count;
+            }
+
+            public void  NewLine()
+            {
+                _currentChar = 0;
+                _currentLine++;
+            }
+        }
+
         private readonly string _text;
         private readonly int _charCount;
-        private int _currentPos; // Current position.
-        private int _currentTokenPos; // The start of the current token.
+        private PositionDetails _position;
         private readonly StringBuilder _sb;
         private Stack<int> _indentationLevel; // space count expected per block level
 
         private Stack<Token> _pendingTokens;
 
-        public TokenStream(string text)
+        public TokenStream(string text, string fileName)
         {
             _sb = new StringBuilder();
             _indentationLevel = new Stack<int>();
@@ -27,45 +79,51 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             _pendingTokens = new Stack<Token>();
 
-            _text = text;
+            // Normalize line endings
+            _text = text.Replace("\r\n", "\n").Replace("\r", "\n");
             _charCount = _text.Length;
+
+            _position = new PositionDetails(fileName);
         }
 
-        public bool Eof => _currentPos >= _charCount;
-        private char CurrentChar => _currentPos < _charCount ? _text[_currentPos] : '\0';
+        public void ValidateHeader()
+        {
+            var header = "//! PAFile:0.2";
+            if (!_text.StartsWith(header))
+            {
+                throw new InvalidOperationException($"Illegal pa source file. Missing header");
+            }
+            for (int i = 0; i <= header.Length; i++) { 
+                NextChar();
+            }
+        }
+
+        public bool Eof => _position.AbsolutePosition >= _charCount;
+        private char CurrentChar => _position.AbsolutePosition < _charCount ? _text[_position.AbsolutePosition] : '\0';
+        private char PreviousChar => _position.AbsolutePosition > 1 ? _text[_position.AbsolutePosition - 1] : '\0';
 
         private char NextChar()
         {
-            if (_currentPos >= _charCount)
+            if (_position.AbsolutePosition >= _charCount)
                 throw new InvalidOperationException();
 
-            if (++_currentPos < _charCount)
-                return _text[_currentPos];
+            _position.Next();
+            if (_position.AbsolutePosition < _charCount)
+                return _text[_position.AbsolutePosition];
 
-            _currentPos = _charCount;
             return '\0';
         }
 
         private char PeekChar(int i)
         {
-            if (_currentPos + i >= _charCount)
+            if (_position.AbsolutePosition + i >= _charCount)
                 throw new InvalidOperationException();
-            i += _currentPos;
+            i += _position.AbsolutePosition;
 
             return (i < _charCount) ? _text[i] : '\0';
         }
 
-        private void StartToken()
-        {
-            _currentTokenPos = _currentPos;
-        }
-
-        private TokenSpan GetSpan()
-        {
-            return new TokenSpan(_currentTokenPos, _currentPos);
-        }
-
-        public void  ReplaceToken(Token tok)
+        public void ReplaceToken(Token tok)
         {
             _pendingTokens.Push(tok);
         }
@@ -88,7 +146,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         private Token Dispatch(bool expectedExpression)
         {
-            StartToken();
+            _position.StartToken();
             if (expectedExpression)
             {
                 return GetExpressionToken();
@@ -97,7 +155,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             var ch = CurrentChar;
             if (IsNewLine(ch))
                 return SkipNewLines();
-            if (_currentPos > 1 && CharacterUtils.IsLineTerm(_text[_currentPos - 1]))
+            if (CharacterUtils.IsLineTerm(PreviousChar))
             {
                 var tok = GetIndentationToken();
                 if (tok != null)
@@ -115,13 +173,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         private bool IsNewLine(char ch)
         {
-            if (ch == '\r')
-            {
-                if (PeekChar(1) == '\n')
-                    NextChar();
-                return true;
-            }
-
             return ch == '\n';
         }
 
@@ -131,7 +182,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 NextChar();
             var ch = CurrentChar;
             if (IsNewLine(ch))
+            {
+                _position.NewLine();
                 return GetMultiLineExpressionToken();
+            }
             else
                 return GetSingleLineExpressionToken();
         }
@@ -141,7 +195,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             NextChar();
             var indentMin = PeekCurrentIndentationLevel();
             if (indentMin < _indentationLevel.Peek())
-                return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
+                return new Token(TokenKind.PAExpression, _position.GetSpan(), _sb.ToString());
             _sb.Length = 0;
             StringBuilder lineBuilder = new StringBuilder();
             var lineIndent = PeekCurrentIndentationLevel();
@@ -149,7 +203,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             while (indentMin <= lineIndent)
             {
-                _currentPos += indentMin -1;
+                _position.AddIndent(indentMin - 1);
                 if (newLine)
                     _sb.AppendLine();
 
@@ -159,13 +213,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     lineBuilder.Append(CurrentChar);
                 }
                 _sb.Append(lineBuilder.ToString());
-                if (CharacterUtils.IsLineTerm(CurrentChar))
+                if (IsNewLine(CurrentChar))
+                {
                     NextChar();
+                    _position.NewLine();
+                }
                 lineIndent = PeekCurrentIndentationLevel();
                 newLine = true;
             }
-            _currentPos--;
-            return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
+            return new Token(TokenKind.PAExpression, _position.GetSpan(), _sb.ToString());
         }
 
         private Token GetSingleLineExpressionToken()
@@ -178,7 +234,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 _sb.Append(CurrentChar);
             }
 
-            return new Token(TokenKind.PAExpression, GetSpan(), _sb.ToString());
+            return new Token(TokenKind.PAExpression, _position.GetSpan(), _sb.ToString());
         }
 
         private Token SkipSpaces()
@@ -193,6 +249,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             while (IsNewLine(CurrentChar))
             {
+                _position.NewLine();
                 NextChar();
             }
             return null;
@@ -219,7 +276,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             while (punctuatorLength-- > 0)
                 NextChar();
-            return new Token(kind, GetSpan(), content.Substring(0, _sb.Length-1));
+            return new Token(kind, _position.GetSpan(), content.Substring(0, _sb.Length-1));
         }
 
         private bool TryGetPunctuator(string maybe, out TokenKind kind)
@@ -244,14 +301,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         private Token GetIdentOrKeyword()
         {
             var tokContents = GetIdentCore(out bool hasDelimiterStart, out bool hasDelimiterEnd);
-            var span = GetSpan();
+            var span = _position.GetSpan();
 
             // Don't parse as keyword if there are delimiters
             if (IsKeyword(tokContents) && !hasDelimiterStart)
             {
                 if (tokContents == PAConstants.ControlKeyword)
-                    return new Token(TokenKind.Control, span, tokContents);
-                else if (tokContents == PAConstants.ComponentKeyword)
                     return new Token(TokenKind.Control, span, tokContents);
                 else
                     throw new NotImplementedException("Keyword Token Error");
@@ -283,7 +338,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             // Delimited identifier.
             NextChar();
-            int ichStrMin = _currentPos;
 
             // Accept any characters up to the next unescaped identifier delimiter.
             // String will be corrected in the IdentToken if needed.
@@ -327,6 +381,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         private int PeekCurrentIndentationLevel()
         {
+            Contract.Assert(IsNewLine(PreviousChar));
+
             var indentation = 0;
             var ch = CurrentChar;
             while (ch == ' ')
@@ -343,7 +399,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             var currentIndentation = _indentationLevel.Peek();
             var indentation = PeekCurrentIndentationLevel();
-            _currentPos += indentation;
+            _position.AddIndent(indentation);
 
             if (indentation == currentIndentation)
                 return null;
@@ -351,14 +407,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             if (indentation > currentIndentation)
             {
                 _indentationLevel.Push(indentation);
-                return new Token(TokenKind.Indent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos));
+                return new Token(TokenKind.Indent, _position.GetSpan(), new string(' ', indentation));
             }
 
             // Dedent handling
             while (_indentationLevel.Peek() > indentation)
             {
                 _indentationLevel.Pop();
-                _pendingTokens.Push(new Token(TokenKind.Dedent, GetSpan(), _text.Substring(_currentTokenPos, _currentPos - _currentTokenPos)));
+                _pendingTokens.Push(new Token(TokenKind.Dedent, _position.GetSpan(), new string(' ', indentation)));
             }
 
             if (indentation == _indentationLevel.Peek())
@@ -370,7 +426,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         }
         private static bool IsKeyword(string str)
         {
-            return PAConstants.ComponentKeyword == str || PAConstants.ControlKeyword == str;
+            return PAConstants.ControlKeyword == str;
         }
 
     }

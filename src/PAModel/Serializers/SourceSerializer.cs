@@ -291,19 +291,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void AddControl(CanvasDocument app, SourceTransformer transformer, string filePath, string fileContents,
-            Dictionary<string, ControlTemplate> templateDefaults,
-            Theme theme,
-            Dictionary<string, ControlInfoJson.Item> controlStore = null,
-            Dictionary<string, ControlInfoJson.Template> templates = null,
-            int? index = null
-        )
+        private static void AddControl(CanvasDocument app, SourceTransformer transformer, string filePath, string fileContents)
         {
             var filename = Path.GetFileName(filePath);
             try
             {
-                var parser = new Parser.Parser(filePath, fileContents, controlStore, templates, templateDefaults, theme);
-                var item = parser.ParseControl();
+                var parser = new Parser.Parser(filePath, fileContents);
+                var controlIR = parser.ParseControl();
                 if (parser.HasErrors())
                 {
                     parser.WriteErrors();
@@ -312,16 +306,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return;
                 }
 
-                if (index.HasValue)
-                    item.ExtensionData["Index"] = index;
-
-                var control = new ControlInfoJson() { TopParent = item };
-
-                transformer.ApplyAfterParse(control);
-
-                var sf = SourceFile.New(control);
-
-                app._sources.Add(sf.ControlName, sf);
+                app._sources.Add(controlIR.Name.Identifier, controlIR);
             }
             catch
             {

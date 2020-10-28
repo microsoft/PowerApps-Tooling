@@ -165,40 +165,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 // Only for data-compoents. 
-                if (dctemplate?.ComponentTemplates != null)
-                {
-                    int order = 0;
-                    foreach (var x in dctemplate.ComponentTemplates)
-                    {
-                        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
-                        app._entropy.SetTemplateVersion(x.Name, x.Version);
-                        app._entropy.Add(x, order);
-                        dc.Apply(x);
-                        order++;
-                    }
-                }
+                //if (dctemplate?.ComponentTemplates != null)
+                //{
+                //    int order = 0;
+                //    foreach (var x in dctemplate.ComponentTemplates)
+                //    {
+                //        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
+                //        app._entropy.SetTemplateVersion(x.Name, x.Version);
+                //        app._entropy.Add(x, order);
+                //        dc.Apply(x);
+                //        order++;
+                //    }
+                //}
 
-                if (dcsources?.DataSources != null)
-                {
-                    // Component Data sources only appear if the data component is actually 
-                    // used as a data source in this app. 
-                    foreach (var x in dcsources.DataSources)
-                    {
-                        if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
-                        {
-                            throw new NotImplementedException(x.Type);
-                        }
+                //if (dcsources?.DataSources != null)
+                //{
+                //    // Component Data sources only appear if the data component is actually 
+                //    // used as a data source in this app. 
+                //    foreach (var x in dcsources.DataSources)
+                //    {
+                //        if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
+                //        {
+                //            throw new NotImplementedException(x.Type);
+                //        }
                         
-                        var ds = new DataSourceEntry
-                        {
-                             Name = x.Name,
-                             DataComponentDetails = x, // pass in all details for full-fidelity
-                             Type = DataSourceModel.DataComponentType
-                        };
+                //        var ds = new DataSourceEntry
+                //        {
+                //             Name = x.Name,
+                //             DataComponentDetails = x, // pass in all details for full-fidelity
+                //             Type = DataSourceModel.DataComponentType
+                //        };
 
-                        app.AddDataSourceForLoad(ds);
-                    }
-                }
+                //        app.AddDataSourceForLoad(ds);
+                //    }
+                //}
             }
                                     
             app.OnLoadComplete();
@@ -336,39 +336,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
 
-            foreach (MinDataComponentManifest dc in app._dataComponents.Values)
-            {
-                dcmetadataList.Add(new ComponentsMetadataJson.Entry
-                {
-                    Name = dc.Name,
-                    TemplateName = dc.TemplateGuid,
-                    //Description = dc.Description,
-                    //AllowCustomization = true,
-                    ExtensionData = dc.ExtensionData
-                });
+            //foreach (MinDataComponentManifest dc in app._dataComponents.Values)
+            //{
+            //    dcmetadataList.Add(new ComponentsMetadataJson.Entry
+            //    {
+            //        Name = dc.Name,
+            //        TemplateName = dc.TemplateGuid,
+            //        //Description = dc.Description,
+            //        //AllowCustomization = true,
+            //        ExtensionData = dc.ExtensionData
+            //    });
 
-                if (dc.IsDataComponent)
-                {
-                    // Need to looup ControlUniqueId. 
-                    var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
+            //    if (dc.IsDataComponent)
+            //    {
+            //        // Need to looup ControlUniqueId. 
+            //        var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
 
-                    var template = new TemplateMetadataJson
-                    {
-                        Name = dc.TemplateGuid,
-                        Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
-                        IsComponentLocked = false,
-                        ComponentChangedSinceFileImport = true,
-                        ComponentAllowCustomization = true,
-                        CustomProperties = dc.CustomProperties,
-                        DataComponentDefinitionKey = dc.DataComponentDefinitionKey
-                    };
+            //        var template = new TemplateMetadataJson
+            //        {
+            //            Name = dc.TemplateGuid,
+            //            Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
+            //            IsComponentLocked = false,
+            //            ComponentChangedSinceFileImport = true,
+            //            ComponentAllowCustomization = true,
+            //            CustomProperties = dc.CustomProperties,
+            //            DataComponentDefinitionKey = dc.DataComponentDefinitionKey
+            //        };
 
-                    // Rehydrate fields. 
-                    template.DataComponentDefinitionKey.ControlUniqueId = controlId;
+            //        // Rehydrate fields. 
+            //        template.DataComponentDefinitionKey.ControlUniqueId = controlId;
 
-                    dctemplate.Add(template);                    
-                }
-            }
+            //        dctemplate.Add(template);                    
+            //    }
+            //}
 
             if (dcmetadataList.Count > 0)
             {

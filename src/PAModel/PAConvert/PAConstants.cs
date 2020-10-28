@@ -15,7 +15,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ControlTemplateSeparator = ":";
         public const string ControlVariantSeparator = ",";
         public const string ControlKeyword = "control";
-        public const string ComponentKeyword = "component";
 
 
     }

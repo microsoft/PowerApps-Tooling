@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.AST;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 using System;
 using System.Collections.Generic;
@@ -15,54 +17,31 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Parser
     {
-        private string _content;
         private string _fileName;
         private TokenStream _tokenizer;
-        // Key is control name
-        private Dictionary<string, ControlInfoJson.Item> _controlStates;
-
-        // Keys are template name
-        private Dictionary<string, ControlInfoJson.Template> _templates;
-        private Dictionary<string, ControlTemplate> _templateDefaults;
-        private readonly Theme _theme;
-
         public ErrorContainer _errorContainer;
 
-        public Parser(string fileName, string contents,
-            Dictionary<string, ControlInfoJson.Item> controlStore,
-            Dictionary<string, ControlInfoJson.Template> templates,
-            Dictionary<string, ControlTemplate> templateDefaults,
-            Theme theme)
+        public Parser(string fileName, string contents)
         {
-            var header = "//! PAFile:0.1";
+            _tokenizer = new TokenStream(contents, fileName);
+            _tokenizer.ValidateHeader();
 
-            if (!contents.StartsWith(header))
-            {
-                throw new InvalidOperationException($"Illegal pa source file. Missing header");
-            }
-            _content = contents.Substring(header.Length + 1);
             _fileName = fileName;
-            _tokenizer = new TokenStream(_content);
             _errorContainer = new ErrorContainer();
-
-            _controlStates = controlStore;
-            _templates = templates;
-            _templateDefaults = templateDefaults;
-            _theme = theme;
         }
 
-        internal ControlInfoJson.Item ParseControl(string parent = "", bool isComponent = false)
+        internal BlockNode ParseControl()
         {
-            if (parent == string.Empty)
+            var spans = new List<SourceLocation>();
+
+            var token = _tokenizer.GetNextToken();
+            if (token.Kind != TokenKind.Control)
             {
-                var token = _tokenizer.GetNextToken();
-                if (token.Kind != TokenKind.Control)
-                {
-                    _errorContainer.AddError(token.Span, $"Unexpected token {token.Kind}, expected {TokenKind.Control}");
-                    return null;
-                }
-                isComponent = token.Content == PAConstants.ComponentKeyword;
+                _errorContainer.AddError(token.Span, $"Unexpected token {token.Kind}, expected {TokenKind.Control}");
+                return null;
             }
+
+            spans.Add(token.Span);
 
             var identToken = _tokenizer.GetNextToken();
             if (identToken.Kind != TokenKind.Identifier)
@@ -71,8 +50,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 return null;
             }
 
-            var name = identToken.Content;
+            spans.Add(identToken.Span);
 
+            var name = identToken.Content;
 
             var templateSeparator = _tokenizer.GetNextToken();
             if (templateSeparator.Kind != TokenKind.TemplateSeparator)
@@ -81,56 +61,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 return null;
             }
 
+            spans.Add(templateSeparator.Span);
+
             var templateToken = _tokenizer.GetNextToken();
             if (templateToken.Kind != TokenKind.Identifier)
             {
                 _errorContainer.AddError(templateToken.Span, $"Unexpected token {templateToken.Kind}, expected {TokenKind.Identifier}");
                 return null;
-            }
+            }           
 
-
-            if (!_templateDefaults.TryGetValue(templateToken.Content, out var controlTemplate))
-                controlTemplate = null;
-
-            ControlInfoJson.Template template = default;
-            if (!_templates?.TryGetValue(templateToken.Content, out template) ?? true)
-            {
-                template = ControlInfoJson.Template.CreateDefaultTemplate(templateToken.Content, controlTemplate);
-            }
-            else
-            {
-                template = new ControlInfoJson.Template(template);
-            }
-
-            ControlInfoJson.Item control = default;
-            if (!_controlStates?.TryGetValue(name, out control) ?? true)
-            {
-                control = ControlInfoJson.Item.CreateDefaultControl(controlTemplate);
-            }
-
-
-            control.Name = name;
-            if (parent != string.Empty)
-                control.Parent = parent;
-
-            control.Template = template;
-            if (isComponent && control.Template.IsComponentDefinition != null)
-            {
-                control.Template.IsComponentDefinition = true;
-                control.Template.ComponentDefinitionInfo = null;
-            }
-
-            var paRules = new Dictionary<string, string>(); // PropertyName --> Script
-            var children = new List<ControlInfoJson.Item>();
-
-            // Dict of property => default expression
-            var defaulter = new DefaultRuleHelper(control, controlTemplate, _theme);
-            var defaults = defaulter.GetDefaultRules();
+            spans.Add(templateToken.Span);
+            var templateNode = new TemplateNode() { TemplateName = templateToken.Content };
+            var children = new List<BlockNode>();
+            var properties = new List<PropertyNode>();
 
             var next = _tokenizer.GetNextToken();
             if (!_tokenizer.Eof)
             {
-
                 if (next.Kind == TokenKind.VariantSeparator)
                 {
                     var variantToken = _tokenizer.GetNextToken();
@@ -139,7 +86,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         _errorContainer.AddError(variantToken.Span, $"Unexpected token {variantToken.Kind}, expected {TokenKind.Identifier}");
                         return null;
                     }
-                    control.VariantName = variantToken.Content;
+                    templateNode.OptionalVariant = variantToken.Content;
 
                     next = _tokenizer.GetNextToken();
                 }
@@ -150,19 +97,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     if (next.Kind == TokenKind.Control || next.Kind == TokenKind.Dedent)
                     {
                         _tokenizer.ReplaceToken(next);
-
-                        control.Children = new ControlInfoJson.Item[0];
-                        foreach (var rule in control.Rules)
+                        return new BlockNode()
                         {
-                            var defaultValue = string.Empty;
-                            // Restore default property values that weren't in the .pa file
-                            if (defaults?.TryGetValue(rule.Property, out defaultValue) ?? false)
-                                rule.InvariantScript = defaultValue;
-                            else
-                                rule.InvariantScript = string.Empty;
-                        }
-
-                        return control;
+                            Name = new TypedNameNode()
+                            {
+                                Identifier = name,
+                                Kind = templateNode
+                            },
+                            Children = children,
+                            Functions = new List<FunctionNode>(),
+                            Properties = properties,
+                        };
                     }
                 }
 
@@ -173,11 +118,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     switch (next.Kind)
                     {
                         case TokenKind.Identifier:
-                            var rule = ParseRule(next.Content);
-                            paRules.Add(rule.propertyName, rule.script);
+                            var prop = ParseProperty(next.Content);
+                            properties.Add(prop);
                             break;
                         case TokenKind.Control:
-                            var child = ParseControl(parent: control.Name, next.Content == PAConstants.ComponentKeyword);
+                            _tokenizer.ReplaceToken(next);
+                            var child = ParseControl();
                             children.Add(child);
                             break;
                         default:
@@ -189,60 +135,50 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
                     next = _tokenizer.GetNextToken();
                 }
-
             }
 
-            control.Children = children.ToArray();
-
-            foreach (var rule in control.Rules)
+            return new BlockNode()
             {
-                if (paRules.TryGetValue(rule.Property, out var script))
+                Name = new TypedNameNode()
                 {
-                    rule.InvariantScript = script;
-                    paRules.Remove(rule.Property);
-                }
-                else
-                {
-                    var defaultValue = string.Empty;
-                    // Restore default property values that weren't in the .pa file
-                    if (defaults?.TryGetValue(rule.Property, out defaultValue) ?? false)
-                        rule.InvariantScript = defaultValue;
-                    else
-                        rule.InvariantScript = string.Empty;
-                }
-            }
-
-            if (paRules.Any())
-            {
-                var rulesList = control.Rules.ToList();
-                foreach (var rulePair in paRules)
-                {
-                    // Needs sensible defaults for other props (maybe from template
-                    rulesList.Add(new ControlInfoJson.RuleEntry() { Property = rulePair.Key, InvariantScript = rulePair.Value });
-                }
-                control.Rules = rulesList.ToArray();
-            }
-
-            return control;
+                    Identifier = name,
+                    Kind = templateNode
+                },
+                Children = children,
+                Functions = new List<FunctionNode>(),
+                Properties = properties,
+            };
         }
 
-        private (string propertyName, string script) ParseRule(string propertyName)
+        private PropertyNode ParseProperty(string propertyName)
         {
             var propertySeparator = _tokenizer.GetNextToken();
             if (propertySeparator.Kind != TokenKind.PropertyStart)
             {
                 _errorContainer.AddError(propertySeparator.Span, $"Unexpected token {propertySeparator.Kind}, expected {TokenKind.PropertyStart}");
-                return (propertyName, null);
+                return new PropertyNode()
+                {
+                    Identifier = propertyName,
+                    Expression = new ExpressionNode() { Expression = string.Empty }
+                };
             }
 
             var ruleScript = _tokenizer.GetNextToken(expectedExpression: true);
             if (ruleScript.Kind != TokenKind.PAExpression)
             {
                 _errorContainer.AddError(propertySeparator.Span, $"Unexpected token {propertySeparator.Kind}, expected expression");
-                return (propertyName, null);
+                return new PropertyNode()
+                {
+                    Identifier = propertyName,
+                    Expression = new ExpressionNode() { Expression = string.Empty }
+                };
             }
 
-            return (propertyName, ruleScript.Content);
+            return new PropertyNode()
+            {
+                Identifier = propertyName,
+                Expression = new ExpressionNode() { Expression = ruleScript.Content }
+            };
         }
 
         public bool HasErrors() => _errorContainer.HasErrors();
@@ -251,7 +187,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             foreach (var error in _errorContainer.Errors())
             {
-                Console.WriteLine($"{_fileName}:{error.Span.Min}-{error.Span.Lim}   {error.Message}");
+                Console.WriteLine($"{_fileName}:{error.Span.StartLine}:{error.Span.StartChar}-{error.Span.EndLine}:{error.Span.EndChar}   {error.Message}");
             }
         }
     }
