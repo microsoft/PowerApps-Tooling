@@ -4,7 +4,6 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.AST;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
-using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,17 +110,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (_properties == null)
             {
                 throw new InvalidOperationException($"Missing properties file");
-            }
-
-
-            // Associate a data component with its sources. 
-            foreach (var kv in _sources.Values)
-            {
-                if (kv.Kind == SourceKind.DataComponent || kv.Kind == SourceKind.UxComponent)
-                {
-                    MinDataComponentManifest dc = _dataComponents[kv.TemplateName];
-                    dc._sources = kv.Value;
-                }
             }
 
             // Integrity checks. 
@@ -240,43 +228,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             prop.DocumentLayoutOrientation = "landscape";
             prop.DocumentAppType = "DesktopOrTablet";
 #endif
-        }
-
-        // Tempalte is the guid. 
-        // Throw on missing. 
-        internal MinDataComponentManifest LookupDCByTemplateName(string dataComponentTemplate)
-        {
-            return (from x in _dataComponents.Values
-                    where x.TemplateGuid == dataComponentTemplate
-                    select x).First();
-        }
-
-        // Find the controlId for the dataComponent instance of this particular template. 
-        internal IEnumerable<string> LookupControlIdsByTemplateName(string templateGuid)
-        {
-            foreach (var source in _sources.Values)
-            {
-                ControlInfoJson controlJson = source.Value;
-
-                foreach (var child in controlJson.TopParent.Children)
-                {
-                    if (child.Template.Name == templateGuid)
-                    {
-                        yield return child.ControlUniqueId;
-                    }
-                }
-
-                /*
-                var all = WalkAll(controlJson.TopParent);
-                foreach(ControlInfoJson.Item item in all)
-                {
-                    if (item.Template.Name == templateGuid)
-                    {
-                        yield return item.ControlUniqueId;
-                    }
-                }*/
-            }
-        }
+        }       
 
         internal static IEnumerable<ControlInfoJson.Item> WalkAll(ControlInfoJson.Item x)
         {

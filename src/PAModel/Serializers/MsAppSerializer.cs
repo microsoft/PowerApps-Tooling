@@ -326,13 +326,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Rehydrate sources that used a data component. 
 
-            foreach (var sourceFile in app._sources)
+            foreach (var controlData in app._sources)
             {
-                var sf = sourceFile;
-                
-                // sf = app.RehydrateOnSave(sf);                
+                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, app._editorStateStore, app._templateStore);
 
-                yield return sf.ToMsAppFile();
+                yield return sourceFile.ToMsAppFile();
             }
             
             var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
@@ -353,7 +351,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     // Need to looup ControlUniqueId. 
                     var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
-
 
                     var template = new TemplateMetadataJson
                     {
