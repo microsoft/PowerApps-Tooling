@@ -127,12 +127,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             [JsonIgnore]    
             public bool SkipWriteToSource { get; set; } = false;
 
-            // Not sure if there's a better way of representing this
-            // For galleries, we need to persist the galleryTemplate control name as a child of this
-            // to properly pair up the studio state for roundtripping
-            // This isn't needed otherwise, if we weren't worried about exact round-tripping we could recreate the control
-            public string GalleryTemplateChildName { get; set; } = null;
-
             public Dictionary<string, RuleEntry> GetRules()
             {
                 var rules = new Dictionary<string, ControlInfoJson.RuleEntry>();
@@ -145,23 +139,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             private static int _id = 2;
             private static int _publishIndex = 0;
-            public static Item CreateDefaultControl(ControlTemplate templateDefault)
+            public static Item CreateDefaultControl(ControlTemplate templateDefault = null)
             {
                 var defaultCtrl = new Item();
                 var rules = new List<RuleEntry>();
-                var controlPropertyStates = new List<string>();
-                foreach (var propName in templateDefault?.InputDefaults?.Keys ?? Enumerable.Empty<string>())
-                {
-                    rules.Add(new RuleEntry()
-                        {
-                            // Server handles a missing Category just fine
-                            Property = propName,
-                            RuleProviderType = "Unknown"
-                        }
-                    );
-
-                    controlPropertyStates.Add(propName);
-                }
                 defaultCtrl.Rules = rules.ToArray();
                 defaultCtrl.ControlUniqueId = _id.ToString();
                 defaultCtrl.PublishOrderIndex = _publishIndex;
@@ -169,7 +150,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 ++_publishIndex;
 
                 defaultCtrl.ExtensionData = new Dictionary<string, object>();
-                defaultCtrl.ExtensionData.Add("ControlPropertyState", controlPropertyStates.ToArray());
                 defaultCtrl.ExtensionData.Add("Index", 0.0);
                 defaultCtrl.ExtensionData.Add("LayoutName", "");
                 defaultCtrl.ExtensionData.Add("MetaDataIDKey", "");

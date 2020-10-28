@@ -5,6 +5,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
 using System.Collections.Generic;
@@ -366,8 +367,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
 
 
-            var templates = new Dictionary<string, ControlInfoJson.Template>();
+            var templateStore = new TemplateStore();
             var theme = new Theme(app._themes);
+
             var transformer = new SourceTransformer(templateDefaults, theme, null /* not needed for gallery write, implement proper controlstore soon */);
             foreach (var control in app._sources.Values)
             {
@@ -379,7 +381,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
 #endif
 
-                var text = PAConverter.GetPAText(control, templateDefaults, theme);
+                var text = IRStateHelpers.GetPAText(control, templateDefaults, theme);
                 var controlName = control.ControlName;
                 string filename = controlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);

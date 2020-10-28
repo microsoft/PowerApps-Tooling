@@ -108,6 +108,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 control = ControlInfoJson.Item.CreateDefaultControl(controlTemplate);
             }
 
+
             control.Name = name;
             if (parent != string.Empty)
                 control.Parent = parent;

@@ -8,14 +8,14 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    enum SourceKind
+    internal enum SourceKind
     {
         Control,
         UxComponent,
         DataComponent
     }
 
-    class SourceFile
+    internal class SourceFile
     {
         // the source of truth. 
         public ControlInfoJson Value { get; set; }

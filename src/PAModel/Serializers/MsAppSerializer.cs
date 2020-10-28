@@ -37,6 +37,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var app = new CanvasDocument();
 
             app._checksum = new ChecksumJson(); // default empty. Will get overwritten if the file is present.
+            app._templateStore = new EditorState.TemplateStore();
+            app._editorStateStore = new EditorState.EditorStateStore();
 
             ComponentsMetadataJson dcmetadata = null;
             DataComponentTemplatesJson dctemplate = null;
@@ -102,7 +104,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 var control = ToObject<ControlInfoJson>(entry);
                                 var sf = SourceFile.New(control);
-                                app._sources.Add(sf.ControlName, sf);
+                                IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
+                                app._sources.Add(sf.ControlName, controlIR);
                             }
                             break;
 
@@ -203,6 +206,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // app.TransformTemplatesOnLoad(); 
 
             return app;
+        }
+
+        internal static void AddControlFile(this CanvasDocument app, SourceFile file)
+        {
+            
         }
 
 
@@ -318,7 +326,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Rehydrate sources that used a data component. 
 
-            foreach (var sourceFile in app._sources.Values)
+            foreach (var sourceFile in app._sources)
             {
                 var sf = sourceFile;
                 
