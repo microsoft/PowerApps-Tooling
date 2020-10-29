@@ -20,9 +20,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     internal class BlockNode : IRNode
     {
         public TypedNameNode Name;
-        public IList<PropertyNode> Properties;
-        public IList<FunctionNode> Functions;
-        public IList<BlockNode> Children;
+        public IList<PropertyNode> Properties = new List<PropertyNode>();
+        public IList<FunctionNode> Functions = new List<FunctionNode>();
+        public IList<BlockNode> Children = new List<BlockNode>();
 
         public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
         {

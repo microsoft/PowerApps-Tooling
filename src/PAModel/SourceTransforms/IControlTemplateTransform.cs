@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
     interface IControlTemplateTransform
     {
         string TargetTemplate { get; }
-        void AfterParse(ControlInfoJson.Item control);
-        void BeforeWrite(ControlInfoJson.Item control);
+        void AfterParse(BlockNode control);
+        void BeforeWrite(BlockNode control);
     }
 }

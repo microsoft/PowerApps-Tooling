@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     /// Per control, this is the studio state content that doesn't wind up in the IR
     /// Similar to <seealso cref="ControlInfoJson.Item"/> without the info encoded by .pa
     /// </summary>
-    public class ControlState
+    internal class ControlState
     {
         public string Name { get; set; }
         public string UniqueId { get; set; }

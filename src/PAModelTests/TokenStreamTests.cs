@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -20,14 +21,14 @@ A
         C
 ";
 
-            var tokStream = new TokenStream(testString);
+            var tokStream = new TokenStream(testString, "foo");
             AreEqual(tokStream, new List<Token>()
             {
-                new Token(TokenKind.Identifier, new TokenSpan(2,3), "A"),
-                new Token(TokenKind.Indent, new TokenSpan(5,9), "    "),
-                new Token(TokenKind.Identifier, new TokenSpan(9,10), "B"),
-                new Token(TokenKind.Indent, new TokenSpan(12,20), "        "),
-                new Token(TokenKind.Identifier, new TokenSpan(20,21), "C"),
+                new Token(TokenKind.Identifier, new SourceLocation(1,1,1,2, "foo"), "A"),
+                new Token(TokenKind.Indent, new SourceLocation(2,1,2,5, "foo"), "    "),
+                new Token(TokenKind.Identifier, new SourceLocation(2,5,2,6, "foo"), "B"),
+                new Token(TokenKind.Indent, new SourceLocation(3,1,3,9, "foo"), "        "),
+                new Token(TokenKind.Identifier, new SourceLocation(3,9,3,10, "foo"), "C"),
             });
         }
 
@@ -42,17 +43,17 @@ A
 D
 ";
 
-            var tokStream = new TokenStream(testString);
+            var tokStream = new TokenStream(testString, "foo");
             AreEqual(tokStream, new List<Token>()
             {
-                new Token(TokenKind.Identifier, new TokenSpan(2,3), "A"),
-                new Token(TokenKind.Indent, new TokenSpan(5,9), "    "),
-                new Token(TokenKind.Identifier, new TokenSpan(9,10), "B"),
-                new Token(TokenKind.Indent, new TokenSpan(12,20), "        "),
-                new Token(TokenKind.Identifier, new TokenSpan(20,21), "C"),
-                new Token(TokenKind.Dedent, new TokenSpan(23,23), ""),
-                new Token(TokenKind.Dedent, new TokenSpan(23,23), ""),
-                new Token(TokenKind.Identifier, new TokenSpan(23,24), "D"),
+                new Token(TokenKind.Identifier, new SourceLocation(1,1,1,2, "foo"), "A"),
+                new Token(TokenKind.Indent, new SourceLocation(2,1,2,5, "foo"), "    "),
+                new Token(TokenKind.Identifier, new SourceLocation(2,5,2,6, "foo"), "B"),
+                new Token(TokenKind.Indent, new SourceLocation(3,1,3,9, "foo"), "        "),
+                new Token(TokenKind.Identifier, new SourceLocation(3,9,3,10, "foo"), "C"),
+                new Token(TokenKind.Dedent, new SourceLocation(4,1,4,1, "foo"), ""),
+                new Token(TokenKind.Dedent, new SourceLocation(4,1,4,1, "foo"), ""),
+                new Token(TokenKind.Identifier, new SourceLocation(4,1,4,2, "foo"), "D"),
             });
         }
 

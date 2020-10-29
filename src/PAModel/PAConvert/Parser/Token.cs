@@ -18,15 +18,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         }
 
         public TokenKind Kind { get; }
-        public TokenSpan Span { get; }
+        public SourceLocation Span { get; }
         public string Content { get; }
 
         public override bool Equals(object obj)
         {
             return obj is Token other &&
                 other.Kind == Kind &&
-                other.Span.Min == Span.Min &&
-                other.Span.Lim == Span.Lim &&
+                other.Span.Equals(Span) &&
                 other.Content == Content;
         }
 

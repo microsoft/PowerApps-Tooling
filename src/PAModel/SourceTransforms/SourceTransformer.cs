@@ -1,4 +1,6 @@
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,49 +12,41 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         internal IList<IControlTemplateTransform> _templateTransforms;
 
         // Control store and theme defaults to null temporarily
-        // not needed for gallery write, implement proper controlstore soon
-        public SourceTransformer(Dictionary<string, ControlTemplate> templateStore, Theme theme, Dictionary<string, ControlInfoJson.Item> controlStore = null)
+        // Not needed for gallery write, implement proper controlstore soon
+        public SourceTransformer(Dictionary<string, ControlTemplate> templateStore, EditorStateStore stateStore)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
-            _templateTransforms.Add(new GalleryTemplateTransform(templateStore, theme, controlStore));
+            _templateTransforms.Add(new GalleryTemplateTransform(templateStore, stateStore));
         }
 
-        public void ApplyBeforeWrite(ControlInfoJson topFile)
-        {
-            ApplyBeforeWrite(topFile.TopParent);
-        }
-        public void ApplyAfterParse(ControlInfoJson topFile)
-        {
-            ApplyAfterParse(topFile.TopParent);
-        }
-
-        // Bottom-up apply transforms
-        // This really should be operating on some kind of IR not ControlInfoJson directly
-        private void ApplyBeforeWrite(ControlInfoJson.Item control)
+        public void ApplyBeforeWrite(BlockNode control)
         {
             foreach (var child in control.Children)
             {
                 ApplyBeforeWrite(child);
             }
 
+            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
+
             foreach (var transform in _templateTransforms)
             {
-                if (control.Template.Name == transform.TargetTemplate)
+                if (controlTemplateName == transform.TargetTemplate)
                     transform.BeforeWrite(control);
             }
         }
-
-        private void ApplyAfterParse(ControlInfoJson.Item control)
+        public void ApplyAfterParse(BlockNode control)
         {
             foreach (var child in control.Children)
             {
-                ApplyAfterParse(child);
+                ApplyBeforeWrite(child);
             }
+
+            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
 
             foreach (var transform in _templateTransforms)
             {
-                if (control.Template.Name == transform.TargetTemplate)
-                    transform.AfterParse(control);
+                if (controlTemplateName == transform.TargetTemplate)
+                    transform.BeforeWrite(control);
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
@@ -25,6 +26,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public bool TryGetControlState(string controlName, out ControlState state)
         {
             return _controls.TryGetValue(controlName, out state);
+        }
+
+        public void Remove(string controlName)
+        {
+            _controls.Remove(controlName);
+        }
+
+        public IEnumerable<ControlState> GetControlsWithTopParent(string topParent)
+        {
+            return _controls.Values.Where(ctrl => ctrl.TopParentName == topParent);
         }
     }
 }

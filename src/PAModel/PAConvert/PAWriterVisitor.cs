@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string PrettyPrint(IRNode node)
         {
             PAWriterVisitor pretty = new PAWriterVisitor();
-            return string.Concat(node.Accept(pretty, new Context(0)));
+            return string.Concat(PAConstants.Header, "\n", string.Concat(node.Accept(pretty, new Context(1))));
         }
 
         public override LazyList<string> Visit(BlockNode node, Context context)
@@ -32,13 +32,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var childContext = context.Indent();
             foreach (var func in node.Functions)
             {
-                result = result.With(func.Accept(this, childContext));
+                result = result.With(func.Accept(this, childContext)).With("\n");
             }
 
             foreach (var prop in node.Properties)
             {
                 result = result.With(prop.Accept(this, childContext));
             }
+
+            if (node.Properties.Any())
+                result = result.With("\n");
 
             foreach (var child in node.Children)
             {
@@ -87,80 +90,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return result;
         }
 
-
-
-        //private void NewLine()
-        //{
-        //    _sb.AppendLine(IndentString);
-        //}
-
-        //private void Append(string content)
-        //{
-        //    _sb.Append(content);
-        //}
-
-        //public void WriteBlock(BlockNode control)
-        //{
-        //    var controlTemplate = CharacterUtils.EscapeName(control.Template.Name);
-        //    if (control.VariantName.Length > 0)
-        //        controlTemplate += $"{PAConstants.ControlVariantSeparator} {CharacterUtils.EscapeName(control.VariantName)}";
-
-        //    WriteLine($"{(isComponent ? PAConstants.ComponentKeyword : PAConstants.ControlKeyword)} {CharacterUtils.EscapeName(control.Name)} {PAConstants.ControlTemplateSeparator} {controlTemplate}");
-        //    _indentLevel++;
-
-        //    _templates.TryGetValue(control.Template.Name, out var template);
-
-        //    var defaulter = new DefaultRuleHelper(control, template, _theme);
-
-        //    foreach (var rule in control.Rules)
-        //    {
-        //        if (!defaulter.TryGetDefaultRule(rule.Property, out var defaultScript))
-        //            defaultScript = string.Empty;
-
-        //        if (defaultScript == rule.InvariantScript)
-        //        {
-        //            continue;
-        //        }                
-
-        //        var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n");
-
-        //        var isMultiline = script.Contains("\n");
-        //        if (isMultiline)
-        //        {
-        //            WriteMultilineRule(rule.Property, script);
-        //        }
-        //        else
-        //        {
-        //            WriteLine(rule.Property + " " + PAConstants.PropertyDelimiterToken + " " + script);
-        //        }
-        //    }
-
-        //    _sb.AppendLine();
-
-        //    foreach (var child in control.Children)
-        //    {
-        //        WriteControl(child);
-        //    }
-
-        //    _indentLevel--;
-        //}
-
-        //private void WriteTypedNameNode(TypedNameNode node)
-        //{
-
-        //}
-
-        //private void WriteMultilineRule(string property, string script)
-        //{
-        //    WriteLine(property + " " + PAConstants.PropertyDelimiterToken);
-        //    _indentLevel++;
-
-        //    foreach (var line in script.TrimStart().Split('\n'))
-        //    {
-        //        WriteLine(line.Trim('\n'));
-        //    }
-        //    _indentLevel--;
-        //}
         internal class Context
         {
             public int IndentDepth { get; }
@@ -181,7 +110,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             internal string GetNewLineIndent(int indentation)
             {
-                return string.Concat(Enumerable.Repeat("    ", indentation - 1));
+                return new string(' ', 4*(indentation - 1));
             }
 
         }

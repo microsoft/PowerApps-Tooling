@@ -42,5 +42,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 
             return new SourceLocation(minLoc.StartLine, minLoc.StartChar, maxLoc.EndLine, maxLoc.EndChar, maxLoc.FileName);
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SourceLocation other &&
+                other.FileName == FileName &&
+                other.StartChar == StartChar &&
+                other.StartLine == StartLine &&
+                other.EndChar == EndChar &&
+                other.EndLine == EndLine;
+        }
+
+        public override int GetHashCode()
+        {
+            return (FileName, StartChar, EndChar, StartLine, EndLine).GetHashCode();
+        }
     }
 }

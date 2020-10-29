@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 using System;
 using System.Collections.Generic;
@@ -19,91 +21,72 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         private readonly ControlInfoJson.Template _galleryTemplateJson;
         private readonly ControlTemplate _galleryTemplate;
-        private Dictionary<string, ControlInfoJson.Item> _controlStore;
-        private Theme _theme;
+        private EditorStateStore _controlStore;
 
-        public GalleryTemplateTransform(Dictionary<string, ControlTemplate> templateStore, Theme theme, Dictionary<string, ControlInfoJson.Item> controlStore)
+        public GalleryTemplateTransform(Dictionary<string, ControlTemplate> templateStore, EditorStateStore stateStore)
         {
             templateStore.TryGetValue(_childTemplateName, out var template);
             _galleryTemplate = template;
             _galleryTemplateJson = ControlInfoJson.Template.CreateDefaultTemplate(_childTemplateName, _galleryTemplate);
-            _controlStore = controlStore;
-            _theme = theme;
+            _controlStore = stateStore;
         }
 
-        public void AfterParse(ControlInfoJson.Item control)
+        public void AfterParse(BlockNode control)
         {
             // This will only be called on a control with the Gallery template.
             // If .studiostate was present, there will be a key for the child galleryTemplate;
-            var galleryTemplateName = control.GalleryTemplateChildName;
-            bool roundTrippedTemplate = true;
+            var controlName = control.Name.Identifier;
+            string galleryTemplateName = null;
+            if (_controlStore.TryGetControlState(controlName, out var galleryState))
+                galleryTemplateName = galleryState.GalleryTemplateChildName;
 
-            control.GalleryTemplateChildName = null;
-            ControlInfoJson.Item galleryTemplateChild;
-            if (galleryTemplateName == null || !_controlStore.TryGetValue(galleryTemplateName, out galleryTemplateChild))
+            if (galleryTemplateName == null)
             {
-                galleryTemplateChild = ControlInfoJson.Item.CreateDefaultControl(_galleryTemplate);
-                if (galleryTemplateName == null)
-                {
-                    // create unambiguous name for gallery template control
-                    var index = 1;
-                    while (_controlStore.ContainsKey(control.Name + "template" + index))
-                        index++;
+                // create unambiguous name for gallery template control
+                var index = 1;
+                while (_controlStore.TryGetControlState(control.Name + "template" + index, out _))
+                    index++;
 
-                    galleryTemplateName = control.Name + "template" + index;
-                }
-                _controlStore.Add(galleryTemplateName, galleryTemplateChild);
-                roundTrippedTemplate = false;
+                galleryTemplateName = control.Name + "template" + index;
             }
 
-            galleryTemplateChild.Name = galleryTemplateName;
-            galleryTemplateChild.Template = _galleryTemplateJson;
-            galleryTemplateChild.Parent = control.Name;
-            galleryTemplateChild.Children = new ControlInfoJson.Item[0];
-
-            var defaulter = new DefaultRuleHelper(galleryTemplateChild, _galleryTemplate, _theme);
-            var defaults = defaulter.GetDefaultRules();
-
-            // TODO: rules should be key value pairs in the ir, update this later
-            var galleryTemplateRules = galleryTemplateChild.Rules.ToDictionary(rule => rule.Property);
-            var parentCombinedRules = control.Rules.ToDictionary(rule => rule.Property);
-
-            foreach (var rule in defaults)
+            var parentCombinedRules = control.Properties.ToDictionary(prop => prop.Identifier);
+            var childRules = new List<PropertyNode>();
+            foreach (var rule in parentCombinedRules)
             {
-                var script = rule.Value;
-                if (parentCombinedRules.TryGetValue(rule.Key, out var paScriptEntry))
+                if (_galleryTemplate.InputDefaults.ContainsKey(rule.Key))
                 {
-                    script = paScriptEntry.InvariantScript;
-                    parentCombinedRules.Remove(rule.Key);
-                }
-
-                if (galleryTemplateRules.TryGetValue(rule.Key, out var entry))
-                {
-                    entry.InvariantScript = script;
-                }
-                else
-                {
-                    // For roundtripping, only rehydrate rules that existed on save
-                    if (!roundTrippedTemplate)
-                        galleryTemplateRules.Add(rule.Key, new ControlInfoJson.RuleEntry() { Property = rule.Key, InvariantScript = rule.Value });
+                    childRules.Add(rule.Value);
+                    control.Properties.Remove(rule.Value);
                 }
             }
 
-            control.Rules = parentCombinedRules.Values.ToArray();
-            galleryTemplateChild.Rules = galleryTemplateRules.Values.ToArray();
+            var galleryTemplateChild = new BlockNode()
+            {
+                Name = new TypedNameNode()
+                {
+                    Identifier = galleryTemplateName,
+                    Kind = new TemplateNode()
+                    {
+                        TemplateName = _childTemplateName
+                    }
+                },
+                Children = new List<BlockNode>(),
+                Functions = new List<FunctionNode>(),
+                Properties = childRules
+            };
 
-            control.Children = control.Children.Prepend(galleryTemplateChild).OrderBy(item => item.PublishOrderIndex).ToArray();
+
+
+            control.Children = control.Children.Prepend(galleryTemplateChild).ToList();
         }
 
-        public void BeforeWrite(ControlInfoJson.Item control)
+        public void BeforeWrite(BlockNode control)
         {
-            // This will only be called on a control with the Gallery template.
-            // If it was from a valid .msapp, there will be a child control with `galleryTemplate` as the template
-
-            ControlInfoJson.Item galleryTemplateChild = null;
+            BlockNode galleryTemplateChild = null;
             foreach (var child in control.Children)
             {
-                if (child.Template.Name == _childTemplateName)
+                if (child.Name.Kind.TemplateName == _childTemplateName)
                 {
                     galleryTemplateChild = child;
                     break;
@@ -113,23 +96,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             Contract.Assert(galleryTemplateChild != null);
 
-            galleryTemplateChild.SkipWriteToSource = true;
-            var controlRules = control.Rules.ToList();
-
-            var defaulter = new DefaultRuleHelper(control, _galleryTemplate, _theme);
-            foreach (var rule in galleryTemplateChild.Rules)
-            {
-                if (!defaulter.TryGetDefaultRule(rule.Property, out var defaultScript))
-                    defaultScript = string.Empty;
-
-                if (defaultScript == rule.InvariantScript)
-                    continue;
-
-                controlRules.Add(rule);
-            }
-
-            control.Rules = controlRules.ToArray();
-            control.GalleryTemplateChildName = galleryTemplateChild.Name;
+            _controlStore.Remove(galleryTemplateChild.Name.Identifier);
+            control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
+            control.Children.Remove(galleryTemplateChild);
         }
     }
 }

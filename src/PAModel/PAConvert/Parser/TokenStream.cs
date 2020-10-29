@@ -88,7 +88,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         public void ValidateHeader()
         {
-            var header = "//! PAFile:0.2";
+            var header = PAConstants.Header;
             if (!_text.StartsWith(header))
             {
                 throw new InvalidOperationException($"Illegal pa source file. Missing header");

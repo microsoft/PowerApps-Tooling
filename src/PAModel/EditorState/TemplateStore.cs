@@ -6,24 +6,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 {
     internal class TemplateStore
     {
-        private Dictionary<string, ControlInfoJson.Template> _templates;
+        public Dictionary<string, ControlInfoJson.Template> Contents { get; private set; }
+
         public TemplateStore()
         {
-            _templates = new Dictionary<string, ControlInfoJson.Template>();
+            Contents = new Dictionary<string, ControlInfoJson.Template>();
         }
 
         public bool AddTemplate(ControlInfoJson.Template template)
         {
-            if (_templates.ContainsKey(template.Name))
+            if (Contents.ContainsKey(template.Name))
                 return false;
 
-            _templates.Add(template.Name, template);
+            Contents.Add(template.Name, template);
             return true;
         }
 
         public bool TryGetTemplate(string templateName, out ControlInfoJson.Template template)
         {
-            return _templates.TryGetValue(templateName, out template);
+            return Contents.TryGetValue(templateName, out template);
         }
     }
 }

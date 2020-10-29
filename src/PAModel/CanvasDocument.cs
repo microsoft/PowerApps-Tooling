@@ -84,6 +84,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
         #endregion
 
+        internal CanvasDocument()
+        {
+            _editorStateStore = new EditorStateStore();
+            _templateStore = new TemplateStore();
+        }
 
         // iOrder is used to preserve ordering value for round-tripping. 
         internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)

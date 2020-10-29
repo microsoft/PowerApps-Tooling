@@ -4,7 +4,6 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 using System;
 using System.Collections.Generic;
