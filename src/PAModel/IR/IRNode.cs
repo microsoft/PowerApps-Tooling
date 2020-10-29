@@ -1,17 +1,17 @@
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.AST
+namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 {
-    internal class IRNode
+    internal abstract class IRNode
     {
         /// <summary>
         /// Source Locations are only present when reading from source
         /// And should not be expected during the unpack operation
         /// </summary>
         public readonly SourceLocation? SourceSpan;
+        public abstract Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context);
     }
 
     /// <summary>
@@ -23,6 +23,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.AST
         public IList<PropertyNode> Properties;
         public IList<FunctionNode> Functions;
         public IList<BlockNode> Children;
+
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 
     /// <summary>
@@ -41,6 +46,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.AST
         /// Kind is not required in all cases. 
         /// </summary>
         public TemplateNode Kind;
+
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 
     /// <summary>
@@ -50,6 +60,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.AST
     {
         public string TemplateName;
         public string OptionalVariant;
+
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 
 
@@ -57,6 +72,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.AST
     {
         public string Identifier;
         public ExpressionNode Expression;
+
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 
     internal class FunctionNode : IRNode
@@ -64,10 +84,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.AST
         public string Identifier;
         public IList<TypedNameNode> Args;
         public ExpressionNode Expression;
+
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 
     internal class ExpressionNode : IRNode
     {
         public string Expression;
+        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        {
+            return visitor.Visit(this, context);
+        }
     }
 }

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
-using Microsoft.PowerPlatform.Formulas.Tools.AST;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System;
 using System.Collections.Generic;
