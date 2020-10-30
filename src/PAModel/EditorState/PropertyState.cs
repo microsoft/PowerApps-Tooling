@@ -15,6 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     {
         public string NameMap { get; set; }
         public string RuleProviderType { get; set; } // = "Unknown";
+        public string Category { get; set; }
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

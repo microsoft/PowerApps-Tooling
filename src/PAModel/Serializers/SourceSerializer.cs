@@ -245,10 +245,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            var transformer = new SourceTransformer(templateDefaults, app._editorStateStore);
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
-                AddControl(app, transformer, file._relativeName, file.GetContents());
+                AddControl(app, file._relativeName, file.GetContents());
             }
         }
 
@@ -258,11 +257,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, new SourceTransformer(templateDefaults, app._editorStateStore), file, fileEntry.GetContents());
+                AddControl(app, file, fileEntry.GetContents());
             }
         }
 
-        private static void AddControl(CanvasDocument app, SourceTransformer transformer, string filePath, string fileContents)
+        private static void AddControl(CanvasDocument app, string filePath, string fileContents)
         {
             var filename = Path.GetFileName(filePath);
             try
@@ -321,10 +320,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
-
-
-            var templateStore = new TemplateStore();
-            var theme = new Theme(app._themes);
 
             foreach (var control in app._sources)
             {

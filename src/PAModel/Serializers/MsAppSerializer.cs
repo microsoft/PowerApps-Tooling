@@ -200,7 +200,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 //    }
                 //}
             }
-                                    
+
+            app.ApplyAfterMsAppLoadTransforms();
             app.OnLoadComplete();
 
             // app.TransformTemplatesOnLoad(); 
@@ -223,6 +224,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(this CanvasDocument app, string fullpathToMsApp)
         {
+            app.ApplyBeforeMsAppWriteTransforms();
+
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {

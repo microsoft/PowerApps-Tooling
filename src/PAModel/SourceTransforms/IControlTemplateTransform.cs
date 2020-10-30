@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
     interface IControlTemplateTransform
     {
         string TargetTemplate { get; }
-        void AfterParse(BlockNode control);
         void BeforeWrite(BlockNode control);
+        void AfterRead(BlockNode control);
     }
 }

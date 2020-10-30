@@ -19,7 +19,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         private const string _childTemplateName = "galleryTemplate";
 
-        private readonly ControlInfoJson.Template _galleryTemplateJson;
         private readonly ControlTemplate _galleryTemplate;
         private EditorStateStore _controlStore;
 
@@ -27,11 +26,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             templateStore.TryGetValue(_childTemplateName, out var template);
             _galleryTemplate = template;
-            _galleryTemplateJson = ControlInfoJson.Template.CreateDefaultTemplate(_childTemplateName, _galleryTemplate);
             _controlStore = stateStore;
         }
 
-        public void AfterParse(BlockNode control)
+        public void BeforeWrite(BlockNode control)
         {
             // This will only be called on a control with the Gallery template.
             // If .studiostate was present, there will be a key for the child galleryTemplate;
@@ -81,7 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             control.Children = control.Children.Prepend(galleryTemplateChild).ToList();
         }
 
-        public void BeforeWrite(BlockNode control)
+        public void AfterRead(BlockNode control)
         {
             BlockNode galleryTemplateChild = null;
             foreach (var child in control.Children)
@@ -96,7 +94,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             Contract.Assert(galleryTemplateChild != null);
 
-            _controlStore.Remove(galleryTemplateChild.Name.Identifier);
             control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
             control.Children.Remove(galleryTemplateChild);
         }

@@ -7,6 +7,8 @@ using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -103,6 +105,49 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             return _dataSources;
         }
+
+        internal void ApplyAfterMsAppLoadTransforms()
+        {
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in _templates.UsedTemplates)
+            {
+                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+
+            foreach (var ctrl in _sources)
+            {
+                transformer.ApplyAfterRead(ctrl.Value);
+            }
+        }
+
+        internal void ApplyBeforeMsAppWriteTransforms()
+        {
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in _templates.UsedTemplates)
+            {
+                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+
+            foreach (var ctrl in _sources)
+            {
+                transformer.ApplyBeforeWrite(ctrl.Value);
+            }
+        }
+
 
         // Called after loading. This will check internal fields and fill in consistency data. 
         internal void OnLoadComplete()
