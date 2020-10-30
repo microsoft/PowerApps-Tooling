@@ -342,40 +342,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
 
-            //foreach (MinDataComponentManifest dc in app._dataComponents.Values)
-            //{
-            //    dcmetadataList.Add(new ComponentsMetadataJson.Entry
-            //    {
-            //        Name = dc.Name,
-            //        TemplateName = dc.TemplateGuid,
-            //        //Description = dc.Description,
-            //        //AllowCustomization = true,
-            //        ExtensionData = dc.ExtensionData
-            //    });
-
-            //    if (dc.IsDataComponent)
-            //    {
-            //        // Need to looup ControlUniqueId. 
-            //        var controlId = app.LookupControlIdsByTemplateName(dc.TemplateGuid).First();
-
-            //        var template = new TemplateMetadataJson
-            //        {
-            //            Name = dc.TemplateGuid,
-            //            Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
-            //            IsComponentLocked = false,
-            //            ComponentChangedSinceFileImport = true,
-            //            ComponentAllowCustomization = true,
-            //            CustomProperties = dc.CustomProperties,
-            //            DataComponentDefinitionKey = dc.DataComponentDefinitionKey
-            //        };
-
-            //        // Rehydrate fields. 
-            //        template.DataComponentDefinitionKey.ControlUniqueId = controlId;
-
-            //        dctemplate.Add(template);                    
-            //    }
-            //}
-
             if (dcmetadataList.Count > 0)
             {
                 // If the components file is present, then write out all files. 

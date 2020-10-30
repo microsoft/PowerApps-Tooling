@@ -6,7 +6,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 {
     internal class TemplateStore
     {
-        public Dictionary<string, ControlInfoJson.Template> Contents { get; private set; }
+        // Key is template name, case-sensitive
+        public readonly Dictionary<string, ControlInfoJson.Template> Contents;
 
         public TemplateStore()
         {

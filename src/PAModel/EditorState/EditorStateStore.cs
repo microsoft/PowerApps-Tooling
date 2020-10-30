@@ -7,11 +7,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 {
     internal class EditorStateStore
     {
-        private Dictionary<string, ControlState> _controls;
+        // Key is control name, case-sensitive
+        private readonly Dictionary<string, ControlState> _controls;
 
         public EditorStateStore()
         {
-            _controls = new Dictionary<string, ControlState>();
+            _controls = new Dictionary<string, ControlState>(StringComparer.Ordinal);
         }
 
         public bool TryAddControl(ControlState control)
