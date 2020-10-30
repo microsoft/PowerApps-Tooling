@@ -43,7 +43,7 @@ namespace PAModelTests
 
         static void AssertFilesEqual(string pathExpected, string pathActual)
         {
-            var expected = File.ReadAllText(pathExpected).Trim();
+            var expected = File.ReadAllText(pathExpected).Replace("\r\n", "\n").Trim();
             var actual = File.ReadAllText(pathActual).Trim();            
 
             Assert.AreEqual(expected, actual);

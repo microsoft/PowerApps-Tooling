@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
@@ -19,21 +19,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
         private string _styleName;
 
         public DefaultRuleHelper(
-            ControlInfoJson.Item control,
+            string styleName,
             ControlTemplate template,
             Theme theme)
         {
             _template = template;
-            if (string.IsNullOrEmpty(control.StyleName))
-            {
-                // Default style name if we don't have one -
-                // that can happen when studiostate.json is missing. 
-                _styleName = $"default{control.Template.Name}Style";
-            }
-            else
-            {
-                _styleName = control.StyleName;
-            }
+            _styleName = styleName;
             _theme = theme;
         }
 

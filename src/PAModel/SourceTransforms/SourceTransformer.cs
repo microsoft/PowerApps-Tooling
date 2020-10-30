@@ -1,6 +1,9 @@
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
@@ -8,52 +11,51 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
     internal class SourceTransformer
     {
         internal IList<IControlTemplateTransform> _templateTransforms;
+        internal DefaultValuesTransform _defaultValTransform;
 
-        // Control store and theme defaults to null temporarily
-        // not needed for gallery write, implement proper controlstore soon
-        public SourceTransformer(Dictionary<string, ControlTemplate> templateStore, Theme theme, Dictionary<string, ControlInfoJson.Item> controlStore = null)
+        public SourceTransformer(Dictionary<string, ControlTemplate> templateStore, Theme theme, EditorStateStore stateStore)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
-            _templateTransforms.Add(new GalleryTemplateTransform(templateStore, theme, controlStore));
+            _templateTransforms.Add(new GalleryTemplateTransform(templateStore, stateStore));
+
+            _defaultValTransform = new DefaultValuesTransform(templateStore, theme, stateStore);            
         }
 
-        public void ApplyBeforeWrite(ControlInfoJson topFile)
+        public void ApplyAfterRead(BlockNode control)
         {
-            ApplyBeforeWrite(topFile.TopParent);
-        }
-        public void ApplyAfterParse(ControlInfoJson topFile)
-        {
-            ApplyAfterParse(topFile.TopParent);
-        }
+            foreach (var child in control.Children)
+            {
+                ApplyAfterRead(child);
+            }
 
-        // Bottom-up apply transforms
-        // This really should be operating on some kind of IR not ControlInfoJson directly
-        private void ApplyBeforeWrite(ControlInfoJson.Item control)
+            // Apply default values first, before re-arranging controls
+            _defaultValTransform.AfterRead(control);
+
+            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
+
+            foreach (var transform in _templateTransforms)
+            {
+                if (controlTemplateName == transform.TargetTemplate)
+                    transform.AfterRead(control);
+            }
+        }
+        public void ApplyBeforeWrite(BlockNode control)
         {
+            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
+
+            foreach (var transform in _templateTransforms.Reverse())
+            {
+                if (controlTemplateName == transform.TargetTemplate)
+                    transform.BeforeWrite(control);
+            }
+
             foreach (var child in control.Children)
             {
                 ApplyBeforeWrite(child);
             }
 
-            foreach (var transform in _templateTransforms)
-            {
-                if (control.Template.Name == transform.TargetTemplate)
-                    transform.BeforeWrite(control);
-            }
-        }
-
-        private void ApplyAfterParse(ControlInfoJson.Item control)
-        {
-            foreach (var child in control.Children)
-            {
-                ApplyAfterParse(child);
-            }
-
-            foreach (var transform in _templateTransforms)
-            {
-                if (control.Template.Name == transform.TargetTemplate)
-                    transform.AfterParse(control);
-            }
+            // Apply default values last, after controls are back to msapp shape
+            _defaultValTransform.BeforeWrite(control);
         }
     }
 }

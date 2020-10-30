@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -24,8 +28,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
         // Key is Top Parent Control Name.
-        // Includes both Controls and Components. 
-        internal Dictionary<string, SourceFile> _sources = new Dictionary<string, SourceFile>();
+        // Includes both Controls and Components, represented as IR
+        internal Dictionary<string, BlockNode> _sources = new Dictionary<string, BlockNode>();
+        internal EditorStateStore _editorStateStore;
+        internal TemplateStore _templateStore;
 
         // Various data sources        
         // This is references\dataSources.json
@@ -53,7 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Information about data components. 
         // TemplateGuid --> Info
         internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
-        
+
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
 
@@ -80,6 +86,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
         #endregion
 
+        internal CanvasDocument()
+        {
+            _editorStateStore = new EditorStateStore();
+            _templateStore = new TemplateStore();
+        }
 
         // iOrder is used to preserve ordering value for round-tripping. 
         internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)
@@ -88,40 +99,72 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Names are not unique. 
             _dataSources.Add(ds);
 
-            this._entropy.Add(ds, order);            
+            _entropy.Add(ds, order);
         }
         internal IEnumerable<DataSourceEntry> GetDataSources()
         {
             return _dataSources;
         }
 
+        internal void ApplyAfterMsAppLoadTransforms()
+        {
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in _templates.UsedTemplates)
+            {
+                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+
+            foreach (var ctrl in _sources)
+            {
+                transformer.ApplyAfterRead(ctrl.Value);
+            }
+        }
+
+        internal void ApplyBeforeMsAppWriteTransforms()
+        {
+            // Shard templates, parse for default values
+            var templateDefaults = new Dictionary<string, ControlTemplate>();
+            foreach (var template in _templates.UsedTemplates)
+            {
+                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // Also add Screen and App templates (not xml, constructed in code on the server)
+            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+
+            foreach (var ctrl in _sources)
+            {
+                transformer.ApplyBeforeWrite(ctrl.Value);
+            }
+        }
+
+
         // Called after loading. This will check internal fields and fill in consistency data. 
         internal void OnLoadComplete()
         {
             // Do integrity checks. 
-            if (this._header == null)
+            if (_header == null)
             {
                 throw new InvalidOperationException($"Missing header file");
             }
-            if (this._properties == null)
+            if (_properties == null)
             {
                 throw new InvalidOperationException($"Missing properties file");
             }
 
-
-            // Associate a data component with its sources. 
-            foreach (var kv in this._sources.Values)
-            {
-                if (kv.Kind == SourceKind.DataComponent || kv.Kind == SourceKind.UxComponent)
-                {
-                    MinDataComponentManifest dc = this._dataComponents[kv.TemplateName];
-                    dc._sources = kv.Value;
-                }
-            }
-
             // Integrity checks. 
             // Make sure every connection has a corresponding data source. 
-            foreach (var kv in this._connections.NullOk())
+            foreach (var kv in _connections.NullOk())
             {
                 var connection = kv.Value;
 
@@ -129,15 +172,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     throw new InvalidOperationException($"Document consistency error. Id mismatch");
                 }
-                foreach(var dataSourceName in connection.dataSources)
+                foreach (var dataSourceName in connection.dataSources)
                 {
-                    var ds = this._dataSources.Where(x => x.Name == dataSourceName).FirstOrDefault();
+                    var ds = _dataSources.Where(x => x.Name == dataSourceName).FirstOrDefault();
                     if (ds == null)
                     {
                         throw new InvalidOperationException($"Document error: Connection '{dataSourceName}' does not have a corresponding data source.");
                     }
                 }
-            }            
+            }
         }
 
         // $$$ Update a datasource? 
@@ -158,7 +201,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (existing.TableName == dataSource.TableName)
             {
                 // Same. nop
-                return; 
+                return;
             }
 
             // Mutate 
@@ -168,14 +211,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // - Properties.json
             //    - LocalConnectionReferences
 
-            foreach(DataSourceEntry x in this.GetDataSources())
+            foreach (DataSourceEntry x in GetDataSources())
             {
                 if (x.Name == dataSource.Name)
                 {
-                    UpdateMetadata(x, dataSource);                                        
+                    UpdateMetadata(x, dataSource);
                     break;
                 }
-            }                                   
+            }
         }
 
         // Update oldDataSource in place to match the new datasource. 
@@ -202,8 +245,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             oldDataSource.TableName = dataSource.TableName;
 
             // Hack: LocalConnectionReferences.
-            this._properties.LocalConnectionReferences =
-                this._properties.LocalConnectionReferences.
+            _properties.LocalConnectionReferences =
+                _properties.LocalConnectionReferences.
                 Replace(oldGuid, newGuid).Replace(oldName, newName);
 
         }
@@ -217,7 +260,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
-                
+
 
         // https://github.com/Microsoft/powerapps-tools
         // https://github.com/microsoft/powerapps-tools/tree/master/Tools/Apps/Microsoft.PowerApps.Tools.PhoneAppConverter
@@ -235,50 +278,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             prop.DocumentLayoutOrientation = "landscape";
             prop.DocumentAppType = "DesktopOrTablet";
 #endif
-        }
-
-        // Tempalte is the guid. 
-        // Throw on missing. 
-        internal MinDataComponentManifest LookupDCByTemplateName(string dataComponentTemplate)
-        {
-            return (from x in this._dataComponents.Values
-                    where x.TemplateGuid == dataComponentTemplate
-                    select x).First();
-        }
-
-        // Find the controlId for the dataComponent instance of this particular template. 
-        internal IEnumerable<string> LookupControlIdsByTemplateName(string templateGuid)
-        {
-            foreach(var source in this._sources.Values)
-            {
-                ControlInfoJson controlJson = source.Value;
-
-                foreach (var child in controlJson.TopParent.Children)
-                {
-                    if (child.Template.Name == templateGuid)
-                    {
-                        yield return child.ControlUniqueId;
-                    }
-                }
-
-                    /*
-                    var all = WalkAll(controlJson.TopParent);
-                    foreach(ControlInfoJson.Item item in all)
-                    {
-                        if (item.Template.Name == templateGuid)
-                        {
-                            yield return item.ControlUniqueId;
-                        }
-                    }*/
-                }
-        }
+        }       
 
         internal static IEnumerable<ControlInfoJson.Item> WalkAll(ControlInfoJson.Item x)
         {
             yield return x;
             if (x.Children != null)
             {
-                foreach(var child in x.Children)
+                foreach (var child in x.Children)
                 {
                     var subItems = WalkAll(child);
                     foreach (var subItem in subItems)
@@ -288,5 +295,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
         }
-    }    
+    }
 }

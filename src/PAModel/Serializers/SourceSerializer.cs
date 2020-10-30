@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#define USEPA
-
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
 using System.Collections.Generic;
@@ -212,9 +211,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
         {
-            var templates = new Dictionary<string, ControlInfoJson.Template>();
-            var controlData = new Dictionary<string, ControlInfoJson.Item>();
-
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
                 if (file.Kind == FileKind.CanvasManifest)
@@ -225,7 +221,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
-                    templates = file.ToObject<Dictionary<string, ControlInfoJson.Template>>();
+                    foreach (var val in file.ToObject<Dictionary<string, ControlInfoJson.Template>>().Values)
+                    {
+                        app._templateStore.AddTemplate(val);
+                    }
                     continue;
                 }
 
@@ -237,72 +236,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
                 {
-#if USEPA
                     // Json peer to a .pa file. 
-                    var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
-                    var filename = Path.GetFileName(file._relativeName);
-                    var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
+                    var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
 
-                    // TODO: Add error checking for duplicate controls
-                    controlData.AddRange(controlExtraData);
-#endif
-                } 
-                else
-                {
-#if !USEPA
-                    // Eventually, get rid of the json and do everything from .pa          
-                    var control = file.ToObject<ControlInfoJson>();
-
-                    var sf = SourceFile.New(control);
-
-                    // If a source file already exists, check the source directory for duplicate filenames.
-                    // Could be multiple that escape to the same value. 
-                    app._sources.Add(sf.ControlName, sf);
-#endif
+                    foreach (var control in controlExtraData)
+                    {
+                        app._editorStateStore.TryAddControl(control.Value);
+                    }
                 }
             }
 
-
-#if USEPA
-            var theme = new Theme(app._themes);
-            var transformer = new SourceTransformer(templateDefaults, theme, controlData);
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
             {
-                var filename = Path.GetFileName(file._relativeName);
-                var controlName = filename.Remove(filename.IndexOf(".pa1"));
-
-                AddControl(app, transformer, file._relativeName, file.GetContents(),
-                    templateDefaults, theme, controlData, templates);
+                AddControl(app, file._relativeName, file.GetContents());
             }
-#endif
         }
 
         private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults)
         {
-            var theme = new Theme(app._themes);
-            var index = 0;
             foreach (var file in paFiles)
             {
-                var filename = Path.GetFileName(file);
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, new SourceTransformer(templateDefaults, theme, null), file, fileEntry.GetContents(), templateDefaults, theme, index: index++);
+                AddControl(app, file, fileEntry.GetContents());
             }
         }
 
-        private static void AddControl(CanvasDocument app, SourceTransformer transformer, string filePath, string fileContents,
-            Dictionary<string, ControlTemplate> templateDefaults,
-            Theme theme,
-            Dictionary<string, ControlInfoJson.Item> controlStore = null,
-            Dictionary<string, ControlInfoJson.Template> templates = null,
-            int? index = null
-        )
+        private static void AddControl(CanvasDocument app, string filePath, string fileContents)
         {
             var filename = Path.GetFileName(filePath);
             try
             {
-                var parser = new Parser.Parser(filePath, fileContents, controlStore, templates, templateDefaults, theme);
-                var item = parser.ParseControl();
+                var parser = new Parser.Parser(filePath, fileContents);
+                var controlIR = parser.ParseControl();
                 if (parser.HasErrors())
                 {
                     parser.WriteErrors();
@@ -311,16 +277,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return;
                 }
 
-                if (index.HasValue)
-                    item.ExtensionData["Index"] = index;
-
-                var control = new ControlInfoJson() { TopParent = item };
-
-                transformer.ApplyAfterParse(control);
-
-                var sf = SourceFile.New(control);
-
-                app._sources.Add(sf.ControlName, sf);
+                app._sources.Add(controlIR.Name.Identifier, controlIR);
             }
             catch
             {
@@ -365,43 +322,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
 
-
-            var templates = new Dictionary<string, ControlInfoJson.Template>();
-            var theme = new Theme(app._themes);
-            var transformer = new SourceTransformer(templateDefaults, theme, null /* not needed for gallery write, implement proper controlstore soon */);
-            foreach (var control in app._sources.Values)
+            foreach (var control in app._sources)
             {
-                transformer.ApplyBeforeWrite(control.Value);
+                var controlName = control.Key;
+                var text = PAWriterVisitor.PrettyPrint(control.Value);
 
-                // Temporary write out of JSON for roundtripping
-#if !USEPA
-                string jsonContentFile = control.ControlName + ".json";
-                dir.WriteAllText(CodeDir, jsonContentFile, JsonSerializer.Serialize(control.Value, Utility._jsonOpts));
-#endif
-
-                var text = PAConverter.GetPAText(control, templateDefaults, theme);
-                var controlName = control.ControlName;
                 string filename = controlName +".pa1";
                 dir.WriteAllText(CodeDir, filename, text);
 
-                var extraData = new Dictionary<string, ControlInfoJson.Item>();
-                foreach (var item in control.Flatten().ToList())
+                var extraData = new Dictionary<string, ControlState>();
+                foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
                 {
-                    var name = item.Name;
-                    if (!templates.ContainsKey(item.Template.Name))
-                    {
-                        templates.Add(item.Template.Name, item.Template);
-                    }
-                    item.Name = null;
-                    item.Parent = null;
-                    item.Template = null;
-                    foreach (var rule in item.Rules)
-                    {
-                        rule.InvariantScript = null;
-                    }
-                    item.Children = null;
 
-                    extraData.Add(name, item);
+                    extraData.Add(item.Name, item);
                 }
 
                 // Write out of all the other state for roundtripping 
@@ -411,7 +344,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
-            dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(templates, Utility._jsonOpts));
+            dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
 
             // Write out DataComponent pieces.
             // These could all be infered from the .pa file, so write next to the src. 
