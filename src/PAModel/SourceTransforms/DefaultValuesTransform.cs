@@ -52,8 +52,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             var styleName = $"default{templateName}Style";
 
+            HashSet<string> propNames = null;
             if (_controlStore.TryGetControlState(controlName, out var controlState))
+            {
                 styleName = controlState.StyleName;
+                propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName));
+            }
 
             ControlTemplate template;
             if (!_templateStore.TryGetValue(templateName, out template))
@@ -67,6 +71,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var defaultkvp in defaults)
             {
+                if (propNames != null && !propNames.Contains(defaultkvp.Key))
+                    continue;
+
                 node.Properties.Add(new PropertyNode
                 {
                     Identifier = defaultkvp.Key,

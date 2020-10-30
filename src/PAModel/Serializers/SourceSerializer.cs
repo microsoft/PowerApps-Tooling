@@ -211,8 +211,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
         {
-            var templates = new Dictionary<string, ControlInfoJson.Template>();
-
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
                 if (file.Kind == FileKind.CanvasManifest)
@@ -223,7 +221,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
-                    templates = file.ToObject<Dictionary<string, ControlInfoJson.Template>>();
+                    foreach (var val in file.ToObject<Dictionary<string, ControlInfoJson.Template>>().Values)
+                    {
+                        app._templateStore.AddTemplate(val);
+                    }
                     continue;
                 }
 

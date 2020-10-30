@@ -96,6 +96,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
             control.Children.Remove(galleryTemplateChild);
+
+            if (_controlStore.TryGetControlState(control.Name.Identifier, out var galleryState))
+            {
+                galleryState.GalleryTemplateChildName = galleryTemplateChild.Name.Identifier;
+            }
         }
     }
 }

@@ -41,17 +41,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         }
         public void ApplyBeforeWrite(BlockNode control)
         {
-            foreach (var child in control.Children)
-            {
-                ApplyBeforeWrite(child);
-            }
-
             var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
 
             foreach (var transform in _templateTransforms.Reverse())
             {
                 if (controlTemplateName == transform.TargetTemplate)
                     transform.BeforeWrite(control);
+            }
+
+            foreach (var child in control.Children)
+            {
+                ApplyBeforeWrite(child);
             }
 
             // Apply default values last, after controls are back to msapp shape

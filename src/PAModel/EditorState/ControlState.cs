@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         // These are properties with namemaps/info beyond the ones present in the control template
         // Key is property name
-        public Dictionary<string, PropertyState> Properties { get; set; }
+        public List<PropertyState> Properties { get; set; }
         public int PublishOrderIndex { get; set; }
 
         // For matching up within a Theme.

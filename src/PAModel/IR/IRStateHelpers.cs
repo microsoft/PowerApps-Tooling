@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -28,12 +29,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             var properties = new List<PropertyNode>();
-            var propStates = new Dictionary<string, PropertyState>();
+            var propStates = new List<PropertyState >();
             foreach (var property in control.Rules)
             {
                 var (prop, state) = SplitProperty(property);
                 properties.Add(prop);
-                propStates.Add(property.Property, state);
+                propStates.Add(state);
             }
 
             // TODO: Handle custom props in component defintions for FunctionNodes
@@ -75,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart();
             var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
-            var state = new PropertyState() { ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
+            var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
             return (prop, state);
         }
 
@@ -118,6 +119,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     properties.Add(CombinePropertyIRAndState(propIR, state));
                 }
 
+                // Preserve ordering from serialized IR
+                // Required for roundtrip checks
+                properties = properties.OrderBy(prop => state.Properties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property)).ToList();
+
                 resultControlInfo = new ControlInfoJson.Item()
                 {
                     Parent = parent,
@@ -157,9 +162,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             property.InvariantScript = expression;
 
             PropertyState propState = null;
-            if (state?.Properties.TryGetValue(propName, out propState) ?? false)
+            if (state?.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState) ?? false)
             {
-                state.Properties.Remove(propName);
                 property.ExtensionData = propState.ExtensionData;
                 property.NameMap = propState.NameMap;
                 property.RuleProviderType = propState.RuleProviderType;
