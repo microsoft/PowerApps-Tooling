@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string PrettyPrint(IRNode node)
         {
             PAWriterVisitor pretty = new PAWriterVisitor();
-            return string.Concat(PAConstants.Header, "\n", string.Concat(node.Accept(pretty, new Context(1))));
+            return string.Concat(PAConstants.Header, string.Concat(node.Accept(pretty, new Context(1))));
         }
 
         public override LazyList<string> Visit(BlockNode node, Context context)
@@ -53,21 +53,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public override LazyList<string> Visit(TypedNameNode node, Context context)
         {
-            return LazyList<string>.Of(PAConstants.ControlKeyword, " ", node.Identifier, " : ").With(node.Kind.Accept(this, context));
+            return LazyList<string>.Of(PAConstants.ControlKeyword, " ", CharacterUtils.EscapeName(node.Identifier), " : ").With(node.Kind.Accept(this, context));
         }
 
         public override LazyList<string> Visit(TemplateNode node, Context context)
         {
-            var result = LazyList<string>.Of(node.TemplateName);
+            var result = LazyList<string>.Of(CharacterUtils.EscapeName(node.TemplateName));
             if (!string.IsNullOrEmpty(node.OptionalVariant))
-                result = result.With(", ", node.OptionalVariant);
+                result = result.With(", ", CharacterUtils.EscapeName(node.OptionalVariant));
             return result;
         }
 
         public override LazyList<string> Visit(PropertyNode node, Context context)
         {
             var result = LazyList<string>.Of(context.GetNewLine());
-            return result.With(node.Identifier, " =").With(node.Expression.Accept(this, context.Indent()));
+            return result.With(CharacterUtils.EscapeName(node.Identifier), " =").With(node.Expression.Accept(this, context.Indent()));
         }
 
         public override LazyList<string> Visit(FunctionNode node, Context context)

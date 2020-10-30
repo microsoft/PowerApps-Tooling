@@ -147,7 +147,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.Rules = properties.ToArray();
             }
             resultControlInfo.Template = template;
-            resultControlInfo.Children = children.ToArray();
+            resultControlInfo.Children = children.OrderBy(item => item.PublishOrderIndex).ToArray();
 
             return resultControlInfo;
         }

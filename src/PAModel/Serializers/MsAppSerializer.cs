@@ -258,6 +258,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 ComputeAndWriteChecksum(app, checksum, z);
             }
+
+            // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
+            app.ApplyAfterMsAppLoadTransforms();
         }
 
         private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z)

@@ -14,10 +14,10 @@ namespace PAModelTests
     {
         // Apps live in the "Apps" folder, and should have a build action of "Copy to output"
         [DataTestMethod]
-        [DataRow("MyWeather.msapp")]
+        //[DataRow("MyWeather.msapp")]
         [DataRow("Chess_for_Power_Apps_v1.03.msapp")]
-        [DataRow("AppWithLabel.msapp")]
-        [DataRow("GalleryTestApp.msapp")]
+        //[DataRow("AppWithLabel.msapp")]
+        //[DataRow("GalleryTestApp.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
