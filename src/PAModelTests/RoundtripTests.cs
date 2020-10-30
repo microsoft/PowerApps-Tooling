@@ -8,7 +8,7 @@ using System.IO;
 
 namespace PAModelTests
 {
-    // Test that a series of .msapps can succeesfully roundtrip. 
+    // Test that a series of .msapps can succeesfully roundtrip.
     [TestClass]
     public class RoundtripTests
     {

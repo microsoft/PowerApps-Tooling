@@ -23,11 +23,11 @@ A
             var tokStream = new TokenStream(testString);
             AreEqual(tokStream, new List<Token>()
             {
-                new Token(TokenKind.Identifier, new TokenSpan(2,3), "A"),
-                new Token(TokenKind.Indent, new TokenSpan(5,9), "    "),
-                new Token(TokenKind.Identifier, new TokenSpan(9,10), "B"),
-                new Token(TokenKind.Indent, new TokenSpan(12,20), "        "),
-                new Token(TokenKind.Identifier, new TokenSpan(20,21), "C"),
+                new Token(TokenKind.Identifier, new TokenSpan(1, 2), "A"),
+                new Token(TokenKind.Indent, new TokenSpan(3, 7), "    "),
+                new Token(TokenKind.Identifier, new TokenSpan(7, 8), "B"),
+                new Token(TokenKind.Indent, new TokenSpan(9, 17), "        "),
+                new Token(TokenKind.Identifier, new TokenSpan(17, 18), "C"),
             });
         }
 
@@ -45,14 +45,14 @@ D
             var tokStream = new TokenStream(testString);
             AreEqual(tokStream, new List<Token>()
             {
-                new Token(TokenKind.Identifier, new TokenSpan(2,3), "A"),
-                new Token(TokenKind.Indent, new TokenSpan(5,9), "    "),
-                new Token(TokenKind.Identifier, new TokenSpan(9,10), "B"),
-                new Token(TokenKind.Indent, new TokenSpan(12,20), "        "),
-                new Token(TokenKind.Identifier, new TokenSpan(20,21), "C"),
-                new Token(TokenKind.Dedent, new TokenSpan(23,23), ""),
-                new Token(TokenKind.Dedent, new TokenSpan(23,23), ""),
-                new Token(TokenKind.Identifier, new TokenSpan(23,24), "D"),
+                new Token(TokenKind.Identifier, new TokenSpan(1, 2), "A"),
+                new Token(TokenKind.Indent, new TokenSpan(3, 7), "    "),
+                new Token(TokenKind.Identifier, new TokenSpan(7, 8), "B"),
+                new Token(TokenKind.Indent, new TokenSpan(9, 17), "        "),
+                new Token(TokenKind.Identifier, new TokenSpan(17, 18), "C"),
+                new Token(TokenKind.Dedent, new TokenSpan(19, 19), ""),
+                new Token(TokenKind.Dedent, new TokenSpan(19, 19), ""),
+                new Token(TokenKind.Identifier, new TokenSpan(19, 20), "D"),
             });
         }
 

@@ -16,7 +16,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    // Read/Write to a source format. 
+    // Read/Write to a source format.
     internal static partial class SourceSerializer
     {
         public static Version CurrentSourceVersion = new Version(0, 1);
@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Layout is:
         //  src\
         //  DataSources\
-        //  Other\  (all unrecognized files)         
+        //  Other\  (all unrecognized files)
         public const string CodeDir = "Src";
         public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
@@ -58,13 +58,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 throw new InvalidOperationException($"No directory {directory2}");
             }
             var dir = new DirectoryReader(directory2);
-            
-            // $$$ Duplicate with MsAppSerializer? 
-            var app = new CanvasDocument();
 
-            // Do the manifest check (and version check) first. 
-            // MAnifest lives in top-level directory. 
-            foreach (var file in dir.EnumerateFiles("", "*.json"))
+            // $$$ Duplicate with MsAppSerializer?
+            var app = new CanvasDocument();
+            var files = dir.EnumerateFiles("", "CanvasManifest.json");
+            // Do the manifest check (and version check) first.
+            // MAnifest lives in top-level directory.
+            foreach (var file in files)
             {
                 switch (file.Kind)
                 {
@@ -84,7 +84,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             if (app._header == null)
             {
-                // Manifest not found. 
+                // Manifest not found.
                 throw new NotSupportedException($"Can't find CanvasManifest.json file - is sources an old version?");
             }
 
@@ -94,7 +94,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
-                // Special files like Header / Properties 
+                // Special files like Header / Properties
                 switch (file.Kind)
                 {
                     default:
@@ -119,12 +119,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         throw new NotSupportedException($"Old format");
 
                     case FileKind.ComponentSrc:
-                    case FileKind.ControlSrc:                        
+                    case FileKind.ControlSrc:
                         // Shouldn't find any here -  were explicit in source
                         throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
-                        
+
                 }
-            } // each loose file in '\other' 
+            } // each loose file in '\other'
 
 
             app.GetLogoFileFromUnknowns();
@@ -134,7 +134,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
-                // Special files like Header / Properties 
+                // Special files like Header / Properties
                 switch (file.Kind)
                 {
                     case FileKind.Connections:
@@ -144,7 +144,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
 
-            // Defaults. 
+            // Defaults.
             // - DynamicTypes.Json, Resources.Json , Templates.Json - could all be empty
             // - Themes.json- default to
 
@@ -190,10 +190,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
 
-        // The publish info points to the logo file. Grab it from the unknowns. 
+        // The publish info points to the logo file. Grab it from the unknowns.
         private static void GetLogoFileFromUnknowns(this CanvasDocument app)
         {
-            // Logo file. 
+            // Logo file.
             if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
             {
                 string key = @"Resources\" + app._publishInfo.LogoFileName;
@@ -238,7 +238,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
                 {
 #if USEPA
-                    // Json peer to a .pa file. 
+                    // Json peer to a .pa file.
                     var controlExtraData = file.ToObject<Dictionary<string, ControlInfoJson.Item>>();
                     var filename = Path.GetFileName(file._relativeName);
                     var controlName = filename.Remove(filename.IndexOf(".editorstate.json"));
@@ -246,17 +246,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // TODO: Add error checking for duplicate controls
                     controlData.AddRange(controlExtraData);
 #endif
-                } 
+                }
                 else
                 {
 #if !USEPA
-                    // Eventually, get rid of the json and do everything from .pa          
+                    // Eventually, get rid of the json and do everything from .pa
                     var control = file.ToObject<ControlInfoJson>();
 
                     var sf = SourceFile.New(control);
 
                     // If a source file already exists, check the source directory for duplicate filenames.
-                    // Could be multiple that escape to the same value. 
+                    // Could be multiple that escape to the same value.
                     app._sources.Add(sf.ControlName, sf);
 #endif
                 }
@@ -333,22 +333,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
         {
-            // Will include subdirectories. 
+            // Will include subdirectories.
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
             {
                 var dataSource = file.ToObject<DataSourceEntry>();
-                app.AddDataSourceForLoad(dataSource);                
+                app.AddDataSourceForLoad(dataSource);
             }
         }
 
         public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
         {
-            throw new NotImplementedException();   
+            throw new NotImplementedException();
         }
 
-        // Write out to a directory (this shards it) 
+        // Write out to a directory (this shards it)
         public static void SaveAsSource(this CanvasDocument app, string directory2)
-        { 
+        {
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
 
@@ -404,7 +404,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     extraData.Add(name, item);
                 }
 
-                // Write out of all the other state for roundtripping 
+                // Write out of all the other state for roundtripping
                 string extraContent = controlName + ".editorstate.json";
                 dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
@@ -414,28 +414,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(templates, Utility._jsonOpts));
 
             // Write out DataComponent pieces.
-            // These could all be infered from the .pa file, so write next to the src. 
+            // These could all be infered from the .pa file, so write next to the src.
             foreach (MinDataComponentManifest dataComponent in app._dataComponents.Values)
             {
                 string controlName = dataComponent.Name;
                 dir.WriteAllJson(CodeDir, controlName + ".manifest.json", dataComponent);
             }
 
-            // Expansions....    
-            // These are ignorable, but provide extra decoding and visiblity into complex files. 
+            // Expansions....
+            // These are ignorable, but provide extra decoding and visiblity into complex files.
             WriteIgnoreFiles(app, dir);
 
-            // Data Sources  - write out each individual source. 
+            // Data Sources  - write out each individual source.
             HashSet<string> filenames = new HashSet<string>();
             foreach (var dataSource in app.GetDataSources())
             {
-                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
-                // Also be determinstic. 
+                // Filename doesn't actually matter, but careful to avoid collisions and overwriting.
+                // Also be determinstic.
                 string filename = dataSource.GetUniqueName()+ ".json";
-                
+
                 if (!filenames.Add(filename))
                 {
-                    // Danger - overwriting file! 
+                    // Danger - overwriting file!
                     throw new NotImplementedException($"duplicate - overwriting {filename}");
                 }
                 dir.WriteAllJson(DataSourcesDir, filename, dataSource);
@@ -456,7 +456,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
             }
 
-            // Loose files. 
+            // Loose files.
             foreach (FileEntry file in app._unknownFiles.Values)
             {
                 // Standardize the .json files so they're determinsitc and comparable
@@ -465,7 +465,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ReadOnlyMemory<byte> span = file.RawBytes;
                     var je = JsonDocument.Parse(span).RootElement;
                     var jsonStr = JsonNormalizer.Normalize(je);
-                    dir.WriteAllText(OtherDir, file.Name, jsonStr); 
+                    dir.WriteAllText(OtherDir, file.Name, jsonStr);
                 }
                 else
                 {
@@ -495,7 +495,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             foreach (var x in app.GetDataSources())
             {
-                // DataEntityMetadataJson is a large json-encoded string for the IR. 
+                // DataEntityMetadataJson is a large json-encoded string for the IR.
                 if (x.DataEntityMetadataJson != null && x.DataEntityMetadataJson.Count > 0)
                 {
                     foreach (var kv in x.DataEntityMetadataJson)
@@ -518,10 +518,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            // Dump DataComponentTemplates.json 
+            // Dump DataComponentTemplates.json
 
 
-            // Properties. LocalConnectionReferences 
+            // Properties. LocalConnectionReferences
             directory.WriteDoubleEncodedJson(Ignore, "Properties_LocalDatabaseReferences.json", app._properties.LocalDatabaseReferences);
         }
 
