@@ -10,11 +10,13 @@ namespace PASopa.Commands
         {
             AddOption(new Option<int>(new[]
             {
-                "-map",
-                "/map",
                 "--ms-app-path"
-            }, "Canvas app path"));
-            AddArgument(new Argument<string>("all"));
+            }, "Canvas app path or file location"));
+
+            AddOption(new Option<int>(new[]
+            {
+                "--all"
+            }, "Test all canvas apps in the path"));
         }
     }
 }

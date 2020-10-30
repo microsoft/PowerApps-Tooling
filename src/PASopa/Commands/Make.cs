@@ -11,16 +11,16 @@ namespace PASopa.Commands
         {
             AddOption(new Option<int>(new[]
             {
-                "-map",
-                "/map",
                 "--ms-app-path"
             }, "Canvas app path"));
             AddOption(new Option<int>(new[]
             {
-                "-dir",
-                "/dir",
-                "--input-dir-path"
-            }, "Input directory path"));
+                "--packages-path"
+            }, "Packages path"));
+            AddOption(new Option<int>(new[]
+            {
+                "--input-app"
+            }, "Input Canvas App"));
         }
     }
 }

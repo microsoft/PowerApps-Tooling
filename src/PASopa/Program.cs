@@ -13,7 +13,7 @@ using PASopa.Commands.Handlers;
 
 namespace PASopa
 {
-    static class Program
+    class Program
     {
         static void Main(string[] args)
         {
@@ -36,6 +36,7 @@ namespace PASopa
             builder.UseCommandHandler<Test, TestHandler>();
             builder.UseCommandHandler<UnPack, UnpackHandler>();
             builder.UseCommandHandler<Make, MakeHandler>();
+            builder.UseCommandHandler<Pack, PackHandler>();
             builder.ConfigureServices(ConfigureServices);
         }
 

@@ -18,7 +18,7 @@ namespace PASopa.Commands
             {
                 "-dir",
                 "/dir",
-                "--input-dir-path"
+                "--input-directory"
             }, "Input directory path"));
         }
     }
