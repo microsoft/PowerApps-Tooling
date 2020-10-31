@@ -1,6 +1,5 @@
 //! PAFile:0.1
 control Screen1 : screen
-
     control Gallery1 : gallery, galleryVertical
         Items = Accounts
         TemplateSize = If(Self.Layout = Layout.Horizontal, Min(280, Self.Width - 60), Min(280, Self.Height - 60))

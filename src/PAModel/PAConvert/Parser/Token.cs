@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Token
     {
-        public Token(TokenKind kind, TokenSpan span, string content)
+        public Token(TokenKind kind, SourceLocation span, string content)
         {
             Kind = kind;
             Span = span;
@@ -17,15 +18,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         }
 
         public TokenKind Kind { get; }
-        public TokenSpan Span { get; }
+        public SourceLocation Span { get; }
         public string Content { get; }
 
         public override bool Equals(object obj)
         {
             return obj is Token other &&
                 other.Kind == Kind &&
-                other.Span.Min == Span.Min &&
-                other.Span.Lim == Span.Lim &&
+                other.Span.Equals(Span) &&
                 other.Content == Content;
         }
 

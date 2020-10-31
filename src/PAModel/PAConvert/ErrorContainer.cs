@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _errors = new List<PAError>();
         }
 
-        internal void AddError(TokenSpan span, string errorMessage)
+        internal void AddError(SourceLocation span, string errorMessage)
         {
             _errors.Add(new PAError(span, errorMessage));
         }
