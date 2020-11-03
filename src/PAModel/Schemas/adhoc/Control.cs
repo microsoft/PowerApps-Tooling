@@ -92,7 +92,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
             public Item[] Children { get; set; }
-            public int PublishOrderIndex { get; set; }
 
 
             public string Type { get; set; } = "ControlInfo";
@@ -145,7 +144,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var rules = new List<RuleEntry>();
                 defaultCtrl.Rules = rules.ToArray();
                 defaultCtrl.ControlUniqueId = _id.ToString();
-                defaultCtrl.PublishOrderIndex = _publishIndex;
                 ++_id;
                 ++_publishIndex;
 

@@ -366,11 +366,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Also be determinstic. 
                 string filename = dataSource.GetUniqueName()+ ".json";
                 
-                if (!filenames.Add(filename))
+                if (!filenames.Add(filename.ToLower()))
                 {
-                    // Danger - overwriting file! 
-                    throw new NotImplementedException($"duplicate - overwriting {filename}");
+                    int index = 1;
+                    var altFileName = dataSource.GetUniqueName() + "_" + index + ".json";
+                    while (!filenames.Add(altFileName.ToLower()))
+                        ++index;
+                    Console.WriteLine("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
+                    filename = altFileName;
                 }
+
                 dir.WriteAllJson(DataSourcesDir, filename, dataSource);
             }
 
