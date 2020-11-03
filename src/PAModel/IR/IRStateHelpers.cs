@@ -15,17 +15,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, out BlockNode topParentIR)
         {
             var topParentJson = file.Value.TopParent;
-            SplitIRAndState(topParentJson, topParentJson.Name, stateStore, templateStore, out topParentIR);
+            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, out topParentIR);
         }
 
-        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, EditorStateStore stateStore, TemplateStore templateStore, out BlockNode controlIR)
+        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, out BlockNode controlIR)
         {
             // Bottom up, recursively process children
             var children = new List<BlockNode>();
+            var childIndex = 0;
             foreach (var child in control.Children)
             {
-                SplitIRAndState(child, topParentName, stateStore, templateStore, out var childBlock);
+                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, out var childBlock);
                 children.Add(childBlock);
+                ++childIndex;
             }
 
             var properties = new List<PropertyNode>();
@@ -64,9 +66,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 UniqueId = control.ControlUniqueId,
                 TopParentName = topParentName,
                 Properties = propStates,
-                PublishOrderIndex = control.PublishOrderIndex,
                 StyleName = control.StyleName,
-                ExtensionData = control.ExtensionData
+                ExtensionData = control.ExtensionData,
+                ParentIndex = index,
             };
 
             stateStore.TryAddControl(controlState);
@@ -85,17 +87,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var topParentJson = CombineIRAndState(blockNode, string.Empty, stateStore, templateStore);
             return new SourceFile()
             {
-                Kind = (topParentJson.Template.IsComponentDefinition ?? false) ? SourceKind.UxComponent : SourceKind.Control,
-                Value = new ControlInfoJson() { TopParent = topParentJson }
+                Kind = (topParentJson.item.Template.IsComponentDefinition ?? false) ? SourceKind.UxComponent : SourceKind.Control,
+                Value = new ControlInfoJson() { TopParent = topParentJson.item }
             };
         }
 
-        private static ControlInfoJson.Item CombineIRAndState(BlockNode blockNode, string parent, EditorStateStore stateStore, TemplateStore templateStore)
+        // Returns pair of item and index (with respect to parent order)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, string parent, EditorStateStore stateStore, TemplateStore templateStore)
         {
             var controlName = blockNode.Name.Identifier;
 
             // Bottom up, merge children first
-            var children = new List<ControlInfoJson.Item>();
+            var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
                 children.Add(CombineIRAndState(childBlock, controlName, stateStore, templateStore));
@@ -129,7 +132,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Name = controlName,
                     ControlUniqueId = state.UniqueId,
                     VariantName = variantName ?? string.Empty,
-                    PublishOrderIndex = state.PublishOrderIndex,
                     Rules = properties.ToArray(),
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
@@ -137,6 +139,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else
             {
+                state = null;
                 resultControlInfo = ControlInfoJson.Item.CreateDefaultControl();
 
                 var properties = new List<ControlInfoJson.RuleEntry>();
@@ -147,9 +150,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.Rules = properties.ToArray();
             }
             resultControlInfo.Template = template;
-            resultControlInfo.Children = children.OrderBy(item => item.PublishOrderIndex).ToArray();
+            resultControlInfo.Children = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
-            return resultControlInfo;
+            return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
         private static ControlInfoJson.RuleEntry CombinePropertyIRAndState(PropertyNode node, ControlState state = null)

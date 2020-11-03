@@ -21,7 +21,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // These are properties with namemaps/info beyond the ones present in the control template
         // Key is property name
         public List<PropertyState> Properties { get; set; }
-        public int PublishOrderIndex { get; set; }
+
+        // Doesn't get written to .msapp
+        // Represents the index at which this property appears in it's parent's children list
+        public int ParentIndex { get; set; } = -1;
 
         // For matching up within a Theme.
         public string StyleName { get; set; }

@@ -195,7 +195,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             NextChar();
             var indentMin = PeekCurrentIndentationLevel();
             _sb.Length = 0;
-            if (indentMin < _indentationLevel.Peek())
+            if (indentMin <= _indentationLevel.Peek())
                 return new Token(TokenKind.PAExpression, _position.GetSpan(), _sb.ToString());
             StringBuilder lineBuilder = new StringBuilder();
             var lineIndent = PeekCurrentIndentationLevel();
