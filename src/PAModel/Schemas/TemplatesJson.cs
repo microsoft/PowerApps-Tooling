@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,6 +30,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         }
 
         public TemplateJson[] UsedTemplates { get; set; }
-        public ControlInfoJson.Template[] ComponentTemplates { get; set; }
+        public TemplateMetadataJson[] ComponentTemplates { get; set; }
     }
 }
