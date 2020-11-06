@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -164,56 +165,48 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
-                // Only for data-compoents. 
-                //if (dctemplate?.ComponentTemplates != null)
-                //{
-                //    int order = 0;
-                //    foreach (var x in dctemplate.ComponentTemplates)
-                //    {
-                //        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
-                //        app._entropy.SetTemplateVersion(x.Name, x.Version);
-                //        app._entropy.Add(x, order);
-                //        dc.Apply(x);
-                //        order++;
-                //    }
-                //}
+                // Only for data-compoents.
+                if (dctemplate?.ComponentTemplates != null)
+                    {
+                        int order = 0;
+                        foreach (var x in dctemplate.ComponentTemplates)
+                        {
+                            MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
+                            app._entropy.SetTemplateVersion(x.Name, x.Version);
+                            app._entropy.Add(x, order);
+                            dc.Apply(x);
+                            order++;
+                        }
+                    }
 
-                //if (dcsources?.DataSources != null)
-                //{
-                //    // Component Data sources only appear if the data component is actually 
-                //    // used as a data source in this app. 
-                //    foreach (var x in dcsources.DataSources)
-                //    {
-                //        if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
-                //        {
-                //            throw new NotImplementedException(x.Type);
-                //        }
-                        
-                //        var ds = new DataSourceEntry
-                //        {
-                //             Name = x.Name,
-                //             DataComponentDetails = x, // pass in all details for full-fidelity
-                //             Type = DataSourceModel.DataComponentType
-                //        };
+                if (dcsources?.DataSources != null)
+                {
+                    // Component Data sources only appear if the data component is actually 
+                    // used as a data source in this app. 
+                    foreach (var x in dcsources.DataSources)
+                    {
+                        if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
+                        {
+                            throw new NotImplementedException(x.Type);
+                        }
 
-                //        app.AddDataSourceForLoad(ds);
-                //    }
-                //}
+                        var ds = new DataSourceEntry
+                        {
+                            Name = x.Name,
+                            DataComponentDetails = x, // pass in all details for full-fidelity
+                            Type = DataSourceModel.DataComponentType
+                        };
+
+                        app.AddDataSourceForLoad(ds);
+                    }
+                }
             }
 
             app.ApplyAfterMsAppLoadTransforms();
             app.OnLoadComplete();
 
-            // app.TransformTemplatesOnLoad(); 
-
             return app;
         }
-
-        internal static void AddControlFile(this CanvasDocument app, SourceFile file)
-        {
-            
-        }
-
 
         internal static void AddFile(this CanvasDocument app, FileEntry entry)
         {
@@ -328,19 +321,52 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     .OrderBy(x => app._entropy.GetOrder(x))
                     .ToArray()
             };
-            yield return ToFile(FileKind.DataSources, dataSources);            
+            yield return ToFile(FileKind.DataSources, dataSources);
 
-            // Rehydrate sources that used a data component. 
-
+            var topParentInfos = new List<ControlInfoJson>();
+            // Rehydrate sources 
             foreach (var controlData in app._sources)
             {
                 var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, app._editorStateStore, app._templateStore);
+                topParentInfos.Add(sourceFile.Value);
 
                 yield return sourceFile.ToMsAppFile();
             }
             
             var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
+
+
+            foreach (MinDataComponentManifest dc in app._dataComponents.Values)
+            {
+                dcmetadataList.Add(new ComponentsMetadataJson.Entry
+                {
+                    Name = dc.Name,
+                    TemplateName = dc.TemplateGuid,
+                    ExtensionData = dc.ExtensionData
+                });
+
+                if (dc.IsDataComponent)
+                {
+                    var controlId = GetDataComponentInstanceForTemplateName(topParentInfos, dc.TemplateGuid).ControlUniqueId;
+
+                    var template = new TemplateMetadataJson
+                    {
+                        Name = dc.TemplateGuid,
+                        Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
+                        IsComponentLocked = false,
+                        ComponentChangedSinceFileImport = true,
+                        ComponentAllowCustomization = true,
+                        CustomProperties = dc.CustomProperties,
+                        DataComponentDefinitionKey = dc.DataComponentDefinitionKey
+                    };
+
+                    // Rehydrate fields. 
+                    template.DataComponentDefinitionKey.ControlUniqueId = controlId;
+
+                    dctemplate.Add(template);
+                }
+            }
 
             if (dcmetadataList.Count > 0)
             {
@@ -384,6 +410,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        private static ControlInfoJson.Item GetDataComponentInstanceForTemplateName(IEnumerable<ControlInfoJson> topParents, string templateGuid)
+        {
+            foreach (var source in topParents)
+            {
+                foreach (var child in source.TopParent.Children)
+                {
+                    if (child.Template.Name == templateGuid)
+                    {
+                        return child;
+                    }
+                }
+            }
+            Console.WriteLine("Could not find DataComponent Instance for template " + templateGuid);
+            return null;
+        }
 
         internal static FileEntry ToFile<T>(FileKind kind, T value)
         {

@@ -118,6 +118,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // FileEntry is the same structure we get back from a Zip file. 
             public FileEntry ToFileEntry()
             {
+                // Some paths mistakenly start with DirectorySepChar in the msapp,
+                // We replaced it with `_/` when writing, remove that now. 
+                if (_relativeName.StartsWith(FileEntry.FilenameLeadingUnderscore.ToString()))
+                    _relativeName = _relativeName.TrimStart(FileEntry.FilenameLeadingUnderscore);
                 return new FileEntry
                 {
                     Name = this._relativeName.Replace('/', '\\'),
