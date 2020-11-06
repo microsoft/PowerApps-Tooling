@@ -73,9 +73,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static FileEntry FromZip(ZipArchiveEntry z)
         {
+            var name = z.FullName;
+            // Some paths mistakenly start with DirectorySepChar in the msapp,
+            // We add _ to it when writing so that windows can handle it correctly. 
+            if (z.FullName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                name = '_' + z.FullName;
+
             return new FileEntry
             {
-                Name = z.FullName,
+                Name = name,
                 RawBytes = z.ToBytes()
             };
         }

@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -98,33 +99,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         //[JsonExtensionData]
         //public Dictionary<string, JsonElement> ExtensionData { get; set; }
-    }
-
-    // From D:\dev\pa2\PowerApps-Client\src\Cloud\DocumentServer.Core\Document\Document\Persistence\Serialization\Schemas\Control\Template\TemplateMetadataJson.cs
-    // No [JsonExtensionData] since we need to be able to fully create this from a min format. 
-    internal class TemplateMetadataJson
-    {
-        public string Name { get; set; }
-
-        // Ok to be null. 
-        //  Will default to: DateTime.Now.ToUniversalTime().Ticks.ToString();
-        public string Version { get; set; }
-
-        public bool? IsComponentLocked { get; set; }
-        public bool? ComponentChangedSinceFileImport { get; set; }
-        public bool? ComponentAllowCustomization { get; set; }
-
-        public JsonElement[] CustomProperties { get; set; }
-
-        public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
-
-        public void Validate()
-        {
-            if (DataComponentDefinitionKey?.ComponentRawMetadataKey != null)
-            {
-                throw new NotSupportedException("Does not support older formats using ComponentRawMetadataKey");
-            }
-        }
     }
 
     // Writes to \References\DataComponentTemplates.json

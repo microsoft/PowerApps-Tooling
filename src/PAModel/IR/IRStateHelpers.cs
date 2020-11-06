@@ -69,6 +69,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 StyleName = control.StyleName,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
+                IsComponentDefinition = control.Template.IsComponentDefinition,
             };
 
             stateStore.TryAddControl(controlState);
@@ -85,11 +86,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal static SourceFile CombineIRAndState(BlockNode blockNode, EditorStateStore stateStore, TemplateStore templateStore)
         {
             var topParentJson = CombineIRAndState(blockNode, string.Empty, stateStore, templateStore);
-            return new SourceFile()
-            {
-                Kind = (topParentJson.item.Template.IsComponentDefinition ?? false) ? SourceKind.UxComponent : SourceKind.Control,
-                Value = new ControlInfoJson() { TopParent = topParentJson.item }
-            };
+            return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
@@ -116,6 +113,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
             {
+                if (state.IsComponentDefinition ?? false)
+                {
+                    template = new ControlInfoJson.Template(template);
+                    template.IsComponentDefinition = true;
+                    template.ComponentDefinitionInfo = null;
+                }
+
                 var properties = new List<ControlInfoJson.RuleEntry>();
                 foreach (var propIR in blockNode.Properties)
                 {

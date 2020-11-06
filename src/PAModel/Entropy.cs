@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {

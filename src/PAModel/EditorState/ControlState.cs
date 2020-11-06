@@ -37,5 +37,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // to properly pair up the studio state for roundtripping
         // This isn't needed otherwise, if we weren't worried about exact round-tripping we could recreate the control with a different name
         public string GalleryTemplateChildName { get; set; } = null;
+
+        public bool? IsComponentDefinition { get; set; }
     }
 }

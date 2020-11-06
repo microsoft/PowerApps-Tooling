@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
