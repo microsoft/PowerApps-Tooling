@@ -43,9 +43,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 var group = match.Groups[1];
 
-                                string resourceValue = palleteRules[group.ToString()];
 
-                                ruleValue = ruleValue.Replace(match.Value, resourceValue);
+
+                                string resourceValue;
+                                // Template may refer to a missing rule. 
+                                if (palleteRules.TryGetValue(group.ToString(), out resourceValue))
+                                {
+                                    ruleValue = ruleValue.Replace(match.Value, resourceValue);
+                                }
                             }
                         }
 
