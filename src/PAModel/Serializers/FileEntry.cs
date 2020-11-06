@@ -77,7 +77,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Some paths mistakenly start with DirectorySepChar in the msapp,
             // We add _ to it when writing so that windows can handle it correctly. 
             if (z.FullName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-                name = '_' + z.FullName;
+                name = FilenameLeadingUnderscore + z.FullName;
 
             return new FileEntry
             {
@@ -85,6 +85,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 RawBytes = z.ToBytes()
             };
         }
+
+        public const char FilenameLeadingUnderscore = '_';
 
         // Map from path in .msapp to type. 
         internal static Dictionary<string, FileKind> _fileKinds = new Dictionary<string, FileKind>(StringComparer.OrdinalIgnoreCase)
