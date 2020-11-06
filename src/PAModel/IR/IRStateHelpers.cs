@@ -48,7 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Identifier = control.Name,
                     Kind = new TemplateNode()
                     {
-                        TemplateName = control.Template.Name,
+                        TemplateName = control.Template.TemplateDisplayName ?? control.Template.Name,
                         OptionalVariant = string.IsNullOrEmpty(control.VariantName) ? null : control.VariantName
                     }
                 },

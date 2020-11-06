@@ -213,7 +213,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._unknownFiles.Add(entry.Name, entry);
         }
 
-
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(this CanvasDocument app, string fullpathToMsApp)
         {

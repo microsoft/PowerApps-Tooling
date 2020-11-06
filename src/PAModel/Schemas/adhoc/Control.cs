@@ -46,6 +46,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public bool? IsComponentDefinition { get; set; }
             public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; }
 
+
+            // Present on PCF
+            public string TemplateDisplayName { get; set; } = null;
+
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }
 
@@ -55,6 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 Id = other.Id;
                 Name = other.Name;
+                TemplateDisplayName = other.TemplateDisplayName;
                 Version = other.Version;
                 LastModifiedTimestamp = other.LastModifiedTimestamp;
                 IsComponentDefinition = other.IsComponentDefinition;

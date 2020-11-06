@@ -16,10 +16,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         public bool AddTemplate(ControlInfoJson.Template template)
         {
-            if (Contents.ContainsKey(template.Name))
+            var name = template.TemplateDisplayName ?? template.Name;
+            if (Contents.ContainsKey(name))
                 return false;
 
-            Contents.Add(template.Name, template);
+            Contents.Add(name, template);
             return true;
         }
 
