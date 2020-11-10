@@ -333,7 +333,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var extraData = new Dictionary<string, ControlState>();
                 foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
                 {
-
                     extraData.Add(item.Name, item);
                 }
 
