@@ -62,6 +62,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 Id = other.Id;
                 Name = other.Name;
+                TemplateDisplayName = other.TemplateDisplayName;
                 Version = other.Version;
                 LastModifiedTimestamp = other.LastModifiedTimestamp;
                 IsComponentDefinition = other.IsComponentDefinition;
