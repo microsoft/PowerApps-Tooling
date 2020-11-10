@@ -322,13 +322,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             };
             yield return ToFile(FileKind.DataSources, dataSources);
 
-            var topParentInfos = new List<ControlInfoJson>();
-            // Rehydrate sources 
+            var sourceFiles = new List<SourceFile>();
+            // Rehydrate sources before yielding any to be written
             foreach (var controlData in app._sources)
             {
                 var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, app._editorStateStore, app._templateStore);
-                topParentInfos.Add(sourceFile.Value);
+                sourceFiles.Add(sourceFile);
+            }
 
+            foreach (var sourceFile in sourceFiles)
+            {
                 yield return sourceFile.ToMsAppFile();
             }
             
@@ -347,7 +350,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dc.IsDataComponent)
                 {
-                    var controlId = GetDataComponentInstanceForTemplateName(topParentInfos, dc.TemplateGuid).ControlUniqueId;
+                    var controlId = GetDataComponentInstanceForTemplateName(sourceFiles.Select(source => source.Value), dc.TemplateGuid).ControlUniqueId;
 
                     var template = new TemplateMetadataJson
                     {
