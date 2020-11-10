@@ -3,6 +3,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -46,6 +47,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public bool? IsComponentDefinition { get; set; }
             public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; }
 
+            // Present for component templates with functions
+            public CustomPropertyJson[] CustomProperties { get; set; }
+
+            // Present on PCF
+            public string TemplateDisplayName { get; set; } = null;
+
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }
 
@@ -59,6 +66,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 LastModifiedTimestamp = other.LastModifiedTimestamp;
                 IsComponentDefinition = other.IsComponentDefinition;
                 ComponentDefinitionInfo = other.ComponentDefinitionInfo;
+                CustomProperties = other.CustomProperties;
                 ExtensionData = other.ExtensionData;
             }
 
@@ -92,7 +100,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
             public Item[] Children { get; set; }
-
 
             public string Type { get; set; } = "ControlInfo";
 

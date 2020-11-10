@@ -1,8 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
@@ -69,8 +71,26 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string Name { get; set; }
         public string LastModifiedTimestamp { get; set; } //  "637335420246436668",
         public ControlInfoJson.RuleEntry[] Rules {get;set;}
+        public ControlInfoJson.Item[] Children { get; set; }
 
-        public JsonElement ControlPropertyState { get; set; }
-        public JsonElement Children { get; set; }
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
+
+        public ComponentDefinitionInfoJson() { }
+
+        public ComponentDefinitionInfoJson(ControlInfoJson.Item item, string timestamp, ControlInfoJson.Item[] children)
+        {
+            Name = item.Name;
+            LastModifiedTimestamp = timestamp;
+            Rules = item.Rules;
+            Children = children;
+
+            // Once ControlPropertyState has an actual schema, this can be cleaned up.
+            if (item.ExtensionData.ContainsKey("ControlPropertyState"))
+            {
+                ExtensionData = new Dictionary<string, object>();
+                ExtensionData["ControlPropertyState"] = item.ExtensionData["ControlPropertyState"];
+            }
+        }
     }
 }

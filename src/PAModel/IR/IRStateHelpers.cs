@@ -7,6 +7,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Microsoft.AppMagic.Authoring.Persistence;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -56,9 +57,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Properties = properties,
             };
 
+            var templateState = new ControlInfoJson.Template(control.Template);
+            templateState.ComponentDefinitionInfo = null;
 
             // Create studio state
-            templateStore.AddTemplate(control.Template);
+            templateStore.AddTemplate(templateState);
 
             var controlState = new ControlState()
             {
@@ -101,6 +104,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 children.Add(CombineIRAndState(childBlock, controlName, stateStore, templateStore));
             }
 
+            var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
+
             var templateIR = blockNode.Name.Kind;
             var templateName = templateIR.TemplateName;
             var variantName = templateIR.OptionalVariant;
@@ -113,13 +118,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
             {
-                if (state.IsComponentDefinition ?? false)
-                {
-                    template = new ControlInfoJson.Template(template);
-                    template.IsComponentDefinition = true;
-                    template.ComponentDefinitionInfo = null;
-                }
-
                 var properties = new List<ControlInfoJson.RuleEntry>();
                 foreach (var propIR in blockNode.Properties)
                 {
@@ -140,6 +138,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
                 };
+
+                if (state.IsComponentDefinition ?? false)
+                {
+                    template.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren);
+                    template = new ControlInfoJson.Template(template);
+                    template.IsComponentDefinition = true;
+                    template.ComponentDefinitionInfo = null;
+                }
             }
             else
             {
@@ -154,7 +160,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.Rules = properties.ToArray();
             }
             resultControlInfo.Template = template;
-            resultControlInfo.Children = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
+            resultControlInfo.Children = orderedChildren;
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
