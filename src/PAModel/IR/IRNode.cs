@@ -45,7 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// <summary>
         /// Kind is not required in all cases. 
         /// </summary>
-        public TemplateNode Kind;
+        public TypeNode Kind;
 
         public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
         {
@@ -56,7 +56,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
-    internal class TemplateNode : IRNode
+    internal class TypeNode : IRNode
     {
         public string TemplateName;
         public string OptionalVariant;
@@ -82,6 +82,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     internal class FunctionNode : IRNode
     {
         public string Identifier;
+        public TypeNode ResultType;
         public IList<TypedNameNode> Args;
         public ExpressionNode Expression;
 

@@ -64,7 +64,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 Name = new TypedNameNode()
                 {
                     Identifier = galleryTemplateName,
-                    Kind = new TemplateNode()
+                    Kind = new TypeNode()
                     {
                         TemplateName = _childTemplateName
                     }

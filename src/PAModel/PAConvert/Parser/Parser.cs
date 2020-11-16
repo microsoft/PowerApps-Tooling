@@ -70,7 +70,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }           
 
             spans.Add(templateToken.Span);
-            var templateNode = new TemplateNode() { TemplateName = templateToken.Content };
+            var templateNode = new TypeNode() { TemplateName = templateToken.Content };
             var children = new List<BlockNode>();
             var properties = new List<PropertyNode>();
 

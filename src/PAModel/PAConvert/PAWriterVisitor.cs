@@ -56,7 +56,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return LazyList<string>.Of(PAConstants.ControlKeyword, " ", CharacterUtils.EscapeName(node.Identifier), " : ").With(node.Kind.Accept(this, context));
         }
 
-        public override LazyList<string> Visit(TemplateNode node, Context context)
+        public override LazyList<string> Visit(TypeNode node, Context context)
         {
             var result = LazyList<string>.Of(CharacterUtils.EscapeName(node.TemplateName));
             if (!string.IsNullOrEmpty(node.OptionalVariant))
@@ -72,7 +72,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public override LazyList<string> Visit(FunctionNode node, Context context)
         {
-            throw new NotImplementedException();
+            var result = LazyList<string>.Of(context.GetNewLine(), node.Identifier, "(");
+            foreach (var arg in node.Args)
+            {
+                result = result.With(arg.Accept(this, context));
+            }
         }
 
         public override LazyList<string> Visit(ExpressionNode node, Context context)

@@ -31,23 +31,74 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 ++childIndex;
             }
 
+            var isComponentDef = control.Template.IsComponentDefinition ?? false;
+
+            var customPropsToHide = new HashSet<string>();
+            var functions = new List<FunctionNode>();
+            if (control.Template.CustomProperties?.Any() ?? false)
+            {
+                if (!isComponentDef)
+                {
+                    // Skip component property params on instances
+                    customPropsToHide = new HashSet<string>(control.Template.CustomProperties
+                        .SelectMany(customProp =>
+                            customProp.PropertyScopeKey.PropertyScopeRulesKey
+                                .Select(propertyScopeRule => propertyScopeRule.Name)
+                        ));
+                }
+                else
+                {
+                    // Create FunctionNodes on def
+                    foreach (var customProp in control.Template.CustomProperties)
+                    {
+                        var name = customProp.Name;
+                        customPropsToHide.Add(name);
+                        var expression = control.Rules.First(rule => rule.Property == name).InvariantScript;
+                        var expressionNode = new ExpressionNode() { Expression = expression };
+
+                        var resultType = new TypeNode() { TemplateName = customProp.PropertyDataTypeKey };
+
+                        var args = new List<TypedNameNode>();
+                        foreach (var arg in customProp.PropertyScopeKey.PropertyScopeRulesKey)
+                        {
+                            args.Add(new TypedNameNode()
+                            {
+                                Identifier = arg.ScopeVariableInfo.ScopeVariableName,
+                                Kind = new TypeNode()
+                                {
+                                    TemplateName = arg.ScopeVariableInfo.ScopePropertyDataType.ToString()
+                                }
+                            });
+                        }
+
+                        functions.Add(new FunctionNode()
+                        {
+                            Args = args,
+                            ResultType = resultType,
+                            Expression = expressionNode,
+                            Identifier = name
+                        });
+                    }
+                }
+            }
+
             var properties = new List<PropertyNode>();
-            var propStates = new List<PropertyState >();
+            var propStates = new List<PropertyState>();
             foreach (var property in control.Rules)
             {
+                if (customPropsToHide.Contains(property.Property))
+                    continue;
                 var (prop, state) = SplitProperty(property);
                 properties.Add(prop);
                 propStates.Add(state);
             }
-
-            // TODO: Handle custom props in component defintions for FunctionNodes
 
             controlIR = new BlockNode()
             {
                 Name = new TypedNameNode()
                 {
                     Identifier = control.Name,
-                    Kind = new TemplateNode()
+                    Kind = new TypeNode()
                     {
                         TemplateName = control.Template.TemplateDisplayName ?? control.Template.Name,
                         OptionalVariant = string.IsNullOrEmpty(control.VariantName) ? null : control.VariantName
@@ -55,13 +106,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 },
                 Children = children,
                 Properties = properties,
+                Functions = functions,
             };
-
-            var templateState = new ControlInfoJson.Template(control.Template);
-            templateState.ComponentDefinitionInfo = null;
-
-            // Create studio state
-            templateStore.AddTemplate(templateState);
 
             var controlState = new ControlState()
             {
@@ -72,8 +118,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 StyleName = control.StyleName,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
-                IsComponentDefinition = control.Template.IsComponentDefinition,
+                IsComponentDefinition = isComponentDef,
             };
+
+            // Set IsComponentDefintiion to false, just in case we're processing the def first and not the instance (avoids ordering affecting output)
+            var templateState = new ControlInfoJson.Template(control.Template);
+            templateState.ComponentDefinitionInfo = null;
+            templateState.IsComponentDefinition = false;
+            templateStore.AddTemplate(templateState);
 
             stateStore.TryAddControl(controlState);
         }
