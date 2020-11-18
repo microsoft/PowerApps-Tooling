@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
 using System.Collections.Generic;
@@ -221,7 +222,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
-                    foreach (var val in file.ToObject<Dictionary<string, ControlInfoJson.Template>>().Values)
+                    foreach (var val in file.ToObject<Dictionary<string, CombinedTemplateState>>().Values)
                     {
                         app._templateStore.AddTemplate(val);
                     }

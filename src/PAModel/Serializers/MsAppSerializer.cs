@@ -126,10 +126,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                             break;
                         case FileKind.Templates:
-                            app._templates = ToObject<TemplatesJson>(entry);
-                            break;
+                            {
+                                app._templates = ToObject<TemplatesJson>(entry);
+                                int iOrder = 0;
+                                foreach (var template in app._templates.UsedTemplates)
+                                {
+                                    app._entropy.Add(template, iOrder);
+                                    iOrder++;
+                                }
+                                iOrder = 0;
+                                foreach (var template in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                                {
+                                    app._entropy.AddComponent(template, iOrder);
+                                    iOrder++;
+                                }
+                            }
+                            break;                                
                     }
                 } // foreach zip entry
+
+                foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                {
+                    if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
+                        continue;
+                    template.TemplateOriginalName = componentTemplate.OriginalName;
+                    template.IsComponentLocked = componentTemplate.IsComponentLocked;
+                    template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
+                    template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+
+                    if (template.Version != componentTemplate.Version)
+                    {
+                        app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
+                    }
+                }
 
 
                 // Checksums?
@@ -291,8 +320,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             yield return ToFile(FileKind.Themes, app._themes);
 
-            yield return ToFile(FileKind.Templates, app._templates);
-
             var header = app._header.JsonClone();
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
             yield return ToFile(FileKind.Header, header);
@@ -323,8 +350,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             yield return ToFile(FileKind.DataSources, dataSources);
 
             var sourceFiles = new List<SourceFile>();
-            // Rehydrate sources before yielding any to be written
-            foreach (var controlData in app._sources)
+
+            // Rehydrate sources before yielding any to be written, processing component defs first
+            foreach (var controlData in app._sources
+                .OrderBy(source =>
+                    (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
+                    (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
                 var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, app._editorStateStore, app._templateStore);
                 sourceFiles.Add(sourceFile);
@@ -334,7 +365,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 yield return sourceFile.ToMsAppFile();
             }
-            
+
+            var componentTemplates = new List<TemplateMetadataJson>();
+            foreach (var template in app._templateStore.Contents.Where(template => template.Value.IsComponentTemplate ?? false))
+            {
+                if ((template.Value.CustomProperties?.Any() ?? false) || template.Value.ComponentAllowCustomization.HasValue)
+                    componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
+            }
+
+            app._templates = new TemplatesJson()
+            {
+                ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(x => app._entropy.GetComponentOrder(x)).ToArray() : null,
+                UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray()
+            };
+
+            yield return ToFile(FileKind.Templates, app._templates);
+
             var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
 

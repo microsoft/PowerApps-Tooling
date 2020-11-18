@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -19,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C1";
+        public string Version = "C2";
 
         public const string ChecksumName = "checksum.json";
 
@@ -65,10 +66,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return;
             }
 
-            // TODO: Checksum Algo doesn't handle double-escaped XML well, skip template file for now
-            if (filename == "References\\Templates.json")
-                return;
-
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {
@@ -87,6 +84,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             "LocalDatabaseReferences"
         };
 
+        // These paths are xml double-encoded and need a different comparer.
+        private static HashSet<string> _xmlDouble = new HashSet<string>
+        {
+            "UsedTemplates\\Template",
+        };
+
         // Helper for identifying which paths are double encoded. 
         // All of these should be resolved and fixed by the server. 
         private class Context
@@ -103,13 +106,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 s.Pop();
             }
 
-            public bool IsDoubleEncoded
+            public bool IsJsonDoubleEncoded
             {
                 get
                 {
                     if (this.s.Count == 1)
                     {
                         if (_jsonDouble.Contains(this.s.Peek()))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            public bool IsXmlDoubleEncoded
+            {
+                get
+                {
+                    if (this.s.Count == 2)
+                    {
+                        if (_xmlDouble.Contains(string.Join("\\", s.Reverse())))
                         {
                             return true;
                         }
@@ -249,10 +266,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 case JsonValueKind.String:
                     var str = je.GetString();
 
-                    if (ctx.IsDoubleEncoded && !string.IsNullOrWhiteSpace(str))
+                    if (ctx.IsJsonDoubleEncoded && !string.IsNullOrWhiteSpace(str))
                     {
                         var je2 = JsonDocument.Parse(str).RootElement;
                         ChecksumJson(ctx, hash, je2);
+                    }
+                    else if (ctx.IsXmlDoubleEncoded && !string.IsNullOrWhiteSpace(str))
+                    {
+                        var parsedXML = XDocument.Parse(str);
+                        var xmlString = parsedXML.ToString(SaveOptions.None);
+                        hash.AppendData(xmlString);
                     }
                     else
                     {
