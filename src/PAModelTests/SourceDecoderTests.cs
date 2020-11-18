@@ -32,7 +32,7 @@ namespace PAModelTests
                 string outSrcDir = tempDir.Dir;
                 msapp.SaveAsSource(outSrcDir);
 
-                var pathActual = Path.Combine(outSrcDir, "Src", "Screen1.pa1");
+                var pathActual = Path.Combine(outSrcDir, "Src", "Screen1.pa.yaml");
                 var pathExpected = Path.Combine(Environment.CurrentDirectory, "SrcBaseline", screenBaselineName);
 
 
@@ -44,7 +44,7 @@ namespace PAModelTests
         static void AssertFilesEqual(string pathExpected, string pathActual)
         {
             var expected = File.ReadAllText(pathExpected).Replace("\r\n", "\n").Trim();
-            var actual = File.ReadAllText(pathActual).Trim();            
+            var actual = File.ReadAllText(pathActual).Replace("\r\n", "\n").Trim();
 
             Assert.AreEqual(expected, actual);
         }

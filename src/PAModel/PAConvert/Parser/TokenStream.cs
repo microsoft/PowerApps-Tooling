@@ -10,6 +10,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
+    // $$$ remove this class?
     internal class TokenStream
     {
         private class PositionDetails

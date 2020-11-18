@@ -5,115 +5,111 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
+using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
+    class Empty { }
     // Result is a bunch of strings, context is indentLevel
-    internal class PAWriterVisitor : IRNodeVisitor<LazyList<string>, PAWriterVisitor.Context>
+    internal class PAWriterVisitor : IRNodeVisitor<Empty, PAWriterVisitor.Context>
     {
+        internal class Context
+        {
+            public YamlWriter _yaml;
+            public StringBuilder _sb = new StringBuilder();
+        }
+
         public PAWriterVisitor() { }
 
         public static string PrettyPrint(IRNode node)
         {
+            StringWriter sw = new StringWriter();
+            var yaml = new YamlWriter(sw);
             PAWriterVisitor pretty = new PAWriterVisitor();
-            return string.Concat(PAConstants.Header, string.Concat(node.Accept(pretty, new Context(1))));
+
+            var context = new Context
+            {
+                _yaml = yaml
+            };
+            node.Accept(pretty, context);
+
+            return sw.ToString();
         }
 
-        public override LazyList<string> Visit(BlockNode node, Context context)
+        public override Empty Visit(BlockNode node, Context context)
         {
-            var result = LazyList<string>.Of(context.GetNewLine());
+            // Label1 as Label:
+            context._sb.Clear();
+            node.Name.Accept(this, context);
+            context._yaml.WriteStartObject(context._sb.ToString());
 
-            result = result.With(node.Name.Accept(this, context));
-
-            var childContext = context.Indent();
+            /* $$$
             foreach (var func in node.Functions)
             {
                 result = result.With(func.Accept(this, childContext)).With("\n");
             }
+            */
 
             foreach (var prop in node.Properties)
             {
-                result = result.With(prop.Accept(this, childContext));
+                prop.Accept(this, context);
             }
-
-            if (node.Properties.Any())
-                result = result.With("\n");
+                        
 
             foreach (var child in node.Children)
             {
-                result = result.With(child.Accept(this, childContext));
+                child.Accept(this, context);
             }
 
-            return result;
+            context._yaml.WriteEndObject();
+
+            return null;
         }
 
-        public override LazyList<string> Visit(TypedNameNode node, Context context)
+        public override Empty Visit(TypedNameNode node, Context context)
         {
-            return LazyList<string>.Of(PAConstants.ControlKeyword, " ", CharacterUtils.EscapeName(node.Identifier), " : ").With(node.Kind.Accept(this, context));
+            context._sb.Append(CharacterUtils.EscapeName(node.Identifier));
+            context._sb.Append(" As ");
+            node.Kind.Accept(this, context);
+
+            return null;
         }
 
-        public override LazyList<string> Visit(TemplateNode node, Context context)
+        public override Empty Visit(TemplateNode node, Context context)
         {
-            var result = LazyList<string>.Of(CharacterUtils.EscapeName(node.TemplateName));
+            context._sb.Append(CharacterUtils.EscapeName(node.TemplateName));
+
             if (!string.IsNullOrEmpty(node.OptionalVariant))
-                result = result.With(", ", CharacterUtils.EscapeName(node.OptionalVariant));
-            return result;
+            {
+                context._sb.Append(".");
+                context._sb.Append(CharacterUtils.EscapeName(node.OptionalVariant));
+            }
+            return null;
         }
 
-        public override LazyList<string> Visit(PropertyNode node, Context context)
+        public override Empty Visit(PropertyNode node, Context context)
         {
-            var result = LazyList<string>.Of(context.GetNewLine());
-            return result.With(CharacterUtils.EscapeName(node.Identifier), " =").With(node.Expression.Accept(this, context.Indent()));
+            context._sb.Clear();
+            node.Expression.Accept(this, context);
+
+            context._yaml.WriteProperty(CharacterUtils.EscapeName(node.Identifier), context._sb.ToString());
+            return null;
         }
 
-        public override LazyList<string> Visit(FunctionNode node, Context context)
+        public override Empty Visit(FunctionNode node, Context context)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public override LazyList<string> Visit(ExpressionNode node, Context context)
+        public override Empty Visit(ExpressionNode node, Context context)
         {
-            var isMultiline = node.Expression.Contains("\n");
-            if (!isMultiline)
-                return LazyList<string>.Of(" ", node.Expression);
-            var result = LazyList<string>.Empty;
-            foreach (var line in node.Expression.Split('\n'))
-            {
-                result = result
-                    .With(context.GetNewLine())
-                    .With(line.TrimEnd('\n'));
-            }
-            return result;
+            context._sb.Append(node.Expression);
+            return null;
         }
-
-        internal class Context
-        {
-            public int IndentDepth { get; }
-
-            public Context(int indentDepth)
-            {
-                IndentDepth = indentDepth;
-            }
-
-            internal Context Indent()
-            {
-                return new Context(indentDepth: IndentDepth + 1);
-            }
-
-            internal string GetNewLine()
-            {
-                return "\n" + GetNewLineIndent(IndentDepth);
-            }
-            internal string GetNewLineIndent(int indentation)
-            {
-                return new string(' ', 4*(indentation - 1));
-            }
-
-        }
-
     }
 }
