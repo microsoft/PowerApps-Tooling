@@ -17,42 +17,50 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
         {
-            using (var temp1 = new TempFile())
+            try
             {
-                string outFile = temp1.FullPath;
-
-                var log = TextWriter.Null;
-
-                // MsApp --> Model
-                CanvasDocument msapp;
-                try
+                using (var temp1 = new TempFile())
                 {
-                    msapp = MsAppSerializer.Load(pathToMsApp); // read
+                    string outFile = temp1.FullPath;
+
+                    var log = TextWriter.Null;
+
+                    // MsApp --> Model
+                    CanvasDocument msapp;
+                    try
+                    {
+                        msapp = MsAppSerializer.Load(pathToMsApp); // read
+                    }
+                    catch (NotSupportedException)
+                    {
+                        Console.WriteLine($"Too old: {pathToMsApp}");
+                        return false;
+                    }
+
+                    // Model --> MsApp
+                    msapp.SaveAsMsApp(outFile);
+                    MsAppTest.Compare(pathToMsApp, outFile, log);
+
+
+                    // Model --> Source
+                    using (var tempDir = new TempDir())
+                    {
+                        string outSrcDir = tempDir.Dir;
+                        msapp.SaveAsSource(outSrcDir);
+
+                        // Source --> Model
+                        var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
+
+                        msapp2.SaveAsMsApp(outFile); // Write out .pa files.
+                        var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                        return ok;
+                    }
                 }
-                catch (NotSupportedException)
-                {
-                    Console.WriteLine($"Too old: {pathToMsApp}");
-                    return false;
-                }
-
-                // Model --> MsApp
-                msapp.SaveAsMsApp(outFile);
-                MsAppTest.Compare(pathToMsApp, outFile, log);
-
-
-                // Model --> Source
-                using (var tempDir = new TempDir())
-                {
-                    string outSrcDir = tempDir.Dir;
-                    msapp.SaveAsSource(outSrcDir);
-
-                    // Source --> Model
-                    var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
-
-                    msapp2.SaveAsMsApp(outFile); // Write out .pa files.
-                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
-                    return ok;
-                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
             }
         }
 
@@ -119,12 +127,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                          str = je.ToString();
                          */
 
-#if true
+#if false
                         StringBuilder sb2 = new StringBuilder();
                         Check(sb2, je); ;
                         str = sb2.ToString();
 #else
-                        str = Hack1.Normalize(je);
+                        str = Check2(je);
 #endif
                     }
                     else
@@ -152,6 +160,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     // Write out normalized form. Easier to spot the diff.
                                     File.WriteAllText(@"c:\temp\a1.json", otherContents);
                                     File.WriteAllText(@"c:\temp\b1.json", str);
+
+                                    for(int i = 0; i < otherContents.Length; i++)
+                                    {
+                                        if (otherContents[i] != str[i])
+                                        {
+
+                                        }
+                                    }
                                 }
                                 else
                                 {
@@ -182,7 +198,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Used for comparing equality of 2 json blobs.
         // Writing JsonElement is unordered. So do an ordered traversal.
         //   https://stackoverflow.com/questions/59134564/net-core-3-order-of-serialization-for-jsonpropertyname-system-text-json-seria
-        static void Check(StringBuilder sb, JsonElement e, string indent = "")
+        static string Check2(JsonElement e)
+        {
+            return JsonNormalizer.Normalize(e);
+        }
+
+            // Used for comparing equality of 2 json blobs.
+            // Writing JsonElement is unordered. So do an ordered traversal.
+            //   https://stackoverflow.com/questions/59134564/net-core-3-order-of-serialization-for-jsonpropertyname-system-text-json-seria
+            static void Check(StringBuilder sb, JsonElement e, string indent = "")
         {
             switch (e.ValueKind)
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR
@@ -17,6 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// <summary>
     /// Represents block construct, may have 0-N child blocks and 0-N properties
     /// </summary>
+    [DebuggerDisplay("{Name}: {Properties.Count} props")]
     internal class BlockNode : IRNode
     {
         public TypedNameNode Name;
@@ -38,6 +40,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Identifier = lblTest
     /// Kind = label
     /// </summary>
+    [DebuggerDisplay("{Identifier} as {Kind}")]
     internal class TypedNameNode : IRNode
     {
         public string Identifier;
@@ -56,6 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
+    [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
     internal class TemplateNode : IRNode
     {
         public string TemplateName;
@@ -67,7 +71,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         }
     }
 
-
+    [DebuggerDisplay("{Identifier}: ={Expression}")]
     internal class PropertyNode : IRNode
     {
         public string Identifier;
@@ -91,6 +95,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         }
     }
 
+    [DebuggerDisplay("{Expression}")]
     internal class ExpressionNode : IRNode
     {
         public string Expression;

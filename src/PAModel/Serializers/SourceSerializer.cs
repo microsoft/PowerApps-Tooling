@@ -19,7 +19,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Read/Write to a source format. 
     internal static partial class SourceSerializer
     {
-        public static Version CurrentSourceVersion = new Version(0, 1);
+        // 1 - .pa1 format
+        // 2 - intro to .pa.yaml format. 
+        public static Version CurrentSourceVersion = new Version(0, 2);
 
         // Layout is:
         //  src\
@@ -247,7 +249,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa1"))
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml"))
             {
                 AddControl(app, file._relativeName, file.GetContents());
             }
@@ -328,7 +330,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var controlName = control.Key;
                 var text = PAWriterVisitor.PrettyPrint(control.Value);
 
-                string filename = controlName +".pa1";
+                string filename = controlName +".pa.yaml";
                 dir.WriteAllText(CodeDir, filename, text);
 
                 var extraData = new Dictionary<string, ControlState>();

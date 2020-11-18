@@ -22,6 +22,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Various utility methods. 
     internal static class Utility
     {
+        // Allows using with { } initializers, which require an Add() method. 
+        public static void Add<T>(this Stack<T> stack, T item)
+        {
+            stack.Push(item);
+        }
+
         public static IEnumerable<T> NullOk<T>(this IEnumerable<T> list)
         {
             if (list == null) return Enumerable.Empty<T>();
