@@ -66,10 +66,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return;
             }
 
-            // TODO: Checksum Algo doesn't handle double-escaped XML well, skip template file for now
-            //if (filename == "References\\Templates.json")
-            //    return;
-
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {
@@ -91,7 +87,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // These paths are xml double-encoded and need a different comparer.
         private static HashSet<string> _xmlDouble = new HashSet<string>
         {
-            "Template",
+            "UsedTemplates\\Template",
         };
 
         // Helper for identifying which paths are double encoded. 
@@ -130,7 +126,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (this.s.Count == 2)
                     {
-                        if (_xmlDouble.Contains(this.s.Peek()))
+                        if (_xmlDouble.Contains(string.Join("\\", s.Reverse())))
                         {
                             return true;
                         }
