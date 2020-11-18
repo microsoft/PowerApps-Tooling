@@ -145,6 +145,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 } // foreach zip entry
 
+                foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                {
+                    if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
+                        continue;
+                    template.TemplateOriginalName = componentTemplate.OriginalName;
+                    template.IsComponentLocked = componentTemplate.IsComponentLocked;
+                    template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
+                    template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+
+                    if (template.Version != componentTemplate.Version)
+                    {
+                        app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
+                    }
+                }
+
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
@@ -354,7 +369,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var componentTemplates = new List<TemplateMetadataJson>();
             foreach (var template in app._templateStore.Contents.Where(template => template.Value.IsComponentTemplate ?? false))
             {
-                componentTemplates.Add(template.Value.ToTemplateMetadata());
+                componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
             }
 
             app._templates = new TemplatesJson()

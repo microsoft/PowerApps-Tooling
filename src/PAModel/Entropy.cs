@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Various data that we can save for round-tripping.
     // Everything here is optional!!
     // Only be written during MsApp. Opaque for source file. 
-    class Entropy
+    internal class Entropy
     {
         // Json serialize these. 
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
@@ -27,7 +27,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>();
         public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>();
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>();
-
 
         public int GetOrder(DataSourceEntry dataSource)
         {

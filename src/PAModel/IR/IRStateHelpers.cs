@@ -157,6 +157,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
                     template.ComponentDefinitionInfo = null;
+                } else
+                {
+                    template.IsComponentDefinition = false;
                 }
             }
             else

@@ -69,13 +69,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             };
         }
 
-        public TemplateMetadataJson ToTemplateMetadata()
+        public TemplateMetadataJson ToTemplateMetadata(Entropy entropy)
         {
+            var version = Version;
+            if (entropy.TemplateVersions.TryGetValue(Name, out var conflictVersion))
+                version = conflictVersion;
             return new TemplateMetadataJson()
             {
                 Name = Name,
                 OriginalName = TemplateOriginalName,
-                Version = Version,
+                Version = version,
                 CustomProperties = CustomProperties,
                 IsComponentLocked = IsComponentLocked,
                 ComponentChangedSinceFileImport = ComponentChangedSinceFileImport,

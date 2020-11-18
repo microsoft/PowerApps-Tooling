@@ -342,16 +342,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
 
-            foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
-            {
-                if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
-                    continue;
-                template.TemplateOriginalName = componentTemplate.OriginalName;
-                template.IsComponentLocked = componentTemplate.IsComponentLocked;
-                template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
-                template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
-            }
-
             // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
