@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -243,12 +244,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         sb.Append(indent);
 
                         bool isDoubleEncodedJson = false;
+                        bool isDoubleEncodedXML = false;
                         var str = e.ToString();
                         if (str.Length >0)
                         {
                             if (str[0] == '{' && str[str.Length-1] == '}')
                             {
                                 isDoubleEncodedJson = true;
+                            }
+                            else if (str.StartsWith("<widget"))
+                            {
+                                isDoubleEncodedXML = true;
                             }
                         }
 
@@ -259,7 +265,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 str = "<json>" + JsonNormalizer.Normalize(str) + "</json>";
                             }
                             catch { } // Not Json.
-                        } else
+                        }
+                        else if (isDoubleEncodedXML)
+                        {
+                            try
+                            {
+                                var parsedXML = XDocument.Parse(str);
+                                var xmlString = parsedXML.ToString(SaveOptions.None);
+                                str = "<xml>" + xmlString + "</xml>";
+                            }
+                            catch { } // Not Json.
+                        }
+                        else
                         {
                             str = e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n");
                         }

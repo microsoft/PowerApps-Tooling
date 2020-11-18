@@ -7,9 +7,10 @@ using System.Text.Json;
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
     // From PowerApps-Client\src\Cloud\DocumentServer.Core\Document\Document\Persistence\Serialization\Schemas\Control\Template\TemplateMetadataJson.cs
-    internal  class TemplateMetadataJson
+    internal class TemplateMetadataJson
     {
         public string Name { get; set; }
+        public string OriginalName { get; set; }
 
         // Ok to be null. 
         //  Will default to: DateTime.Now.ToUniversalTime().Ticks.ToString();
@@ -19,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public bool? ComponentChangedSinceFileImport { get; set; }
         public bool? ComponentAllowCustomization { get; set; }
 
-        public JsonElement[] CustomProperties { get; set; }
+        public CustomPropertyJson[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; } = null;
 

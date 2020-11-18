@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
 using System.Collections.Generic;
@@ -221,7 +222,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
-                    foreach (var val in file.ToObject<Dictionary<string, ControlInfoJson.Template>>().Values)
+                    foreach (var val in file.ToObject<Dictionary<string, CombinedTemplateState>>().Values)
                     {
                         app._templateStore.AddTemplate(val);
                     }
@@ -339,6 +340,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Write out of all the other state for roundtripping 
                 string extraContent = controlName + ".editorstate.json";
                 dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+            }
+
+            foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+            {
+                if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
+                    continue;
+                template.TemplateOriginalName = componentTemplate.OriginalName;
+                template.IsComponentLocked = componentTemplate.IsComponentLocked;
+                template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
+                template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
             }
 
             // Write out the used templates from controls
