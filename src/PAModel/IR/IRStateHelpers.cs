@@ -159,7 +159,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template.ComponentDefinitionInfo = null;
                 } else
                 {
-                    template.IsComponentDefinition = false;
+                    template.IsComponentDefinition = state.IsComponentDefinition;
                 }
             }
             else

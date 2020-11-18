@@ -369,7 +369,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var componentTemplates = new List<TemplateMetadataJson>();
             foreach (var template in app._templateStore.Contents.Where(template => template.Value.IsComponentTemplate ?? false))
             {
-                componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
+                if ((template.Value.CustomProperties?.Any() ?? false) || template.Value.ComponentAllowCustomization.HasValue)
+                    componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
             }
 
             app._templates = new TemplatesJson()
