@@ -67,8 +67,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // TODO: Checksum Algo doesn't handle double-escaped XML well, skip template file for now
-            if (filename == "References\\Templates.json")
-                return;
+            //if (filename == "References\\Templates.json")
+            //    return;
 
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
@@ -128,7 +128,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 get
                 {
-                    if (this.s.Count == 1)
+                    if (this.s.Count == 2)
                     {
                         if (_xmlDouble.Contains(this.s.Peek()))
                         {
