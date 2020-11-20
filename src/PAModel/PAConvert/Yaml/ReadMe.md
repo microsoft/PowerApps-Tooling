@@ -1,6 +1,14 @@
-## Yaml Parser
+# Yaml Parser
 
-We support a restricted subset of yaml. This is designed to leverage an existing file format (yaml) while avoiding some of the surprises in yaml (see https://noyaml.com/ ). 
+We support a restricted subset of yaml. This is designed to leverage an existing file format (yaml) while avoiding some of the surprises in yaml that would confuse our excel-oriented audience (see https://noyaml.com/ ). 
+
+We wrote our own YAML lexer here because:
+
+1. There was no existing Microsoft-supported YAML parser. The closest C# parser is https://github.com/aaubry/YamlDotNet .  
+1. We needed fine grain control for Writing to emit our specific subset and also to gaurantee we can lexically round-trip our files without any spurious diffs.  For example, control to bias to a '|' multiline escape instead of using escape characters and single lines. YamlDotNet also biases to a '>' escape.
+1. Fine grain control on reading to warn on unsafe behavior like '#' in formulas that may get treated as comments, or duplicate property names in an object. 
+
+## Rules for restricted subset:
 
 1. **Single line properties must start with a '='**. This is to keep yaml from interpretting as a yaml expression, and instead l
 
@@ -8,7 +16,7 @@ We support a restricted subset of yaml. This is designed to leverage an existing
 prop: =12
 ```
 
-2. **Multiline properties must use a '|' escape**. 
+2. **Multiline properties must use a '|' escape**.  This is to facilitate direct copy and paste between Studio and text, particularly for preserving newlines. We can choose between |-,|,|+ to preserve the correct trailing newline.  Avoid '>' because that will interfere with newlines in the middle of the content. 
 
 ```
 prop: |
@@ -16,7 +24,7 @@ prop: |
   Second
 ```
 
-3. **Forbid '#' and ':' characters in singel line expressions**.  These must be multi-line escaped instead. 
+3. **Forbid '#' and ':' characters in single line expressions**.  These must be multi-line escaped instead. 
 
 ```
 Prop: |

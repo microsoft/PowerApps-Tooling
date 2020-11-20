@@ -119,6 +119,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
+        // Write a newline, for aesthics. since this is inbetween properties,
+        // it should get ignored on parse. 
+        public void WriteNewline()
+        {
+            _text.WriteLine();
+        }
+
         private void WriteIndent()
         {
             for (int i = 0; i < _currentIndent; i++)

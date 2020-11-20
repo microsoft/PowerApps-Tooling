@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
@@ -76,6 +78,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 case YamlTokenKind.Property: return $"{Property}={Value}";
                 case YamlTokenKind.StartObj: return $"{Property}:";
+                case YamlTokenKind.Error: return $"Error: {Value}";
                 default:
                     return $"<{Kind}>";
             }
@@ -179,6 +182,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // [Indent] [PropertyName] [Colon] [space] [equals] [VALUE] 
             // [Indent] [PropertyName] [Colon] [space] [MultilineEscape]
 
+Retry:
             LineParser line = PeekLine();
 
             if (line == null)
@@ -198,7 +202,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
             if (line.Current == 0)
             {
-                return Unsupported(line, "Blank lines aren't supported");
+                // return Unsupported(line, "Blank lines aren't supported");
+                MoveNextLine();
+                goto Retry;
             }
 
             if (line.Current == '-')
@@ -309,17 +315,31 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 // Single line. Property doesn't include \n at end.
                 value = line.RestOfLine;
 
-                if (value.IndexOf('#') >=0 )
+                if (value.IndexOf('#') >= 0)
                 {
                     return UnsupportedComment(line);
                 }
 
                 MoveNextLine();
             }
+            else if ((line.Current == '\"') || (line.Current == '\''))
+            {
+                // These are common YAml sequences, but extremely problematic and could be user error.
+                // Disallow them and force the user to explicit.
+                // Is "hello" a string or identifer? 
+                //    Foo: "Hello"
+                //
+                // Instead, have the user write:
+                //    Foo: ="Hello"  // String
+                //    Foo: Hello     // identifier
+                //    Foo: |
+                //         "Hello"   // string
+                return Unsupported(line, "Quote is not a supported escape sequence. Use = or |");
+            }
             else if (line.MaybeEat('>'))
             {
                 // Unsupported Multiline escape.
-                return Unsupported(line, "> is not a supporter multiline escape. Use |");
+                return Unsupported(line, "> is not a supported multiline escape. Use |");
             }
             else if (line.MaybeEat('|'))
             {
@@ -347,11 +367,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (line.Current == '#')
                 {
                     return UnsupportedComment(line);
-                } else if (line.Current != 0) // EOL, catch all error. 
+                }
+                else if (line.Current != 0) // EOL, catch all error. 
                 {
                     return Error(line, "Content for | escape must start on next line.");
                 }
-                
+
                 MoveNextLine();
                 value = ReadMultiline(multilineMode);
 
@@ -385,6 +406,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         {
             return YamlToken.NewError(this.Loc(line), message);
         }
+
+        // https://yaml-multiline.info/
 
         private string ReadMultiline(int multilineMode)
         {

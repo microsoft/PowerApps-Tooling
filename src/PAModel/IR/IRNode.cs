@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// And should not be expected during the unpack operation
         /// </summary>
         public readonly SourceLocation? SourceSpan;
-        public abstract Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context);
+        public abstract void Accept<Context>(IRNodeVisitor<Context> visitor, Context context);
     }
 
     /// <summary>
@@ -26,9 +29,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public IList<FunctionNode> Functions = new List<FunctionNode>();
         public IList<BlockNode> Children = new List<BlockNode>();
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -50,9 +53,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// </summary>
         public TemplateNode Kind;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -65,9 +68,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public string TemplateName;
         public string OptionalVariant;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -77,9 +80,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public string Identifier;
         public ExpressionNode Expression;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -89,9 +92,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public IList<TypedNameNode> Args;
         public ExpressionNode Expression;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -99,9 +102,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     internal class ExpressionNode : IRNode
     {
         public string Expression;
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 }

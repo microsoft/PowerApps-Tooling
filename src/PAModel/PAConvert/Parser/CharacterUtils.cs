@@ -119,20 +119,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         public static string UnEscapeName(string name)
         {
-            //var ts = new TokenStream(name, "");
-            //var t = ts.GetIdentOrKeyword();
-            //return t.Content;
             if (IsIdentDelimiter(name[0]))
             {
+                if (!IsIdentDelimiter(name[name.Length-1]))
+                {
+                    // Must match 
+                    throw new InvalidOperationException("Unmatched escape delimeter");
+                }
                 StringBuilder sb = new StringBuilder();
                 int i = 1;
                 while(i <= name.Length-2)
                 {
                     char ch = name[i];
                     if (ch == PAConstants.IdentifierDelimiter)
-                    {
-                        // Either end of token, or an escaped delimeter
-                        // $$$
+                    {                        
                         i++;                        
                     }
                     sb.Append(ch);
@@ -140,13 +140,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 }
                 return sb.ToString();
 
-            } else
+            }
+            else
             {
                 return name;
             }
         }
 
-            public static string EscapeName(string name)
+        public static string EscapeName(string name)
         {
             int nameLen = name.Length;
 
