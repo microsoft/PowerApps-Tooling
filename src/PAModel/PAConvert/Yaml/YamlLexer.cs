@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -182,29 +183,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // [Indent] [PropertyName] [Colon] [space] [equals] [VALUE] 
             // [Indent] [PropertyName] [Colon] [space] [MultilineEscape]
 
-Retry:
-            LineParser line = PeekLine();
-
-            if (line == null)
+            LineParser line;
+            int indentLen;
+            while (true)
             {
-                // End of File.
-                // Close any  outstanding objects.
-                if (_currentIndent.Count > 1)
+                line = PeekLine();
+
+                if (line == null)
                 {
-                    _currentIndent.Pop();
-                    return YamlToken.EndObj;
+                    // End of File.
+                    // Close any  outstanding objects.
+                    if (_currentIndent.Count > 1)
+                    {
+                        _currentIndent.Pop();
+                        return YamlToken.EndObj;
+                    }
+                    return YamlToken.EndOfFile;
                 }
-                return YamlToken.EndOfFile;
-            }
-            
-            // get starting indent.
-            int indentLen = line.EatIndent();
 
-            if (line.Current == 0)
-            {
-                // return Unsupported(line, "Blank lines aren't supported");
-                MoveNextLine();
-                goto Retry;
+                // get starting indent.
+                indentLen = line.EatIndent();
+
+                if (line.Current != 0)
+                {
+                    break;
+                }
+
+                // EAt the newline and go to the next line. 
+                MoveNextLine();                                    
             }
 
             if (line.Current == '-')
@@ -284,6 +290,13 @@ Retry:
 
             if (line.Current == 0) // EOL
             {
+                var error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+                if (error != null)
+                {
+                    error.Span = Loc(line);
+                    return error;
+                }
+
                 // New Object.
                 // Next line must begin an indent.
                 _currentIndent.Push(new Indent {
@@ -385,6 +398,15 @@ Retry:
             {
                 // Warn on legal yaml escapes (>) that we don't support in our subset here. 
                 return Error(line, "Expected either '=' for a single line expression or '|' to begin a multiline expression");
+            }
+
+            {
+                var error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+                if (error != null)
+                {
+                    error.Span = Loc(line);
+                    return error;
+                }
             }
 
             return new YamlToken { Kind = YamlTokenKind.Property, Property = propName, Value = value };
@@ -538,6 +560,24 @@ Retry:
             public int _oldIndentLevel;
             public int _newIndentLevel; // for children of this object. 
             public int _lineStart; // what line did this indenting start at?
+
+            // For detecting collisions in previous properties.
+            // Collisions must be *case-sensitive*
+            // Map property name to line that it was declared on. 
+            public Dictionary<string, int> _previousProperties = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            internal YamlToken CheckDuplicate(string propName, int currentLine)
+            {
+                int oldLine;
+                if (_previousProperties.TryGetValue(propName, out oldLine))
+                {
+                    // Key is already present.
+                    return YamlToken.NewError(default(SourceLocation),
+                        $"Property '{propName}' is already defined on line {oldLine}.");
+                }
+                _previousProperties.Add(propName, currentLine);
+                return null;
+            }
         }
     }
 }
