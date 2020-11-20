@@ -19,7 +19,7 @@ namespace PAModelTests
             var yw = new YamlWriter(sw);
             yw.WriteProperty("P0", "abc");
             yw.WriteStartObject("Obj1");
-                yw.WriteProperty("P1a", "A");
+                yw.WriteProperty("P1a", "A#B"); // induced multiline, |- since no trailing \n
                 yw.WriteProperty("P1b", "B");
                 yw.WriteStartObject("Obj2");
                     yw.WriteProperty("P2a", "A");
@@ -31,7 +31,8 @@ namespace PAModelTests
             Assert.AreEqual(
 @"P0: =abc
 Obj1:
-  P1a: =A
+  P1a: |-
+    =A#B
   P1b: =B
   Obj2:
     P2a: =A
@@ -96,10 +97,11 @@ Obj1:
         // Error on 1st token read
         [DataTestMethod]
         [DataRow("Foo: 12")] // missing =
+        [DataRow("Foo: |\r\n=12")] // missing = in newline
         [DataRow("Foo: =x #comment")] // comments not allowed in single line.
-        [DataRow("Foo: |x\n  next")] // chars on same line after |
-        [DataRow("Foo: >\n  next")] // > multiline not supported
-        [DataRow("Foo: |\nBar: next")] // empty multiline
+        [DataRow("Foo: |x\n  =next")] // chars on same line after |
+        [DataRow("Foo: >\n  =next")] // > multiline not supported
+        [DataRow("Foo: |\nBar: =next")] // empty multiline
         [DataRow("---")] // multi docs not supported
         public void ExpectedError(string expr)
         {
@@ -151,7 +153,7 @@ P1: =duplicate!
         }
 
         [TestMethod]
-        public void BasicRead()
+        public void ReadBasic()
         {
             var text =
 @"P1: =123
@@ -168,25 +170,44 @@ P2: =456
 
         // Test basic read of multiline
         [TestMethod]
-        public void BasicMultiline()
+        public void ReadBasicMultiline()
         {
             var text = 
 @"M1: |
-    abc
-     def
+    =abc
+    def
 P1: =123
 ";
             var sr = new StringReader(text);
             var y = new YamlLexer(sr);
         
-            AssertLex("M1=abc\r\n def\r\n", y);
+            AssertLex("M1=abc\r\ndef\r\n", y);
+            AssertLex("P1=123", y);
+            AssertLexEndFile(y);
+        }
+
+        [TestMethod]
+        public void ReadBasicMultiline2()
+        {
+            // subsequent line in multiline (def) doesn't start at the same indentation
+            // as first line. This means there are leading spaces on the 2nd line. 
+            var text =
+@"M1: |
+    =abc
+      def
+P1: =123
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("M1=abc\r\n  def\r\n", y);
             AssertLex("P1=123", y);
             AssertLexEndFile(y);
         }
 
         // Ensure we can get multiple EndObj tokens in a row. 
         [TestMethod]
-        public void Closing()
+        public void ReadClosing()
         {
             var text = 
 @"P0: =1
@@ -212,7 +233,7 @@ P3: =3
         }
 
         [TestMethod]
-        public void T2()
+        public void ReadObject()
         {
             var text = 
 @"P0: =123
