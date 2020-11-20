@@ -22,6 +22,9 @@
             This package is a .NET Standard 2.0 project, intended to work with .NET Framework 4.7.2 or later, and .NET Core 2.2 or later
             We have not stabilized on Namespace or Class names with this package as of yet and things will change as we move though the preview.
 
+        0.0.2-alpha
+            Updated control format to be YAML Compatible
+    
         0.0.1-alpha
             Intial Alpha release of Microsoft.PowerPlatform.Formulas.Tools
     </PackageReleaseNotes>
