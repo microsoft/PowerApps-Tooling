@@ -105,9 +105,8 @@ Obj1:
         {
             var sr = new StringReader(expr);
             var y = new YamlLexer(sr);
-            var tokenError = y.ReadNext();
 
-            Assert.AreEqual(YamlTokenKind.Error, tokenError.Kind);
+            AssertLexError(y);
         }
 
         // Error on 2nd token read. 
@@ -122,13 +121,37 @@ Obj1:
             var tokenOk = y.ReadNext();
             Assert.AreNotEqual(YamlTokenKind.Error, tokenOk.Kind);
 
-            var tokenError = y.ReadNext();
-            Assert.AreEqual(YamlTokenKind.Error, tokenError.Kind);
+            AssertLexError(y);
         }
 
+        // Yaml ignores duplicate properties. This could lead to data loss!
+        // The lexer here catches duplicates and errors. 
+        [TestMethod]
+        public void ErrorOnDuplicate()
+        {
+            var text =
+@"P1: =123
+Obj1:
+  P1: =Nested object, not duplicate
+p1: =Casing Different, not duplicate
+P2: =456
+P1: =duplicate!
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("P1=123", y);
+            AssertLex("Obj1:", y);
+                AssertLex("P1=Nested object, not duplicate", y);
+            AssertLexEndObj(y);
+            AssertLex("p1=Casing Different, not duplicate", y);
+            AssertLex("P2=456", y);
+
+            AssertLexError(y);            
+        }
 
         [TestMethod]
-        public void T1()
+        public void BasicRead()
         {
             var text =
 @"P1: =123
@@ -143,8 +166,9 @@ P2: =456
             AssertLexEndFile(y);
         }
 
+        // Test basic read of multiline
         [TestMethod]
-        public void Multiline()
+        public void BasicMultiline()
         {
             var text = 
 @"M1: |
@@ -160,7 +184,7 @@ P1: =123
             AssertLexEndFile(y);
         }
 
-        // Ensure we can get multiple EndObj tokens. 
+        // Ensure we can get multiple EndObj tokens in a row. 
         [TestMethod]
         public void Closing()
         {
@@ -169,6 +193,7 @@ P1: =123
 Obj1:
   Obj2:
     P1: =1
+
     P2: =2
 P3: =3
 ";
@@ -179,7 +204,7 @@ P3: =3
             AssertLex("Obj1:", y);
             AssertLex("Obj2:", y);
             AssertLex("P1=1", y);
-            AssertLex("P2=2", y);
+            AssertLex("P2=2", y); // the newline prior isn't a token. 
             AssertLexEndObj(y); // Obj2
             AssertLexEndObj(y); // Obj1
             AssertLex("P3=3", y);
@@ -225,6 +250,13 @@ Obj1:
         {
             AssertLex("<EndObj>", y);
         }
+
+        static void AssertLexError(YamlLexer y)
+        {
+            var p = y.ReadNext();
+            Assert.AreEqual(YamlTokenKind.Error, p.Kind);
+        }
+
         static void AssertLex(string expected, YamlLexer y)
         {
             var p = y.ReadNext();
