@@ -14,9 +14,8 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    class Empty { }
     // Result is a bunch of strings, context is indentLevel
-    internal class PAWriterVisitor : IRNodeVisitor<Empty, PAWriterVisitor.Context>
+    internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
     {
         internal class Context
         {
@@ -41,7 +40,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return sw.ToString();
         }
 
-        public override Empty Visit(BlockNode node, Context context)
+        public override void Visit(BlockNode node, Context context)
         {
             // Label1 as Label:
             context._sb.Clear();
@@ -59,28 +58,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 prop.Accept(this, context);
             }
-                        
+
+            context._yaml.WriteNewline();
 
             foreach (var child in node.Children)
             {
                 child.Accept(this, context);
             }
 
-            context._yaml.WriteEndObject();
-
-            return null;
+            context._yaml.WriteEndObject();            
         }
 
-        public override Empty Visit(TypedNameNode node, Context context)
+        public override void Visit(TypedNameNode node, Context context)
         {
             context._sb.Append(CharacterUtils.EscapeName(node.Identifier));
             context._sb.Append(" As ");
             node.Kind.Accept(this, context);
-
-            return null;
         }
 
-        public override Empty Visit(TemplateNode node, Context context)
+        public override void Visit(TemplateNode node, Context context)
         {
             context._sb.Append(CharacterUtils.EscapeName(node.TemplateName));
 
@@ -88,28 +84,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 context._sb.Append(".");
                 context._sb.Append(CharacterUtils.EscapeName(node.OptionalVariant));
-            }
-            return null;
+            }            
         }
 
-        public override Empty Visit(PropertyNode node, Context context)
+        public override void Visit(PropertyNode node, Context context)
         {
             context._sb.Clear();
             node.Expression.Accept(this, context);
 
             context._yaml.WriteProperty(CharacterUtils.EscapeName(node.Identifier), context._sb.ToString());
-            return null;
         }
 
-        public override Empty Visit(FunctionNode node, Context context)
+        public override void Visit(FunctionNode node, Context context)
         {
-            return null;
         }
 
-        public override Empty Visit(ExpressionNode node, Context context)
+        public override void Visit(ExpressionNode node, Context context)
         {
             context._sb.Append(node.Expression);
-            return null;
         }
     }
 }

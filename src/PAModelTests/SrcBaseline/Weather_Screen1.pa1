@@ -1,6 +1,7 @@
 Screen1 As screen:
   Height: =Max(App.Height, App.DesignHeight)
   Width: =Max(App.Width, App.DesignWidth)
+
   Label1 As label:
     Text: =MSNWeather.CurrentWeather("redmond", "Imperial").responses.weather.current.temp
     X: =40
@@ -9,6 +10,7 @@ Screen1 As screen:
     Height: =70
     ZIndex: =1
     Size: =21
+
   Label2 As label:
     Text: ="Hello"
     X: =40
@@ -17,3 +19,4 @@ Screen1 As screen:
     Height: =70
     ZIndex: =2
     Size: =21
+
