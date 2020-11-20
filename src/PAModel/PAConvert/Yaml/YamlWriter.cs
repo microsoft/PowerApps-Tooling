@@ -58,11 +58,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
             bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
+            // For consistency, both single and multiline properties prefix with '='.
+            // Only single-line actually needs this - to avoid yaml's regular expression escaping. 
+            value = '=' + value;
+
             if (isSingleLine)
             {
                 WriteIndent();
                 _text.Write(propertyName);
-                _text.Write(": =");
+                _text.Write(": ");
                 _text.WriteLine(value);
             }
             else

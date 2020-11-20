@@ -17,10 +17,11 @@ prop: =12
 ```
 
 2. **Multiline properties must use a '|' escape**.  This is to facilitate direct copy and paste between Studio and text, particularly for preserving newlines. We can choose between |-,|,|+ to preserve the correct trailing newline.  Avoid '>' because that will interfere with newlines in the middle of the content. 
+Multiline properties still start with an '=' to be consistent with single-line properties.
 
 ```
 prop: |
-  First
+  =First
   Second
 ```
 
@@ -28,18 +29,17 @@ prop: |
 
 ```
 Prop: |
-   Set(Color,  #FF88CC) 
+   =Set(Color,  #FF88CC) 
 ```
 
-4. **Forbid spurious newlines**.  These will get lost when round tripping through studio. 
-
-1. **Forbid empty objects**.  While Yaml allows empty objects, formulas do not. So these would likely be an indentation error. 
+4. **Forbid empty objects**.  While Yaml allows empty objects, formulas do not. So these would likely be an indentation error. 
 
 
 
 ## The principles behind these rules:
 1. **Easily embed the Power Apps formula as a DSL in the yaml properties**. 
 We should be able to directly copy and paste text between the formula bar in Studio and these yaml files. 
+One implication here is to avoid single-line escaping (single and double quotes), and instead use the '|' multiline block to avoid escaping. 
 
 2. **Roundtripping through the Studio on import/export**. 
 This means we must be canonical to avoid noisy diffs. For example, extra newlines or '#' comments could get lost and won't round trip. 

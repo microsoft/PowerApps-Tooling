@@ -344,9 +344,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 //
                 // Instead, have the user write:
                 //    Foo: ="Hello"  // String
-                //    Foo: Hello     // identifier
+                //    Foo: =Hello    // identifier
                 //    Foo: |
-                //         "Hello"   // string
+                //      ="Hello"     // string
                 return Unsupported(line, "Quote is not a supported escape sequence. Use = or |");
             }
             else if (line.MaybeEat('>'))
@@ -393,6 +393,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 {
                     return Unsupported(line, "Can't have empty multiline expressions.");
                 }
+
+                if (value[0] != '=')
+                {
+                    return Unsupported(line, "Property value must start with an '='");
+                }
+                value = value.Substring(1); // move past '='
             }
             else
             {
