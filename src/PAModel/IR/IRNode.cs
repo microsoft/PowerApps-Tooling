@@ -63,7 +63,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
     [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
-    internal class TemplateNode : IRNode
+    internal class TypeNode : IRNode
     {
         public string TemplateName;
         public string OptionalVariant;

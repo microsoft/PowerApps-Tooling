@@ -47,7 +47,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             return new TypedNameNode
             {
                 Identifier = controlName,
-                Kind = new TemplateNode
+                Kind = new TypeNode
                 {
                     TemplateName = templateName,
                     OptionalVariant = variantName

@@ -134,12 +134,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 IsComponentDefinition = isComponentDef,
             };
 
-            // Set IsComponentDefintiion to false, just in case we're processing the def first and not the instance (avoids ordering affecting output)
-            var templateState = new ControlInfoJson.Template(control.Template);
-            templateState.ComponentDefinitionInfo = null;
-            templateState.IsComponentDefinition = false;
-            templateStore.AddTemplate(templateState);
-
             stateStore.TryAddControl(controlState);
         }
 

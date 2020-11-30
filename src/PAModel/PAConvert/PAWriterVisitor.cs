@@ -76,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             node.Kind.Accept(this, context);
         }
 
-        public override void Visit(TemplateNode node, Context context)
+        public override void Visit(TypeNode node, Context context)
         {
             context._sb.Append(CharacterUtils.EscapeName(node.TemplateName));
 
