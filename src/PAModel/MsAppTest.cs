@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -16,42 +17,50 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
         {
-            using (var temp1 = new TempFile())
+            try
             {
-                string outFile = temp1.FullPath;
-
-                var log = TextWriter.Null;
-
-                // MsApp --> Model
-                CanvasDocument msapp;
-                try
+                using (var temp1 = new TempFile())
                 {
-                    msapp = MsAppSerializer.Load(pathToMsApp); // read
+                    string outFile = temp1.FullPath;
+
+                    var log = TextWriter.Null;
+
+                    // MsApp --> Model
+                    CanvasDocument msapp;
+                    try
+                    {
+                        msapp = MsAppSerializer.Load(pathToMsApp); // read
+                    }
+                    catch (NotSupportedException)
+                    {
+                        Console.WriteLine($"Too old: {pathToMsApp}");
+                        return false;
+                    }
+
+                    // Model --> MsApp
+                    msapp.SaveAsMsApp(outFile);
+                    MsAppTest.Compare(pathToMsApp, outFile, log);
+
+
+                    // Model --> Source
+                    using (var tempDir = new TempDir())
+                    {
+                        string outSrcDir = tempDir.Dir;
+                        msapp.SaveAsSource(outSrcDir);
+
+                        // Source --> Model
+                        var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
+
+                        msapp2.SaveAsMsApp(outFile); // Write out .pa files.
+                        var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                        return ok;
+                    }
                 }
-                catch (NotSupportedException)
-                {
-                    Console.WriteLine($"Too old: {pathToMsApp}");
-                    return false;
-                }
-
-                // Model --> MsApp
-                msapp.SaveAsMsApp(outFile);
-                MsAppTest.Compare(pathToMsApp, outFile, log);
-
-
-                // Model --> Source
-                using (var tempDir = new TempDir())
-                {
-                    string outSrcDir = tempDir.Dir;
-                    msapp.SaveAsSource(outSrcDir);
-
-                    // Source --> Model
-                    var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
-
-                    msapp2.SaveAsMsApp(outFile); // Write out .pa files.
-                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
-                    return ok;
-                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
             }
         }
 
@@ -109,22 +118,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     if (e.FullName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                     {
                         var je = e.ToJson();
-                        /*
-                        str = JsonSerializer.Serialize(je, new JsonSerializerOptions
-                        {
-                            IgnoreNullValues = true,
-                            WriteIndented = false,
-                        });
-                         str = je.ToString();
-                         */
-
-#if true
-                        StringBuilder sb2 = new StringBuilder();
-                        Check(sb2, je); ;
-                        str = sb2.ToString();
-#else
-                        str = Hack1.Normalize(je);
-#endif
+                        str = JsonNormalizer.Normalize(je);
                     }
                     else
                     {
@@ -151,6 +145,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     // Write out normalized form. Easier to spot the diff.
                                     File.WriteAllText(@"c:\temp\a1.json", otherContents);
                                     File.WriteAllText(@"c:\temp\b1.json", str);
+
+                                    // For debugging. Help find exactly where the difference is. 
+                                    for(int i = 0; i < otherContents.Length; i++)
+                                    {
+                                        if (otherContents[i] != str[i])
+                                        {
+
+                                        }
+                                    }
                                 }
                                 else
                                 {
@@ -176,109 +179,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             log.WriteLine();
 
             return sb.ToString();
-        }
-
-        // Used for comparing equality of 2 json blobs.
-        // Writing JsonElement is unordered. So do an ordered traversal.
-        //   https://stackoverflow.com/questions/59134564/net-core-3-order-of-serialization-for-jsonpropertyname-system-text-json-seria
-        static void Check(StringBuilder sb, JsonElement e, string indent = "")
-        {
-            switch (e.ValueKind)
-            {
-                case JsonValueKind.Array:
-                    sb.Append(indent);
-                    sb.AppendLine("[");
-
-#if false
-                    Dictionary<int, string> parts = new Dictionary<int, string>();
-
-                    // Deterministic order for array output.
-                    foreach (var x in e.EnumerateArray())
-                    {
-                        StringBuilder sb2 = new StringBuilder();
-                        Check(sb2, x, indent +"  ");
-                        var str = sb2.ToString();
-                        parts[str.GetHashCode()] = str;
-                    }
-
-                    foreach(var kv in parts.OrderBy(kv2 => kv2.Key))
-                    {
-                        sb.AppendLine(kv.Value);
-                    }
-#else
-                    foreach (var x in e.EnumerateArray())
-                    {
-                        Check(sb, x, indent + "  ");
-                    }
-#endif
-                    sb.Append(indent);
-                    sb.AppendLine("]");
-                    break;
-                case JsonValueKind.Object:
-                    // We have a bug wehere we double emit the same field.
-                    HashSet<string> dups = new HashSet<string>();
-
-                    sb.Append(indent);
-                    sb.AppendLine("{");
-                    indent = indent + "  ";
-                    foreach (var prop in e.EnumerateObject().OrderBy(x => x.Name))
-                    {
-                        if (dups.Add(prop.Name))
-                        {
-                            sb.Append(indent);
-                            sb.Append(prop.Name);
-                            Check(sb, prop.Value, indent + "  ");
-                        } else
-                        {
-
-                        }
-                    }
-                    sb.Append(indent);
-                    sb.AppendLine("}");
-
-                    break;
-
-                case JsonValueKind.String:
-                    {
-                        sb.Append(indent);
-
-                        bool isDoubleEncodedJson = false;
-                        var str = e.ToString();
-                        if (str.Length >0)
-                        {
-                            if (str[0] == '{' && str[str.Length-1] == '}')
-                            {
-                                isDoubleEncodedJson = true;
-                            }
-                        }
-
-                        if (isDoubleEncodedJson)
-                        {
-                            try
-                            {
-                                str = "<json>" + JsonNormalizer.Normalize(str) + "</json>";
-                            }
-                            catch { } // Not Json.
-                        } else
-                        {
-                            str = e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n");
-                        }
-
-                        sb.AppendLine(str);                        
-                    }
-                    break;
-
-                case JsonValueKind.Number:
-                    // Normalize numbers. 3 and 3.0  should compare equals.
-                    sb.Append(indent);
-                    sb.AppendLine(e.GetDouble().ToString());
-                    break;
-
-                default:
-                    sb.Append(indent);
-                    sb.AppendLine(e.ToString().TrimStart().Replace("\r\n", "\n").Replace("\r", "\n"));
-                    break;
-            }
         }
     }
 }

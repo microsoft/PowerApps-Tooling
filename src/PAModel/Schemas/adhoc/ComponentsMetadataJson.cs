@@ -23,7 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
-        public JsonElement[] CustomProperties { get; set; }
+        public CustomPropertyJson[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
 

@@ -109,6 +109,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Functions = functions,
             };
 
+
+            if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
+            {
+                if (control.Template.IsComponentDefinition ?? false)
+                    templateState.IsComponentTemplate = true;
+            }
+            else
+            {
+                templateState = new CombinedTemplateState(control.Template);
+                templateState.ComponentDefinitionInfo = null;
+                templateStore.AddTemplate(templateState);
+            }
+
             var controlState = new ControlState()
             {
                 Name = control.Name,
@@ -161,10 +174,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateIR = blockNode.Name.Kind;
             var templateName = templateIR.TemplateName;
             var variantName = templateIR.OptionalVariant;
+            ControlInfoJson.Template template;
 
-            if (!templateStore.TryGetTemplate(templateName, out var template))
+            if (!templateStore.TryGetTemplate(templateName, out var templateState))
             {
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
+            }
+            else
+            {
+                template = templateState.ToControlInfoTemplate();
             }
 
             ControlInfoJson.Item resultControlInfo;
@@ -193,10 +211,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (state.IsComponentDefinition ?? false)
                 {
-                    template.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren);
-                    template = new ControlInfoJson.Template(template);
+                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren);
+                    template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
                     template.ComponentDefinitionInfo = null;
+                } else
+                {
+                    template.IsComponentDefinition = state.IsComponentDefinition;
                 }
             }
             else

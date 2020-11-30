@@ -19,6 +19,7 @@ namespace PAModelTests
         [DataRow("AppWithLabel.msapp")]
         [DataRow("GalleryTestApp.msapp")]
         [DataRow("AccountPlanReviewerMaster.msapp")]
+        [DataRow("Marc2PowerPlatformDevOpsAlm.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);

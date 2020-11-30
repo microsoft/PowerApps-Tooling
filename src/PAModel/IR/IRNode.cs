@@ -1,5 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR
@@ -11,12 +15,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// And should not be expected during the unpack operation
         /// </summary>
         public readonly SourceLocation? SourceSpan;
-        public abstract Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context);
+        public abstract void Accept<Context>(IRNodeVisitor<Context> visitor, Context context);
     }
 
     /// <summary>
     /// Represents block construct, may have 0-N child blocks and 0-N properties
     /// </summary>
+    [DebuggerDisplay("{Name}: {Properties.Count} props")]
     internal class BlockNode : IRNode
     {
         public TypedNameNode Name;
@@ -24,9 +29,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public IList<FunctionNode> Functions = new List<FunctionNode>();
         public IList<BlockNode> Children = new List<BlockNode>();
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -38,6 +43,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Identifier = lblTest
     /// Kind = label
     /// </summary>
+    [DebuggerDisplay("{Identifier} as {Kind}")]
     internal class TypedNameNode : IRNode
     {
         public string Identifier;
@@ -47,35 +53,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// </summary>
         public TypeNode Kind;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
-    internal class TypeNode : IRNode
+    [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
+    internal class TemplateNode : IRNode
     {
         public string TemplateName;
         public string OptionalVariant;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
-
+    [DebuggerDisplay("{Identifier}: ={Expression}")]
     internal class PropertyNode : IRNode
     {
         public string Identifier;
         public ExpressionNode Expression;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
@@ -86,18 +93,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public IList<TypedNameNode> Args;
         public ExpressionNode Expression;
 
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 
+    [DebuggerDisplay("{Expression}")]
     internal class ExpressionNode : IRNode
     {
         public string Expression;
-        public override Result Accept<Result, Context>(IRNodeVisitor<Result, Context> visitor, Context context)
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
-            return visitor.Visit(this, context);
+            visitor.Visit(this, context);
         }
     }
 }

@@ -1,183 +1,123 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
-using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
+using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Parser
     {
-        private string _fileName;
-        private TokenStream _tokenizer;
+        private string _fileName;        
         public ErrorContainer _errorContainer;
+
+        private YamlLexer _yaml;
 
         public Parser(string fileName, string contents)
         {
-            _tokenizer = new TokenStream(contents, fileName);
-            _tokenizer.ValidateHeader();
-
             _fileName = fileName;
             _errorContainer = new ErrorContainer();
+
+            _yaml = new YamlLexer(new StringReader(contents), fileName);
+
         }
 
-        internal BlockNode ParseControl()
+        // Parse the control definition line. Something like:
+        //   Screen1 as Screen
+        //   Label1 As Label.Variant
+        private TypedNameNode ParseControlDef(string line)
         {
-            var spans = new List<SourceLocation>();
+            // $$$ use real parser for this?
+            Regex r = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)(\.(\S+))?$");
 
-            var token = _tokenizer.GetNextToken();
-            if (token.Kind != TokenKind.Control)
+            var m = r.Match(line);
+            if (!m.Success)
             {
-                _errorContainer.AddError(token.Span, $"Unexpected token {token.Kind}, expected {TokenKind.Control}");
                 return null;
             }
+            // p.Property;
+            // Label1 As Label.Variant:
+            string controlName = CharacterUtils.UnEscapeName(m.Groups[1].Value);
+            string templateName = CharacterUtils.UnEscapeName(m.Groups[2].Value);
+            string variantName = m.Groups[4].Success ? CharacterUtils.UnEscapeName(m.Groups[4].Value) : null;
 
-            spans.Add(token.Span);
-
-            var identToken = _tokenizer.GetNextToken();
-            if (identToken.Kind != TokenKind.Identifier)
+            return new TypedNameNode
             {
-                _errorContainer.AddError(identToken.Span, $"Unexpected token {identToken.Kind}, expected {TokenKind.Identifier}");
-                return null;
-            }
-
-            spans.Add(identToken.Span);
-
-            var name = identToken.Content;
-
-            var templateSeparator = _tokenizer.GetNextToken();
-            if (templateSeparator.Kind != TokenKind.TemplateSeparator)
-            {
-                _errorContainer.AddError(templateSeparator.Span, $"Unexpected token {templateSeparator.Kind}, expected {TokenKind.TemplateSeparator}");
-                return null;
-            }
-
-            spans.Add(templateSeparator.Span);
-
-            var templateToken = _tokenizer.GetNextToken();
-            if (templateToken.Kind != TokenKind.Identifier)
-            {
-                _errorContainer.AddError(templateToken.Span, $"Unexpected token {templateToken.Kind}, expected {TokenKind.Identifier}");
-                return null;
-            }           
-
-            spans.Add(templateToken.Span);
-            var templateNode = new TypeNode() { TemplateName = templateToken.Content };
-            var children = new List<BlockNode>();
-            var properties = new List<PropertyNode>();
-
-            var next = _tokenizer.GetNextToken();
-            if (!_tokenizer.Eof)
-            {
-                if (next.Kind == TokenKind.VariantSeparator)
+                Identifier = controlName,
+                Kind = new TemplateNode
                 {
-                    var variantToken = _tokenizer.GetNextToken();
-                    if (variantToken.Kind != TokenKind.Identifier)
-                    {
-                        _errorContainer.AddError(variantToken.Span, $"Unexpected token {variantToken.Kind}, expected {TokenKind.Identifier}");
-                        return null;
-                    }
-                    templateNode.OptionalVariant = variantToken.Content;
-
-                    next = _tokenizer.GetNextToken();
+                    TemplateName = templateName,
+                    OptionalVariant = variantName
                 }
+            };
+        }
 
-                if (next.Kind != TokenKind.Indent)
+        public BlockNode ParseControl()
+        {
+            var p = _yaml.ReadNext();
+            return ParseNestedControl(p);
+        }
+
+        private BlockNode ParseNestedControl(YamlToken p)
+        {
+            if (p.Kind != YamlTokenKind.StartObj)
+            {
+                // _errorContainer.AddError(token.Span, $"Unexpected token {token.Kind}, expected {TokenKind.Control}");
+                return null;
+            }
+
+            var controlDef = ParseControlDef(p.Property);
+            if (controlDef == null)
+            {
+                _errorContainer.AddError(p.Span, "Can't parse control definition");
+                return null;
+            }
+
+            var block = new BlockNode
+            {
+                 Name = controlDef
+            };
+
+            while (true)
+            {
+                p = _yaml.ReadNext();
+                switch (p.Kind)
                 {
-                    // Handle empty control special case
-                    if (next.Kind == TokenKind.Control || next.Kind == TokenKind.Dedent)
-                    {
-                        _tokenizer.ReplaceToken(next);
-                        return new BlockNode()
+                    case YamlTokenKind.EndObj:
+                        return block;
+
+                    case YamlTokenKind.Property:
+                        block.Properties.Add(new PropertyNode
                         {
-                            Name = new TypedNameNode()
+                            Identifier = CharacterUtils.UnEscapeName(p.Property),
+                            Expression = new ExpressionNode
                             {
-                                Identifier = name,
-                                Kind = templateNode
-                            },
-                            Children = children,
-                            Functions = new List<FunctionNode>(),
-                            Properties = properties,
-                        };
-                    }
-                }
-
-                next = _tokenizer.GetNextToken();
-
-                while (!_tokenizer.Eof && next.Kind != TokenKind.Dedent)
-                {
-                    switch (next.Kind)
-                    {
-                        case TokenKind.Identifier:
-                            var prop = ParseProperty(next.Content);
-                            properties.Add(prop);
-                            break;
-                        case TokenKind.Control:
-                            _tokenizer.ReplaceToken(next);
-                            var child = ParseControl();
-                            children.Add(child);
-                            break;
-                        default:
-                            {
-                                _errorContainer.AddError(next.Span, $"Unexpected token {next.Kind}, expected {TokenKind.Identifier} or {TokenKind.Control}");
-                                return null;
+                                Expression = p.Value
                             }
-                    }
+                        });
+                        break;
 
-                    next = _tokenizer.GetNextToken();
+                    case YamlTokenKind.StartObj:
+                        var childNode = ParseNestedControl(p);
+                        if (_errorContainer.HasErrors())
+                        {
+                            return null;
+                        }
+                        block.Children.Add(childNode);
+                        break;
+
+                    case YamlTokenKind.Error:
+                        _errorContainer.AddError(p.Span, p.Value);
+                        return null;
+
+                    default:
+                        _errorContainer.AddError(p.Span, $"Unexpected yaml token: {p}");
+                        return null;
                 }
             }
-
-            return new BlockNode()
-            {
-                Name = new TypedNameNode()
-                {
-                    Identifier = name,
-                    Kind = templateNode
-                },
-                Children = children,
-                Functions = new List<FunctionNode>(),
-                Properties = properties,
-            };
-        }
-
-        private PropertyNode ParseProperty(string propertyName)
-        {
-            var propertySeparator = _tokenizer.GetNextToken();
-            if (propertySeparator.Kind != TokenKind.PropertyStart)
-            {
-                _errorContainer.AddError(propertySeparator.Span, $"Unexpected token {propertySeparator.Kind}, expected {TokenKind.PropertyStart}");
-                return new PropertyNode()
-                {
-                    Identifier = propertyName,
-                    Expression = new ExpressionNode() { Expression = string.Empty }
-                };
-            }
-
-            var ruleScript = _tokenizer.GetNextToken(expectedExpression: true);
-            if (ruleScript.Kind != TokenKind.PAExpression)
-            {
-                _errorContainer.AddError(propertySeparator.Span, $"Unexpected token {propertySeparator.Kind}, expected expression");
-                return new PropertyNode()
-                {
-                    Identifier = propertyName,
-                    Expression = new ExpressionNode() { Expression = string.Empty }
-                };
-            }
-
-            return new PropertyNode()
-            {
-                Identifier = propertyName,
-                Expression = new ExpressionNode() { Expression = ruleScript.Content }
-            };
         }
 
         public bool HasErrors() => _errorContainer.HasErrors();

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -115,6 +115,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
 
             return false;
+        }
+
+        public static string UnEscapeName(string name)
+        {
+            if (IsIdentDelimiter(name[0]))
+            {
+                if (!IsIdentDelimiter(name[name.Length-1]))
+                {
+                    // Must match 
+                    throw new InvalidOperationException("Unmatched escape delimeter");
+                }
+                StringBuilder sb = new StringBuilder();
+                int i = 1;
+                while(i <= name.Length-2)
+                {
+                    char ch = name[i];
+                    if (ch == PAConstants.IdentifierDelimiter)
+                    {                        
+                        i++;                        
+                    }
+                    sb.Append(ch);
+                    i++;
+                }
+                return sb.ToString();
+
+            }
+            else
+            {
+                return name;
+            }
         }
 
         public static string EscapeName(string name)

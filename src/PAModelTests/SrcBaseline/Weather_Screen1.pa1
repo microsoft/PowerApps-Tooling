@@ -1,22 +1,22 @@
-//! PAFile:0.1
-control Screen1 : screen
-    Height = Max(App.Height, App.DesignHeight)
-    Width = Max(App.Width, App.DesignWidth)
+Screen1 As screen:
+  Height: =Max(App.Height, App.DesignHeight)
+  Width: =Max(App.Width, App.DesignWidth)
 
-    control Label1 : label
-        Text = MSNWeather.CurrentWeather("redmond", "Imperial").responses.weather.current.temp
-        X = 40
-        Y = 40
-        Width = 560
-        Height = 70
-        ZIndex = 1
-        Size = 21
+  Label1 As label:
+    Text: =MSNWeather.CurrentWeather("redmond", "Imperial").responses.weather.current.temp
+    X: =40
+    Y: =40
+    Width: =560
+    Height: =70
+    ZIndex: =1
+    Size: =21
 
-    control Label2 : label
-        Text = "Hello"
-        X = 40
-        Y = 130
-        Width = 560
-        Height = 70
-        ZIndex = 2
-        Size = 21
+  Label2 As label:
+    Text: ="Hello"
+    X: =40
+    Y: =130
+    Width: =560
+    Height: =70
+    ZIndex: =2
+    Size: =21
+

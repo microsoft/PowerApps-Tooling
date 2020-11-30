@@ -7,14 +7,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     internal class TemplateStore
     {
         // Key is template name, case-sensitive
-        public readonly Dictionary<string, ControlInfoJson.Template> Contents;
+        public readonly Dictionary<string, CombinedTemplateState> Contents;
 
         public TemplateStore()
         {
-            Contents = new Dictionary<string, ControlInfoJson.Template>();
+            Contents = new Dictionary<string, CombinedTemplateState>();
         }
 
-        public bool AddTemplate(ControlInfoJson.Template template)
+        public bool AddTemplate(CombinedTemplateState template)
         {
             var name = template.TemplateDisplayName ?? template.Name;
             if (Contents.ContainsKey(name))
@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             return true;
         }
 
-        public bool TryGetTemplate(string templateName, out ControlInfoJson.Template template)
+        public bool TryGetTemplate(string templateName, out CombinedTemplateState template)
         {
             return Contents.TryGetValue(templateName, out template);
         }
