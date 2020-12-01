@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
+using System.ComponentModel;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -63,27 +64,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
 
-        #region Save/Load 
-        public static CanvasDocument LoadFromMsapp(string fullPathToMsApp)
+        #region Save/Load
+        public static (CanvasDocument,ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
         {
-            return MsAppSerializer.Load(fullPathToMsApp);
+            var errors = new ErrorContainer();
+            var doc = MsAppSerializer.Load(fullPathToMsApp, errors);            
+            return (doc, errors);
         }
-        public static CanvasDocument LoadFromSources(string pathToSourceDirectory)
+
+        public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
-            return SourceSerializer.LoadFromSource(pathToSourceDirectory);
+            var errors = new ErrorContainer();
+            var doc = SourceSerializer.LoadFromSource(pathToSourceDirectory, errors);
+            return (doc, errors);
         }
-        public void SaveToMsApp(string fullPathToMsApp)
+
+        public ErrorContainer SaveToMsApp(string fullPathToMsApp)
         {
-            MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp);
+            var errors = new ErrorContainer();
+            MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors);
+            return errors;
         }
-        public void SaveToSources(string pathToSourceDirectory)
+        public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
-            SourceSerializer.SaveAsSource(this, pathToSourceDirectory);
+            var errors = new ErrorContainer();
+            SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors);
+            return errors;
         }
-        public static CanvasDocument MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
+        public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
         {
-            return SourceSerializer.Create(appName, packagesPath, paFiles);
+            var errors = new ErrorContainer();
+            var doc = SourceSerializer.Create(appName, packagesPath, paFiles, errors);
+            return (doc, errors);
         }
+        
         #endregion
 
         internal CanvasDocument()

@@ -2,19 +2,40 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    internal class PAError
+    public class PAError
     {
-        public SourceLocation Span;
+        public ErrorCode Code;
+        internal SourceLocation Span;
         public string Message;
 
-        public PAError(SourceLocation span, string message)
+        internal PAError(ErrorCode code, SourceLocation span, string message)
         {
             Span = span;
             Message = message;
+            Code = code;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (this.Code.IsError()) {
+                sb.Append("Error   ");
+            } else {
+                sb.Append("Warning ");
+            }
+            sb.Append($"PA{(int)Code}: ");
+            sb.Append(this.Message);
+
+            if (this.Span.FileName != null)
+            {
+                sb.Append(" at ");
+                sb.Append(this.Span);
+            }
+            return sb.ToString();
         }
     }
 }

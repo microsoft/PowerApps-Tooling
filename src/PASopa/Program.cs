@@ -18,6 +18,7 @@ namespace PASopa
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
             // $$$ MErge in with ADIX PAC
+            // https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli
             var mode = args[0].ToLower();
             if (mode =="-test")
             {
@@ -69,16 +70,39 @@ namespace PASopa
 
                 Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
-                CanvasDocument msApp = MsAppSerializer.Load(msAppPath);
-                msApp.SaveAsSource(outDir);
+                (CanvasDocument msApp, ErrorContainer errors) = CanvasDocument.LoadFromMsapp(msAppPath);
+                errors.Write(Console.Out);
+                                
+                if (errors.HasErrors)
+                {
+                    return;
+                }
+
+                errors = msApp.SaveToSources(outDir);
+                errors.Write(Console.Out);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
 
                 // Test that we can repack 
                 {
-                    CanvasDocument msApp2 = SourceSerializer.LoadFromSource(outDir);
+                    (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(outDir);
+                    errors.Write(Console.Out);
+                    if (errors.HasErrors)
+                    {
+                        return;
+                    }
+
                     using (var temp = new TempFile())
                     {
-                        msApp2.SaveAsMsApp(temp.FullPath);
-                         
+                        errors2 = msApp2.SaveToMsApp(temp.FullPath);
+                        errors.Write(Console.Out);
+                        if (errors.HasErrors)
+                        {
+                            return;
+                        }
+
                         bool ok = MsAppTest.Compare(msAppPath, temp.FullPath, TextWriter.Null);
                     }
                 }
@@ -90,8 +114,8 @@ namespace PASopa
 
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
-                CanvasDocument msApp = SourceSerializer.LoadFromSource(inputDir);
-                msApp.SaveAsMsApp(msAppPath);
+                (CanvasDocument msApp, ErrorContainer errors) =  CanvasDocument.LoadFromSources(inputDir);
+                errors = msApp.SaveToMsApp(msAppPath);
             }
             else if (mode == "-make")
             {
@@ -103,8 +127,8 @@ namespace PASopa
 
                 var appName = Path.GetFileName(msAppPath);
 
-                var app = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
-                app.SaveAsMsApp(msAppPath);
+                (var app, var errors) = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
+                errors = app.SaveToMsApp(msAppPath);
             }
             else
             {

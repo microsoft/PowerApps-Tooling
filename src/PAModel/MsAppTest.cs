@@ -27,9 +27,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                     // MsApp --> Model
                     CanvasDocument msapp;
+                    ErrorContainer errors = new ErrorContainer();
                     try
                     {
-                        msapp = MsAppSerializer.Load(pathToMsApp); // read
+                        msapp = MsAppSerializer.Load(pathToMsApp, errors); // read
+                        errors.ThrowOnErrors();
                     }
                     catch (NotSupportedException)
                     {
@@ -38,22 +40,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
 
                     // Model --> MsApp
-                    msapp.SaveAsMsApp(outFile);
-                    MsAppTest.Compare(pathToMsApp, outFile, log);
+                    errors = msapp.SaveToMsApp(outFile);
+                    errors.ThrowOnErrors();
+                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                    if (!ok) { return false; }
 
 
                     // Model --> Source
                     using (var tempDir = new TempDir())
                     {
                         string outSrcDir = tempDir.Dir;
-                        msapp.SaveAsSource(outSrcDir);
+                        errors = msapp.SaveToSources(outSrcDir);
+                        errors.ThrowOnErrors();
 
                         // Source --> Model
-                        var msapp2 = SourceSerializer.LoadFromSource(outSrcDir);
+                        (var msapp2, var errors2) = CanvasDocument.LoadFromSources(outSrcDir);
+                        errors2.ThrowOnErrors();
 
-                        msapp2.SaveAsMsApp(outFile); // Write out .pa files.
-                        var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
-                        return ok;
+                        errors2 = msapp2.SaveToMsApp(outFile); // Write out .pa files.
+                        errors2.ThrowOnErrors();
+                        var ok2 = MsAppTest.Compare(pathToMsApp, outFile, log);
+                        return ok2;
                     }
                 }
             }
