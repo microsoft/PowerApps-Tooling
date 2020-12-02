@@ -163,7 +163,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 StyleName = control.StyleName,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
-                IsComponentDefinition = isComponentDef,
+                IsComponentDefinition = control.Template.IsComponentDefinition,
             };
 
             stateStore.TryAddControl(controlState);
