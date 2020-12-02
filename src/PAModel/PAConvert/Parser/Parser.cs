@@ -112,7 +112,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         else
                         {
                             var functionNode = ParseFunctionDef(p);
-                            if (_errorContainer.HasErrors
+                            if (_errorContainer.HasErrors)
                             {
                                 return null;
                             }

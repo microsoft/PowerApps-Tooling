@@ -177,14 +177,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (prop, state);
         }
 
-        internal static SourceFile CombineIRAndState(BlockNode blockNode, EditorStateStore stateStore, TemplateStore templateStore)
+        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore)
         {
-            var topParentJson = CombineIRAndState(blockNode, string.Empty, stateStore, templateStore);
+            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore);
             return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
-        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, string parent, EditorStateStore stateStore, TemplateStore templateStore)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore)
         {
             var controlName = blockNode.Name.Identifier;
 
@@ -192,7 +192,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, controlName, stateStore, templateStore));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
@@ -227,8 +227,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         var funcName = func.Identifier;
                         var thisPropertyBlock = func.Metadata.FirstOrDefault(metadata => metadata.Identifier == PAConstants.ThisPropertyIdentifier);
                         if (thisPropertyBlock == default)
-                            throw new InvalidOperationException("Function definition missing ThisProperty block");
-
+                        {
+                            errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Function definition missing ThisProperty block");
+                            throw new DocumentException();
+                        }
                         properties.Add(GetPropertyEntry(state, funcName, thisPropertyBlock.Default.Expression));
 
                         foreach (var arg in func.Metadata)
@@ -239,7 +241,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             properties.Add(GetPropertyEntry(state, funcName + "_" + arg.Identifier, arg.Default.Expression));
                         }
 
-                        RepopulateTemplateCustomProperties(func, templateState);
+                        RepopulateTemplateCustomProperties(func, templateState, errors);
                     }
                 }
                 else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
@@ -296,12 +298,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
-        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState)
+        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors)
         {
             var funcName = func.Identifier;
             var customProp = templateState.CustomProperties.FirstOrDefault(prop => prop.Name == funcName);
             if (customProp == default)
-                throw new NotImplementedException("Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+            {
+                errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+                throw new DocumentException();
+            }
 
             var scopeArgs = customProp.PropertyScopeKey.PropertyScopeRulesKey.ToDictionary(scope => scope.Name);
             var argTypes = func.Args.ToDictionary(arg => arg.Identifier, arg => arg.Kind.TypeName);
@@ -316,9 +321,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var propertyName = funcName + "_" + arg.Identifier;
 
                 if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
-                    throw new NotImplementedException("Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+                {
+                    errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+                    throw new DocumentException();
+                }
                 if (!argTypes.TryGetValue(arg.Identifier, out var propType) || !Enum.TryParse<PropertyDataType>(propType, out var propTypeEnum))
-                    throw new NotImplementedException("Function metadata blocks must correspond to a function parameter with a valid type");
+                {
+                    errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Function metadata blocks must correspond to a function parameter with a valid type");
+                    throw new DocumentException();
+                }
 
                 propScopeRule.ScopeVariableInfo.DefaultRule = defaultRule;
                 propScopeRule.ScopeVariableInfo.ParameterIndex = i;

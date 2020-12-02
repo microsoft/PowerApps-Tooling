@@ -359,7 +359,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
-                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, app._editorStateStore, app._templateStore);
+                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore);
                 sourceFiles.Add(sourceFile);
             }
 
