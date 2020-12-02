@@ -62,7 +62,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
-    [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
+    [DebuggerDisplay("{TypeName}.{OptionalVariant}")]
     internal class TypeNode : IRNode
     {
         public string TypeName;
@@ -99,7 +99,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         }
     }
 
-    [DebuggerDisplay("{Identifier}: ={DefaultValue}")]
+    [DebuggerDisplay("{Identifier}: ={Default}")]
     internal class ArgMetadataBlockNode : IRNode
     {
         public string Identifier;
