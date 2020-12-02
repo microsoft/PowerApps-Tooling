@@ -47,12 +47,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             node.Name.Accept(this, context);
             context._yaml.WriteStartObject(context._sb.ToString());
 
-            /* $$$
+            
             foreach (var func in node.Functions)
             {
-                result = result.With(func.Accept(this, childContext)).With("\n");
+                func.Accept(this, context);
             }
-            */
 
             foreach (var prop in node.Properties)
             {
@@ -76,9 +75,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             node.Kind.Accept(this, context);
         }
 
-        public override void Visit(TemplateNode node, Context context)
+        public override void Visit(TypeNode node, Context context)
         {
-            context._sb.Append(CharacterUtils.EscapeName(node.TemplateName));
+            context._sb.Append(CharacterUtils.EscapeName(node.TypeName));
 
             if (!string.IsNullOrEmpty(node.OptionalVariant))
             {
@@ -97,11 +96,43 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public override void Visit(FunctionNode node, Context context)
         {
+            context._sb.Clear();
+            context._sb.Append(CharacterUtils.EscapeName(node.Identifier)).Append('(');
+            var isFirst = true;
+            foreach (var arg in node.Args)
+            {
+                if (!isFirst)
+                    context._sb.Append(", ");
+
+                isFirst = false;
+                arg.Accept(this, context);
+            }
+            context._sb.Append(")");
+            var property = context._sb.ToString();
+
+            context._sb.Clear();
+            context._yaml.WriteStartObject(property);
+
+            foreach (var metadataBlock in node.Metadata)
+            {
+                metadataBlock.Accept(this, context);
+            }
+
+            context._yaml.WriteEndObject();
         }
 
         public override void Visit(ExpressionNode node, Context context)
         {
             context._sb.Append(node.Expression);
+        }
+
+        public override void Visit(ArgMetadataBlockNode node, Context context)
+        {
+            context._yaml.WriteStartObject(node.Identifier);
+            context._sb.Clear();
+            node.Default.Accept(this, context);
+            context._yaml.WriteProperty("Default", context._sb.ToString());
+            context._yaml.WriteEndObject();
         }
     }
 }

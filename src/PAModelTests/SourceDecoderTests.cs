@@ -16,9 +16,10 @@ namespace PAModelTests
         // - are we removing default properties, from both Theme Json and Template xmL?
         // - canonical ordering and stable output 
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "Weather_Screen1.pa1")]
-        [DataRow("GalleryTestApp.msapp", "Gallery_ScreenTest.pa1")]
-        public void TestScreenBaselines(string appName, string screenBaselineName)
+        [DataRow("MyWeather.msapp", "Screen1.pa.yaml", "Weather_Screen1.pa.yaml")]
+        [DataRow("GalleryTestApp.msapp", "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
+        [DataRow("SimpleScopeVariables.msapp", "Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
+        public void TestScreenBaselines(string appName, string sourceFileName, string screenBaselineName)
         {
             // Pull both the msapp and the baseline from our embedded resources. 
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
@@ -33,7 +34,7 @@ namespace PAModelTests
                 string outSrcDir = tempDir.Dir;
                 msapp.SaveToSources(outSrcDir);
 
-                var pathActual = Path.Combine(outSrcDir, "Src", "Screen1.pa.yaml");
+                var pathActual = Path.Combine(outSrcDir, "Src", sourceFileName);
                 var pathExpected = Path.Combine(Environment.CurrentDirectory, "SrcBaseline", screenBaselineName);
 
 

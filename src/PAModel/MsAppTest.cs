@@ -156,6 +156,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     // For debugging. Help find exactly where the difference is. 
                                     for(int i = 0; i < otherContents.Length; i++)
                                     {
+                                        if (i >= str.Length)
+                                        {
+                                            break;
+                                        }
                                         if (otherContents[i] != str[i])
                                         {
 

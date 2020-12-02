@@ -398,6 +398,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 {
                     return Unsupported(line, "Property value must start with an '='");
                 }
+
                 value = value.Substring(1); // move past '='
             }
             else

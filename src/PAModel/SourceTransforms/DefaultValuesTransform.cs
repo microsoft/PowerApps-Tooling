@@ -25,7 +25,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         public void AfterRead(BlockNode node)
         {
             var controlName = node.Name.Identifier;
-            var templateName = node.Name.Kind.TemplateName;
+            var templateName = node.Name.Kind.TypeName;
 
             var styleName = $"default{templateName}Style";
 
@@ -48,7 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         public void BeforeWrite(BlockNode node)
         {
             var controlName = node.Name.Identifier;
-            var templateName = node.Name.Kind.TemplateName;
+            var templateName = node.Name.Kind.TypeName;
 
             var styleName = $"default{templateName}Style";
 

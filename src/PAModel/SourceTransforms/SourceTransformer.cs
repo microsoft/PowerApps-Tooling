@@ -31,7 +31,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             // Apply default values first, before re-arranging controls
             _defaultValTransform.AfterRead(control);
 
-            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
+            var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
 
             foreach (var transform in _templateTransforms)
             {
@@ -41,7 +41,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         }
         public void ApplyBeforeWrite(BlockNode control)
         {
-            var controlTemplateName = control.Name?.Kind?.TemplateName ?? string.Empty;
+            var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
 
             foreach (var transform in _templateTransforms.Reverse())
             {

@@ -64,9 +64,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 Name = new TypedNameNode()
                 {
                     Identifier = galleryTemplateName,
-                    Kind = new TemplateNode()
+                    Kind = new TypeNode()
                     {
-                        TemplateName = _childTemplateName
+                        TypeName = _childTemplateName
                     }
                 },
                 Children = new List<BlockNode>(),
@@ -84,7 +84,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             BlockNode galleryTemplateChild = null;
             foreach (var child in control.Children)
             {
-                if (child.Name.Kind.TemplateName == _childTemplateName)
+                if (child.Name.Kind.TypeName == _childTemplateName)
                 {
                     galleryTemplateChild = child;
                     break;

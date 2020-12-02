@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Microsoft.AppMagic.Authoring.Persistence;
+using System;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -31,37 +33,119 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 ++childIndex;
             }
 
+            var isComponentDef = control.Template.IsComponentDefinition ?? false;
+
+            var customPropsToHide = new HashSet<string>();
+            var functions = new List<FunctionNode>();
+            if (control.Template.CustomProperties?.Any() ?? false)
+            {
+                if (!isComponentDef)
+                {
+                    // Skip component property params on instances
+                    customPropsToHide = new HashSet<string>(control.Template.CustomProperties
+                        .Where(customProp => customProp.IsFunctionProperty)
+                        .SelectMany(customProp =>
+                            customProp.PropertyScopeKey.PropertyScopeRulesKey
+                                .Select(propertyScopeRule => propertyScopeRule.Name)
+                        ));
+                }
+                else
+                {
+                    // Create FunctionNodes on def
+                    foreach (var customProp in control.Template.CustomProperties.Where(prop => prop.IsFunctionProperty))
+                    {
+                        var name = customProp.Name;
+                        customPropsToHide.Add(name);
+                        var expression = control.Rules.First(rule => rule.Property == name).InvariantScript;
+                        var expressionNode = new ExpressionNode() { Expression = expression };
+
+                        var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
+
+                        var args = new List<TypedNameNode>();
+                        var argMetadata = new List<ArgMetadataBlockNode>();
+                        foreach (var arg in customProp.PropertyScopeKey.PropertyScopeRulesKey)
+                        {
+                            customPropsToHide.Add(arg.Name);
+                            args.Add(new TypedNameNode()
+                            {
+                                Identifier = arg.ScopeVariableInfo.ScopeVariableName,
+                                Kind = new TypeNode()
+                                {
+                                    TypeName = ((PropertyDataType)arg.ScopeVariableInfo.ScopePropertyDataType).ToString()
+                                }
+                            });
+
+                            argMetadata.Add(new ArgMetadataBlockNode()
+                            {
+                                Identifier = arg.ScopeVariableInfo.ScopeVariableName,
+                                Default = new ExpressionNode()
+                                {
+                                    Expression = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
+                                },
+                            });
+
+                            arg.ScopeVariableInfo.DefaultRule = null;
+                            arg.ScopeVariableInfo.ScopePropertyDataType = null;
+                            arg.ScopeVariableInfo.ParameterIndex = null;
+                            arg.ScopeVariableInfo.ParentPropertyName = null;
+                        }
+
+                        argMetadata.Add(new ArgMetadataBlockNode()
+                        {
+                            Identifier = PAConstants.ThisPropertyIdentifier,
+                            Default = new ExpressionNode()
+                            {
+                                Expression = expression.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart(),
+                            },
+                        });
+
+                        functions.Add(new FunctionNode()
+                        {
+                            Args = args,
+                            Metadata = argMetadata,
+                            Identifier = name
+                        });
+                    }
+                }
+            }
+
             var properties = new List<PropertyNode>();
-            var propStates = new List<PropertyState >();
+            var propStates = new List<PropertyState>();
             foreach (var property in control.Rules)
             {
                 var (prop, state) = SplitProperty(property);
-                properties.Add(prop);
                 propStates.Add(state);
-            }
 
-            // TODO: Handle custom props in component defintions for FunctionNodes
+                if (customPropsToHide.Contains(property.Property))
+                    continue;
+
+                properties.Add(prop);
+            }
 
             controlIR = new BlockNode()
             {
                 Name = new TypedNameNode()
                 {
                     Identifier = control.Name,
-                    Kind = new TemplateNode()
+                    Kind = new TypeNode()
                     {
-                        TemplateName = control.Template.TemplateDisplayName ?? control.Template.Name,
+                        TypeName = control.Template.TemplateDisplayName ?? control.Template.Name,
                         OptionalVariant = string.IsNullOrEmpty(control.VariantName) ? null : control.VariantName
                     }
                 },
                 Children = children,
                 Properties = properties,
+                Functions = functions,
             };
 
 
             if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
-                if (control.Template.IsComponentDefinition ?? false)
+                if (isComponentDef)
+                {
                     templateState.IsComponentTemplate = true;
+                    templateState.CustomProperties = control.Template.CustomProperties;
+                }
             }
             else
             {
@@ -93,14 +177,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (prop, state);
         }
 
-        internal static SourceFile CombineIRAndState(BlockNode blockNode, EditorStateStore stateStore, TemplateStore templateStore)
+        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore)
         {
-            var topParentJson = CombineIRAndState(blockNode, string.Empty, stateStore, templateStore);
+            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore);
             return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
-        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, string parent, EditorStateStore stateStore, TemplateStore templateStore)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore)
         {
             var controlName = blockNode.Name.Identifier;
 
@@ -108,13 +192,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, controlName, stateStore, templateStore));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
             var templateIR = blockNode.Name.Kind;
-            var templateName = templateIR.TemplateName;
+            var templateName = templateIR.TypeName;
             var variantName = templateIR.OptionalVariant;
             ControlInfoJson.Template template;
 
@@ -135,6 +219,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     properties.Add(CombinePropertyIRAndState(propIR, state));
                 }
+
+                if (blockNode.Functions.Any())
+                {
+                    foreach (var func in blockNode.Functions)
+                    {
+                        var funcName = func.Identifier;
+                        var thisPropertyBlock = func.Metadata.FirstOrDefault(metadata => metadata.Identifier == PAConstants.ThisPropertyIdentifier);
+                        if (thisPropertyBlock == default)
+                        {
+                            errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Function definition missing ThisProperty block");
+                            throw new DocumentException();
+                        }
+                        properties.Add(GetPropertyEntry(state, funcName, thisPropertyBlock.Default.Expression));
+
+                        foreach (var arg in func.Metadata)
+                        {
+                            if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
+                                continue;
+
+                            properties.Add(GetPropertyEntry(state, funcName + "_" + arg.Identifier, arg.Default.Expression));
+                        }
+
+                        RepopulateTemplateCustomProperties(func, templateState, errors);
+                    }
+                }
+                else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
+                {
+                    // For component uses, recreate the dummy props for function parameters
+                    foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
+                    {
+                        properties.Add(GetPropertyEntry(state, hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule));
+                    }
+                }                
 
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
@@ -157,7 +274,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
                     template.ComponentDefinitionInfo = null;
-                } else
+                }
+                else
                 {
                     template.IsComponentDefinition = state.IsComponentDefinition;
                 }
@@ -180,17 +298,76 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
+        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors)
+        {
+            var funcName = func.Identifier;
+            var customProp = templateState.CustomProperties.FirstOrDefault(prop => prop.Name == funcName);
+            if (customProp == default)
+            {
+                errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+                throw new DocumentException();
+            }
+
+            var scopeArgs = customProp.PropertyScopeKey.PropertyScopeRulesKey.ToDictionary(scope => scope.Name);
+            var argTypes = func.Args.ToDictionary(arg => arg.Identifier, arg => arg.Kind.TypeName);
+
+            int i = 1;
+            foreach (var arg in func.Metadata)
+            {
+                if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
+                    continue;
+
+                var defaultRule = arg.Default.Expression;
+                var propertyName = funcName + "_" + arg.Identifier;
+
+                if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
+                {
+                    errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
+                    throw new DocumentException();
+                }
+                if (!argTypes.TryGetValue(arg.Identifier, out var propType) || !Enum.TryParse<PropertyDataType>(propType, out var propTypeEnum))
+                {
+                    errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Function metadata blocks must correspond to a function parameter with a valid type");
+                    throw new DocumentException();
+                }
+
+                propScopeRule.ScopeVariableInfo.DefaultRule = defaultRule;
+                propScopeRule.ScopeVariableInfo.ParameterIndex = i;
+                propScopeRule.ScopeVariableInfo.ParentPropertyName = funcName;
+                propScopeRule.ScopeVariableInfo.ScopePropertyDataType = (int)propTypeEnum;
+
+                ++i;
+            }
+        }
+
         private static ControlInfoJson.RuleEntry CombinePropertyIRAndState(PropertyNode node, ControlState state = null)
         {
             var propName = node.Identifier;
             var expression = node.Expression.Expression;
 
+            if (state == null)
+            {
+                var property = new ControlInfoJson.RuleEntry();
+                property.Property = propName;
+                property.InvariantScript = expression;
+                property.RuleProviderType = "Unknown";
+                return property;
+            }
+            else
+            {
+                var property = GetPropertyEntry(state, propName, expression);
+                return property;
+            }
+        }
+
+        private static ControlInfoJson.RuleEntry GetPropertyEntry(ControlState state, string propName, string expression)
+        {
             var property = new ControlInfoJson.RuleEntry();
             property.Property = propName;
             property.InvariantScript = expression;
 
             PropertyState propState = null;
-            if (state?.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState) ?? false)
+            if (state.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
             {
                 property.ExtensionData = propState.ExtensionData;
                 property.NameMap = propState.NameMap;

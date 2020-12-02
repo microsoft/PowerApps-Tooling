@@ -1,0 +1,49 @@
+Component1 As '2084e421e013418f80ec0a1d9024570f':
+  ValidateDates(StartDate As DateTime, EndDate As DateTime):
+    StartDate:
+      Default: =Now()
+    EndDate:
+      Default: =Now()
+    ThisProperty:
+      Default: =true
+  Fill: =RGBA(0, 0, 0, 0)
+  Height: =640
+  Width: =640
+  X: =0
+  Y: =0
+  ZIndex: =1
+
+  Label3 As label:
+    Text: |-
+      ="Start:"
+    X: =40
+    Y: =72
+    ZIndex: =5
+
+  DatePicker1 As datepicker:
+    X: =171
+    Y: =72
+    ZIndex: =3
+
+  Label3_1 As label:
+    Text: |-
+      ="End: "
+    X: =40
+    Y: =159
+    ZIndex: =6
+
+  DatePicker2 As datepicker:
+    X: =171
+    Y: =159
+    ZIndex: =4
+
+  Label2 As label:
+    Text: |-
+      ="The dates are valid: " & Component1.ValidateDates( DatePicker1.SelectedDate, DatePicker2.SelectedDate )
+    X: =40
+    Y: =282
+    Width: =404
+    Height: =46
+    ZIndex: =2
+    Size: =24
+

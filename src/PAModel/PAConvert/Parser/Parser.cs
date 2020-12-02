@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
@@ -25,6 +25,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         }
 
+        private Regex _controlDefRegex = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)(\.(\S+))?$");
+
+
         // Parse the control definition line. Something like:
         //   Screen1 as Screen
         //   Label1 As Label.Variant
@@ -32,10 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             string line = token.Property;
 
-            // $$$ use real parser for this?
-            Regex r = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)(\.(\S+))?$");
-
-            var m = r.Match(line);
+            var m = _controlDefRegex.Match(line);
             if (!m.Success)
             {
                 _errorContainer.ParseError(token.Span, "Can't parse control definition");
@@ -50,9 +50,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             return new TypedNameNode
             {
                 Identifier = controlName,
-                Kind = new TemplateNode
+                Kind = new TypeNode
                 {
-                    TemplateName = templateName,
+                    TypeName = templateName,
                     OptionalVariant = variantName
                 }
             };
@@ -98,13 +98,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         });
                         break;
 
+                    // StartObj can either be a Control or Function def
                     case YamlTokenKind.StartObj:
-                        var childNode = ParseNestedControl(p);
-                        if (_errorContainer.HasErrors)
+                        if (IsControlStart(p.Property))
                         {
-                            return null;
+                            var childNode = ParseNestedControl(p);
+                            if (_errorContainer.HasErrors)
+                            {
+                                return null;
+                            }
+                            block.Children.Add(childNode);
                         }
-                        block.Children.Add(childNode);
+                        else
+                        {
+                            var functionNode = ParseFunctionDef(p);
+                            if (_errorContainer.HasErrors)
+                            {
+                                return null;
+                            }
+                            block.Functions.Add(functionNode);
+                        }
                         break;
 
                     case YamlTokenKind.Error:
@@ -113,9 +126,111 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
                     default:
                         _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
-                        return null;
+                        throw new DocumentException();
                 }
             }
-        }                
+        }
+
+        // Name ( Parameter-Name As Data-type [ , Parameter-Name As Data-type ... ] ) :  (ThisProperty or Parameter-Name) :   Metadata-Name : Metadata-Value   ...  ...
+        // Currently iterating on what fields are present in the property metadata blocks
+        // Right now, only Default is permitted
+        private FunctionNode ParseFunctionDef(YamlToken p)
+        {
+            var paramRegex = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)");
+            var funcNameRegex = new Regex(@"^(.+?)\(");
+            var line = p.Property;
+            var m = funcNameRegex.Match(line);
+
+            if (!m.Success)
+            {
+                _errorContainer.ParseError(p.Span, $"Can't parse Function definition");
+                throw new DocumentException();
+            }
+
+            var funcName = m.Groups[1].Value;
+            var functionNode = new FunctionNode() { Identifier = funcName };
+
+            line = line.Substring(m.Length);
+
+            m = paramRegex.Match(line);
+            while (m.Success)
+            {
+                string argName = CharacterUtils.UnEscapeName(m.Groups[1].Value);
+                string kindName = CharacterUtils.UnEscapeName(m.Groups[2].Value);
+
+                functionNode.Args.Add(new TypedNameNode
+                {
+                    Identifier = argName,
+                    Kind = new TypeNode
+                    {
+                        TypeName = kindName
+                    }
+                });
+
+                line = line.Substring(m.Length).TrimStart(',', ' ');
+                m = paramRegex.Match(line);
+            }
+
+            if (line != ")")
+            {
+                _errorContainer.ParseError(p.Span, $"Missing closing ')' in function definition");
+                throw new DocumentException();
+            }
+
+            while (true)
+            {
+                p = _yaml.ReadNext();
+                switch (p.Kind)
+                {
+                    case YamlTokenKind.EndObj:
+                        return functionNode;
+
+                    // Expecting N+1 child objs where one is ThisProperty and the others N are the args 
+                    case YamlTokenKind.StartObj:
+                        functionNode.Metadata.Add(ParseArgMetadataBlock(p));
+                        break;
+                    case YamlTokenKind.Error:
+                        _errorContainer.ParseError(p.Span, p.Value);
+                        return null;
+
+                    default:
+                        _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
+                        throw new DocumentException();
+                }
+            }
+        }
+
+        private ArgMetadataBlockNode ParseArgMetadataBlock(YamlToken p)
+        {
+            var argNode = new ArgMetadataBlockNode() { Identifier = p.Property };
+            while (true)
+            {
+                p = _yaml.ReadNext();
+                switch (p.Kind)
+                {
+                    case YamlTokenKind.EndObj:
+                        return argNode;
+
+                    case YamlTokenKind.Property:
+                        if (p.Property == nameof(ArgMetadataBlockNode.Default))
+                            argNode.Default = new ExpressionNode() { Expression = p.Value };
+                        else
+                        {
+                            _errorContainer.ParseError(p.Span, $"Unexpected key in function definition: {p}");
+                            throw new DocumentException();
+                        }
+                        break;
+                    case YamlTokenKind.Error:
+                        _errorContainer.ParseError(p.Span, p.Value);
+                        return null;
+
+                    default:
+                        _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
+                        throw new DocumentException();
+                }
+            }
+        }
+
+        private bool IsControlStart(string line) => _controlDefRegex.IsMatch(line);
     }
 }

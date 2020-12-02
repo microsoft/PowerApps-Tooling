@@ -51,7 +51,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// <summary>
         /// Kind is not required in all cases. 
         /// </summary>
-        public TemplateNode Kind;
+        public TypeNode Kind;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
@@ -62,10 +62,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
-    [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
-    internal class TemplateNode : IRNode
+    [DebuggerDisplay("{TypeName}.{OptionalVariant}")]
+    internal class TypeNode : IRNode
     {
-        public string TemplateName;
+        public string TypeName;
         public string OptionalVariant;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
@@ -86,11 +86,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         }
     }
 
+    [DebuggerDisplay("{Identifier}({string.Join(',', Args)}):")]
     internal class FunctionNode : IRNode
     {
         public string Identifier;
-        public IList<TypedNameNode> Args;
-        public ExpressionNode Expression;
+        public IList<TypedNameNode> Args = new List<TypedNameNode>();
+        public IList<ArgMetadataBlockNode> Metadata = new List<ArgMetadataBlockNode>();
+
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
+        {
+            visitor.Visit(this, context);
+        }
+    }
+
+    [DebuggerDisplay("{Identifier}: ={Default}")]
+    internal class ArgMetadataBlockNode : IRNode
+    {
+        public string Identifier;
+        public ExpressionNode Default;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
