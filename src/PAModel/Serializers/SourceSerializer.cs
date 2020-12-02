@@ -45,7 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Full fidelity read-write
 
-        public static CanvasDocument LoadFromSource(string directory2)
+        public static CanvasDocument LoadFromSource(string directory2, ErrorContainer errors)
         {
             if (File.Exists(directory2))
             {
@@ -75,7 +75,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                         if (manifest.FormatVersion != CurrentSourceVersion)
                         {
-                            throw new NotSupportedException($"This tool only supports {CurrentSourceVersion}, the manifest version is {manifest.FormatVersion}");
+                            errors.FormatNotSupported($"This tool only supports {CurrentSourceVersion}, the manifest version is {manifest.FormatVersion}");
+                            throw new DocumentException();
                         }
 
                         app._properties = manifest.Properties;
@@ -86,8 +87,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             if (app._header == null)
             {
-                // Manifest not found. 
-                throw new NotSupportedException($"Can't find CanvasManifest.json file - is sources an old version?");
+                // Manifest not found.
+                errors.FormatNotSupported($"Can't find CanvasManifest.json file - is sources an old version?");
+                throw new DocumentException();
             }
 
             // Load template files, recreate References/templates.json
@@ -132,7 +134,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app.GetLogoFileFromUnknowns();
 
             LoadDataSources(app, dir);
-            LoadSourceFiles(app, dir, templateDefaults);
+            LoadSourceFiles(app, dir, templateDefaults, errors);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
@@ -156,7 +158,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return app;
         }
 
-        public static CanvasDocument Create(string appName, string packagesPath, IList<string> paFiles)
+        public static CanvasDocument Create(string appName, string packagesPath, IList<string> paFiles, ErrorContainer errors)
         {
             var app = new CanvasDocument();
 
@@ -169,7 +171,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             AddDefaultTheme(app);
 
-            CreateControls(app, paFiles, loadedTemplates);
+            CreateControls(app, paFiles, loadedTemplates, errors);
 
             return app;
         }
@@ -212,7 +214,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults)
+        private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
         {
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
             {
@@ -251,42 +253,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml"))
             {
-                AddControl(app, file._relativeName, file.GetContents());
-            }
+                AddControl(app, file._relativeName, file.GetContents(), errors);
+            }            
         }
 
-        private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults)
+        private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
         {
             foreach (var file in paFiles)
             {
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, file, fileEntry.GetContents());
+                AddControl(app, file, fileEntry.GetContents(), errors);
             }
         }
 
-        private static void AddControl(CanvasDocument app, string filePath, string fileContents)
+        private static void AddControl(CanvasDocument app, string filePath, string fileContents, ErrorContainer errors)
         {
             var filename = Path.GetFileName(filePath);
             try
             {
-                var parser = new Parser.Parser(filePath, fileContents);
+                var parser = new Parser.Parser(filePath, fileContents, errors);
                 var controlIR = parser.ParseControl();
-                if (parser.HasErrors())
-                {
-                    parser.WriteErrors();
-                    Console.WriteLine("Skipping adding file to .msapp due to parse errors");
-                    Console.WriteLine("This tool is still in development, if these errors are wrong, please open an issue on our github page with a copy of your app");
-                    return;
-                }
-
                 app._sources.Add(controlIR.Name.Identifier, controlIR);
             }
-            catch
+            catch (DocumentException)
             {
-                Console.WriteLine(
-                    "Parsing failed for file " + filename + "\n" +
-                    "This tool is still in development, please open an issue on our github page with a copy of your app");
+                // On DocumentException, continue looking for errors in other files. 
             }
         }
 
@@ -307,7 +299,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Write out to a directory (this shards it) 
-        public static void SaveAsSource(this CanvasDocument app, string directory2)
+        public static void SaveAsSource(CanvasDocument app, string directory2, ErrorContainer errors)
         { 
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
@@ -374,7 +366,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var altFileName = dataSource.GetUniqueName() + "_" + index + ".json";
                     while (!filenames.Add(altFileName.ToLower()))
                         ++index;
-                    Console.WriteLine("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
+
+                    errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
                     filename = altFileName;
                 }
 

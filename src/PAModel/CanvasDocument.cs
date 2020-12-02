@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -63,28 +65,89 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
 
-        #region Save/Load 
-        public static CanvasDocument LoadFromMsapp(string fullPathToMsApp)
+        #region Save/Load
+
+        /// <summary>
+        /// Load an .msapp file for a Canvas Document. 
+        /// </summary>
+        /// <param name="fullPathToMsApp">path to an .msapp file</param>
+        /// <returns>A tuple of the document and errors and warnings. If there are errors, the document is null.  </returns>
+        public static (CanvasDocument,ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
         {
-            return MsAppSerializer.Load(fullPathToMsApp);
+            var errors = new ErrorContainer();
+            var doc = Wrapper(() => MsAppSerializer.Load(fullPathToMsApp, errors), errors);
+            return (doc, errors);            
         }
-        public static CanvasDocument LoadFromSources(string pathToSourceDirectory)
+
+        public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
-            return SourceSerializer.LoadFromSource(pathToSourceDirectory);
+            var errors = new ErrorContainer();
+            var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
+            return (doc, errors);
         }
-        public void SaveToMsApp(string fullPathToMsApp)
+
+        public ErrorContainer SaveToMsApp(string fullPathToMsApp)
         {
-            MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp);
+            var errors = new ErrorContainer();
+            Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
+            return errors;
         }
-        public void SaveToSources(string pathToSourceDirectory)
+        public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
-            SourceSerializer.SaveAsSource(this, pathToSourceDirectory);
+            var errors = new ErrorContainer();
+            Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
+            return errors;
         }
-        public static CanvasDocument MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
+        public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
         {
-            return SourceSerializer.Create(appName, packagesPath, paFiles);
+            var errors = new ErrorContainer();
+            var doc = Wrapper(() => SourceSerializer.Create(appName, packagesPath, paFiles, errors), errors);
+            return (doc, errors);
         }
+
         #endregion
+
+        // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors. 
+        private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors)
+        {
+            CanvasDocument document = null;
+            try
+            {
+                document = worker();
+                if (errors.HasErrors)
+                {
+                    return null;
+                }
+                return document;
+            }
+            catch (Exception e)
+            {
+                if (!errors.HasErrors)
+                {
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
+                }
+                return null;
+            }
+        }
+
+        private static void Wrapper(Action worker, ErrorContainer errors)
+        {
+            try
+            {
+                worker();
+            }
+            catch (Exception e)
+            {
+                if (!errors.HasErrors)
+                {
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
+                }
+            }
+        }
 
         internal CanvasDocument()
         {

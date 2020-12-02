@@ -3,33 +3,72 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    internal class ErrorContainer
+    /// <summary>
+    /// Container for errors (which may have prevented the operation)
+    /// or warnings (which are informational, but could be ignored).
+    /// </summary>
+    public class ErrorContainer : IEnumerable<Error>
     {
-        private List<PAError> _errors;
-
-        public ErrorContainer()
+        private List<Error> _errors = new List<Error>();
+                
+        internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
         {
-            _errors = new List<PAError>();
+            _errors.Add(new Error(code, span, errorMessage));
+        }        
+
+        public bool HasErrors => _errors.Any(error => error.IsError);
+
+        // Helper for interupting processing once we have errors.
+        // Ignores warnings. 
+        internal void ThrowOnErrors()
+        {
+            if (this.HasErrors)
+            {
+                throw new DocumentException();
+            }
         }
 
-        internal void AddError(SourceLocation span, string errorMessage)
+        public IEnumerator<Error> GetEnumerator()
         {
-            _errors.Add(new PAError(span, errorMessage));
+            return this._errors.GetEnumerator();
         }
 
-        public bool HasErrors()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return _errors.Any();
+            IEnumerable inner = this._errors;
+            return inner.GetEnumerator();
         }
 
-        public IEnumerable<PAError> Errors()
+        // Helper for writing out errors.
+        public void Write(TextWriter output)
         {
-            return _errors.AsEnumerable();
+            int countWarnings = 0;
+            int countErrors = 0;
+
+            foreach(var error in this)
+            {
+                if (error.IsError) { countErrors++; } else { countWarnings++;  }
+                output.WriteLine(error);
+            }
+
+            if (countErrors + countWarnings > 0)
+            {
+                output.WriteLine($"{countErrors} errors, {countWarnings} warnings.");
+            }
+        }
+
+        public override string ToString()
+        {
+            StringWriter s = new StringWriter();
+            Write(s);
+            return s.ToString();
         }
     }
 }
