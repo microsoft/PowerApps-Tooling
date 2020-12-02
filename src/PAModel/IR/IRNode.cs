@@ -65,7 +65,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     [DebuggerDisplay("{TemplateName}.{OptionalVariant}")]
     internal class TypeNode : IRNode
     {
-        public string TemplateName;
+        public string TypeName;
         public string OptionalVariant;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
@@ -86,12 +86,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         }
     }
 
+    [DebuggerDisplay("{Identifier}({string.Join(',', Args)}):")]
     internal class FunctionNode : IRNode
     {
         public string Identifier;
+        public IList<TypedNameNode> Args = new List<TypedNameNode>();
+        public IList<ArgMetadataBlockNode> Metadata = new List<ArgMetadataBlockNode>();
+
+        public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
+        {
+            visitor.Visit(this, context);
+        }
+    }
+
+    [DebuggerDisplay("{Identifier}: ={DefaultValue}")]
+    internal class ArgMetadataBlockNode : IRNode
+    {
+        public string Identifier;
+        public string Description;
+        public ExpressionNode Default;
+
+        // Only present for ThisProperty
         public TypeNode ResultType;
-        public IList<TypedNameNode> Args;
-        public ExpressionNode Expression;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {

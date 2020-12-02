@@ -158,14 +158,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         /// Get the next token in the stream. Returns an EOF at the end of document. 
         /// </summary>
         /// <returns></returns>
-        public YamlToken ReadNext()
+        public YamlToken ReadNext(bool acceptQuotedStringLiteral = false)
         {
-            var pair = ReadNextWorker();
+            var pair = ReadNextWorker(acceptQuotedStringLiteral);
             _lastPair = pair;
             return pair;
         }
 
-        private YamlToken ReadNextWorker()
+        private YamlToken ReadNextWorker(bool acceptQuotedStringLiteral)
         {
             // Warn on:
             //   # comment
@@ -335,6 +335,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
                 MoveNextLine();
             }
+            else if (line.Current == '\"' && acceptQuotedStringLiteral)
+            {
+                // Single line, yaml string
+                value = line.RestOfLine.Trim('\"');
+                MoveNextLine();
+            }
             else if ((line.Current == '\"') || (line.Current == '\''))
             {
                 // These are common YAml sequences, but extremely problematic and could be user error.
@@ -398,6 +404,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 {
                     return Unsupported(line, "Property value must start with an '='");
                 }
+
                 value = value.Substring(1); // move past '='
             }
             else

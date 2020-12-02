@@ -15,5 +15,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public abstract void Visit(PropertyNode node, Context context);
         public abstract void Visit(FunctionNode node, Context context);
         public abstract void Visit(ExpressionNode node, Context context);
+        public abstract void Visit(ArgMetadataBlockNode node, Context context);
     }
 }

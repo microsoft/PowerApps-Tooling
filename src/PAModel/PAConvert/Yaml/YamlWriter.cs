@@ -40,6 +40,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
+        public void WriteQuotedSingleLinePair(string propertyName, string value)
+        {
+            if (value == null)
+            {
+                WriteIndent();
+                _text.Write(propertyName);
+                _text.WriteLine(":");
+                return;
+            }
+
+            WriteIndent();
+            _text.Write(propertyName);
+            _text.Write(": \"");
+            _text.Write(EscapeString(value));
+            _text.WriteLine("\"");
+        }
+
+        private string EscapeString(string value)
+        {
+            return value.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\"", "\\\"");
+        }
+
         /// <summary>
         /// Safely write a property. Based on the value, will chose whether single-line (and prefix with an '=')
         /// or multi-line and pick the right the escape. 
@@ -58,8 +80,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
             bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
-            // For consistency, both single and multiline properties prefix with '='.
-            // Only single-line actually needs this - to avoid yaml's regular expression escaping. 
+            // For consistency, both single and multiline PA properties prefix with '='.
+            // Only single-line actually needs this - to avoid yaml's regular expression escaping.
             value = '=' + value;
 
             if (isSingleLine)

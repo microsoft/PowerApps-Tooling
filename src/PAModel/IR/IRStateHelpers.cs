@@ -41,6 +41,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     // Skip component property params on instances
                     customPropsToHide = new HashSet<string>(control.Template.CustomProperties
+                        .Where(customProp => customProp.IsFunctionProperty)
                         .SelectMany(customProp =>
                             customProp.PropertyScopeKey.PropertyScopeRulesKey
                                 .Select(propertyScopeRule => propertyScopeRule.Name)
@@ -49,33 +50,63 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 else
                 {
                     // Create FunctionNodes on def
-                    foreach (var customProp in control.Template.CustomProperties)
+                    foreach (var customProp in control.Template.CustomProperties.Where(prop => prop.IsFunctionProperty))
                     {
                         var name = customProp.Name;
                         customPropsToHide.Add(name);
                         var expression = control.Rules.First(rule => rule.Property == name).InvariantScript;
                         var expressionNode = new ExpressionNode() { Expression = expression };
 
-                        var resultType = new TypeNode() { TemplateName = customProp.PropertyDataTypeKey };
+                        var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
 
                         var args = new List<TypedNameNode>();
+                        var argMetadata = new List<ArgMetadataBlockNode>();
                         foreach (var arg in customProp.PropertyScopeKey.PropertyScopeRulesKey)
                         {
+                            customPropsToHide.Add(arg.Name);
                             args.Add(new TypedNameNode()
                             {
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Kind = new TypeNode()
                                 {
-                                    TemplateName = arg.ScopeVariableInfo.ScopePropertyDataType.ToString()
+                                    TypeName = arg.ScopeVariableInfo.ScopePropertyDataType.ToString()
                                 }
                             });
+
+                            argMetadata.Add(new ArgMetadataBlockNode()
+                            {
+                                Identifier = arg.ScopeVariableInfo.ScopeVariableName,
+                                Default = new ExpressionNode()
+                                {
+                                    Expression = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
+                                },
+                                Description = arg.ScopeVariableInfo.Description
+                            });
+
+                            arg.ScopeVariableInfo.Description = null;
+                            arg.ScopeVariableInfo.DefaultRule = null;
+                            arg.ScopeVariableInfo.ScopePropertyDataType = null;
+                            arg.ScopeVariableInfo.ParameterIndex = null;
+                            arg.ScopeVariableInfo.ParentPropertyName = null;
+                            arg.Name = null;
+                            arg.DisplayName = null;
                         }
+
+                        argMetadata.Add(new ArgMetadataBlockNode()
+                        {
+                            Identifier = PAConstants.ThisPropertyIdentifier,
+                            Default = new ExpressionNode()
+                            {
+                                Expression = expression.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart(),
+                            },
+                            ResultType = resultType,
+                            Description = customProp.Tooltip
+                        });
 
                         functions.Add(new FunctionNode()
                         {
                             Args = args,
-                            ResultType = resultType,
-                            Expression = expressionNode,
+                            Metadata = argMetadata,
                             Identifier = name
                         });
                     }
@@ -100,7 +131,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Identifier = control.Name,
                     Kind = new TypeNode()
                     {
-                        TemplateName = control.Template.TemplateDisplayName ?? control.Template.Name,
+                        TypeName = control.Template.TemplateDisplayName ?? control.Template.Name,
                         OptionalVariant = string.IsNullOrEmpty(control.VariantName) ? null : control.VariantName
                     }
                 },
@@ -166,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
             var templateIR = blockNode.Name.Kind;
-            var templateName = templateIR.TemplateName;
+            var templateName = templateIR.TypeName;
             var variantName = templateIR.OptionalVariant;
             ControlInfoJson.Template template;
 
