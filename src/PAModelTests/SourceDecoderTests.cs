@@ -25,13 +25,14 @@ namespace PAModelTests
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(root));
 
-            var msapp = CanvasDocument.LoadFromMsapp(root);
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
 
             // validate the source 
             using (var tempDir = new TempDir())
             {
                 string outSrcDir = tempDir.Dir;
-                msapp.SaveAsSource(outSrcDir);
+                msapp.SaveToSources(outSrcDir);
 
                 var pathActual = Path.Combine(outSrcDir, "Src", sourceFileName);
                 var pathExpected = Path.Combine(Environment.CurrentDirectory, "SrcBaseline", screenBaselineName);

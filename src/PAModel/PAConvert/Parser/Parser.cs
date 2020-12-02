@@ -11,15 +11,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Parser
     {
-        private string _fileName;        
-        public ErrorContainer _errorContainer;
+        private readonly string _fileName;        
+        public readonly ErrorContainer _errorContainer;
 
-        private YamlLexer _yaml;
+        private readonly YamlLexer _yaml;
 
-        public Parser(string fileName, string contents)
+        public Parser(string fileName, string contents, ErrorContainer errors)
         {
             _fileName = fileName;
-            _errorContainer = new ErrorContainer();
+            _errorContainer = errors;
 
             _yaml = new YamlLexer(new StringReader(contents), fileName);
 
@@ -31,12 +31,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         // Parse the control definition line. Something like:
         //   Screen1 as Screen
         //   Label1 As Label.Variant
-        private TypedNameNode ParseControlDef(string line)
+        private TypedNameNode ParseControlDef(YamlToken token)
         {
+            string line = token.Property;
+
             var m = _controlDefRegex.Match(line);
             if (!m.Success)
             {
-                return null;
+                _errorContainer.ParseError(token.Span, "Can't parse control definition");
+                throw new DocumentException();
             }
             // p.Property;
             // Label1 As Label.Variant:
@@ -65,17 +68,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             if (p.Kind != YamlTokenKind.StartObj)
             {
-                // _errorContainer.AddError(token.Span, $"Unexpected token {token.Kind}, expected {TokenKind.Control}");
-                return null;
+                _errorContainer.ParseError(p.Span, $"Unexpected token {p}");
+                throw new DocumentException();
             }
 
-            var controlDef = ParseControlDef(p.Property);
-            if (controlDef == null)
-            {
-                _errorContainer.AddError(p.Span, "Can't parse control definition");
-                return null;
-            }
-
+            var controlDef = ParseControlDef(p);
+ 
             var block = new BlockNode
             {
                  Name = controlDef
@@ -105,7 +103,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         if (IsControlStart(p.Property))
                         {
                             var childNode = ParseNestedControl(p);
-                            if (_errorContainer.HasErrors())
+                            if (_errorContainer.HasErrors)
                             {
                                 return null;
                             }
@@ -114,7 +112,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         else
                         {
                             var functionNode = ParseFunctionDef(p);
-                            if (_errorContainer.HasErrors())
+                            if (_errorContainer.HasErrors
                             {
                                 return null;
                             }
@@ -123,11 +121,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         break;
 
                     case YamlTokenKind.Error:
-                        _errorContainer.AddError(p.Span, p.Value);
+                        _errorContainer.ParseError(p.Span, p.Value);
                         return null;
 
                     default:
-                        _errorContainer.AddError(p.Span, $"Unexpected yaml token: {p}");
+                        _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
                         return null;
                 }
             }
@@ -143,7 +141,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             if (!m.Success)
             {
-                _errorContainer.AddError(p.Span, $"Can't parse Function definition");
+                _errorContainer.ParseError(p.Span, $"Can't parse Function definition");
                 return null;
             }
 
@@ -173,7 +171,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             if (line != ")")
             {
-                _errorContainer.AddError(p.Span, $"Missing closing ')' in function definition");
+                _errorContainer.ParseError(p.Span, $"Missing closing ')' in function definition");
                 return null;
             }
 
@@ -190,11 +188,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         functionNode.Metadata.Add(ParseArgMetadataBlock(p));
                         break;
                     case YamlTokenKind.Error:
-                        _errorContainer.AddError(p.Span, p.Value);
+                        _errorContainer.ParseError(p.Span, p.Value);
                         return null;
 
                     default:
-                        _errorContainer.AddError(p.Span, $"Unexpected yaml token: {p}");
+                        _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
                         return null;
                 }
             }
@@ -216,31 +214,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                             argNode.Default = new ExpressionNode() { Expression = p.Value };
                         else
                         {
-                            _errorContainer.AddError(p.Span, $"Unexpected key in function definition: {p}");
+                            _errorContainer.ParseError(p.Span, $"Unexpected key in function definition: {p}");
                             return null;
                         }
                         break;
                     case YamlTokenKind.Error:
-                        _errorContainer.AddError(p.Span, p.Value);
+                        _errorContainer.ParseError(p.Span, p.Value);
                         return null;
 
                     default:
-                        _errorContainer.AddError(p.Span, $"Unexpected yaml token: {p}");
+                        _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
                         return null;
                 }
             }
         }
 
         private bool IsControlStart(string line) => _controlDefRegex.IsMatch(line);
-
-        public bool HasErrors() => _errorContainer.HasErrors();
-
-        public void WriteErrors()
-        {
-            foreach (var error in _errorContainer.Errors())
-            {
-                Console.WriteLine($"{_fileName}:{error.Span.StartLine}:{error.Span.StartChar}-{error.Span.EndLine}:{error.Span.EndChar}   {error.Message}");
-            }
-        }
     }
 }

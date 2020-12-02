@@ -26,7 +26,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var je = entry.ToJson();
             return je.ToObject<T>();
         }
-        public static CanvasDocument Load(string fullpathToMsApp)
+        
+        public static CanvasDocument Load(string fullpathToMsApp, ErrorContainer errors)
         {
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
@@ -71,7 +72,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
 
                         case FileKind.OldEntityJSon:
-                            throw new NotSupportedException($"This is using an older msapp format that is not supported.");
+                            errors.FormatNotSupported($"This is using an older v1 msapp format that is not supported.");
+                            throw new DocumentException();
 
                         case FileKind.DataComponentTemplates:
                             dctemplate = ToObject<DataComponentTemplatesJson>(entry);
@@ -166,8 +168,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
-                    // likely has been tampered. 
-                    Console.WriteLine($"Warning... checksum doesn't match on extract");
+                    // likely has been tampered.
+                    errors.ChecksumMismatch("Checksum doesn't match on extract.");
                 }
                 app._checksum.ClientStampedChecksum = currentChecksum;
 
@@ -243,7 +245,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Write back out to a msapp file. 
-        public static void SaveAsMsApp(this CanvasDocument app, string fullpathToMsApp)
+        public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors)
         {
             app.ApplyBeforeMsAppWriteTransforms();
 
@@ -264,7 +266,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
             {
-                foreach (FileEntry entry in app.GetMsAppFiles())
+                foreach (FileEntry entry in app.GetMsAppFiles(errors))
                 {
                     if (entry != null)
                     {
@@ -277,14 +279,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
-                ComputeAndWriteChecksum(app, checksum, z);
+                ComputeAndWriteChecksum(app, checksum, z, errors);
             }
 
             // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
             app.ApplyAfterMsAppLoadTransforms();
         }
 
-        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z)
+        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors)
         {
             var hash = checksum.GetChecksum();
 
@@ -292,7 +294,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (hash != app._checksum.ClientStampedChecksum)
             {
                 // We had offline edits!
-                Console.WriteLine($"WARNING!! Sources have changed since when they were unpacked.");
+                errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
             }
 
             var checksumJson = new ChecksumJson
@@ -310,7 +312,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Get everything that should be stored as a file in the .msapp.
-        private static IEnumerable<FileEntry> GetMsAppFiles(this CanvasDocument app)
+        private static IEnumerable<FileEntry> GetMsAppFiles(this CanvasDocument app, ErrorContainer errors)
         {
             // Loose files
             foreach (var file in app._unknownFiles.Values)
@@ -396,7 +398,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dc.IsDataComponent)
                 {
-                    var controlId = GetDataComponentInstanceForTemplateName(sourceFiles.Select(source => source.Value), dc.TemplateGuid).ControlUniqueId;
+                    var controlId = GetDataComponentInstanceForTemplateName(sourceFiles.Select(source => source.Value), dc.TemplateGuid, errors).ControlUniqueId;
 
                     var template = new TemplateMetadataJson
                     {
@@ -458,7 +460,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static ControlInfoJson.Item GetDataComponentInstanceForTemplateName(IEnumerable<ControlInfoJson> topParents, string templateGuid)
+        private static ControlInfoJson.Item GetDataComponentInstanceForTemplateName(IEnumerable<ControlInfoJson> topParents, string templateGuid, ErrorContainer errors)
         {
             foreach (var source in topParents)
             {
@@ -470,8 +472,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
             }
-            Console.WriteLine("Could not find DataComponent Instance for template " + templateGuid);
-            return null;
+            errors.GenericError("Could not find DataComponent Instance for template " + templateGuid);
+            throw new DocumentException();
         }
 
         internal static FileEntry ToFile<T>(FileKind kind, T value)

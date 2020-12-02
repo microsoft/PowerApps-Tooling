@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,8 +21,10 @@ namespace PAModelTests
             var ns = "Microsoft.PowerPlatform.Formulas.Tools";
             HashSet<string> allowed = new HashSet<string>()
             {
-                $"{ns}.CanvasDocument",
-                $"{ns}.ChecksumMaker"
+                $"{ns}.{nameof(CanvasDocument)}",
+                $"{ns}.{nameof(ChecksumMaker)}",
+                $"{ns}.{nameof(ErrorContainer)}",
+                $"{ns}.{nameof(Error)}",
             };
 
             StringBuilder sb = new StringBuilder();

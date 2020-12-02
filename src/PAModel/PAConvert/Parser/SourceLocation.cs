@@ -22,6 +22,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
             FileName = fileName;
         }
 
+        public override string ToString()
+        {
+            return $"{FileName}:{StartLine},{StartChar}-{EndLine},{EndChar}";
+        }
+
         public static SourceLocation FromChildren(List<SourceLocation> locations)
         {
             SourceLocation minLoc = locations.First(), maxLoc = locations.First();
