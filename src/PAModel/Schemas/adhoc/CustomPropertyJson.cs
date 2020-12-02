@@ -14,7 +14,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
             public string Description { get; set; }
             public int? ParameterIndex { get; set; }
             public string DefaultRule { get; set; }
-            public PropertyDataType? ScopePropertyDataType { get; set; }
+
+            /// <summary>
+            /// Corresponds to <see cref="PropertyDataType"/>
+            /// </summary>
+            public int? ScopePropertyDataType { get; set; }
 
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }
@@ -23,7 +27,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         internal class PropertyScopeRules
         {
             public string Name { get; set; }
-            public string DisplayName { get; set; }
             public ScopeVariableInfo ScopeVariableInfo { get; set; }
 
             [JsonExtensionData]

@@ -158,14 +158,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         /// Get the next token in the stream. Returns an EOF at the end of document. 
         /// </summary>
         /// <returns></returns>
-        public YamlToken ReadNext(bool acceptQuotedStringLiteral = false)
+        public YamlToken ReadNext()
         {
-            var pair = ReadNextWorker(acceptQuotedStringLiteral);
+            var pair = ReadNextWorker();
             _lastPair = pair;
             return pair;
         }
 
-        private YamlToken ReadNextWorker(bool acceptQuotedStringLiteral)
+        private YamlToken ReadNextWorker()
         {
             // Warn on:
             //   # comment
@@ -333,12 +333,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                     return UnsupportedComment(line);
                 }
 
-                MoveNextLine();
-            }
-            else if (line.Current == '\"' && acceptQuotedStringLiteral)
-            {
-                // Single line, yaml string
-                value = line.RestOfLine.Trim('\"');
                 MoveNextLine();
             }
             else if ((line.Current == '\"') || (line.Current == '\''))

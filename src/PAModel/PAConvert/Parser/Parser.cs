@@ -205,7 +205,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             var argNode = new ArgMetadataBlockNode() { Identifier = p.Property };
             while (true)
             {
-                p = _yaml.ReadNext(acceptQuotedStringLiteral: true);
+                p = _yaml.ReadNext();
                 switch (p.Kind)
                 {
                     case YamlTokenKind.EndObj:
@@ -214,10 +214,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     case YamlTokenKind.Property:
                         if (p.Property == nameof(ArgMetadataBlockNode.Default))
                             argNode.Default = new ExpressionNode() { Expression = p.Value };
-                        else if (p.Property == nameof(ArgMetadataBlockNode.Description))
-                            argNode.Description = p.Value;
-                        else if (p.Property == nameof(ArgMetadataBlockNode.ResultType) && argNode.Identifier == PAConstants.ThisPropertyIdentifier)
-                            argNode.ResultType = new TypeNode() { TypeName = p.Value };
                         else
                         {
                             _errorContainer.AddError(p.Span, $"Unexpected key in function definition: {p}");

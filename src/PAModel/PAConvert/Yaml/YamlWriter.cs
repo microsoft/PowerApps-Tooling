@@ -40,28 +40,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
-        public void WriteQuotedSingleLinePair(string propertyName, string value)
-        {
-            if (value == null)
-            {
-                WriteIndent();
-                _text.Write(propertyName);
-                _text.WriteLine(":");
-                return;
-            }
-
-            WriteIndent();
-            _text.Write(propertyName);
-            _text.Write(": \"");
-            _text.Write(EscapeString(value));
-            _text.WriteLine("\"");
-        }
-
-        private string EscapeString(string value)
-        {
-            return value.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\"", "\\\"");
-        }
-
         /// <summary>
         /// Safely write a property. Based on the value, will chose whether single-line (and prefix with an '=')
         /// or multi-line and pick the right the escape. 

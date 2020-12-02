@@ -103,11 +103,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     internal class ArgMetadataBlockNode : IRNode
     {
         public string Identifier;
-        public string Description;
         public ExpressionNode Default;
-
-        // Only present for ThisProperty
-        public TypeNode ResultType;
 
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {

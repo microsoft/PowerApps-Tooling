@@ -132,16 +132,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             context._sb.Clear();
             node.Default.Accept(this, context);
             context._yaml.WriteProperty("Default", context._sb.ToString());
-
-            if (node.ResultType != null)
-            {
-                context._sb.Clear();
-                node.ResultType.Accept(this, context);
-                context._yaml.WriteQuotedSingleLinePair("ResultType", context._sb.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(node.Description))
-                context._yaml.WriteQuotedSingleLinePair("Description", node.Description);
             context._yaml.WriteEndObject();
         }
     }
