@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
@@ -126,12 +126,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
                     default:
                         _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
-                        return null;
+                        throw new DocumentException();
                 }
             }
         }
 
-        // See https://github.com/microsoft/PowerApps-Language-Tooling/blob/gregli-docs/docs/syntax.md#simple-function-definition
+        // Name ( Parameter-Name As Data-type [ , Parameter-Name As Data-type ... ] ) :  (ThisProperty or Parameter-Name) :   Metadata-Name : Metadata-Value   ...  ...
+        // Currently iterating on what fields are present in the property metadata blocks
+        // Right now, only Default is permitted
         private FunctionNode ParseFunctionDef(YamlToken p)
         {
             var paramRegex = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)");
@@ -142,7 +144,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             if (!m.Success)
             {
                 _errorContainer.ParseError(p.Span, $"Can't parse Function definition");
-                return null;
+                throw new DocumentException();
             }
 
             var funcName = m.Groups[1].Value;
@@ -172,7 +174,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             if (line != ")")
             {
                 _errorContainer.ParseError(p.Span, $"Missing closing ')' in function definition");
-                return null;
+                throw new DocumentException();
             }
 
             while (true)
@@ -193,7 +195,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
                     default:
                         _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
-                        return null;
+                        throw new DocumentException();
                 }
             }
         }
@@ -215,7 +217,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         else
                         {
                             _errorContainer.ParseError(p.Span, $"Unexpected key in function definition: {p}");
-                            return null;
+                            throw new DocumentException();
                         }
                         break;
                     case YamlTokenKind.Error:
@@ -224,7 +226,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
                     default:
                         _errorContainer.ParseError(p.Span, $"Unexpected yaml token: {p}");
-                        return null;
+                        throw new DocumentException();
                 }
             }
         }

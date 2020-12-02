@@ -3,6 +3,8 @@
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
+    // Corresponds with https://docs.microsoft.com/en-us/powerapps/maker/canvas-apps/functions/data-types
+    // plus the addition of Screen, which is available in the component property type picker.
     internal enum PropertyDataType
     {
         Invalid,
