@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -65,40 +66,88 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ChecksumJson _checksum;
 
         #region Save/Load
+
+        /// <summary>
+        /// Load an .msapp file for a Canvas Document. 
+        /// </summary>
+        /// <param name="fullPathToMsApp">path to an .msapp file</param>
+        /// <returns>A tuple of the document and errors and warnings. If there are errors, the document is null.  </returns>
         public static (CanvasDocument,ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
         {
             var errors = new ErrorContainer();
-            var doc = MsAppSerializer.Load(fullPathToMsApp, errors);            
-            return (doc, errors);
+            var doc = Wrapper(() => MsAppSerializer.Load(fullPathToMsApp, errors), errors);
+            return (doc, errors);            
         }
 
         public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
             var errors = new ErrorContainer();
-            var doc = SourceSerializer.LoadFromSource(pathToSourceDirectory, errors);
+            var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
             return (doc, errors);
         }
 
         public ErrorContainer SaveToMsApp(string fullPathToMsApp)
         {
             var errors = new ErrorContainer();
-            MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors);
+            Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
             return errors;
         }
         public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
             var errors = new ErrorContainer();
-            SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors);
+            Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
             return errors;
         }
         public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
         {
             var errors = new ErrorContainer();
-            var doc = SourceSerializer.Create(appName, packagesPath, paFiles, errors);
+            var doc = Wrapper(() => SourceSerializer.Create(appName, packagesPath, paFiles, errors), errors);
             return (doc, errors);
         }
-        
+
         #endregion
+
+        // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors. 
+        private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors)
+        {
+            CanvasDocument document = null;
+            try
+            {
+                document = worker();
+                if (errors.HasErrors)
+                {
+                    return null;
+                }
+                return document;
+            }
+            catch (Exception e)
+            {
+                if (!errors.HasErrors)
+                {
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
+                }
+                return null;
+            }
+        }
+
+        private static void Wrapper(Action worker, ErrorContainer errors)
+        {
+            try
+            {
+                worker();
+            }
+            catch (Exception e)
+            {
+                if (!errors.HasErrors)
+                {
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
+                }
+            }
+        }
 
         internal CanvasDocument()
         {

@@ -10,20 +10,23 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    // Container for errors (which may have prevented the operation)
-    // or warnings (which are informational, but could be ignored). 
-    public class ErrorContainer : IEnumerable<PAError>
+    /// <summary>
+    /// Container for errors (which may have prevented the operation)
+    /// or warnings (which are informational, but could be ignored).
+    /// </summary>
+    public class ErrorContainer : IEnumerable<Error>
     {
-        private List<PAError> _errors = new List<PAError>();
+        private List<Error> _errors = new List<Error>();
                 
         internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
         {
-            _errors.Add(new PAError(code, span, errorMessage));
+            _errors.Add(new Error(code, span, errorMessage));
         }        
 
-        public bool HasErrors => _errors.Any(error => error.Code.IsError());
+        public bool HasErrors => _errors.Any(error => error.IsError);
 
-        // HElper for interupting processing once we have errors. 
+        // Helper for interupting processing once we have errors.
+        // Ignores warnings. 
         internal void ThrowOnErrors()
         {
             if (this.HasErrors)
@@ -32,7 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public IEnumerator<PAError> GetEnumerator()
+        public IEnumerator<Error> GetEnumerator()
         {
             return this._errors.GetEnumerator();
         }
@@ -51,7 +54,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach(var error in this)
             {
-                if (error.Code.IsError()) { countErrors++; } else { countWarnings++;  }
+                if (error.IsError) { countErrors++; } else { countWarnings++;  }
                 output.WriteLine(error);
             }
 

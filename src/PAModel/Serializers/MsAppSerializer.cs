@@ -26,30 +26,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var je = entry.ToJson();
             return je.ToObject<T>();
         }
+        
         public static CanvasDocument Load(string fullpathToMsApp, ErrorContainer errors)
-        {
-            try
-            {
-                CanvasDocument document = LoadWorker(fullpathToMsApp, errors);
-                if (errors.HasErrors)
-                {
-                    return null;
-                }
-                return document;
-            }
-            catch(Exception e)
-            {
-                if (!errors.HasErrors)
-                {
-                    // Internal error - something was thrown without adding to the error container.
-                    // Add at least one error
-                    errors.InternalError(e);
-                }
-                return null;
-            }
-        }
-
-        private static CanvasDocument LoadWorker(string fullpathToMsApp, ErrorContainer errors)
         {
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {

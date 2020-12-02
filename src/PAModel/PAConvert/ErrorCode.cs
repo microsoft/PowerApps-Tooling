@@ -12,7 +12,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     /// Error codes from reading, writing (compiling) a document.
     /// These numbers must stay stable. 
     /// </summary>
-    public enum ErrorCode
+    internal enum ErrorCode
     {
         // Warnings start at 2000
         ChecksumMismatch = 2001,

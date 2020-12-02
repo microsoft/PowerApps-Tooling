@@ -23,9 +23,9 @@ namespace PAModelTests
             {
                 $"{ns}.{nameof(CanvasDocument)}",
                 $"{ns}.{nameof(ChecksumMaker)}",
-                $"{ns}.{nameof(ErrorCode)}",
+                // $"{ns}.{nameof(ErrorCode)}",
                 $"{ns}.{nameof(ErrorContainer)}",
-                $"{ns}.{nameof(PAError)}",
+                $"{ns}.{nameof(Error)}",
             };
 
             StringBuilder sb = new StringBuilder();
