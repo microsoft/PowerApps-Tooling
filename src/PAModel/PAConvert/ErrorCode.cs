@@ -18,7 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         ChecksumMismatch = 2001,
 
         // Catch-all - review and remove. 
-        GenericWarning = 2002,
+        GenericWarning = 2999,
 
         // Errors start at 3000
         InternalError = 3001,
@@ -29,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         ParseError = 3003,
 
         // Catch-all.  Should review and make these more specific. 
-        Generic = 3005,
+        Generic = 3999,
 
     }
 
