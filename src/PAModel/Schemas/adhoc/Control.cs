@@ -49,6 +49,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Present for component templates with functions
             public CustomPropertyJson[] CustomProperties { get; set; }
+            public ComponentType? ComponentType { get; set; } = null;
 
             // Present on PCF
             public string TemplateDisplayName { get; set; } = null;

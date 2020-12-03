@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
@@ -25,7 +25,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         }
 
-        private Regex _controlDefRegex = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)(\.(\S+))?$");
+        private Regex _controlDefRegex = new Regex(@"^(.+?)\s+As\s+(['_ A-Za-z0-9]+)(\.(\S+))?$");
 
 
         // Parse the control definition line. Something like:

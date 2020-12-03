@@ -198,17 +198,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Only for data-compoents.
                 if (dctemplate?.ComponentTemplates != null)
+                {
+                    int order = 0;
+                    foreach (var x in dctemplate.ComponentTemplates)
                     {
-                        int order = 0;
-                        foreach (var x in dctemplate.ComponentTemplates)
+                        if (x.ComponentType == null)
                         {
-                            MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
-                            app._entropy.SetTemplateVersion(x.Name, x.Version);
-                            app._entropy.Add(x, order);
-                            dc.Apply(x);
-                            order++;
+                            errors.FormatNotSupported($"Data component {x.Name} is using an outdated format");
+                            throw new DocumentException();
                         }
+                        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
+                        app._entropy.SetTemplateVersion(x.Name, x.Version);
+                        app._entropy.Add(x, order);
+                        dc.Apply(x);
+                        order++;
                     }
+                }
 
                 if (dcsources?.DataSources != null)
                 {
@@ -371,8 +376,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var componentTemplates = new List<TemplateMetadataJson>();
             foreach (var template in app._templateStore.Contents.Where(template => template.Value.IsComponentTemplate ?? false))
             {
-                if ((template.Value.CustomProperties?.Any() ?? false) || template.Value.ComponentAllowCustomization.HasValue)
+                if (((template.Value.CustomProperties?.Any() ?? false) || template.Value.ComponentAllowCustomization.HasValue) &&
+                    (!app._dataComponents.TryGetValue(template.Key, out var minDataComponentManifest) ||  !minDataComponentManifest.IsDataComponent))
+                {
                     componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
+                }
             }
 
             app._templates = new TemplatesJson()
@@ -398,11 +406,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dc.IsDataComponent)
                 {
-                    var controlId = GetDataComponentInstanceForTemplateName(sourceFiles.Select(source => source.Value), dc.TemplateGuid, errors).ControlUniqueId;
+                    var controlId = GetDataComponentDefinition(sourceFiles.Select(source => source.Value), dc.TemplateGuid, errors).ControlUniqueId;
 
                     var template = new TemplateMetadataJson
                     {
                         Name = dc.TemplateGuid,
+                        ComponentType = ComponentType.DataComponent,
                         Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
                         IsComponentLocked = false,
                         ComponentChangedSinceFileImport = true,
@@ -460,19 +469,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static ControlInfoJson.Item GetDataComponentInstanceForTemplateName(IEnumerable<ControlInfoJson> topParents, string templateGuid, ErrorContainer errors)
+        private static ControlInfoJson.Item GetDataComponentDefinition(IEnumerable<ControlInfoJson> topParents, string templateGuid, ErrorContainer errors)
         {
-            foreach (var source in topParents)
+            foreach (var topParent in topParents)
             {
-                foreach (var child in source.TopParent.Children)
+                if (topParent.TopParent.Template.Name == templateGuid)
                 {
-                    if (child.Template.Name == templateGuid)
-                    {
-                        return child;
-                    }
+                    return topParent.TopParent;
                 }
             }
-            errors.GenericError("Could not find DataComponent Instance for template " + templateGuid);
+            errors.GenericError("Could not find DataComponent Definition for template " + templateGuid);
             throw new DocumentException();
         }
 
