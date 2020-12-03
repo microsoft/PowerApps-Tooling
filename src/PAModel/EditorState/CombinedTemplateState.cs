@@ -38,6 +38,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // Present on PCF
         public string TemplateDisplayName { get; set; } = null;
 
+        public ComponentManifest ComponentManifest { get; set; } = null;
+
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
 

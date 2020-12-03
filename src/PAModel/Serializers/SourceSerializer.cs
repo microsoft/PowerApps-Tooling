@@ -20,14 +20,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     internal static partial class SourceSerializer
     {
         // 1 - .pa1 format
-        // 2 - intro to .pa.yaml format. 
-        public static Version CurrentSourceVersion = new Version(0, 2);
+        // 2 - intro to .pa.yaml format.
+        // 3 - Moved .editorstate.json files under src\EditorState
+        public static Version CurrentSourceVersion = new Version(0, 3);
 
         // Layout is:
         //  src\
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
+        public const string EditorStateDir = "Src\\EditorState";
         public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
@@ -216,13 +218,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
         {
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
+            foreach (var file in directory.EnumerateFiles(EditorStateDir, "*.json"))
             {
-                if (file.Kind == FileKind.CanvasManifest)
-                {
-                    continue;
-                }
-
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
@@ -233,21 +230,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
                 }
 
-                bool isDataComponentManifest = file._relativeName.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
-                if (isDataComponentManifest)
+                if (!file._relativeName.EndsWith(".editorstate.json"))
                 {
-                    var json = file.ToObject< MinDataComponentManifest>();
-                    app._dataComponents.Add(json.TemplateGuid, json);
+                    errors.FormatNotSupported($"Unexpected file present in {EditorStateDir}");
+                    throw new DocumentException();
                 }
-                else if (file._relativeName.EndsWith(".editorstate.json", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Json peer to a .pa file. 
-                    var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
 
-                    foreach (var control in controlExtraData)
-                    {
-                        app._editorStateStore.TryAddControl(control.Value);
-                    }
+                // Json peer to a .pa file. 
+                var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
+
+                foreach (var control in controlExtraData)
+                {
+                    app._editorStateStore.TryAddControl(control.Value);
                 }
             }
 
@@ -333,20 +327,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Write out of all the other state for roundtripping 
                 string extraContent = controlName + ".editorstate.json";
-                dir.WriteAllText(CodeDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+                dir.WriteAllText(EditorStateDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
             }
 
             // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
-            dir.WriteAllText(CodeDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
-
-            // Write out DataComponent pieces.
-            // These could all be infered from the .pa file, so write next to the src. 
-            foreach (MinDataComponentManifest dataComponent in app._dataComponents.Values)
-            {
-                string controlName = dataComponent.Name;
-                dir.WriteAllJson(CodeDir, controlName + ".manifest.json", dataComponent);
-            }
+            dir.WriteAllText(EditorStateDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
 
             // Expansions....    
             // These are ignorable, but provide extra decoding and visiblity into complex files. 
