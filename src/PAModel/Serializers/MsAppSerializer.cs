@@ -198,17 +198,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Only for data-compoents.
                 if (dctemplate?.ComponentTemplates != null)
+                {
+                    int order = 0;
+                    foreach (var x in dctemplate.ComponentTemplates)
                     {
-                        int order = 0;
-                        foreach (var x in dctemplate.ComponentTemplates)
+                        if (x.ComponentType == null)
                         {
-                            MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
-                            app._entropy.SetTemplateVersion(x.Name, x.Version);
-                            app._entropy.Add(x, order);
-                            dc.Apply(x);
-                            order++;
+                            errors.FormatNotSupported($"Data component {x.Name} is using an outdated format");
+                            throw new DocumentException();
                         }
+                        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
+                        app._entropy.SetTemplateVersion(x.Name, x.Version);
+                        app._entropy.Add(x, order);
+                        dc.Apply(x);
+                        order++;
                     }
+                }
 
                 if (dcsources?.DataSources != null)
                 {
