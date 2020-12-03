@@ -42,7 +42,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._templateStore = new EditorState.TemplateStore();
             app._editorStateStore = new EditorState.EditorStateStore();
 
-            ComponentsMetadataJson dcmetadata = null;
+            ComponentsMetadataJson componentsMetadata = null;
             DataComponentTemplatesJson dctemplate = null;
             DataComponentSourcesJson dcsources  = null;
 
@@ -79,7 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             dctemplate = ToObject<DataComponentTemplatesJson>(entry);
                             break;
                         case FileKind.ComponentsMetadata:
-                            dcmetadata = ToObject<ComponentsMetadataJson>(entry);
+                            componentsMetadata = ToObject<ComponentsMetadataJson>(entry);
                             break;
                         case FileKind.DataComponentSources:
                             dcsources = ToObject<DataComponentSourcesJson>(entry);
@@ -183,14 +183,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LocalConnectionReferences = null;
                 }
 
-                if (dcmetadata?.Components != null)
+                if (componentsMetadata?.Components != null)
                 {
                     int order = 0;
-                    foreach (var x in dcmetadata.Components)
+                    foreach (var x in componentsMetadata.Components)
                     {
-                        var dc = MinDataComponentManifest.Create(x);
-                        app._dataComponents.Add(x.TemplateName, dc); // should be unique.
+                        var manifest = ComponentManifest.Create(x);
+                        if (!app._templateStore.TryGetTemplate(x.TemplateName, out var templateState))
+                        {
+                            errors.FormatNotSupported("Component Metadata contains template not present in the app");
+                            throw new DocumentException();
+                        }
 
+                        templateState.ComponentManifest = manifest;
                         app._entropy.Add(x, order);
                         order++;
                     }
@@ -207,10 +212,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             errors.FormatNotSupported($"Data component {x.Name} is using an outdated format");
                             throw new DocumentException();
                         }
-                        MinDataComponentManifest dc = app._dataComponents[x.Name]; // Should already exist
+
+                        if (!app._templateStore.TryGetTemplate(x.Name, out var templateState))
+                        {
+                            errors.FormatNotSupported("Component Metadata contains template not present in the app");
+                            throw new DocumentException();
+                        }
+
+                        ComponentManifest manifest = templateState.ComponentManifest; // Should already exist
                         app._entropy.SetTemplateVersion(x.Name, x.Version);
                         app._entropy.Add(x, order);
-                        dc.Apply(x);
+                        manifest.Apply(x);
                         order++;
                     }
                 }
@@ -377,7 +389,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in app._templateStore.Contents.Where(template => template.Value.IsComponentTemplate ?? false))
             {
                 if (((template.Value.CustomProperties?.Any() ?? false) || template.Value.ComponentAllowCustomization.HasValue) &&
-                    (!app._dataComponents.TryGetValue(template.Key, out var minDataComponentManifest) ||  !minDataComponentManifest.IsDataComponent))
+                    !(template.Value.ComponentManifest?.IsDataComponent ?? false))
                 {
                     componentTemplates.Add(template.Value.ToTemplateMetadata(app._entropy));
                 }
@@ -391,33 +403,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             yield return ToFile(FileKind.Templates, app._templates);
 
-            var dcmetadataList = new List< ComponentsMetadataJson.Entry>();
+            var componentsMetadata = new List<ComponentsMetadataJson.Entry>();
             var dctemplate = new List<TemplateMetadataJson>();
 
 
-            foreach (MinDataComponentManifest dc in app._dataComponents.Values)
+            foreach (ComponentManifest manifest in app._templateStore.Contents.Values.Where(state => state.ComponentManifest != null).Select(state => state.ComponentManifest))
             {
-                dcmetadataList.Add(new ComponentsMetadataJson.Entry
+                componentsMetadata.Add(new ComponentsMetadataJson.Entry
                 {
-                    Name = dc.Name,
-                    TemplateName = dc.TemplateGuid,
-                    ExtensionData = dc.ExtensionData
+                    Name = manifest.Name,
+                    TemplateName = manifest.TemplateGuid,
+                    ExtensionData = manifest.ExtensionData
                 });
 
-                if (dc.IsDataComponent)
+                if (manifest.IsDataComponent)
                 {
-                    var controlId = GetDataComponentDefinition(sourceFiles.Select(source => source.Value), dc.TemplateGuid, errors).ControlUniqueId;
+                    var controlId = GetDataComponentDefinition(sourceFiles.Select(source => source.Value), manifest.TemplateGuid, errors).ControlUniqueId;
 
                     var template = new TemplateMetadataJson
                     {
-                        Name = dc.TemplateGuid,
+                        Name = manifest.TemplateGuid,
                         ComponentType = ComponentType.DataComponent,
-                        Version = app._entropy.GetTemplateVersion(dc.TemplateGuid),
+                        Version = app._entropy.GetTemplateVersion(manifest.TemplateGuid),
                         IsComponentLocked = false,
                         ComponentChangedSinceFileImport = true,
                         ComponentAllowCustomization = true,
-                        CustomProperties = dc.CustomProperties,
-                        DataComponentDefinitionKey = dc.DataComponentDefinitionKey
+                        CustomProperties = manifest.CustomProperties,
+                        DataComponentDefinitionKey = manifest.DataComponentDefinitionKey
                     };
 
                     // Rehydrate fields. 
@@ -427,12 +439,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            if (dcmetadataList.Count > 0)
+            if (componentsMetadata.Count > 0)
             {
                 // If the components file is present, then write out all files. 
                 yield return ToFile(FileKind.ComponentsMetadata, new ComponentsMetadataJson
                 {
-                    Components = dcmetadataList
+                    Components = componentsMetadata
                             .OrderBy(x => app._entropy.GetOrder(x))
                             .ToArray()
                 });

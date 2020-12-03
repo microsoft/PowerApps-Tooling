@@ -218,27 +218,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
         {
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.json"))
-            {
-                if (file.Kind == FileKind.Templates)
-                {
-                    // Maybe we can recreate this from the template defaults instead?
-                    foreach (var val in file.ToObject<Dictionary<string, CombinedTemplateState>>().Values)
-                    {
-                        app._templateStore.AddTemplate(val);
-                    }
-                    continue;
-                }
-
-                // $$$ This should probably just be part of the data component template, no need to be a separate file
-                bool isDataComponentManifest = file._relativeName.EndsWith(".manifest.json", StringComparison.OrdinalIgnoreCase);
-                if (isDataComponentManifest)
-                {
-                    var json = file.ToObject< MinDataComponentManifest>();
-                    app._dataComponents.Add(json.TemplateGuid, json);
-                }
-            }
-
             foreach (var file in directory.EnumerateFiles(EditorStateDir, "*.json"))
             {
                 if (file.Kind == FileKind.Templates)
@@ -354,14 +333,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(EditorStateDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
-
-            // Write out DataComponent pieces.
-            // These could all be infered from the .pa file, so write next to the src. 
-            foreach (MinDataComponentManifest dataComponent in app._dataComponents.Values)
-            {
-                string controlName = dataComponent.Name;
-                dir.WriteAllJson(CodeDir, controlName + ".manifest.json", dataComponent);
-            }
 
             // Expansions....    
             // These are ignorable, but provide extra decoding and visiblity into complex files. 

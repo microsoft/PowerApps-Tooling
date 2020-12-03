@@ -13,7 +13,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // A minimal representation of the data component manifest
     // This is client-only. 
     // $$$ - can we get this from the PA file directly?
-    internal class MinDataComponentManifest
+    internal class ComponentManifest
     {
         public string Name { get; set; } // a name, "Component1"
         public string TemplateGuid { get; set; } // a guid 
@@ -49,9 +49,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // A component will always have this. 
-        internal static MinDataComponentManifest Create(ComponentsMetadataJson.Entry x)
+        internal static ComponentManifest Create(ComponentsMetadataJson.Entry x)
         {
-            var dc = new MinDataComponentManifest
+            var dc = new ComponentManifest
             {
                 Name = x.Name,
                 ExtensionData = x.ExtensionData

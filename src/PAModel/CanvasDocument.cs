@@ -58,10 +58,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
 
-        // Information about data components. 
-        // TemplateGuid --> Info
-        internal Dictionary<string, MinDataComponentManifest> _dataComponents = new Dictionary<string, MinDataComponentManifest>();
-
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
 
