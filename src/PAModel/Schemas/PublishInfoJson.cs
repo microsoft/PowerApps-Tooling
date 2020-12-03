@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
@@ -16,5 +17,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public bool PublishResourcesLocally { get; set; }
         public bool PublishDataLocally { get; set; }
         public string UserLocale { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
     }
 }

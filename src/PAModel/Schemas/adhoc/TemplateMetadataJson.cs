@@ -1,8 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
@@ -15,6 +19,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         // Ok to be null. 
         //  Will default to: DateTime.Now.ToUniversalTime().Ticks.ToString();
         public string Version { get; set; }
+        public ComponentType? ComponentType { get; set; } = null;
 
         public bool? IsComponentLocked { get; set; }
         public bool? ComponentChangedSinceFileImport { get; set; }
@@ -23,7 +28,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public CustomPropertyJson[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; } = null;
-
         public void Validate()
         {
             if (DataComponentDefinitionKey?.ComponentRawMetadataKey != null)
@@ -31,6 +35,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
                 throw new NotSupportedException("Does not support older formats using ComponentRawMetadataKey");
             }
         }
-
     }
 }

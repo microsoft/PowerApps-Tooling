@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
@@ -29,6 +32,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public bool? ComponentChangedSinceFileImport { get; set; } = null;
         public bool? ComponentAllowCustomization { get; set; } = null;
         public string TemplateOriginalName { get; set; } = null;
+        public ComponentType? ComponentType { get; set; } = null;
 
 
         // Present on PCF
@@ -51,6 +55,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             CustomProperties = template.CustomProperties;
             TemplateDisplayName = template.TemplateDisplayName;
             ExtensionData = template.ExtensionData;
+            ComponentType = template.ComponentType;
         }
 
         public ControlInfoJson.Template ToControlInfoTemplate()
@@ -66,6 +71,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 CustomProperties = CustomProperties,
                 TemplateDisplayName = TemplateDisplayName,
                 ExtensionData = ExtensionData,
+                ComponentType = ComponentType
             };
         }
 
@@ -81,6 +87,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 Version = version,
                 CustomProperties = CustomProperties,
                 IsComponentLocked = IsComponentLocked,
+                ComponentType = ComponentType,
                 ComponentChangedSinceFileImport = ComponentChangedSinceFileImport,
                 ComponentAllowCustomization = ComponentAllowCustomization,
             };
