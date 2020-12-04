@@ -42,8 +42,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             
             // Clear out volatile state. Will repopulate on write. 
             this.DataComponentDefinitionKey.ControlUniqueId = null; 
-
-            this.CustomProperties = x.CustomProperties;
         }
 
         // A component will always have this. 
