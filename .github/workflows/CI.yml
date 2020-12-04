@@ -29,12 +29,7 @@ jobs:
     - run: dotnet --info
 
     - name: Build and test (win)
-      run: ./build ci
-      if: ${{ runner.os == 'Windows' }}
-
-    - name: Build only (!win)
       run: |
         ./build rebuild
+        ./build test
         ./build pack
-      # 4 out of 15 tests fail when running on e.g. linux (WSL-Ubuntu LTS) and macOS
-      if: ${{ runner.os != 'Windows' }}
