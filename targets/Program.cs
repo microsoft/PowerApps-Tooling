@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime;
 using CommandLine;
 using SimpleExec;
 using static Bullseye.Targets;
@@ -31,6 +32,14 @@ namespace targets
             var solution = Path.Combine(RootDir, "src/PASoPa.sln");
             var project = Path.Combine(RootDir, "src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
+            Target("squeaky-clean",
+                () =>
+                {
+                    CleanDirectory(BinDir);
+                    CleanDirectory(ObjDir);
+                    CleanDirectory(PkgDir);
+                });
+
             Target("clean",
                 () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}"));
 
@@ -51,15 +60,21 @@ namespace targets
                 () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true"));
 
             Target("ci",
-                DependsOn("clean", "rebuild", "test"));
+                DependsOn("squeaky-clean", "rebuild", "test"));
 
             Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
                 {
                     options = o;
-                    RunTargetsAndExit(new[] {options.Target},
-                        logPrefix: options.Target,
-                        messageOnly: ex => ex is NonZeroExitCodeException);
+                    try{
+                        RunTargetsWithoutExiting(new[] {options.Target},
+                            logPrefix: options.Target,
+                            messageOnly: ex => ex is NonZeroExitCodeException);
+                    }
+                    catch 
+                    {
+                        Environment.Exit(1);
+                    }
                 })
             .WithNotParsed(errs =>
             {
