@@ -30,9 +30,7 @@ jobs:
 
     - name: Build and test (win)
       run: |
-        ./build rebuild
-        ./build test
-        ./build pack
+        ./build ci
       if: ${{ runner.os == 'Windows' }}
 
     - name: Build only (!win)
