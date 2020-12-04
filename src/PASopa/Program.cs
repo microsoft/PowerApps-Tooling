@@ -9,7 +9,7 @@ using System.IO;
 
 namespace PASopa
 {
-    // Mode: Extract 
+    // Mode: Extract
 
     class Program
     {
@@ -19,19 +19,19 @@ namespace PASopa
 
             // $$$ MErge in with ADIX PAC
             // https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli
-            var mode = args[0].ToLower();
+            var mode = args.Length > 0 ? args[0]?.ToLower() : null;
             if (mode =="-test")
             {
                 string msAppPath = args[1];
                 Console.WriteLine("Test roundtripping: " + msAppPath);
 
-                // Test round-tripping 
+                // Test round-tripping
                 MsAppTest.StressTest(msAppPath);
                 return;
             }
             if (mode == "-testall")
             {
-                // Roundtrip all .msapps in a folder. 
+                // Roundtrip all .msapps in a folder.
                 string msAppPathDir = args[1];
                 int countTotal = 0;
                 int countPass = 0;
@@ -72,7 +72,7 @@ namespace PASopa
 
                 (CanvasDocument msApp, ErrorContainer errors) = CanvasDocument.LoadFromMsapp(msAppPath);
                 errors.Write(Console.Out);
-                                
+
                 if (errors.HasErrors)
                 {
                     return;
@@ -85,7 +85,7 @@ namespace PASopa
                     return;
                 }
 
-                // Test that we can repack 
+                // Test that we can repack
                 {
                     (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(outDir);
                     errors.Write(Console.Out);
@@ -142,7 +142,7 @@ namespace PASopa
 
 ");
             }
-            
-        }        
+
+        }
     }
 }
