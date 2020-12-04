@@ -407,8 +407,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dctemplate = new List<TemplateMetadataJson>();
 
 
-            foreach (ComponentManifest manifest in app._templateStore.Contents.Values.Where(state => state.ComponentManifest != null).Select(state => state.ComponentManifest))
+            foreach (var componentTemplate in app._templateStore.Contents.Values.Where(state => state.ComponentManifest != null))
             {
+                var manifest = componentTemplate.ComponentManifest;
                 componentsMetadata.Add(new ComponentsMetadataJson.Entry
                 {
                     Name = manifest.Name,
@@ -428,7 +429,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         IsComponentLocked = false,
                         ComponentChangedSinceFileImport = true,
                         ComponentAllowCustomization = true,
-                        CustomProperties = manifest.CustomProperties,
+                        CustomProperties = componentTemplate.CustomProperties,
                         DataComponentDefinitionKey = manifest.DataComponentDefinitionKey
                     };
 
