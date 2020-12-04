@@ -31,14 +31,6 @@ namespace targets
             var solution = Path.Combine(RootDir, "src/PASoPa.sln");
             var project = Path.Combine(RootDir, "src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
-            Target("squeaky-clean",
-                () =>
-                {
-                    CleanDirectory(BinDir);
-                    CleanDirectory(ObjDir);
-                    CleanDirectory(PkgDir);
-                });
-
             Target("clean",
                 () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}"));
 
@@ -59,7 +51,7 @@ namespace targets
                 () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true"));
 
             Target("ci",
-                DependsOn("squeaky-clean", "rebuild", "test"));
+                DependsOn("clean", "rebuild", "test"));
 
             Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>

@@ -31,6 +31,7 @@ jobs:
     - name: Build and test (win)
       run: |
         ./build ci
+        echo %errorlevel%
       if: ${{ runner.os == 'Windows' }}
 
     - name: Build only (!win)
