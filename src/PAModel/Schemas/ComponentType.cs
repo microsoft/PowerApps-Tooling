@@ -3,7 +3,7 @@
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
-    public enum ComponentType
+    internal enum ComponentType
     {
         CanvasComponent = 0,
         DataComponent = 1,
