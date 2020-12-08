@@ -42,7 +42,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Category so 
         ControlSrc,
-        ComponentSrc,        
+        ComponentSrc,
+        TestSrc,
 
         // Unique to source format. 
         Entropy,
@@ -142,6 +143,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return FileKind.ComponentSrc;
             }
+
+            if (fullname.StartsWith(@"AppTests\", StringComparison.OrdinalIgnoreCase))
+            {
+                return FileKind.TestSrc;
+            }
+
             return FileKind.Unknown;
         }
     }

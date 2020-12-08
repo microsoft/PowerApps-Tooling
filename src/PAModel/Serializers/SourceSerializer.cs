@@ -29,6 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
+        public const string TestDir = "Src\\Tests";
         public const string EditorStateDir = "Src\\EditorState";
         public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
@@ -36,6 +37,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string DataSourcesDir = "DataSources";
         public const string Ignore = "Ignore"; // Write-only, ignore these files.
 
+
+        internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
 
         private static T ToObject<T>(string fullpath)
@@ -317,7 +320,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var text = PAWriterVisitor.PrettyPrint(control.Value);
 
                 string filename = controlName +".pa.yaml";
-                dir.WriteAllText(CodeDir, filename, text);
+
+                if (controlName != AppTestControlName)
+                    dir.WriteAllText(CodeDir, filename, text);
+                else
+                    dir.WriteAllText(TestDir, filename, text);
 
                 var extraData = new Dictionary<string, ControlState>();
                 foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))

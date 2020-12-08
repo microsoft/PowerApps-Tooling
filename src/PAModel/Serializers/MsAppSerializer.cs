@@ -104,6 +104,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
+                        case FileKind.TestSrc:
                             {
                                 var control = ToObject<ControlInfoJson>(entry);
                                 var sf = SourceFile.New(control);
@@ -111,7 +112,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 app._sources.Add(sf.ControlName, controlIR);
                             }
                             break;
-
 
 
                         case FileKind.DataSources:
