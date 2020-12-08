@@ -187,6 +187,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                     throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
+                if (!file._relativeName.StartsWith(templateName))
+                {
+                    templateName = templateName.ToLower();
+                }
+
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
