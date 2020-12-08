@@ -115,7 +115,17 @@ namespace PASopa
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
                 (CanvasDocument msApp, ErrorContainer errors) =  CanvasDocument.LoadFromSources(inputDir);
+                errors.Write(Console.Out);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
                 errors = msApp.SaveToMsApp(msAppPath);
+                errors.Write(Console.Out);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
             }
             else if (mode == "-make")
             {
@@ -123,12 +133,22 @@ namespace PASopa
                 string pkgsPath = args[2];
                 string inputPA = args[3];
 
-                Console.WriteLine($"Pack: {inputPA} --> {msAppPath} ");
+                Console.WriteLine($"Make: {inputPA} --> {msAppPath} ");
 
                 var appName = Path.GetFileName(msAppPath);
 
                 (var app, var errors) = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
+                errors.Write(Console.Out);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
                 errors = app.SaveToMsApp(msAppPath);
+                errors.Write(Console.Out);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
             }
             else
             {
@@ -142,7 +162,6 @@ namespace PASopa
 
 ");
             }
-
         }
     }
 }

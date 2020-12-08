@@ -28,6 +28,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Parse error 
         ParseError = 3003,
 
+        // This operation isn't supported, use studio
+        UnsupportedUseStudio = 3004,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -63,6 +66,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void InternalError(this ErrorContainer errors, Exception e)
         {
             errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}");
+        }
+
+        public static void UnsupportedError(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.UnsupportedUseStudio, default(SourceLocation), $"Unsupported operation error. {message}");
         }
 
         public static void ParseError(this ErrorContainer errors, SourceLocation span, string message)

@@ -217,7 +217,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var properties = new List<ControlInfoJson.RuleEntry>();
                 foreach (var propIR in blockNode.Properties)
                 {
-                    properties.Add(CombinePropertyIRAndState(propIR, state));
+                    properties.Add(CombinePropertyIRAndState(propIR, errors, state));
                 }
 
                 if (blockNode.Functions.Any())
@@ -231,14 +231,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Function definition missing ThisProperty block");
                             throw new DocumentException();
                         }
-                        properties.Add(GetPropertyEntry(state, funcName, thisPropertyBlock.Default.Expression));
+                        properties.Add(GetPropertyEntry(state, errors, funcName, thisPropertyBlock.Default.Expression));
 
                         foreach (var arg in func.Metadata)
                         {
                             if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                                 continue;
 
-                            properties.Add(GetPropertyEntry(state, funcName + "_" + arg.Identifier, arg.Default.Expression));
+                            properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.Default.Expression));
                         }
 
                         RepopulateTemplateCustomProperties(func, templateState, errors);
@@ -249,7 +249,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // For component uses, recreate the dummy props for function parameters
                     foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
                     {
-                        properties.Add(GetPropertyEntry(state, hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule));
+                        properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule));
                     }
                 }                
 
@@ -288,7 +288,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var properties = new List<ControlInfoJson.RuleEntry>();
                 foreach (var propIR in blockNode.Properties)
                 {
-                    properties.Add(CombinePropertyIRAndState(propIR));
+                    properties.Add(CombinePropertyIRAndState(propIR, errors));
                 }
                 resultControlInfo.Rules = properties.ToArray();
             }
@@ -340,7 +340,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static ControlInfoJson.RuleEntry CombinePropertyIRAndState(PropertyNode node, ControlState state = null)
+        private static ControlInfoJson.RuleEntry CombinePropertyIRAndState(PropertyNode node, ErrorContainer errors, ControlState state = null)
         {
             var propName = node.Identifier;
             var expression = node.Expression.Expression;
@@ -355,12 +355,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else
             {
-                var property = GetPropertyEntry(state, propName, expression);
+                var property = GetPropertyEntry(state, errors, propName, expression);
                 return property;
             }
         }
 
-        private static ControlInfoJson.RuleEntry GetPropertyEntry(ControlState state, string propName, string expression)
+        private static ControlInfoJson.RuleEntry GetPropertyEntry(ControlState state, ErrorContainer errors, string propName, string expression)
         {
             var property = new ControlInfoJson.RuleEntry();
             property.Property = propName;
@@ -375,6 +375,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else
             {
+                if (state.IsComponentDefinition ?? false)
+                {
+                    errors.UnsupportedError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                    throw new DocumentException();
+                }
+
                 property.RuleProviderType = "Unknown";
             }
 
