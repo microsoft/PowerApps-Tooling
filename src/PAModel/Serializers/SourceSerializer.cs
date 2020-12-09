@@ -241,9 +241,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Json peer to a .pa file. 
                 var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
-
+                var topParentName = file._relativeName.Replace(".editorstate.json", "");
                 foreach (var control in controlExtraData)
                 {
+                    control.Value.TopParentName = topParentName;
                     app._editorStateStore.TryAddControl(control.Value);
                 }
             }
