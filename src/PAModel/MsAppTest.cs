@@ -35,7 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                     catch (NotSupportedException)
                     {
-                        Console.WriteLine($"Too old: {pathToMsApp}");
+                        errors.FormatNotSupported($"Too old: {pathToMsApp}");
                         return false;
                     }
 
