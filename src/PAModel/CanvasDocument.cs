@@ -178,7 +178,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {
@@ -199,7 +199,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore);
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {
