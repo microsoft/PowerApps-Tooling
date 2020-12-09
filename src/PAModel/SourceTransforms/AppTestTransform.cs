@@ -53,17 +53,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
                     throw new InvalidOperationException($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
 
+                if (testStep.ScreenId != null)
                 if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
                     throw new InvalidOperationException($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
 
-                var testStepControl = new BlockNode()
-                {
-                    Name = new TypedNameNode()
-                    {
-                        Identifier = testStep.Rule,
-                        Kind = new TypeNode() { TypeName = _testStepTemplateName }
-                    },
-                    Properties = new List<PropertyNode>()
+                var childProperties = new List<PropertyNode>()
                     {
                         new PropertyNode()
                         {
@@ -77,16 +71,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                         {
                             Identifier = "Value",
                             Expression = testStepProp.Expression
-                        },
-                        new PropertyNode()
-                        {
-                            Identifier = "Screen",
-                            Expression = new ExpressionNode()
-                            {
-                                Expression = screenName
-                            }
                         }
-                    }
+                    };
+
+                if (testStep.ScreenId != null)
+                {
+                    if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
+                        throw new InvalidOperationException($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+
+                    childProperties.Add(new PropertyNode()
+                    {
+                        Identifier = "Screen",
+                        Expression = new ExpressionNode()
+                        {
+                            Expression = screenName
+                        }
+                    });
+                }
+
+                var testStepControl = new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = testStep.Rule,
+                        Kind = new TypeNode() { TypeName = _testStepTemplateName }
+                    },
+                    Properties = childProperties
                 };
 
                 properties.Remove(testStep.Rule);
