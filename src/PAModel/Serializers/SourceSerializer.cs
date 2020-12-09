@@ -187,6 +187,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                     throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
+
+                // Some control templates specify a name with an initial capital letter (e.g. rating control)
+                // However, the server doesn't always use that. If the template name doesn't match the one we wrote
+                // as the file name, adjust the template name to lowercase
                 if (!file._relativeName.StartsWith(templateName))
                 {
                     templateName = templateName.ToLower();
