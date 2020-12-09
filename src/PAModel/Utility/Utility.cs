@@ -267,5 +267,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             return sb.ToString();
         }
+
+        public static string UnEscapePAString(string text)
+        {
+            return text.Substring(1, text.Length - 2).Replace("\"\"", "\"");
+        }
+
+        public static string EscapePAString(string text)
+        {
+            return "\"" + text.Replace("\"", "\"\"") + "\"";
+        }
     }
 }

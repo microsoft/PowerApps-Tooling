@@ -22,9 +22,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         private readonly ControlTemplate _galleryTemplate;
         private EditorStateStore _controlStore;
 
-        public GalleryTemplateTransform(Dictionary<string, ControlTemplate> templateStore, EditorStateStore stateStore)
+        public GalleryTemplateTransform(Dictionary<string, ControlTemplate> defaultValueTemplates, EditorStateStore stateStore)
         {
-            templateStore.TryGetValue(_childTemplateName, out var template);
+            defaultValueTemplates.TryGetValue(_childTemplateName, out var template);
             _galleryTemplate = template;
             _controlStore = stateStore;
         }

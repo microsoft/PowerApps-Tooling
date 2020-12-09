@@ -12,7 +12,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         Control,
         UxComponent,
-        DataComponent
+        DataComponent,
+        Test
     }
 
     internal class SourceFile
@@ -34,9 +35,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (this.Kind == SourceKind.Control)
             {
                 return $"Controls\\{ControlId}.json";
-            } else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent)
+            }
+            else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent)
             {
                 return $"Components\\{ControlId}.json";
+            }
+            else if (this.Kind == SourceKind.Test)
+            {
+                return $"AppTests\\{ControlId}.json";
             }
             throw new NotImplementedException($"Unrecognized source kind:" + this.Kind);
         }
@@ -73,7 +79,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             else if (x.Template.Id == ControlInfoJson.Template.UxComponentId)
             {
                 sf.Kind = SourceKind.UxComponent;
-            } else 
+            }
+            else if (x.Name == SourceSerializer.AppTestControlName)
+            {
+                sf.Kind = SourceKind.Test;
+            }
+            else 
             {
                 // UX Control has many different Template ids. 
                 sf.Kind = SourceKind.Control;

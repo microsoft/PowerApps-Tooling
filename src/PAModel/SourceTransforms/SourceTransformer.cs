@@ -13,12 +13,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         internal IList<IControlTemplateTransform> _templateTransforms;
         internal DefaultValuesTransform _defaultValTransform;
 
-        public SourceTransformer(Dictionary<string, ControlTemplate> templateStore, Theme theme, EditorStateStore stateStore)
+        // $$$ Pass ErrorContainer to transforms and replace exception based error handling
+        public SourceTransformer(Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, EditorStateStore stateStore, TemplateStore templateStore)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
-            _templateTransforms.Add(new GalleryTemplateTransform(templateStore, stateStore));
+            _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
+            _templateTransforms.Add(new AppTestTransform(templateStore, stateStore));
 
-            _defaultValTransform = new DefaultValuesTransform(templateStore, theme, stateStore);            
+            _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
         }
 
         public void ApplyAfterRead(BlockNode control)
