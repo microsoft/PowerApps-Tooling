@@ -18,16 +18,30 @@ namespace targets
 
     class Program
     {
-        static string RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
-        static string BinDir = Path.Combine(RootDir, "bin");
-        static string ObjDir = Path.Combine(RootDir, "obj");
-        static string PkgDir = Path.Combine(RootDir, "pkg");
-        static string LogDir = Path.Combine(ObjDir, "logs");
-        static string TestLogDir = Path.Combine(ObjDir, "testLogs");
         static Options options;
 
         static void Main(string[] args)
         {
+            
+            string RootDir = "";
+            bool gitExists = true;
+            try 
+            {
+                RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim(); 
+            }
+            catch
+            {
+                RootDir = Directory.GetCurrentDirectory();
+                Console.WriteLine("Unable to find root directory using git, assuming this script is being run from root = " + RootDir);
+                gitExists = false;
+            }
+
+            string BinDir = Path.Combine(RootDir, "bin");
+            string ObjDir = Path.Combine(RootDir, "obj");
+            string PkgDir = Path.Combine(RootDir, "pkg");
+            string LogDir = Path.Combine(ObjDir, "logs");
+            string TestLogDir = Path.Combine(ObjDir, "testLogs");
+
             var solution = Path.Combine(RootDir, "src/PASoPa.sln");
             var project = Path.Combine(RootDir, "src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
@@ -40,23 +54,23 @@ namespace targets
                 });
 
             Target("clean",
-                () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}"));
+                () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}", gitExists, LogDir));
 
             Target("restore",
                 DependsOn("clean"),
-                () => RunDotnet("restore", $"{solution}"));
+                () => RunDotnet("restore", $"{solution}", gitExists, LogDir));
 
             Target("build",
-                () => RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore"));
+                () => RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore", gitExists, LogDir));
 
             Target("test",
-                () => RunDotnet("test", $"{solution} --configuration {options.Configuration} --no-build --logger trx --results-directory {TestLogDir}"));
+                () => RunDotnet("test", $"{solution} --configuration {options.Configuration} --no-build --logger trx --results-directory {TestLogDir}", gitExists, LogDir));
 
             Target("rebuild",
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true"));
+                () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
@@ -75,10 +89,13 @@ namespace targets
             });
         }
 
-        static void RunDotnet(string verb, string verbArgs)
+        static void RunDotnet(string verb, string verbArgs, bool gitExists, string LogDir)
         {
+            var gitDef = "";
+            if (gitExists) 
+                gitDef = "-p:GitExists=true";
             var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={LogDir}/{verb}-{options.Configuration}.log /flp3:PerformanceSummary;Verbosity=diag;LogFile={LogDir}/{verb}-{options.Configuration}.diagnostics.log";
-            Run("dotnet", $"{verb} {verbArgs} {logSettings} /nologo");
+            Run("dotnet", $"{verb} {verbArgs} {logSettings} {gitDef} /nologo");
         }
 
         static void CleanDirectory(string directoryPath)
