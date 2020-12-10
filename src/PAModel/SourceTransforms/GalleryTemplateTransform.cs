@@ -15,7 +15,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 {
     internal class GalleryTemplateTransform : IControlTemplateTransform
     {
-        public string TargetTemplate { get; } = "gallery";
+        private static readonly IEnumerable<string> _targets = new List<string>() { "gallery" };
+        public IEnumerable<string> TargetTemplates => _targets;
 
         private const string _childTemplateName = "galleryTemplate";
 

@@ -1,4 +1,4 @@
-Component1 As '2084e421e013418f80ec0a1d9024570f':
+Component1 As CanvasComponent:
   ValidateDates(StartDate As DateTime, EndDate As DateTime):
     StartDate:
       Default: =Now()

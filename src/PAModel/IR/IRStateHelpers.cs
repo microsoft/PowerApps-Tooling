@@ -151,7 +151,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 templateState = new CombinedTemplateState(control.Template);
                 templateState.ComponentDefinitionInfo = null;
-                templateStore.AddTemplate(templateState);
+                var templateName = templateState.TemplateDisplayName ?? templateState.Name;
+                templateStore.AddTemplate(templateName, templateState);
             }
 
             var controlState = new ControlState()
