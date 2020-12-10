@@ -28,6 +28,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             return Contents.TryGetValue(templateName, out template);
         }
 
+        // This renames a template
+        // It should only be called after the templates are loaded
+        // And calls must be symmetrical between read/write
         public bool TryRenameTemplate(string oldTemplateName, string newTemplateName)
         {
             if (!Contents.TryGetValue(oldTemplateName, out var template))
