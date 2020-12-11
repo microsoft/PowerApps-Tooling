@@ -13,7 +13,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         internal IList<IControlTemplateTransform> _templateTransforms;
         internal DefaultValuesTransform _defaultValTransform;
 
-        // $$$ Pass ErrorContainer to transforms and replace exception based error handling
         public SourceTransformer(ErrorContainer errors, Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, ComponentInstanceTransform componentInstanceTransform,
             EditorStateStore stateStore, TemplateStore templateStore)
         {

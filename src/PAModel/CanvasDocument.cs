@@ -172,7 +172,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in _templates.UsedTemplates)
             {
                 if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
-                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+                {
+                    errors.GenericError($"Unable to parse template file {template.Name}");
+                    throw new DocumentException();
+                }
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -202,7 +205,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in _templates.UsedTemplates)
             {
                 if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
-                    throw new NotSupportedException($"Unable to parse template file {template.Name}");
+                {
+                    errors.GenericError($"Unable to parse template file {template.Name}");
+                    throw new DocumentException();
+                }
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -227,16 +233,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
         // Called after loading. This will check internal fields and fill in consistency data. 
-        internal void OnLoadComplete()
+        internal void OnLoadComplete(ErrorContainer errors)
         {
             // Do integrity checks. 
             if (_header == null)
             {
-                throw new InvalidOperationException($"Missing header file");
+                errors.FormatNotSupported("Missing header file");
+                throw new DocumentException();
             }
             if (_properties == null)
             {
-                throw new InvalidOperationException($"Missing properties file");
+                errors.FormatNotSupported("Missing properties file");
+                throw new DocumentException();
             }
 
             // Integrity checks. 
@@ -247,14 +255,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (kv.Key != connection.id)
                 {
-                    throw new InvalidOperationException($"Document consistency error. Id mismatch");
+                    errors.FormatNotSupported($"Document consistency error. Connection id mismatch");
+                    throw new DocumentException();
                 }
                 foreach (var dataSourceName in connection.dataSources)
                 {
                     var ds = _dataSources.Where(x => x.Name == dataSourceName).FirstOrDefault();
                     if (ds == null)
                     {
-                        throw new InvalidOperationException($"Document error: Connection '{dataSourceName}' does not have a corresponding data source.");
+                        errors.ValidationError($"Connection '{dataSourceName}' does not have a corresponding data source.");
+                        throw new DocumentException();
                     }
                 }
             }

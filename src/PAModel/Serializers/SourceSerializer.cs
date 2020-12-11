@@ -98,7 +98,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Load template files, recreate References/templates.json
-            LoadTemplateFiles(app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
+            LoadTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
 
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
@@ -158,7 +158,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // - Themes.json- default to
 
 
-            app.OnLoadComplete();
+            app.OnLoadComplete(errors);
 
             return app;
         }
@@ -170,7 +170,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
 
-            LoadTemplateFiles(app, packagesPath, out var loadedTemplates);
+            LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
             app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo" };
 
@@ -182,15 +182,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
 
-        private static void LoadTemplateFiles(CanvasDocument app, string packagesPath, out Dictionary<string, ControlTemplate> loadedTemplates)
+        private static void LoadTemplateFiles(ErrorContainer errors, CanvasDocument app, string packagesPath, out Dictionary<string, ControlTemplate> loadedTemplates)
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
             foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
-                    throw new NotSupportedException($"Unable to parse template file {file._relativeName}");
-
+                {
+                    errors.GenericError($"Unable to parse template file {file._relativeName}");
+                    throw new DocumentException();
+                }
                 // Some control templates specify a name with an initial capital letter (e.g. rating control)
                 // However, the server doesn't always use that. If the template name doesn't match the one we wrote
                 // as the file name, adjust the template name to lowercase

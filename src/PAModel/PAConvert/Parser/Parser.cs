@@ -43,9 +43,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
             // p.Property;
             // Label1 As Label.Variant:
-            string controlName = CharacterUtils.UnEscapeName(m.Groups[1].Value);
-            string templateName = CharacterUtils.UnEscapeName(m.Groups[2].Value);
-            string variantName = m.Groups[4].Success ? CharacterUtils.UnEscapeName(m.Groups[4].Value) : null;
+            string controlName = CharacterUtils.UnEscapeName(m.Groups[1].Value, _errorContainer);
+            string templateName = CharacterUtils.UnEscapeName(m.Groups[2].Value, _errorContainer);
+            string variantName = m.Groups[4].Success ? CharacterUtils.UnEscapeName(m.Groups[4].Value, _errorContainer) : null;
 
             return new TypedNameNode
             {
@@ -90,7 +90,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     case YamlTokenKind.Property:
                         block.Properties.Add(new PropertyNode
                         {
-                            Identifier = CharacterUtils.UnEscapeName(p.Property),
+                            Identifier = CharacterUtils.UnEscapeName(p.Property, _errorContainer),
                             Expression = new ExpressionNode
                             {
                                 Expression = p.Value
@@ -155,8 +155,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             m = paramRegex.Match(line);
             while (m.Success)
             {
-                string argName = CharacterUtils.UnEscapeName(m.Groups[1].Value);
-                string kindName = CharacterUtils.UnEscapeName(m.Groups[2].Value);
+                string argName = CharacterUtils.UnEscapeName(m.Groups[1].Value, _errorContainer);
+                string kindName = CharacterUtils.UnEscapeName(m.Groups[2].Value, _errorContainer);
 
                 functionNode.Args.Add(new TypedNameNode
                 {

@@ -251,7 +251,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             app.ApplyAfterMsAppLoadTransforms(errors);
-            app.OnLoadComplete();
+            app.OnLoadComplete(errors);
 
             return app;
         }
