@@ -14,9 +14,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             Contents = new Dictionary<string, CombinedTemplateState>();
         }
 
-        public bool AddTemplate(CombinedTemplateState template)
+        public bool AddTemplate(string name, CombinedTemplateState template)
         {
-            var name = template.TemplateDisplayName ?? template.Name;
             if (Contents.ContainsKey(name))
                 return false;
 
@@ -27,6 +26,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public bool TryGetTemplate(string templateName, out CombinedTemplateState template)
         {
             return Contents.TryGetValue(templateName, out template);
+        }
+
+        // This renames a template
+        // It should only be called after the templates are loaded
+        // And calls must be symmetrical between read/write
+        public bool TryRenameTemplate(string oldTemplateName, string newTemplateName)
+        {
+            if (!Contents.TryGetValue(oldTemplateName, out var template))
+                return false;
+            if (Contents.ContainsKey(newTemplateName))
+                return false;
+            Contents.Remove(oldTemplateName);
+            Contents.Add(newTemplateName, template);
+            return true;
         }
     }
 }

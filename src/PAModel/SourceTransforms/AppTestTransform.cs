@@ -16,7 +16,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             public string ScreenId { get; set; } = null;
         }
 
-        public string TargetTemplate { get; } = "TestCase";
+        private static readonly IEnumerable<string> _targets = new List<string>() { "TestCase" };
+        public IEnumerable<string> TargetTemplates => _targets;
 
         private const string _metadataPropName = "TestStepsMetadata";
         private string _testStepTemplateName;

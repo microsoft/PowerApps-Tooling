@@ -235,9 +235,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (file.Kind == FileKind.Templates)
                 {
                     // Maybe we can recreate this from the template defaults instead?
-                    foreach (var val in file.ToObject<Dictionary<string, CombinedTemplateState>>().Values)
+                    foreach (var kvp in file.ToObject<Dictionary<string, CombinedTemplateState>>())
                     {
-                        app._templateStore.AddTemplate(val);
+                        app._templateStore.AddTemplate(kvp.Key, kvp.Value);
                     }
                     continue;
                 }

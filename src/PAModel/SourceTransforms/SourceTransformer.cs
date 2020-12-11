@@ -14,11 +14,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         internal DefaultValuesTransform _defaultValTransform;
 
         // $$$ Pass ErrorContainer to transforms and replace exception based error handling
-        public SourceTransformer(Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, EditorStateStore stateStore, TemplateStore templateStore)
+        public SourceTransformer(Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, ComponentInstanceTransform componentInstanceTransform,
+            EditorStateStore stateStore, TemplateStore templateStore)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
             _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
             _templateTransforms.Add(new AppTestTransform(templateStore, stateStore));
+            _templateTransforms.Add(componentInstanceTransform);
 
             _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
         }
@@ -37,7 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var transform in _templateTransforms)
             {
-                if (controlTemplateName == transform.TargetTemplate)
+                if (transform.TargetTemplates.Contains(controlTemplateName))
                     transform.AfterRead(control);
             }
         }
@@ -47,7 +49,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var transform in _templateTransforms.Reverse())
             {
-                if (controlTemplateName == transform.TargetTemplate)
+                if (transform.TargetTemplates.Contains(controlTemplateName))
                     transform.BeforeWrite(control);
             }
 

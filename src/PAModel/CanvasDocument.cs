@@ -178,7 +178,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore, _templateStore);
+            var componentInstanceTransform = new ComponentInstanceTransform();
+            var componentDefTransform = new ComponentDefinitionTransform(_templateStore, componentInstanceTransform);
+
+            // Transform component definitions and populate template set of component instances that need updates 
+            foreach (var ctrl in _sources)
+            {
+                componentDefTransform.AfterRead(ctrl.Value);
+            }
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {
@@ -199,7 +208,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), _editorStateStore, _templateStore);
+            var componentInstanceTransform = new ComponentInstanceTransform();
+            var componentDefTransform = new ComponentDefinitionTransform(_templateStore, componentInstanceTransform);
+
+            // Transform component definitions and populate template set of component instances that need updates 
+            foreach (var ctrl in _sources)
+            {
+                componentDefTransform.BeforeWrite(ctrl.Value);
+            }
+
+            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {
