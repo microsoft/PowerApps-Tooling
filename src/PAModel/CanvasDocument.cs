@@ -165,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return _dataSources;
         }
 
-        internal void ApplyAfterMsAppLoadTransforms()
+        internal void ApplyAfterMsAppLoadTransforms(ErrorContainer errors)
         {
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
@@ -178,8 +178,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var componentInstanceTransform = new ComponentInstanceTransform();
-            var componentDefTransform = new ComponentDefinitionTransform(_templateStore, componentInstanceTransform);
+            var componentInstanceTransform = new ComponentInstanceTransform(errors);
+            var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
             // Transform component definitions and populate template set of component instances that need updates 
             foreach (var ctrl in _sources)
@@ -187,7 +187,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 componentDefTransform.AfterRead(ctrl.Value);
             }
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
+            var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {
@@ -195,7 +195,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        internal void ApplyBeforeMsAppWriteTransforms()
+        internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
         {
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
@@ -208,8 +208,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
 
-            var componentInstanceTransform = new ComponentInstanceTransform();
-            var componentDefTransform = new ComponentDefinitionTransform(_templateStore, componentInstanceTransform);
+            var componentInstanceTransform = new ComponentInstanceTransform(errors);
+            var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
             // Transform component definitions and populate template set of component instances that need updates 
             foreach (var ctrl in _sources)
@@ -217,7 +217,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 componentDefTransform.BeforeWrite(ctrl.Value);
             }
 
-            var transformer = new SourceTransformer(templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
+            var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
             foreach (var ctrl in _sources)
             {

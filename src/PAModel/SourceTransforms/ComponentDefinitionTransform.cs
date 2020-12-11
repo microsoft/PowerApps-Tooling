@@ -19,11 +19,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
     {
         private readonly TemplateStore _templateStore;
         private readonly ComponentInstanceTransform _componentInstanceTransform;
+        private ErrorContainer _errors;
 
-        public ComponentDefinitionTransform(TemplateStore templateStore, ComponentInstanceTransform componentInstanceTransform)
+        public ComponentDefinitionTransform(ErrorContainer errors, TemplateStore templateStore, ComponentInstanceTransform componentInstanceTransform)
         {
             _templateStore = templateStore;
             _componentInstanceTransform = componentInstanceTransform;
+            _errors = errors;
         }
 
         public void AfterRead(BlockNode control)
@@ -69,13 +71,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetTemplate(controlName, out var componentTemplate) ||
                 !(componentTemplate.IsComponentTemplate ?? false))
             {
-                throw new InvalidOperationException($"Unable to find template for component {controlName}");
+                _errors.ValidationError($"Unable to find template for component {controlName}");
+                throw new DocumentException();
             }
 
             var originalTemplateName = componentTemplate.Name;
             if (!_templateStore.TryRenameTemplate(controlName, originalTemplateName))
             {
-                throw new InvalidOperationException($"Unable to update template for component {controlName}, id {originalTemplateName}");
+                _errors.ValidationError($"Unable to update template for component {controlName}, id {originalTemplateName}");
+                throw new DocumentException();
             }
 
             _componentInstanceTransform.ComponentRenames.Add(controlName, originalTemplateName);

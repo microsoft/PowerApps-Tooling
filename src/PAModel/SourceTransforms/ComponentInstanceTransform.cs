@@ -11,6 +11,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         // For AfterRead, that's ComponentID => ComponentName
         // For BeforeWrite, that's ComponentName => ComponentID
         internal Dictionary<string, string> ComponentRenames = new Dictionary<string, string>();
+        private ErrorContainer _errors;
+
+        public ComponentInstanceTransform(ErrorContainer errors)
+        {
+            _errors = errors;
+        }
+
 
         public IEnumerable<string> TargetTemplates => ComponentRenames.Keys;
 
@@ -28,7 +35,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var templateName = control.Name?.Kind?.TypeName ?? string.Empty;
             if (!ComponentRenames.TryGetValue(templateName, out var rename))
-                throw new InvalidOperationException("Renaming component instance but unable to find target name");
+            {
+                _errors.ValidationError("Renaming component instance but unable to find target name");
+                throw new DocumentException();
+            }
             control.Name.Kind.TypeName = rename;
         }
     }
