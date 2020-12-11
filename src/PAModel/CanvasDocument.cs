@@ -11,6 +11,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -187,6 +188,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Transform component definitions and populate template set of component instances that need updates 
             foreach (var ctrl in _sources)
             {
+                AddComponentDefaults(ctrl.Value, templateDefaults);
                 componentDefTransform.AfterRead(ctrl.Value);
             }
 
@@ -221,6 +223,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var ctrl in _sources)
             {
                 componentDefTransform.BeforeWrite(ctrl.Value);
+                AddComponentDefaults(ctrl.Value, templateDefaults);
             }
 
             var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
@@ -229,6 +232,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
+        }
+
+
+        private void AddComponentDefaults(BlockNode topParent, Dictionary<string, ControlTemplate> templateDefaults)
+        {
+            var type = topParent.Name.Kind.TypeName;
+            if (!_templateStore.TryGetTemplate(type, out var template) || !(template.IsComponentTemplate ?? false))
+                return;
+
+            var componentTemplate = new ControlTemplate(type, "", "");
+
+            foreach (var prop in topParent.Properties)
+            {
+                componentTemplate.InputDefaults.Add(prop.Identifier, prop.Expression.Expression);
+            }
+            templateDefaults.Add(type, componentTemplate);
         }
 
 
