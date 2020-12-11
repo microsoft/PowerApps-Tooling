@@ -65,8 +65,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 throw new InvalidOperationException($"No directory {directory2}");
             }
             var dir = new DirectoryReader(directory2);
-            
-            // $$$ Duplicate with MsAppSerializer? 
             var app = new CanvasDocument();
 
             // Do the manifest check (and version check) first. 

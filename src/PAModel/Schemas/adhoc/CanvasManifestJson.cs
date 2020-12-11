@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
@@ -15,7 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // this is most critical for verisoning. 
         public Version FormatVersion { get; set; }
 
-        // $$$ Contains lots of noisy data
+        // #21 Server Side changes should address noise in Properties.json
         public DocumentPropertiesJson Properties { get; set; }
 
         // SavedDate
