@@ -15,7 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // this is most critical for verisoning. 
         public Version FormatVersion { get; set; }
 
-        // #21 Server Side changes should address noise in Properties.json
+        // Issue#21: Server Side changes should address noise in Properties.json
         public DocumentPropertiesJson Properties { get; set; }
 
         // SavedDate
