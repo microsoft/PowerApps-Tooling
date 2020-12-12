@@ -5,13 +5,14 @@ using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 {
     internal class Parser
     {
-        private readonly string _fileName;        
+        private readonly string _fileName;
         public readonly ErrorContainer _errorContainer;
 
         private readonly YamlLexer _yaml;
@@ -25,9 +26,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         }
 
-        private Regex _controlDefRegex = new Regex(@"^(.+?)\s+As\s+(['_ A-Za-z0-9]+)(\.(\S+))?$");
-
-
         // Parse the control definition line. Something like:
         //   Screen1 as Screen
         //   Label1 As Label.Variant
@@ -35,17 +33,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             string line = token.Property;
 
-            var m = _controlDefRegex.Match(line);
-            if (!m.Success)
+            if (!TryParseControlDefCore(line, out var controlName, out var templateName, out var variantName))
             {
                 _errorContainer.ParseError(token.Span, "Can't parse control definition");
                 throw new DocumentException();
             }
-            // p.Property;
-            // Label1 As Label.Variant:
-            string controlName = CharacterUtils.UnEscapeName(m.Groups[1].Value);
-            string templateName = CharacterUtils.UnEscapeName(m.Groups[2].Value);
-            string variantName = m.Groups[4].Success ? CharacterUtils.UnEscapeName(m.Groups[4].Value) : null;
 
             return new TypedNameNode
             {
@@ -56,6 +48,111 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     OptionalVariant = variantName
                 }
             };
+        }
+
+        internal static bool TryParseControlDefCore(string line, out string ctrlName, out string templateName, out string variantName)
+        {
+            ctrlName = templateName = variantName = null;
+            if (!TryParseIdent(line, out var parsedIdent, out var length))
+                return false;
+            ctrlName = parsedIdent;
+
+            line = line.Substring(length);
+            if (!line.StartsWith(" "))
+                return false;
+            line = line.TrimStart();
+
+            if (!line.StartsWith("As "))
+                return false;
+
+            line = line.Substring(2).TrimStart();
+
+            if (!TryParseIdent(line, out parsedIdent, out length))
+                return false;
+
+            templateName = parsedIdent;
+
+            if (length == line.Length)
+                return true;
+
+            line = line.Substring(length);
+            if (!line.StartsWith("."))
+                return false;
+            line = line.Substring(1);
+
+            if (!TryParseIdent(line, out parsedIdent, out length))
+                return false;
+            variantName = parsedIdent;
+            if (length == line.Length)
+                return true;
+
+            return false;
+        }
+
+        internal static  bool TryParseIdent(string source, out string parsed, out int length)
+        {
+            length = 0;
+            parsed = null;
+            if (source.Length == 0)
+                return false;
+
+            var i = 0;
+            var result = new StringBuilder();
+            var hasDelimiterStart = CharacterUtils.IsIdentDelimiter(source[i]);
+            var hasDelimiterEnd = false;
+
+            if (!hasDelimiterStart)
+            {
+                // Simple identifier.
+                while (i < source.Length && CharacterUtils.IsSimpleIdentCh(source[i]))
+                {
+                    result.Append(source[i]);
+                    ++i;
+                }
+                parsed = result.ToString();
+                length = i;
+                return true;
+            }
+
+            // Delimited identifier.
+            ++i;
+
+            // Accept any characters up to the next unescaped identifier delimiter.
+            for (; ; )
+            {
+                if (i >= source.Length)
+                    break;
+
+                if (CharacterUtils.IsIdentDelimiter(source[i]))
+                {
+                    if (i + 1 < source.Length && CharacterUtils.IsIdentDelimiter(source[i + 1]))
+                    {
+                        // Escaped delimiter.
+                        result.Append(source[i]);
+                        i += 2;
+                    }
+                    else
+                    {
+                        // End of the identifier.
+                        hasDelimiterEnd = true;
+                        ++i;
+                        break;
+                    }
+                }
+                else
+                {
+                    result.Append(source[i]);
+                    ++i;
+                }
+            }
+
+            if (hasDelimiterStart == hasDelimiterEnd && result.Length > 0)
+            {
+                length = i;
+                parsed = result.ToString();
+                return true;
+            }
+            return false;
         }
 
         public BlockNode ParseControl()
@@ -73,10 +170,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
 
             var controlDef = ParseControlDef(p);
- 
+
             var block = new BlockNode
             {
-                 Name = controlDef
+                Name = controlDef
             };
 
             while (true)
@@ -136,8 +233,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         // Right now, only Default is permitted
         private FunctionNode ParseFunctionDef(YamlToken p)
         {
-            var paramRegex = new Regex(@"^(.+?)\s+As\s+(['_A-Za-z0-9]+)");
-            var funcNameRegex = new Regex(@"^(.+?)\(");
+            // Validation here mirrors validation in PA-Client
+            var paramRegex = new Regex(@"^([\p{L}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]+?)\s+As\s+([\p{L}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]+)");
+            var funcNameRegex = new Regex(@"^([\p{L}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]+?)\(");
             var line = p.Property;
             var m = funcNameRegex.Match(line);
 
@@ -231,6 +329,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             }
         }
 
-        private bool IsControlStart(string line) => _controlDefRegex.IsMatch(line);
+        private bool IsControlStart(string line)
+        {
+            if (!TryParseIdent(line, out var parsed, out var length))
+                return false;
+            line = line.Substring(length).TrimStart();
+            return line.StartsWith("As");
+        }
     }
 }
