@@ -250,8 +250,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            app.ApplyAfterMsAppLoadTransforms();
-            app.OnLoadComplete();
+            app.ApplyAfterMsAppLoadTransforms(errors);
+            app.OnLoadComplete(errors);
 
             return app;
         }
@@ -264,7 +264,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors)
         {
-            app.ApplyBeforeMsAppWriteTransforms();
+            app.ApplyBeforeMsAppWriteTransforms(errors);
 
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -300,7 +300,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
-            app.ApplyAfterMsAppLoadTransforms();
+            app.ApplyAfterMsAppLoadTransforms(errors);
         }
 
         private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors)

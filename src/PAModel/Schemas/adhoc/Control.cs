@@ -12,7 +12,6 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    // $$$ todo - get real definition
     internal class ControlInfoJson
     {
         public class RuleEntry

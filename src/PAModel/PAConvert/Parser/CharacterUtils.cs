@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
 using System.Globalization;
 using System.Text;
@@ -117,14 +118,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             return false;
         }
 
-        public static string UnEscapeName(string name)
+        public static string UnEscapeName(string name, ErrorContainer errors)
         {
             if (IsIdentDelimiter(name[0]))
             {
                 if (!IsIdentDelimiter(name[name.Length-1]))
                 {
-                    // Must match 
-                    throw new InvalidOperationException("Unmatched escape delimeter");
+                    // Must match
+                    errors.ParseError(default, $"Unmatched escape delimeter in {name}");
+                    throw new DocumentException();
                 }
                 StringBuilder sb = new StringBuilder();
                 int i = 1;

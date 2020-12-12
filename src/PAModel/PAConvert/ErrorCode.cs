@@ -31,6 +31,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // This operation isn't supported, use studio
         UnsupportedUseStudio = 3004,
 
+        // Missing properties or values where they're required
+        Validation = 3005,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -76,6 +79,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void ParseError(this ErrorContainer errors, SourceLocation span, string message)
         {
             errors.AddError(ErrorCode.ParseError, default(SourceLocation), $"Parse error: {message}");
+        }
+
+        public static void ValidationError(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.Validation, default(SourceLocation), $"Validation error: {message}");
         }
     }
 }

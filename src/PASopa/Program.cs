@@ -17,8 +17,6 @@ namespace PASopa
         {
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
-            // $$$ MErge in with ADIX PAC
-            // https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
             if (mode =="-test")
             {

@@ -24,8 +24,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         // Key is UniqueId, Value is ScreenName
         private IList<KeyValuePair<string, string>> _screenIdToScreenName;
+        private ErrorContainer _errors;
 
-        public AppTestTransform(TemplateStore templateStore, EditorStateStore stateStore)
+        public AppTestTransform(ErrorContainer errors, TemplateStore templateStore, EditorStateStore stateStore)
         {
             _testStepTemplateName = "TestStep";
 
@@ -36,14 +37,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _screenIdToScreenName = stateStore.Contents
                 .Where(state => state.TopParentName == state.Name)
                 .Select(state => new KeyValuePair<string, string>(state.UniqueId, state.Name)).ToList();
+
+            _errors = errors;
         }
 
         public void AfterRead(BlockNode control)
         {
             var properties = control.Properties.ToDictionary(prop => prop.Identifier);
             if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
-                throw new InvalidOperationException($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
-
+            {
+                _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
+                throw new DocumentException();
+            }
             properties.Remove(_metadataPropName);
             var metadataJsonString = Utility.UnEscapePAString(metadataProperty.Expression.Expression);
             var testStepsMetadata = JsonSerializer.Deserialize<List<TestStepsMetadataJson>>(metadataJsonString);
@@ -52,11 +57,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var testStep in testStepsMetadata)
             {
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
-                    throw new InvalidOperationException($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
-
-                if (testStep.ScreenId != null)
-                if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
-                    throw new InvalidOperationException($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                {
+                    _errors.ValidationError($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
+                    throw new DocumentException();
+                }
 
                 var childProperties = new List<PropertyNode>()
                     {
@@ -78,7 +82,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 if (testStep.ScreenId != null)
                 {
                     if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
-                        throw new InvalidOperationException($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                    {
+                        _errors.ValidationError($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                        throw new DocumentException();
+                    }
 
                     childProperties.Add(new PropertyNode()
                     {
@@ -115,21 +122,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             {
                 var propName = child.Name.Identifier;
                 if (child.Name.Kind.TypeName != _testStepTemplateName)
-                    throw new InvalidOperationException($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
+                {
+                    _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
+                    throw new DocumentException();
+                }
                 if (child.Properties.Count > 3)
-                    throw new InvalidOperationException($"Test Step {propName} has unexpected properties");
+                {
+                    _errors.ValidationError($"Test Step {propName} has unexpected properties");
+                    throw new DocumentException();
+                }
                 var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");
                 if (descriptionProp == null)
-                    throw new InvalidOperationException($"Test Step {propName} is missing a Description property");
+                {
+                    _errors.ValidationError($"Test Step {propName} is missing a Description property");
+                    throw new DocumentException();
+                }
                 var valueProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Value");
                 if (valueProp == null)
-                    throw new InvalidOperationException($"Test Step {propName} is missing a Value property");
+                {
+                    _errors.ValidationError($"Test Step {propName} is missing a Value property");
+                    throw new DocumentException();
+                }
                 var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
 
                 string screenId = null;
                 // Lookup screenID by Name
                 if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
-                    throw new InvalidOperationException($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                {
+                    _errors.ValidationError($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                    throw new DocumentException();
+                }
 
                 testStepsMetadata.Add(new TestStepsMetadataJson()
                 {
