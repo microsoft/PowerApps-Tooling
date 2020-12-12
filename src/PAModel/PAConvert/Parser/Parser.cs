@@ -50,15 +50,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             };
         }
 
-        private bool TryParseControlDefCore(string line, out string ctrlName, out string templateName, out string variantName)
+        internal static bool TryParseControlDefCore(string line, out string ctrlName, out string templateName, out string variantName)
         {
             ctrlName = templateName = variantName = null;
-            if (!TryParseIdent(line, out var parsedIdent, out var isDelimited))
+            if (!TryParseIdent(line, out var parsedIdent, out var length))
                 return false;
             ctrlName = parsedIdent;
-            var offset = parsedIdent.Length + (isDelimited ? 2 : 0);
 
-            line = line.Substring(offset);
+            line = line.Substring(length);
             if (!line.StartsWith(" "))
                 return false;
             line = line.TrimStart();
@@ -68,33 +67,31 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             line = line.Substring(2).TrimStart();
 
-            if (!TryParseIdent(line, out parsedIdent, out isDelimited))
+            if (!TryParseIdent(line, out parsedIdent, out length))
                 return false;
 
             templateName = parsedIdent;
-            offset = parsedIdent.Length + (isDelimited ? 2 : 0);
 
-            if (offset == line.Length)
+            if (length == line.Length)
                 return true;
 
-            line = line.Substring(offset);
+            line = line.Substring(length);
             if (!line.StartsWith("."))
                 return false;
             line = line.Substring(1);
 
-            if (!TryParseIdent(line, out parsedIdent, out isDelimited))
+            if (!TryParseIdent(line, out parsedIdent, out length))
                 return false;
             variantName = parsedIdent;
-            offset = parsedIdent.Length + (isDelimited ? 2 : 0);
-            if (offset == line.Length)
+            if (length == line.Length)
                 return true;
 
             return false;
         }
 
-        private bool TryParseIdent(string source, out string parsed, out bool isDelimited)
+        internal static  bool TryParseIdent(string source, out string parsed, out int length)
         {
-            isDelimited = false;
+            length = 0;
             parsed = null;
             if (source.Length == 0)
                 return false;
@@ -113,6 +110,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     ++i;
                 }
                 parsed = result.ToString();
+                length = i;
                 return true;
             }
 
@@ -124,6 +122,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             {
                 if (i >= source.Length)
                     break;
+
                 if (CharacterUtils.IsIdentDelimiter(source[i]))
                 {
                     if (i + 1 < source.Length && CharacterUtils.IsIdentDelimiter(source[i + 1]))
@@ -135,8 +134,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     else
                     {
                         // End of the identifier.
-                        ++i;
                         hasDelimiterEnd = true;
+                        ++i;
                         break;
                     }
                 }
@@ -147,9 +146,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 }
             }
 
-            isDelimited = hasDelimiterEnd;
-            if (hasDelimiterStart == hasDelimiterEnd)
+            if (hasDelimiterStart == hasDelimiterEnd && result.Length > 0)
             {
+                length = i;
                 parsed = result.ToString();
                 return true;
             }
@@ -332,10 +331,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
         private bool IsControlStart(string line)
         {
-            if (!TryParseIdent(line, out var parsed, out var isDelimited))
+            if (!TryParseIdent(line, out var parsed, out var length))
                 return false;
-            var offset = parsed.Length + (isDelimited ? 2 : 0);
-            line = line.Substring(offset).TrimStart();
+            line = line.Substring(length).TrimStart();
             return line.StartsWith("As");
         }
     }
