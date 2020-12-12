@@ -351,10 +351,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(EditorStateDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
 
-            // Expansions....    
-            // These are ignorable, but provide extra decoding and visiblity into complex files. 
-            WriteIgnoreFiles(app, dir);
-
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
             foreach (var dataSource in app.GetDataSources())
@@ -424,41 +420,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 dir.WriteAllJson(ConnectionDir, FileKind.Connections, app._connections);
             }
-        }
-
-        // Ignore these. but they help give more visibility into some of the json encoded fields.
-        private static void WriteIgnoreFiles(this CanvasDocument app, DirectoryWriter directory)
-        {
-            foreach (var x in app.GetDataSources())
-            {
-                // DataEntityMetadataJson is a large json-encoded string for the IR. 
-                if (x.DataEntityMetadataJson != null && x.DataEntityMetadataJson.Count > 0)
-                {
-                    foreach (var kv in x.DataEntityMetadataJson)
-                    {
-                        string filename = "DS_DataEntityMetadata_" + x.Name + "_" + kv.Key + ".json";
-                        var jsonStr = kv.Value;
-                        var je = JsonDocument.Parse(jsonStr).RootElement;
-
-                        directory.WriteAllJson(Ignore, filename, je);
-                    }
-                }
-                if (!string.IsNullOrEmpty(x.TableDefinition))
-                {
-                    // var path = Path.Combine(directory, "Ignore", "DS_TableDefinition_" + x.Name + ".json");
-                    string filename = "DS_TableDefinition_" + x.Name + ".json";
-
-                    var jsonStr = x.TableDefinition;
-                    var je = JsonDocument.Parse(jsonStr).RootElement;
-                    directory.WriteAllJson(Ignore, filename, je);
-                }
-            }
-
-            // Dump DataComponentTemplates.json 
-
-
-            // Properties. LocalConnectionReferences 
-            directory.WriteDoubleEncodedJson(Ignore, "Properties_LocalDatabaseReferences.json", app._properties.LocalDatabaseReferences);
         }
 
         private static void AddDefaultTheme(CanvasDocument app)
