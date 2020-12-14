@@ -85,7 +85,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // System.IO.File's built in functions fail if the directory doesn't already exist. 
         // Must pre-create it before writing. 
-        private static void EnsureFileDirExists(string path)
+        public static void EnsureFileDirExists(string path)
         {
             System.IO.FileInfo file = new System.IO.FileInfo(path);
             file.Directory.Create(); // If the directory already exists, this method does nothing.

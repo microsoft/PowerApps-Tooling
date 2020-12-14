@@ -281,6 +281,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var checksum = new ChecksumMaker();
 
+            DirectoryWriter.EnsureFileDirExists(fullpathToMsApp);
             using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
             {
                 foreach (FileEntry entry in app.GetMsAppFiles(errors))
