@@ -20,6 +20,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
+
+        // This is a utf8 string representing the AppCheckerResult.sarif file
+        // It likely is double-encoded json.
         public string AppCheckerResult { get; set; }
 
         // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         

@@ -22,7 +22,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 1 - .pa1 format
         // 2 - intro to .pa.yaml format.
         // 3 - Moved .editorstate.json files under src\EditorState
-        public static Version CurrentSourceVersion = new Version(0, 4);
+        // 4 - Moved Assets out of /Other
+        // 5 - AppCheckerResult is part of Entropy
+        public static Version CurrentSourceVersion = new Version(0, 5);
 
         // Layout is:
         //  src\
