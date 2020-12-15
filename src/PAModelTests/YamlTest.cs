@@ -31,12 +31,12 @@ namespace PAModelTests
             Assert.AreEqual(
 @"P0: =abc
 Obj1:
-  P1a: |-
-    =A#B
-  P1b: =B
-  Obj2:
-    P2a: =A
-  P1c: =C
+    P1a: |-
+        =A#B
+    P1b: =B
+    Obj2:
+        P2a: =A
+    P1c: =C
 ", t);
         }
 

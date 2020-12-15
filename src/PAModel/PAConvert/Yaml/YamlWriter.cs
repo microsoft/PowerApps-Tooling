@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         private readonly TextWriter _text;
         private int _currentIndent;
 
-        private const string Indent = "  ";
+        private const string Indent = "    ";
 
         public YamlWriter(TextWriter text)
         {
