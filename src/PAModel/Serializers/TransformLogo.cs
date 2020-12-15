@@ -29,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     app._unknownFiles.Remove(oldKey);
 
-                    logoFile.Name = @"Resources\" + newLogoName;
+                    logoFile.Name = newLogoName;
                     app._logoFile = logoFile;
 
 
@@ -49,6 +49,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
             {
+                app._assetFiles.Remove(app._logoFile.Name);
                 publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name);
                 logoFile = new FileEntry
                 {

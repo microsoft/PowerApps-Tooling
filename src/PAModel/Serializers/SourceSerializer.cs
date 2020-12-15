@@ -29,6 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  DataSources\
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
+        public const string AssetsDir = "Assets";
         public const string TestDir = "Src\\Tests";
         public const string EditorStateDir = "Src\\EditorState";
         public const string PackagesDir = "pkgs";
@@ -98,6 +99,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Load template files, recreate References/templates.json
             LoadTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
 
+            foreach (var file in dir.EnumerateFiles(AssetsDir))
+            {
+                app.AddAssetFile(file.ToFileEntry());
+            }
+
             // var root = Path.Combine(directory, OtherDir);
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -134,7 +140,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             } // each loose file in '\other' 
 
 
-            app.GetLogoFileFromUnknowns();
+            app.GetLogoFile();
 
             LoadDataSources(app, dir);
             LoadSourceFiles(app, dir, templateDefaults, errors);
@@ -209,14 +215,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // The publish info points to the logo file. Grab it from the unknowns. 
-        private static void GetLogoFileFromUnknowns(this CanvasDocument app)
+        private static void GetLogoFile(this CanvasDocument app)
         {
             // Logo file. 
             if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
             {
-                string key = @"Resources\" + app._publishInfo.LogoFileName;
+                string key = app._publishInfo.LogoFileName;
                 FileEntry logoFile;
-                if (app._unknownFiles.TryGetValue(key, out logoFile))
+                if (app._assetFiles.TryGetValue(key, out logoFile))
                 {
                     app._unknownFiles.Remove(key);
                     app._logoFile = logoFile;
@@ -350,7 +356,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out the used templates from controls
             // These could be created as part of build tooling, and are from the control.json files for now
             dir.WriteAllText(EditorStateDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
-
+    
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
             foreach (var dataSource in app.GetDataSources())
@@ -378,9 +384,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(OtherDir, FileKind.Checksum, app._checksum);
             }
 
+            foreach (var file in app._assetFiles.Values)
+            {
+                dir.WriteAllBytes(AssetsDir, file.Name, file.RawBytes);
+            }
+
             if (app._logoFile != null)
             {
-                dir.WriteAllBytes(OtherDir, app._logoFile.Name, app._logoFile.RawBytes);
+                dir.WriteAllBytes(AssetsDir, app._logoFile.Name, app._logoFile.RawBytes);
             }
 
             if (app._themes != null)
