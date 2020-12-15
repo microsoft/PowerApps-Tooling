@@ -67,6 +67,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             app.AddFile(FileEntry.FromZip(entry));
                             break;
 
+                        case FileKind.Asset:
+                            app.AddAssetFile(FileEntry.FromZip(entry, name: fullName.Substring("Assets\\".Length)));
+                            break;
+
                         case FileKind.Checksum:
                             app._checksum = ToObject<ChecksumJson>(entry);
                             break;
@@ -259,6 +263,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal static void AddFile(this CanvasDocument app, FileEntry entry)
         {
             app._unknownFiles.Add(entry.Name, entry);
+        }
+
+        internal static void AddAssetFile(this CanvasDocument app, FileEntry entry)
+        {
+            app._assetFiles.Add(entry.Name, entry);
         }
 
         // Write back out to a msapp file. 
@@ -480,6 +489,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         DataSources = dsArray
                     });
                 }
+            }
+
+            foreach (var assetFile in app._assetFiles)
+            {
+                yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
             }
         }
 
