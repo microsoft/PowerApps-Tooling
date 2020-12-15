@@ -22,7 +22,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 1 - .pa1 format
         // 2 - intro to .pa.yaml format.
         // 3 - Moved .editorstate.json files under src\EditorState
-        public static Version CurrentSourceVersion = new Version(0, 3);
+        public static Version CurrentSourceVersion = new Version(0, 4);
 
         // Layout is:
         //  src\
