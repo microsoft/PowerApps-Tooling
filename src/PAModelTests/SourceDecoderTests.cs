@@ -16,9 +16,9 @@ namespace PAModelTests
         // - are we removing default properties, from both Theme Json and Template xmL?
         // - canonical ordering and stable output 
         [DataTestMethod]
-        //[DataRow("MyWeather.msapp", "Screen1.pa.yaml", "Weather_Screen1.pa.yaml")]
-        //[DataRow("GalleryTestApp.msapp", "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
-        //[DataRow("SimpleScopeVariables.msapp", "Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
+        [DataRow("MyWeather.msapp", "Screen1.pa.yaml", "Weather_Screen1.pa.yaml")]
+        [DataRow("GalleryTestApp.msapp", "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
+        [DataRow("SimpleScopeVariables.msapp", "Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
         [DataRow("TestStudio_Test.msapp", "Tests\\Test_7F478737223C4B69.pa.yaml", "TestStudio_Test.pa.yaml")]
         public void TestScreenBaselines(string appName, string sourceFileName, string screenBaselineName)
         {
