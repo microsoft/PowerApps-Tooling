@@ -24,5 +24,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Logo file
         // $$$ Other files?
         public PublishInfoJson PublishInfo { get; set; }
+        public List<string> ScreenOrder { get; set; } = new List<string>();
     }
 }

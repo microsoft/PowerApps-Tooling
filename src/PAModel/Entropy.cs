@@ -32,6 +32,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>();
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>();
 
+        // Key is component name, value is Index. 
+        public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>();
+
+        // Per control file, stores the publish order index offset to that file
+        public Dictionary<string, int> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, int>();
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             return this.OrderDataSource.GetOrDefault<string,int>(dataSource.GetUniqueName(), -1);

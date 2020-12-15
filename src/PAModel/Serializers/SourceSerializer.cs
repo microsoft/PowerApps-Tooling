@@ -24,7 +24,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 3 - Moved .editorstate.json files under src\EditorState
         // 4 - Moved Assets out of /Other
         // 5 - AppCheckerResult is part of Entropy
-        public static Version CurrentSourceVersion = new Version(0, 5);
+        // 6 - ScreenIndex and PublishOrderIndex updates
+        public static Version CurrentSourceVersion = new Version(0, 6);
 
         // Layout is:
         //  src\
@@ -82,6 +83,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._properties = manifest.Properties;
                         app._header = manifest.Header;
                         app._publishInfo = manifest.PublishInfo;
+                        app._screenOrder = manifest.ScreenOrder;
                         break;
                 }
             }
@@ -419,7 +421,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 FormatVersion =  CurrentSourceVersion,
                 Properties = app._properties,
                 Header = app._header,
-                PublishInfo = app._publishInfo
+                PublishInfo = app._publishInfo,
+                ScreenOrder = app._screenOrder
             };
             dir.WriteAllJson("", FileKind.CanvasManifest, manifest);
 

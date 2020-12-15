@@ -46,10 +46,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             DataComponentTemplatesJson dctemplate = null;
             DataComponentSourcesJson dcsources  = null;
 
-            //string actualChecksum = ChecksumMaker.GetChecksum(fullpathToMsApp);
-
             ChecksumMaker checksumMaker = new ChecksumMaker();
-            // app._checksum
+            // key = screen, value = index
+            var screenOrder = new Dictionary<string, double>();
 
             using (var z = ZipFile.OpenRead(fullpathToMsApp))
             {
@@ -117,6 +116,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 var control = ToObject<ControlInfoJson>(entry);
                                 var sf = SourceFile.New(control);
+                                // Add to screen order, only screens have meaningful indices, components may have collisions
+                                if (!ExcludeControlFromScreenOrdering(sf))
+                                {
+                                    screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
+                                }
+                                else
+                                {
+                                    app._entropy.ComponentIndexes.Add(control.TopParent.Name, control.TopParent.Index);
+                                }
+
                                 IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
                                 app._sources.Add(sf.ControlName, controlIR);
                             }
@@ -171,6 +180,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
+                app._screenOrder = screenOrder.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
@@ -395,6 +405,38 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 sourceFiles.Add(sourceFile);
             }
 
+            // Repair order when screens are unchanged
+            if (sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).Count() == app._screenOrder.Count &&
+               sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).All(file => app._screenOrder.Contains(file.ControlName)))
+            {
+                double i = 0.0;
+                foreach (var screen in app._screenOrder)
+                {
+                    sourceFiles.First(file => file.ControlName == screen).Value.TopParent.Index = i;
+                    i += 1;
+                }
+            }
+            else
+            {
+                // Make up an order, it doesn't really matter.
+                double i = 0.0;
+                foreach (var sourceFile in sourceFiles)
+                {
+                    if (ExcludeControlFromScreenOrdering(sourceFile))
+                        continue;
+                    sourceFile.Value.TopParent.Index = i;
+                    i += 1;
+                }
+            }
+
+
+            foreach (var kvp in app._entropy?.ComponentIndexes ?? Enumerable.Empty<KeyValuePair<string,double>>())
+            {
+                var file = sourceFiles.FirstOrDefault(source => source.ControlName == kvp.Key);
+                if (file != default)
+                    file.Value.TopParent.Index = kvp.Value;
+            }
+
             foreach (var sourceFile in sourceFiles)
             {
                 yield return sourceFile.ToMsAppFile();
@@ -505,6 +547,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
             }
+        }
+
+        private static bool ExcludeControlFromScreenOrdering(SourceFile file)
+        {
+            return file.Kind != SourceKind.Control || file.ControlName == "App";
         }
 
         private static ControlInfoJson.Item GetDataComponentDefinition(IEnumerable<ControlInfoJson> topParents, string templateGuid, ErrorContainer errors)

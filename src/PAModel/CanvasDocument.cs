@@ -42,6 +42,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // private Dictionary<string, DataSourceEntry> _dataSources = new Dictionary<string, DataSourceEntry>();
         // List instead of Dict  since we don't have a unique key. Name can be reused. 
         private List<DataSourceEntry> _dataSources = new List<DataSourceEntry>();
+        internal List<string> _screenOrder = new List<string>();
+
 
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
