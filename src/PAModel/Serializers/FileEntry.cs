@@ -39,6 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         Templates,
         Resources,
         DynamicTypes,
+        Asset,
 
         // Category so 
         ControlSrc,
@@ -72,14 +73,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return entry;
         }
 
-        public static FileEntry FromZip(ZipArchiveEntry z)
+        public static FileEntry FromZip(ZipArchiveEntry z, string name = null)
         {
-            var name = z.FullName;
-            // Some paths mistakenly start with DirectorySepChar in the msapp,
-            // We add _ to it when writing so that windows can handle it correctly. 
-            if (z.FullName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-                name = FilenameLeadingUnderscore + z.FullName;
-
+            if (name == null)
+            {
+                name = z.FullName;
+                // Some paths mistakenly start with DirectorySepChar in the msapp,
+                // We add _ to it when writing so that windows can handle it correctly. 
+                if (z.FullName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                    name = FilenameLeadingUnderscore + z.FullName;
+            }
             return new FileEntry
             {
                 Name = name,
@@ -111,8 +114,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"Entropy.json", FileKind.Entropy },
             {"CanvasManifest.json", FileKind.CanvasManifest },
             {"ControlTemplates.json", FileKind.Templates },
-            {"Connections.json", FileKind.Connections }
-
+            {"Connections.json", FileKind.Connections },
         };
 
 
@@ -147,6 +149,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (fullname.StartsWith(@"AppTests\", StringComparison.OrdinalIgnoreCase))
             {
                 return FileKind.TestSrc;
+            }
+
+            // Resource 
+            if (fullname.StartsWith(@"Assets\", StringComparison.OrdinalIgnoreCase))
+            {
+                return FileKind.Asset;
             }
 
             return FileKind.Unknown;

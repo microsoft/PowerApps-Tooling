@@ -62,6 +62,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // checksum from existin msapp. 
         internal ChecksumJson _checksum;
 
+        // Track all asset files, key is file name
+        internal Dictionary<string, FileEntry> _assetFiles = new Dictionary<string, FileEntry>(StringComparer.Ordinal);
+
+
         #region Save/Load
 
         /// <summary>
