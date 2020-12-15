@@ -41,12 +41,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
 
-        private static T ToObject<T>(string fullpath)
-        {
-            var str = File.ReadAllText(fullpath);
-            return JsonSerializer.Deserialize<T>(str, Utility._jsonOpts);
-        }
-
 
         // Full fidelity read-write
 
