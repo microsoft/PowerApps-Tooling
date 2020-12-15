@@ -22,7 +22,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 1 - .pa1 format
         // 2 - intro to .pa.yaml format.
         // 3 - Moved .editorstate.json files under src\EditorState
-        public static Version CurrentSourceVersion = new Version(0, 4);
+        // 4 - Moved Assets out of /Other
+        // 5 - AppCheckerResult is part of Entropy
+        public static Version CurrentSourceVersion = new Version(0, 5);
 
         // Layout is:
         //  src\
@@ -41,12 +43,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
-
-        private static T ToObject<T>(string fullpath)
-        {
-            var str = File.ReadAllText(fullpath);
-            return JsonSerializer.Deserialize<T>(str, Utility._jsonOpts);
-        }
 
 
         // Full fidelity read-write

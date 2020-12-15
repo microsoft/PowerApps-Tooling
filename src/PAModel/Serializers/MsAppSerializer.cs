@@ -104,6 +104,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.PublishInfo:
                             app._publishInfo = ToObject<PublishInfoJson>(entry);
                             break;
+
+                        case FileKind.AppCheckerResult:
+                            var appChecker = Encoding.UTF8.GetString(entry.ToBytes());
+                            app._entropy.AppCheckerResult = appChecker;
+                            break;
                                                     
 
                         case FileKind.ComponentSrc:
@@ -489,6 +494,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         DataSources = dsArray
                     });
                 }
+            }
+
+            if (app._entropy?.AppCheckerResult != null)
+            {
+                yield return new FileEntry() { Name = FileEntry.GetFilenameForKind(FileKind.AppCheckerResult), RawBytes = Encoding.UTF8.GetBytes(app._entropy.AppCheckerResult) };
             }
 
             foreach (var assetFile in app._assetFiles)
