@@ -17,7 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     internal class Entropy
     {
         // Json serialize these. 
-        public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>();
+        public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>(StringComparer.Ordinal);
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
 
@@ -26,17 +26,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public string AppCheckerResult { get; set; }
 
         // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         
-        public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
         // Key is component name, value is Index. 
-        public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>();
+        public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         // Key is top parent, value is Index offset
-        public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>();
+        public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         public int GetOrder(DataSourceEntry dataSource)
         {
