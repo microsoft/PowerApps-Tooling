@@ -27,7 +27,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
 
-            var styleName = $"default{templateName}Style";
+            var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
             if (_controlStore.TryGetControlState(controlName, out var controlState))
                 styleName = controlState.StyleName;
@@ -50,7 +50,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
 
-            var styleName = $"default{templateName}Style";
+            var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
             HashSet<string> propNames = null;
             if (_controlStore.TryGetControlState(controlName, out var controlState))

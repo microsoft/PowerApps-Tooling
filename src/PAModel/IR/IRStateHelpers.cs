@@ -285,7 +285,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 state = null;
                 resultControlInfo = ControlInfoJson.Item.CreateDefaultControl();
-
+                resultControlInfo.Name = controlName;
+                resultControlInfo.Parent = parent;
+                resultControlInfo.VariantName = variantName ?? string.Empty;
+                resultControlInfo.StyleName = $"default{templateName.FirstCharToUpper()}Style";
                 var properties = new List<ControlInfoJson.RuleEntry>();
                 foreach (var propIR in blockNode.Properties)
                 {

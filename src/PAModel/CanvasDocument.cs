@@ -178,7 +178,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateDefaults = new Dictionary<string, ControlTemplate>();
             foreach (var template in _templates.UsedTemplates)
             {
-                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
                 {
                     errors.GenericError($"Unable to parse template file {template.Name}");
                     throw new DocumentException();
@@ -186,7 +186,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+            GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
 
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
@@ -212,7 +212,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateDefaults = new Dictionary<string, ControlTemplate>();
             foreach (var template in _templates.UsedTemplates)
             {
-                if (!ControlTemplateParser.TryParseTemplate(template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
                 {
                     errors.GenericError($"Unable to parse template file {template.Name}");
                     throw new DocumentException();
@@ -220,7 +220,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, _properties.DocumentAppType);
+            GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
 
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);

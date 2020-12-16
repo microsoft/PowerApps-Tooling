@@ -23,6 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         // Used with templates. 
         public bool? IsComponentTemplate { get; set; }
+        public bool FirstParty { get; set; }
         public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; } = null;
 
         // Present for component templates with functions
@@ -58,6 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             TemplateDisplayName = template.TemplateDisplayName;
             ExtensionData = template.ExtensionData;
             ComponentType = template.ComponentType;
+            FirstParty = template.FirstParty;
         }
 
         public ControlInfoJson.Template ToControlInfoTemplate()
@@ -73,7 +75,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 CustomProperties = CustomProperties,
                 TemplateDisplayName = TemplateDisplayName,
                 ExtensionData = ExtensionData,
-                ComponentType = ComponentType
+                ComponentType = ComponentType,
+                FirstParty = FirstParty
             };
         }
 
