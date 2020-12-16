@@ -35,6 +35,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is component name, value is Index. 
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>();
 
+        // Key is top parent, value is Index offset
+        public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>();
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             return this.OrderDataSource.GetOrDefault<string,int>(dataSource.GetUniqueName(), -1);

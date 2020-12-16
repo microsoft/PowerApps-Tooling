@@ -14,6 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     {
         public string Name { get; set; }
         public string UniqueId { get; set; }
+        public double PublishOrderIndex { get; set; }
 
         [JsonIgnore]
         public string TopParentName { get; set; }

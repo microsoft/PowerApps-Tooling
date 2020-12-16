@@ -98,6 +98,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public string ControlUniqueId { get; set; }
             public string VariantName { get; set; } = string.Empty;
             public string Parent { get; set; } = string.Empty;
+            public double PublishOrderIndex { get; set; }
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
             public Item[] Children { get; set; }
@@ -126,18 +127,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             private static int _id = 2;
-            private static int _publishIndex = 0;
             public static Item CreateDefaultControl(ControlTemplate templateDefault = null)
             {
                 var defaultCtrl = new Item();
                 var rules = new List<RuleEntry>();
                 defaultCtrl.Rules = rules.ToArray();
                 defaultCtrl.ControlUniqueId = _id.ToString();
+                defaultCtrl.PublishOrderIndex = 0;
                 ++_id;
-                ++_publishIndex;
 
                 defaultCtrl.ExtensionData = new Dictionary<string, object>();
-                defaultCtrl.ExtensionData.Add("PublishOrderIndex", _publishIndex);
                 defaultCtrl.ExtensionData.Add("LayoutName", "");
                 defaultCtrl.ExtensionData.Add("MetaDataIDKey", "");
                 defaultCtrl.ExtensionData.Add("PersistMetaDataIDKey", false);

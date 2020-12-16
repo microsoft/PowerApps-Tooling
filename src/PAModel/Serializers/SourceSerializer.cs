@@ -24,7 +24,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 3 - Moved .editorstate.json files under src\EditorState
         // 4 - Moved Assets out of /Other
         // 5 - AppCheckerResult is part of Entropy
-        // 6 - ScreenIndex and PublishOrderIndex updates
+        // 6 - ScreenIndex
+        // 7 - PublishOrderIndex update
         public static Version CurrentSourceVersion = new Version(0, 6);
 
         // Layout is:

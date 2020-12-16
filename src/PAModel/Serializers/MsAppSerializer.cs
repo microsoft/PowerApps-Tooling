@@ -121,8 +121,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 {
                                     screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
                                 }
-                                foreach (var ctrl in sf.Flatten())
+                                var flattenedControlTree = sf.Flatten();
+                                double minPublishIndex = 1;
+
+                                if (flattenedControlTree.Any(item => item.PublishOrderIndex > 0))
                                 {
+                                    minPublishIndex = flattenedControlTree.Where(item => item.PublishOrderIndex > 0).Min(item => item.PublishOrderIndex);
+                                    app._entropy.PublishOrderIndexOffsets.Add(control.TopParent.Name, minPublishIndex);
+                                }
+
+                                foreach (var ctrl in flattenedControlTree)
+                                {
+                                    // Offset Publish Index so edits on an unrelated screen don't cause noise in this one.
+                                    if (ctrl.PublishOrderIndex > 0)
+                                        ctrl.PublishOrderIndex -= minPublishIndex - 1;
+
                                     if (ctrl.Index == 0.0 || ctrl.Template.Id == "http://microsoft.com/appmagic/screen")
                                         continue;
                                     app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
@@ -404,6 +417,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
                 var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore);
+                // Offset the publishOrderIndex based on Entropy.json
+                if (app._entropy.PublishOrderIndexOffsets.TryGetValue(sourceFile.ControlName, out var minIndex))
+                {
+                    foreach (var ctrl in sourceFile.Flatten())
+                    {
+                        if (ctrl.PublishOrderIndex > 0)
+                            ctrl.PublishOrderIndex += minIndex - 1;
+                    }
+                }
                 sourceFiles.Add(sourceFile);
             }
 
