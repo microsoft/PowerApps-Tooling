@@ -190,7 +190,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateList = new List<TemplatesJson.TemplateJson>();
             foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
                 var xmlContents = file.GetContents();
-                if (!ControlTemplateParser.TryParseTemplate(app._templateStore, xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
+                if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                 {
                     errors.GenericError($"Unable to parse template file {file._relativeName}");
                     throw new DocumentException();
@@ -207,7 +207,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(app._templateStore, loadedTemplates, app._properties.DocumentAppType);
+            GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
             app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
