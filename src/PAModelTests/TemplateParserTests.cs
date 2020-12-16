@@ -3,6 +3,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -28,15 +29,20 @@ namespace PAModelTests
             var galleryTemplateContents = galleryTemplateReader.ReadToEnd();
 
             var parsedTemplates = new Dictionary<string, ControlTemplate>();
-            Assert.IsTrue(ControlTemplateParser.TryParseTemplate(galleryTemplateContents, AppType.DesktopOrTablet, parsedTemplates, out var topTemplate, out var name));
+            var templateStore = new TemplateStore();
+            Assert.IsTrue(ControlTemplateParser.TryParseTemplate(templateStore, galleryTemplateContents, AppType.DesktopOrTablet, parsedTemplates, out var topTemplate, out var name));
 
             Assert.AreEqual(2, parsedTemplates.Count);
             Assert.AreEqual("gallery", name);
             Assert.AreEqual("http://microsoft.com/appmagic/gallery", topTemplate.Id);
 
+            Assert.IsTrue(templateStore.TryGetTemplate("gallery", out _));
+
             Assert.IsTrue(parsedTemplates.TryGetValue("galleryTemplate", out var innerTemplate));
             Assert.AreEqual("http://microsoft.com/appmagic/galleryTemplate", innerTemplate.Id);
             Assert.AreEqual("RGBA(0, 0, 0, 0)", innerTemplate.InputDefaults["TemplateFill"]);
+
+            Assert.IsTrue(templateStore.TryGetTemplate("galleryTemplate", out _));
         }
     }
 }

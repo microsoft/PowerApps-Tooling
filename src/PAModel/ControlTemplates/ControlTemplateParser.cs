@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -13,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
         internal static Regex _reservedIdentifierRegex = new Regex(@"%([a-zA-Z]*)\.RESERVED%");
 
 
-        internal static bool TryParseTemplate(string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
+        internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
         {
             template = null;
             name = string.Empty;
@@ -56,10 +57,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                     }
                 }
 
-                if (template.Id == "http://microsoft.com/appmagic/gallery" && !TryParseNestedWidgets(widget, type, loadedTemplates))
+                if (template.Id == "http://microsoft.com/appmagic/gallery" && !TryParseNestedWidgets(templateStore, widget, type, loadedTemplates))
                     return false;
 
                 loadedTemplates.Add(name, template);
+                if (!templateStore.TryGetTemplate(name, out _))
+                {
+                    templateStore.AddTemplate(name, new CombinedTemplateState()
+                    {
+                        Id = template.Id,
+                        Name = template.Name,
+                        Version = template.Version,
+                        LastModifiedTimestamp = "0",
+                        IsComponentTemplate = false,
+                        FirstParty = true,
+                    });
+                }
                 return true;
             }
             catch
@@ -68,7 +81,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             }
         }
 
-        private static bool TryParseNestedWidgets(XElement root, AppType type, Dictionary<string, ControlTemplate> loadedTemplates)
+        private static bool TryParseNestedWidgets(TemplateStore templateStore, XElement root, AppType type, Dictionary<string, ControlTemplate> loadedTemplates)
         {
             var nestedWidgets = root.Element(ControlMetadataXNames.NestedWidgets);
             if (nestedWidgets == null)
@@ -96,6 +109,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 }
 
                 loadedTemplates.Add(name, template);
+                if (!templateStore.TryGetTemplate(name, out _))
+                {
+                    templateStore.AddTemplate(name, new CombinedTemplateState()
+                    {
+                        Id = template.Id,
+                        Name = template.Name,
+                        Version = template.Version,
+                        LastModifiedTimestamp = "0",
+                        IsComponentTemplate = false,
+                        FirstParty = true,
+                    });
+                }
             }
             return true;
         }

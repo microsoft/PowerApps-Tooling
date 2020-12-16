@@ -191,7 +191,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var templateList = new List<TemplatesJson.TemplateJson>();
             foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
                 var xmlContents = file.GetContents();
-                if (!ControlTemplateParser.TryParseTemplate(xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
+                if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                 {
                     errors.GenericError($"Unable to parse template file {file._relativeName}");
                     throw new DocumentException();
@@ -208,7 +208,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(loadedTemplates, app._properties.DocumentAppType);
+            GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
             app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
@@ -322,12 +322,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
                 dir.WriteAllXML(PackagesDir, filename, template.Template);
-                if (!ControlTemplateParser.TryParseTemplate(template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
+                if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(templateDefaults, app._properties.DocumentAppType);
+            GlobalTemplates.AddCodeOnlyTemplates(app._templateStore, templateDefaults, app._properties.DocumentAppType);
 
             foreach (var control in app._sources)
             {

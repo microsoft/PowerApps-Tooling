@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +11,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
 {
     internal class GlobalTemplates
     {
-        public static void AddCodeOnlyTemplates(Dictionary<string, ControlTemplate> templates, AppType type)
+        public static void AddCodeOnlyTemplates(TemplateStore templateStore, Dictionary<string, ControlTemplate> templates, AppType type)
         {
             templates.Add("appinfo", CreateAppInfoTemplate(type));
+            if (!templateStore.TryGetTemplate("appinfo", out _))
+            {
+                templateStore.AddTemplate("appinfo", new CombinedTemplateState()
+                {
+                    Id = "http://microsoft.com/appmagic/appinfo",
+                    Name = "appinfo",
+                    Version = "1.0",
+                    LastModifiedTimestamp = "0",
+                    IsComponentTemplate = false,
+                    FirstParty = true,
+                });
+            }
+
             templates.Add("screen", CreateScreenTemplate(type));
+            if (!templateStore.TryGetTemplate("screen", out _))
+            {
+                templateStore.AddTemplate("screen", new CombinedTemplateState()
+                {
+                    Id = "http://microsoft.com/appmagic/screen",
+                    Name = "screen",
+                    Version = "1.0",
+                    LastModifiedTimestamp = "0",
+                    IsComponentTemplate = false,
+                    FirstParty = true,
+                });
+            }
         }
 
         private static ControlTemplate CreateAppInfoTemplate(AppType type)
