@@ -46,10 +46,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             DataComponentTemplatesJson dctemplate = null;
             DataComponentSourcesJson dcsources  = null;
 
-            //string actualChecksum = ChecksumMaker.GetChecksum(fullpathToMsApp);
-
             ChecksumMaker checksumMaker = new ChecksumMaker();
-            // app._checksum
+            // key = screen, value = index
+            var screenOrder = new Dictionary<string, double>();
 
             using (var z = ZipFile.OpenRead(fullpathToMsApp))
             {
@@ -117,6 +116,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 var control = ToObject<ControlInfoJson>(entry);
                                 var sf = SourceFile.New(control);
+                                // Add to screen order, only screens have meaningful indices, components may have collisions
+                                if (!ExcludeControlFromScreenOrdering(sf))
+                                {
+                                    screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
+                                }
+                                foreach (var ctrl in sf.Flatten())
+                                {
+                                    if (ctrl.Index == 0.0 || ctrl.Template.Id == "http://microsoft.com/appmagic/screen")
+                                        continue;
+                                    app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
+                                }
+
                                 IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
                                 app._sources.Add(sf.ControlName, controlIR);
                             }
@@ -171,6 +182,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
+                app._screenOrder = screenOrder.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
@@ -395,6 +407,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 sourceFiles.Add(sourceFile);
             }
 
+            // Repair order when screens are unchanged
+            if (sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).Count() == app._screenOrder.Count &&
+               sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).All(file => app._screenOrder.Contains(file.ControlName)))
+            {
+                double i = 0.0;
+                foreach (var screen in app._screenOrder)
+                {
+                    sourceFiles.First(file => file.ControlName == screen).Value.TopParent.Index = i;
+                    i += 1;
+                }
+            }
+            else
+            {
+                // Make up an order, it doesn't really matter.
+                double i = 0.0;
+                foreach (var sourceFile in sourceFiles)
+                {
+                    if (ExcludeControlFromScreenOrdering(sourceFile))
+                        continue;
+                    sourceFile.Value.TopParent.Index = i;
+                    i += 1;
+                }
+            }
+
+            RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
+
             foreach (var sourceFile in sourceFiles)
             {
                 yield return sourceFile.ToMsAppFile();
@@ -504,6 +542,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var assetFile in app._assetFiles)
             {
                 yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
+            }
+        }
+
+        private static bool ExcludeControlFromScreenOrdering(SourceFile file)
+        {
+            return file.Kind != SourceKind.Control || file.ControlName == "App";
+        }
+
+        private static void RepairComponentInstanceIndex(Dictionary<string, double> componentIndices, List<SourceFile> files)
+        {
+            foreach (var control in files.SelectMany(file => file.Flatten()))
+            {
+                if (componentIndices.TryGetValue(control.Name, out var index))
+                    control.Index = index;
             }
         }
 

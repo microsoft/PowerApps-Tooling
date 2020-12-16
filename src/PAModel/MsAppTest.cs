@@ -154,7 +154,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     File.WriteAllText(@"c:\temp\b1.json", str);
 
                                     // For debugging. Help find exactly where the difference is. 
-                                    for(int i = 0; i < otherContents.Length; i++)
+                                    for (int i = 0; i < otherContents.Length; i++)
                                     {
                                         if (i >= str.Length)
                                         {

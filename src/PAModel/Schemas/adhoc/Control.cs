@@ -101,6 +101,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Template Template { get; set; }
             public RuleEntry[] Rules { get; set; }
             public Item[] Children { get; set; }
+            public double Index { get; set; } = 0.0;
 
             // For matching up within a Theme.
             public string StyleName { get; set; }
@@ -136,7 +137,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 ++_publishIndex;
 
                 defaultCtrl.ExtensionData = new Dictionary<string, object>();
-                defaultCtrl.ExtensionData.Add("Index", 0.0);
                 defaultCtrl.ExtensionData.Add("PublishOrderIndex", _publishIndex);
                 defaultCtrl.ExtensionData.Add("LayoutName", "");
                 defaultCtrl.ExtensionData.Add("MetaDataIDKey", "");
