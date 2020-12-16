@@ -121,9 +121,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 {
                                     screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
                                 }
-                                else
+                                foreach (var ctrl in sf.Flatten())
                                 {
-                                    app._entropy.ComponentIndexes.Add(control.TopParent.Name, control.TopParent.Index);
+                                    if (ctrl.Index == 0.0 || ctrl.Template.Id == "http://microsoft.com/appmagic/screen")
+                                        continue;
+                                    app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
                                 }
 
                                 IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
@@ -429,13 +431,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-
-            foreach (var kvp in app._entropy?.ComponentIndexes ?? Enumerable.Empty<KeyValuePair<string,double>>())
-            {
-                var file = sourceFiles.FirstOrDefault(source => source.ControlName == kvp.Key);
-                if (file != default)
-                    file.Value.TopParent.Index = kvp.Value;
-            }
+            RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
 
             foreach (var sourceFile in sourceFiles)
             {
@@ -552,6 +548,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static bool ExcludeControlFromScreenOrdering(SourceFile file)
         {
             return file.Kind != SourceKind.Control || file.ControlName == "App";
+        }
+
+        private static void RepairComponentInstanceIndex(Dictionary<string, double> componentIndices, List<SourceFile> files)
+        {
+            foreach (var control in files.SelectMany(file => file.Flatten()))
+            {
+                if (componentIndices.TryGetValue(control.Name, out var index))
+                    control.Index = index;
+            }
         }
 
         private static ControlInfoJson.Item GetDataComponentDefinition(IEnumerable<ControlInfoJson> topParents, string templateGuid, ErrorContainer errors)
