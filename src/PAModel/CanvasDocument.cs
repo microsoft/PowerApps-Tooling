@@ -240,7 +240,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-
         private void AddComponentDefaults(BlockNode topParent, Dictionary<string, ControlTemplate> templateDefaults)
         {
             var type = topParent.Name.Kind.TypeName;

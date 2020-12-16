@@ -159,6 +159,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 Name = control.Name,
                 UniqueId = control.ControlUniqueId,
+                PublishOrderIndex = control.PublishOrderIndex,
                 TopParentName = topParentName,
                 Properties = propStates,
                 StyleName = control.StyleName,
@@ -263,6 +264,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Parent = parent,
                     Name = controlName,
                     ControlUniqueId = state.UniqueId,
+                    PublishOrderIndex = state.PublishOrderIndex,
                     VariantName = variantName ?? string.Empty,
                     Rules = properties.ToArray(),
                     StyleName = state.StyleName,
