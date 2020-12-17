@@ -58,11 +58,11 @@ When merging changes made in two different Studio sessions:
 
 ## Contributing
 
-**We welcome feedback on the design, file format, and capabilities.  We are still in preview and routinely significantly refactor the code, so we aren't yet looking for code contributions. **
+We welcome feedback on the design, file format, and capabilities. Comments and issues are very welcome.   
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+This project is still experimental and routinely refactor the code and format in big ways.  As such, we aren't yet accepting code contributions until we are more stable.
+
+Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
