@@ -1,42 +1,50 @@
 
-# This project is still in Preview and under NDA 
-# We welcome feedback on the project, file format, and capabilities here. 
+# Power Apps Source File Pack and Unpack Utility
 
+**This project is still in Preview and under NDA.**
+ 
+**We welcome feedback on the project, file format, and capabilities.** 
 
-This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.
-This is similar to the "SolutionPackager" for CDS.
+This tool enables Canvas apps to be edited outside of Power Apps Studio and managed in a source control tool such as GitHub.  The basic work flow is:
+1. Download an existing Canvas app as a .msapp file, using **File** > **Save as** > **This computer** in Power Apps Studio.
+1. Use this tool to extract the .msapp file into editable source files.
+1. Edit these files with any text editor.
+1. Check these files into any source control manager.
+1. Use this tool to recreate a .msapp file from the editable source files.
+1. Upload the .msapp file using **File** > **Open** > **Browse** in Power Apps Studio.
 
-This aggressively ensures the msapps can faithfully roundtrip - and unpacking will immediately do a sanity test and repack and compare.
+This is similar to the [Solution Packager](https://docs.microsoft.com/en-us/power-platform/alm/solution-packager-tool) for Microsoft Dataverse.
 
-# File Format
+## Usage
+Use the test console app to unpack/pack today.  In the future, this functionality will be included with the [Power Apps CLI](https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli).
 
-This is the resulting folder structure after an extraction:
+You will need [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1) in order to build. 
+Build the test console app by running: `\build.cmd`  
+This will create: `\bin\Debug\PASopa\PASopa.exe`
 
-1. \src\ - the control and component files. This contains the sources.
-   1. CanvasManifest.json - a manifest file. This contains what is normally in the header, properties, and publishInfo.
-   2. *.json - the raw control.json file.
-   3. *.pa1 - the scripts extracted from the control.json file.
-1. \other\ - all miscellaneous files needed to recreate the .msapp
-   1. entropy.json - volatile elements (like timestamps) are extracted to this file. This helps reduce noisy diffs in other files while ensuring that we can still round trip.
-   2. Holds other files from the msapp, such as what is in \references
-1. \DataSources\ - a file per datasource.
+To unpack a .msapp file: `pasopa -unpack FromApp.msapp ToSourceFolder`
+To pack a .msapp file: `pasopa -pack ToApp.msapp FromSourceFolder`
 
+The tool aggressively ensures that it can faithfully round trip the conversion from .msapp to source files.  An unpack will immediately do a sanity test by performing a repack and compare.
 
-# Usage
-There is a test console app to drive this. The official way to consume this is through the PowerApps CLI https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli .
+## Folder structure
+Unpack and pack use this folder structure:
 
-```
-pasopa.exe  -unpack PathToMyApp.msapp FolderToExtractTo
-```
+- **\src** - the control and component files. This contains the sources.
+   - CanvasManifest.json - a manifest file. This contains what is normally in the header, properties, and publishInfo.
+   - \*.json - the raw control.json file.
+   - \*.pa.yaml - the formulas extracted from the control.json file.  **This is the place to edit your formulas.**
+- **\other** - all miscellaneous files needed to recreate the .msapp
+   - entropy.json - volatile elements (like timestamps) are extracted to this file. This helps reduce noisy diffs in other files while ensuring that we can still round trip.
+   - Holds other files from the msapp, such as what is in \references
+- **\DataSources** - a file per datasource.
 
-# Notices 
-
-## Data Collection.
-The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
+## File format
+The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](PAFileFormat.md).
 
 ## Contributing
 
-### We welcome feedback on the design, file format, and capabilities. We are still in preview and routinely significantly refactoring the code, so we aren't yet looking for code contributions. Once we stabalize.... 
+**We welcome feedback on the design, file format, and capabilities.  We are still in preview and routinely significantly refactor the code, so we aren't yet looking for code contributions. **
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
@@ -50,27 +58,21 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-# Building from source
-
-## Setting up a dev box
+### Setting up a dev box
 
 For a developer machine (Windows 10, WSL, Linux, macOS), install:
 
 - [git](https://git-scm.com/downloads)
-- [dotnet Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+- [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 - [VS Code](https://code.visualstudio.com/Download)
-- if on Windows: [VS2019 (Community edition will do)](https://visualstudio.microsoft.com/downloads/)
-    Select at least the following workloads:
-  - .NET Core cross-plat
-
+- if on Windows: [VS2019 (Community edition will do)](https://visualstudio.microsoft.com/downloads/).  Select at least the following workload: .NET Core cross-plat
 - recommended VSCode extensions:
   - [GitLens (eamodio.gitlens)](https://github.com/eamodio/vscode-gitlens)
   - [C# (ms-vscode.csharp)](https://github.com/OmniSharp/omnisharp-vscode)
 
-## Building and running tests
+### Building and running tests
 
-After cloning this repo (https://github.com/microsoft/PowerApps-Language-Tooling), open a terminal/cmd/PS prompt with the
-dotnet executable on the path. Check with: ```dotnet --version ```
+After cloning this repo (https://github.com/microsoft/PowerApps-Language-Tooling), open a terminal/cmd/PS prompt with the dotnet executable on the path. Check with: ```dotnet --version ```
 
 To build, run tests and produce nuget packages, run this command:
 
