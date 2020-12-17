@@ -16,6 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Only be written during MsApp. Opaque for source file.
     internal class Entropy
     {
+        // These come from volatile properties in properties.json in the msapp
         internal class PropertyEntropy
         {
             public string LocalConnectionReferences { get; set; }
