@@ -26,6 +26,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         private IList<KeyValuePair<string, string>> _screenIdToScreenName;
         private ErrorContainer _errors;
 
+        public static bool IsTestSuite(string templateName)
+        {
+            return templateName == "AppTest";
+        }
+
         public AppTestTransform(ErrorContainer errors, TemplateStore templateStore, EditorStateStore stateStore)
         {
             _testStepTemplateName = "TestStep";

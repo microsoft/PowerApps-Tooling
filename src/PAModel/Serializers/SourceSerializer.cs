@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System;
@@ -260,14 +261,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 foreach (var control in controlExtraData)
                 {
                     control.Value.TopParentName = topParentName;
-                    app._editorStateStore.TryAddControl(control.Value);
+                    if (!app._editorStateStore.TryAddControl(control.Value))
+                    {
+                        // Can't have duplicate control names.
+                        // This might happen due to a bad merge.
+                        errors.EditorStateError(file.SourceSpan, $"Control '{control.Value.Name}' is already defined.");
+                    }
                 }
+
+                
             }
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml"))
             {
                 AddControl(app, file._relativeName, file.GetContents(), errors);
-            }            
+            }
         }
 
         private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
@@ -287,6 +295,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var parser = new Parser.Parser(filePath, fileContents, errors);
                 var controlIR = parser.ParseControl();
+                if (controlIR == null)
+                {
+                    return; // error condition
+                }
+
                 app._sources.Add(controlIR.Name.Identifier, controlIR);
             }
             catch (DocumentException)

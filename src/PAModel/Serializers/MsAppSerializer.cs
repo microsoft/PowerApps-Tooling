@@ -2,19 +2,14 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
-using System.Text.Json;
 using System.Linq;
 using System.Text;
-using System.Runtime.CompilerServices;
-using System.Xml.Serialization;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -383,7 +378,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
             yield return ToFile(FileKind.Header, header);
 
-            
+
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
@@ -410,6 +405,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var sourceFiles = new List<SourceFile>();
 
+
+
             // Rehydrate sources before yielding any to be written, processing component defs first
             foreach (var controlData in app._sources
                 .OrderBy(source =>
@@ -428,6 +425,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 sourceFiles.Add(sourceFile);
             }
+
+            CheckUniqueIds(errors, sourceFiles);
 
             // Repair order when screens are unchanged
             if (sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).Count() == app._screenOrder.Count &&
@@ -527,10 +526,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             if (dctemplate.Count > 0)
-            { 
+            {
                 yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
                 {
-                     ComponentTemplates = dctemplate
+                    ComponentTemplates = dctemplate
                         .OrderBy(x => app._entropy.GetOrder(x))
                         .ToArray()
                 });
@@ -538,13 +537,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
             // Rehydrate the DataComponent DataSource file. 
-            {              
+            {
                 IEnumerable<DataComponentSourcesJson.Entry> ds =
                    from item in app.GetDataSources().Where(x => x.IsDataComponent)
                    select item.DataComponentDetails;
 
                 var dsArray = ds.ToArray();
-                
+
                 // backcompat-nit: if we have any DC, then always emit the DC Sources file, even if empty.
                 // if (dcmetadataList.Count > 0)
                 if (dctemplate.Count > 0 || dsArray.Length > 0)
@@ -564,6 +563,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var assetFile in app._assetFiles)
             {
                 yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
+            }
+        }
+
+        private static void CheckUniqueIds(ErrorContainer errors, List<SourceFile> sourceFiles)
+        {
+            var uniqueIds = new HashSet<string>();
+            foreach (var sourceFile in sourceFiles)
+            {
+                foreach (var ctrl in sourceFile.Flatten())
+                {
+                    if (!uniqueIds.Add(ctrl.ControlUniqueId))
+                    {
+                        errors.GenericMsAppError("Duplicate Control Unique Ids");
+                    }
+                }
             }
         }
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.Json;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -113,6 +114,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Entry(string fullPath)
             {
                 this._fullpath = fullPath;
+            }
+
+            public SourceLocation SourceSpan
+            {
+                get
+                {
+                    return SourceLocation.FromFile(this._fullpath);
+                }
             }
 
             // FileEntry is the same structure we get back from a Zip file. 
