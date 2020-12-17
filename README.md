@@ -60,7 +60,7 @@ When merging changes made in two different Studio sessions:
 
 We welcome feedback on the design, file format, and capabilities. Comments and issues are very welcome.   
 
-This project is still experimental and routinely refactor the code and format in big ways.  As such, we aren't yet accepting code contributions until we are more stable.
+This project is still experimental and we routinely refactor the folder structure, file format, and implementation in big ways.  As such, we aren't yet accepting code contributions until we are more stable.
 
 Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
 
