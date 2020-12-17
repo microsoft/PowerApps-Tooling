@@ -42,6 +42,20 @@ Unpack and pack use this folder structure:
 ## File format
 The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](PAFileFormat.md).
 
+## Merging changes from Studio
+When merging changes made in two different Studio sessions:
+- Ensure that all control names are unique.  It is easy for them not to be, as inserting a button in two different sessions can easily result in two Button1 controls.  We recommend naming controls soon after creating them to avoid this problem.  The tool will not accept two controls with the same name.  
+- If there are conflicts or errors, you can delete these files:
+	- \src\editorstate\*.json  - These files contain optional information in studio. 
+	- \other\entropy.json  
+- For any conflict in these files, it’s ok to accept the latest version: 
+	- \checksum.json 
+- If there are any merge conflicts under these paths, it is not safe to merge.   Let us know if this happens often and we will work on restructuring the file format to avoid conflicts.
+	- \connections\*
+	- \datasources\*
+	- \pkgs\*
+	- CanvasManifest.json 
+
 ## Contributing
 
 **We welcome feedback on the design, file format, and capabilities.  We are still in preview and routinely significantly refactor the code, so we aren't yet looking for code contributions. **
