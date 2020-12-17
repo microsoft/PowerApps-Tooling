@@ -97,7 +97,7 @@ Gallery1 As Gallery.hoizontalGallery:
             ) 
 ```
 
-*Component-Type* can be any canvas component.  Base types, such as *Number* are not supported.
+*Component-Type* can be any canvas component or control.  Base types, such as *Number* are not supported.
 
 *Component-Template* is an optional specifier for components that have different templates such as the Gallery.  Not all components will have templates.
 
@@ -137,12 +137,15 @@ At this time, additional metadata about the property is not defined here but is 
 For example:
 
 ```
-MathUtilities As FunctionComponent:
-    pi: =Pi()
-    e: =2.71828
-    help: |
-        ="This library provides
-        math functions and constants"
+DateRangePicker As CanvasComponent:
+    DefaultStart: |-
+		=// input property, customizable default for the component instance
+		Now()                      
+    DefaultEnd: |-
+		=// input property, customizable default for the component instance
+		DateAdd( Now(), 1, Days )    
+    SelectedStart: =DatePicker1.SelectedDate   // output property
+    SelectedEnd: =DatePicker2.SelectedDate     // output property
 ```
 
 ## YAML compatibility 

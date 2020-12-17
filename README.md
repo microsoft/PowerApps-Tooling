@@ -31,13 +31,17 @@ The tool aggressively ensures that it can faithfully round trip the conversion f
 Unpack and pack use this folder structure:
 
 - **\src** - the control and component files. This contains the sources.
+   - \*.pa.yaml - the formulas extracted from the control.json file.  **This is the place to edit your formulas.**- 
    - CanvasManifest.json - a manifest file. This contains what is normally in the header, properties, and publishInfo.
    - \*.json - the raw control.json file.
-   - \*.pa.yaml - the formulas extracted from the control.json file.  **This is the place to edit your formulas.**
+   - \EditorState\*.editorstate.json - cached information for Studio to use.
+- **\DataSources** - all data sources used by the app.
+- **\Connections** - additional information for non-tabular data sources.
+- **\Assets** - media files embedded in the app.
+- **\pkgs** - Metadata about each control type in the app.
 - **\other** - all miscellaneous files needed to recreate the .msapp
    - entropy.json - volatile elements (like timestamps) are extracted to this file. This helps reduce noisy diffs in other files while ensuring that we can still round trip.
    - Holds other files from the msapp, such as what is in \references
-- **\DataSources** - a file per datasource.
 
 ## File format
 The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](PAFileFormat.md).
@@ -45,14 +49,16 @@ The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html). 
 ## Merging changes from Studio
 When merging changes made in two different Studio sessions:
 - Ensure that all control names are unique.  It is easy for them not to be, as inserting a button in two different sessions can easily result in two Button1 controls.  We recommend naming controls soon after creating them to avoid this problem.  The tool will not accept two controls with the same name.  
+- For these files, merge them as you normally would:
+	- \src\*.pa.yaml 
 - If there are conflicts or errors, you can delete these files:
 	- \src\editorstate\*.json  - These files contain optional information in studio. 
 	- \other\entropy.json  
 - For any conflict in these files, it’s ok to accept the latest version: 
 	- \checksum.json 
 - If there are any merge conflicts under these paths, it is not safe to merge.   Let us know if this happens often and we will work on restructuring the file format to avoid conflicts.
-	- \connections\*
-	- \datasources\*
+	- \Connections\*
+	- \DataSources\*
 	- \pkgs\*
 	- CanvasManifest.json 
 
