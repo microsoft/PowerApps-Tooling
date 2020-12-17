@@ -43,10 +43,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             {
                 // create unambiguous name for gallery template control
                 var index = 1;
-                while (_controlStore.TryGetControlState(control.Name + "template" + index, out _))
+                while (_controlStore.TryGetControlState(control.Name.Identifier + "template" + index, out _))
                     index++;
 
-                galleryTemplateName = control.Name + "template" + index;
+                galleryTemplateName = control.Name.Identifier + "template" + index;
             }
 
             var parentCombinedRules = control.Properties.ToDictionary(prop => prop.Identifier);
