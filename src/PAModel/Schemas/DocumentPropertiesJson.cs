@@ -51,7 +51,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public double? DefaultConnectedDataSourceMaxGetRowsCount { get; set; }
         public string InstrumentationKey { get; set; }
         public Dictionary<string, int> ControlCount { get; set; }
-
+        public double? DeserializationLoadTime { get; set; }
+        public double? AnalysisLoadTime { get; set; }
         // Keys that are optional, or added later (and may or may not appear) will be captured here.
         // public bool EnableInstrumentation { get; set; } // default to false
         [JsonExtensionData]

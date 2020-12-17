@@ -174,6 +174,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         internal void ApplyAfterMsAppLoadTransforms(ErrorContainer errors)
         {
+            // Update volatile documentproperties
+            _entropy.SetProperties(_properties);
+
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
             foreach (var template in _templates.UsedTemplates)
@@ -208,6 +211,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
         {
+            // Update volatile documentproperties
+            _entropy.GetProperties(_properties);
+
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
             foreach (var template in _templates.UsedTemplates)

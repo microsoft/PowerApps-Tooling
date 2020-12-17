@@ -13,9 +13,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Various data that we can save for round-tripping.
     // Everything here is optional!!
-    // Only be written during MsApp. Opaque for source file. 
+    // Only be written during MsApp. Opaque for source file.
     internal class Entropy
     {
+        // These come from volatile properties in properties.json in the msapp
+        internal class PropertyEntropy
+        {
+            public string LocalConnectionReferences { get; set; }
+            public string LocalDatabaseReferences { get; set; }
+            public Dictionary<string, int> ControlCount { get; set; }
+            public double? DeserializationLoadTime { get; set; }
+            public double? AnalysisLoadTime { get; set; }
+        }
+
         // Json serialize these. 
         public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>(StringComparer.Ordinal);
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
@@ -37,6 +47,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is top parent, value is Index offset
         public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
+
+        public PropertyEntropy VolatileProperties { get; set; }
 
         public int GetOrder(DataSourceEntry dataSource)
         {
@@ -113,6 +125,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void SetLogoFileName(string oldLogoName)
         {
             this.OldLogoFileName = oldLogoName;
-        }        
+        }
+
+        public void SetProperties(DocumentPropertiesJson documentProperties)
+        {
+            VolatileProperties = new PropertyEntropy()
+            {
+                AnalysisLoadTime = documentProperties.AnalysisLoadTime,
+                DeserializationLoadTime = documentProperties.DeserializationLoadTime,
+                ControlCount = documentProperties.ControlCount,
+                LocalConnectionReferences = documentProperties.LocalConnectionReferences,
+                LocalDatabaseReferences = documentProperties.LocalDatabaseReferences
+            };
+
+            documentProperties.AnalysisLoadTime = null;
+            documentProperties.DeserializationLoadTime = null;
+            documentProperties.ControlCount = null;
+            documentProperties.LocalConnectionReferences = null;
+            documentProperties.LocalDatabaseReferences = null;
+        }
+
+        public void GetProperties(DocumentPropertiesJson documentProperties)
+        {
+            documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
+            documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
+            documentProperties.ControlCount = VolatileProperties.ControlCount;
+            documentProperties.LocalConnectionReferences = VolatileProperties.LocalConnectionReferences;
+            documentProperties.LocalDatabaseReferences = VolatileProperties.LocalDatabaseReferences;
+        }
     }
 }

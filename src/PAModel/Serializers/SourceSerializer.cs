@@ -26,7 +26,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 5 - AppCheckerResult is part of Entropy
         // 6 - ScreenIndex
         // 7 - PublishOrderIndex update
-        public static Version CurrentSourceVersion = new Version(0, 7);
+        // 8 - Volatile properties to Entropy
+        public static Version CurrentSourceVersion = new Version(0, 8);
 
         // Layout is:
         //  src\
