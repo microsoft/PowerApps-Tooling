@@ -1,7 +1,8 @@
-using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 {
@@ -20,6 +21,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
             EndLine = endLine;
             EndChar = endChar;
             FileName = fileName;
+        }
+
+        public static SourceLocation FromFile(string filename)
+        {
+            return new SourceLocation(0,0,0,0, filename);
         }
 
         public override string ToString()

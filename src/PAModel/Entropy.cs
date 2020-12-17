@@ -147,11 +147,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void GetProperties(DocumentPropertiesJson documentProperties)
         {
-            documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
-            documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
-            documentProperties.ControlCount = VolatileProperties.ControlCount;
-            documentProperties.LocalConnectionReferences = VolatileProperties.LocalConnectionReferences;
-            documentProperties.LocalDatabaseReferences = VolatileProperties.LocalDatabaseReferences;
+            if (this.VolatileProperties != null)
+            {
+                documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
+                documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
+                documentProperties.ControlCount = VolatileProperties.ControlCount;
+                documentProperties.LocalConnectionReferences = VolatileProperties.LocalConnectionReferences;
+                documentProperties.LocalDatabaseReferences = VolatileProperties.LocalDatabaseReferences;
+            }
         }
     }
 }

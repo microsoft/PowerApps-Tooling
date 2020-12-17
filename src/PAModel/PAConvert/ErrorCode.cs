@@ -34,6 +34,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Missing properties or values where they're required
         Validation = 3005,
 
+        // Editor State file is corrupt. Delete it. 
+        IllegalEditorState = 3006,
+
+        // Sanity check on the final msapp fails.
+        // This is a generic error. There's nothing the user can do here (it's the msapp)
+        // We should have caught it sooner and issues a more actionable source-level error. 
+        MsAppError = 3007,
+
+        // A symbol is already defined.
+        // Common for duplicate controls. This suggests an offline edit. 
+        DuplicateSymbol = 3008,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -74,6 +86,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void UnsupportedError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedUseStudio, default(SourceLocation), $"Unsupported operation error. {message}");
+        }
+
+        public static void EditorStateError(this ErrorContainer errors, SourceLocation loc, string message)
+        {
+            errors.AddError(ErrorCode.IllegalEditorState, loc, $"Illegal editorstate file. {message}");
+        }
+
+        public static void GenericMsAppError(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.MsAppError, default(SourceLocation), $"MsApp is corrupted. {message}");
+        }
+
+        public static void DuplicateSymbolError(this ErrorContainer errors, SourceLocation loc, string message, SourceLocation loc2)
+        {
+            errors.AddError(ErrorCode.DuplicateSymbol, default(SourceLocation), $"Symbol '{message}' is already defined. Previously at {loc2}");
         }
 
         public static void ParseError(this ErrorContainer errors, SourceLocation span, string message)

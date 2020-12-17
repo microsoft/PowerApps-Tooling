@@ -277,6 +277,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 throw new DocumentException();
             }
 
+            // Will visit all controls and add errors
+            var uniqueVisitor = new UniqueControlNameVistor(errors);
+            foreach (var control in this._sources.Values)
+            {
+                uniqueVisitor.Visit(control);
+            }
+
+
             // Integrity checks. 
             // Make sure every connection has a corresponding data source. 
             foreach (var kv in _connections.NullOk())
@@ -300,20 +308,47 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        internal static IEnumerable<ControlInfoJson.Item> WalkAll(ControlInfoJson.Item x)
+        // Helper for traversing and ensuring unique control names. 
+        class UniqueControlNameVistor
         {
-            yield return x;
-            if (x.Children != null)
+            // Control names are case sensitive. 
+            private readonly Dictionary<string, SourceLocation?> _names = new Dictionary<string, SourceLocation?>(StringComparer.Ordinal);
+            private readonly ErrorContainer _errors;
+
+            public UniqueControlNameVistor(ErrorContainer errors)
             {
-                foreach (var child in x.Children)
+                _errors = errors;
+            }
+
+            public void Visit(BlockNode node)
+            {
+                // Ignore test templates here. 
+                // Test templates have control-like syntax, but allowed to repeat names:
+                //    Step4 As TestStep:
+                if (AppTestTransform.IsTestSuite(node.Name.Kind.TypeName))
                 {
-                    var subItems = WalkAll(child);
-                    foreach (var subItem in subItems)
-                    {
-                        yield return subItem;
-                    }
+                    return;
+                }
+
+                this.Visit(node.Name);
+                foreach(var child in node.Children )
+                {
+                    this.Visit(child);
                 }
             }
+
+            public void Visit(TypedNameNode node)
+            {
+                SourceLocation? existing;
+                if (_names.TryGetValue(node.Identifier, out existing))
+                {
+                    _errors.DuplicateSymbolError(node.SourceSpan.GetValueOrDefault(), node.Identifier, existing.GetValueOrDefault());
+                }
+                else
+                {
+                    _names.Add(node.Identifier, node.SourceSpan);
+                }
+            }            
         }
     }
 }
