@@ -86,8 +86,8 @@ namespace PASopa
                 // Test that we can repack
                 {
                     (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(outDir);
-                    errors.Write(Console.Out);
-                    if (errors.HasErrors)
+                    errors2.Write(Console.Out);
+                    if (errors2.HasErrors)
                     {
                         return;
                     }

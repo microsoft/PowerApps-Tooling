@@ -100,12 +100,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void DuplicateSymbolError(this ErrorContainer errors, SourceLocation loc, string message, SourceLocation loc2)
         {
-            errors.AddError(ErrorCode.DuplicateSymbol, default(SourceLocation), $"Symbol '{message}' is already defined. Previously at {loc2}");
+            errors.AddError(ErrorCode.DuplicateSymbol, loc, $"Symbol '{message}' is already defined. Previously at {loc2}");
         }
 
         public static void ParseError(this ErrorContainer errors, SourceLocation span, string message)
         {
-            errors.AddError(ErrorCode.ParseError, default(SourceLocation), $"Parse error: {message}");
+            errors.AddError(ErrorCode.ParseError, span, $"Parse error: {message}");
         }
 
         public static void ValidationError(this ErrorContainer errors, string message)

@@ -114,7 +114,6 @@ Obj1:
         // Error on 2nd token read. 
         [DataTestMethod]
         [DataRow("Foo:\r\n  val\r\n")] // Must have escape if there's a newline
-        [DataRow("Foo:\r\nBar:\r\n")] // null prop not supported. Don't realize it until Bar:
         public void ExpectedError2(string expr)
         {
             var sr = new StringReader(expr);
@@ -230,6 +229,78 @@ P3: =3
             AssertLexEndObj(y); // Obj1
             AssertLex("P3=3", y);
             AssertLexEndFile(y);
+        }
+
+        // Handle empty objects. 
+        [TestMethod]
+        public void ReadEmptyObjects2()
+        {
+            var text =
+@"P0: =1
+Obj1:
+  Obj1a:
+  Obj1b:
+Obj2:
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("P0=1", y);
+            AssertLex("Obj1:", y);
+            AssertLex("Obj1a:", y);
+            AssertLexEndObj(y);
+            AssertLex("Obj1b:", y);
+            AssertLexEndObj(y); // Obj1b
+            
+            AssertLexEndObj(y); // Obj1
+            AssertLex("Obj2:", y);
+            AssertLexEndObj(y); // Obj4
+            AssertLexEndFile(y);
+        }
+
+        // Handle empty objects, multiple levels of closing. 
+        [TestMethod]
+        public void ReadEmptyObjects()
+        {
+            var text =
+@"P0: =1
+Obj1:
+    Obj2:
+        Obj3:
+Obj4:
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("P0=1", y);
+            AssertLex("Obj1:", y);
+            AssertLex("Obj2:", y);
+            AssertLex("Obj3:", y);
+            AssertLexEndObj(y); // Obj3
+            AssertLexEndObj(y); // Obj2
+            AssertLexEndObj(y); // Obj1
+            AssertLex("Obj4:", y);
+            AssertLexEndObj(y); // Obj4
+            AssertLexEndFile(y);
+        }
+
+        // Detect error case. Closing an object must still align to previous indent. 
+        [TestMethod]
+        public void ReadEmptyObjectsError()
+        {
+            var text =
+@"P0: =1
+Obj1:
+    Obj2:
+ ErrorObj3:
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("P0=1", y);
+            AssertLex("Obj1:", y);
+            AssertLex("Obj2:", y);                        
+            AssertLexError(y); // Obj3 is at a bad indent. 
         }
 
         [TestMethod]

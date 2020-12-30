@@ -230,6 +230,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 var lastIndent = _currentIndent.Peek()._oldIndentLevel;
 
+                if (indentLen == lastIndent) // Close immediate parent
+                {
+                    _currentIndent.Pop();
+                    return YamlToken.EndObj;
+                }
+                else if (indentLen < lastIndent)
+                {
+                    // Close current objects one at a time.                     
+                    _currentIndent.Pop();
+
+                    var prevIndent = _currentIndent.Peek()._oldIndentLevel;
+                    // Indent must exactly match a previous one up the stack. 
+                    if (indentLen > prevIndent)
+                    {
+                        return Error(line, "Property indent must align exactly with a previous indent level.");
+                    }
+
+                    return YamlToken.EndObj;
+                }
+
                 if (indentLen <= lastIndent)
                 {
                     // Error. new object should be indented.
