@@ -4,7 +4,9 @@
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 {
@@ -36,11 +38,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             if (_theme.TryLookup(_styleName, propertyName, out defaultScript))
             {
+                if (IsLocalizationKey(defaultScript))
+                    return false;
                 return true;
             }
 
             if (template != null && template.InputDefaults.TryGetValue(propertyName, out defaultScript))
             {
+                if (IsLocalizationKey(defaultScript))
+                    return false;
+
                 // Found in template.
                 return true;
             }
@@ -56,12 +63,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             if (_template != null)
             {
-                defaults.AddRange(_template.InputDefaults);
+                defaults.AddRange(_template.InputDefaults.Where(kvp => !IsLocalizationKey(kvp.Value)));
             }
 
-            defaults.AddRange(_theme.GetStyle(_styleName));
+            defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !IsLocalizationKey(kvp.Value)));
 
             return defaults;
+        }
+
+        // Helper to detect localization key default rules
+        // Some default rules like Label.Text are references into localization files
+        // Studio replaces them at design-time with the text from the author's current locale.
+        // We can't do that here, so we ignore localizationkey default rules when processing defaults
+        private readonly Regex _localizationRegex = new Regex("##(\\w+?)##");
+        private bool IsLocalizationKey(string rule)
+        {
+            return _localizationRegex.IsMatch(rule);
         }
 
     }
