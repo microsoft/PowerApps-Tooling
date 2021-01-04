@@ -4,6 +4,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
@@ -36,11 +37,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             if (_theme.TryLookup(_styleName, propertyName, out defaultScript))
             {
+                // This is a localized default, picked based on user locale when the control is added
+                // We can't replicate that here, so just skip them.
+                if (defaultScript.StartsWith("##"))
+                    return false;
                 return true;
             }
 
             if (template != null && template.InputDefaults.TryGetValue(propertyName, out defaultScript))
             {
+                // This is a localized default, picked based on user locale when the control is added
+                // We can't replicate that here, so just skip them.
+                if (defaultScript.StartsWith("##"))
+                    return false;
+
                 // Found in template.
                 return true;
             }
@@ -56,10 +66,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             if (_template != null)
             {
-                defaults.AddRange(_template.InputDefaults);
+                defaults.AddRange(_template.InputDefaults.Where(kvp => !kvp.Value.StartsWith("##")));
             }
 
-            defaults.AddRange(_theme.GetStyle(_styleName));
+            defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !kvp.Value.StartsWith("##")));
 
             return defaults;
         }
