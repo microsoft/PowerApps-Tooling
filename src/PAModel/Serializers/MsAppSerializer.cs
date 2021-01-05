@@ -137,7 +137,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
 
                                 IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
-                                app._sources.Add(sf.ControlName, controlIR);
+                                if (kind == FileKind.ComponentSrc)
+                                    app._components.Add(sf.ControlName, controlIR);
+                                else
+                                    app._screens.Add(sf.ControlName, controlIR);
                             }
                             break;
 
@@ -408,7 +411,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
             // Rehydrate sources before yielding any to be written, processing component defs first
-            foreach (var controlData in app._sources
+            foreach (var controlData in app._screens.Concat(app._components)
                 .OrderBy(source =>
                     (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))

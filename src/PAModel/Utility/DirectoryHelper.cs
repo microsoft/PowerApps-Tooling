@@ -151,7 +151,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }      
 
         // Returns file entries. 
-        public Entry[] EnumerateFiles(string subdir, string pattern = "*")
+        public Entry[] EnumerateFiles(string subdir, string pattern = "*", bool searchSubdirectories = true)
         {
             var root = Path.Combine(_directory, subdir);
 
@@ -160,7 +160,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return new Entry[0];
             }
 
-            var fullPaths = Directory.EnumerateFiles(root, pattern, SearchOption.AllDirectories);
+            var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
             var entries = from fullPath in fullPaths
                           let relativePath = Utility.GetRelativePath(fullPath, root)
