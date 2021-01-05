@@ -102,6 +102,7 @@ Obj1:
         [DataRow("Foo: |x\n  =next")] // chars on same line after |
         [DataRow("Foo: >\n  =next")] // > multiline not supported
         [DataRow("Foo: |\nBar: =next")] // empty multiline
+        [DataRow("'Foo: \n Bar:")] // unclosed \' escape
         [DataRow("---")] // multi docs not supported
         public void ExpectedError(string expr)
         {
@@ -306,7 +307,7 @@ Obj1:
         [TestMethod]
         public void ReadObject()
         {
-            var text = 
+            var text =
 @"P0: =123
 Obj1:
   P1a: =ABC
@@ -314,6 +315,8 @@ Obj1:
     P2a: =X
     P2b: =Y
     P2c: =Z
+  'Obj3:':
+    P3a: =X
   P1b: =DEF
 ";
             var sr = new StringReader(text);
@@ -327,7 +330,10 @@ Obj1:
                     AssertLex("P2b=Y", y);
                     AssertLex("P2c=Z", y);
                     AssertLexEndObj(y); // Obj2
-                AssertLex("P1b=DEF", y);
+                AssertLex("'Obj3:':", y);
+                    AssertLex("P3a=X", y);
+                    AssertLexEndObj(y); // Obj3
+            AssertLex("P1b=DEF", y);
             AssertLexEndObj(y); // Obj1
             AssertLexEndFile(y);
         }
