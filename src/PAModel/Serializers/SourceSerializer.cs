@@ -29,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 7 - PublishOrderIndex update
         // 8 - Volatile properties to Entropy
         // 9 - Split Up ControlTemplates, subdivide src/
-        public static Version CurrentSourceVersion = new Version(0, 8);
+        public static Version CurrentSourceVersion = new Version(0, 9);
 
         // Layout is:
         //  src\
@@ -39,7 +39,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string AssetsDir = "Assets";
         public const string TestDir = "Src\\Tests";
         public const string EditorStateDir = "Src\\EditorState";
-        public const string ScreenCodeDir = "Src\\Screens";
         public const string ComponentCodeDir = "Src\\Components";
         public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
@@ -269,7 +268,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }                
             }
 
-            foreach (var file in directory.EnumerateFiles(ScreenCodeDir, "*.pa.yaml"))
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml", searchSubdirectories: false))
             {
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
@@ -313,10 +312,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return; // error condition
                 }
 
-                if (isComponent)
-                    app._components.Add(controlIR.Name.Identifier, controlIR);
-                else
-                    app._screens.Add(controlIR.Name.Identifier, controlIR);
+                var collection = (isComponent) ? app._components : app._screens;
+                collection.Add(controlIR.Name.Identifier, controlIR);
             }
             catch (DocumentException)
             {
@@ -372,7 +369,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out control templates at top level, skipping component templates which are written alongside components
             var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false));
 
-            dir.WriteAllText("", "ControlTemplates.json", JsonSerializer.Serialize(nonComponentControlTemplates, Utility._jsonOpts));
+            dir.WriteAllJson("", "ControlTemplates.json", nonComponentControlTemplates);
     
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
@@ -451,6 +448,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+
+        /// This writes out the IR, editor state cache, and potentially component templates
+        /// for a single top level control, such as the App object, a screen, or component
+        /// Name refers to the control name
         private static void WriteTopParent(DirectoryWriter dir, CanvasDocument app, string name, BlockNode ir, bool isComponent)
         {
             var controlName = name;
@@ -461,7 +462,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (isComponent)
                 dir.WriteAllText(ComponentCodeDir, filename, text);
             else if (controlName != AppTestControlName)
-                dir.WriteAllText(ScreenCodeDir, filename, text);
+                dir.WriteAllText(CodeDir, filename, text);
             else
                 dir.WriteAllText(TestDir, filename, text);
 
@@ -473,12 +474,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Write out of all the other state for roundtripping 
             string extraContent = controlName + ".editorstate.json";
-            dir.WriteAllText(EditorStateDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+            dir.WriteAllJson(EditorStateDir, extraContent, extraData);
 
             // Write out component templates next to the component
             if (isComponent && app._templateStore.TryGetTemplate(name, out var templateState))
             {
-                dir.WriteAllText(ComponentCodeDir, controlName + ".json", JsonSerializer.Serialize(templateState, Utility._jsonOpts));
+                dir.WriteAllJson(ComponentCodeDir, controlName + ".json", templateState);
             }
         }
 
