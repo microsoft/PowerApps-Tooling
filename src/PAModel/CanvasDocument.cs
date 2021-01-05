@@ -30,9 +30,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Only contains files of FileKind.Unknown
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
-        // Key is Top Parent Control Name.
-        // Includes both Controls and Components, represented as IR
-        internal Dictionary<string, BlockNode> _sources = new Dictionary<string, BlockNode>();
+        // Key is Top Parent Control Name for both _screens and _components
+        internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>();
+        internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>();
+
         internal EditorStateStore _editorStateStore;
         internal TemplateStore _templateStore;
 
@@ -195,7 +196,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
             // Transform component definitions and populate template set of component instances that need updates 
-            foreach (var ctrl in _sources)
+            foreach (var ctrl in _components)
             {
                 AddComponentDefaults(ctrl.Value, templateDefaults);
                 componentDefTransform.AfterRead(ctrl.Value);
@@ -203,7 +204,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
-            foreach (var ctrl in _sources)
+            foreach (var ctrl in _screens.Concat(_components))
             {
                 transformer.ApplyAfterRead(ctrl.Value);
             }
@@ -232,7 +233,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
             // Transform component definitions and populate template set of component instances that need updates 
-            foreach (var ctrl in _sources)
+            foreach (var ctrl in _components)
             {
                 componentDefTransform.BeforeWrite(ctrl.Value);
                 AddComponentDefaults(ctrl.Value, templateDefaults);
@@ -240,7 +241,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore);
 
-            foreach (var ctrl in _sources)
+            foreach (var ctrl in _screens.Concat(_components))
             {
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
@@ -279,7 +280,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Will visit all controls and add errors
             var uniqueVisitor = new UniqueControlNameVistor(errors);
-            foreach (var control in this._sources.Values)
+            foreach (var control in _screens.Values.Concat(_components.Values))
             {
                 uniqueVisitor.Visit(control);
             }

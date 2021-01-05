@@ -28,6 +28,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 6 - ScreenIndex
         // 7 - PublishOrderIndex update
         // 8 - Volatile properties to Entropy
+        // 9 - Split Up ControlTemplates, subdivide src/
         public static Version CurrentSourceVersion = new Version(0, 8);
 
         // Layout is:
@@ -38,6 +39,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string AssetsDir = "Assets";
         public const string TestDir = "Src\\Tests";
         public const string EditorStateDir = "Src\\EditorState";
+        public const string ScreenCodeDir = "Src\\Screens";
+        public const string ComponentCodeDir = "Src\\Components";
         public const string PackagesDir = "pkgs";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
@@ -87,6 +90,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._header = manifest.Header;
                         app._publishInfo = manifest.PublishInfo;
                         app._screenOrder = manifest.ScreenOrder;
+                        break;
+                    case FileKind.Templates:
+                        foreach (var kvp in file.ToObject<List<KeyValuePair<string, CombinedTemplateState>>>())
+                        {
+                            app._templateStore.AddTemplate(kvp.Key, kvp.Value);
+                        }
                         break;
                 }
             }
@@ -239,16 +248,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             foreach (var file in directory.EnumerateFiles(EditorStateDir, "*.json"))
             {
-                if (file.Kind == FileKind.Templates)
-                {
-                    // Maybe we can recreate this from the template defaults instead?
-                    foreach (var kvp in file.ToObject<Dictionary<string, CombinedTemplateState>>())
-                    {
-                        app._templateStore.AddTemplate(kvp.Key, kvp.Value);
-                    }
-                    continue;
-                }
-
                 if (!file._relativeName.EndsWith(".editorstate.json"))
                 {
                     errors.FormatNotSupported($"Unexpected file present in {EditorStateDir}");
@@ -267,14 +266,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         // This might happen due to a bad merge.
                         errors.EditorStateError(file.SourceSpan, $"Control '{control.Value.Name}' is already defined.");
                     }
-                }
-
-                
+                }                
             }
 
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml"))
+            foreach (var file in directory.EnumerateFiles(ScreenCodeDir, "*.pa.yaml"))
             {
-                AddControl(app, file._relativeName, file.GetContents(), errors);
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+            }
+
+            foreach (var file in directory.EnumerateFiles(ComponentCodeDir, "*.pa.yaml"))
+            {
+                AddControl(app, file._relativeName, true, file.GetContents(), errors);
+            }
+
+            foreach (var file in directory.EnumerateFiles(TestDir, "*.pa.yaml"))
+            {
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+            }
+
+            foreach (var file in directory.EnumerateFiles(ComponentCodeDir, "*.json"))
+            {
+                var componentTemplate = file.ToObject<CombinedTemplateState>();
+                app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
             }
         }
 
@@ -284,11 +297,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var fileEntry = new DirectoryReader.Entry(file);
 
-                AddControl(app, file, fileEntry.GetContents(), errors);
+                AddControl(app, file, false, fileEntry.GetContents(), errors);
             }
         }
 
-        private static void AddControl(CanvasDocument app, string filePath, string fileContents, ErrorContainer errors)
+        private static void AddControl(CanvasDocument app, string filePath, bool isComponent, string fileContents, ErrorContainer errors)
         {
             var filename = Path.GetFileName(filePath);
             try
@@ -300,7 +313,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return; // error condition
                 }
 
-                app._sources.Add(controlIR.Name.Identifier, controlIR);
+                if (isComponent)
+                    app._components.Add(controlIR.Name.Identifier, controlIR);
+                else
+                    app._screens.Add(controlIR.Name.Identifier, controlIR);
             }
             catch (DocumentException)
             {
@@ -343,32 +359,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(app._templateStore, templateDefaults, app._properties.DocumentAppType);
 
-            foreach (var control in app._sources)
+            foreach (var control in app._screens)
             {
-                var controlName = control.Key;
-                var text = PAWriterVisitor.PrettyPrint(control.Value);
-
-                string filename = controlName +".pa.yaml";
-
-                if (controlName != AppTestControlName)
-                    dir.WriteAllText(CodeDir, filename, text);
-                else
-                    dir.WriteAllText(TestDir, filename, text);
-
-                var extraData = new Dictionary<string, ControlState>();
-                foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
-                {
-                    extraData.Add(item.Name, item);
-                }
-
-                // Write out of all the other state for roundtripping 
-                string extraContent = controlName + ".editorstate.json";
-                dir.WriteAllText(EditorStateDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+                WriteTopParent(dir, app, control.Key, control.Value, false);
             }
 
-            // Write out the used templates from controls
-            // These could be created as part of build tooling, and are from the control.json files for now
-            dir.WriteAllText(EditorStateDir, "ControlTemplates.json", JsonSerializer.Serialize(app._templateStore.Contents, Utility._jsonOpts));
+            foreach (var control in app._components)
+            {
+                WriteTopParent(dir, app, control.Key, control.Value, true);
+            }
+
+            // Write out control templates at top level, skipping component templates which are written alongside components
+            var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false));
+
+            dir.WriteAllText("", "ControlTemplates.json", JsonSerializer.Serialize(nonComponentControlTemplates, Utility._jsonOpts));
     
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
@@ -444,6 +448,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._connections != null)
             {
                 dir.WriteAllJson(ConnectionDir, FileKind.Connections, app._connections);
+            }
+        }
+
+        private static void WriteTopParent(DirectoryWriter dir, CanvasDocument app, string name, BlockNode ir, bool isComponent)
+        {
+            var controlName = name;
+            var text = PAWriterVisitor.PrettyPrint(ir);
+
+            string filename = controlName + ".pa.yaml";
+
+            if (isComponent)
+                dir.WriteAllText(ComponentCodeDir, filename, text);
+            else if (controlName != AppTestControlName)
+                dir.WriteAllText(ScreenCodeDir, filename, text);
+            else
+                dir.WriteAllText(TestDir, filename, text);
+
+            var extraData = new Dictionary<string, ControlState>();
+            foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
+            {
+                extraData.Add(item.Name, item);
+            }
+
+            // Write out of all the other state for roundtripping 
+            string extraContent = controlName + ".editorstate.json";
+            dir.WriteAllText(EditorStateDir, extraContent, JsonSerializer.Serialize(extraData, Utility._jsonOpts));
+
+            // Write out component templates next to the component
+            if (isComponent && app._templateStore.TryGetTemplate(name, out var templateState))
+            {
+                dir.WriteAllText(ComponentCodeDir, controlName + ".json", JsonSerializer.Serialize(templateState, Utility._jsonOpts));
             }
         }
 
