@@ -286,8 +286,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
 
             // Get identifier
-            while(line.Current != ':')
+            // toggle isEscaped on every ' appearance
+            bool isEscaped = false;
+            while (line.Current != ':' || isEscaped)
             {
+                if (line.Current == '\'')
+                    isEscaped = !isEscaped;
+
                 if (line.Current == 0) // EOL
                 {
                     return Unsupported(line, "Missing ':'. If this is a multiline property, use |");
