@@ -81,7 +81,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static HashSet<string> _jsonDouble = new HashSet<string>
         {
             "LocalConnectionReferences",
-            "LocalDatabaseReferences"
+            "LocalDatabaseReferences",
+            "DataSources\\TableDefinition"
         };
 
         // These paths are xml double-encoded and need a different comparer.
@@ -113,6 +114,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     if (this.s.Count == 1)
                     {
                         if (_jsonDouble.Contains(this.s.Peek()))
+                        {
+                            return true;
+                        }
+                    }
+                    if (this.s.Count == 2)
+                    {
+                        if (_jsonDouble.Contains(string.Join("\\", s.Reverse())))
                         {
                             return true;
                         }

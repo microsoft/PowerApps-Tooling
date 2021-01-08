@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -67,9 +67,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is guid, value is Json-encoded metadata. 
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
-        public string TableDefinition { get; set; } // used for 
+        public string TableDefinition { get; set; }
 
         // Type: very polymorphic. 
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+
+    internal class DataSourceDefinition
+    {
+        public string DatasetName { get; set; }
+        public string EntityName { get; set; }
+        public DataSourceTableDefinition TableDefinition { get; set;}
+    }
+
+    internal class DataSourceTableDefinition
+    {
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }

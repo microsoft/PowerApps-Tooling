@@ -41,6 +41,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EditorStateDir = "Src\\EditorState";
         public const string ComponentCodeDir = "Src\\Components";
         public const string PackagesDir = "pkgs";
+        public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -321,17 +322,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-
-        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
-        {
-            // Will include subdirectories. 
-            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
-            {
-                var dataSource = file.ToObject<DataSourceEntry>();
-                app.AddDataSourceForLoad(dataSource);                
-            }
-        }
-
         public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
         {
             throw new NotImplementedException();   
@@ -370,28 +360,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false));
 
             dir.WriteAllJson("", "ControlTemplates.json", nonComponentControlTemplates);
-    
-            // Data Sources  - write out each individual source. 
-            HashSet<string> filenames = new HashSet<string>();
-            foreach (var dataSource in app.GetDataSources())
-            {
-                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
-                // Also be determinstic. 
-                string filename = dataSource.GetUniqueName()+ ".json";
-                
-                if (!filenames.Add(filename.ToLower()))
-                {
-                    int index = 1;
-                    var altFileName = dataSource.GetUniqueName() + "_" + index + ".json";
-                    while (!filenames.Add(altFileName.ToLower()))
-                        ++index;
-
-                    errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
-                    filename = altFileName;
-                }
-
-                dir.WriteAllJson(DataSourcesDir, filename, dataSource);
-            }
 
             if (app._checksum != null)
             {
@@ -412,6 +380,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
             }
+
+            WriteDataSources(dir, app, errors);
 
             // Loose files. 
             foreach (FileEntry file in app._unknownFiles.Values)
@@ -448,6 +418,81 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
+        {
+            // Data Sources  - write out each individual source. 
+            HashSet<string> filenames = new HashSet<string>();
+            foreach (var kvp in app.GetDataSources())
+            {
+                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
+                // Also be determinstic. 
+                string filename = kvp.Key + ".json";
+
+                if (!filenames.Add(filename.ToLower()))
+                {
+                    int index = 1;
+                    var altFileName = kvp.Key + "_" + index + ".json";
+                    while (!filenames.Add(altFileName.ToLower()))
+                        ++index;
+
+                    errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
+                    filename = altFileName;
+                }
+                var dataSourceStateToWrite = kvp.Value.JsonClone();
+                var dataSourceDef = new DataSourceDefinition();
+
+                // Split out the changeable parts of the data source.
+                foreach (var ds in dataSourceStateToWrite)
+                {
+                    if (ds.TableDefinition != null)
+                    {
+                        dataSourceDef.TableDefinition = Utility.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
+                        dataSourceDef.DatasetName = ds.DatasetName;
+                        dataSourceDef.EntityName = ds.RelatedEntityName ?? ds.Name;
+                    }
+                    ds.DatasetName = null;
+                    ds.TableDefinition = null;
+                }
+                if (dataSourceDef.DatasetName != null || dataSourceDef.TableDefinition != null)
+                    dir.WriteAllJson(DataSourcePackageDir, filename, dataSourceDef);
+
+                dir.WriteAllJson(DataSourcesDir, filename, dataSourceStateToWrite);
+            }
+        }
+
+        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
+        {
+            var tableDefs = new Dictionary<string, DataSourceDefinition>();
+            foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*"))
+            {
+                var tableDef = file.ToObject<DataSourceDefinition>();
+                tableDefs.Add(tableDef.EntityName, tableDef);
+            }
+
+            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
+            {
+                var dataSources = file.ToObject<List<DataSourceEntry>>();
+                foreach (var ds in dataSources)
+                {
+                    if (tableDefs.TryGetValue(ds.RelatedEntityName ?? ds.Name, out var definition))
+                    {
+                        switch (ds.Type)
+                        {
+                            case "NativeCDSDataSourceInfo":
+                                ds.DatasetName = definition.DatasetName;
+                                ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utility._jsonOpts);
+                                break;
+                            case "ViewInfo":
+                                break;
+                            default:
+                                ds.DatasetName = definition.DatasetName;
+                                break;
+                        }
+                    }    
+                    app.AddDataSourceForLoad(ds);
+                }
+            }
+        }
 
         /// This writes out the IR, editor state cache, and potentially component templates
         /// for a single top level control, such as the App object, a screen, or component

@@ -116,4 +116,11 @@ namespace Microsoft.AppMagic.Authoring.Persistence
             };
         }
     }
+
+    internal class LocalDatabaseReferenceJson
+    {
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
 }
