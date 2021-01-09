@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Security;
@@ -80,12 +81,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public string DatasetName { get; set; }
         public string EntityName { get; set; }
-        public DataSourceTableDefinition TableDefinition { get; set;}
+        public string InstanceUrl { get; set; }
+        public DataSourceTableDefinition TableDefinition { get; set; }
+        public LocalDatabaseReferenceDataSource LocalReferenceDSJson { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 
     internal class DataSourceTableDefinition
     {
-
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

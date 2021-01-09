@@ -395,6 +395,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var json = Utility.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
+            if (app._dataSourceReferences != null)
+            {
+                var json = Utility.JsonSerialize(app._dataSourceReferences);
+                props.LocalDatabaseReferences = json;
+            }
             yield return ToFile(FileKind.Properties, props);
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();

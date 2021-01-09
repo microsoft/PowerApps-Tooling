@@ -152,7 +152,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             app.GetLogoFile();
 
-            LoadDataSources(app, dir);
+            LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
@@ -453,6 +453,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ds.DatasetName = null;
                     ds.TableDefinition = null;
                 }
+
+                if (dataSourceDef.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
+                {
+                    // copy over the localconnectionreference
+                    if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
+                    {
+                        dataSourceDef.LocalReferenceDSJson = dsRef;
+                    }
+                    dataSourceDef.InstanceUrl = referenceJson.instanceUrl;
+                    dataSourceDef.ExtensionData = referenceJson.ExtensionData;
+                }
+
                 if (dataSourceDef.DatasetName != null || dataSourceDef.TableDefinition != null)
                     dir.WriteAllJson(DataSourcePackageDir, filename, dataSourceDef);
 
@@ -460,13 +472,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
+        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory, ErrorContainer errors)
         {
             var tableDefs = new Dictionary<string, DataSourceDefinition>();
+            app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
+
             foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*"))
             {
                 var tableDef = file.ToObject<DataSourceDefinition>();
                 tableDefs.Add(tableDef.EntityName, tableDef);
+
+                if (!app._dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
+                {
+                    localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
+                    {
+                        dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>(),
+                        ExtensionData = tableDef.ExtensionData,
+                        instanceUrl = tableDef.InstanceUrl
+                    };
+                    app._dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
+                }
+                if (localDatabaseReferenceJson.instanceUrl != tableDef.InstanceUrl)
+                {
+                    // Generate an error, dataset defs have diverged in a way that shouldn't be possible
+                    // Each dataset has one instanceurl
+                    errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
+                    throw new DocumentException();
+                }
+
+                localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
             }
 
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
