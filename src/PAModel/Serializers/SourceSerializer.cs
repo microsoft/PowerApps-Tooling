@@ -464,6 +464,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         ds.TableName = null;
                         ds.DataEntityMetadataJson = null;
                     }
+                    else if (ds.Type == "OptionSetInfo")
+                    {
+                        // This looks like a left over from previous versions of studio, account for it by
+                        // tracking optionsets with empty dataset names
+                        ds.DatasetName = ds.DatasetName == null ? string.Empty : null;
+                    }
                 }
 
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
@@ -534,10 +540,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
                                 ds.TableName = definition.TableName;
                                 break;
-                            case "ViewInfo":
+                            case "OptionSetInfo":
+                                ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
                                 break;
+                            case "ViewInfo":
                             default:
-                                ds.DatasetName = definition.DatasetName;
                                 break;
                         }
                     }    
