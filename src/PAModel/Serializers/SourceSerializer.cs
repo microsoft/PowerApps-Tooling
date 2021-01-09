@@ -29,7 +29,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 7 - PublishOrderIndex update
         // 8 - Volatile properties to Entropy
         // 9 - Split Up ControlTemplates, subdivide src/
-        public static Version CurrentSourceVersion = new Version(0, 9);
+        // 10 - Datasource, Service defs to /pkg
+        public static Version CurrentSourceVersion = new Version(0, 10);
 
         // Layout is:
         //  src\
