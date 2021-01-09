@@ -42,6 +42,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ComponentCodeDir = "Src\\Components";
         public const string PackagesDir = "pkgs";
         public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
+        public const string WadlPackageDir = "pkgs\\Wadl";
+        public const string SwaggerPackageDir = "pkgs\\Swagger";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -200,7 +202,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
-            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false)) {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                 {
@@ -457,6 +459,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // CDP DataSource
                     else if (ds.DataEntityMetadataJson != null)
                     {
+                        if (ds.ApiId == "/providers/microsoft.powerapps/apis/shared_commondataservice")
+                        {
+                            // This is the old CDS connector, we can't support it since it's optionset format is incompatable with the newer one
+                            errors.ValidationError($"Connection {ds.Name} is using the old CDS connector which is incompatable with this tool");
+                            throw new DocumentException();
+                        }
                         dataSourceDef = new DataSourceDefinition();
                         dataSourceDef.DataEntityMetadataJson = ds.DataEntityMetadataJson;
                         dataSourceDef.EntityName = ds.Name;
@@ -469,6 +477,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         // This looks like a left over from previous versions of studio, account for it by
                         // tracking optionsets with empty dataset names
                         ds.DatasetName = ds.DatasetName == null ? string.Empty : null;
+                    }
+                    else if (ds.WadlMetadata != null)
+                    {
+                        // For some reason some connectors have both, investigate if one could be discarded by the server?
+                        if (ds.WadlMetadata.WadlXml != null)
+                        {
+                            dir.WriteAllXML(WadlPackageDir, filename.Replace(".json", ".xml"), ds.WadlMetadata.WadlXml);
+                        }
+                        if (ds.WadlMetadata.SwaggerJson != null)
+                        {
+                            dir.WriteAllJson(SwaggerPackageDir, filename, JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, Utility._jsonOpts));
+                        }
+                        ds.WadlMetadata = null;
                     }
                 }
 
@@ -495,7 +516,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var tableDefs = new Dictionary<string, DataSourceDefinition>();
             app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
 
-            foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*"))
+            foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*.json"))
             {
                 var tableDef = file.ToObject<DataSourceDefinition>();
                 tableDefs.Add(tableDef.EntityName, tableDef);
@@ -523,6 +544,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
             }
 
+            // key is filename, value is stringified xml
+            var xmlDefs = new Dictionary<string, string>();
+            foreach (var file in directory.EnumerateFiles(WadlPackageDir, "*.xml"))
+            {
+                xmlDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
+            }
+
+            // key is filename, value is stringified json
+            var swaggerDefs = new Dictionary<string, string>();
+            foreach (var file in directory.EnumerateFiles(SwaggerPackageDir, "*.json"))
+            {
+                swaggerDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
+            }
+
             foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
             {
                 var dataSources = file.ToObject<List<DataSourceEntry>>();
@@ -543,11 +578,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             case "OptionSetInfo":
                                 ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
                                 break;
+                            case "ServiceInfo":
                             case "ViewInfo":
                             default:
                                 break;
                         }
-                    }    
+                    }
+                    else if (ds.Type == "ServiceInfo")
+                    {
+                        var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
+                        var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
+                        if (!foundXML && !foundJson)
+                        {
+                            errors.ValidationError($"No matching wadl or swagger def for {file._relativeName}");
+                            throw new DocumentException();
+                        }
+                        ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
+                    }
+
                     app.AddDataSourceForLoad(ds);
                 }
             }

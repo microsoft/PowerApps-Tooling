@@ -69,11 +69,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is guid, value is Json-encoded metadata. 
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
         public string TableDefinition { get; set; }
-
+        public string ServiceKind { get; set; }
+        public WadlDefinition WadlMetadata { get; set; }
         // Type: very polymorphic. 
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+    internal class WadlDefinition
+    {
+        public string WadlXml { get; set; }
+        public string SwaggerJson { get; set; }
     }
 
 
@@ -93,6 +100,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     }
 
     internal class DataSourceTableDefinition
+    {
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+    internal class SwaggerDefinition
     {
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }

@@ -21,6 +21,7 @@ namespace PAModelTests
         [DataRow("AccountPlanReviewerMaster.msapp")]
         [DataRow("Marc2PowerPlatformDevOpsAlm.msapp")]
         [DataRow("SimpleScopeVariables.msapp")]
+        [DataRow("WadlConnector.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
