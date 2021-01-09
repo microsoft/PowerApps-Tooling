@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C2";
+        public string Version = "C3";
 
         public const string ChecksumName = "checksum.json";
 
