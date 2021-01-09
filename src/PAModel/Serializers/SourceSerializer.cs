@@ -439,22 +439,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     filename = altFileName;
                 }
                 var dataSourceStateToWrite = kvp.Value.JsonClone();
-                var dataSourceDef = new DataSourceDefinition();
+                DataSourceDefinition dataSourceDef = null;
 
                 // Split out the changeable parts of the data source.
                 foreach (var ds in dataSourceStateToWrite)
                 {
+                    // CDS DataSource
                     if (ds.TableDefinition != null)
                     {
+                        dataSourceDef = new DataSourceDefinition();
                         dataSourceDef.TableDefinition = Utility.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
                         dataSourceDef.DatasetName = ds.DatasetName;
                         dataSourceDef.EntityName = ds.RelatedEntityName ?? ds.Name;
+                        ds.DatasetName = null;
+                        ds.TableDefinition = null;
                     }
-                    ds.DatasetName = null;
-                    ds.TableDefinition = null;
+                    // CDP DataSource
+                    else if (ds.DataEntityMetadataJson != null)
+                    {
+                        dataSourceDef = new DataSourceDefinition();
+                        dataSourceDef.DataEntityMetadataJson = ds.DataEntityMetadataJson;
+                        dataSourceDef.EntityName = ds.Name;
+                        dataSourceDef.TableName = ds.TableName;
+                        ds.TableName = null;
+                        ds.DataEntityMetadataJson = null;
+                    }
                 }
 
-                if (dataSourceDef.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
+                if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
                     // copy over the localconnectionreference
                     if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
@@ -465,7 +477,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     dataSourceDef.ExtensionData = referenceJson.ExtensionData;
                 }
 
-                if (dataSourceDef.DatasetName != null || dataSourceDef.TableDefinition != null)
+                if (dataSourceDef != null)
                     dir.WriteAllJson(DataSourcePackageDir, filename, dataSourceDef);
 
                 dir.WriteAllJson(DataSourcesDir, filename, dataSourceStateToWrite);
@@ -481,6 +493,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var tableDef = file.ToObject<DataSourceDefinition>();
                 tableDefs.Add(tableDef.EntityName, tableDef);
+                if (tableDef.DatasetName == null)
+                    continue;
 
                 if (!app._dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
                 {
@@ -515,6 +529,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             case "NativeCDSDataSourceInfo":
                                 ds.DatasetName = definition.DatasetName;
                                 ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utility._jsonOpts);
+                                break;
+                            case "ConnectedDataSourceInfo":
+                                ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
+                                ds.TableName = definition.TableName;
                                 break;
                             case "ViewInfo":
                                 break;

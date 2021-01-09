@@ -214,7 +214,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LocalConnectionReferences = null;
                 }
 
-                if (app._properties.LocalDatabaseReferences != null)
+                if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
                 {
                     var dsrs = Utility.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                     app._dataSourceReferences = dsrs;

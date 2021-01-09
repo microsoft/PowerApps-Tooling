@@ -81,8 +81,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public string DatasetName { get; set; }
         public string EntityName { get; set; }
+        public string TableName { get; set; }
         public string InstanceUrl { get; set; }
         public DataSourceTableDefinition TableDefinition { get; set; }
+        // Key is guid, value is Json-encoded metadata. 
+        public IDictionary<string, string> DataEntityMetadataJson { get; set; }
         public LocalDatabaseReferenceDataSource LocalReferenceDSJson { get; set; }
 
         [JsonExtensionData]
