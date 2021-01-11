@@ -31,8 +31,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
         // Key is Top Parent Control Name for both _screens and _components
-        internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>();
-        internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>();
+        internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
+        internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
 
         internal EditorStateStore _editorStateStore;
         internal TemplateStore _templateStore;
@@ -40,7 +40,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Various data sources        
         // This is references\dataSources.json
         // Also includes entries for DataSources made from a DataComponent
-        private Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>();
+        // Key is parent entity name (datasource name for non cds data sources)
+        private Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
         internal List<string> _screenOrder = new List<string>();
 
 
