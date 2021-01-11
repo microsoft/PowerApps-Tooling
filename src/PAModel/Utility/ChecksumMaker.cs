@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C2";
+        public string Version = "C3";
 
         public const string ChecksumName = "checksum.json";
 
@@ -81,13 +81,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static HashSet<string> _jsonDouble = new HashSet<string>
         {
             "LocalConnectionReferences",
-            "LocalDatabaseReferences"
+            "LocalDatabaseReferences",
+            "DataSources\\TableDefinition",
+            "DataSources\\WadlMetadata\\SwaggerJson",
         };
 
         // These paths are xml double-encoded and need a different comparer.
         private static HashSet<string> _xmlDouble = new HashSet<string>
         {
             "UsedTemplates\\Template",
+            "DataSources\\WadlMetadata\\WadlXml",
         };
 
         // Helper for identifying which paths are double encoded. 
@@ -117,6 +120,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             return true;
                         }
                     }
+                    if (this.s.Count >= 2)
+                    {
+                        if (_jsonDouble.Contains(string.Join("\\", s.Reverse())))
+                        {
+                            return true;
+                        }
+                    }
                     return false;
                 }
             }
@@ -124,7 +134,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 get
                 {
-                    if (this.s.Count == 2)
+                    if (this.s.Count >= 2)
                     {
                         if (_xmlDouble.Contains(string.Join("\\", s.Reverse())))
                         {

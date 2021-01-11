@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Security;
@@ -67,10 +68,45 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is guid, value is Json-encoded metadata. 
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
-        public string TableDefinition { get; set; } // used for 
-
+        public string TableDefinition { get; set; }
+        public string ServiceKind { get; set; }
+        public WadlDefinition WadlMetadata { get; set; }
         // Type: very polymorphic. 
 
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+    internal class WadlDefinition
+    {
+        public string WadlXml { get; set; }
+        public string SwaggerJson { get; set; }
+    }
+
+
+    internal class DataSourceDefinition
+    {
+        public string DatasetName { get; set; }
+        public string EntityName { get; set; }
+        public string TableName { get; set; }
+        public string InstanceUrl { get; set; }
+        public DataSourceTableDefinition TableDefinition { get; set; }
+        // Key is guid, value is Json-encoded metadata. 
+        public IDictionary<string, string> DataEntityMetadataJson { get; set; }
+        public LocalDatabaseReferenceDataSource LocalReferenceDSJson { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+    internal class DataSourceTableDefinition
+    {
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+    }
+
+    internal class SwaggerDefinition
+    {
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

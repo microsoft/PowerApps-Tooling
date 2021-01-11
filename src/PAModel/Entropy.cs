@@ -19,7 +19,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // These come from volatile properties in properties.json in the msapp
         internal class PropertyEntropy
         {
-            public string LocalConnectionReferences { get; set; }
             public string LocalDatabaseReferences { get; set; }
             public Dictionary<string, int> ControlCount { get; set; }
             public double? DeserializationLoadTime { get; set; }
@@ -134,14 +133,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AnalysisLoadTime = documentProperties.AnalysisLoadTime,
                 DeserializationLoadTime = documentProperties.DeserializationLoadTime,
                 ControlCount = documentProperties.ControlCount,
-                LocalConnectionReferences = documentProperties.LocalConnectionReferences,
                 LocalDatabaseReferences = documentProperties.LocalDatabaseReferences
             };
 
             documentProperties.AnalysisLoadTime = null;
             documentProperties.DeserializationLoadTime = null;
             documentProperties.ControlCount = null;
-            documentProperties.LocalConnectionReferences = null;
             documentProperties.LocalDatabaseReferences = null;
         }
 
@@ -152,7 +149,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
                 documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
                 documentProperties.ControlCount = VolatileProperties.ControlCount;
-                documentProperties.LocalConnectionReferences = VolatileProperties.LocalConnectionReferences;
                 documentProperties.LocalDatabaseReferences = VolatileProperties.LocalDatabaseReferences;
             }
         }

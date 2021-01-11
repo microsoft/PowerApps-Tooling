@@ -31,8 +31,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
 
         // Key is Top Parent Control Name for both _screens and _components
-        internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>();
-        internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>();
+        internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
+        internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
 
         internal EditorStateStore _editorStateStore;
         internal TemplateStore _templateStore;
@@ -40,9 +40,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Various data sources        
         // This is references\dataSources.json
         // Also includes entries for DataSources made from a DataComponent
-        // private Dictionary<string, DataSourceEntry> _dataSources = new Dictionary<string, DataSourceEntry>();
-        // List instead of Dict  since we don't have a unique key. Name can be reused. 
-        private List<DataSourceEntry> _dataSources = new List<DataSourceEntry>();
+        // Key is parent entity name (datasource name for non cds data sources)
+        private Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
         internal List<string> _screenOrder = new List<string>();
 
 
@@ -56,6 +55,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Extracted from _properties.LocalConnectionReferences
         // Key is a Connection.Id
         internal IDictionary<string, ConnectionJson> _connections;
+
+        // Extracted from _properties.LocalDatasourceReferences
+        // Key is a dataset name
+        internal IDictionary<string, LocalDatabaseReferenceJson> _dataSourceReferences;
 
         internal FileEntry _logoFile;
 
@@ -162,13 +165,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // iOrder is used to preserve ordering value for round-tripping. 
         internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)
         {
-            // Don't allow overlaps;
-            // Names are not unique. 
-            _dataSources.Add(ds);
+            // Key is parent entity name
+            var key = ds.RelatedEntityName ?? ds.Name;
+            List<DataSourceEntry> list;
+            if (!_dataSources.TryGetValue(key, out list))
+            {
+                list = new List<DataSourceEntry>();
+                _dataSources.Add(key, list);
+            }
 
+            list.Add(ds);
             _entropy.Add(ds, order);
         }
-        internal IEnumerable<DataSourceEntry> GetDataSources()
+
+        // Key is parent entity name
+        internal IEnumerable<KeyValuePair<string, List<DataSourceEntry>>> GetDataSources()
         {
             return _dataSources;
         }
@@ -299,7 +310,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 foreach (var dataSourceName in connection.dataSources)
                 {
-                    var ds = _dataSources.Where(x => x.Name == dataSourceName).FirstOrDefault();
+                    var ds = _dataSources.SelectMany(x => x.Value).Where(x => x.Name == dataSourceName).FirstOrDefault();
                     if (ds == null)
                     {
                         errors.ValidationError($"Connection '{dataSourceName}' does not have a corresponding data source.");

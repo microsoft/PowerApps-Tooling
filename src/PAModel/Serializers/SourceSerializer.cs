@@ -29,7 +29,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 7 - PublishOrderIndex update
         // 8 - Volatile properties to Entropy
         // 9 - Split Up ControlTemplates, subdivide src/
-        public static Version CurrentSourceVersion = new Version(0, 9);
+        // 10 - Datasource, Service defs to /pkg
+        public static Version CurrentSourceVersion = new Version(0, 10);
 
         // Layout is:
         //  src\
@@ -41,6 +42,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EditorStateDir = "Src\\EditorState";
         public const string ComponentCodeDir = "Src\\Components";
         public const string PackagesDir = "pkgs";
+        public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
+        public const string WadlPackageDir = "pkgs\\Wadl";
+        public const string SwaggerPackageDir = "pkgs\\Swagger";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -151,7 +155,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             app.GetLogoFile();
 
-            LoadDataSources(app, dir);
+            LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
@@ -199,7 +203,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
-            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml")) {
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false)) {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                 {
@@ -321,17 +325,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-
-        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory)
-        {
-            // Will include subdirectories. 
-            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
-            {
-                var dataSource = file.ToObject<DataSourceEntry>();
-                app.AddDataSourceForLoad(dataSource);                
-            }
-        }
-
         public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
         {
             throw new NotImplementedException();   
@@ -370,28 +363,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false));
 
             dir.WriteAllJson("", "ControlTemplates.json", nonComponentControlTemplates);
-    
-            // Data Sources  - write out each individual source. 
-            HashSet<string> filenames = new HashSet<string>();
-            foreach (var dataSource in app.GetDataSources())
-            {
-                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
-                // Also be determinstic. 
-                string filename = dataSource.GetUniqueName()+ ".json";
-                
-                if (!filenames.Add(filename.ToLower()))
-                {
-                    int index = 1;
-                    var altFileName = dataSource.GetUniqueName() + "_" + index + ".json";
-                    while (!filenames.Add(altFileName.ToLower()))
-                        ++index;
-
-                    errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
-                    filename = altFileName;
-                }
-
-                dir.WriteAllJson(DataSourcesDir, filename, dataSource);
-            }
 
             if (app._checksum != null)
             {
@@ -412,6 +383,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
             }
+
+            WriteDataSources(dir, app, errors);
 
             // Loose files. 
             foreach (FileEntry file in app._unknownFiles.Values)
@@ -448,6 +421,186 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
+        {
+            // Data Sources  - write out each individual source. 
+            HashSet<string> filenames = new HashSet<string>();
+            foreach (var kvp in app.GetDataSources())
+            {
+                // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
+                // Also be determinstic. 
+                string filename = kvp.Key + ".json";
+
+                if (!filenames.Add(filename.ToLower()))
+                {
+                    int index = 1;
+                    var altFileName = kvp.Key + "_" + index + ".json";
+                    while (!filenames.Add(altFileName.ToLower()))
+                        ++index;
+
+                    errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
+                    filename = altFileName;
+                }
+                var dataSourceStateToWrite = kvp.Value.JsonClone();
+                DataSourceDefinition dataSourceDef = null;
+
+                // Split out the changeable parts of the data source.
+                foreach (var ds in dataSourceStateToWrite)
+                {
+                    // CDS DataSource
+                    if (ds.TableDefinition != null)
+                    {
+                        dataSourceDef = new DataSourceDefinition();
+                        dataSourceDef.TableDefinition = Utility.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
+                        dataSourceDef.DatasetName = ds.DatasetName;
+                        dataSourceDef.EntityName = ds.RelatedEntityName ?? ds.Name;
+                        ds.DatasetName = null;
+                        ds.TableDefinition = null;
+                    }
+                    // CDP DataSource
+                    else if (ds.DataEntityMetadataJson != null)
+                    {
+                        if (ds.ApiId == "/providers/microsoft.powerapps/apis/shared_commondataservice")
+                        {
+                            // This is the old CDS connector, we can't support it since it's optionset format is incompatable with the newer one
+                            errors.ValidationError($"Connection {ds.Name} is using the old CDS connector which is incompatable with this tool");
+                            throw new DocumentException();
+                        }
+                        dataSourceDef = new DataSourceDefinition();
+                        dataSourceDef.DataEntityMetadataJson = ds.DataEntityMetadataJson;
+                        dataSourceDef.EntityName = ds.Name;
+                        dataSourceDef.TableName = ds.TableName;
+                        ds.TableName = null;
+                        ds.DataEntityMetadataJson = null;
+                    }
+                    else if (ds.Type == "OptionSetInfo")
+                    {
+                        // This looks like a left over from previous versions of studio, account for it by
+                        // tracking optionsets with empty dataset names
+                        ds.DatasetName = ds.DatasetName == null ? string.Empty : null;
+                    }
+                    else if (ds.WadlMetadata != null)
+                    {
+                        // For some reason some connectors have both, investigate if one could be discarded by the server?
+                        if (ds.WadlMetadata.WadlXml != null)
+                        {
+                            dir.WriteAllXML(WadlPackageDir, filename.Replace(".json", ".xml"), ds.WadlMetadata.WadlXml);
+                        }
+                        if (ds.WadlMetadata.SwaggerJson != null)
+                        {
+                            dir.WriteAllJson(SwaggerPackageDir, filename, JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, Utility._jsonOpts));
+                        }
+                        ds.WadlMetadata = null;
+                    }
+                }
+
+                if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
+                {
+                    // copy over the localconnectionreference
+                    if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
+                    {
+                        dataSourceDef.LocalReferenceDSJson = dsRef;
+                    }
+                    dataSourceDef.InstanceUrl = referenceJson.instanceUrl;
+                    dataSourceDef.ExtensionData = referenceJson.ExtensionData;
+                }
+
+                if (dataSourceDef != null)
+                    dir.WriteAllJson(DataSourcePackageDir, filename, dataSourceDef);
+
+                dir.WriteAllJson(DataSourcesDir, filename, dataSourceStateToWrite);
+            }
+        }
+
+        private static void LoadDataSources(CanvasDocument app, DirectoryReader directory, ErrorContainer errors)
+        {
+            var tableDefs = new Dictionary<string, DataSourceDefinition>();
+            app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
+
+            foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*.json"))
+            {
+                var tableDef = file.ToObject<DataSourceDefinition>();
+                tableDefs.Add(tableDef.EntityName, tableDef);
+                if (tableDef.DatasetName == null)
+                    continue;
+
+                if (!app._dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
+                {
+                    localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
+                    {
+                        dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>(),
+                        ExtensionData = tableDef.ExtensionData,
+                        instanceUrl = tableDef.InstanceUrl
+                    };
+                    app._dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
+                }
+                if (localDatabaseReferenceJson.instanceUrl != tableDef.InstanceUrl)
+                {
+                    // Generate an error, dataset defs have diverged in a way that shouldn't be possible
+                    // Each dataset has one instanceurl
+                    errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
+                    throw new DocumentException();
+                }
+
+                localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+            }
+
+            // key is filename, value is stringified xml
+            var xmlDefs = new Dictionary<string, string>();
+            foreach (var file in directory.EnumerateFiles(WadlPackageDir, "*.xml"))
+            {
+                xmlDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
+            }
+
+            // key is filename, value is stringified json
+            var swaggerDefs = new Dictionary<string, string>();
+            foreach (var file in directory.EnumerateFiles(SwaggerPackageDir, "*.json"))
+            {
+                swaggerDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
+            }
+
+            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
+            {
+                var dataSources = file.ToObject<List<DataSourceEntry>>();
+                foreach (var ds in dataSources)
+                {
+                    if (tableDefs.TryGetValue(ds.RelatedEntityName ?? ds.Name, out var definition))
+                    {
+                        switch (ds.Type)
+                        {
+                            case "NativeCDSDataSourceInfo":
+                                ds.DatasetName = definition.DatasetName;
+                                ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utility._jsonOpts);
+                                break;
+                            case "ConnectedDataSourceInfo":
+                                ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
+                                ds.TableName = definition.TableName;
+                                break;
+                            case "OptionSetInfo":
+                                ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
+                                break;
+                            case "ServiceInfo":
+                            case "ViewInfo":
+                            default:
+                                break;
+                        }
+                    }
+                    else if (ds.Type == "ServiceInfo")
+                    {
+                        var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
+                        var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
+                        if (!foundXML && !foundJson)
+                        {
+                            errors.ValidationError($"No matching wadl or swagger def for {file._relativeName}");
+                            throw new DocumentException();
+                        }
+                        ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
+                    }
+
+                    app.AddDataSourceForLoad(ds);
+                }
+            }
+        }
 
         /// This writes out the IR, editor state cache, and potentially component templates
         /// for a single top level control, such as the App object, a screen, or component

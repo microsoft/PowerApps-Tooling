@@ -103,7 +103,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             var appChecker = Encoding.UTF8.GetString(entry.ToBytes());
                             app._entropy.AppCheckerResult = appChecker;
                             break;
-                                                    
 
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
@@ -214,6 +213,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._connections = cxs;
                     app._properties.LocalConnectionReferences = null;
                 }
+
+                if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
+                {
+                    var dsrs = Utility.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                    app._dataSourceReferences = dsrs;
+                    app._properties.LocalDatabaseReferences = null;
+                }
+
 
                 if (componentsMetadata?.Components != null)
                 {
@@ -388,6 +395,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var json = Utility.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
+            if (app._dataSourceReferences != null)
+            {
+                var json = Utility.JsonSerialize(app._dataSourceReferences);
+                props.LocalDatabaseReferences = json;
+            }
             yield return ToFile(FileKind.Properties, props);
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
@@ -400,6 +412,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dataSources = new DataSourcesJson
             {
                 DataSources = app.GetDataSources()
+                    .SelectMany(x => x.Value)
                     .Where(x => !x.IsDataComponent)
                     .OrderBy(x => app._entropy.GetOrder(x))
                     .ToArray()
@@ -542,7 +555,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Rehydrate the DataComponent DataSource file. 
             {
                 IEnumerable<DataComponentSourcesJson.Entry> ds =
-                   from item in app.GetDataSources().Where(x => x.IsDataComponent)
+                   from item in app.GetDataSources().SelectMany(x => x.Value).Where(x => x.IsDataComponent)
                    select item.DataComponentDetails;
 
                 var dsArray = ds.ToArray();
