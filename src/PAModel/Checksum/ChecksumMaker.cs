@@ -172,19 +172,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum()
         {
             var perFileChecksum = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            using (var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            using var singleFileHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+            foreach (var kv in _files.OrderBy(x => x.Key))
             {
-                foreach (var kv in _files.OrderBy(x => x.Key))
-                {
-                    hash.AppendData(kv.Value);
-                    perFileChecksum.Add(kv.Key, Version + "_" + Convert.ToBase64String(kv.Value));
-                }
+                hash.AppendData(kv.Value);
+                singleFileHash.AppendData(kv.Value);
+                var singleFileHashResult = singleFileHash.GetHashAndReset();
 
-                var h = hash.GetHashAndReset();
-                var str = Convert.ToBase64String(h);
-
-                return (Version + "_" + str, perFileChecksum);
+                perFileChecksum.Add(kv.Key, Version + "_" + Convert.ToBase64String(singleFileHashResult));
             }
+
+            var h = hash.GetHashAndReset();
+            var str = Convert.ToBase64String(h);
+
+            return (Version + "_" + str, perFileChecksum);
         }
 
         // Formula whitespace can differ between platforms, and leading whitespace
