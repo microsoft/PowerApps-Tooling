@@ -84,7 +84,7 @@ All lines that are a part of the block must be indented at least one space in fr
 
 For example:
 ```
-Gallery1 As Gallery.hoizontalGallery:
+Gallery1 As Gallery.horizontalGallery:
     Fill: = Color.White
     Label1 As Label:
         Text: ="Hello, World"
