@@ -81,7 +81,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static HashSet<string> _jsonDouble = new HashSet<string>
         {
             "LocalConnectionReferences",
-            "LocalDatabaseReferences",
+            "LocalConnectionReferences",
+            "LibraryDependencies",
             "DataSources\\TableDefinition",
             "DataSources\\WadlMetadata\\SwaggerJson",
         };

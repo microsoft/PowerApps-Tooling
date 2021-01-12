@@ -228,6 +228,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
+                if (app._properties.LibraryDependencies != null)
+                {
+                    var refs = Utility.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                    app._libraryReferences = refs;
+                    app._properties.LibraryDependencies = null;
+                }
+
                 if (app._properties.LocalConnectionReferences != null)  
                 {
                     var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
@@ -431,8 +438,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var header = app._header.JsonClone();
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
             yield return ToFile(FileKind.Header, header);
-
-
+            
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
@@ -444,6 +450,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var json = Utility.JsonSerialize(app._dataSourceReferences);
                 props.LocalDatabaseReferences = json;
             }
+
+            if (app._libraryReferences != null)
+            {
+                var json = Utility.JsonSerialize(app._libraryReferences);
+                props.LibraryDependencies = json;
+            }
+
             yield return ToFile(FileKind.Properties, props);
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();

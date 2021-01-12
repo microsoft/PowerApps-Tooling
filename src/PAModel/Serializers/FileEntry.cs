@@ -50,6 +50,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         Entropy,
         CanvasManifest,
         Connections,
+        ComponentReferences, // ComponentReferences.json
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -115,6 +116,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"CanvasManifest.json", FileKind.CanvasManifest },
             {"ControlTemplates.json", FileKind.Templates },
             {"Connections.json", FileKind.Connections },
+            {"ComponentReferences.json", FileKind.ComponentReferences }
         };
 
 

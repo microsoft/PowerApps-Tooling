@@ -35,7 +35,10 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string LocalConnectionReferences { get; set; }
 
         public string LocalDatabaseReferences { get; set; }
+
+        // stores double json encoded list. Array of ComponentDependencyInfo
         public string LibraryDependencies { get; set; }
+
         public string[] AppPreviewFlagsKey { get; set; }
         public double? DocumentLayoutWidth { get; set; }
         public double? DocumentLayoutHeight { get; set; }
