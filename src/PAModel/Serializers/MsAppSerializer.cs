@@ -376,24 +376,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
-                // We had offline edits!
-                errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
-                foreach (var file in app._checksum.ClientPerFileChecksums)
+                if (app._checksum.ClientPerFileChecksums != null)
                 {
-                    if (!hash.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
+                    // We had offline edits!
+                    errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
+                    foreach (var file in app._checksum.ClientPerFileChecksums)
                     {
-                        errors.ChecksumMismatch("Missing file " + file.Key);
+                        if (!hash.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
+                        {
+                            errors.ChecksumMismatch("Missing file " + file.Key);
+                        }
+                        if (fileChecksum != file.Value)
+                        {
+                            errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
+                        }
                     }
-                    if (fileChecksum != file.Value)
+                    foreach (var file in hash.perFileChecksum)
                     {
-                        errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
-                    }
-                }
-                foreach (var file in hash.perFileChecksum)
-                {
-                    if (!app._checksum.ClientPerFileChecksums.ContainsKey(file.Key))
-                    {
-                        errors.ChecksumMismatch("Extra file " + file.Key);
+                        if (!app._checksum.ClientPerFileChecksums.ContainsKey(file.Key))
+                        {
+                            errors.ChecksumMismatch("Extra file " + file.Key);
+                        }
                     }
                 }
             }
