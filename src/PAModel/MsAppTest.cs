@@ -75,7 +75,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var c1 = ChecksumMaker.GetChecksum(pathToZip1);
             var c2 = ChecksumMaker.GetChecksum(pathToZip2);
-            if (c1 == c2)
+            if (c1.wholeChecksum == c2.wholeChecksum)
             {
                 return true;
             }

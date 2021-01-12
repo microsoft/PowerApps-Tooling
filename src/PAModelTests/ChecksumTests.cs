@@ -12,15 +12,18 @@ namespace PAModelTests
     public class ChecksumTests
     {
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "C3_ly3Q9IOBmJpkjqNWWI/WXONAQGaXR3xYNkps9+3WESg=")]
-        public void TestChecksum(string filename, string expectedChecksum)
+        [DataRow("MyWeather.msapp", "C4_ly3Q9IOBmJpkjqNWWI/WXONAQGaXR3xYNkps9+3WESg=", 11, "References\\DataSources.json", "C4_dXkScH2mYpGGZ7ahgd864Zx5vsP51QYiH+eqPJV1KQ8=")]
+        public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
 
             // Checksums should be very stable. 
             var actualChecksum = ChecksumMaker.GetChecksum(root);
 
-            Assert.AreEqual(expectedChecksum, actualChecksum);
+            Assert.AreEqual(expectedChecksum, actualChecksum.wholeChecksum);
+            Assert.AreEqual(expectedFileCount, actualChecksum.perFileChecksum.Count);
+            Assert.IsTrue(actualChecksum.perFileChecksum.TryGetValue(file, out var perFileChecksum));
+            Assert.AreEqual(innerExpectedChecksum, perFileChecksum);
         }
 
         [DataTestMethod]
