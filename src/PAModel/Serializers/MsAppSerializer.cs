@@ -196,14 +196,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
-                if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum)
+                if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
                     errors.ChecksumMismatch("Checksum doesn't match on extract.");
+                    if (app._checksum.ServerPerFileChecksums != null)
+                    {
+                        foreach (var file in app._checksum.ServerPerFileChecksums)
+                        {
+                            if (!currentChecksum.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
+                            {
+                                errors.ChecksumMismatch("Missing file " + file.Key);
+                            }
+                            if (fileChecksum != file.Value)
+                            {
+                                errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
+                            }
+                        }
+                        foreach (var file in currentChecksum.perFileChecksum)
+                        {
+                            if (!app._checksum.ServerPerFileChecksums.ContainsKey(file.Key))
+                            {
+                                errors.ChecksumMismatch("Extra file " + file.Key);
+                            }
+                        }
+                    }
                 }
-                app._checksum.ClientStampedChecksum = currentChecksum;
-
+                app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
+                app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
@@ -353,16 +374,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var hash = checksum.GetChecksum();
 
 
-            if (hash != app._checksum.ClientStampedChecksum)
+            if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
                 // We had offline edits!
                 errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
+                foreach (var file in app._checksum.ClientPerFileChecksums)
+                {
+                    if (!hash.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
+                    {
+                        errors.ChecksumMismatch("Missing file " + file.Key);
+                    }
+                    if (fileChecksum != file.Value)
+                    {
+                        errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
+                    }
+                }
+                foreach (var file in hash.perFileChecksum)
+                {
+                    if (!app._checksum.ClientPerFileChecksums.ContainsKey(file.Key))
+                    {
+                        errors.ChecksumMismatch("Extra file " + file.Key);
+                    }
+                }
             }
 
             var checksumJson = new ChecksumJson
             {
-                ClientStampedChecksum = hash,
-                ServerStampedChecksum = app._checksum.ServerStampedChecksum
+                ClientStampedChecksum = hash.wholeChecksum,
+                ClientPerFileChecksums = hash.perFileChecksum,
+                ServerStampedChecksum = app._checksum.ServerStampedChecksum,
+                ServerPerFileChecksums = app._checksum.ServerPerFileChecksums,
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);

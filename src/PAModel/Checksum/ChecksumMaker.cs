@@ -20,14 +20,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C3";
+        public string Version = "C4";
 
         public const string ChecksumName = "checksum.json";
 
         // Track a checksum per file and then merge into a single one at the end. 
         private readonly Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
 
-        public static string GetChecksum(string fullpathToMsApp)
+        public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(string fullpathToMsApp)
         {
             using (var zip = ZipFile.OpenRead(fullpathToMsApp))
             {
@@ -35,7 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static string GetChecksum(ZipArchive zip)
+        public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(ZipArchive zip)
         {
             ChecksumMaker checksumMaker = new ChecksumMaker();
 
@@ -169,19 +169,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <summary>
         /// Called after all files are added to get a checksum. 
         /// </summary>
-        public string GetChecksum()
+        public (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum()
         {
+            var perFileChecksum = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             using (var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
             {
                 foreach (var kv in _files.OrderBy(x => x.Key))
                 {
                     hash.AppendData(kv.Value);
+                    perFileChecksum.Add(kv.Key, Version + "_" + Convert.ToBase64String(kv.Value));
                 }
 
                 var h = hash.GetHashAndReset();
                 var str = Convert.ToBase64String(h);
 
-                return Version + "_" + str;
+                return (Version + "_" + str, perFileChecksum);
             }
         }
 
