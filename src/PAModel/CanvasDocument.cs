@@ -60,6 +60,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is a dataset name
         internal IDictionary<string, LocalDatabaseReferenceJson> _dataSourceReferences;
 
+        // Extracted from _properties.LibraryDependencies
+        internal ComponentDependencyInfo[] _libraryReferences;
+
         internal FileEntry _logoFile;
 
         // Save for roundtripping.

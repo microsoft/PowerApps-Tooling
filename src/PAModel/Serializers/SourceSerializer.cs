@@ -100,6 +100,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             app._templateStore.AddTemplate(kvp.Key, kvp.Value);
                         }
                         break;
+                    case FileKind.ComponentReferences:
+                        var refs = file.ToObject<ComponentDependencyInfo[]>();
+                        app._libraryReferences = refs;
+                        break;
                 }
             }
             if (app._header == null)
@@ -418,6 +422,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._connections != null)
             {
                 dir.WriteAllJson(ConnectionDir, FileKind.Connections, app._connections);
+            }
+
+            if (app._libraryReferences != null)
+            {
+                dir.WriteAllJson("", FileKind.ComponentReferences, app._libraryReferences);
             }
         }
 
