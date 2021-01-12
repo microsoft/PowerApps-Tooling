@@ -30,7 +30,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 8 - Volatile properties to Entropy
         // 9 - Split Up ControlTemplates, subdivide src/
         // 10 - Datasource, Service defs to /pkg
-        public static Version CurrentSourceVersion = new Version(0, 10);
+        // 11 - Split out ComponentReference into its own file
+        public static Version CurrentSourceVersion = new Version(0, 11);
 
         // Layout is:
         //  src\
@@ -45,6 +46,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
         public const string WadlPackageDir = "pkgs\\Wadl";
         public const string SwaggerPackageDir = "pkgs\\Swagger";
+        public const string ComponentPackageDir = "pkgs\\Components";
         public const string OtherDir = "Other"; // exactly match files from .msapp format
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
@@ -281,9 +283,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
 
-            foreach (var file in directory.EnumerateFiles(ComponentCodeDir, "*.pa.yaml"))
+            foreach (var file in EnumerateComponentDirs(directory, "*.pa.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
+
             }
 
             foreach (var file in directory.EnumerateFiles(TestDir, "*.pa.yaml"))
@@ -291,11 +294,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
 
-            foreach (var file in directory.EnumerateFiles(ComponentCodeDir, "*.json"))
+            foreach (var file in EnumerateComponentDirs(directory, "*.json"))
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
                 app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
             }
+        }
+
+        private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
+            DirectoryReader directory, string pattern)
+        {
+            return directory.EnumerateFiles(ComponentCodeDir, pattern).Concat(
+                directory.EnumerateFiles(ComponentPackageDir, pattern));
         }
 
         private static void CreateControls(CanvasDocument app, IList<string> paFiles, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
@@ -353,14 +363,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(app._templateStore, templateDefaults, app._properties.DocumentAppType);
 
+            var importedComponents = app.GetImportedComponents();
+
             foreach (var control in app._screens)
             {
-                WriteTopParent(dir, app, control.Key, control.Value, false);
+                string controlName = control.Key;
+                var isTest = controlName == AppTestControlName;
+                var subDir = isTest ? TestDir : CodeDir;
+
+                WriteTopParent(dir, app, control.Key, control.Value, subDir);
             }
 
             foreach (var control in app._components)
             {
-                WriteTopParent(dir, app, control.Key, control.Value, true);
+                string controlName = control.Key;
+                app._templateStore.TryGetTemplate(controlName, out var templateState);
+
+                bool isImported = importedComponents.Contains(templateState.TemplateOriginalName);
+                var subDir = (isImported) ? ComponentPackageDir : ComponentCodeDir;
+                WriteTopParent(dir, app, control.Key, control.Value, subDir);
             }
 
             // Write out control templates at top level, skipping component templates which are written alongside components
@@ -614,19 +635,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// This writes out the IR, editor state cache, and potentially component templates
         /// for a single top level control, such as the App object, a screen, or component
         /// Name refers to the control name
-        private static void WriteTopParent(DirectoryWriter dir, CanvasDocument app, string name, BlockNode ir, bool isComponent)
+        private static void WriteTopParent(
+            DirectoryWriter dir,
+            CanvasDocument app,
+            string name,
+            BlockNode ir,
+            string subDir)
         {
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
 
             string filename = controlName + ".pa.yaml";
 
-            if (isComponent)
-                dir.WriteAllText(ComponentCodeDir, filename, text);
-            else if (controlName != AppTestControlName)
-                dir.WriteAllText(CodeDir, filename, text);
-            else
-                dir.WriteAllText(TestDir, filename, text);
+            
+            dir.WriteAllText(subDir, filename, text);
 
             var extraData = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
@@ -639,9 +661,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             dir.WriteAllJson(EditorStateDir, extraContent, extraData);
 
             // Write out component templates next to the component
-            if (isComponent && app._templateStore.TryGetTemplate(name, out var templateState))
+            if (app._templateStore.TryGetTemplate(name, out var templateState))
             {
-                dir.WriteAllJson(ComponentCodeDir, controlName + ".json", templateState);
+                dir.WriteAllJson(subDir, controlName + ".json", templateState);
             }
         }
 

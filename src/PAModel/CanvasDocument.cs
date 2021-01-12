@@ -61,6 +61,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal IDictionary<string, LocalDatabaseReferenceJson> _dataSourceReferences;
 
         // Extracted from _properties.LibraryDependencies
+        // Must preserve server ordering. 
         internal ComponentDependencyInfo[] _libraryReferences;
 
         internal FileEntry _logoFile;
@@ -321,6 +322,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
             }
+        }
+
+        // Get ComponentIds for components we've imported. 
+        internal HashSet<string> GetImportedComponents()
+        {
+            var set = new HashSet<string>();
+            if (this._libraryReferences != null)
+            {
+                foreach(var item in this._libraryReferences)
+                {
+                    set.Add(item.OriginalComponentDefinitionTemplateId);
+                }
+            }
+            return set;
         }
 
         // Helper for traversing and ensuring unique control names. 
