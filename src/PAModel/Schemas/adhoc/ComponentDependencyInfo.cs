@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,9 +12,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
     /// Describes Properties.LibraryDependencies, which is an ordered json array of these.
     /// Each item means a component was downloaded from a library. 
     /// </summary>
-    public class ComponentDependencyInfo
+    internal class ComponentDependencyInfo
     {
-        // OriginalComponentDefinitionTemplateId - specifies temmplate id. 
+        // Matches against CombinedTemplateState.TemplateOriginalName
+        public string OriginalComponentDefinitionTemplateId { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
