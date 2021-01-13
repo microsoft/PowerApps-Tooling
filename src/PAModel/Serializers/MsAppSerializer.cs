@@ -61,6 +61,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             app.AddFile(FileEntry.FromZip(entry));
                             break;
 
+                        case FileKind.Resources:
+                            app._resourcesJson = ToObject<ResourcesJson>(entry);
+                            foreach (var resource in app._resourcesJson.Resources)
+                            {
+                                if (resource.ResourceKind == "LocalFile")
+                                {
+                                    app._entropy.LocalResourceRootPaths.Add(resource.Name, resource.RootPath);
+                                    resource.RootPath = null;
+                                }
+                            }
+
+                            break;
+
                         case FileKind.Asset:
                             app.AddAssetFile(FileEntry.FromZip(entry, name: fullName.Substring("Assets\\".Length)));
                             break;
@@ -103,7 +116,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             var appChecker = Encoding.UTF8.GetString(entry.ToBytes());
                             app._entropy.AppCheckerResult = appChecker;
                             break;
-
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
                         case FileKind.TestSrc:
@@ -631,6 +643,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._entropy?.AppCheckerResult != null)
             {
                 yield return new FileEntry() { Name = FileEntry.GetFilenameForKind(FileKind.AppCheckerResult), RawBytes = Encoding.UTF8.GetBytes(app._entropy.AppCheckerResult) };
+            }
+
+            if (app._resourcesJson != null)
+            {
+                var resources = app._resourcesJson.JsonClone();
+                foreach (var resource in resources.Resources)
+                {
+                    if (resource.ResourceKind == "LocalFile")
+                    {
+                        var rootPath = string.Empty;
+                        if (app._entropy?.LocalResourceRootPaths.TryGetValue(resource.Name, out rootPath) ?? false)
+                            resource.RootPath = rootPath;
+                        else
+                            resource.RootPath = string.Empty;
+                    }
+                }
+                yield return ToFile(FileKind.Resources, resources);
             }
 
             foreach (var assetFile in app._assetFiles)
