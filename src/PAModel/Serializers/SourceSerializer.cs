@@ -471,7 +471,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
                     filename = altFileName;
                 }
-                var dataSourceStateToWrite = kvp.Value.JsonClone();
+                var dataSourceStateToWrite = kvp.Value.JsonClone().OrderBy(ds => ds.Name, StringComparer.Ordinal);
                 DataSourceDefinition dataSourceDef = null;
 
                 // Split out the changeable parts of the data source.
