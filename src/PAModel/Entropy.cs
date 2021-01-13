@@ -19,7 +19,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // These come from volatile properties in properties.json in the msapp
         internal class PropertyEntropy
         {
-            public string LocalDatabaseReferences { get; set; }
             public Dictionary<string, int> ControlCount { get; set; }
             public double? DeserializationLoadTime { get; set; }
             public double? AnalysisLoadTime { get; set; }
@@ -46,6 +45,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is top parent, value is Index offset
         public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
+
+        // Key is resource name
+        public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
 
         public PropertyEntropy VolatileProperties { get; set; }
 
@@ -133,13 +136,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AnalysisLoadTime = documentProperties.AnalysisLoadTime,
                 DeserializationLoadTime = documentProperties.DeserializationLoadTime,
                 ControlCount = documentProperties.ControlCount,
-                LocalDatabaseReferences = documentProperties.LocalDatabaseReferences
             };
 
             documentProperties.AnalysisLoadTime = null;
             documentProperties.DeserializationLoadTime = null;
             documentProperties.ControlCount = null;
-            documentProperties.LocalDatabaseReferences = null;
         }
 
         public void GetProperties(DocumentPropertiesJson documentProperties)
@@ -149,7 +150,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
                 documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
                 documentProperties.ControlCount = VolatileProperties.ControlCount;
-                documentProperties.LocalDatabaseReferences = VolatileProperties.LocalDatabaseReferences;
             }
         }
     }

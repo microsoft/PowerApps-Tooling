@@ -31,7 +31,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 9 - Split Up ControlTemplates, subdivide src/
         // 10 - Datasource, Service defs to /pkg
         // 11 - Split out ComponentReference into its own file
-        public static Version CurrentSourceVersion = new Version(0, 11);
+        // 12 - Moved Resources.json, move volatile rootpaths to entropy
+        public static Version CurrentSourceVersion = new Version(0, 12);
 
         // Layout is:
         //  src\
@@ -120,6 +121,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in dir.EnumerateFiles(AssetsDir))
             {
+                if (file._relativeName == "Resources.json")
+                {
+                    app._resourcesJson = file.ToObject<ResourcesJson>();
+                    continue;
+                }
                 app.AddAssetFile(file.ToFileEntry());
             }
 
@@ -407,6 +413,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._themes != null)
             {
                 dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
+            }
+
+            if (app._resourcesJson != null)
+            {
+                dir.WriteAllJson(AssetsDir, "Resources.json", app._resourcesJson);
             }
 
             WriteDataSources(dir, app, errors);
