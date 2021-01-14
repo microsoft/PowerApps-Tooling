@@ -127,15 +127,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return rules;
             }
 
-            private static int _id = 2;
             public static Item CreateDefaultControl(ControlTemplate templateDefault = null)
             {
                 var defaultCtrl = new Item();
                 var rules = new List<RuleEntry>();
                 defaultCtrl.Rules = rules.ToArray();
-                defaultCtrl.ControlUniqueId = _id.ToString();
                 defaultCtrl.PublishOrderIndex = 0;
-                ++_id;
 
                 defaultCtrl.ExtensionData = new Dictionary<string, object>();
                 defaultCtrl.ExtensionData.Add("LayoutName", "");

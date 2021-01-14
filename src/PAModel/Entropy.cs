@@ -46,9 +46,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is top parent, value is Index offset
         public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
+        // Key is control name, value is uniqueId
+        public Dictionary<string, int> ControlUniqueIds { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         // Key is resource name
         public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
-
 
         public PropertyEntropy VolatileProperties { get; set; }
 

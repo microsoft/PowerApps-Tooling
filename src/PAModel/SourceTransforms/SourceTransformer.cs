@@ -14,11 +14,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         internal DefaultValuesTransform _defaultValTransform;
 
         public SourceTransformer(ErrorContainer errors, Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, ComponentInstanceTransform componentInstanceTransform,
-            EditorStateStore stateStore, TemplateStore templateStore)
+            EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
             _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
-            _templateTransforms.Add(new AppTestTransform(errors, templateStore, stateStore));
+            _templateTransforms.Add(new AppTestTransform(errors, templateStore, stateStore, entropy));
             _templateTransforms.Add(componentInstanceTransform);
 
             _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            

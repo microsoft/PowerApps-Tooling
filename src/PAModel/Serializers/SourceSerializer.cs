@@ -32,7 +32,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 10 - Datasource, Service defs to /pkg
         // 11 - Split out ComponentReference into its own file
         // 12 - Moved Resources.json, move volatile rootpaths to entropy
-        public static Version CurrentSourceVersion = new Version(0, 12);
+        // 13 - Control UniqueIds to Entropy
+        public static Version CurrentSourceVersion = new Version(0, 13);
 
         // Layout is:
         //  src\

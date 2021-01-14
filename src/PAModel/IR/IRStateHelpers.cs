@@ -15,20 +15,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class IRStateHelpers
     {
-        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, out BlockNode topParentIR)
+        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
             var topParentJson = file.Value.TopParent;
-            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, out topParentIR);
+            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR);
         }
 
-        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, out BlockNode controlIR)
+        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
         {
             // Bottom up, recursively process children
             var children = new List<BlockNode>();
             var childIndex = 0;
             foreach (var child in control.Children)
             {
-                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, out var childBlock);
+                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock);
                 children.Add(childBlock);
                 ++childIndex;
             }
@@ -155,10 +155,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateStore.AddTemplate(templateName, templateState);
             }
 
+            entropy.ControlUniqueIds.Add(control.Name, int.Parse(control.ControlUniqueId));
             var controlState = new ControlState()
             {
                 Name = control.Name,
-                UniqueId = control.ControlUniqueId,
                 PublishOrderIndex = control.PublishOrderIndex,
                 TopParentName = topParentName,
                 Properties = propStates,
@@ -179,14 +179,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (prop, state);
         }
 
-        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore)
+        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
         {
-            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore);
+            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore, uniqueIdRestorer);
             return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
-        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
         {
             var controlName = blockNode.Name.Identifier;
 
@@ -194,7 +194,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore, uniqueIdRestorer));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
@@ -213,6 +213,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = templateState.ToControlInfoTemplate();
             }
 
+            var uniqueId = uniqueIdRestorer.GetControlId(controlName);
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
             {
@@ -258,12 +259,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
                 properties = properties.OrderBy(prop => state.Properties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property)).ToList();
-
                 resultControlInfo = new ControlInfoJson.Item()
                 {
                     Parent = parent,
                     Name = controlName,
-                    ControlUniqueId = state.UniqueId,
+                    ControlUniqueId = uniqueId.ToString(),
                     PublishOrderIndex = state.PublishOrderIndex,
                     VariantName = variantName ?? string.Empty,
                     Rules = properties.ToArray(),
@@ -288,6 +288,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 state = null;
                 resultControlInfo = ControlInfoJson.Item.CreateDefaultControl();
                 resultControlInfo.Name = controlName;
+                resultControlInfo.ControlUniqueId = uniqueId.ToString();
                 resultControlInfo.Parent = parent;
                 resultControlInfo.VariantName = variantName ?? string.Empty;
                 resultControlInfo.StyleName = $"default{templateName.FirstCharToUpper()}Style";

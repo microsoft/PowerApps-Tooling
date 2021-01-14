@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
@@ -147,7 +148,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
                                 }
 
-                                IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, out var controlIR);
+                                IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, app._entropy, out var controlIR);
                                 if (kind == FileKind.ComponentSrc)
                                     app._components.Add(sf.ControlName, controlIR);
                                 else
@@ -492,13 +493,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
 
+            var idRestorer = new UniqueIdRestorer(app._entropy);
             // Rehydrate sources before yielding any to be written, processing component defs first
             foreach (var controlData in app._screens.Concat(app._components)
                 .OrderBy(source =>
                     (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
-                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore);
+                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer);
                 // Offset the publishOrderIndex based on Entropy.json
                 if (app._entropy.PublishOrderIndexOffsets.TryGetValue(sourceFile.ControlName, out var minIndex))
                 {
