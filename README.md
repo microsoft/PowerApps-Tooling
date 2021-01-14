@@ -1,7 +1,7 @@
 
 # Power Apps Source File Pack and Unpack Utility
 
-**This project is still in Preview and under NDA.**
+**This project is still in Experimental - format may change **
  
 **We welcome feedback on the project, file format, and capabilities.** 
 
@@ -36,15 +36,15 @@ Unpack and pack use this folder structure:
    - \*.json - the raw control.json file.
    - \EditorState\*.editorstate.json - cached information for Studio to use.
 - **\DataSources** - all data sources used by the app.
-- **\Connections** - additional information for non-tabular data sources.
+- **\Connections** - connection instances saved with this app and used when reloading into studio. 
 - **\Assets** - media files embedded in the app.
-- **\pkgs** - Metadata about each control type in the app.
+- **\pkgs** - A downloaded copy of external references, such as templates, API Definition files, and component libaries. These are similar to nuget/npm references. 
 - **\other** - all miscellaneous files needed to recreate the .msapp
    - entropy.json - volatile elements (like timestamps) are extracted to this file. This helps reduce noisy diffs in other files while ensuring that we can still round trip.
    - Holds other files from the msapp, such as what is in \references
 
 ## File format
-The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](PAFileFormat.md).
+The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](/docs/YAMLFileFormat.md)
 
 ## Merging changes from Studio
 When merging changes made in two different Studio sessions:
@@ -66,9 +66,11 @@ When merging changes made in two different Studio sessions:
 
 We welcome feedback on the design, file format, and capabilities. Comments and issues are very welcome.   
 
-This project is still experimental and we routinely refactor the folder structure, file format, and implementation in big ways.  As such, we aren't yet accepting code contributions until we are more stable.
+*This project is still experimental and we routinely refactor the folder structure, file format, and implementation in big ways.  As such, we aren't yet accepting code contributions until we are more stable.*
 
 Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
+
+Before making a Pull Request, please file an Issue and solicit discussion. 
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
