@@ -31,7 +31,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 9 - Split Up ControlTemplates, subdivide src/
         // 10 - Datasource, Service defs to /pkg
         // 11 - Split out ComponentReference into its own file
-        public static Version CurrentSourceVersion = new Version(0, 11);
+        // 12 - Control UniqueIds to Entropy
+        public static Version CurrentSourceVersion = new Version(0, 12);
 
         // Layout is:
         //  src\

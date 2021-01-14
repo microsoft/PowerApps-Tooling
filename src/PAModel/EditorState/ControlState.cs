@@ -13,7 +13,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     internal class ControlState
     {
         public string Name { get; set; }
-        public string UniqueId { get; set; }
         public double PublishOrderIndex { get; set; }
 
         [JsonIgnore]

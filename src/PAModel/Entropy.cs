@@ -47,6 +47,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is top parent, value is Index offset
         public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
+        // Key is control name, value is uniqueId
+        public Dictionary<string, int> ControlUniqueIds { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+
         public PropertyEntropy VolatileProperties { get; set; }
 
         public int GetOrder(DataSourceEntry dataSource)
