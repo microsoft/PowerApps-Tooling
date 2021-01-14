@@ -26,6 +26,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         public void WriteStartObject(string propertyName)
         {
             WriteIndent();
+
+            bool needsEscape = propertyName.IndexOfAny(new char[] { '\"', '\'' }) != -1;
+            if (needsEscape)
+                propertyName = $"\"{propertyName.Replace("\"", "\\\"")}\"";
+
             _text.Write(propertyName);
             _text.WriteLine(":");
 

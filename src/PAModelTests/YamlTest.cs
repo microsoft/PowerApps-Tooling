@@ -317,6 +317,8 @@ Obj1:
     P2c: =Z
   'Obj3:':
     P3a: =X
+  ""'Ob\""j4'"":
+    P4a: =X
   P1b: =DEF
 ";
             var sr = new StringReader(text);
@@ -333,6 +335,9 @@ Obj1:
                 AssertLex("'Obj3:':", y);
                     AssertLex("P3a=X", y);
                     AssertLexEndObj(y); // Obj3
+                AssertLex("'Ob\"j4':", y);
+                    AssertLex("P4a=X", y);
+                    AssertLexEndObj(y); // Obj4
             AssertLex("P1b=DEF", y);
             AssertLexEndObj(y); // Obj1
             AssertLexEndFile(y);
