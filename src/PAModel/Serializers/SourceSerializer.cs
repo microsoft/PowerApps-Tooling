@@ -33,7 +33,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 11 - Split out ComponentReference into its own file
         // 12 - Moved Resources.json, move volatile rootpaths to entropy
         // 13 - Control UniqueIds to Entropy
-        public static Version CurrentSourceVersion = new Version(0, 13);
+        // 14 - Yaml DoubleQuote escape
+        public static Version CurrentSourceVersion = new Version(0, 14);
 
         // Layout is:
         //  src\

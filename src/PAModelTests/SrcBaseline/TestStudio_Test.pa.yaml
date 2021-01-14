@@ -1,10 +1,10 @@
 Test_7F478737223C4B69 As AppTest:
 
-    'a050de8b-caa1-4092-9de2-8bad55f6aa8a' As TestSuite:
+    "'a050de8b-caa1-4092-9de2-8bad55f6aa8a' As TestSuite":
         DisplayName: ="Suite"
         Description: =""
 
-        '06c8b692-98f2-49b9-a79d-424d968505c4' As TestCase:
+        "'06c8b692-98f2-49b9-a79d-424d968505c4' As TestCase":
             DisplayName: ="Case"
             Description: =""
 
@@ -43,7 +43,7 @@ Test_7F478737223C4B69 As AppTest:
                 Value: =Assert('Label1'.Text= "5", "Value is 5"   /* comment here */)
                 Screen: =Screen1
 
-        'a46b12b7-dd69-41d0-8711-55e982a93a6f' As TestCase:
+        "'a46b12b7-dd69-41d0-8711-55e982a93a6f' As TestCase":
             DisplayName: ="Case (1)"
             Description: =""
 

@@ -288,13 +288,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // Get identifier
             // toggle isEscaped on every ' appearance
             bool isEscaped = false;
-            while (line.Current != ':' || isEscaped)
+            bool requiresClosingDoubleQuote = line.MaybeEat('"');
+
+            while (line.Current != ':' || isEscaped || requiresClosingDoubleQuote)
             {
                 if (line.Current == '\'')
                     isEscaped = !isEscaped;
 
+                if (requiresClosingDoubleQuote && line.Current == '"' && line.Previous != '\\')
+                {
+                    line._idx++;
+                    break;
+                }
+
                 if (line.Current == 0) // EOL
                 {
+                    if (isEscaped)
+                        return Unsupported(line, "Missing closing \'.");
+
+                    if (requiresClosingDoubleQuote)
+                        return Unsupported(line, "Missing closing \".");
+
                     return Unsupported(line, "Missing ':'. If this is a multiline property, use |");
                 }
                 line._idx++;
@@ -303,6 +317,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
             // Prop name could have spaces, but no colons. 
             var propName = line._line.Substring(indentLen, line._idx - indentLen-1).Trim();
+
+            if (requiresClosingDoubleQuote)
+            {
+                propName = propName.Replace("\\\"", "\"").Trim('"');
+            }
 
             // If it's a property, must have at least 1 space.
             // If it's start object, then ignore all spaces. 
@@ -554,6 +573,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                     return _line[_idx];
                 }
             }
+            public char Previous
+            {
+                get
+                {
+                    if (_idx-1 >= _line.Length || _idx -1 < 0) { return (char)0; }
+                    return _line[_idx - 1];
+                }
+            }
+
 
             public string RestOfLine
             {
