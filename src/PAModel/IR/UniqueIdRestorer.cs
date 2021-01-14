@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 {
     internal class UniqueIdRestorer
     {
-        private Dictionary<string, int> _controlUniqueIds;
+        private readonly Dictionary<string, int> _controlUniqueIds;
         private int _nextId;
 
         public UniqueIdRestorer(Entropy entropy)
