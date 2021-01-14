@@ -81,7 +81,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // If there's a checksum mismatch, do a more intensive comparison to find the difference.
-
+#if DEBUG
             // Provide a comparison that can be very specific about what the difference is.
             Dictionary<string, string> comp = new Dictionary<string, string>();
             var h1 = Test(pathToZip1, log, comp, true);
@@ -99,6 +99,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return true;
             }
             Console.WriteLine("FAIL!!");
+#endif
             return false;
         }
 
