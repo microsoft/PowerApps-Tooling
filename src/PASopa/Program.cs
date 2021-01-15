@@ -69,7 +69,7 @@ namespace PASopa
                 Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
                 (CanvasDocument msApp, ErrorContainer errors) = CanvasDocument.LoadFromMsapp(msAppPath);
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
 
                 if (errors.HasErrors)
                 {
@@ -77,7 +77,7 @@ namespace PASopa
                 }
 
                 errors = msApp.SaveToSources(outDir);
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
@@ -86,7 +86,7 @@ namespace PASopa
                 // Test that we can repack
                 {
                     (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(outDir);
-                    errors2.Write(Console.Out);
+                    errors2.Write(Console.Error);
                     if (errors2.HasErrors)
                     {
                         return;
@@ -95,7 +95,7 @@ namespace PASopa
                     using (var temp = new TempFile())
                     {
                         errors2 = msApp2.SaveToMsApp(temp.FullPath);
-                        errors2.Write(Console.Out);
+                        errors2.Write(Console.Error);
                         if (errors2.HasErrors)
                         {
                             return;
@@ -113,13 +113,13 @@ namespace PASopa
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
                 (CanvasDocument msApp, ErrorContainer errors) =  CanvasDocument.LoadFromSources(inputDir);
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
                 }
                 errors = msApp.SaveToMsApp(msAppPath);
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
@@ -136,13 +136,13 @@ namespace PASopa
                 var appName = Path.GetFileName(msAppPath);
 
                 (var app, var errors) = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
                 }
                 errors = app.SaveToMsApp(msAppPath);
-                errors.Write(Console.Out);
+                errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
