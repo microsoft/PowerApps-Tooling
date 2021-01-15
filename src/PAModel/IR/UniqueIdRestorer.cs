@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public UniqueIdRestorer(Entropy entropy)
         {
             _controlUniqueIds = entropy.ControlUniqueIds;
-            _nextId = _controlUniqueIds.Any() ? Math.Max(2, _controlUniqueIds.Values.Max()) : 2;
+            _nextId = (_controlUniqueIds.Any() ? Math.Max(2, _controlUniqueIds.Values.Max()) : 2) + 1;
         }
 
         public int GetControlId(string controlName)
