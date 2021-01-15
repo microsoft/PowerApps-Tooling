@@ -20,6 +20,12 @@ namespace PASopa
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
             if (mode =="-test")
             {
+                if (args.Length < 2)
+                {
+                    Usage();
+                    return;
+                }
+
                 string msAppPath = args[1];
                 Console.WriteLine("Test roundtripping: " + msAppPath);
 
@@ -29,6 +35,11 @@ namespace PASopa
             }
             if (mode == "-testall")
             {
+                if (args.Length < 2)
+                {
+                    Usage();
+                    return;
+                }
                 // Roundtrip all .msapps in a folder.
                 string msAppPathDir = args[1];
                 int countTotal = 0;
@@ -48,6 +59,12 @@ namespace PASopa
             }
             else if (mode == "-unpack")
             {
+                if (args.Length < 2)
+                {
+                    Usage();
+                    return;
+                }
+
                 string msAppPath = args[1];
                 msAppPath = Path.GetFullPath(msAppPath);
 
@@ -107,6 +124,12 @@ namespace PASopa
             }
             else if (mode == "-pack")
             {
+                if (args.Length < 3)
+                {
+                    Usage();
+                    return;
+                }
+
                 string msAppPath = args[1];
                 string inputDir = args[2];
 
@@ -127,6 +150,12 @@ namespace PASopa
             }
             else if (mode == "-make")
             {
+                if (args.Length < 4)
+                {
+                    Usage();
+                    return;
+                }
+
                 string msAppPath = args[1];
                 string pkgsPath = args[2];
                 string inputPA = args[3];
@@ -150,16 +179,21 @@ namespace PASopa
             }
             else
             {
-                Console.WriteLine(
-@"Usage
-
--unpack PathToApp.msapp PathToNewSourceFolder
--unpack PathToApp.msapp  // infers source folder
--pack  NewPathToApp.msapp PathToSourceFolder
--make PathToCreateApp.msapp PathToPkgFolder PathToPaFile
-
-");
+                Usage();
             }
+        }
+
+        private static void Usage()
+        {
+            Console.WriteLine(
+                @"Usage
+
+                -unpack PathToApp.msapp PathToNewSourceFolder
+                -unpack PathToApp.msapp  // infers source folder
+                -pack  NewPathToApp.msapp PathToSourceFolder
+                -make PathToCreateApp.msapp PathToPkgFolder PathToPaFile
+
+                ");
         }
     }
 }
