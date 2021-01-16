@@ -24,15 +24,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
         {
             // Bottom up, recursively process children
-            var children = new List<BlockNode>();
+            var childrenWithZIndex = new List<KeyValuePair<BlockNode, double>>();
             var childIndex = 0;
             foreach (var child in control.Children)
             {
                 SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock);
-                children.Add(childBlock);
+                childrenWithZIndex.Add(new KeyValuePair<BlockNode, double>(childBlock, GetControlZIndex(child)));
                 ++childIndex;
             }
-
+            var children = childrenWithZIndex.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key);
             var isComponentDef = control.Template.IsComponentDefinition ?? false;
 
             var customPropsToHide = new HashSet<string>();
@@ -133,7 +133,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         OptionalVariant = string.IsNullOrEmpty(control.VariantName) ? null : control.VariantName
                     }
                 },
-                Children = children,
+                Children = children.ToList(),
                 Properties = properties,
                 Functions = functions,
             };
@@ -177,6 +177,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
             var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
             return (prop, state);
+        }
+
+        internal static double GetControlZIndex(ControlInfoJson.Item control)
+        {
+            if (control.Rules == null)
+                return -1;
+
+            var zindexRule = control.Rules.FirstOrDefault(rule => rule.Property == "ZIndex");
+
+            if (zindexRule == default)
+                return -1;
+
+            if (!double.TryParse(zindexRule.InvariantScript, out var zindexResult) || double.IsNaN(zindexResult) || double.IsInfinity(zindexResult))
+                return -1;
+
+            return zindexResult;
         }
 
         internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
