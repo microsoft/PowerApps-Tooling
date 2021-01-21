@@ -343,6 +343,30 @@ Obj1:
             AssertLexEndFile(y);
         }
 
+        [TestMethod]
+        public void ReadComments()
+        {
+            var text =
+@"Obj1:
+   # this starts on line 2, column 4
+  P1: =123
+# comment2
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLex("Obj1:", y);
+            AssertLex("P1=123", y);
+            AssertLexEndObj(y); // Obj1
+            AssertLexEndFile(y);
+
+            // Comments in yaml get stripped, but we get a warning and source pointer. 
+            Assert.IsNotNull(y._commentStrippedWarning);
+            var loc = y._commentStrippedWarning.Value;
+            Assert.AreEqual(2, loc.StartLine);
+            Assert.AreEqual(4, loc.StartChar);
+        }
+
         #region Helpers
         static void AssertLexEndFile(YamlLexer y)
         {
