@@ -105,8 +105,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         private YamlToken _lastPair;
 
-        private int _currentLine;
+        private int _currentLine; // 1-based line 
         private string _currentLineContents = null;
+
+        // Per https://github.com/microsoft/PowerApps-Language-Tooling/issues/115,
+        // We allow comments, but don't round-trip them. Issue a warning. 
+        public SourceLocation? _commentStrippedWarning = null;
 
         public YamlLexer(TextReader source, string filenameHint = null)
         {
@@ -127,9 +131,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         private SourceLocation Loc(LineParser line)
         {
-            return Loc(line._idx, line._idx);
+            var columnIdx = line._idx + 1;
+            return Loc(columnIdx, columnIdx);
         }
 
+        // 1-based indexes. 
         private SourceLocation Loc(int startChar, int endChar)
         {
             return new SourceLocation(_currentLine, startChar, _currentLine, endChar, _currentFileName);
@@ -204,12 +210,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 // get starting indent.
                 indentLen = line.EatIndent();
 
+                // Comment indent level doesn't matter - may not match object indent. 
+                if (line.Current == '#')
+                {
+                    // https://github.com/microsoft/PowerApps-Language-Tooling/issues/115
+                    // Allow comment lines. These will get stripped (won't roundtrip).
+                    if (!_commentStrippedWarning.HasValue)
+                    {
+                        _commentStrippedWarning = Loc(line);
+                    }
+
+                    MoveNextLine();
+                    continue;
+                }
+
                 if (line.Current != 0)
                 {
                     break;
                 }
 
-                // EAt the newline and go to the next line. 
+                // Eat the newline and go to the next line. 
                 MoveNextLine();                                    
             }
 
@@ -553,10 +573,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         }
 
         // Helper for reading through a single line.
-        // This treats EOL as (char) 0. 
+        // This treats EOL as (char) 0.
+        [DebuggerDisplay("{DebuggerToString()}")]
         class LineParser
         {
+            // 0-based character index into line 
             public int _idx;
+
             public readonly string _line;
 
             public LineParser(string line)
@@ -609,6 +632,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 while (this.MaybeEat(' ')) ;
                 return this._idx;
+            }
+
+            // Show '|' at _idx position
+            private string DebuggerToString()
+            {
+                var idx = Math.Min(_line.Length, this._idx);
+                return _line.Substring(0, idx) + "|" + _line.Substring(idx);
             }
         }
 
