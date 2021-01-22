@@ -168,6 +168,27 @@ P2: =456
             AssertLexEndFile(y);
         }
 
+        [TestMethod]
+        public void ReadBasicSpans()
+        {
+            var text =
+@"Obj1:
+   P1: =456
+
+Obj2:
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr, "test.yaml");
+          
+            AssertLex("Obj1:", y, "test.yaml:1,1-1,6");
+            AssertLex("P1=456", y, "test.yaml:2,4-2,12");
+            AssertLexEndObj(y);
+            AssertLex("Obj2:", y, "test.yaml:4,1-4,6");
+            AssertLexEndObj(y);
+            AssertLexEndFile(y);            
+        }
+
+
         // Test basic read of multiline
         [TestMethod]
         public void ReadBasicMultiline()
@@ -388,6 +409,13 @@ Obj1:
         {
             var p = y.ReadNext();
             Assert.AreEqual(expected, p.ToString());
+        }
+
+        static void AssertLex(string expected, YamlLexer y, string sourceSpan)
+        {
+            var p = y.ReadNext();
+            Assert.AreEqual(expected, p.ToString());
+            Assert.AreEqual(sourceSpan, p.Span.ToString());
         }
 
         private static YamlToken[] ReadAllTokens(string text)

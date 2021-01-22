@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         /// Source Locations are only present when reading from source
         /// And should not be expected during the unpack operation
         /// </summary>
-        public readonly SourceLocation? SourceSpan;
+        public SourceLocation? SourceSpan;
         public abstract void Accept<Context>(IRNodeVisitor<Context> visitor, Context context);
     }
 

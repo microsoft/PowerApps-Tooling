@@ -42,6 +42,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             return new TypedNameNode
             {
                 Identifier = controlName,
+                SourceSpan = token.Span,
                 Kind = new TypeNode
                 {
                     TypeName = templateName,
@@ -180,6 +181,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
 
             var block = new BlockNode
             {
+                SourceSpan = p.Span,
                 Name = controlDef
             };
 
@@ -192,11 +194,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                         return block;
 
                     case YamlTokenKind.Property:
+                        // Yaml parser only gives back a single span for property name and value. 
                         block.Properties.Add(new PropertyNode
                         {
+                            SourceSpan = p.Span,
                             Identifier = CharacterUtils.UnEscapeName(p.Property, _errorContainer),
                             Expression = new ExpressionNode
                             {
+                                SourceSpan = p.Span,
                                 Expression = p.Value
                             }
                         });
