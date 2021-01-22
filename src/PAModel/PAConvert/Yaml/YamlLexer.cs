@@ -60,6 +60,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         /// </summary>
         public string Value { get; set; }
 
+        // Used for error reporting. 
+        public SourceLocation Span { get; set; }
+
+
+        private YamlToken() { }
+
+        public static YamlToken NewStartObj(SourceLocation span, string name)
+        {
+            return new YamlToken
+            {
+                Kind = YamlTokenKind.StartObj,
+                Span = span,
+                Property = name
+            };
+        }
+
+        public static YamlToken NewProperty(SourceLocation span, string name, string value)
+        {
+            return new YamlToken
+            {
+                Kind = YamlTokenKind.Property,
+                Span = span,
+                Property = name,
+                Value = value
+            };
+        }
+
+
         public static YamlToken NewError(SourceLocation span, string message)
         {
             return new YamlToken
@@ -69,9 +97,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 Value = message
             };
         }
-
-        // Used for error reporting. 
-        public SourceLocation Span { get; set; }
 
         public override string ToString()
         {
@@ -98,14 +123,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         // The actual contents to read. 
         private readonly TextReader _reader;
-        private readonly string _currentFileName;
 
         // Stack of indentations. 
         private readonly Stack<Indent> _currentIndent;
 
         private YamlToken _lastPair;
 
-        private int _currentLine; // 1-based line 
+        // for error handling
+        private readonly string _currentFileName;
+        private int _currentLine; // 1-based line number
+        
         private string _currentLineContents = null;
 
         // Per https://github.com/microsoft/PowerApps-Language-Tooling/issues/115,
@@ -118,7 +145,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             _currentFileName = filenameHint; // For errort reporting
 
             // We pretend the file is wrapped in a "object:" tag.
-            _lastPair = new YamlToken { Kind = YamlTokenKind.StartObj };
+            _lastPair = YamlToken.NewStartObj(default(SourceLocation), null);        
             _currentIndent = new Stack<Indent>()
             {
                 new Indent
@@ -129,18 +156,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             };
         }
 
-        private SourceLocation Loc(LineParser line)
-        {
-            var columnIdx = line._idx + 1;
-            return Loc(columnIdx, columnIdx);
-        }
-
-        // 1-based indexes. 
-        private SourceLocation Loc(int startChar, int endChar)
-        {
-            return new SourceLocation(_currentLine, startChar, _currentLine, endChar, _currentFileName);
-        }
-               
+              
         private LineParser PeekLine()
         {
             if (_currentLineContents == null)
@@ -243,6 +259,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 // Helpful warning.
                 return Error(line, "Use spaces, not tabs.");
             }
+
+            var startColumn = line._idx +1; // 1-based start column number.
 
 
             // If last was 'start object', then this indent sets the new level,
@@ -370,7 +388,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 });
 
                 MoveNextLine();
-                return new YamlToken { Kind = YamlTokenKind.StartObj, Property = propName };
+                return YamlToken.NewStartObj(Loc(startColumn, line), propName);
             }
 
             if (line.Current == '#')
@@ -480,7 +498,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 }
             }
 
-            return new YamlToken { Kind = YamlTokenKind.Property, Property = propName, Value = value };
+            int endIndex = line._line.Length + 1;
+            return YamlToken.NewProperty(LocWorker(startColumn, endIndex), propName, value);
         }
 
 
@@ -498,6 +517,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         private YamlToken Error(LineParser line, string message)
         {
             return YamlToken.NewError(this.Loc(line), message);
+        }
+
+
+        // For an error at a specific character. 
+        private SourceLocation Loc(LineParser line)
+        {
+            var columnIdx1 = line._idx + 1;
+            return LocWorker(columnIdx1, columnIdx1);
+        }
+
+        // For a success case refering to a range.
+        private SourceLocation Loc(int startIndex1, LineParser endChar)
+        {
+            var endIndex1 = endChar._idx + 1; // convert 0-based to 1-base 
+            return LocWorker(startIndex1, endIndex1);
+        }
+
+        // 1-based indexes. 
+        private SourceLocation LocWorker(int startIndex1, int endIndex1)
+        {
+            return new SourceLocation(_currentLine, startIndex1, _currentLine, endIndex1,
+            _currentFileName);
         }
 
         // https://yaml-multiline.info/
