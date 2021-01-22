@@ -17,6 +17,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Warnings start at 2000
         ChecksumMismatch = 2001,
 
+        // Something in the Yaml file won't round-trip. 
+        YamlWontRoundtrip = 2010,
+
         // Catch-all - review and remove. 
         GenericWarning = 2999,
 
@@ -61,6 +64,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void ChecksumMismatch(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
+        }
+
+        public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)
+        {
+            errors.AddError(ErrorCode.YamlWontRoundtrip, loc, message);
         }
 
         public static void GenericWarning(this ErrorContainer errors, string message)

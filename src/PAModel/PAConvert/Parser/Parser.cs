@@ -158,7 +158,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         public BlockNode ParseControl()
         {
             var p = _yaml.ReadNext();
-            return ParseNestedControl(p);
+            var control = ParseNestedControl(p);
+
+            if (_yaml._commentStrippedWarning.HasValue)
+            {
+                this._errorContainer.YamlWontRoundTrip(_yaml._commentStrippedWarning.Value, "Yaml comments don't roundtrip.");
+            }
+
+            return control;
         }
 
         private BlockNode ParseNestedControl(YamlToken p)
