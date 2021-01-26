@@ -42,7 +42,7 @@ namespace targets
             string LogDir = Path.Combine(ObjDir, "logs");
             string TestLogDir = Path.Combine(ObjDir, "testLogs");
 
-            var solution = Path.Combine(RootDir, "src/PASoPa.sln");
+            var solution = Path.Combine(RootDir, "src/PASopa.sln");
             var project = Path.Combine(RootDir, "src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
             Target("squeaky-clean",
