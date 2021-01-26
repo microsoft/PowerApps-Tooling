@@ -34,7 +34,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 12 - Moved Resources.json, move volatile rootpaths to entropy
         // 13 - Control UniqueIds to Entropy
         // 14 - Yaml DoubleQuote escape
-        public static Version CurrentSourceVersion = new Version(0, 14);
+        // 15 - Use dictionary for templates
+        public static Version CurrentSourceVersion = new Version(0, 15);
 
         // Layout is:
         //  src\
@@ -100,7 +101,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._screenOrder = manifest.ScreenOrder;
                         break;
                     case FileKind.Templates:
-                        foreach (var kvp in file.ToObject<List<KeyValuePair<string, CombinedTemplateState>>>())
+                        foreach (var kvp in file.ToObject<Dictionary<string, CombinedTemplateState>>())
                         {
                             app._templateStore.AddTemplate(kvp.Key, kvp.Value);
                         }
@@ -393,7 +394,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Write out control templates at top level, skipping component templates which are written alongside components
-            var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false));
+            var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             dir.WriteAllJson("", "ControlTemplates.json", nonComponentControlTemplates);
 
