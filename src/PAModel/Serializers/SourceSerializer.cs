@@ -489,7 +489,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 DataSourceDefinition dataSourceDef = null;
 
                 // Split out the changeable parts of the data source.
-                foreach (var ds in dataSourceStateToWrite)
+                foreach (var ds in dataSourceStateToWrite.Where(ds => ds.Type != "ViewInfo"))
                 {
                     // CDS DataSource
                     if (ds.TableDefinition != null)
@@ -536,6 +536,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                         ds.WadlMetadata = null;
                     }
+                }
+
+                if (dataSourceDef != null)
+                {
+                    TrimViewNames(dataSourceStateToWrite, dataSourceDef.DatasetName);
                 }
 
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
@@ -623,8 +628,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             case "OptionSetInfo":
                                 ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
                                 break;
-                            case "ServiceInfo":
                             case "ViewInfo":
+                                if (definition != null)
+                                {
+                                    RestoreViewName(ds, definition.DatasetName);
+                                }
+                                break;
+                            case "ServiceInfo":
                             default:
                                 break;
                         }
@@ -643,6 +653,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                     app.AddDataSourceForLoad(ds);
                 }
+            }
+        }
+
+        // CDS View entities have Names that start with the environment guid (datasetname)
+        // This trims that from the start of the name so that all the environment-specific info
+        // can be moved to the /pkg directory 
+        private static void TrimViewNames(IEnumerable<DataSourceEntry> dataSourceEntries, string dataSetName)
+        {
+            foreach (var ds in dataSourceEntries.Where(ds => ds.Type == "ViewInfo"))
+            {
+                if (ds.Name.StartsWith(dataSetName))
+                {
+                    ds.Name = ds.Name.Substring(dataSetName.Length);
+                    ds.TrimmedViewName = true;
+                }
+            }
+        }
+
+        // Inverse of TrimViewNames() above
+        // If the name was trimmed on unpack, this reconstructs it using the
+        // dataset name corresponding to the base table for the view
+        private static void RestoreViewName(DataSourceEntry ds, string dataSetName)
+        {
+            if (ds.TrimmedViewName ?? false)
+            {
+                ds.Name = dataSetName + ds.Name;
+                ds.TrimmedViewName = null;
             }
         }
 
