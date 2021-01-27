@@ -30,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _templateTransforms.Add(new AppTestTransform(errors, templateStore, stateStore, entropy));
             _templateTransforms.Add(componentInstanceTransform);
 
-            _groupControlTransform = new GroupControlTransform(errors, stateStore);
+            _groupControlTransform = new GroupControlTransform(errors, stateStore, entropy);
 
             _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
         }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -39,6 +40,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        // outer key is group control name, inner key is child grouped control name 
+        public Dictionary<string, Dictionary<string, int>> OrderGroupControls { get; set; } = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
 
         // Key is component name, value is Index. 
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
@@ -152,6 +156,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
                 documentProperties.ControlCount = VolatileProperties.ControlCount;
             }
+        }
+
+        public void AddGroupControl(ControlState groupControl)
+        {
+            var name = groupControl.Name;
+            var groupOrder = new Dictionary<string, int>(StringComparer.Ordinal);
+            this.OrderGroupControls[name] = groupOrder;
+            var order = 0;
+            foreach (var child in groupControl.GroupedControlsKey)
+            {
+                groupOrder.Add(child, order);
+                ++order;
+            }
+        }
+
+        public int GetGroupControlOrder(string groupName, string childName)
+        {
+            if (!OrderGroupControls.TryGetValue(groupName, out var groupOrder))
+                return -1;
+
+            return groupOrder.GetOrDefault(childName, -1);
         }
     }
 }

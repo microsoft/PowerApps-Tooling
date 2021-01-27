@@ -60,12 +60,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             context._yaml.WriteNewline();
 
-            foreach (var child in node.Children)
+            foreach (var child in node.Children.OrderBy(child => GetZIndex(child)))
             {
                 child.Accept(this, context);
             }
 
             context._yaml.WriteEndObject();            
+        }
+
+        // Use the ZIndex property of each control to order it with respect to it's parent
+        // This matches the order shown in the tree view in studio
+        private static double GetZIndex(BlockNode control)
+        {
+            if (control.Properties.Count == 0)
+                return -1;
+            var zindexProp = control.Properties.FirstOrDefault(prop => prop.Identifier == "ZIndex");
+            if (zindexProp == default)
+                return -1;
+            if (!double.TryParse(zindexProp.Expression.Expression, out var zindexResult) || double.IsNaN(zindexResult) || double.IsInfinity(zindexResult))
+                return -1;
+            return zindexResult;
         }
 
         public override void Visit(TypedNameNode node, Context context)

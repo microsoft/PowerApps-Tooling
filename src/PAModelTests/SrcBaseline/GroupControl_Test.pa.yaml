@@ -7,13 +7,6 @@ Screen1 As screen:
         Height: =5
         ZIndex: =4
 
-        Label3 As label:
-            Text: ="Text1"
-            Font: =Font.'Great Vibes'
-            X: =80
-            Y: =80
-            ZIndex: =3
-
         Label1 As label:
             Text: ="Text3"
             Font: =Font.'Great Vibes'
@@ -27,4 +20,11 @@ Screen1 As screen:
             X: =60
             Y: =60
             ZIndex: =2
+
+        Label3 As label:
+            Text: ="Text1"
+            Font: =Font.'Great Vibes'
+            X: =80
+            Y: =80
+            ZIndex: =3
 
