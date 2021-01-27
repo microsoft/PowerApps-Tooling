@@ -31,11 +31,9 @@ jobs:
     - name: Build and test (win)
       run: ./build ci
       shell: cmd
-      if: ${{ runner.os == 'Windows' }}
-
-    - name: Build only (!win)
+      
+    - name: Build only
       run: |
         ./build rebuild
         ./build pack
-      # 4 out of 15 tests fail when running on e.g. linux (WSL-Ubuntu LTS) and macOS
-      if: ${{ runner.os != 'Windows' }}
+      
