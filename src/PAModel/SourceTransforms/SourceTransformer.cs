@@ -14,6 +14,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
     internal class SourceTransformer
     {
         internal IList<IControlTemplateTransform> _templateTransforms;
+
+        // The group control transform operates on the parent of the group control and so can't use
+        // the existing template transform mechanism
+        // Refactor if another transform is added that also operates on a control based on it's children
+        internal GroupControlTransform _groupControlTransform;
+
         internal DefaultValuesTransform _defaultValTransform;
 
         public SourceTransformer(ErrorContainer errors, Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, ComponentInstanceTransform componentInstanceTransform,
@@ -23,6 +29,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
             _templateTransforms.Add(new AppTestTransform(errors, templateStore, stateStore, entropy));
             _templateTransforms.Add(componentInstanceTransform);
+
+            _groupControlTransform = new GroupControlTransform(errors, stateStore);
 
             _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
         }
@@ -44,11 +52,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 if (transform.TargetTemplates.Contains(controlTemplateName))
                     transform.AfterRead(control);
             }
+
+            _groupControlTransform.AfterRead(control);
         }
         public void ApplyBeforeWrite(BlockNode control)
         {
             var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
 
+            _groupControlTransform.BeforeWrite(control);
             foreach (var transform in _templateTransforms.Reverse())
             {
                 if (transform.TargetTemplates.Contains(controlTemplateName))

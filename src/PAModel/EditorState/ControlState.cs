@@ -39,5 +39,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public string GalleryTemplateChildName { get; set; } = null;
 
         public bool? IsComponentDefinition { get; set; }
+
+        public bool IsGroupControl { get; set; }
+
+        // This is a list of the controls represented as a child of the group control in studio
+        // Used in GroupControlTransform.cs, and not written to .editorstate.json
+        internal List<string> GroupedControlsKey;
     }
 }
