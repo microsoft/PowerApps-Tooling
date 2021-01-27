@@ -489,7 +489,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 DataSourceDefinition dataSourceDef = null;
 
                 // Split out the changeable parts of the data source.
-                foreach (var ds in dataSourceStateToWrite)
+                foreach (var ds in dataSourceStateToWrite.Where(ds => ds.Type != "ViewInfo"))
                 {
                     // CDS DataSource
                     if (ds.TableDefinition != null)
@@ -536,6 +536,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                         ds.WadlMetadata = null;
                     }
+                }
+
+                foreach (var ds in dataSourceStateToWrite.Where(ds => ds.Type == "ViewInfo"))
+                {
+                    if (dataSourceDef != null && ds.Name.StartsWith(dataSourceDef.DatasetName))
+                    {
+                        ds.Name = ds.Name.Substring(dataSourceDef.DatasetName.Length);
+                        ds.TrimmedViewName = true;
+                    }
+
                 }
 
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
@@ -623,8 +633,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             case "OptionSetInfo":
                                 ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
                                 break;
-                            case "ServiceInfo":
                             case "ViewInfo":
+                                if (ds.TrimmedViewName ?? false)
+                                {
+                                    ds.Name = definition.DatasetName + ds.Name;
+                                    ds.TrimmedViewName = null;
+                                }
+                                break;
+                            case "ServiceInfo":
                             default:
                                 break;
                         }

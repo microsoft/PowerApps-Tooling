@@ -55,21 +55,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Don't serialize. 
         internal bool IsDataComponent => this.DataComponentDetails != null;
 
-        public string GetSharepointListName()
-        {
-            var phrase = ".sharepoint.com/teams/";
-            int i = this.DatasetName.IndexOf(phrase);
-            if (i <=0)
-            {
-                throw new InvalidOperationException($"Unrecognized dataset: {this.DatasetName}");
-            }
-            return this.DatasetName.Substring(i + phrase.Length);
-        }
+        // Was the environment guid removed from the view name?
+        // This allows for switching environments to just switch the pkg folder
+        public bool? TrimmedViewName { get; set; } = null;
 
         // Key is guid, value is Json-encoded metadata. 
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
         public string TableDefinition { get; set; }
-        public string ServiceKind { get; set; }
         public WadlDefinition WadlMetadata { get; set; }
         // Type: very polymorphic. 
 
