@@ -162,6 +162,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 TopParentName = topParentName,
                 Properties = propStates,
                 StyleName = control.StyleName,
+                IsGroupControl = control.IsGroupControl,
+                GroupedControlsKey = control.GroupedControlsKey,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
                 IsComponentDefinition = control.Template.IsComponentDefinition,
@@ -268,6 +270,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Rules = properties.ToArray(),
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
+                    IsGroupControl = state.IsGroupControl,
+                    GroupedControlsKey = state.GroupedControlsKey
                 };
 
                 if (state.IsComponentDefinition ?? false)
