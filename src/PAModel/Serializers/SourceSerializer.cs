@@ -35,7 +35,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 13 - Control UniqueIds to Entropy
         // 14 - Yaml DoubleQuote escape
         // 15 - Use dictionary for templates
-        public static Version CurrentSourceVersion = new Version(0, 15);
+        // 16 - Group Control transform
+        public static Version CurrentSourceVersion = new Version(0, 16);
 
         // Layout is:
         //  src\
