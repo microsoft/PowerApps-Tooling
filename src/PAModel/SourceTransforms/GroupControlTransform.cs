@@ -26,11 +26,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         private EditorStateStore _editorStateStore;
         private ErrorContainer _errors;
+        private Entropy _entropy;
 
-        public GroupControlTransform(ErrorContainer errors, EditorStateStore editorStateStore)
+        public GroupControlTransform(ErrorContainer errors, EditorStateStore editorStateStore, Entropy entropy)
         {
             _editorStateStore = editorStateStore;
             _errors = errors;
+            _entropy = entropy;
         }
 
         public void AfterRead(BlockNode control)
@@ -48,6 +50,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     _errors.ValidationError($"Group control state is missing or empty for {groupControlName}");
                     throw new DocumentException();
                 }
+
+                _entropy.AddGroupControl(groupControlState);
 
                 foreach (var childKey in groupControlState.GroupedControlsKey)
                 {
@@ -86,7 +90,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     };
                 }
 
-                var groupedControlNames = groupControl.Children.Select(child => child.Name.Identifier);
+                var groupedControlNames = groupControl.Children
+                    .Select(child => child.Name.Identifier)
+                    .OrderBy(childName => _entropy.GetGroupControlOrder(groupControlName, childName));
                 // Add the group controls to the parent's children instead
                 foreach (var child in groupControl.Children)
                 {
