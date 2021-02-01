@@ -54,6 +54,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public string TemplateDisplayName { get; set; } = null;
             public bool FirstParty { get; set; }
 
+            // Present on Legacy DataTable columns
+            public string CustomControlDefinitionJson { get; set; } = null;
+
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }
 
@@ -68,6 +71,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 LastModifiedTimestamp = other.LastModifiedTimestamp;
                 IsComponentDefinition = other.IsComponentDefinition;
                 ComponentDefinitionInfo = other.ComponentDefinitionInfo;
+                CustomControlDefinitionJson = other.CustomControlDefinitionJson;
                 CustomProperties = other.CustomProperties;
                 ExtensionData = other.ExtensionData;
             }

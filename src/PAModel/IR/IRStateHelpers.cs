@@ -154,6 +154,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateStore.AddTemplate(templateName, templateState);
             }
 
+            SplitCustomTemplates(entropy, control.Template, control.Name);
+
             entropy.ControlUniqueIds.Add(control.Name, int.Parse(control.ControlUniqueId));
             var controlState = new ControlState()
             {
@@ -180,14 +182,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (prop, state);
         }
 
-        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
+        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
         {
-            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore, uniqueIdRestorer);
+            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore, uniqueIdRestorer, entropy);
             return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
-        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
         {
             var controlName = blockNode.Name.Identifier;
 
@@ -195,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore, uniqueIdRestorer));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore, uniqueIdRestorer, entropy));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
@@ -213,6 +215,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 template = templateState.ToControlInfoTemplate();
             }
+
+            RecombineCustomTemplates(entropy, template, controlName);
 
             var uniqueId = uniqueIdRestorer.GetControlId(controlName);
             ControlInfoJson.Item resultControlInfo;
@@ -395,6 +399,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             return property;
+        }
+
+
+
+        private static readonly string CustomControlTemplateId = "Microsoft.PowerApps.CustomControlTemplate";
+        // These two functions (split and recombine CustomTemplates) are responsible for handling the legacy DataTable control's
+        // CustomControlDefinitionJson. This JSON contains a stamp of which version it was created in, but that is the only difference
+        // As such, they were safe to move to Entropy. If entropy is removed, the one in the TemplateStore works fine for all instances
+        // of the control.
+        private static void SplitCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+        {
+            if (controlTemplate.Id != CustomControlTemplateId)
+                return;
+
+            entropy.AddDataTableControlJson(controlName, controlTemplate.CustomControlDefinitionJson);
+        }
+
+        private static void RecombineCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+        {
+            if (controlTemplate.Id != CustomControlTemplateId)
+                return;
+
+            if (entropy.TryGetDataTableControlJson(controlName, out var customTemplateJson))
+            {
+                controlTemplate.CustomControlDefinitionJson = customTemplateJson;
+            }
         }
     }
 }

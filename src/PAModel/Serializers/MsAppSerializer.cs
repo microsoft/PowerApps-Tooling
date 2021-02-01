@@ -500,7 +500,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
-                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer);
+                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer, app._entropy);
                 // Offset the publishOrderIndex based on Entropy.json
                 if (app._entropy.PublishOrderIndexOffsets.TryGetValue(sourceFile.ControlName, out var minIndex))
                 {
