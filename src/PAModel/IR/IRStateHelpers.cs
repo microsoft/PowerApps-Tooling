@@ -402,13 +402,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
 
+
+        private static readonly string CustomControlTemplateId = "Microsoft.PowerApps.CustomControlTemplate";
         // These two functions (split and recombine CustomTemplates) are responsible for handling the legacy DataTable control's
         // CustomControlDefinitionJson. This JSON contains a stamp of which version it was created in, but that is the only difference
         // As such, they were safe to move to Entropy. If entropy is removed, the one in the TemplateStore works fine for all instances
         // of the control.
         private static void SplitCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
         {
-            if (controlTemplate.Id != "Microsoft.PowerApps.CustomControlTemplate")
+            if (controlTemplate.Id != CustomControlTemplateId)
                 return;
 
             entropy.AddDataTableControlJson(controlName, controlTemplate.CustomControlDefinitionJson);
@@ -416,7 +418,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void RecombineCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
         {
-            if (controlTemplate.Id != "Microsoft.PowerApps.CustomControlTemplate")
+            if (controlTemplate.Id != CustomControlTemplateId)
                 return;
 
             if (entropy.TryGetDataTableControlJson(controlName, out var customTemplateJson))
