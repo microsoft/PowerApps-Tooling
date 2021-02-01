@@ -41,6 +41,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         public ComponentManifest ComponentManifest { get; set; } = null;
 
+        // Present on Legacy DataTable columns
+        public string CustomControlDefinitionJson { get; set; } = null;
+
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
 
@@ -60,6 +63,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             ExtensionData = template.ExtensionData;
             ComponentType = template.ComponentType;
             FirstParty = template.FirstParty;
+            CustomControlDefinitionJson = template.CustomControlDefinitionJson;
         }
 
         public ControlInfoJson.Template ToControlInfoTemplate()
@@ -76,7 +80,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 TemplateDisplayName = TemplateDisplayName,
                 ExtensionData = ExtensionData,
                 ComponentType = ComponentType,
-                FirstParty = FirstParty
+                FirstParty = FirstParty,
+                CustomControlDefinitionJson = CustomControlDefinitionJson
             };
         }
 

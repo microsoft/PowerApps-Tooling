@@ -55,6 +55,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is resource name
         public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        // Key is control name, this should be unused if no datatables are present
+        public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
+
         public PropertyEntropy VolatileProperties { get; set; }
 
         public int GetOrder(DataSourceEntry dataSource)
@@ -177,6 +180,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return -1;
 
             return groupOrder.GetOrDefault(childName, -1);
+        }
+
+        public void AddDataTableControlJson(string controlName, string json)
+        {
+            if (DataTableCustomControlTemplateJsons == null)
+            {
+                DataTableCustomControlTemplateJsons = new Dictionary<string, string>();
+            }
+
+            DataTableCustomControlTemplateJsons.Add(controlName, json);
+        }
+
+        public bool TryGetDataTableControlJson(string controlName, out string json)
+        {
+            json = null;
+            if (DataTableCustomControlTemplateJsons == null)
+            {
+                return false;
+            }
+
+            return DataTableCustomControlTemplateJsons.TryGetValue(controlName, out json);
         }
     }
 }
