@@ -166,12 +166,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app.AddFile(file.ToFileEntry());
                         break;
 
-                    case FileKind.Themes:
-                        app._themes = file.ToObject<ThemesJson>();
-                        break;
-
                     default:
-                        // Shouldn't find anything else here, but just ignore them for now
+                        // Shouldn't find anything else not unknown in here, but just ignore them for now
                         errors.GenericWarning($"Unexpected file in Other, discarding");
                         break;
 
@@ -297,6 +293,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }                
             }
+
+            // For now, the Themes file lives in CodeDir as a json file
+            // We'd like to make this .pa.yaml as well eventually
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.json", searchSubdirectories: false))
+            {
+                if (Path.GetFileName(file._relativeName) == "Themes.json")
+                    app._themes = file.ToObject<ThemesJson>();
+            }
+
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml", searchSubdirectories: false))
             {
@@ -431,7 +436,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._themes != null)
             {
-                dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
+                dir.WriteAllJson(CodeDir, "Themes.json", app._themes);
             }
 
             if (app._resourcesJson != null)
