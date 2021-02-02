@@ -114,8 +114,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
 
                         case FileKind.AppCheckerResult:
-                            var appChecker = Encoding.UTF8.GetString(entry.ToBytes());
-                            app._entropy.AppCheckerResult = appChecker;
+                            app._appCheckerResultJson = ToObject<AppCheckerResultJson>(entry);
                             break;
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
@@ -639,9 +638,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            if (app._entropy?.AppCheckerResult != null)
+            if (app._appCheckerResultJson != null)
             {
-                yield return new FileEntry() { Name = FileEntry.GetFilenameForKind(FileKind.AppCheckerResult), RawBytes = Encoding.UTF8.GetBytes(app._entropy.AppCheckerResult) };
+                yield return ToFile(FileKind.AppCheckerResult, app._appCheckerResultJson);
             }
 
             if (app._resourcesJson != null)
