@@ -82,7 +82,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     // There may not be editorstate present for this. Create a fake state to use
                     groupControlState = new ControlState()
                     {
-                        PublishOrderIndex = 0.0,
                         StyleName = "",
                         ParentIndex = -1,
                         IsGroupControl = true,
