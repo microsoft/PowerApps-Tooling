@@ -21,6 +21,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // Key is property name
         public List<PropertyState> Properties { get; set; }
 
+
+        // These are properties specific to AutoLayout controls
+        public List<DynamicPropertyState> DynamicProperties { get; set; }
+
         // Doesn't get written to .msapp
         // Represents the index at which this property appears in it's parent's children list
         public int ParentIndex { get; set; } = -1;
