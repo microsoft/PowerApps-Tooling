@@ -129,20 +129,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
                                 }
                                 var flattenedControlTree = sf.Flatten();
-                                double minPublishIndex = 1;
-
-                                if (flattenedControlTree.Any(item => item.PublishOrderIndex > 0))
-                                {
-                                    minPublishIndex = flattenedControlTree.Where(item => item.PublishOrderIndex > 0).Min(item => item.PublishOrderIndex);
-                                    app._entropy.PublishOrderIndexOffsets.Add(control.TopParent.Name, minPublishIndex);
-                                }
 
                                 foreach (var ctrl in flattenedControlTree)
                                 {
-                                    // Offset Publish Index so edits on an unrelated screen don't cause noise in this one.
-                                    if (ctrl.PublishOrderIndex > 0)
-                                        ctrl.PublishOrderIndex -= minPublishIndex - 1;
+                                    // Add PublishOrderIndex to Entropy so it doesn't affect the editorstate diff.
+                                    app._entropy.PublishOrderIndices.Add(ctrl.Name, ctrl.PublishOrderIndex);
 
+                                    // For component instances, also track their index in Entropy
                                     if (ctrl.Index == 0.0 || ctrl.Template.Id == "http://microsoft.com/appmagic/screen")
                                         continue;
                                     app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
@@ -494,6 +487,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
             var idRestorer = new UniqueIdRestorer(app._entropy);
+            var maxPublishOrderIndex = app._entropy.PublishOrderIndices.Any() ? app._entropy.PublishOrderIndices.Values.Max() : 0;
             // Rehydrate sources before yielding any to be written, processing component defs first
             foreach (var controlData in app._screens.Concat(app._components)
                 .OrderBy(source =>
@@ -502,12 +496,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer, app._entropy);
                 // Offset the publishOrderIndex based on Entropy.json
-                if (app._entropy.PublishOrderIndexOffsets.TryGetValue(sourceFile.ControlName, out var minIndex))
+                foreach (var ctrl in sourceFile.Flatten())
                 {
-                    foreach (var ctrl in sourceFile.Flatten())
+                    if (app._entropy.PublishOrderIndices.TryGetValue(ctrl.Name, out var index))
                     {
-                        if (ctrl.PublishOrderIndex > 0)
-                            ctrl.PublishOrderIndex += minIndex - 1;
+                        ctrl.PublishOrderIndex = index;
+                    }
+                    else
+                    {
+                        ctrl.PublishOrderIndex = ++maxPublishOrderIndex;
                     }
                 }
                 sourceFiles.Add(sourceFile);
