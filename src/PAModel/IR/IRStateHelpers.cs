@@ -110,6 +110,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var properties = new List<PropertyNode>();
             var propStates = new List<PropertyState>();
+            var dynPropStates = new List<DynamicPropertyState>();
             foreach (var property in control.Rules)
             {
                 var (prop, state) = SplitProperty(property);
@@ -118,6 +119,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (customPropsToHide.Contains(property.Property))
                     continue;
 
+                properties.Add(prop);
+            }
+
+            foreach (var property in control.DynamicProperties ?? Enumerable.Empty<ControlInfoJson.DynamicPropertyJson>())
+            {
+                if (property.Rule == null)
+                {
+                    dynPropStates.Add(new DynamicPropertyState() { PropertyName = property.PropertyName });
+                    continue;
+                }
+
+                var (prop, state) = SplitDynamicProperty(property);
+                dynPropStates.Add(state);
                 properties.Add(prop);
             }
 
@@ -162,6 +176,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Name = control.Name,
                 TopParentName = topParentName,
                 Properties = propStates,
+                DynamicProperties = dynPropStates.Any() ? dynPropStates : null,
                 StyleName = control.StyleName,
                 IsGroupControl = control.IsGroupControl,
                 GroupedControlsKey = control.GroupedControlsKey,
@@ -178,6 +193,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart();
             var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
             var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
+            return (prop, state);
+        }
+
+        private static (PropertyNode prop, DynamicPropertyState state) SplitDynamicProperty(ControlInfoJson.DynamicPropertyJson dynamicProperty)
+        {
+            var (prop, propertyState) = SplitProperty(dynamicProperty.Rule);
+            var state = new DynamicPropertyState() { Property = propertyState, ExtensionData = dynamicProperty.ExtensionData };
             return (prop, state);
         }
 

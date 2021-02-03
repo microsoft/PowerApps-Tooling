@@ -15,9 +15,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     /// </summary>
     internal class DynamicPropertyState
     {
+        public string PropertyName { get; set; }
+
         public PropertyState Property { get; set;}
 
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> ExtensionData { get; set; }
+        public Dictionary<string, object> ExtensionData { get; set; }
     }
 }
