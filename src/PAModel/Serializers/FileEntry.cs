@@ -38,7 +38,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         Themes,
         Templates,
         Resources,
-        DynamicTypes,
         Asset,
 
         // Category so 
@@ -109,7 +108,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {@"References\Themes.json", FileKind.Themes },
             {@"References\Templates.json", FileKind.Templates },
             {@"References\Resources.json", FileKind.Resources },
-            {@"References\DynamicTypes.json", FileKind.DynamicTypes },
 
             // Files that only appear in Source
             {"Entropy.json", FileKind.Entropy },
