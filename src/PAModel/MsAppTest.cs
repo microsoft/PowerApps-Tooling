@@ -123,7 +123,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     string str;
 
                     // Compute a "smart" hash. Tolerant to whitespace in Json serialization.
-                    if (e.FullName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    if (e.FullName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || e.FullName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
                     {
                         var je = e.ToJson();
                         str = JsonNormalizer.Normalize(je);

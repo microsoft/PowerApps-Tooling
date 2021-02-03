@@ -51,6 +51,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal TemplatesJson _templates;
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
+        internal AppCheckerResultJson _appCheckerResultJson;
 
         // Environment-specific information
         // Extracted from _properties.LocalConnectionReferences
