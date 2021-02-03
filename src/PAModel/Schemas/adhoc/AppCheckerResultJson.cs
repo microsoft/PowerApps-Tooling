@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
-    public class AppCheckerResultJson
+    internal class AppCheckerResultJson
     {
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
