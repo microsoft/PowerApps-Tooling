@@ -127,6 +127,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Present on children of AutoLayout controls
             public DynamicPropertyJson[] DynamicProperties { get; set; } = null;
 
+            // Present on children of AutoLayout controls
+            public bool? HasDynamicProperties { get; set; }
 
 
             [JsonExtensionData]
