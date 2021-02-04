@@ -57,6 +57,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             },
         };
 
+        internal static bool IsResponsiveLayoutProperty(string propertyName)
+        {
+            return PropertyDefaultScriptGetters.ContainsKey(propertyName);
+        }
+
         internal static bool TryGetDefaultValue(string propertyName, string template, out string defaultValue)
         {
             defaultValue = null;
