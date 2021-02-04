@@ -22,14 +22,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var je = entry.ToJson();
             return je.ToObject<T>();
         }
-        
-        public static CanvasDocument Load(string fullpathToMsApp, ErrorContainer errors)
-        {
-            if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException("Only works for .msapp files");
-            }
 
+        public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
+        {
             // Read raw files. 
             // Apply transforms. 
             var app = new CanvasDocument();
@@ -46,7 +41,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // key = screen, value = index
             var screenOrder = new Dictionary<string, double>();
 
-            using (var z = ZipFile.OpenRead(fullpathToMsApp))
+            using (var z = new ZipArchive(streamToMsapp, ZipArchiveMode.Read))
             {
                 foreach (var entry in z.Entries)
                 {
@@ -178,7 +173,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     iOrder++;
                                 }
                             }
-                            break;                                
+                            break;
                     }
                 } // foreach zip entry
 
@@ -240,7 +235,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LibraryDependencies = null;
                 }
 
-                if (app._properties.LocalConnectionReferences != null)  
+                if (app._properties.LocalConnectionReferences != null)
                 {
                     var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;

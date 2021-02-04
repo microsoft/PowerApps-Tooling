@@ -30,7 +30,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ErrorContainer errors = new ErrorContainer();
                     try
                     {
-                        msapp = MsAppSerializer.Load(pathToMsApp, errors); // read
+                        using (var stream = new FileStream(pathToMsApp, FileMode.Open))
+                        {
+                            msapp = MsAppSerializer.Load(stream, errors);
+                        }
                         errors.ThrowOnErrors();
                     }
                     catch (NotSupportedException)
