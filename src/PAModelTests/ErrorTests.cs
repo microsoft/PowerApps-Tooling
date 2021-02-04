@@ -4,6 +4,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 
 namespace PAModelTests
 {
@@ -13,7 +14,10 @@ namespace PAModelTests
         [TestMethod]
         public void Test()
         {
-            (var doc, var errors) = CanvasDocument.LoadFromMsapp(@"c:\missing");
+            // Empty stream is invalid document, should generate a Read error.
+            MemoryStream ms = new MemoryStream();
+
+            (var doc, var errors) = CanvasDocument.LoadFromMsapp(ms);
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNull(doc);
         }

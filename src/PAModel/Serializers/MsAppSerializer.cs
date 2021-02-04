@@ -25,6 +25,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
         {
+            if (streamToMsapp == null)
+            {
+                throw new ArgumentNullException(nameof(streamToMsapp));
+            }
+
             // Read raw files. 
             // Apply transforms. 
             var app = new CanvasDocument();
@@ -41,7 +46,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // key = screen, value = index
             var screenOrder = new Dictionary<string, double>();
 
-            using (var z = new ZipArchive(streamToMsapp, ZipArchiveMode.Read))
+            ZipArchive zipOpen;
+            try
+            {
+                zipOpen = new ZipArchive(streamToMsapp, ZipArchiveMode.Read);                
+            }
+            catch (Exception e)
+            {
+                // Catch cases where stream is corrupted, can't be read, or unavailable.
+                errors.MsAppFormatError(e.Message);
+                return null;
+            }
+
+            using (var z = zipOpen)
             {
                 foreach (var entry in z.Entries)
                 {
