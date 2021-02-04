@@ -29,6 +29,9 @@
             Intial Alpha release of Microsoft.PowerPlatform.Formulas.Tools
     </PackageReleaseNotes>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../PowerPlatform.Formula.Tools.Key.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
   </PropertyGroup>
 
   <ItemGroup>
