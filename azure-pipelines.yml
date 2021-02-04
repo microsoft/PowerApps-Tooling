@@ -51,7 +51,7 @@ steps:
          {
               "KeyCode": "CP-233863-SN",
               "OperationCode": "StrongNameSign",
-              "Parameters": { },
+              "Parameters": [ ],
               "ToolName": "sign",
               "ToolVersion": "1.0"
          },
