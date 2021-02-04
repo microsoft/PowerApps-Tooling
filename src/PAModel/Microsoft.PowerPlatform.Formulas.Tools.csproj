@@ -30,7 +30,7 @@
     </PackageReleaseNotes>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../PowerPlatform.Formula.Tools.Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <PublicSign>true</PublicSign>
   </PropertyGroup>
 
