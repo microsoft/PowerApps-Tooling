@@ -313,7 +313,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ControlUniqueId = uniqueId.ToString(),
                     VariantName = variantName ?? string.Empty,
                     Rules = properties.ToArray(),
-                    DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any())? dynamicProperties.ToArray() : null,
+                    DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any()) ? dynamicProperties.ToArray() : null,
                     HasDynamicProperties = state.HasDynamicProperties,
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
