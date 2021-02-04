@@ -49,6 +49,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Common for duplicate controls. This suggests an offline edit. 
         DuplicateSymbol = 3008,
 
+        // Msapp is corrupt. Can't read it. 
+        CantReadMsApp = 3010,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -120,5 +123,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             errors.AddError(ErrorCode.Validation, default(SourceLocation), $"Validation error: {message}");
         }
+
+        public static void MsAppFormatError(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");
+        }
+
     }
 }
