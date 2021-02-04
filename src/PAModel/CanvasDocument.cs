@@ -12,6 +12,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using System.IO;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -85,11 +86,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// </summary>
         /// <param name="fullPathToMsApp">path to an .msapp file</param>
         /// <returns>A tuple of the document and errors and warnings. If there are errors, the document is null.  </returns>
-        public static (CanvasDocument,ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
+        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
         {
             var errors = new ErrorContainer();
-            var doc = Wrapper(() => MsAppSerializer.Load(fullPathToMsApp, errors), errors);
-            return (doc, errors);            
+
+            if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Only works for .msapp files");
+            }
+
+            using (var stream = new FileStream(fullPathToMsApp, FileMode.Open))
+            {
+                var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors);
+                return (doc, errors);
+            }
+        }
+
+        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(Stream streamToMsapp)
+        {
+            var errors = new ErrorContainer();
+            var doc = Wrapper(() => MsAppSerializer.Load(streamToMsapp, errors), errors);
+            return (doc, errors);
         }
 
         public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
