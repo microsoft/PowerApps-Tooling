@@ -97,6 +97,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        public class DynamicPropertyJson
+        {
+            public string PropertyName { get; set; }
+            public RuleEntry Rule { get; set; }
+            [JsonExtensionData]
+            public Dictionary<string, object> ExtensionData { get; set; }
+
+        }
+
         public class Item
         {
             public string Name { get; set; } // Control name
@@ -114,6 +123,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             public List<string> GroupedControlsKey { get; set; }
             public bool IsGroupControl { get; set; } = false;
+
+            // Present on children of AutoLayout controls
+            public DynamicPropertyJson[] DynamicProperties { get; set; } = null;
+
+            // Present on children of AutoLayout controls
+            public bool? HasDynamicProperties { get; set; }
 
 
             [JsonExtensionData]
