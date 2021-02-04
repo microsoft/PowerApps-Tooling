@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
   </PropertyGroup>
 
   <ItemGroup>

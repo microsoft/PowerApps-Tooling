@@ -49,6 +49,13 @@ steps:
     inlineOperation: |
      [
          {
+              "keyCode": "CP-233863-SN",
+              "operationSetCode": "StrongNameSign",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+         },
+         {
              "keyCode": "CP-230012",
              "operationSetCode": "SigntoolSign",
              "parameters": [
