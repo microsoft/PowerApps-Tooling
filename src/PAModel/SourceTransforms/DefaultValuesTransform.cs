@@ -59,7 +59,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (_controlStore.TryGetControlState(controlName, out var controlState))
             {
                 styleName = controlState.StyleName;
-                propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName));
+                propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName)
+                    .Concat(controlState.DynamicProperties?.Select(state => state.PropertyName) ?? Enumerable.Empty<string>()));
             }
 
             ControlTemplate template;

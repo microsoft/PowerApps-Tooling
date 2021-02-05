@@ -27,10 +27,7 @@ Screen1 As screen:
             DelayItemLoading: =true
             LoadingSpinner: =LoadingSpinner.Data
             ZIndex: =1
-            FillPortions: =1
             AlignInContainer: =AlignInContainer.SetByContainer
-            LayoutMinWidth: =32
-            LayoutMinHeight: =32
 
             Image1 As image:
                 X: =16
@@ -103,24 +100,15 @@ Screen1 As screen:
         Label1 As label:
             Text: ="Text"
             ZIndex: =2
-            FillPortions: =0
-            AlignInContainer: =AlignInContainer.SetByContainer
-            LayoutMinWidth: =150
-            LayoutMinHeight: =40
 
         Rectangle2 As rectangle:
             Width: =22
             ZIndex: =3
-            FillPortions: =0
             AlignInContainer: =AlignInContainer.Center
-            LayoutMinWidth: =150
-            LayoutMinHeight: =100
 
         TextInput1 As text:
             Default: ="Text input"
             ZIndex: =4
             FillPortions: =1
             AlignInContainer: =AlignInContainer.Start
-            LayoutMinWidth: =320
-            LayoutMinHeight: =40
 
