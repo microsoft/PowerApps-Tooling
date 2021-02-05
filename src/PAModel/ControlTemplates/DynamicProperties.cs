@@ -1,5 +1,7 @@
+using Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
@@ -32,28 +34,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             "typedDataCard",
         };
 
-        private static readonly IReadOnlyDictionary<string, Func<string, string>>
-            PropertyDefaultScriptGetters = new Dictionary<string, Func<string, string>>() {
+        private static readonly IReadOnlyDictionary<string, Func<string, DefaultRuleHelper, string>>
+            PropertyDefaultScriptGetters = new Dictionary<string, Func<string, DefaultRuleHelper, string>>() {
             {
-                "FillPortions", templateName =>
+                "FillPortions", (templateName, ruleHelper) =>
                     _supportsNestedControls.Contains(templateName)
                         ? "1"
                         : "0"
             }, {
-                "AlignInContainer", templateName =>
+                "AlignInContainer", (templateName, ruleHelper) =>
                     _supportsNestedControls.Contains(templateName)
                         ? $"AlignInContainer.Stretch"
                         : $"AlignInContainer.SetByContainer"
             }, {
-                "LayoutMinHeight", templateName =>
+                "LayoutMinHeight", (templateName, ruleHelper) =>
                     _supportsNestedControls.Contains(templateName)
                         ? "32"
-                        : null
+                        : (ruleHelper.TryGetDefaultRule("Height", out var defaultScript) ? defaultScript : "0")
             }, {
-                "LayoutMinWidth", templateName =>
+                "LayoutMinWidth", (templateName, ruleHelper) =>
                     _supportsNestedControls.Contains(templateName)
                         ? "32"
-                        : null
+                        : (ruleHelper.TryGetDefaultRule("Width", out var defaultScript) ? defaultScript : "0")
             },
         };
 
@@ -62,16 +64,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             return PropertyDefaultScriptGetters.ContainsKey(propertyName);
         }
 
-        internal static bool TryGetDefaultValue(string propertyName, string template, out string defaultValue)
+        internal static bool TryGetDefaultValue(string propertyName, string template, DefaultRuleHelper defaultRuleHelper, out string defaultValue)
         {
             defaultValue = null;
-            if (!PropertyDefaultScriptGetters.TryGetValue(propertyName, out var defaultFunc))
+            if (!PropertyDefaultScriptGetters.TryGetValue(propertyName, out  var defaultFunc))
             {
                 return false;
             }
 
-            defaultValue = defaultFunc.Invoke(template);
+            defaultValue = defaultFunc.Invoke(template, defaultRuleHelper);
             return true;
+        }
+
+        // Key is property name, value is default script
+        internal static IEnumerable<KeyValuePair<string, string>> GetDefaultValues(string templateName, DefaultRuleHelper defaultRuleHelper)
+        {
+            return PropertyDefaultScriptGetters.Select(kvp => new KeyValuePair<string, string>(kvp.Key, kvp.Value.Invoke(templateName, defaultRuleHelper)));
         }
     }
 }

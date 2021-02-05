@@ -25,7 +25,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _theme = theme;
         }
 
-        public void AfterRead(BlockNode node)
+        public void AfterRead(BlockNode node, bool inResponsiveContext)
         {
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
@@ -39,7 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetValue(templateName, out template))
                 template = null;
 
-            var defaultHelper = new DefaultRuleHelper(styleName, template, _theme);
+            var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, _theme, inResponsiveContext);
             foreach (var property in node.Properties.ToList())
             {
                 var propName = property.Identifier;
@@ -48,7 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             }
         }
 
-        public void BeforeWrite(BlockNode node)
+        public void BeforeWrite(BlockNode node, bool inResponsiveContext)
         {
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
@@ -66,7 +66,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetValue(templateName, out template))
                 template = null;
 
-            var defaults = new DefaultRuleHelper(styleName, template, _theme).GetDefaultRules();
+            var defaults = new DefaultRuleHelper(styleName, template, templateName, _theme, inResponsiveContext).GetDefaultRules();
             foreach (var property in node.Properties)
             {
                 defaults.Remove(property.Identifier);               

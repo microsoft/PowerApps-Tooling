@@ -35,17 +35,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
         }
 
-        public void ApplyAfterRead(BlockNode control)
+        public void ApplyAfterRead(BlockNode control, bool inResponsiveContext = false)
         {
+            var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
+
+            var childResponsiveContext = inResponsiveContext || DynamicProperties.AddsChildDynamicProperties(controlTemplateName);
             foreach (var child in control.Children)
             {
-                ApplyAfterRead(child);
+                ApplyAfterRead(child, childResponsiveContext);
             }
 
             // Apply default values first, before re-arranging controls
-            _defaultValTransform.AfterRead(control);
-
-            var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
+            _defaultValTransform.AfterRead(control, inResponsiveContext);
 
             foreach (var transform in _templateTransforms)
             {
@@ -55,9 +56,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             _groupControlTransform.AfterRead(control);
         }
-        public void ApplyBeforeWrite(BlockNode control)
+        public void ApplyBeforeWrite(BlockNode control, bool inResponsiveContext = false)
         {
             var controlTemplateName = control.Name?.Kind?.TypeName ?? string.Empty;
+            var childResponsiveContext = inResponsiveContext || DynamicProperties.AddsChildDynamicProperties(controlTemplateName);
 
             _groupControlTransform.BeforeWrite(control);
             foreach (var transform in _templateTransforms.Reverse())
@@ -68,11 +70,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var child in control.Children)
             {
-                ApplyBeforeWrite(child);
+                ApplyBeforeWrite(child, childResponsiveContext);
             }
 
             // Apply default values last, after controls are back to msapp shape
-            _defaultValTransform.BeforeWrite(control);
+            _defaultValTransform.BeforeWrite(control, inResponsiveContext);
         }
     }
 }
