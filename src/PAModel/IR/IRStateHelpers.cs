@@ -222,7 +222,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, errors, controlName, isInResponsiveLayout || DynamicProperties.AddsChildDynamicProperties(templateName), stateStore, templateStore, uniqueIdRestorer, entropy));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, DynamicProperties.AddsChildDynamicProperties(templateName), stateStore, templateStore, uniqueIdRestorer, entropy));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
