@@ -39,6 +39,12 @@
     <EmbeddedResource Include="Themes/DefaultTheme.json" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(GitExists)' == true">
+    <EmbeddedResource Include="../../obj/buildver.json">
+      <Link>Build/BuildVer.json</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />

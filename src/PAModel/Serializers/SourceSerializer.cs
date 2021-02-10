@@ -62,7 +62,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
-
+        private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
+        private static BuildVerJson _buildVerJson = GetBuildDetails();
 
         // Full fidelity read-write
 
@@ -147,6 +148,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                     case FileKind.Checksum:
                         app._checksum = file.ToObject<ChecksumJson>();
+                        app._checksum.ClientBuildDetails = _buildVerJson;
                         break;
                     default:
                         errors.GenericWarning($"Unexpected file in Entropy, discarding");
@@ -211,7 +213,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
-            app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo" };
+            app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo", ClientBuildDetails = _buildVerJson };
 
             AddDefaultTheme(app);
 
@@ -416,6 +418,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._checksum != null)
             {
+                app._checksum.ClientBuildDetails = _buildVerJson;
                 dir.WriteAllJson(EntropyDir, FileKind.Checksum, app._checksum);
             }
 
@@ -748,6 +751,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var jsonString = reader.ReadToEnd();
 
             app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utility._jsonOpts);
+        }
+
+        private static BuildVerJson GetBuildDetails()
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                using var stream = assembly.GetManifestResourceStream(_buildVerFileName);
+                using var reader = new StreamReader(stream);
+                var jsonString = reader.ReadToEnd();
+
+                return JsonSerializer.Deserialize<BuildVerJson>(jsonString, Utility._jsonOpts);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
     }

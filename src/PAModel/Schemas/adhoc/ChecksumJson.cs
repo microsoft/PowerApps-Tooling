@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -17,5 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public string ServerStampedChecksum { get; set; }
 
         public Dictionary<string, string> ServerPerFileChecksums { get; set; }
+
+        public BuildVerJson ClientBuildDetails { get; set; }
     }
 }
