@@ -29,7 +29,7 @@ namespace targets
             try 
             {
                 RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim(); 
-                gitHash = Read("git", "rev-parse --short HEAD", noEcho: true).Trim();               
+                gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();               
             }
             catch
             {
