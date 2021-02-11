@@ -18,6 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
     {
         private ControlTemplate _template;
         private string _templateName;
+        private string _variantName;
         private Theme _theme;
         private string _styleName;
         private bool _inResponsiveContext;
@@ -26,11 +27,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
             string styleName,
             ControlTemplate template,
             string templateName,
+            string variantName,
             Theme theme,
             bool inResponsiveContext)
         {
             _template = template;
             _templateName = templateName;
+            _variantName = variantName;
             _styleName = styleName;
             _theme = theme;
             _inResponsiveContext = inResponsiveContext;
@@ -49,7 +52,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
                 return true;
             }
 
-            if (template != null && template.InputDefaults.TryGetValue(propertyName, out defaultScript))
+            // Check template variant first, then template base
+            if (template != null &&
+                ((_variantName != null &&
+                template.VariantDefaultValues.TryGetValue(_variantName, out var defaults) &&
+                defaults.TryGetValue(propertyName, out defaultScript)) ||
+                template.InputDefaults.TryGetValue(propertyName, out defaultScript)))
             {
                 if (IsLocalizationKey(defaultScript))
                     return false;
@@ -72,10 +80,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
         {
             // Add themes first.
             var defaults = new Dictionary<string, string>();
+            var variantDefaults = new Dictionary<string, string>();
 
             if (_template != null)
             {
-                defaults.AddRange(_template.InputDefaults.Where(kvp => !IsLocalizationKey(kvp.Value)));
+                // Default values from the variants take precedence over the base template
+                var hasVariantDefaults = _variantName != null && _template.VariantDefaultValues.TryGetValue(_variantName, out variantDefaults);
+                if (hasVariantDefaults)
+                    defaults.AddRange(variantDefaults);
+
+                defaults.AddRange(_template.InputDefaults.Where(kvp => !IsLocalizationKey(kvp.Value) && !(hasVariantDefaults && variantDefaults.ContainsKey(kvp.Key))));
             }
 
             defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !IsLocalizationKey(kvp.Value)));

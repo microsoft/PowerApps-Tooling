@@ -29,6 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
+            var variantName = node.Name.Kind.OptionalVariant;
 
             var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
@@ -39,7 +40,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetValue(templateName, out template))
                 template = null;
 
-            var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, _theme, inResponsiveContext);
+            var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext);
             foreach (var property in node.Properties.ToList())
             {
                 var propName = property.Identifier;
@@ -52,6 +53,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var controlName = node.Name.Identifier;
             var templateName = node.Name.Kind.TypeName;
+            var variantName = node.Name.Kind.OptionalVariant;
 
             var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
@@ -67,7 +69,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetValue(templateName, out template))
                 template = null;
 
-            var defaults = new DefaultRuleHelper(styleName, template, templateName, _theme, inResponsiveContext).GetDefaultRules();
+            var defaults = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext).GetDefaultRules();
             foreach (var property in node.Properties)
             {
                 defaults.Remove(property.Identifier);               

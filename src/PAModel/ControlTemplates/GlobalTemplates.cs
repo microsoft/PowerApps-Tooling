@@ -40,6 +40,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                     FirstParty = true,
                 });
             }
+
+            templates.Add("groupContainer", CreateGroupContainerTemplate(type));
+            if (!templateStore.TryGetTemplate("groupContainer", out _))
+            {
+                templateStore.AddTemplate("groupContainer", new CombinedTemplateState()
+                {
+                    Id = "http://microsoft.com/appmagic/groupContainer",
+                    Name = "groupContainer",
+                    Version = "1.0",
+                    LastModifiedTimestamp = "0",
+                    IsComponentTemplate = false,
+                    FirstParty = true,
+                });
+            }
         }
 
         private static ControlTemplate CreateAppInfoTemplate(AppType type)
@@ -66,5 +80,67 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             return template;
         }
 
+        private static ControlTemplate CreateGroupContainerTemplate(AppType type)
+        {
+            var template = new ControlTemplate("groupContainer", "1.0", "http://microsoft.com/appmagic/groupContainer");
+            template.InputDefaults.Add("Width", "500");
+            template.InputDefaults.Add("Height", type == AppType.Phone ? "225" : "200");
+            template.InputDefaults.Add("PaddingTop", "0");
+            template.InputDefaults.Add("PaddingBottom", "0");
+            template.InputDefaults.Add("PaddingRight", "0");
+            template.InputDefaults.Add("PaddingLeft", "0");
+            template.InputDefaults.Add("BorderColor", "RGBA(0, 0, 0, 1)");
+            template.InputDefaults.Add("BorderStyle", "BorderStyle.Solid");
+            template.InputDefaults.Add("BorderThickness", "0");
+            template.InputDefaults.Add("Fill", "RGBA(0, 0, 0, 0)");
+            template.InputDefaults.Add("X", "0");
+            template.InputDefaults.Add("Y", "0");
+            template.InputDefaults.Add("Visible", "true");
+
+
+            // These share a lot of properties, and they should be in the base template, but this is
+            // mirroring what is found in the groupContainer_oam.xml definition. 
+            var horizontalContainerDefaults = new Dictionary<string, string>()
+            {
+                { "LayoutMode", "LayoutMode.Auto" },
+                { "LayoutDirection", "LayoutDirection.Horizontal" },
+                { "LayoutWrap", "false" },
+                { "LayoutAlignItems", "LayoutAlignItems.Start" },
+                { "LayoutJustifyContent", "LayoutJustifyContent.Start" },
+                { "LayoutGap", "0" },
+                { "LayoutOverflowX", "LayoutOverflow.Hide" },
+                { "LayoutOverflowY", "LayoutOverflow.Hide" }
+            };
+
+            template.VariantDefaultValues.Add("horizontalAutoLayoutContainer", horizontalContainerDefaults);
+
+            var verticalContainerDefaults = new Dictionary<string, string>()
+            {
+                { "LayoutMode", "LayoutMode.Auto" },
+                { "LayoutDirection", "LayoutDirection.Vertical" },
+                { "LayoutWrap", "false" },
+                { "LayoutAlignItems", "LayoutAlignItems.Start" },
+                { "LayoutJustifyContent", "LayoutJustifyContent.Start" },
+                { "LayoutGap", "0" },
+                { "LayoutOverflowX", "LayoutOverflow.Hide" },
+                { "LayoutOverflowY", "LayoutOverflow.Hide" }
+            };
+            template.VariantDefaultValues.Add("verticalAutoLayoutContainer", verticalContainerDefaults);
+
+            var manualContainerDefaults = new Dictionary<string, string>()
+            {
+                { "LayoutMode", "LayoutMode.Auto" },
+                { "LayoutDirection", "LayoutDirection.Manual" },
+                { "LayoutWrap", "false" },
+                { "LayoutAlignItems", "LayoutAlignItems.Start" },
+                { "LayoutJustifyContent", "LayoutJustifyContent.Start" },
+                { "LayoutGap", "0" },
+                { "LayoutOverflowX", "LayoutOverflow.Hide" },
+                { "LayoutOverflowY", "LayoutOverflow.Hide" }
+            };
+            template.VariantDefaultValues.Add("manualLayoutContainer", manualContainerDefaults);
+
+            return template;
+        }
     }
 }
