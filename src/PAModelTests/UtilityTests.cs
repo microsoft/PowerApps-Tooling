@@ -33,9 +33,26 @@ namespace PAModelTests
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo", "Bar.msapp")]
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo\\", "Bar.msapp")]
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
+        [DataRow(@"C:\DataSources\JourneyPlanner|Sendforapproval.json", "C:\\", @"DataSources\JourneyPlanner|Sendforapproval.json")]
+        [DataRow(@"C:\DataSources\JourneyPlanner%7cSendforapproval.json", "C:\\", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
             Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
+        }
+
+
+        // Verify regression from
+        // https://github.com/microsoft/PowerApps-Language-Tooling/issues/153 
+        [TestMethod]
+        public void Regression153()
+        {
+            // Not escaped.
+            var path = @"DataSources\JourneyPlanner|Sendforapproval.json";
+            var escape = Utility.EscapeFilename(path);
+
+            var original = Utility.UnEscapeFilename(escape);
+
+            Assert.AreEqual(path, original);
         }
     }
 }
