@@ -33,6 +33,8 @@ namespace PAModelTests
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo", "Bar.msapp")]
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo\\", "Bar.msapp")]
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
+        [DataRow(@"C:\DataSources\JourneyPlanner|Sendforapproval.json", "C:\\", @"DataSources\JourneyPlanner|Sendforapproval.json")]
+        [DataRow(@"C:\DataSources\JourneyPlanner%7cSendforapproval.json", "C:\\", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
             Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
