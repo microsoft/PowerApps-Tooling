@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json;
 using CommandLine;
 using SimpleExec;
 using static Bullseye.Targets;
@@ -23,11 +24,12 @@ namespace targets
         static void Main(string[] args)
         {
             
-            string RootDir = "";
+            string RootDir = "", gitHash = "";
             bool gitExists = true;
             try 
             {
                 RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim(); 
+                gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();               
             }
             catch
             {
@@ -61,7 +63,11 @@ namespace targets
                 () => RunDotnet("restore", $"{solution}", gitExists, LogDir));
 
             Target("build",
-                () => RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore", gitExists, LogDir));
+                () => {
+                    if (gitExists)
+                        CreateBuildHashFile(ObjDir, gitHash);
+                    RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore", gitExists, LogDir);
+                });
 
             Target("test",
                 () => RunDotnet("test", $"{solution} --configuration {options.Configuration} --no-build --logger trx --results-directory {TestLogDir}", gitExists, LogDir));
@@ -96,6 +102,22 @@ namespace targets
                 gitDef = "-p:GitExists=true";
             var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={LogDir}/{verb}-{options.Configuration}.log /flp3:PerformanceSummary;Verbosity=diag;LogFile={LogDir}/{verb}-{options.Configuration}.diagnostics.log";
             Run("dotnet", $"{verb} {verbArgs} {logSettings} {gitDef} /nologo");
+        }
+
+        static void CreateBuildHashFile(string objDir, string gitHash)
+        {
+            var filePath = Path.Combine(objDir, "buildver.json");
+            var file = new System.IO.FileInfo(filePath);
+            file.Directory.Create();
+
+            var jsonContents = new {
+                CommitHash = gitHash,
+#if !ADOBuild
+                IsLocalBuild = true
+#endif
+            };
+            var text = JsonSerializer.Serialize(jsonContents);
+            File.WriteAllText(filePath, text);
         }
 
         static void CleanDirectory(string directoryPath)

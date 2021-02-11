@@ -35,7 +35,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 13 - Control UniqueIds to Entropy
         // 14 - Yaml DoubleQuote escape
         // 15 - Use dictionary for templates
-        public static Version CurrentSourceVersion = new Version(0, 15);
+        // 16 - Group Control transform
+        // 17 - Moved PublishOrderIndex entirely to Entropy 
+        // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
+        public static Version CurrentSourceVersion = new Version(0, 18);
 
         // Layout is:
         //  src\
@@ -51,15 +54,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string WadlPackageDir = "pkgs\\Wadl";
         public const string SwaggerPackageDir = "pkgs\\Swagger";
         public const string ComponentPackageDir = "pkgs\\Components";
-        public const string OtherDir = "Other"; // exactly match files from .msapp format
+        public const string OtherDir = "Other";
+        public const string EntropyDir = "Entropy";  
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
-        public const string Ignore = "Ignore"; // Write-only, ignore these files.
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
-
+        private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
+        private static BuildVerJson _buildVerJson = GetBuildDetails();
 
         // Full fidelity read-write
 
@@ -132,38 +136,43 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 app.AddAssetFile(file.ToFileEntry());
             }
 
-            // var root = Path.Combine(directory, OtherDir);
+            foreach (var file in dir.EnumerateFiles(EntropyDir))
+            {
+                switch (file.Kind)
+                {
+                    case FileKind.Entropy:
+                        app._entropy = file.ToObject<Entropy>();
+                        break;
+                    case FileKind.AppCheckerResult:
+                        app._appCheckerResultJson = file.ToObject<AppCheckerResultJson>();
+                        break;
+                    case FileKind.Checksum:
+                        app._checksum = file.ToObject<ChecksumJson>();
+                        app._checksum.ClientBuildDetails = _buildVerJson;
+                        break;
+                    default:
+                        errors.GenericWarning($"Unexpected file in Entropy, discarding");
+                        break;
+
+                }
+            }
+
+
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
                 // Special files like Header / Properties 
                 switch (file.Kind)
                 {
-                    default:
+                    case FileKind.Unknown:
                         // Track any unrecognized files so we can save back.
                         app.AddFile(file.ToFileEntry());
                         break;
 
-                    case FileKind.Entropy:
-                        app._entropy = file.ToObject<Entropy>();
+                    default:
+                        // Shouldn't find anything else not unknown in here, but just ignore them for now
+                        errors.GenericWarning($"Unexpected file in Other, discarding");
                         break;
 
-                    case FileKind.Checksum:
-                        app._checksum = file.ToObject<ChecksumJson>();
-                        break;
-
-                    case FileKind.Themes:
-                        app._themes = file.ToObject<ThemesJson>();
-                        break;
-
-                    case FileKind.Header:
-                    case FileKind.Properties:
-                        throw new NotSupportedException($"Old format");
-
-                    case FileKind.ComponentSrc:
-                    case FileKind.ControlSrc:                        
-                        // Shouldn't find any here -  were explicit in source
-                        throw new InvalidOperationException($"Unexpected source file: " + file._relativeName);
-                        
                 }
             } // each loose file in '\other' 
 
@@ -204,7 +213,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
-            app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo" };
+            app._checksum = new ChecksumJson() { ClientStampedChecksum = "Foo", ClientBuildDetails = _buildVerJson };
 
             AddDefaultTheme(app);
 
@@ -286,6 +295,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }                
             }
+
+            // For now, the Themes file lives in CodeDir as a json file
+            // We'd like to make this .pa.yaml as well eventually
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.json", searchSubdirectories: false))
+            {
+                if (Path.GetFileName(file._relativeName) == "Themes.json")
+                    app._themes = file.ToObject<ThemesJson>();
+            }
+
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml", searchSubdirectories: false))
             {
@@ -400,7 +418,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._checksum != null)
             {
-                dir.WriteAllJson(OtherDir, FileKind.Checksum, app._checksum);
+                app._checksum.ClientBuildDetails = _buildVerJson;
+                dir.WriteAllJson(EntropyDir, FileKind.Checksum, app._checksum);
+            }
+
+            if (app._appCheckerResultJson != null)
+            {
+                dir.WriteAllJson(EntropyDir, FileKind.AppCheckerResult, app._appCheckerResultJson);
             }
 
             foreach (var file in app._assetFiles.Values)
@@ -415,7 +439,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._themes != null)
             {
-                dir.WriteAllJson(OtherDir, FileKind.Themes, app._themes);
+                dir.WriteAllJson(CodeDir, "Themes.json", app._themes);
             }
 
             if (app._resourcesJson != null)
@@ -442,8 +466,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            dir.WriteAllJson(OtherDir, FileKind.Entropy, app._entropy);
-
             var manifest = new CanvasManifestJson
             {
                 FormatVersion =  CurrentSourceVersion,
@@ -463,6 +485,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 dir.WriteAllJson("", FileKind.ComponentReferences, app._libraryReferences);
             }
+
+            dir.WriteAllJson(EntropyDir, FileKind.Entropy, app._entropy);
         }
 
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
@@ -727,6 +751,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var jsonString = reader.ReadToEnd();
 
             app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utility._jsonOpts);
+        }
+
+        private static BuildVerJson GetBuildDetails()
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                using var stream = assembly.GetManifestResourceStream(_buildVerFileName);
+                using var reader = new StreamReader(stream);
+                var jsonString = reader.ReadToEnd();
+
+                return JsonSerializer.Deserialize<BuildVerJson>(jsonString, Utility._jsonOpts);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
     }

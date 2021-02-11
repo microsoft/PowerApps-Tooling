@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
@@ -24,6 +24,18 @@ namespace PAModelTests
             // Not escaped.
             var a = "0123456789AZaz[]_. \\";
             Assert.AreEqual(Utility.EscapeFilename(a), a);
+        }
+
+        [DataTestMethod]
+        [DataRow("C:\\Foo\\Bar\\Baz", "C:\\Foo", "Bar\\Baz\\")]
+        [DataRow("C:\\Foo\\Bar\\Baz", "C:\\Foo\\", "Bar\\Baz\\")]
+        [DataRow("C:\\Foo\\Bar\\Baz\\", "C:\\Foo\\", "Bar\\Baz\\")]
+        [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo", "Bar.msapp")]
+        [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo\\", "Bar.msapp")]
+        [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
+        public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
+        {
+            Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
         }
     }
 }

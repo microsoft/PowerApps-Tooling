@@ -17,17 +17,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
     internal class DefaultRuleHelper
     {
         private ControlTemplate _template;
+        private string _templateName;
         private Theme _theme;
         private string _styleName;
+        private bool _inResponsiveContext;
 
         public DefaultRuleHelper(
             string styleName,
             ControlTemplate template,
-            Theme theme)
+            string templateName,
+            Theme theme,
+            bool inResponsiveContext)
         {
             _template = template;
+            _templateName = templateName;
             _styleName = styleName;
             _theme = theme;
+            _inResponsiveContext = inResponsiveContext;
         }
 
         // Used on writing to source to omit default rules. 
@@ -51,6 +57,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
                 // Found in template.
                 return true;
             }
+
+            if (_inResponsiveContext && DynamicProperties.TryGetDefaultValue(propertyName, _templateName, this, out defaultScript))
+            {
+                return true;
+            }
+
             defaultScript = null;
             return false;            
         }
@@ -67,6 +79,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
             }
 
             defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !IsLocalizationKey(kvp.Value)));
+
+            if (_inResponsiveContext)
+            {
+                defaults.AddRange(DynamicProperties.GetDefaultValues(_templateName, this));
+            }
 
             return defaults;
         }

@@ -23,6 +23,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             Id = id;
             InputDefaults = new Dictionary<string, string>();
         }
-
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -29,10 +30,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
 
-        // This is a utf8 string representing the AppCheckerResult.sarif file
-        // It likely is double-encoded json.
-        public string AppCheckerResult { get; set; }
-
         // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         
         public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -40,16 +37,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
+        // outer key is group control name, inner key is child grouped control name 
+        public Dictionary<string, Dictionary<string, int>> OrderGroupControls { get; set; } = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
+
         // Key is component name, value is Index. 
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
-        // Key is top parent, value is Index offset
-        public Dictionary<string, double> PublishOrderIndexOffsets { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
+        // Key is control name, value is publish order index
+        public Dictionary<string, double> PublishOrderIndices { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         // Key is control name, value is uniqueId
         public Dictionary<string, int> ControlUniqueIds { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         // Key is resource name
         public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        // Key is control name, this should be unused if no datatables are present
+        public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
 
         public PropertyEntropy VolatileProperties { get; set; }
 
@@ -152,6 +155,48 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
                 documentProperties.ControlCount = VolatileProperties.ControlCount;
             }
+        }
+
+        public void AddGroupControl(ControlState groupControl)
+        {
+            var name = groupControl.Name;
+            var groupOrder = new Dictionary<string, int>(StringComparer.Ordinal);
+            this.OrderGroupControls[name] = groupOrder;
+            var order = 0;
+            foreach (var child in groupControl.GroupedControlsKey)
+            {
+                groupOrder.Add(child, order);
+                ++order;
+            }
+        }
+
+        public int GetGroupControlOrder(string groupName, string childName)
+        {
+            if (!OrderGroupControls.TryGetValue(groupName, out var groupOrder))
+                return -1;
+
+            return groupOrder.GetOrDefault(childName, -1);
+        }
+
+        public void AddDataTableControlJson(string controlName, string json)
+        {
+            if (DataTableCustomControlTemplateJsons == null)
+            {
+                DataTableCustomControlTemplateJsons = new Dictionary<string, string>();
+            }
+
+            DataTableCustomControlTemplateJsons.Add(controlName, json);
+        }
+
+        public bool TryGetDataTableControlJson(string controlName, out string json)
+        {
+            json = null;
+            if (DataTableCustomControlTemplateJsons == null)
+            {
+                return false;
+            }
+
+            return DataTableCustomControlTemplateJsons.TryGetValue(controlName, out json);
         }
     }
 }

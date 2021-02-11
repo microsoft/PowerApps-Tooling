@@ -24,15 +24,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
         {
             // Bottom up, recursively process children
-            var childrenWithZIndex = new List<KeyValuePair<BlockNode, double>>();
+            var children = new List<BlockNode>();
             var childIndex = 0;
             foreach (var child in control.Children)
             {
                 SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock);
-                childrenWithZIndex.Add(new KeyValuePair<BlockNode, double>(childBlock, GetControlZIndex(child)));
+                children.Add(childBlock);
                 ++childIndex;
             }
-            var children = childrenWithZIndex.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key);
             var isComponentDef = control.Template.IsComponentDefinition ?? false;
 
             var customPropsToHide = new HashSet<string>();
@@ -111,6 +110,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var properties = new List<PropertyNode>();
             var propStates = new List<PropertyState>();
+            var dynPropStates = new List<DynamicPropertyState>();
             foreach (var property in control.Rules)
             {
                 var (prop, state) = SplitProperty(property);
@@ -119,6 +119,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (customPropsToHide.Contains(property.Property))
                     continue;
 
+                properties.Add(prop);
+            }
+
+            foreach (var property in control.DynamicProperties ?? Enumerable.Empty<ControlInfoJson.DynamicPropertyJson>())
+            {
+                if (property.Rule == null)
+                {
+                    dynPropStates.Add(new DynamicPropertyState() { PropertyName = property.PropertyName });
+                    continue;
+                }
+
+                var (prop, state) = SplitDynamicProperty(property);
+                dynPropStates.Add(state);
                 properties.Add(prop);
             }
 
@@ -155,14 +168,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateStore.AddTemplate(templateName, templateState);
             }
 
+            SplitCustomTemplates(entropy, control.Template, control.Name);
+
             entropy.ControlUniqueIds.Add(control.Name, int.Parse(control.ControlUniqueId));
             var controlState = new ControlState()
             {
                 Name = control.Name,
-                PublishOrderIndex = control.PublishOrderIndex,
                 TopParentName = topParentName,
                 Properties = propStates,
+                DynamicProperties = dynPropStates.Any() ? dynPropStates : null,
+                HasDynamicProperties = control.HasDynamicProperties,
                 StyleName = control.StyleName,
+                IsGroupControl = control.IsGroupControl,
+                GroupedControlsKey = control.GroupedControlsKey,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
                 IsComponentDefinition = control.Template.IsComponentDefinition,
@@ -179,47 +197,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (prop, state);
         }
 
-        internal static double GetControlZIndex(ControlInfoJson.Item control)
+        private static (PropertyNode prop, DynamicPropertyState state) SplitDynamicProperty(ControlInfoJson.DynamicPropertyJson dynamicProperty)
         {
-            if (control.Rules == null)
-                return -1;
-
-            var zindexRule = control.Rules.FirstOrDefault(rule => rule.Property == "ZIndex");
-
-            if (zindexRule == default)
-                return -1;
-
-            if (!double.TryParse(zindexRule.InvariantScript, out var zindexResult) || double.IsNaN(zindexResult) || double.IsInfinity(zindexResult))
-                return -1;
-
-            return zindexResult;
+            var (prop, propertyState) = SplitProperty(dynamicProperty.Rule);
+            var state = new DynamicPropertyState() { PropertyName = propertyState.PropertyName, Property = propertyState, ExtensionData = dynamicProperty.ExtensionData };
+            return (prop, state);
         }
 
-        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
+        internal static SourceFile CombineIRAndState(BlockNode blockNode, ErrorContainer errors, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
         {
-            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, stateStore, templateStore, uniqueIdRestorer);
+            var topParentJson = CombineIRAndState(blockNode, errors, string.Empty, false, stateStore, templateStore, uniqueIdRestorer, entropy);
             return SourceFile.New(new ControlInfoJson() { TopParent = topParentJson.item });
         }
 
         // Returns pair of item and index (with respect to parent order)
-        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer)
+        private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, bool isInResponsiveLayout, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
         {
             var controlName = blockNode.Name.Identifier;
+            var templateIR = blockNode.Name.Kind;
+            var templateName = templateIR.TypeName;
+            var variantName = templateIR.OptionalVariant;
 
             // Bottom up, merge children first
             var children = new List<(ControlInfoJson.Item item, int index)>();
             foreach (var childBlock in blockNode.Children)
             {
-                children.Add(CombineIRAndState(childBlock, errors, controlName, stateStore, templateStore, uniqueIdRestorer));
+                children.Add(CombineIRAndState(childBlock, errors, controlName, DynamicProperties.AddsChildDynamicProperties(templateName), stateStore, templateStore, uniqueIdRestorer, entropy));
             }
 
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
-            var templateIR = blockNode.Name.Kind;
-            var templateName = templateIR.TypeName;
-            var variantName = templateIR.OptionalVariant;
             ControlInfoJson.Template template;
-
             if (!templateStore.TryGetTemplate(templateName, out var templateState))
             {
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
@@ -229,14 +237,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = templateState.ToControlInfoTemplate();
             }
 
+            RecombineCustomTemplates(entropy, template, controlName);
+
             var uniqueId = uniqueIdRestorer.GetControlId(controlName);
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
             {
                 var properties = new List<ControlInfoJson.RuleEntry>();
+                var dynamicProperties = new List<ControlInfoJson.DynamicPropertyJson>();
                 foreach (var propIR in blockNode.Properties)
                 {
-                    properties.Add(CombinePropertyIRAndState(propIR, errors, state));
+                    // Dynamic properties could be null for the galleryTemplateTemplate 
+                    if (isInResponsiveLayout && state.DynamicProperties != null && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier))
+                    {
+                        dynamicProperties.Add(CombineDynamicPropertyIRAndState(propIR, state));
+                    }
+                    else
+                    {
+                        properties.Add(CombinePropertyIRAndState(propIR, errors, state));
+                    }
+                }
+
+                if (isInResponsiveLayout && state.DynamicProperties != null)
+                {
+                    // Add dummy dynamic output props in the state at the end
+                    foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
+                    {
+                        dynamicProperties.Add(new ControlInfoJson.DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });
+                    }
+
+                    // Reorder to preserve roundtripping
+                    dynamicProperties = dynamicProperties.OrderBy(prop => state.DynamicProperties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.PropertyName)).ToList();
                 }
 
                 if (blockNode.Functions.Any())
@@ -280,11 +311,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     Parent = parent,
                     Name = controlName,
                     ControlUniqueId = uniqueId.ToString(),
-                    PublishOrderIndex = state.PublishOrderIndex,
                     VariantName = variantName ?? string.Empty,
                     Rules = properties.ToArray(),
+                    DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any()) ? dynamicProperties.ToArray() : null,
+                    HasDynamicProperties = state.HasDynamicProperties,
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
+                    IsGroupControl = state.IsGroupControl,
+                    GroupedControlsKey = state.GroupedControlsKey
                 };
 
                 if (state.IsComponentDefinition ?? false)
@@ -309,11 +343,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.VariantName = variantName ?? string.Empty;
                 resultControlInfo.StyleName = $"default{templateName.FirstCharToUpper()}Style";
                 var properties = new List<ControlInfoJson.RuleEntry>();
+                var dynamicProperties = new List<ControlInfoJson.DynamicPropertyJson>();
                 foreach (var propIR in blockNode.Properties)
                 {
-                    properties.Add(CombinePropertyIRAndState(propIR, errors));
+                    if (isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier))
+                    {
+                        dynamicProperties.Add(CombineDynamicPropertyIRAndState(propIR));
+                    }
+                    else
+                    {
+                        properties.Add(CombinePropertyIRAndState(propIR, errors));
+                    }
                 }
                 resultControlInfo.Rules = properties.ToArray();
+                bool hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
+                resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
+                resultControlInfo.HasDynamicProperties = hasDynamicProperties;
             }
             resultControlInfo.Template = template;
             resultControlInfo.Children = orderedChildren;
@@ -383,6 +428,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        private static ControlInfoJson.DynamicPropertyJson CombineDynamicPropertyIRAndState(PropertyNode node, ControlState state = null)
+        {
+            var propName = node.Identifier;
+            var expression = node.Expression.Expression;
+
+            if (state == null)
+            {
+                var property = new ControlInfoJson.RuleEntry();
+                property.Property = propName;
+                property.InvariantScript = expression;
+                property.RuleProviderType = "Unknown";
+                return new ControlInfoJson.DynamicPropertyJson() { PropertyName = propName, Rule = property };
+            }
+            else
+            {
+                var property = GetDynamicPropertyEntry(state, propName, expression);
+                return property;
+            }
+        }
+
         private static ControlInfoJson.RuleEntry GetPropertyEntry(ControlState state, ErrorContainer errors, string propName, string expression)
         {
             var property = new ControlInfoJson.RuleEntry();
@@ -408,6 +473,62 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             return property;
+        }
+
+        private static ControlInfoJson.DynamicPropertyJson GetDynamicPropertyEntry(ControlState state, string propName, string expression)
+        {
+            var property = new ControlInfoJson.DynamicPropertyJson();
+            property.PropertyName = propName;
+
+            DynamicPropertyState propState = null;
+            if (state.DynamicProperties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
+            {
+                property.Rule = new ControlInfoJson.RuleEntry()
+                {
+                    InvariantScript = expression,
+                    Property = propName,
+                    ExtensionData = propState.Property.ExtensionData,
+                    NameMap = propState.Property.NameMap,
+                    RuleProviderType = propState.Property.RuleProviderType
+                };
+                property.ExtensionData = propState.ExtensionData;
+            }
+            else
+            {
+                property.Rule = new ControlInfoJson.RuleEntry()
+                {
+                    InvariantScript = expression,
+                    RuleProviderType = "Unknown"
+                };
+            }
+
+            return property;
+        }
+
+
+
+        private static readonly string CustomControlTemplateId = "Microsoft.PowerApps.CustomControlTemplate";
+        // These two functions (split and recombine CustomTemplates) are responsible for handling the legacy DataTable control's
+        // CustomControlDefinitionJson. This JSON contains a stamp of which version it was created in, but that is the only difference
+        // As such, they were safe to move to Entropy. If entropy is removed, the one in the TemplateStore works fine for all instances
+        // of the control.
+        private static void SplitCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+        {
+            if (controlTemplate.Id != CustomControlTemplateId)
+                return;
+
+            entropy.AddDataTableControlJson(controlName, controlTemplate.CustomControlDefinitionJson);
+        }
+
+        private static void RecombineCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+        {
+            if (controlTemplate.Id != CustomControlTemplateId)
+                return;
+
+            if (entropy.TryGetDataTableControlJson(controlName, out var customTemplateJson))
+            {
+                controlTemplate.CustomControlDefinitionJson = customTemplateJson;
+            }
         }
     }
 }

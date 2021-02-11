@@ -22,12 +22,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var je = entry.ToJson();
             return je.ToObject<T>();
         }
-        
-        public static CanvasDocument Load(string fullpathToMsApp, ErrorContainer errors)
+
+        public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
         {
-            if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
+            if (streamToMsapp == null)
             {
-                throw new InvalidOperationException("Only works for .msapp files");
+                throw new ArgumentNullException(nameof(streamToMsapp));
             }
 
             // Read raw files. 
@@ -46,7 +46,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // key = screen, value = index
             var screenOrder = new Dictionary<string, double>();
 
-            using (var z = ZipFile.OpenRead(fullpathToMsApp))
+            ZipArchive zipOpen;
+            try
+            {
+                zipOpen = new ZipArchive(streamToMsapp, ZipArchiveMode.Read);                
+            }
+            catch (Exception e)
+            {
+                // Catch cases where stream is corrupted, can't be read, or unavailable.
+                errors.MsAppFormatError(e.Message);
+                return null;
+            }
+
+            using (var z = zipOpen)
             {
                 foreach (var entry in z.Entries)
                 {
@@ -114,8 +126,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
 
                         case FileKind.AppCheckerResult:
-                            var appChecker = Encoding.UTF8.GetString(entry.ToBytes());
-                            app._entropy.AppCheckerResult = appChecker;
+                            app._appCheckerResultJson = ToObject<AppCheckerResultJson>(entry);
                             break;
                         case FileKind.ComponentSrc:
                         case FileKind.ControlSrc:
@@ -129,20 +140,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     screenOrder.Add(control.TopParent.Name, control.TopParent.Index);
                                 }
                                 var flattenedControlTree = sf.Flatten();
-                                double minPublishIndex = 1;
-
-                                if (flattenedControlTree.Any(item => item.PublishOrderIndex > 0))
-                                {
-                                    minPublishIndex = flattenedControlTree.Where(item => item.PublishOrderIndex > 0).Min(item => item.PublishOrderIndex);
-                                    app._entropy.PublishOrderIndexOffsets.Add(control.TopParent.Name, minPublishIndex);
-                                }
 
                                 foreach (var ctrl in flattenedControlTree)
                                 {
-                                    // Offset Publish Index so edits on an unrelated screen don't cause noise in this one.
-                                    if (ctrl.PublishOrderIndex > 0)
-                                        ctrl.PublishOrderIndex -= minPublishIndex - 1;
+                                    // Add PublishOrderIndex to Entropy so it doesn't affect the editorstate diff.
+                                    app._entropy.PublishOrderIndices.Add(ctrl.Name, ctrl.PublishOrderIndex);
 
+                                    // For component instances, also track their index in Entropy
                                     if (ctrl.Index == 0.0 || ctrl.Template.Id == "http://microsoft.com/appmagic/screen")
                                         continue;
                                     app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
@@ -186,7 +190,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     iOrder++;
                                 }
                             }
-                            break;                                
+                            break;
                     }
                 } // foreach zip entry
 
@@ -248,7 +252,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LibraryDependencies = null;
                 }
 
-                if (app._properties.LocalConnectionReferences != null)  
+                if (app._properties.LocalConnectionReferences != null)
                 {
                     var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;
@@ -494,20 +498,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
             var idRestorer = new UniqueIdRestorer(app._entropy);
+            var maxPublishOrderIndex = app._entropy.PublishOrderIndices.Any() ? app._entropy.PublishOrderIndices.Values.Max() : 0;
             // Rehydrate sources before yielding any to be written, processing component defs first
             foreach (var controlData in app._screens.Concat(app._components)
                 .OrderBy(source =>
                     (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
                     (control.IsComponentDefinition ?? false)) ? -1 : 1))
             {
-                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer);
+                var sourceFile = IRStateHelpers.CombineIRAndState(controlData.Value, errors, app._editorStateStore, app._templateStore, idRestorer, app._entropy);
                 // Offset the publishOrderIndex based on Entropy.json
-                if (app._entropy.PublishOrderIndexOffsets.TryGetValue(sourceFile.ControlName, out var minIndex))
+                foreach (var ctrl in sourceFile.Flatten())
                 {
-                    foreach (var ctrl in sourceFile.Flatten())
+                    if (app._entropy.PublishOrderIndices.TryGetValue(ctrl.Name, out var index))
                     {
-                        if (ctrl.PublishOrderIndex > 0)
-                            ctrl.PublishOrderIndex += minIndex - 1;
+                        ctrl.PublishOrderIndex = index;
+                    }
+                    else
+                    {
+                        ctrl.PublishOrderIndex = ++maxPublishOrderIndex;
                     }
                 }
                 sourceFiles.Add(sourceFile);
@@ -642,9 +650,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            if (app._entropy?.AppCheckerResult != null)
+            if (app._appCheckerResultJson != null)
             {
-                yield return new FileEntry() { Name = FileEntry.GetFilenameForKind(FileKind.AppCheckerResult), RawBytes = Encoding.UTF8.GetBytes(app._entropy.AppCheckerResult) };
+                yield return ToFile(FileKind.AppCheckerResult, app._appCheckerResultJson);
             }
 
             if (app._resourcesJson != null)

@@ -15,8 +15,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-[assembly: InternalsVisibleTo("PAModelTests")]
-[assembly: InternalsVisibleTo("PASopa")]
+[assembly: InternalsVisibleTo("PAModelTests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5fc90e7027f67871e773a8fde8938c81dd402ba65b9201d60593e96c492651e889cc13f1415ebb53fac1131ae0bd333c5ee6021672d9718ea31a8aebd0da0072f25d87dba6fc90ffd598ed4da35e44c398c454307e8e33b8426143daec9f596836f97c8f74750e5975c64e2189f45def46b2a2b1247adc3652bf5c308055da9")]
+[assembly: InternalsVisibleTo("PASopa, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5fc90e7027f67871e773a8fde8938c81dd402ba65b9201d60593e96c492651e889cc13f1415ebb53fac1131ae0bd333c5ee6021672d9718ea31a8aebd0da0072f25d87dba6fc90ffd598ed4da35e44c398c454307e8e33b8426143daec9f596836f97c8f74750e5975c64e2189f45def46b2a2b1247adc3652bf5c308055da9")]
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Various utility methods. 
@@ -144,10 +144,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // basePath:     C:\foo
         // full: c:\foo\bar\hi.txt
         // returns "bar\hi.txt"
+
+        // Net Core 2.1 provides a Path.GetRelativePath api
+        // but since we target netstandard, we can convert to URIs and make the relative path from that
+        // see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
         public static string GetRelativePath(string full, string basePath)
         {
-            // full is a prefix of basePath. 
-            return full.Substring(basePath.Length + 1);
+            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePath));
+            Uri toUri = new Uri(AppendDirectorySeparatorChar(full));
+
+            // path can't be made relative.
+            if (fromUri.Scheme != toUri.Scheme)
+                return full; 
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals(Uri.UriSchemeFile, StringComparison.InvariantCultureIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
+        }
+
+        private static string AppendDirectorySeparatorChar(string path)
+        {
+            // Append a slash only if the path is a directory and does not have a slash.
+            if (!Path.HasExtension(path) &&
+                !path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                return path + Path.DirectorySeparatorChar;
+            }
+
+            return path;
         }
 
         public static void EnsureNoExtraData(Dictionary<string, JsonElement> extra)

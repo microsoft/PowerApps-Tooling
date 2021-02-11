@@ -13,14 +13,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     internal class ControlState
     {
         public string Name { get; set; }
-        public double PublishOrderIndex { get; set; }
 
         [JsonIgnore]
         public string TopParentName { get; set; }
 
         // These are properties with namemaps/info beyond the ones present in the control template
         // Key is property name
-        public List<PropertyState> Properties { get; set; }
+        public List<PropertyState> Properties { get; set; } 
+
+        // These are properties specific to AutoLayout controls
+        public List<DynamicPropertyState> DynamicProperties { get; set; }
+
+        // Has to be here for back compat unfortunately
+        // Newer apps write false here, but we need to roundtrip older apps where it was missing
+        // even though this can be re-derived from the existence of DynamicProperties
+        public bool? HasDynamicProperties { get; set; }
 
         // Doesn't get written to .msapp
         // Represents the index at which this property appears in it's parent's children list
@@ -39,5 +46,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public string GalleryTemplateChildName { get; set; } = null;
 
         public bool? IsComponentDefinition { get; set; }
+
+        public bool IsGroupControl { get; set; }
+
+        // This is a list of the controls represented as a child of the group control in studio
+        // Used in GroupControlTransform.cs, and not written to .editorstate.json
+        internal List<string> GroupedControlsKey;
     }
 }

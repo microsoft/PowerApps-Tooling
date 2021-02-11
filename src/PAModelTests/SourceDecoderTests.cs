@@ -17,9 +17,11 @@ namespace PAModelTests
         // - canonical ordering and stable output 
         [DataTestMethod]
         [DataRow("MyWeather.msapp", "Screen1.pa.yaml", "Weather_Screen1.pa.yaml")]
+        [DataRow("GroupControlTest.msapp", "Screen1.pa.yaml", "GroupControl_Test.pa.yaml")]
         [DataRow("GalleryTestApp.msapp", "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
         [DataRow("SimpleScopeVariables.msapp", "Components\\Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
         [DataRow("TestStudio_Test.msapp", "Tests\\Test_7F478737223C4B69.pa.yaml", "TestStudio_Test.pa.yaml")]
+        [DataRow("autolayouttest.msapp", "Screen1.pa.yaml", "AutoLayout_Test.pa.yaml")]
         public void TestScreenBaselines(string appName, string sourceFileName, string screenBaselineName)
         {
             // Pull both the msapp and the baseline from our embedded resources. 

@@ -29,7 +29,7 @@ steps:
   inputs:
     command: 'run'
     projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-    arguments: '-- ci -c $(BuildConfiguration)'
+    arguments: '-- ci -c $(BuildConfiguration) -p:ADOBuild=true'
 
 - task: PublishTestResults@2
   inputs:
@@ -48,6 +48,13 @@ steps:
     signConfigType: inlineSignParams
     inlineOperation: |
      [
+         {
+              "keyCode": "CP-233863-SN",
+              "operationSetCode": "StrongNameSign",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+         },
          {
              "keyCode": "CP-230012",
              "operationSetCode": "SigntoolSign",
