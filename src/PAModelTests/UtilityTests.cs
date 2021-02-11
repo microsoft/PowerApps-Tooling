@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace PAModelTests
 {
@@ -35,6 +36,13 @@ namespace PAModelTests
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
+            // Test non-windows paths if on other platforms
+            if (Path.DirectorySeparatorChar != '\\')
+            {
+                fullPath = fullPath.Replace('\\', '/');
+                basePath = basePath.Replace('\\', '/');
+                expectedRelativePath = expectedRelativePath.Replace('\\', '/');
+            }
             Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
         }
     }

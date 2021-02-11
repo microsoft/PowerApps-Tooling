@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
@@ -51,7 +52,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
 #if false
             // Help in debugging checksum errors. 
-            if (filename == "References\\DataSources.json")
+            if (filename == Path.Combine("References", "DataSources.json"))
             {
                 var path = @"C:\temp\a1.json";
                 var str = JsonNormalizer.Normalize(Encoding.UTF8.GetString(bytes));

@@ -79,7 +79,7 @@ namespace targets
                 () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
-                DependsOn("squeaky-clean", "rebuild", "test"));
+                DependsOn("clean", "rebuild", "test"));
 
             Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
@@ -131,7 +131,7 @@ namespace targets
                 }
             }
             catch (AccessViolationException) { /* swallow */ }
-            // catch (Exception ex) { Console.WriteLine(ex.Message); }
+            catch (IOException) { Directory.Delete(directoryPath, true); /* try again */ }
         }
     }
 }
