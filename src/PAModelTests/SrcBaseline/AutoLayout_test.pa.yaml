@@ -1,22 +1,11 @@
 Screen1 As screen:
 
     Container1 As groupContainer.verticalAutoLayoutContainer:
-        BorderColor: =RGBA(0, 0, 0, 1)
-        BorderStyle: =BorderStyle.Solid
-        Fill: =RGBA(0, 0, 0, 0)
         X: =40
         Y: =40
         Width: =818
         Height: =534
         DisplayMode: =DisplayMode.Edit
-        LayoutMode: =LayoutMode.Auto
-        LayoutDirection: =LayoutDirection.Vertical
-        LayoutAlignItems: =LayoutAlignItems.Start
-        LayoutJustifyContent: =LayoutJustifyContent.Start
-        LayoutGap: =0
-        LayoutOverflowX: =LayoutOverflow.Hide
-        LayoutOverflowY: =LayoutOverflow.Hide
-        LayoutWrap: =false
         ZIndex: =1
 
         "Gallery1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
