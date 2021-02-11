@@ -16,6 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
         // Property Name -> Default Expression
         public Dictionary<string, string> InputDefaults { get; }
 
+        // Variant name => property name => default expresion
         public Dictionary<string, Dictionary<string, string>> VariantDefaultValues { get; }
 
         public ControlTemplate(string name, string version, string id)
