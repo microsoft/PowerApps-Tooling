@@ -211,7 +211,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (ch == '_') ||
                 (ch == '.') ||
                 (ch == ' ') || // allow spaces, very common.  
-                (ch == '\\'); // Allow directory separators. 
+                (ch == Path.DirectorySeparatorChar); // Allow directory separators. 
         }
 
         // For writing out to a director. 

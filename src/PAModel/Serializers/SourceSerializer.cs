@@ -46,14 +46,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
         public const string AssetsDir = "Assets";
-        public const string TestDir = "Src\\Tests";
-        public const string EditorStateDir = "Src\\EditorState";
-        public const string ComponentCodeDir = "Src\\Components";
+        public static readonly string TestDir = Path.Combine("Src", "Tests");
+        public static readonly string EditorStateDir = Path.Combine("Src", "EditorState");
+        public static readonly string ComponentCodeDir = Path.Combine("Src", "Components");
         public const string PackagesDir = "pkgs";
-        public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
-        public const string WadlPackageDir = "pkgs\\Wadl";
-        public const string SwaggerPackageDir = "pkgs\\Swagger";
-        public const string ComponentPackageDir = "pkgs\\Components";
+        public static readonly string DataSourcePackageDir = Path.Combine("pkgs", "TableDefinitions");
+        public static readonly string WadlPackageDir = Path.Combine("pkgs", "Wadl");
+        public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
+        public static readonly string ComponentPackageDir = Path.Combine("pkgs", "Components");
         public const string OtherDir = "Other";
         public const string EntropyDir = "Entropy";  
         public const string ConnectionDir = "Connections";

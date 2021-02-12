@@ -23,7 +23,7 @@ namespace PAModelTests
         public void TestNotEscaped()
         {
             // Not escaped.
-            var a = "0123456789AZaz[]_. \\";
+            var a = "0123456789AZaz[]_. " + Path.DirectorySeparatorChar;
             Assert.AreEqual(Utility.EscapeFilename(a), a);
         }
 
