@@ -21,7 +21,7 @@ namespace PAModelTests
         [DataRow("GalleryTestApp.msapp", "",  "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
         [DataRow("SimpleScopeVariables.msapp", "Components", "Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
         [DataRow("TestStudio_Test.msapp", "Tests", "Test_7F478737223C4B69.pa.yaml", "TestStudio_Test.pa.yaml")]
-        [DataRow("autolayouttest.msapp", "",  "Screen1.pa.yaml", "AutoLayout_Test.pa.yaml")]
+        [DataRow("autolayouttest.msapp", "",  "Screen1.pa.yaml", "AutoLayout_test.pa.yaml")]
         public void TestScreenBaselines(string appName, string basePath, string sourceFileName, string screenBaselineName)
         {
             // Pull both the msapp and the baseline from our embedded resources. 
