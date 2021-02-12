@@ -11,7 +11,7 @@ namespace PAModelTests
     public class UtilityTests
     {
         [DataTestMethod]
-        [DataRow("\r\t!$/^%", "%0d%09%21%24%2f%5e%25")]
+        [DataRow("\r\t!$^%", "%0d%09%21%24%5e%25")]
         [DataRow("\u4523", "%%4523")]
         public void TestEscaping(string unescaped, string escaped)
         {
