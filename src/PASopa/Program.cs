@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -177,6 +178,57 @@ namespace PASopa
                     return;
                 }
             }
+            else if (mode == "-merge")
+            {
+                if (args.Length < 5)
+                {
+                    Usage();
+                    return;
+                }
+
+                string path1 = args[1];
+                string path2 = args[2];
+                string parent = args[3];
+                string pathresult = args[4];
+
+                Console.WriteLine($"Merge: {path1}, {path2} --> {pathresult} ");
+
+
+                (var app1, var errors1) = CanvasDocument.LoadFromSources(path1);
+                errors1.Write(Console.Error);
+                if (errors1.HasErrors)
+                {
+                    return;
+                }
+
+                (var app2, var errors2) = CanvasDocument.LoadFromSources(path2);
+                errors2.Write(Console.Error);
+                if (errors2.HasErrors)
+                {
+                    return;
+                }
+
+                (var parentApp, var errors3) = CanvasDocument.LoadFromSources(parent);
+                errors3.Write(Console.Error);
+                if (errors3.HasErrors)
+                {
+                    return;
+                }
+
+                (var result, var err) = CanvasMerger.Merge(app1, app2, parentApp);
+                err.Write(Console.Error);
+                if (err.HasErrors)
+                {
+                    return;
+                }
+
+                var errors = result.SaveToSources(pathresult);
+                errors.Write(Console.Error);
+                if (errors.HasErrors)
+                {
+                    return;
+                }
+            }
             else
             {
                 Usage();
@@ -192,6 +244,7 @@ namespace PASopa
                 -unpack PathToApp.msapp  // infers source folder
                 -pack  NewPathToApp.msapp PathToSourceFolder
                 -make PathToCreateApp.msapp PathToPkgFolder PathToPaFile
+                -merge path1 path2 resultpath
 
                 ");
         }
