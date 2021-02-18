@@ -130,8 +130,8 @@ namespace PASopa
                     return;
                 }
 
-                string msAppPath = args[1];
-                string inputDir = args[2];
+                string msAppPath = Path.GetFullPath(args[1]);
+                string inputDir = Path.GetFullPath(args[2]);
 
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
@@ -156,9 +156,9 @@ namespace PASopa
                     return;
                 }
 
-                string msAppPath = args[1];
-                string pkgsPath = args[2];
-                string inputPA = args[3];
+                string msAppPath = Path.GetFullPath(args[1]);
+                string pkgsPath = Path.GetFullPath(args[2]);
+                string inputPA = Path.GetFullPath(args[3]);
 
                 Console.WriteLine($"Make: {inputPA} --> {msAppPath} ");
 

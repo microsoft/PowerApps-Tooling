@@ -315,5 +315,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
             _ => input.First().ToString().ToUpper() + input.Substring(1)
         };
+
+        public static void EnsurePathRooted(string path)
+        {
+            if (!Path.IsPathRooted(path))
+            {
+                throw new ArgumentException("Path must be a full path: " + path);
+            }
+        }
     }
 }
