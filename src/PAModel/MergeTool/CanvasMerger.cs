@@ -1,6 +1,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
@@ -18,9 +19,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             return ApplyDelta(commonParent, resultDelta);
         }
 
+        // fix these to be hashsets eventually
         private static IEnumerable<IDelta> UnionDelta(IEnumerable<IDelta> ours, IEnumerable<IDelta> theirs)
         {
-            return ours;
+            var resultDeltas = new List<IDelta>();
+
+            var ourPropChanges = ours.OfType<ChangeProperty>();
+            var theirPropChanges = theirs.OfType<ChangeProperty>();
+            resultDeltas.AddRange(ourPropChanges);
+            resultDeltas.AddRange(theirPropChanges.Where(change => !ourPropChanges.Any(ourChange => ourChange.PropertyName == change.PropertyName && ourChange.ControlPath.Equals(change.ControlPath))));
+            return resultDeltas;
         }
 
 

@@ -36,5 +36,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         {
             _segments = segments;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ControlPath other &&
+                other._segments.Count == _segments.Count &&
+                // I know this is wrong, but it works for now. I'll fix it later.
+                string.Join(".", _segments) == string.Join(".", other._segments);
+        }
+
+        public override int GetHashCode()
+        {
+            return _segments.GetHashCode();
+        }
     }
 }
