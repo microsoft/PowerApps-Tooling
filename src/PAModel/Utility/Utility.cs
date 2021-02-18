@@ -258,17 +258,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             throw new InvalidOperationException($"Unrecognized hex char {ch}");
         }
+
+        // Unescaped is backwards compat.
         public static string UnEscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i < path.Length; i++)
             {
                 var ch = path[i];
-                if (DontEscapeChar(ch))
-                {
-                    sb.Append(ch);
-                }
-                else if (ch == EscapeChar)
+                if (ch == EscapeChar)
                 {
                     // Unescape 
                     int x;
@@ -291,8 +289,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 else
                 {
-                    // Error 
-                    throw new InvalidOperationException($"Can't unescape path: {path}");
+                    // Anything that is not explicitly escaped gets copied. 
+                    sb.Append(ch);
                 }
             }
             return sb.ToString();

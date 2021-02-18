@@ -759,6 +759,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 using var stream = assembly.GetManifestResourceStream(_buildVerFileName);
+                if (stream == null)
+                {
+                    return null;
+                }
                 using var reader = new StreamReader(stream);
                 var jsonString = reader.ReadToEnd();
 
