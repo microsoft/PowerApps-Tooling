@@ -29,7 +29,7 @@ steps:
   inputs:
     command: 'run'
     projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-    arguments: '-p:ADOBuild=true -- ci -c $(BuildConfiguration)'
+    arguments: '-- ci -c $(BuildConfiguration)'
 
 - task: PublishTestResults@2
   inputs:
