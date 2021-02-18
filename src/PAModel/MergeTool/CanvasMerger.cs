@@ -23,8 +23,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             return ours;
         }
 
+
+        // this is not correct, we should clone parent and then apply changes
+        // it's ok for now though
         private static CanvasDocument ApplyDelta(CanvasDocument parent, IEnumerable<IDelta> delta)
         {
+            foreach (var change in delta)
+            {
+                change.Apply(parent);
+            }
             return parent;
         }
     }

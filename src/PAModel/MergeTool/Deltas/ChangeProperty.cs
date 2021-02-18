@@ -10,19 +10,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         public ControlPath ControlPath;
         public string PropertyName;
         public string Expression;
+        public bool WasRemoved = false;
 
         public void Apply(CanvasDocument document)
         {
             var topParentName = ControlPath.Current;
             if (document._screens.TryGetValue(topParentName, out var blockNode))
             {
-                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression);
+                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression, WasRemoved);
                 return;
             }
 
             if (document._components.TryGetValue(topParentName, out blockNode))
             {
-                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression);
+                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression, WasRemoved);
                 return;
             }
             // Throw here? what does an error look like in this scenario
@@ -33,16 +34,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         {
             private string _property;
             private string _expression;
+            private bool _wasRemoved;
 
-            public static void ApplyChange(BlockNode block, ControlPath path, string property, string expression)
+            public static void ApplyChange(BlockNode block, ControlPath path, string property, string expression, bool wasRemoved)
             {
-                new ChangePropertyVisitor(property, expression).Visit(block, path);
+                new ChangePropertyVisitor(property, expression, wasRemoved).Visit(block, path);
             }
 
-            private ChangePropertyVisitor(string property, string expression)
+            private ChangePropertyVisitor(string property, string expression, bool wasRemoved)
             {
                 _property = property;
                 _expression = expression;
+                _wasRemoved = wasRemoved;
             }
 
             public override void Visit(BlockNode node, ControlPath context)
@@ -56,6 +59,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                     {
                         if (propertyNode.Identifier == _property)
                         {
+                            if (_wasRemoved)
+                            {
+                                node.Properties.Remove(propertyNode);
+                                return;
+                            }
+
                             propertyNode.Accept(this, context);
                             return;
                         }

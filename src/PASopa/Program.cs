@@ -215,12 +215,7 @@ namespace PASopa
                     return;
                 }
 
-                (var result, var err) = CanvasMerger.Merge(app1, app2, parentApp);
-                err.Write(Console.Error);
-                if (err.HasErrors)
-                {
-                    return;
-                }
+                var result = CanvasMerger.Merge(app1, app2, parentApp);
 
                 var errors = result.SaveToSources(pathresult);
                 errors.Write(Console.Error);

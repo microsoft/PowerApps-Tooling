@@ -10,7 +10,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
     {
         public static IEnumerable<IDelta> ComputeDelta(CanvasDocument parent, CanvasDocument child)
         {
-            return Enumerable.Empty<IDelta>();
+            var delta = new List<IDelta>();
+            foreach (var originalScreen in parent._screens)
+            {
+                if (child._screens.TryGetValue(originalScreen.Key, out var childScreen))
+                {
+                    delta.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalScreen.Value));
+                }
+                else
+                {
+                    // removed control
+                }
+            }
+            foreach (var newScreen in child._screens.Where(kvp => !parent._screens.ContainsKey(kvp.Key)))
+            {
+                // added control
+            }
+
+            return delta;
         }
     }
 }

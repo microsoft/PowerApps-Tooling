@@ -19,7 +19,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             return visitor._deltas;
         }
 
-        private ControlDiffVisitor() { }
+        private ControlDiffVisitor()
+        {
+            _deltas = new List<IDelta>();
+        }
 
         public override void Visit(BlockNode node, ControlDiffContext context)
         {
@@ -50,19 +53,50 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 // removed control
             }
 
+            // Let's handle properties:
+            var theirPropDict = theirs.Properties.ToDictionary(prop => prop.Identifier);
+            foreach (var prop in node.Properties)
+            {
+                var propName = prop.Identifier;
+                if (theirPropDict.TryGetValue(propName, out var theirProp))
+                {
+                    prop.Accept(this, new ControlDiffContext() { Path = controlPath, Theirs = theirProp });
+                    theirPropDict.Remove(propName);
+                }
+                else
+                {
+                    // Added prop
+                    _deltas.Add(new ChangeProperty() { ControlPath = controlPath, Expression = prop.Expression.Expression, PropertyName = prop.Identifier });
+                }
+            }
+
+            foreach (var kvp in theirChildrenDict)
+            {
+                // removed prop
+                _deltas.Add(new ChangeProperty() { ControlPath = controlPath, WasRemoved = true });
+            }
+
+
         }
 
         public override void Visit(PropertyNode node, ControlDiffContext context)
         {
-            throw new NotImplementedException();
+            if (!(context.Theirs is PropertyNode theirs))
+                return;
+
+            // Maybe add smarter diff here eventually
+            if (node.Expression.Expression != theirs.Expression.Expression)
+                _deltas.Add(new ChangeProperty() { ControlPath = context.Path, Expression = node.Expression.Expression, PropertyName = node.Identifier });
         }
+
+
+        /// Ignore below here (refactor)
+        /// 
         public override void Visit(ExpressionNode node, ControlDiffContext context)
         {
             throw new NotImplementedException();
         }
 
-
-        /// Ignore below here (refactor)
         public override void Visit(TypedNameNode node, ControlDiffContext context)
         {
             throw new NotImplementedException();
