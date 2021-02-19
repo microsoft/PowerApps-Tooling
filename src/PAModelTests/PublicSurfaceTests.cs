@@ -22,6 +22,7 @@ namespace PAModelTests
             HashSet<string> allowed = new HashSet<string>()
             {
                 $"{ns}.{nameof(CanvasDocument)}",
+                $"{ns}.{nameof(CanvasMerger)}",
                 $"{ns}.{nameof(ChecksumMaker)}",
                 $"{ns}.{nameof(ErrorContainer)}",
                 $"{ns}.{nameof(Error)}",

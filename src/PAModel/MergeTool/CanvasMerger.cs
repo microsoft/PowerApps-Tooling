@@ -1,10 +1,11 @@
+using Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
+namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     public static class CanvasMerger
     {
