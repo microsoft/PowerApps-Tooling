@@ -5,6 +5,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsLabBuild)' == 'true'">
+    <DefineConstants>$(DefineConstants);ADOBuild</DefineConstants>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <PackageReference Include="Bullseye" Version="3.4.0" />
     <PackageReference Include="Commandlineparser" Version="2.8.0" />
