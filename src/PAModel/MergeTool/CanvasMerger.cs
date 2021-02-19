@@ -16,7 +16,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var resultDelta = UnionDelta(ourDeltas, theirDeltas);
 
-
             return ApplyDelta(commonParent, resultDelta);
         }
 
@@ -48,6 +47,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var change in delta)
             {
                 change.Apply(parent);
+            }
+
+            if (delta.Any())
+            {
+                parent._entropy = new Entropy();
             }
             return parent;
         }
