@@ -1,3 +1,4 @@
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using System;
@@ -10,27 +11,48 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
     internal class ControlDiffVisitor : IRNodeVisitor<ControlDiffContext>
     {
         private List<IDelta> _deltas;
+        private EditorStateStore _editorStateStore;
 
-        public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent)
+        public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent, EditorStateStore stateStore)
         {
-            var visitor = new ControlDiffVisitor();
+            var visitor = new ControlDiffVisitor(stateStore);
             visitor.Visit(ours, new ControlDiffContext() { Theirs = parent, Path = new ControlPath(new List<string>()) });
 
             return visitor._deltas;
         }
 
-        private ControlDiffVisitor()
+        private ControlDiffVisitor(EditorStateStore stateStore)
         {
             _deltas = new List<IDelta>();
+            _editorStateStore = stateStore;
+        }
+
+        private Dictionary<string, ControlState> GetSubtreeStates(BlockNode node)
+        {
+            return GetSubtreeStatesImpl(node).ToDictionary(state => state.Name);
+        }
+
+        private IEnumerable<ControlState> GetSubtreeStatesImpl(BlockNode node)
+        {
+            var childstates = node.Children?.SelectMany(child => GetSubtreeStatesImpl(child)) ?? Enumerable.Empty<ControlState>();
+
+            if (!_editorStateStore.TryGetControlState(node.Name.Identifier, out var state))
+                return childstates;
+
+            return childstates.Concat(new List<ControlState>() { state });
         }
 
         public override void Visit(BlockNode node, ControlDiffContext context)
         {
             if (!(context.Theirs is BlockNode theirs))
                 return;
+
             if (node.Name.Kind.TypeName != theirs.Name.Kind.TypeName)
-                // add and remove diff
+            {
+                _deltas.Add(new RemoveControl() { ParentControlPath = context.Path, ControlName = node.Name.Identifier });
+                _deltas.Add(new AddControl() { ParentControlPath = context.Path, Control = node, ControlStates = GetSubtreeStates(node) });
                 return;
+            }
 
             var controlPath = context.Path.Append(node.Name.Identifier);
 
@@ -45,12 +67,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
                 else
                 {
-                    // Added control
+                    _deltas.Add(new AddControl() { ParentControlPath = controlPath, Control = child, ControlStates = GetSubtreeStates(child) });
                 }
             }
             foreach (var kvp in theirChildrenDict)
             {
-                // removed control
+                _deltas.Add(new RemoveControl() { ParentControlPath = controlPath, ControlName = kvp.Key });
             }
 
             // Let's handle properties:

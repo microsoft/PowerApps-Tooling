@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             }
             foreach (var newScreen in child._screens.Where(kvp => !parent._screens.ContainsKey(kvp.Key)))
             {
-                // added control
+                delta.Add(new AddControl() { Control = newScreen.Value, ControlStates = child._editorStateStore.GetControlsWithTopParent(newScreen.Key).ToDictionary(state => state.Name), ParentControlPath = ControlPath.Empty });
             }
 
             return delta;
