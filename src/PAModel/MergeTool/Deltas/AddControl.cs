@@ -17,30 +17,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             // Screen addition
             if (ParentControlPath == ControlPath.Empty)
             {
-                var screen = PrepareControlTree(Control, document._editorStateStore);
+                var screen = PrepareControlTree(this.Control, document._editorStateStore);
                 document._screens.Add(screen.Name.Identifier, screen);
                 return;
             }
 
-            // error case?
+            // screen was removed?
             if (!document._screens.TryGetValue(ParentControlPath.Current, out var control))
                 return;
 
             var path = ParentControlPath.Next();
             while (path.Current != null)
             {
+                var found = false;
                 foreach (var child in control.Children)
                 {
                     if (child.Name.Identifier == path.Current)
                     {
                         control = child;
                         path = path.Next();
+                        found = true;
                         break;
                     }
                 }
+                // tree was deleted
+                if (!found) return;
             }
 
-            control.Children.Add(PrepareControlTree(control, document._editorStateStore));
+            control.Children.Add(PrepareControlTree(this.Control, document._editorStateStore));
         }
 
         private BlockNode PrepareControlTree(BlockNode root, EditorStateStore stateStore)
@@ -53,12 +57,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 
             var name = root.Name.Identifier;
             var newName = GetUniqueControlName(name, stateStore);
-            if (!ControlStates.TryGetValue(name, out var state))
+
+            // If the state exists, update it and add to merged document
+            if (ControlStates.TryGetValue(name, out var state))
             {
-                throw new NotImplementedException();
+                state.Name = newName;
+                stateStore.TryAddControl(state);
             }
-            state.Name = newName;
-            stateStore.TryAddControl(state);
 
             return new BlockNode()
             {

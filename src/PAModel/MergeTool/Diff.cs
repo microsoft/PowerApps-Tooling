@@ -15,7 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             {
                 if (child._screens.TryGetValue(originalScreen.Key, out var childScreen))
                 {
-                    delta.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalScreen.Value));
+                    delta.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalScreen.Value, parent._editorStateStore));
                 }
                 else
                 {

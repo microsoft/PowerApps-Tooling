@@ -19,10 +19,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             return ApplyDelta(commonParent, resultDelta);
         }
 
-        // fix these to be hashsets eventually
+        // fix these to be hashsets eventually?
         private static IEnumerable<IDelta> UnionDelta(IEnumerable<IDelta> ours, IEnumerable<IDelta> theirs)
         {
             var resultDeltas = new List<IDelta>();
+
+            // If we apply the removes before the adds, adds will fail if they're in a tree that's been removed
+            // This is intended but we should talk about it
+            resultDeltas.AddRange(ours.OfType<RemoveControl>());
+            resultDeltas.AddRange(theirs.OfType<RemoveControl>());
+
+            resultDeltas.AddRange(ours.OfType<AddControl>());
+            resultDeltas.AddRange(theirs.OfType<AddControl>());
 
             var ourPropChanges = ours.OfType<ChangeProperty>();
             var theirPropChanges = theirs.OfType<ChangeProperty>();

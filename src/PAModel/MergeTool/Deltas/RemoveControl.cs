@@ -27,15 +27,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             var path = ParentControlPath.Next();
             while (path.Current != null)
             {
+                var found = false;
                 foreach (var child in control.Children)
                 {
                     if (child.Name.Identifier == path.Current)
                     {
                         control = child;
                         path = path.Next();
+                        found = true;
                         break;
                     }
                 }
+                // Already removed
+                if (!found) return;
             }
 
             // Remove the control
