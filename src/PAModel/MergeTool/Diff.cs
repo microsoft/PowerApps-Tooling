@@ -19,7 +19,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
                 else
                 {
-                    // removed control
+                    delta.Add(new RemoveControl() { ControlName = originalScreen.Key, ParentControlPath = ControlPath.Empty });
                 }
             }
             foreach (var newScreen in child._screens.Where(kvp => !parent._screens.ContainsKey(kvp.Key)))

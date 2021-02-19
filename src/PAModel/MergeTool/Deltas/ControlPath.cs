@@ -9,9 +9,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
     [DebuggerDisplay("{string.Join('.', _segments)}")]
     internal class ControlPath
     {
+        // switch this to be a queue?
         private List<string> _segments;
-
         public string Current => _segments.Any() ? _segments[0] : null;
+        public static ControlPath Empty => new ControlPath(new List<string>());
 
         public ControlPath Next()
         {
@@ -22,8 +23,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             }
             return new ControlPath(newSegments);
         }
-
-
 
         public ControlPath Append(string controlName)
         {
