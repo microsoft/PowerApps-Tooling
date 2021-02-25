@@ -667,7 +667,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
                         var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
-
+                        
                         if (foundXML || foundJson)
                         {
                             ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
