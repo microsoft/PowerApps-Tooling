@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -47,33 +49,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return checksumMaker.GetChecksum();
         }
 
-        public void AddFile(string filename, byte[] bytes)
+        // Return null if not checksumed
+        // T is the checksum aglorithm to use  - this allows passing in a debug algorithm. 
+        internal static byte[] ChecksumFile<T>(string filename, byte[] bytes)
+            where T : IHashMaker, new()
         {
-#if false
-            // Help in debugging checksum errors. 
-            if (filename == "References\\DataSources.json")
-            {
-                var path = @"C:\temp\a1.json";
-                var str = JsonNormalizer.Normalize(Encoding.UTF8.GetString(bytes));
-                bytes = Encoding.UTF8.GetBytes(str);
-                File.WriteAllBytes(path, bytes);
-            }
-#endif
-
             if (filename.EndsWith(ChecksumName, StringComparison.OrdinalIgnoreCase))
             {
                 // Ignore the checksum file, else we'd have a circular reference. 
-                return;
+                return null;
             }
 
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {
-                AddJsonFile(filename, bytes);
+                var key = ChecksumJsonFile<T>(filename, bytes);
+                return key;
             }
             else
             {
-                _files.Add(filename, bytes);
+                // $$$ hash this?
+                return bytes;
+            }
+        }
+
+        public void AddFile(string filename, byte[] bytes)
+        {
+            var key = ChecksumFile<Sha256HashMaker>(filename, bytes);
+            if (key != null)
+            {
+                _files.Add(filename, key);
             }
         }
 
@@ -148,7 +153,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Add json - handle the non-canonical format. 
-        private void AddJsonFile(string filename, byte[] bytes)
+        private static byte[] ChecksumJsonFile<T>(string filename, byte[] bytes)
+            where T : IHashMaker, new()
         {
             var s = new ReadOnlyMemory<byte>(bytes);
             using (var doc = JsonDocument.Parse(s))
@@ -157,12 +163,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var ctx = new Context { Filename = filename };
 
-                using (var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
+                using (var hash = new T())
                 {
                     ChecksumJson(ctx, hash, je);
 
-                    var key = hash.GetHashAndReset();
-                    _files.Add(filename, key);
+                    var key = hash.GetFinalValue();
+                    return key;
                 }
             }
         }
@@ -222,18 +228,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Traverse the Json object in a deterministic way
-        private static void ChecksumJson(Context ctx, IncrementalHash hash, JsonElement je)
+        private static void ChecksumJson(Context ctx, IHashMaker hash, JsonElement je)
         {
             switch (je.ValueKind)
             {
                 case JsonValueKind.Array:
+                    hash.AppendStartArray();
                     foreach (var element in je.EnumerateArray())
                     {
                         ChecksumJson(ctx, hash, element);
                     }
+                    hash.AppendEndArray();
                     break;
 
                 case JsonValueKind.Object:
+                    hash.AppendStartObj();
                     // Server has bug where it double emits the same property!
                     // Only use once in checksum. 
                     HashSet<string> propertyNames = new HashSet<string>();
@@ -247,6 +256,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                             if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
                             {
+                                hash.AppendPropName(prop.Name);
+
                                 // Invariant script can contain Formulas. 
                                 var str2 = prop.Value.GetString();
                                 str2 = NormFormulaWhitespace(str2);
@@ -254,13 +265,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                             else if (kind != JsonValueKind.Null)
                             {
-                                hash.AppendData(prop.Name);
+                                hash.AppendPropName(prop.Name);
+
                                 ctx.Push(prop.Name);
                                 ChecksumJson(ctx, hash, prop.Value);
                                 ctx.Pop();
+                            } else
+                            {
+
                             }
                         }
                     }
+                    hash.AppendEndObj();
                     break;
 
                 case JsonValueKind.Number:
@@ -276,7 +292,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     break;
 
                 case JsonValueKind.Null:
-                    hash.AppendData(false);
+                    hash.AppendNull();                    
                     break;
 
                 case JsonValueKind.String:
