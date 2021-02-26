@@ -49,6 +49,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return checksumMaker.GetChecksum();
         }
 
+        public void AddFile(string filename, byte[] bytes)
+        {
+            var key = ChecksumFile<Sha256HashMaker>(filename, bytes);
+            if (key != null)
+            {
+                _files.Add(filename, key);
+            }
+        }
+
         // Return null if not checksumed
         // T is the checksum aglorithm to use  - this allows passing in a debug algorithm. 
         internal static byte[] ChecksumFile<T>(string filename, byte[] bytes)
@@ -70,15 +79,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 // $$$ hash this?
                 return bytes;
-            }
-        }
-
-        public void AddFile(string filename, byte[] bytes)
-        {
-            var key = ChecksumFile<Sha256HashMaker>(filename, bytes);
-            if (key != null)
-            {
-                _files.Add(filename, key);
             }
         }
 
@@ -256,7 +256,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                             if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
                             {
-                                hash.AppendPropName(prop.Name);
+                                hash.AppendPropNameSkip(prop.Name);
 
                                 // Invariant script can contain Formulas. 
                                 var str2 = prop.Value.GetString();
