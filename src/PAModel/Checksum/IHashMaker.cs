@@ -20,6 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         void AppendStartObj();
         void AppendPropName(string name);
+        void AppendPropNameSkip(string name);
         void AppendEndObj();
         void AppendStartArray();
         void AppendEndArray();
@@ -60,6 +61,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AppendPropName(string name)
         {
             this.AppendData(name);
+        }
+        public void AppendPropNameSkip(string name)
+        {
+            // Skipped. 
         }
 
         public void AppendStartObj()
@@ -147,6 +152,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AppendPropName(string name)
         {
             _writer.WritePropertyName(name);
+        }
+        public void AppendPropNameSkip(string name)
+        {
+            this.AppendPropName(name);
         }
 
         public void AppendStartArray()
