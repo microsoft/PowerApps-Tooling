@@ -1,83 +1,83 @@
 Test_7F478737223C4B69 As AppTest:
 
     "'a050de8b-caa1-4092-9de2-8bad55f6aa8a' As TestSuite":
-        DisplayName: ="Suite"
         Description: =""
+        DisplayName: ="Suite"
 
         "'06c8b692-98f2-49b9-a79d-424d968505c4' As TestCase":
-            DisplayName: ="Case"
             Description: =""
+            DisplayName: ="Case"
 
             Step1 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step2 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step3 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step4 As TestStep:
                 Description: ="Select 'Label1'"
-                Value: =Assert('Label1'.Text = "3", "Value is 3")
                 Screen: =Screen1
+                Value: =Assert('Label1'.Text = "3", "Value is 3")
 
             Step5 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step6 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step7 As TestStep:
                 Description: ="Select 'Label1'"
-                Value: =Assert('Label1'.Text= "5", "Value is 5"   /* comment here */)
                 Screen: =Screen1
+                Value: =Assert('Label1'.Text= "5", "Value is 5"   /* comment here */)
 
         "'a46b12b7-dd69-41d0-8711-55e982a93a6f' As TestCase":
-            DisplayName: ="Case (1)"
             Description: =""
+            DisplayName: ="Case (1)"
 
             Step1 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step2 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step3 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step4 As TestStep:
                 Description: ="Select 'Label1'"
-                Value: =Assert('Label1'.Text = "3", "Value is 3")
                 Screen: =Screen1
+                Value: =Assert('Label1'.Text = "3", "Value is 3")
 
             Step5 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step6 As TestStep:
                 Description: ="Select 'Button1'"
-                Value: =Select('Button1')
                 Screen: =Screen1
+                Value: =Select('Button1')
 
             Step7 As TestStep:
                 Description: ="Select 'Label1'"
-                Value: =Assert('Label1'.Text= "6", "Value is 5"   /* wrong? */)
                 Screen: =Screen1
+                Value: =Assert('Label1'.Text= "6", "Value is 5"   /* wrong? */)

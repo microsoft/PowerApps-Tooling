@@ -1,30 +1,29 @@
 Screen1 As screen:
 
     Group1 As group:
+        Height: =5
+        Width: =5
         X: =100
         Y: =100
-        Width: =5
-        Height: =5
         ZIndex: =4
 
         Label1 As label:
-            Text: ="Text3"
             Font: =Font.'Great Vibes'
+            Text: ="Text3"
             X: =40
             Y: =40
             ZIndex: =1
 
         Label2 As label:
-            Text: ="Text2"
             Font: =Font.'Great Vibes'
+            Text: ="Text2"
             X: =60
             Y: =60
             ZIndex: =2
 
         Label3 As label:
-            Text: ="Text1"
             Font: =Font.'Great Vibes'
+            Text: ="Text1"
             X: =80
             Y: =80
             ZIndex: =3
-

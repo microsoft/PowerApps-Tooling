@@ -3,20 +3,19 @@ Screen1 As screen:
     Width: =Max(App.Width, App.DesignWidth)
 
     Label1 As label:
+        Height: =70
+        Size: =21
         Text: =MSNWeather.CurrentWeather("redmond", "Imperial").responses.weather.current.temp
+        Width: =560
         X: =40
         Y: =40
-        Width: =560
-        Height: =70
         ZIndex: =1
-        Size: =21
 
     Label2 As label:
+        Height: =70
+        Size: =21
         Text: ="Hello"
+        Width: =560
         X: =40
         Y: =130
-        Width: =560
-        Height: =70
         ZIndex: =2
-        Size: =21
-
