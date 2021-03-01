@@ -667,12 +667,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
                         var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
-                        if (!foundXML && !foundJson)
+                        
+                        if (foundXML || foundJson)
                         {
-                            errors.ValidationError($"No matching wadl or swagger def for {file._relativeName}");
-                            throw new DocumentException();
+                            ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
                         }
-                        ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
                     }
 
                     app.AddDataSourceForLoad(ds);
@@ -759,6 +758,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 using var stream = assembly.GetManifestResourceStream(_buildVerFileName);
+                if (stream == null)
+                {
+                    return null;
+                }
                 using var reader = new StreamReader(stream);
                 var jsonString = reader.ReadToEnd();
 

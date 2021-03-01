@@ -14,14 +14,14 @@ Component1 As CanvasComponent:
     ZIndex: =1
 
     Label2 As label:
+        Height: =46
+        Size: =24
         Text: |-
             ="The dates are valid: " & Component1.ValidateDates( DatePicker1.SelectedDate, DatePicker2.SelectedDate )
+        Width: =404
         X: =40
         Y: =282
-        Width: =404
-        Height: =46
         ZIndex: =2
-        Size: =24
 
     DatePicker1 As datepicker:
         X: =171
@@ -46,4 +46,3 @@ Component1 As CanvasComponent:
         X: =40
         Y: =159
         ZIndex: =6
-

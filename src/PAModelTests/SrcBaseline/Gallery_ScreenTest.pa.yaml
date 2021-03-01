@@ -2,15 +2,15 @@ Screen1 As screen:
 
     Gallery1 As gallery.galleryVertical:
         Items: =Accounts
-        TemplateSize: =If(Self.Layout = Layout.Horizontal, Min(280, Self.Width - 60), Min(280, Self.Height - 60))
         Layout: =Layout.Vertical
+        TemplateSize: =If(Self.Layout = Layout.Horizontal, Min(280, Self.Width - 60), Min(280, Self.Height - 60))
         X: =40
         Y: =40
         ZIndex: =1
 
         Label1 As label:
+            OnSelect: =Select(Parent)
             Text: =ThisItem.'Account Name'
             X: =40
             Y: =40
             ZIndex: =1
-            OnSelect: =Select(Parent)
