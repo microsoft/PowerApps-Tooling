@@ -128,6 +128,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
             return errors;
         }
+
+        // Used to validate roundtrip after unpack
+        internal ErrorContainer SaveToMsAppValidation(string fullPathToMsApp)
+        {
+            Utility.EnsurePathRooted(fullPathToMsApp);
+
+            var errors = new ErrorContainer();
+            Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors, isValidation: true), errors);
+            return errors;
+        }
         public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
             Utility.EnsurePathRooted(pathToSourceDirectory);

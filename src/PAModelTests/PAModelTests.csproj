@@ -20,7 +20,7 @@
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SrcBaseline\*.pa.yaml">
+    <Content Include="SrcBaseline\*.fx.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>    
     <Content Include="Templates\*.xml">

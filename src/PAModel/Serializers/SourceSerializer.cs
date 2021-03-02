@@ -38,7 +38,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 16 - Group Control transform
         // 17 - Moved PublishOrderIndex entirely to Entropy 
         // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
-        public static Version CurrentSourceVersion = new Version(0, 18);
+        // 19 - Switch extension to .fx.yaml 
+        public static Version CurrentSourceVersion = new Version(0, 19);
 
         // Layout is:
         //  src\
@@ -297,7 +298,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // For now, the Themes file lives in CodeDir as a json file
-            // We'd like to make this .pa.yaml as well eventually
+            // We'd like to make this .fx.yaml as well eventually
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json", searchSubdirectories: false))
             {
                 if (Path.GetFileName(file._relativeName) == "Themes.json")
@@ -305,18 +306,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
 
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.pa.yaml", searchSubdirectories: false))
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
             {
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
 
-            foreach (var file in EnumerateComponentDirs(directory, "*.pa.yaml"))
+            foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
 
             }
 
-            foreach (var file in directory.EnumerateFiles(TestDir, "*.pa.yaml"))
+            foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
@@ -719,7 +720,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
 
-            string filename = controlName + ".pa.yaml";
+            string filename = controlName + ".fx.yaml";
 
             
             dir.WriteAllText(subDir, filename, text);
