@@ -435,10 +435,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             errors.ChecksumMismatch("Extra file " + file.Key);
                         }
                     }
-#endif
                 }
+                
+#endif
             }
-
+            
             var checksumJson = new ChecksumJson
             {
                 ClientStampedChecksum = hash.wholeChecksum,
