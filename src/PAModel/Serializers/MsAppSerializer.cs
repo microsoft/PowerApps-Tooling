@@ -436,7 +436,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (isValidation)
                 {
                     errors.PostUnpackValidationFailed();
-                    //throw new DocumentException();
+                    throw new DocumentException();
                 }
 
                 errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
