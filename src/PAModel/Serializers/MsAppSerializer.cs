@@ -202,6 +202,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template.IsComponentLocked = componentTemplate.IsComponentLocked;
                     template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
                     template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+                    template.ComponentExtraMetadata = componentTemplate.ExtensionData;
 
                     if (template.Version != componentTemplate.Version)
                     {
@@ -405,14 +406,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
-                if (isValidation)
-                {
-                    errors.PostUnpackValidationFailed();
-                    throw new DocumentException();
-                }
-
-                errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
-
                 // These warnings are Debug only. Throwing a bunch of warning messages at the customer could lead to them ignoring real errors.
 #if DEBUG
                 if (app._checksum.ClientPerFileChecksums != null)
@@ -436,8 +429,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
-                
+
 #endif
+
+                // These are the non-debug warnings, if it's unpack this was a serious error, on -pack it's most likely not
+                if (isValidation)
+                {
+                    errors.PostUnpackValidationFailed();
+                    throw new DocumentException();
+                }
+
+                errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
             }
             
             var checksumJson = new ChecksumJson
