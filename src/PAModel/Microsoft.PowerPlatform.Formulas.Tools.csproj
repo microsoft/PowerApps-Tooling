@@ -15,12 +15,21 @@
     <PackageProjectUrl>https://github.com/microsoft/PowerApps-Language-Tooling</PackageProjectUrl>
     <PackageLicenseUrl>http://download.microsoft.com/download/E/1/8/E18C0FAD-FEC8-44CD-9A16-98EDC4DAC7A2/LicenseTerms.docx</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Description>Alpha Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
+    <Description>Preview Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
     <PackageReleaseNotes>
         Notice: 
-            This package is an ALPHA release. - Use at your own risk.
+            This package is an preview release. - Use at your own risk.
             This package is a .NET Standard 2.0 project, intended to work with .NET Framework 4.7.2 or later, and .NET Core 2.2 or later
             We have not stabilized on Namespace or Class names with this package as of yet and things will change as we move though the preview.
+
+        0.2.0-preview
+            Changed file extension to .fx.yaml, other bug fixes and improvements
+
+        0.1.1-preview
+            Changed checksum implementation, bug fixes 
+
+        0.1.0-preview
+            Initial Preview Release
 
         0.0.2-alpha
             Updated control format to be YAML Compatible

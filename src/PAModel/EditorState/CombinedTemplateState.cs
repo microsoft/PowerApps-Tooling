@@ -47,6 +47,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
 
+        // Maps to TemplateMetadataJson ExtensionData
+        public Dictionary<string, object> ComponentExtraMetadata { get; set; }
+
 
         public CombinedTemplateState() { }
 
@@ -100,6 +103,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 ComponentType = ComponentType,
                 ComponentChangedSinceFileImport = ComponentChangedSinceFileImport,
                 ComponentAllowCustomization = ComponentAllowCustomization,
+                ExtensionData = ComponentExtraMetadata,
             };
         }
     }

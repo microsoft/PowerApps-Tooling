@@ -202,6 +202,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template.IsComponentLocked = componentTemplate.IsComponentLocked;
                     template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
                     template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+                    template.ComponentExtraMetadata = componentTemplate.ExtensionData;
 
                     if (template.Version != componentTemplate.Version)
                     {
@@ -213,7 +214,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
-                if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum.wholeChecksum)
+
+                // This is debug only. The server checksum is out of date with the client checksum
+                // The main checksum validation that matters is the repack after unpack
+#if DEBUG
+                if (app._checksum.ServerStampedChecksum != null && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
@@ -240,6 +245,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
+#endif
+
                 app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
                 app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
                 // Normalize logo filename. 
@@ -351,7 +358,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Write back out to a msapp file. 
-        public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors)
+        public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors, bool isValidation = false)
         {
             app.ApplyBeforeMsAppWriteTransforms(errors);
 
@@ -386,24 +393,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
-                ComputeAndWriteChecksum(app, checksum, z, errors);
+                ComputeAndWriteChecksum(app, checksum, z, errors, isValidation);
             }
 
             // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
             app.ApplyAfterMsAppLoadTransforms(errors);
         }
 
-        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors)
+        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors, bool isValidation)
         {
             var hash = checksum.GetChecksum();
 
-
-            if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
+            if (app._checksum != null && hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
+                // These warnings are Debug only. Throwing a bunch of warning messages at the customer could lead to them ignoring real errors.
+#if DEBUG
                 if (app._checksum.ClientPerFileChecksums != null)
                 {
-                    // We had offline edits!
-                    errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
                     foreach (var file in app._checksum.ClientPerFileChecksums)
                     {
                         if (!hash.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
@@ -423,14 +429,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
-            }
 
+#endif
+
+                // These are the non-debug warnings, if it's unpack this was a serious error, on -pack it's most likely not
+                if (isValidation)
+                {
+                    errors.PostUnpackValidationFailed();
+                    throw new DocumentException();
+                }
+
+                errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
+            }
+            
             var checksumJson = new ChecksumJson
             {
                 ClientStampedChecksum = hash.wholeChecksum,
                 ClientPerFileChecksums = hash.perFileChecksum,
-                ServerStampedChecksum = app._checksum.ServerStampedChecksum,
-                ServerPerFileChecksums = app._checksum.ServerPerFileChecksums,
+                ServerStampedChecksum = app._checksum?.ServerStampedChecksum,
+                ServerPerFileChecksums = app._checksum?.ServerPerFileChecksums,
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);
@@ -549,7 +566,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
 
-            foreach (var sourceFile in sourceFiles)
+
+            // This ordering is essential, we need to match the order in which Studio writes the files to replicate certain order-dependent behavior.
+            foreach (var sourceFile in sourceFiles.OrderBy(file => file.GetMsAppFilename()))
             {
                 yield return sourceFile.ToMsAppFile();
             }

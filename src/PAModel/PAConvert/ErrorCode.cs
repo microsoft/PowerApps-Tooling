@@ -52,6 +52,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Msapp is corrupt. Can't read it. 
         CantReadMsApp = 3010,
 
+        // Post-unpack validation failed, this always indicates a bug on our side
+        UnpackValidationFailed = 3011,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -67,6 +70,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void ChecksumMismatch(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
+        }
+
+        public static void PostUnpackValidationFailed(this ErrorContainer errors)
+        {
+            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. This is always a bug, please file an issue at https://github.com/microsoft/PowerApps-Language-Tooling" );
         }
 
         public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)

@@ -28,6 +28,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public CustomPropertyJson[] CustomProperties { get; set; }
 
         public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; } = null;
+
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
+
         public void Validate()
         {
             if (DataComponentDefinitionKey?.ComponentRawMetadataKey != null)

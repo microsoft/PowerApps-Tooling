@@ -90,6 +90,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var errors = new ErrorContainer();
 
+            Utility.EnsurePathRooted(fullPathToMsApp);
+
             if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("Only works for .msapp files");
@@ -111,6 +113,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
+            Utility.EnsurePathRooted(pathToSourceDirectory);
+
             var errors = new ErrorContainer();
             var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
             return (doc, errors);
@@ -118,12 +122,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public ErrorContainer SaveToMsApp(string fullPathToMsApp)
         {
+            Utility.EnsurePathRooted(fullPathToMsApp);
+
             var errors = new ErrorContainer();
             Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
             return errors;
         }
+
+        // Used to validate roundtrip after unpack
+        internal ErrorContainer SaveToMsAppValidation(string fullPathToMsApp)
+        {
+            Utility.EnsurePathRooted(fullPathToMsApp);
+
+            var errors = new ErrorContainer();
+            Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors, isValidation: true), errors);
+            return errors;
+        }
         public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
+            Utility.EnsurePathRooted(pathToSourceDirectory);
+
             var errors = new ErrorContainer();
             Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
             return errors;

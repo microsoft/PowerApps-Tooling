@@ -19,6 +19,14 @@ namespace PAModelTests
             Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
         }
 
+        [DataTestMethod]
+        [DataRow("foo-%41", "foo-A")]
+        [DataRow("[]_' ", "[]_' ")] // unescape only touches % character.
+        public void TestUnescape(string escaped, string unescaped)
+        {
+            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+        }
+
         [TestMethod]
         public void TestNotEscaped()
         {
@@ -36,6 +44,8 @@ namespace PAModelTests
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
         [DataRow(@"C:\DataSources\JourneyPlanner|Sendforapproval.json", "C:\\", @"DataSources\JourneyPlanner|Sendforapproval.json")]
         [DataRow(@"C:\DataSources\JourneyPlanner%7cSendforapproval.json", "C:\\", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
+        [DataRow(@"d:\app\Src\EditorState\Screen%252.editorstate.json",
+            @"d:\app", @"Src\EditorState\Screen%252.editorstate.json" )]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
             // Test non-windows paths if on other platforms

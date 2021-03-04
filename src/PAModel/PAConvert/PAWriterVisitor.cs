@@ -47,13 +47,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             node.Name.Accept(this, context);
             context._yaml.WriteStartObject(context._sb.ToString());
 
-            
-            foreach (var func in node.Functions)
+            // Ensure the order we write properties is canonical so that we don't get
+            // noisy diffs on multiple exports. 
+            foreach (var func in node.Functions.OrderBy(x => x.Identifier))
             {
                 func.Accept(this, context);
             }
 
-            foreach (var prop in node.Properties)
+            foreach (var prop in node.Properties.OrderBy(x => x.Identifier))
             {
                 prop.Accept(this, context);
             }
