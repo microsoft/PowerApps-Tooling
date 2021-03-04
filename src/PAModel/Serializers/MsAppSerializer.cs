@@ -404,7 +404,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var hash = checksum.GetChecksum();
 
-            if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
+            if (app._checksum != null && hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
                 // These warnings are Debug only. Throwing a bunch of warning messages at the customer could lead to them ignoring real errors.
 #if DEBUG
@@ -446,8 +446,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 ClientStampedChecksum = hash.wholeChecksum,
                 ClientPerFileChecksums = hash.perFileChecksum,
-                ServerStampedChecksum = app._checksum.ServerStampedChecksum,
-                ServerPerFileChecksums = app._checksum.ServerPerFileChecksums,
+                ServerStampedChecksum = app._checksum?.ServerStampedChecksum,
+                ServerPerFileChecksums = app._checksum?.ServerPerFileChecksums,
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);
