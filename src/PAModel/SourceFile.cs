@@ -30,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // For a data component, this is a guid. Very important. 
         public string TemplateName => this.Value.TopParent.Template.Name;
 
-        private string GetMsAppFilename()
+        internal string GetMsAppFilename()
         {
             if (this.Kind == SourceKind.Control)
             {
