@@ -566,7 +566,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
 
-            foreach (var sourceFile in sourceFiles)
+            foreach (var sourceFile in sourceFiles.OrderBy(file => file.GetMsAppFilename()))
             {
                 yield return sourceFile.ToMsAppFile();
             }
