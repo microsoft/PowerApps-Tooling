@@ -566,6 +566,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
 
+
+            // This ordering is essential, we need to match the order in which Studio writes the files to replicate certain order-dependent behavior.
             foreach (var sourceFile in sourceFiles.OrderBy(file => file.GetMsAppFilename()))
             {
                 yield return sourceFile.ToMsAppFile();
