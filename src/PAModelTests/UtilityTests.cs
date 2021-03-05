@@ -11,7 +11,7 @@ namespace PAModelTests
     public class UtilityTests
     {
         [DataTestMethod]
-        [DataRow("\r\t!$^%", "%0d%09%21%24%5e%25")]
+        [DataRow("\r\t!$^%/\\", "%0d%09%21%24%5e%25%2f%5c")]
         [DataRow("\u4523", "%%4523")]
         public void TestEscaping(string unescaped, string escaped)
         {
@@ -31,7 +31,7 @@ namespace PAModelTests
         public void TestNotEscaped()
         {
             // Not escaped.
-            var a = "0123456789AZaz[]_. " + Path.DirectorySeparatorChar;
+            var a = "0123456789AZaz[]_. ";
             Assert.AreEqual(Utilities.EscapeFilename(a), a);
         }
 
