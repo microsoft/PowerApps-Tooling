@@ -29,12 +29,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 
         public static FilePath FromPlatformPath(string path)
         {
+            if (path == null)
+                return new FilePath();
             var segments = path.Split(Path.DirectorySeparatorChar).Select(Utilities.UnEscapeFilename);
             return new FilePath(segments.ToArray());
         }
 
         public static FilePath FromMsAppPath(string path)
         {
+            if (path == null)
+                return new FilePath();
             var segments = path.Split('\\');
             return new FilePath(segments);
         }
