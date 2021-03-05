@@ -131,7 +131,6 @@ namespace targets
                 }
             }
             catch (AccessViolationException) { /* swallow */ }
-            catch (IOException) { Directory.Delete(directoryPath, true); /* try again */ }
         }
     }
 }
