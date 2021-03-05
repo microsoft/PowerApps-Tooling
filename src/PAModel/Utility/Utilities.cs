@@ -20,7 +20,7 @@ using System.Text.Json.Serialization;
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Various utility methods. 
-    internal static class Utility
+    internal static class Utilities
     {
         // Allows using with { } initializers, which require an Add() method. 
         public static void Add<T>(this Stack<T> stack, T item)
@@ -210,8 +210,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (ch == '[' || ch == ']') || // common in SQL connection names 
                 (ch == '_') ||
                 (ch == '.') ||
-                (ch == ' ') || // allow spaces, very common.  
-                (ch == Path.DirectorySeparatorChar); // Allow directory separators. 
+                (ch == ' '); // allow spaces, very common.
         }
 
         // For writing out to a director. 

@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,7 +66,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     checksumMaker.AddFile(entry.FullName, entry.ToBytes());
 
                     var fullName = entry.FullName;
-                    var kind = FileEntry.TriageKind(fullName);
+                    var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(fullName));
 
                     switch (kind)
                     {
@@ -164,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.DataSources:
                             {
                                 var dataSources = ToObject<DataSourcesJson>(entry);
-                                Utility.EnsureNoExtraData(dataSources.ExtensionData);
+                                Utilities.EnsureNoExtraData(dataSources.ExtensionData);
 
                                 int iOrder = 0;
                                 foreach (var ds in dataSources.DataSources)
@@ -254,21 +255,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (app._properties.LibraryDependencies != null)
                 {
-                    var refs = Utility.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                    var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
                     app._libraryReferences = refs;
                     app._properties.LibraryDependencies = null;
                 }
 
                 if (app._properties.LocalConnectionReferences != null)
                 {
-                    var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+                    var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;
                     app._properties.LocalConnectionReferences = null;
                 }
 
                 if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
                 {
-                    var dsrs = Utility.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                    var dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                     app._dataSourceReferences = dsrs;
                     app._properties.LocalDatabaseReferences = null;
                 }
@@ -384,11 +385,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (entry != null)
                     {
-                        var e = z.CreateEntry(entry.Name);
+                        var e = z.CreateEntry(entry.Name.ToMsAppPath());
                         using (var dest = e.Open())
                         {
                             dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
-                            checksum.AddFile(entry.Name, entry.RawBytes);
+                            checksum.AddFile(entry.Name.ToMsAppPath(), entry.RawBytes);
                         }
                     }
                 }
@@ -451,7 +452,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);
-            var e = z.CreateEntry(entry.Name);
+            var e = z.CreateEntry(entry.Name.ToMsAppPath());
             using (var dest = e.Open())
             {
                 dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
@@ -476,18 +477,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
-                var json = Utility.JsonSerialize(app._connections);
+                var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
             if (app._dataSourceReferences != null)
             {
-                var json = Utility.JsonSerialize(app._dataSourceReferences);
+                var json = Utilities.JsonSerialize(app._dataSourceReferences);
                 props.LocalDatabaseReferences = json;
             }
 
             if (app._libraryReferences != null)
             {
-                var json = Utility.JsonSerialize(app._libraryReferences);
+                var json = Utilities.JsonSerialize(app._libraryReferences);
                 props.LibraryDependencies = json;
             }
 
@@ -693,7 +694,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var assetFile in app._assetFiles)
             {
-                yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
+                yield return new FileEntry { Name = FilePath.RootedAt("Assets", assetFile.Value.Name), RawBytes = assetFile.Value.RawBytes };
             }
         }
 
@@ -743,7 +744,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var filename = FileEntry.GetFilenameForKind(kind);
 
-            var jsonStr = JsonSerializer.Serialize(value, Utility._jsonOpts);
+            var jsonStr = JsonSerializer.Serialize(value, Utilities._jsonOpts);
 
             jsonStr = JsonNormalizer.Normalize(jsonStr);
 

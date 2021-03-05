@@ -15,8 +15,8 @@ namespace PAModelTests
         [DataRow("\u4523", "%%4523")]
         public void TestEscaping(string unescaped, string escaped)
         {
-            Assert.AreEqual(Utility.EscapeFilename(unescaped), escaped);
-            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+            Assert.AreEqual(Utilities.EscapeFilename(unescaped), escaped);
+            Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
         }
 
         [DataTestMethod]
@@ -24,7 +24,7 @@ namespace PAModelTests
         [DataRow("[]_' ", "[]_' ")] // unescape only touches % character.
         public void TestUnescape(string escaped, string unescaped)
         {
-            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+            Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace PAModelTests
         {
             // Not escaped.
             var a = "0123456789AZaz[]_. " + Path.DirectorySeparatorChar;
-            Assert.AreEqual(Utility.EscapeFilename(a), a);
+            Assert.AreEqual(Utilities.EscapeFilename(a), a);
         }
 
         [DataTestMethod]
@@ -55,7 +55,7 @@ namespace PAModelTests
                 basePath = basePath.Replace('\\', '/');
                 expectedRelativePath = expectedRelativePath.Replace('\\', '/');
             }
-            Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
+            Assert.AreEqual(expectedRelativePath, Utilities.GetRelativePath(fullPath, basePath));
         }
 
 
@@ -66,9 +66,9 @@ namespace PAModelTests
         {
             // Not escaped.
             var path = @"DataSources\JourneyPlanner|Sendforapproval.json";
-            var escape = Utility.EscapeFilename(path);
+            var escape = Utilities.EscapeFilename(path);
 
-            var original = Utility.UnEscapeFilename(escape);
+            var original = Utilities.UnEscapeFilename(escape);
 
             Assert.AreEqual(path, original);
         }
