@@ -59,7 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 throw new DocumentException();
             }
             properties.Remove(_metadataPropName);
-            var metadataJsonString = Utility.UnEscapePAString(metadataProperty.Expression.Expression);
+            var metadataJsonString = Utilities.UnEscapePAString(metadataProperty.Expression.Expression);
             var testStepsMetadata = JsonSerializer.Deserialize<List<TestStepsMetadataJson>>(metadataJsonString);
             var newChildren = new List<BlockNode>();
 
@@ -78,7 +78,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                             Identifier = "Description",
                             Expression = new ExpressionNode()
                             {
-                                Expression = Utility.EscapePAString(testStep.Description)
+                                Expression = Utilities.EscapePAString(testStep.Description)
                             }
                         },
                         new PropertyNode()
@@ -164,7 +164,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
                 testStepsMetadata.Add(new TestStepsMetadataJson()
                 {
-                    Description = Utility.UnEscapePAString(descriptionProp.Expression.Expression),
+                    Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
                     Rule = propName,
                     ScreenId = screenId
                 });
@@ -179,7 +179,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
             control.Properties.Add(new PropertyNode()
             {
-                Expression = new ExpressionNode() { Expression = Utility.EscapePAString(testStepMetadataStr) },
+                Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
                 Identifier = _metadataPropName
             });
             control.Children = new List<BlockNode>();

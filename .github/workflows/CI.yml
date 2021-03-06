@@ -12,8 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ## TODO: linux-latest complains about not finding/reading the .sln file; works on macOS ??
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
 
@@ -31,11 +30,9 @@ jobs:
     - name: Build and test (win)
       run: ./build ci
       shell: cmd
-      if: ${{ runner.os == 'Windows' }}
-
-    - name: Build only (!win)
-      run: |
-        ./build rebuild
-        ./build pack
-      # 4 out of 15 tests fail when running on e.g. linux (WSL-Ubuntu LTS) and macOS
+      if: ${{ runner.os == 'Windows' }} 
+      
+      ## Only difference here is not forcing cmd
+    - name: Build and test (!win)
+      run: ./build ci
       if: ${{ runner.os != 'Windows' }}

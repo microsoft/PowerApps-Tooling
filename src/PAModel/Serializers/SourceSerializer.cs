@@ -7,6 +7,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,14 +48,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         //  Other\  (all unrecognized files)         
         public const string CodeDir = "Src";
         public const string AssetsDir = "Assets";
-        public const string TestDir = "Src\\Tests";
-        public const string EditorStateDir = "Src\\EditorState";
-        public const string ComponentCodeDir = "Src\\Components";
+        public static readonly string TestDir = Path.Combine("Src", "Tests");
+        public static readonly string EditorStateDir = Path.Combine("Src", "EditorState");
+        public static readonly string ComponentCodeDir = Path.Combine("Src", "Components");
         public const string PackagesDir = "pkgs";
-        public const string DataSourcePackageDir = "pkgs\\TableDefinitions";
-        public const string WadlPackageDir = "pkgs\\Wadl";
-        public const string SwaggerPackageDir = "pkgs\\Swagger";
-        public const string ComponentPackageDir = "pkgs\\Components";
+        public static readonly string DataSourcePackageDir = Path.Combine("pkgs", "TableDefinitions");
+        public static readonly string WadlPackageDir = Path.Combine("pkgs", "Wadl");
+        public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
+        public static readonly string ComponentPackageDir = Path.Combine("pkgs", "Components");
         public const string OtherDir = "Other";
         public const string EntropyDir = "Entropy";  
         public const string ConnectionDir = "Connections";
@@ -258,7 +259,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Logo file. 
             if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
             {
-                string key = app._publishInfo.LogoFileName;
+                FilePath key = FilePath.FromMsAppPath(app._publishInfo.LogoFileName);
                 FileEntry logoFile;
                 if (app._assetFiles.TryGetValue(key, out logoFile))
                 {
@@ -383,7 +384,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var template in app._templates.UsedTemplates)
             {
                 var filename = $"{template.Name}_{template.Version}.xml";
-                dir.WriteAllXML(PackagesDir, filename, template.Template);
+                dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
                 if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
@@ -415,7 +416,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out control templates at top level, skipping component templates which are written alongside components
             var nonComponentControlTemplates = app._templateStore.Contents.Where(kvp => !(kvp.Value.IsComponentTemplate ?? false)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            dir.WriteAllJson("", "ControlTemplates.json", nonComponentControlTemplates);
+            dir.WriteAllJson("", new FilePath("ControlTemplates.json"), nonComponentControlTemplates);
 
             if (app._checksum != null)
             {
@@ -440,12 +441,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._themes != null)
             {
-                dir.WriteAllJson(CodeDir, "Themes.json", app._themes);
+                dir.WriteAllJson(CodeDir, new FilePath("Themes.json"), app._themes);
             }
 
             if (app._resourcesJson != null)
             {
-                dir.WriteAllJson(AssetsDir, "Resources.json", app._resourcesJson);
+                dir.WriteAllJson(AssetsDir, new FilePath("Resources.json"), app._resourcesJson);
             }
 
             WriteDataSources(dir, app, errors);
@@ -454,7 +455,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (FileEntry file in app._unknownFiles.Values)
             {
                 // Standardize the .json files so they're determinsitc and comparable
-                if (file.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                if (file.Name.HasExtension(".json"))
                 {
                     ReadOnlyMemory<byte> span = file.RawBytes;
                     var je = JsonDocument.Parse(span).RootElement;
@@ -520,7 +521,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     if (ds.TableDefinition != null)
                     {
                         dataSourceDef = new DataSourceDefinition();
-                        dataSourceDef.TableDefinition = Utility.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
+                        dataSourceDef.TableDefinition = Utilities.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
                         dataSourceDef.DatasetName = ds.DatasetName;
                         dataSourceDef.EntityName = ds.RelatedEntityName ?? ds.Name;
                         ds.DatasetName = null;
@@ -553,11 +554,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         // For some reason some connectors have both, investigate if one could be discarded by the server?
                         if (ds.WadlMetadata.WadlXml != null)
                         {
-                            dir.WriteAllXML(WadlPackageDir, filename.Replace(".json", ".xml"), ds.WadlMetadata.WadlXml);
+                            dir.WriteAllXML(WadlPackageDir, new FilePath(filename.Replace(".json", ".xml")), ds.WadlMetadata.WadlXml);
                         }
                         if (ds.WadlMetadata.SwaggerJson != null)
                         {
-                            dir.WriteAllJson(SwaggerPackageDir, filename, JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, Utility._jsonOpts));
+                            dir.WriteAllJson(SwaggerPackageDir, new FilePath(filename), JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, Utilities._jsonOpts));
                         }
                         ds.WadlMetadata = null;
                     }
@@ -580,9 +581,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 if (dataSourceDef != null)
-                    dir.WriteAllJson(DataSourcePackageDir, filename, dataSourceDef);
+                    dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
 
-                dir.WriteAllJson(DataSourcesDir, filename, dataSourceStateToWrite);
+                dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
             }
         }
 
@@ -644,7 +645,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             case "NativeCDSDataSourceInfo":
                                 ds.DatasetName = definition.DatasetName;
-                                ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utility._jsonOpts);
+                                ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utilities._jsonOpts);
                                 break;
                             case "ConnectedDataSourceInfo":
                                 ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
@@ -723,7 +724,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string filename = controlName + ".fx.yaml";
 
             
-            dir.WriteAllText(subDir, filename, text);
+            dir.WriteAllText(subDir, new FilePath(filename), text);
 
             var extraData = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
@@ -733,12 +734,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Write out of all the other state for roundtripping 
             string extraContent = controlName + ".editorstate.json";
-            dir.WriteAllJson(EditorStateDir, extraContent, extraData);
+            dir.WriteAllJson(EditorStateDir, new FilePath(extraContent), extraData);
 
             // Write out component templates next to the component
             if (app._templateStore.TryGetTemplate(name, out var templateState))
             {
-                dir.WriteAllJson(subDir, controlName + ".json", templateState);
+                dir.WriteAllJson(subDir, new FilePath(controlName + ".json"), templateState);
             }
         }
 
@@ -750,7 +751,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var jsonString = reader.ReadToEnd();
 
-            app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utility._jsonOpts);
+            app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utilities._jsonOpts);
         }
 
         private static BuildVerJson GetBuildDetails()
@@ -766,7 +767,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 using var reader = new StreamReader(stream);
                 var jsonString = reader.ReadToEnd();
 
-                return JsonSerializer.Deserialize<BuildVerJson>(jsonString, Utility._jsonOpts);
+                return JsonSerializer.Deserialize<BuildVerJson>(jsonString, Utilities._jsonOpts);
             }
             catch (Exception)
             {

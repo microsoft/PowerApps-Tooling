@@ -22,7 +22,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C4";
+        public string Version = "C5";
 
         public const string ChecksumName = "checksum.json";
 
@@ -306,7 +306,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     else if (ctx.IsXmlDoubleEncoded && !string.IsNullOrWhiteSpace(str))
                     {
                         var parsedXML = XDocument.Parse(str);
-                        var xmlString = parsedXML.ToString(SaveOptions.None);
+                        var xmlString = parsedXML.ToString(SaveOptions.None).Replace("\r\n", "\n");
                         hash.AppendData(xmlString);
                     }
                     else

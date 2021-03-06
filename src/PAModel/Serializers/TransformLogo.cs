@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,12 +25,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 string newLogoName = "logo" + Path.GetExtension(oldLogoName);
 
                 FileEntry logoFile;
-                var oldKey = @"Resources\" + oldLogoName;
+                var oldKey = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(oldLogoName));
                 if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
                 {
                     app._unknownFiles.Remove(oldKey);
 
-                    logoFile.Name = newLogoName;
+                    logoFile.Name = new FilePath(newLogoName);
                     app._logoFile = logoFile;
 
 
@@ -50,10 +51,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
             {
                 app._assetFiles.Remove(app._logoFile.Name);
-                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name);
+                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());
                 logoFile = new FileEntry
                 {
-                    Name = @"Resources\" + publishInfo.LogoFileName,
+                    Name = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(publishInfo.LogoFileName)),
                     RawBytes = app._logoFile.RawBytes
                 };
             }

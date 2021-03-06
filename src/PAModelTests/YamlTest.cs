@@ -28,8 +28,7 @@ namespace PAModelTests
                 yw.WriteEndObject();
 
             var t = sw.ToString();
-            Assert.AreEqual(
-@"P0: =abc
+            var expected = @"P0: =abc
 Obj1:
     P1a: |-
         =A#B
@@ -37,7 +36,8 @@ Obj1:
     Obj2:
         P2a: =A
     P1c: =C
-", t);
+";
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), t.Replace("\r\n", "\n"));
         }
 
         // These values should get automatically multiline escaped. 

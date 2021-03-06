@@ -12,7 +12,7 @@ namespace PAModelTests
     public class ChecksumTests
     {
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "C4_1GvK+QUkZ6kN+po5NnTEvX2IMFL5a56dTbSSN0icOYc=", 11, "References\\DataSources.json", "C4_dXkScH2mYpGGZ7ahgd864Zx5vsP51QYiH+eqPJV1KQ8=")]
+        [DataRow("MyWeather.msapp", "C5_dF3ZiT6eOJeXvcVwSRn9PNVFRjYd0wz8Ojtqu0F9iWI=", 11, "References\\DataSources.json", "C5_Q1gxjH2oJoQXvdHbAkE6j5Qgj0Lha8x92iG2m4PwQMY=")]
         public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);

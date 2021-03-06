@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -57,17 +58,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     class FileEntry
     {
         // Name relative to root. Can be triaged to a FileKind
-        public string Name;
+        public FilePath Name;
         
         public byte[] RawBytes;
 
         public static FileEntry FromFile(string fullPath, string root)
         {
-            var relativePath = Utility.GetRelativePath(fullPath, root);
+            var relativePath = Utilities.GetRelativePath(fullPath, root);
             var bytes = File.ReadAllBytes(fullPath);
             var entry = new FileEntry
             {
-                Name = relativePath.Replace('/', '\\'),
+                Name = FilePath.FromPlatformPath(relativePath),
                 RawBytes = bytes
             };
             return entry;
@@ -85,7 +86,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             return new FileEntry
             {
-                Name = name,
+                Name = FilePath.FromMsAppPath(name),
                 RawBytes = z.ToBytes()
             };
         }
@@ -118,41 +119,41 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         };
 
 
-        internal static string GetFilenameForKind(FileKind kind)
+        internal static FilePath GetFilenameForKind(FileKind kind)
         {
             string filename =
                 (from kv in _fileKinds
                  where kv.Value == kind
                  select kv.Key).FirstOrDefault();
 
-            return filename;
+            return FilePath.FromMsAppPath(filename);
         }
 
-        internal static FileKind TriageKind(string fullname)
+        internal static FileKind TriageKind(FilePath fullname)
         {
             FileKind kind;
-            if (_fileKinds.TryGetValue(fullname, out kind))
+            if (_fileKinds.TryGetValue(fullname.ToMsAppPath(), out kind))
             {
                 return kind;
             }
 
             // Source? 
-            if (fullname.StartsWith(@"Controls\", StringComparison.OrdinalIgnoreCase))
+            if (fullname.StartsWith(@"Controls", StringComparison.OrdinalIgnoreCase))
             {
                 return FileKind.ControlSrc;
             }
-            if (fullname.StartsWith(@"Components\", StringComparison.OrdinalIgnoreCase))
+            if (fullname.StartsWith(@"Components", StringComparison.OrdinalIgnoreCase))
             {
                 return FileKind.ComponentSrc;
             }
 
-            if (fullname.StartsWith(@"AppTests\", StringComparison.OrdinalIgnoreCase))
+            if (fullname.StartsWith(@"AppTests", StringComparison.OrdinalIgnoreCase))
             {
                 return FileKind.TestSrc;
             }
 
             // Resource 
-            if (fullname.StartsWith(@"Assets\", StringComparison.OrdinalIgnoreCase))
+            if (fullname.StartsWith(@"Assets", StringComparison.OrdinalIgnoreCase))
             {
                 return FileKind.Asset;
             }
