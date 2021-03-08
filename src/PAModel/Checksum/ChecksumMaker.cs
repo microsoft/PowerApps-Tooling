@@ -22,7 +22,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C5";
+        public static string Version = "C5";
 
         public const string ChecksumName = "checksum.json";
 
@@ -173,6 +173,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        internal static string ChecksumToString(byte[] bytes)
+        {
+            return Version + "_" + Convert.ToBase64String(bytes);
+        }
+
         /// <summary>
         /// Called after all files are added to get a checksum. 
         /// </summary>
@@ -188,13 +193,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 singleFileHash.AppendData(kv.Value);
                 var singleFileHashResult = singleFileHash.GetHashAndReset();
 
-                perFileChecksum.Add(kv.Key, Version + "_" + Convert.ToBase64String(singleFileHashResult));
+                perFileChecksum.Add(kv.Key, ChecksumToString(singleFileHashResult));
             }
 
             var h = hash.GetHashAndReset();
-            var str = Convert.ToBase64String(h);
-
-            return (Version + "_" + str, perFileChecksum);
+            
+            return (ChecksumToString(h), perFileChecksum);
         }
 
         // Formula whitespace can differ between platforms, and leading whitespace
@@ -316,24 +320,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                     break;
             }
-        }
-    }
-
-    static class IncrementalHashExtensions
-    {
-        public static void AppendData(this IncrementalHash hash, string x)
-        {
-            hash.AppendData(Encoding.UTF8.GetBytes(x));
-        }
-
-        public static void AppendData(this IncrementalHash hash, double x)
-        {
-            hash.AppendData(BitConverter.GetBytes(x));
-        }
-
-        public static void AppendData(this IncrementalHash hash, bool x)
-        {
-            hash.AppendData(new byte[] { x ? (byte)1 : (byte)0 });
         }
     }
 }
