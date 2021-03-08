@@ -22,7 +22,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public static string Version = "C5";
+        public static string Version = "C6";
 
         public const string ChecksumName = "checksum.json";
 
@@ -258,10 +258,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             var kind = prop.Value.ValueKind;
 
+                            hash.AppendPropName(prop.Name);
+
                             if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
                             {
-                                hash.AppendPropNameSkip(prop.Name);
-
                                 // Invariant script can contain Formulas. 
                                 var str2 = prop.Value.GetString();
                                 str2 = NormFormulaWhitespace(str2);
@@ -269,8 +269,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                             else if (kind != JsonValueKind.Null)
                             {
-                                hash.AppendPropName(prop.Name);
-
                                 ctx.Push(prop.Name);
                                 ChecksumJson(ctx, hash, prop.Value);
                                 ctx.Pop();

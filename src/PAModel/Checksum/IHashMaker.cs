@@ -20,7 +20,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         void AppendStartObj();
         void AppendPropName(string name);
-        void AppendPropNameSkip(string name);
         void AppendEndObj();
         void AppendStartArray();
         void AppendEndArray();
@@ -39,57 +38,77 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         private readonly IncrementalHash _hash;
 
+        private readonly static byte[] _startObj = new byte[] { (byte)'{' };
+        private readonly static byte[] _endObj = new byte[] { (byte) '}' };
+        private readonly static byte[] _startArray = new byte[] { (byte) '[' };
+        private readonly static byte[] _endArray = new byte[] { (byte) ']' };
+        private readonly static byte[] _null = new byte[] { 254 };
+        private readonly static byte[] _true = new byte[] { 1 };
+        private readonly static byte[] _false  = new byte[] { 0 };
+
+        private readonly static byte[] _marker = new byte[] { 255 };
+
         public Sha256HashMaker()
         {
             _hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        }
+
+        private void AppendMarker()
+        {
+            _hash.AppendData(_marker);
         }
 
         public void AppendData(double value)
         {
             var bytes = BitConverter.GetBytes(value);
             _hash.AppendData(bytes);
+            AppendMarker();
         }
 
         public void AppendData(string value)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             _hash.AppendData(bytes);
+            AppendMarker();
         }
 
         public void AppendData(bool value)
         {
-            var bytes = new byte[] { value ? (byte)1 : (byte)0 };
+            var bytes = value ? _true : _false;
             _hash.AppendData(bytes);
+            AppendMarker();
         }
 
         public void AppendPropName(string name)
         {
             this.AppendData(name);
-        }
-        public void AppendPropNameSkip(string name)
-        {
-            // Skipped. 
+            AppendMarker();
         }
 
         public void AppendStartObj()
         {
+            _hash.AppendData(_startObj);
         }
 
         public void AppendEndObj()
         {
+            _hash.AppendData(_endObj);            
         }
 
         public void AppendStartArray()
         {
+            _hash.AppendData(_startArray);
         }
 
         public void AppendEndArray()
         {
+            _hash.AppendData(_endArray);
         }
 
         public void AppendNull()
         {
-            this.AppendData(false);
+            _hash.AppendData(_null);
+            AppendMarker();
         }
 
         public void Dispose()
@@ -156,10 +175,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AppendPropName(string name)
         {
             _writer.WritePropertyName(name);
-        }
-        public void AppendPropNameSkip(string name)
-        {
-            this.AppendPropName(name);
         }
 
         public void AppendStartArray()
