@@ -56,6 +56,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public PropertyEntropy VolatileProperties { get; set; }
 
+        // Sometimes, an empty LocalDatabaseReferences is serialized as "" or { }.
+        // Need to track which so we can round-trip.
+        // if true: "".   Else,  "{}". 
+        public bool LocalDatabaseReferencesAsEmpty { get; set; }
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             return this.OrderDataSource.GetOrDefault<string,int>(dataSource.GetUniqueName(), -1);

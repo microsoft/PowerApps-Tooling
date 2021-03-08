@@ -272,6 +272,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                     app._dataSourceReferences = dsrs;
                     app._properties.LocalDatabaseReferences = null;
+                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                }
+                else
+                {
+                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
                 }
 
 
@@ -483,7 +488,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._dataSourceReferences != null)
             {
                 var json = Utilities.JsonSerialize(app._dataSourceReferences);
-                props.LocalDatabaseReferences = json;
+
+                // Some formats serialize empty as "", some serialize as "{}"
+                if (app._dataSourceReferences.Count == 0)
+                {
+                    if (app._entropy.LocalDatabaseReferencesAsEmpty)
+                    {
+                        json = "";
+                    } else
+                    {
+                        json = "{}";
+                    }
+                }
+
+                props.LocalDatabaseReferences = json;                
             }
 
             if (app._libraryReferences != null)
