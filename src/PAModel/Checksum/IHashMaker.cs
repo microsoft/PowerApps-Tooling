@@ -33,11 +33,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Called after all Appends(). 
         byte[] GetFinalValue();
     }
-
+     
     // Create a checksum using an incremental hash.    
     class Sha256HashMaker : IHashMaker, IDisposable
     {
         private readonly IncrementalHash _hash;
+
         public Sha256HashMaker()
         {
             _hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -45,17 +46,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void AppendData(double value)
         {
-            _hash.AppendData(value);
+            var bytes = BitConverter.GetBytes(value);
+            _hash.AppendData(bytes);
         }
 
         public void AppendData(string value)
         {
-            _hash.AppendData(value);
+            var bytes = Encoding.UTF8.GetBytes(value);
+            _hash.AppendData(bytes);
         }
 
         public void AppendData(bool value)
         {
-            _hash.AppendData(value);
+            var bytes = new byte[] { value ? (byte)1 : (byte)0 };
+            _hash.AppendData(bytes);
         }
 
         public void AppendPropName(string name)
