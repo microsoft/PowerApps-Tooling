@@ -68,6 +68,8 @@ namespace PAModelTests
         const string C9 = "C5_ypeBEsobvcr6wjGzmiPcTaeG7/gUfE5yuYB3ha/uSLs=";
         const string C10 = "C5_47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=";
         const string C11 = "C5_+44g/C5MPySMYMOb1lLzwTRymLuXe4tNWQO4UFViBgM=";
+        const string C12 = "C5_3FSyml4tICY8Z4MeBmDtBUxNBGyFnChsoX3A5mSsn2k=";
+
 
         [DataTestMethod]
         [DataRow(C1, @"' ab\r\ncd'")] // whitespace
@@ -90,6 +92,9 @@ namespace PAModelTests
         [DataRow(C11, "{'a':'b'}")]
         [DataRow(C11, "['a', 'b']")] // BAD: obj vs. array matters
         [DataRow(C11, "['ab']")] // BAD: concatenation should be different.
+        [DataRow(C12, "{'LocalDatabaseReferences' : '' }")] // Double encoded json
+        [DataRow(C12, "{'LocalDatabaseReferences' : '{}' }")] // BAd: Should be different
+        [DataRow(C12, "{'LocalDatabaseReferences' : '[]' }")] // BAd: Should be different
         public void Checksum(string expectedChecksum, string json)
         {
             var actualChecksum = Check(json);
