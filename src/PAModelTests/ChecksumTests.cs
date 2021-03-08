@@ -89,6 +89,7 @@ namespace PAModelTests
         [DataRow(C10, "{ 'a' : null }")] // Empty object
         [DataRow(C11, "{'a':'b'}")]
         [DataRow(C11, "['a', 'b']")] // BAD: obj vs. array matters
+        [DataRow(C11, "['ab']")] // BAD: concatenation should be different.
         public void Checksum(string expectedChecksum, string json)
         {
             var actualChecksum = Check(json);
