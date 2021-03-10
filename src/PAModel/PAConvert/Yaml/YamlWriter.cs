@@ -106,27 +106,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 _currentIndent++;
 
                 bool needIndent = true;
-                var sb = new StringBuilder();
                 foreach (var ch in value)
                 {
                     if (needIndent)
                     {
-                        WriteIndent(sb);
+                        WriteIndent();
                         needIndent = false;
                     }
                     if (ch == '\n')
                     {
-                        _text.WriteLine(sb.ToString());
-                        sb.Clear();
+                        _text.WriteLine();
                         needIndent = true;
                         continue;
                     }
-                    sb.Append(ch);
+                    _text.Write(ch);
                 }
 
-                if (sb.Length > 0)
+                if (numNewlines == 0)
                 {
-                    _text.WriteLine(sb.ToString());
+                    _text.WriteLine();
                 }
 
                 _currentIndent--;
@@ -145,14 +143,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             for (int i = 0; i < _currentIndent; i++)
             {
                 _text.Write(Indent);
-            }
-        }
-
-        private void WriteIndent(StringBuilder sb)
-        {
-            for (int i = 0; i < _currentIndent; i++)
-            {
-                sb.Append(Indent);
             }
         }
     }
