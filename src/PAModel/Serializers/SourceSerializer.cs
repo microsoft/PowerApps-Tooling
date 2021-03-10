@@ -38,8 +38,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 16 - Group Control transform
         // 17 - Moved PublishOrderIndex entirely to Entropy 
         // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
-        // 19 - Switch extension to .fx.yaml 
-        public static Version CurrentSourceVersion = new Version(0, 19);
+        // 19 - Switch extension to .fx.yaml  
+        // 20 - Only load themes that match the specified theme name 
+        public static Version CurrentSourceVersion = new Version(0, 20);
 
         // Layout is:
         //  src\

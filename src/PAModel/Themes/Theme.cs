@@ -19,27 +19,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Outer key is stylename, inner key is property name, inner value is expression
         private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>();
         
-        public Theme(ThemesJson themeJson, ErrorContainer errors)
+        public Theme(ThemesJson themeJson)
         {
             Contract.Assert(themeJson != null);
 
             var currentThemeName = themeJson.CurrentTheme;
-            bool loadedTheme = false;
-
             var namedThemes = themeJson.CustomThemes.ToDictionary(theme => theme.name);
-            // First try to load the named theme
-            foreach (var theme in themeJson.CustomThemes)
+            if (namedThemes.TryGetValue(currentThemeName, out var foundTheme))
             {
-                if (theme.name != currentThemeName)
-                    continue;
-                loadedTheme = true;                
+                LoadTheme(foundTheme);
             }
-
-            if (!loadedTheme)
-            {
-                errors.ValidationError($"No themes matching theme name \"{currentThemeName}\" or \"defaultTheme\" were found in Themes.json");
-                throw new DocumentException();
-            }
+            
         }
 
 
