@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 {
@@ -61,6 +62,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 return;
             }
 
+            // Normalize newlines in value
+            value = value.Replace("\r\n", "\n").Replace("\r", "\n");
+
             bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
             // For consistency, both single and multiline PA properties prefix with '='.
@@ -102,26 +106,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 _currentIndent++;
 
                 bool needIndent = true;
+                var sb = new StringBuilder();
                 foreach (var ch in value)
                 {
                     if (needIndent)
                     {
-                        WriteIndent();
+                        WriteIndent(sb);
                         needIndent = false;
                     }
-                    // Let \r pass through and write normally. 
                     if (ch == '\n')
                     {
-                        _text.Write(ch); // writes same type of newlinw
+                        _text.WriteLine(sb.ToString());
+                        sb.Clear();
                         needIndent = true;
                         continue;
                     }
-                    _text.Write(ch);
+                    sb.Append(ch);
                 }
 
-                if (numNewlines == 0)
+                if (sb.Length > 0)
                 {
-                    _text.WriteLine();
+                    _text.WriteLine(sb.ToString());
                 }
 
                 _currentIndent--;
@@ -140,6 +145,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             for (int i = 0; i < _currentIndent; i++)
             {
                 _text.Write(Indent);
+            }
+        }
+
+        private void WriteIndent(StringBuilder sb)
+        {
+            for (int i = 0; i < _currentIndent; i++)
+            {
+                sb.Append(Indent);
             }
         }
     }
