@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 {
@@ -109,10 +110,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                         WriteIndent();
                         needIndent = false;
                     }
-                    // Let \r pass through and write normally. 
                     if (ch == '\n')
                     {
-                        _text.Write(ch); // writes same type of newlinw
+                        _text.WriteLine();
                         needIndent = true;
                         continue;
                     }
