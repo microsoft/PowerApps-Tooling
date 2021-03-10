@@ -62,9 +62,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 return;
             }
 
-            // Normalize newlines in value
-            value = value.Replace("\r\n", "\n").Replace("\r", "\n");
-
             bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
             // For consistency, both single and multiline PA properties prefix with '='.
