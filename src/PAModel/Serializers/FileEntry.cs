@@ -55,12 +55,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
     // Represent a file from disk or a Zip archive. 
     [DebuggerDisplay("{Name}")]
-    class FileEntry
+    internal class FileEntry
     {
         // Name relative to root. Can be triaged to a FileKind
         public FilePath Name;
         
         public byte[] RawBytes;
+
+        public FileEntry() { }
+
+        public FileEntry(FileEntry other)
+        {
+            Name = other.Name;
+            RawBytes = other.RawBytes.ToArray(); // ToArray clones byte arrays
+        }
 
         public static FileEntry FromFile(string fullPath, string root)
         {

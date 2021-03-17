@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR
@@ -33,6 +34,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public BlockNode Clone()
+        {
+            return new BlockNode()
+            {
+                Name = Name.Clone(),
+                Properties = Properties.Select(prop => prop.Clone()).ToList(),
+                Functions = Functions.Select(func => func.Clone()).ToList(),
+                Children = Children.Select(child => child.Clone()).ToList(),
+            };
+        }
     }
 
     /// <summary>
@@ -57,6 +69,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public TypedNameNode Clone()
+        {
+            return new TypedNameNode()
+            {
+                Identifier = Identifier,
+                Kind = Kind.Clone()
+            };
+        }
     }
 
     /// <summary>
@@ -72,6 +93,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public TypeNode Clone()
+        {
+            return new TypeNode()
+            {
+                TypeName = TypeName,
+                OptionalVariant = OptionalVariant
+            };
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Expression}")]
@@ -83,6 +113,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
             visitor.Visit(this, context);
+        }
+
+        public PropertyNode Clone()
+        {
+            return new PropertyNode()
+            {
+                Identifier = Identifier,
+                Expression = Expression.Clone()
+            };
         }
     }
 
@@ -97,6 +136,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public FunctionNode Clone()
+        {
+            return new FunctionNode()
+            {
+                Identifier = Identifier,
+                Args = Args.Select(arg => arg.Clone()).ToList(),
+                Metadata = Metadata.Select(metadata => metadata.Clone()).ToList(),
+            };
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Default}")]
@@ -109,6 +158,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public ArgMetadataBlockNode Clone()
+        {
+            return new ArgMetadataBlockNode()
+            {
+                Identifier = Identifier,
+                Default = Default.Clone(),
+            };
+        }
     }
 
     [DebuggerDisplay("{Expression}")]
@@ -118,6 +176,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
             visitor.Visit(this, context);
+        }
+
+        public ExpressionNode Clone()
+        {
+            return new ExpressionNode()
+            {
+                Expression = Expression
+            };
         }
     }
 }

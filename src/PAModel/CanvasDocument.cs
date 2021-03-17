@@ -197,11 +197,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
         }
-
+                
         internal CanvasDocument()
         {
             _editorStateStore = new EditorStateStore();
             _templateStore = new TemplateStore();
+        }
+
+        internal CanvasDocument(CanvasDocument other)
+        {
+            foreach (var kvp in other._unknownFiles)
+            {
+                _unknownFiles.Add(kvp.Key, new FileEntry(kvp.Value));
+            }
         }
 
         // iOrder is used to preserve ordering value for round-tripping. 
