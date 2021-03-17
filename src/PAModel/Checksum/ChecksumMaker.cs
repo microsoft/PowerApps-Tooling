@@ -22,7 +22,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes. 
-        public string Version = "C4";
+        public static string Version = "C6";
 
         public const string ChecksumName = "checksum.json";
 
@@ -173,6 +173,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        internal static string ChecksumToString(byte[] bytes)
+        {
+            return Version + "_" + Convert.ToBase64String(bytes);
+        }
+
         /// <summary>
         /// Called after all files are added to get a checksum. 
         /// </summary>
@@ -188,13 +193,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 singleFileHash.AppendData(kv.Value);
                 var singleFileHashResult = singleFileHash.GetHashAndReset();
 
-                perFileChecksum.Add(kv.Key, Version + "_" + Convert.ToBase64String(singleFileHashResult));
+                perFileChecksum.Add(kv.Key, ChecksumToString(singleFileHashResult));
             }
 
             var h = hash.GetHashAndReset();
-            var str = Convert.ToBase64String(h);
-
-            return (Version + "_" + str, perFileChecksum);
+            
+            return (ChecksumToString(h), perFileChecksum);
         }
 
         // Formula whitespace can differ between platforms, and leading whitespace
@@ -254,10 +258,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             var kind = prop.Value.ValueKind;
 
+                            hash.AppendPropName(prop.Name);
+
                             if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
                             {
-                                hash.AppendPropNameSkip(prop.Name);
-
                                 // Invariant script can contain Formulas. 
                                 var str2 = prop.Value.GetString();
                                 str2 = NormFormulaWhitespace(str2);
@@ -265,8 +269,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                             else if (kind != JsonValueKind.Null)
                             {
-                                hash.AppendPropName(prop.Name);
-
                                 ctx.Push(prop.Name);
                                 ChecksumJson(ctx, hash, prop.Value);
                                 ctx.Pop();
@@ -306,7 +308,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     else if (ctx.IsXmlDoubleEncoded && !string.IsNullOrWhiteSpace(str))
                     {
                         var parsedXML = XDocument.Parse(str);
-                        var xmlString = parsedXML.ToString(SaveOptions.None);
+                        var xmlString = parsedXML.ToString(SaveOptions.None).Replace("\r\n", "\n");
                         hash.AppendData(xmlString);
                     }
                     else
@@ -316,24 +318,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                     break;
             }
-        }
-    }
-
-    static class IncrementalHashExtensions
-    {
-        public static void AppendData(this IncrementalHash hash, string x)
-        {
-            hash.AppendData(Encoding.UTF8.GetBytes(x));
-        }
-
-        public static void AppendData(this IncrementalHash hash, double x)
-        {
-            hash.AppendData(BitConverter.GetBytes(x));
-        }
-
-        public static void AppendData(this IncrementalHash hash, bool x)
-        {
-            hash.AppendData(new byte[] { x ? (byte)1 : (byte)0 });
         }
     }
 }

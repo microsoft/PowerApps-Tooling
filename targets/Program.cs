@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.IO;
 using System.Text.Json;
@@ -131,7 +134,6 @@ namespace targets
                 }
             }
             catch (AccessViolationException) { /* swallow */ }
-            // catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
     }
 }

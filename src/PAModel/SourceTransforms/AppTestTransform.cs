@@ -55,11 +55,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var properties = control.Properties.ToDictionary(prop => prop.Identifier);
             if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
             {
+                // If the test studio is opened, but no tests are created, it's possible for a test case to exist without any
+                // steps or teststepmetadata. In that case, write only the base properties.
+                if (properties.Count == 2)
+                    return;
+
                 _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
                 throw new DocumentException();
             }
             properties.Remove(_metadataPropName);
-            var metadataJsonString = Utility.UnEscapePAString(metadataProperty.Expression.Expression);
+            var metadataJsonString = Utilities.UnEscapePAString(metadataProperty.Expression.Expression);
             var testStepsMetadata = JsonSerializer.Deserialize<List<TestStepsMetadataJson>>(metadataJsonString);
             var newChildren = new List<BlockNode>();
 
@@ -78,7 +83,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                             Identifier = "Description",
                             Expression = new ExpressionNode()
                             {
-                                Expression = Utility.EscapePAString(testStep.Description)
+                                Expression = Utilities.EscapePAString(testStep.Description)
                             }
                         },
                         new PropertyNode()
@@ -125,6 +130,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         public void BeforeWrite(BlockNode control)
         {
+            if (!control.Children.Any())
+                return;
+
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
             foreach (var child in control.Children)
@@ -164,7 +172,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
                 testStepsMetadata.Add(new TestStepsMetadataJson()
                 {
-                    Description = Utility.UnEscapePAString(descriptionProp.Expression.Expression),
+                    Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
                     Rule = propName,
                     ScreenId = screenId
                 });
@@ -175,11 +183,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     Identifier = propName
                 });
             }
-
             var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
             control.Properties.Add(new PropertyNode()
             {
-                Expression = new ExpressionNode() { Expression = Utility.EscapePAString(testStepMetadataStr) },
+                Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
                 Identifier = _metadataPropName
             });
             control.Children = new List<BlockNode>();

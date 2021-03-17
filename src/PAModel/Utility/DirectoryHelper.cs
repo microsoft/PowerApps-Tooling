@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -40,46 +41,44 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void WriteAllJson<T>(string subdir, FileKind kind, T obj)
         {
-            string filename = FileEntry.GetFilenameForKind(kind);
+            var filename = FileEntry.GetFilenameForKind(kind);
             WriteAllJson(subdir, filename, obj);
         }
 
 
-        public void WriteAllJson<T>(string subdir, string filename, T obj)
+        public void WriteAllJson<T>(string subdir, FilePath filename, T obj)
         {
-            var text = JsonSerializer.Serialize<T>(obj, Utility._jsonOpts);
+            var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
             text = JsonNormalizer.Normalize(text);
             WriteAllText(subdir, filename, text);
         }
 
-        public void WriteDoubleEncodedJson(string subdir, string filename, string jsonStr)
+        public void WriteDoubleEncodedJson(string subdir, FilePath filename, string jsonStr)
         {
             if (!string.IsNullOrWhiteSpace(jsonStr) && jsonStr != "{}")
             {
                 var je = JsonDocument.Parse(jsonStr).RootElement;
-
-                string path = Path.Combine(_directory, subdir, filename);
-                this.WriteAllJson(subdir, filename, je);
+                WriteAllJson(subdir, filename, je);
             }
         }
 
-        public void WriteAllXML(string subdir, string filename, string xmlText)
+        public void WriteAllXML(string subdir, FilePath filename, string xmlText)
         {
             var xml = XDocument.Parse(xmlText);
             var text = xml.ToString();
             WriteAllText(subdir, filename, text);
         }
 
-        public void WriteAllText(string subdir, string filename, string text)
+        public void WriteAllText(string subdir, FilePath filename, string text)
         {
-            string path = Path.Combine(_directory, subdir, Utility.EscapeFilename(filename));
+            string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
             EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }
 
-        public void WriteAllBytes(string subdir, string filename, byte[] bytes)
+        public void WriteAllBytes(string subdir, FilePath filename, byte[] bytes)
         {
-            string path = Path.Combine(_directory, subdir, Utility.EscapeFilename(filename));
+            string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
             EnsureFileDirExists(path);
             File.WriteAllBytes(path, bytes);
         }
@@ -133,7 +132,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     _relativeName = _relativeName.TrimStart(FileEntry.FilenameLeadingUnderscore);
                 return new FileEntry
                 {
-                    Name = this._relativeName.Replace('/', '\\'),
+                    Name = FilePath.FromPlatformPath(_relativeName),
                     RawBytes = File.ReadAllBytes(this._fullpath)
                 };
             }
@@ -141,7 +140,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public T ToObject<T>()
             {
                 var str = File.ReadAllText(_fullpath);
-                return JsonSerializer.Deserialize<T>(str, Utility._jsonOpts);
+                return JsonSerializer.Deserialize<T>(str, Utilities._jsonOpts);
             }
 
             public string GetContents()
@@ -163,11 +162,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
             var entries = from fullPath in fullPaths
-                          let relativePath = Utility.GetRelativePath(fullPath, root)
+                          let relativePath = Utilities.GetRelativePath(fullPath, root)
                           select new Entry(fullPath)
                           {
-                              _relativeName = Utility.UnEscapeFilename(relativePath),
-                              Kind = FileEntry.TriageKind(relativePath)
+                              _relativeName = relativePath,
+                              Kind = FileEntry.TriageKind(FilePath.FromPlatformPath(relativePath))
                           };
 
             return entries.ToArray();

@@ -112,7 +112,7 @@ namespace PASopa
 
                     using (var temp = new TempFile())
                     {
-                        errors2 = msApp2.SaveToMsApp(temp.FullPath);
+                        errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
                         errors2.Write(Console.Error);
                         if (errors2.HasErrors)
                         {

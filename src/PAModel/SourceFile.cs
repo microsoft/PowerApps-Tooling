@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // For a data component, this is a guid. Very important. 
         public string TemplateName => this.Value.TopParent.Template.Name;
 
-        private string GetMsAppFilename()
+        internal string GetMsAppFilename()
         {
             if (this.Kind == SourceKind.Control)
             {
@@ -60,7 +61,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public FileEntry ToMsAppFile()
         {
             var file = MsAppSerializer.ToFile(FileKind.Unknown, this.Value);
-            file.Name = this.GetMsAppFilename();
+            file.Name = FilePath.FromMsAppPath(this.GetMsAppFilename());
 
             return file;
         }

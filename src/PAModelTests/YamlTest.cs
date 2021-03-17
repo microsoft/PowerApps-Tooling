@@ -28,8 +28,7 @@ namespace PAModelTests
                 yw.WriteEndObject();
 
             var t = sw.ToString();
-            Assert.AreEqual(
-@"P0: =abc
+            var expected = @"P0: =abc
 Obj1:
     P1a: |-
         =A#B
@@ -37,7 +36,8 @@ Obj1:
     Obj2:
         P2a: =A
     P1c: =C
-", t);
+";
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), t.Replace("\r\n", "\n"));
         }
 
         // These values should get automatically multiline escaped. 
@@ -63,13 +63,13 @@ Obj1:
         [DataRow("\"brows_4.0\"")]
         [DataRow("a # b")] // Test with yaml comment. 
         [DataRow("x")] // easy, no newlines. 
-        [DataRow("1\r\n2")] // multiline
-        [DataRow("1\r\n2\r\n")] // multiline, trailing newline
-        [DataRow("1 \r\n2 \r\n")] 
-        [DataRow("1\r\n 2 \r\n ")]
-        [DataRow("1\r\n2 \r\n ")]
+        [DataRow("1\n2")] // multiline
+        [DataRow("1\n2\n")] // multiline, trailing newline
+        [DataRow("1 \n2 \n")] 
+        [DataRow("1\n 2 \n ")]
+        [DataRow("1\n2 \n ")]
         [DataRow("Hi #There")] // Yaml comments are dangerous
-        [DataRow("abc\r\ndef")]
+        [DataRow("abc\ndef")]
         [DataRow("Patched({a : b})")]
         public void NewLinesRoundtrip(string value)
         {
@@ -81,8 +81,7 @@ Obj1:
 
             // Validate it passes YamlDotNet
             var valueFromYaml = ParseSinglePropertyViaYamlDotNot(text);
-            var valueWithoutR = value.Replace("\r", ""); // yamlDotNet doesn't do \R
-            Assert.AreEqual(valueWithoutR, valueFromYaml);            
+            Assert.AreEqual(value, valueFromYaml);            
 
             // Validate it passes our subset. 
             var sr = new StringReader(text);
@@ -91,7 +90,8 @@ Obj1:
             Assert.AreEqual(YamlTokenKind.Property, p.Kind);
             Assert.AreEqual("Foo", p.Property);
 
-            Assert.AreEqual(value, p.Value);
+            var normalizedValue = value.Replace("\r\n", "\n").Replace("\r", "\n");
+            Assert.AreEqual(normalizedValue, p.Value.Replace("\r\n", "\n").Replace("\r", "\n"));
         }
 
         // Error on 1st token read

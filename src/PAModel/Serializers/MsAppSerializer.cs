@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,7 +66,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     checksumMaker.AddFile(entry.FullName, entry.ToBytes());
 
                     var fullName = entry.FullName;
-                    var kind = FileEntry.TriageKind(fullName);
+                    var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(fullName));
 
                     switch (kind)
                     {
@@ -164,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.DataSources:
                             {
                                 var dataSources = ToObject<DataSourcesJson>(entry);
-                                Utility.EnsureNoExtraData(dataSources.ExtensionData);
+                                Utilities.EnsureNoExtraData(dataSources.ExtensionData);
 
                                 int iOrder = 0;
                                 foreach (var ds in dataSources.DataSources)
@@ -202,6 +203,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template.IsComponentLocked = componentTemplate.IsComponentLocked;
                     template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
                     template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+                    template.ComponentExtraMetadata = componentTemplate.ExtensionData;
 
                     if (template.Version != componentTemplate.Version)
                     {
@@ -213,7 +215,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
-                if (app._checksum.ClientStampedChecksum != null && app._checksum.ClientStampedChecksum != currentChecksum.wholeChecksum)
+
+                // This is debug only. The server checksum is out of date with the client checksum
+                // The main checksum validation that matters is the repack after unpack
+#if DEBUG
+                if (app._checksum.ServerStampedChecksum != null && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
@@ -240,6 +246,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
+#endif
+
                 app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
                 app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
                 // Normalize logo filename. 
@@ -247,23 +255,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (app._properties.LibraryDependencies != null)
                 {
-                    var refs = Utility.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                    var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
                     app._libraryReferences = refs;
                     app._properties.LibraryDependencies = null;
                 }
 
                 if (app._properties.LocalConnectionReferences != null)
                 {
-                    var cxs = Utility.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+                    var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;
                     app._properties.LocalConnectionReferences = null;
                 }
 
                 if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
                 {
-                    var dsrs = Utility.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                    var dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                     app._dataSourceReferences = dsrs;
                     app._properties.LocalDatabaseReferences = null;
+                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                }
+                else
+                {
+                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
                 }
 
 
@@ -351,7 +364,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Write back out to a msapp file. 
-        public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors)
+        public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors, bool isValidation = false)
         {
             app.ApplyBeforeMsAppWriteTransforms(errors);
 
@@ -377,33 +390,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (entry != null)
                     {
-                        var e = z.CreateEntry(entry.Name);
+                        var e = z.CreateEntry(entry.Name.ToMsAppPath());
                         using (var dest = e.Open())
                         {
                             dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
-                            checksum.AddFile(entry.Name, entry.RawBytes);
+                            checksum.AddFile(entry.Name.ToMsAppPath(), entry.RawBytes);
                         }
                     }
                 }
 
-                ComputeAndWriteChecksum(app, checksum, z, errors);
+                ComputeAndWriteChecksum(app, checksum, z, errors, isValidation);
             }
 
             // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
             app.ApplyAfterMsAppLoadTransforms(errors);
         }
 
-        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors)
+        private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors, bool isValidation)
         {
             var hash = checksum.GetChecksum();
 
-
-            if (hash.wholeChecksum != app._checksum.ClientStampedChecksum)
+            if (app._checksum != null && hash.wholeChecksum != app._checksum.ClientStampedChecksum)
             {
+                // These warnings are Debug only. Throwing a bunch of warning messages at the customer could lead to them ignoring real errors.
+#if DEBUG
                 if (app._checksum.ClientPerFileChecksums != null)
                 {
-                    // We had offline edits!
-                    errors.ChecksumMismatch("Sources have changed since when they were unpacked.");
                     foreach (var file in app._checksum.ClientPerFileChecksums)
                     {
                         if (!hash.perFileChecksum.TryGetValue(file.Key, out var fileChecksum))
@@ -423,18 +435,29 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
-            }
 
+#endif
+
+                // These are the non-debug warnings, if it's unpack this was a serious error, on -pack it's most likely not
+                if (isValidation)
+                {
+                    errors.PostUnpackValidationFailed();
+                    throw new DocumentException();
+                }
+
+                errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
+            }
+            
             var checksumJson = new ChecksumJson
             {
                 ClientStampedChecksum = hash.wholeChecksum,
                 ClientPerFileChecksums = hash.perFileChecksum,
-                ServerStampedChecksum = app._checksum.ServerStampedChecksum,
-                ServerPerFileChecksums = app._checksum.ServerPerFileChecksums,
+                ServerStampedChecksum = app._checksum?.ServerStampedChecksum,
+                ServerPerFileChecksums = app._checksum?.ServerPerFileChecksums,
             };
 
             var entry = ToFile(FileKind.Checksum, checksumJson);
-            var e = z.CreateEntry(entry.Name);
+            var e = z.CreateEntry(entry.Name.ToMsAppPath());
             using (var dest = e.Open())
             {
                 dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
@@ -459,18 +482,31 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
-                var json = Utility.JsonSerialize(app._connections);
+                var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
             if (app._dataSourceReferences != null)
             {
-                var json = Utility.JsonSerialize(app._dataSourceReferences);
-                props.LocalDatabaseReferences = json;
+                var json = Utilities.JsonSerialize(app._dataSourceReferences);
+
+                // Some formats serialize empty as "", some serialize as "{}"
+                if (app._dataSourceReferences.Count == 0)
+                {
+                    if (app._entropy.LocalDatabaseReferencesAsEmpty)
+                    {
+                        json = "";
+                    } else
+                    {
+                        json = "{}";
+                    }
+                }
+
+                props.LocalDatabaseReferences = json;                
             }
 
             if (app._libraryReferences != null)
             {
-                var json = Utility.JsonSerialize(app._libraryReferences);
+                var json = Utilities.JsonSerialize(app._libraryReferences);
                 props.LibraryDependencies = json;
             }
 
@@ -549,7 +585,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
 
-            foreach (var sourceFile in sourceFiles)
+
+            // This ordering is essential, we need to match the order in which Studio writes the files to replicate certain order-dependent behavior.
+            foreach (var sourceFile in sourceFiles.OrderBy(file => file.GetMsAppFilename()))
             {
                 yield return sourceFile.ToMsAppFile();
             }
@@ -674,7 +712,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var assetFile in app._assetFiles)
             {
-                yield return new FileEntry { Name = @"Assets\" + assetFile.Value.Name, RawBytes = assetFile.Value.RawBytes };
+                yield return new FileEntry { Name = FilePath.RootedAt("Assets", assetFile.Value.Name), RawBytes = assetFile.Value.RawBytes };
             }
         }
 
@@ -724,7 +762,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var filename = FileEntry.GetFilenameForKind(kind);
 
-            var jsonStr = JsonSerializer.Serialize(value, Utility._jsonOpts);
+            var jsonStr = JsonSerializer.Serialize(value, Utilities._jsonOpts);
 
             jsonStr = JsonNormalizer.Normalize(jsonStr);
 

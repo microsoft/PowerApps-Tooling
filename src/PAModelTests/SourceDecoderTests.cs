@@ -16,13 +16,13 @@ namespace PAModelTests
         // - are we removing default properties, from both Theme Json and Template xmL?
         // - canonical ordering and stable output 
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "Screen1.pa.yaml", "Weather_Screen1.pa.yaml")]
-        [DataRow("GroupControlTest.msapp", "Screen1.pa.yaml", "GroupControl_Test.pa.yaml")]
-        [DataRow("GalleryTestApp.msapp", "Screen1.pa.yaml", "Gallery_ScreenTest.pa.yaml")]
-        [DataRow("SimpleScopeVariables.msapp", "Components\\Component1.pa.yaml", "ComponentFunction_Test.pa.yaml")]
-        [DataRow("TestStudio_Test.msapp", "Tests\\Test_7F478737223C4B69.pa.yaml", "TestStudio_Test.pa.yaml")]
-        [DataRow("autolayouttest.msapp", "Screen1.pa.yaml", "AutoLayout_Test.pa.yaml")]
-        public void TestScreenBaselines(string appName, string sourceFileName, string screenBaselineName)
+        [DataRow("MyWeather.msapp", "", "Screen1.fx.yaml", "Weather_Screen1.fx.yaml")]
+        [DataRow("GroupControlTest.msapp", "",  "Screen1.fx.yaml", "GroupControl_Test.fx.yaml")]
+        [DataRow("GalleryTestApp.msapp", "",  "Screen1.fx.yaml", "Gallery_ScreenTest.fx.yaml")]
+        [DataRow("SimpleScopeVariables.msapp", "Components", "Component1.fx.yaml", "ComponentFunction_Test.fx.yaml")]
+        [DataRow("TestStudio_Test.msapp", "Tests", "Test_7F478737223C4B69.fx.yaml", "TestStudio_Test.fx.yaml")]
+        [DataRow("autolayouttest.msapp", "",  "Screen1.fx.yaml", "AutoLayout_test.fx.yaml")]
+        public void TestScreenBaselines(string appName, string basePath, string sourceFileName, string screenBaselineName)
         {
             // Pull both the msapp and the baseline from our embedded resources. 
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
@@ -37,7 +37,7 @@ namespace PAModelTests
                 string outSrcDir = tempDir.Dir;
                 msapp.SaveToSources(outSrcDir);
 
-                var pathActual = Path.Combine(outSrcDir, "Src", sourceFileName);
+                var pathActual = Path.Combine(outSrcDir, "Src", basePath, sourceFileName);
                 var pathExpected = Path.Combine(Environment.CurrentDirectory, "SrcBaseline", screenBaselineName);
 
 

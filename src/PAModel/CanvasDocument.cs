@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System.IO;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -29,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Track all unknown "files". Ensures round-tripping isn't lossy.         
         // Only contains files of FileKind.Unknown
-        internal Dictionary<string, FileEntry> _unknownFiles = new Dictionary<string, FileEntry>();
+        internal Dictionary<FilePath, FileEntry> _unknownFiles = new Dictionary<FilePath, FileEntry>();
 
         // Key is Top Parent Control Name for both _screens and _components
         internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
@@ -76,7 +77,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ChecksumJson _checksum;
 
         // Track all asset files, key is file name
-        internal Dictionary<string, FileEntry> _assetFiles = new Dictionary<string, FileEntry>(StringComparer.Ordinal);
+        internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
 
 
         #region Save/Load
@@ -90,7 +91,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var errors = new ErrorContainer();
 
-            Utility.EnsurePathRooted(fullPathToMsApp);
+            Utilities.EnsurePathRooted(fullPathToMsApp);
 
             if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
@@ -113,7 +114,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
-            Utility.EnsurePathRooted(pathToSourceDirectory);
+            Utilities.EnsurePathRooted(pathToSourceDirectory);
 
             var errors = new ErrorContainer();
             var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
@@ -122,15 +123,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public ErrorContainer SaveToMsApp(string fullPathToMsApp)
         {
-            Utility.EnsurePathRooted(fullPathToMsApp);
+            Utilities.EnsurePathRooted(fullPathToMsApp);
 
             var errors = new ErrorContainer();
             Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
             return errors;
         }
+
+        // Used to validate roundtrip after unpack
+        internal ErrorContainer SaveToMsAppValidation(string fullPathToMsApp)
+        {
+            Utilities.EnsurePathRooted(fullPathToMsApp);
+
+            var errors = new ErrorContainer();
+            Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors, isValidation: true), errors);
+            return errors;
+        }
         public ErrorContainer SaveToSources(string pathToSourceDirectory)
         {
-            Utility.EnsurePathRooted(pathToSourceDirectory);
+            Utilities.EnsurePathRooted(pathToSourceDirectory);
 
             var errors = new ErrorContainer();
             Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);

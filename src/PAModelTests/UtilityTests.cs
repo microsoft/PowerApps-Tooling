@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace PAModelTests
 {
@@ -10,12 +11,12 @@ namespace PAModelTests
     public class UtilityTests
     {
         [DataTestMethod]
-        [DataRow("\r\t!$/^%", "%0d%09%21%24%2f%5e%25")]
+        [DataRow("\r\t!$^%/\\", "%0d%09%21%24%5e%25%2f%5c")]
         [DataRow("\u4523", "%%4523")]
         public void TestEscaping(string unescaped, string escaped)
         {
-            Assert.AreEqual(Utility.EscapeFilename(unescaped), escaped);
-            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+            Assert.AreEqual(Utilities.EscapeFilename(unescaped), escaped);
+            Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
         }
 
         [DataTestMethod]
@@ -23,15 +24,15 @@ namespace PAModelTests
         [DataRow("[]_' ", "[]_' ")] // unescape only touches % character.
         public void TestUnescape(string escaped, string unescaped)
         {
-            Assert.AreEqual(Utility.UnEscapeFilename(escaped), unescaped);
+            Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
         }
 
         [TestMethod]
         public void TestNotEscaped()
         {
             // Not escaped.
-            var a = "0123456789AZaz[]_. \\";
-            Assert.AreEqual(Utility.EscapeFilename(a), a);
+            var a = "0123456789AZaz[]_. ";
+            Assert.AreEqual(Utilities.EscapeFilename(a), a);
         }
 
         [DataTestMethod]
@@ -47,7 +48,14 @@ namespace PAModelTests
             @"d:\app", @"Src\EditorState\Screen%252.editorstate.json" )]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
-            Assert.AreEqual(expectedRelativePath, Utility.GetRelativePath(fullPath, basePath));
+            // Test non-windows paths if on other platforms
+            if (Path.DirectorySeparatorChar != '\\')
+            {
+                fullPath = fullPath.Replace('\\', '/');
+                basePath = basePath.Replace('\\', '/');
+                expectedRelativePath = expectedRelativePath.Replace('\\', '/');
+            }
+            Assert.AreEqual(expectedRelativePath, Utilities.GetRelativePath(fullPath, basePath));
         }
 
 
@@ -58,9 +66,9 @@ namespace PAModelTests
         {
             // Not escaped.
             var path = @"DataSources\JourneyPlanner|Sendforapproval.json";
-            var escape = Utility.EscapeFilename(path);
+            var escape = Utilities.EscapeFilename(path);
 
-            var original = Utility.UnEscapeFilename(escape);
+            var original = Utilities.UnEscapeFilename(escape);
 
             Assert.AreEqual(path, original);
         }
