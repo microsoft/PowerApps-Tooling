@@ -73,7 +73,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
 
-        // checksum from existin msapp. 
+        // checksum from existing msapp. 
         internal ChecksumJson _checksum;
 
         // Track all asset files, key is file name
@@ -210,6 +210,44 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 _unknownFiles.Add(kvp.Key, new FileEntry(kvp.Value));
             }
+
+            foreach (var kvp in other._assetFiles)
+            {
+                _assetFiles.Add(kvp.Key, new FileEntry(kvp.Value));
+            }
+
+            foreach (var kvp in other._screens)
+            {
+                _screens.Add(kvp.Key, kvp.Value.Clone());
+            }
+
+            foreach (var kvp in other._components)
+            {
+                _components.Add(kvp.Key, kvp.Value.Clone());
+            }
+
+            _editorStateStore = new EditorStateStore(other._editorStateStore);
+            _templateStore = new TemplateStore(other._templateStore);
+
+            _dataSources = other._dataSources.JsonClone();
+            _screenOrder = new List<string>(other._screenOrder);
+
+            _header = other._header.JsonClone();
+            _properties = other._properties.JsonClone();
+            _publishInfo = other._publishInfo.JsonClone();
+            _templates = other._templates.JsonClone();
+            _themes = other._themes.JsonClone();
+            _resourcesJson = other._resourcesJson.JsonClone();
+            _appCheckerResultJson = other._appCheckerResultJson.JsonClone();
+
+            _connections = other._connections.JsonClone();
+
+            _dataSourceReferences = other._dataSourceReferences.JsonClone();
+            _libraryReferences = other._libraryReferences.JsonClone();
+
+            _logoFile = new FileEntry(other._logoFile);
+            _entropy = other._entropy.JsonClone();
+            _checksum = other._checksum.JsonClone();
         }
 
         // iOrder is used to preserve ordering value for round-tripping. 

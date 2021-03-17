@@ -17,6 +17,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             Contents = new Dictionary<string, CombinedTemplateState>();
         }
 
+        public TemplateStore(TemplateStore other)
+        {
+            Contents = other.Contents.JsonClone();
+        }
+
         public bool AddTemplate(string name, CombinedTemplateState template)
         {
             if (Contents.ContainsKey(name))

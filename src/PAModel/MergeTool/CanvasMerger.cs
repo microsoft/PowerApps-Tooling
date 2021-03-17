@@ -42,16 +42,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static CanvasDocument ApplyDelta(CanvasDocument parent, IEnumerable<IDelta> delta)
         {
+            var result = new CanvasDocument(parent);
             foreach (var change in delta)
             {
-                change.Apply(parent);
+                change.Apply(result);
             }
 
             if (delta.Any())
             {
-                parent._entropy = new Entropy();
+                result._entropy = new Entropy();
             }
-            return parent;
+            return result;
         }
     }
 }
