@@ -191,6 +191,7 @@ namespace PASopa
                 string parent = args[3];
                 string pathresult = args[4];
 
+                Console.WriteLine($"Merge is very experimental right now, do not rely on this behavior");
                 Console.WriteLine($"Merge: {path1}, {path2} --> {pathresult} ");
 
 
@@ -239,7 +240,7 @@ namespace PASopa
                 -unpack PathToApp.msapp  // infers source folder
                 -pack  NewPathToApp.msapp PathToSourceFolder
                 -make PathToCreateApp.msapp PathToPkgFolder PathToPaFile
-                -merge path1 path2 resultpath
+                -merge path1 path2 parentPath resultpath
 
                 ");
         }

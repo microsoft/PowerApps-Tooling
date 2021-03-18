@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
@@ -11,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
     internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
     {
         private List<IDelta> _deltas;
-        private EditorStateStore _editorStateStore;
+        private readonly EditorStateStore _editorStateStore;
 
         public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent, EditorStateStore stateStore)
         {
