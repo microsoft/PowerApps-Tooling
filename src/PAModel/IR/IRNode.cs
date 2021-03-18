@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR
@@ -22,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Represents block construct, may have 0-N child blocks and 0-N properties
     /// </summary>
     [DebuggerDisplay("{Name}: {Properties.Count} props")]
-    internal class BlockNode : IRNode
+    internal class BlockNode : IRNode, ICloneable<BlockNode>
     {
         public TypedNameNode Name;
         public IList<PropertyNode> Properties = new List<PropertyNode>();
@@ -32,6 +34,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
             visitor.Visit(this, context);
+        }
+
+        public BlockNode Clone()
+        {
+            return new BlockNode()
+            {
+                Name = Name.Clone(),
+                Properties = Properties.Clone(),
+                Functions = Functions.Clone(),
+                Children = Children.Clone(),
+            };
         }
     }
 
@@ -44,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Kind = label
     /// </summary>
     [DebuggerDisplay("{Identifier} as {Kind}")]
-    internal class TypedNameNode : IRNode
+    internal class TypedNameNode : IRNode, ICloneable<TypedNameNode>
     {
         public string Identifier;
 
@@ -57,13 +70,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public TypedNameNode Clone()
+        {
+            return new TypedNameNode()
+            {
+                Identifier = Identifier,
+                Kind = Kind.Clone()
+            };
+        }
     }
 
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
     [DebuggerDisplay("{TypeName}.{OptionalVariant}")]
-    internal class TypeNode : IRNode
+    internal class TypeNode : IRNode, ICloneable<TypeNode>
     {
         public string TypeName;
         public string OptionalVariant;
@@ -72,10 +94,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public TypeNode Clone()
+        {
+            return new TypeNode()
+            {
+                TypeName = TypeName,
+                OptionalVariant = OptionalVariant
+            };
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Expression}")]
-    internal class PropertyNode : IRNode
+    internal class PropertyNode : IRNode, ICloneable<PropertyNode>
     {
         public string Identifier;
         public ExpressionNode Expression;
@@ -84,10 +115,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public PropertyNode Clone()
+        {
+            return new PropertyNode()
+            {
+                Identifier = Identifier,
+                Expression = Expression.Clone()
+            };
+        }
     }
 
     [DebuggerDisplay("{Identifier}({string.Join(',', Args)}):")]
-    internal class FunctionNode : IRNode
+    internal class FunctionNode : IRNode, ICloneable<FunctionNode>
     {
         public string Identifier;
         public IList<TypedNameNode> Args = new List<TypedNameNode>();
@@ -97,10 +137,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public FunctionNode Clone()
+        {
+            return new FunctionNode()
+            {
+                Identifier = Identifier,
+                Args = Args.Clone(),
+                Metadata = Metadata.Clone(),
+            };
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Default}")]
-    internal class ArgMetadataBlockNode : IRNode
+    internal class ArgMetadataBlockNode : IRNode, ICloneable<ArgMetadataBlockNode>
     {
         public string Identifier;
         public ExpressionNode Default;
@@ -109,15 +159,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             visitor.Visit(this, context);
         }
+
+        public ArgMetadataBlockNode Clone()
+        {
+            return new ArgMetadataBlockNode()
+            {
+                Identifier = Identifier,
+                Default = Default.Clone(),
+            };
+        }
     }
 
     [DebuggerDisplay("{Expression}")]
-    internal class ExpressionNode : IRNode
+    internal class ExpressionNode : IRNode, ICloneable<ExpressionNode>
     {
         public string Expression;
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
             visitor.Visit(this, context);
+        }
+
+        public ExpressionNode Clone()
+        {
+            return new ExpressionNode()
+            {
+                Expression = Expression
+            };
         }
     }
 }

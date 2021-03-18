@@ -18,6 +18,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             _controls = new Dictionary<string, ControlState>(StringComparer.Ordinal);
         }
 
+        public EditorStateStore(EditorStateStore other)
+        {
+            _controls = other._controls.JsonClone();
+        }
+
+        public bool ContainsControl(string name)
+        {
+            return _controls.ContainsKey(name);
+        }
+
         public bool TryAddControl(ControlState control)
         {
             if (_controls.ContainsKey(control.Name))

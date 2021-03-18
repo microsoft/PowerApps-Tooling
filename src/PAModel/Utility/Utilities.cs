@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Persistence.Converters;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -195,6 +196,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var str = JsonSerializer.Serialize(obj, _jsonOpts);
             var obj2 = JsonSerializer.Deserialize<T>(str, _jsonOpts);
             return obj2;
+        }
+
+        public static IList<T> Clone<T>(this IList<T> obj) where T : ICloneable<T>
+        {
+            if (obj == null)
+                return null;
+            return obj.Select(item => item.Clone()).ToList();
         }
 
         private const char EscapeChar = '%';
