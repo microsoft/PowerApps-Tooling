@@ -17,8 +17,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             // Screen addition
             if (ParentControlPath == ControlPath.Empty)
             {
-                var screen = PrepareControlTree(this.Control, document._editorStateStore);
-                document._screens.Add(screen.Name.Identifier, screen);
+                if (!IsControlTreeCollisionFree(this.Control, document._editorStateStore))
+                    return;
+
+                AddControlStates(this.Control, document._editorStateStore);
+
+                document._screens.Add(this.Control.Name.Identifier, this.Control);
                 return;
             }
 
@@ -41,50 +45,45 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                     }
                 }
                 // tree was deleted
-                if (!found) return;
+                if (!found)
+                {
+                    return;
+                }
             }
 
-            control.Children.Add(PrepareControlTree(this.Control, document._editorStateStore));
+            if (!IsControlTreeCollisionFree(this.Control, document._editorStateStore))
+                return;
+
+            AddControlStates(this.Control, document._editorStateStore);
+
+            control.Children.Add(this.Control);
         }
 
-        private BlockNode PrepareControlTree(BlockNode root, EditorStateStore stateStore)
+        private bool IsControlTreeCollisionFree(BlockNode root, EditorStateStore stateStore)
         {
-            var newChildren = new List<BlockNode>();
+            bool valid = true;
             foreach (var child in root.Children)
             {
-                newChildren.Add(PrepareControlTree(child, stateStore));
+                valid &= IsControlTreeCollisionFree(child, stateStore);
             }
 
             var name = root.Name.Identifier;
-            var newName = GetUniqueControlName(name, stateStore);
-
-            // If the state exists, update it and add to merged document
-            if (ControlStates.TryGetValue(name, out var state))
-            {
-                state.Name = newName;
-                stateStore.TryAddControl(state);
-            }
-
-            return new BlockNode()
-            {
-                Name = new TypedNameNode() { Identifier = newName, Kind = root.Name.Kind, SourceSpan = root.Name.SourceSpan },
-                Children = newChildren,
-                Properties = root.Properties,
-                Functions = root.Functions,
-                SourceSpan = root.SourceSpan,
-            };
+            return valid && !stateStore.ContainsControl(name);
         }
 
-        private string GetUniqueControlName(string baseName, EditorStateStore stateStore)
+        private void AddControlStates(BlockNode root, EditorStateStore stateStore)
         {
-            if (!stateStore.ContainsControl(baseName))
-                return baseName;
+            foreach (var child in root.Children)
+            {
+                AddControlStates(child, stateStore);
+            }
 
-            int i = 1;
-            while (stateStore.ContainsControl($"{baseName}_{i}"))
-                ++i;
-
-            return $"{baseName}_{i}";
+            var name = root.Name.Identifier;
+            // If the state exists, add to merged document
+            if (ControlStates.TryGetValue(name, out var state))
+            {
+                stateStore.TryAddControl(state);
+            }
         }
     }
 }
