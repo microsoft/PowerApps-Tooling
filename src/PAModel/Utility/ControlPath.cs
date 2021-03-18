@@ -7,8 +7,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
+namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 {
+    /// <summary>
+    /// This represents a path to a control in a control tree
+    /// Each segment is a control name
+    /// </summary>
     [DebuggerDisplay("{string.Join('.', _segments)}")]
     internal class ControlPath
     {
