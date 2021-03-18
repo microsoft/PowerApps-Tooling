@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
 {
-    internal class ControlDiffVisitor : IRNodeVisitor<ControlDiffContext>
+    internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
     {
         private List<IDelta> _deltas;
         private EditorStateStore _editorStateStore;
@@ -109,33 +109,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             // Maybe add smarter diff here eventually
             if (node.Expression.Expression != theirs.Expression.Expression)
                 _deltas.Add(new ChangeProperty() { ControlPath = context.Path, Expression = node.Expression.Expression, PropertyName = node.Identifier });
-        }
-
-
-        /// Ignore below here (refactor)
-        /// 
-        public override void Visit(ExpressionNode node, ControlDiffContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Visit(TypedNameNode node, ControlDiffContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Visit(TypeNode node, ControlDiffContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Visit(ArgMetadataBlockNode node, ControlDiffContext context)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Visit(FunctionNode node, ControlDiffContext context)
-        {
-            throw new NotImplementedException();
         }
     }
 

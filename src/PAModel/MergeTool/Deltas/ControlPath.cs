@@ -40,8 +40,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         {
             return obj is ControlPath other &&
                 other._segments.Count == _segments.Count &&
-                // I know this is wrong, but it works for now. I'll fix it later.
-                string.Join(".", _segments) == string.Join(".", other._segments);
+                _segments.SequenceEqual(other._segments);
         }
 
         public override int GetHashCode()

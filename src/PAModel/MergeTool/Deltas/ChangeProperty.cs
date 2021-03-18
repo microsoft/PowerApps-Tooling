@@ -30,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         }
 
 
-        private class ChangePropertyVisitor : IRNodeVisitor<ControlPath>
+        private class ChangePropertyVisitor : DefaultVisitor<ControlPath>
         {
             private string _property;
             private string _expression;
@@ -93,28 +93,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             public override void Visit(ExpressionNode node, ControlPath context)
             {
                 node.Expression = _expression;
-            }
-
-            // unused, extract to base class with only partial visitor.
-
-            public override void Visit(TypedNameNode node, ControlPath context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void Visit(TypeNode node, ControlPath context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void Visit(FunctionNode node, ControlPath context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void Visit(ArgMetadataBlockNode node, ControlPath context)
-            {
-                throw new NotImplementedException();
             }
         }
     }
