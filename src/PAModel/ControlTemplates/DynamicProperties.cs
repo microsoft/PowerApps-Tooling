@@ -9,9 +9,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
     // Responsible for handling dynamic properties and their default vaues
     internal static class DynamicProperties
     {
-        internal static bool AddsChildDynamicProperties(string template)
+        internal static bool AddsChildDynamicProperties(string template, string variant)
         {
-            return template == "groupContainer";
+            return template == "groupContainer" && variant != "manualLayoutContainer";
         }
 
 
