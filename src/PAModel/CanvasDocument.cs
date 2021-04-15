@@ -245,7 +245,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _dataSourceReferences = other._dataSourceReferences.JsonClone();
             _libraryReferences = other._libraryReferences.JsonClone();
 
-            _logoFile = new FileEntry(other._logoFile);
+            _logoFile = other._logoFile != null ? new FileEntry(other._logoFile) : null;
             _entropy = other._entropy.JsonClone();
             _checksum = other._checksum.JsonClone();
         }

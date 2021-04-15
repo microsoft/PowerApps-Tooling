@@ -71,7 +71,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
                 else
                 {
-                    _deltas.Add(new AddControl() { ParentControlPath = controlPath, Control = child, ControlStates = GetSubtreeStates(child) });
+                    _deltas.Add(new AddControl() { ParentControlPath = controlPath, Control = child, ControlStates = GetSubtreeStates(child)});
                 }
             }
             foreach (var kvp in theirChildrenDict)
