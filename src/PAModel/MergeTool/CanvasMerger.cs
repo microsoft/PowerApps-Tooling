@@ -39,6 +39,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var theirPropChanges = theirs.OfType<ChangeProperty>();
             resultDeltas.AddRange(ourPropChanges);
             resultDeltas.AddRange(theirPropChanges.Where(change => !ourPropChanges.Any(ourChange => ourChange.PropertyName == change.PropertyName && ourChange.ControlPath.Equals(change.ControlPath))));
+
+            var ourTemplateChanges = ours.OfType<AddTemplate>();
+            var theirTemplateChanges = theirs.OfType<AddTemplate>();
+            // This may need to be smarter for component templates
+            resultDeltas.AddRange(ourTemplateChanges);
+            resultDeltas.AddRange(theirTemplateChanges);
+
             return resultDeltas;
         }
 

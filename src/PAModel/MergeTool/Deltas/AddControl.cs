@@ -15,6 +15,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         public ControlPath ParentControlPath;
         public BlockNode Control;
         public Dictionary<string, ControlState> ControlStates;
+        public TemplateStore TemplateStore;
 
         public void Apply(CanvasDocument document)
         {
