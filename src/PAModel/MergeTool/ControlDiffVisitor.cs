@@ -96,10 +96,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
             }
 
-            foreach (var kvp in theirChildrenDict)
+            foreach (var kvp in theirPropDict)
             {
                 // removed prop
-                _deltas.Add(new ChangeProperty() { ControlPath = controlPath, WasRemoved = true });
+                _deltas.Add(new ChangeProperty() { ControlPath = controlPath, PropertyName = kvp.Key, WasRemoved = true });
             }
 
 
