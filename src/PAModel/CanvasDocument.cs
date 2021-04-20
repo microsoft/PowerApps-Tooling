@@ -43,7 +43,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // This is references\dataSources.json
         // Also includes entries for DataSources made from a DataComponent
         // Key is parent entity name (datasource name for non cds data sources)
-        private Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
+        internal Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
         internal List<string> _screenOrder = new List<string>();
 
 
