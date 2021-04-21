@@ -426,7 +426,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return set;
         }
 
-
+        private FilePath GetAssetFilePathWithoutPrefix(string path)
+        {
+            return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
+        }
 
         private void StabilizeAssetFilePaths()
         {
@@ -435,10 +438,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Update AssetFile paths
             foreach (var resource in _resourcesJson.Resources)
             {
-                if (resource.ResourceKind != "LocalFile")
+                if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
-                var assetFilePath = FilePath.FromMsAppPath(resource.Path.Substring(AssetFilePathPrefix.Length));
+                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
 
@@ -451,7 +454,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = newFileName;
 
-                var withoutPrefix = FilePath.FromMsAppPath(resource.Path.Substring(AssetFilePathPrefix.Length));
+                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
                 _assetFiles.Add(withoutPrefix, fileEntry);
@@ -474,14 +477,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private void RestoreAssetFilePaths()
         {
+            // For apps unpacked before this asset rewrite was added, skip the restore step
+            if (_entropy.LocalResourceFileNames == null)
+                return;
+
             var maxFileNumber = FindMaxEntropyFileName();
 
             foreach (var resource in _resourcesJson.Resources)
             {
-                if (resource.ResourceKind != "LocalFile")
+                if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
-                var assetFilePath = FilePath.FromMsAppPath(resource.Path.Substring(AssetFilePathPrefix.Length));
+                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
 
@@ -496,7 +503,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;
 
-                var withoutPrefix = FilePath.FromMsAppPath(resource.Path.Substring(AssetFilePathPrefix.Length));
+                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
                 _assetFiles.Add(withoutPrefix, fileEntry);

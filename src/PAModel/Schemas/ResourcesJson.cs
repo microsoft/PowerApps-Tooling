@@ -18,6 +18,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         Pdf,
     }
 
+    internal enum ResourceKind
+    {
+        LocalFile,
+        Uri,
+    }
+
     internal class ResourcesJson
     {
         public ResourceJson[] Resources { get; set; }
@@ -27,7 +33,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
     {
         public string Name { get; set; }
         public string FileName { get; set; }
-        public string ResourceKind { get; set; }
+        public ResourceKind ResourceKind { get; set; }
         public string Path { get; set; }
         public ContentKind Content { get; set; }
 
