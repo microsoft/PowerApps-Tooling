@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Persistence.Converters;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
@@ -326,6 +327,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (!Path.IsPathRooted(path))
             {
                 throw new ArgumentException("Path must be a full path: " + path);
+            }
+        }
+
+        /// <summary>
+        /// Relative path of the file depends on the fileType. eg: Image files go into "Assets\Images\"
+        /// </summary>
+        public static string GetResourceRelativePath(ContentKind contentType)
+        {
+            switch (contentType)
+            {
+                case ContentKind.Image:
+                    return @"Assets\Images";
+                case ContentKind.Audio:
+                    return @"Assets\Audio";
+                case ContentKind.Video:
+                    return @"Assets\Video";
+                case ContentKind.Pdf:
+                    return @"Assets\Pdf";
+                default:
+                    throw new NotSupportedException("Unrecognized Content Kind for local resource");
             }
         }
     }
