@@ -152,10 +152,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
         public static string GetRelativePath(string full, string basePath)
         {
-            // Constructing a second uri from the absolute path avoids an issue in .NET Core on linux
-            // where the % escape in file names leads to an incorrect Relative path later on
-            Uri fromUri = new Uri(new Uri(AppendDirectorySeparatorChar(basePath)).AbsolutePath);
-            Uri toUri = new Uri(new Uri(AppendDirectorySeparatorChar(full)).AbsolutePath);
+            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePath));
+            Uri toUri = new Uri(AppendDirectorySeparatorChar(full));
 
             // path can't be made relative.
             if (fromUri.Scheme != toUri.Scheme)
@@ -220,6 +218,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (ch >= 'A' && ch <= 'Z') ||
                 (ch == '[' || ch == ']') || // common in SQL connection names
                 (ch == '_') ||
+                (ch == '-') ||
+                (ch == '~') ||
                 (ch == '.') ||
                 (ch == ' '); // allow spaces, very common.
         }
