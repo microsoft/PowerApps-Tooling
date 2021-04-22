@@ -79,7 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             app._resourcesJson = ToObject<ResourcesJson>(entry);
                             foreach (var resource in app._resourcesJson.Resources)
                             {
-                                if (resource.ResourceKind == "LocalFile")
+                                if (resource.ResourceKind == ResourceKind.LocalFile)
                                 {
                                     app._entropy.LocalResourceRootPaths.Add(resource.Name, resource.RootPath);
                                     resource.RootPath = null;
@@ -698,7 +698,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var resources = app._resourcesJson.JsonClone();
                 foreach (var resource in resources.Resources)
                 {
-                    if (resource.ResourceKind == "LocalFile")
+                    if (resource.ResourceKind == ResourceKind.LocalFile)
                     {
                         var rootPath = string.Empty;
                         if (app._entropy?.LocalResourceRootPaths.TryGetValue(resource.Name, out rootPath) ?? false)

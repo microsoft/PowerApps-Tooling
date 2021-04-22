@@ -78,7 +78,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Track all asset files, key is file name
         internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
-
+        internal static string AssetFilePathPrefix = @"Assets\";
 
         #region Save/Load
 
@@ -307,6 +307,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 transformer.ApplyAfterRead(ctrl.Value);
             }
+
+            StabilizeAssetFilePaths();
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -344,6 +346,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
+
+            RestoreAssetFilePaths();
         }
 
         private void AddComponentDefaults(BlockNode topParent, Dictionary<string, ControlTemplate> templateDefaults)
@@ -422,8 +426,92 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return set;
         }
 
+        private FilePath GetAssetFilePathWithoutPrefix(string path)
+        {
+            return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
+        }
+
+        private void StabilizeAssetFilePaths()
+        {
+            _entropy.LocalResourceFileNames.Clear();
+
+            // Update AssetFile paths
+            foreach (var resource in _resourcesJson.Resources)
+            {
+                if (resource.ResourceKind != ResourceKind.LocalFile)
+                    continue;
+
+                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
+                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
+                    continue;
+
+                var extension = assetFilePath.GetExtension();
+                var newFileName = resource.Name + extension;
+
+                _entropy.LocalResourceFileNames.Add(resource.Name, resource.FileName);
+
+                var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
+                resource.Path = updatedPath.ToMsAppPath();
+                resource.FileName = newFileName;
+
+                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
+                fileEntry.Name = withoutPrefix;
+                _assetFiles.Remove(assetFilePath);
+                _assetFiles.Add(withoutPrefix, fileEntry);
+            }
+        }
+
+        private int FindMaxEntropyFileName()
+        {
+            var max = 0;
+            foreach (var filename in _entropy.LocalResourceFileNames.Values)
+            {
+                var oldName = Path.GetFileNameWithoutExtension(filename);
+                if (int.TryParse(oldName, out var number) && number > max)
+                {
+                    max = number;
+                }
+            }
+            return max;
+        }
+
+        private void RestoreAssetFilePaths()
+        {
+            // For apps unpacked before this asset rewrite was added, skip the restore step
+            if (_entropy.LocalResourceFileNames == null)
+                return;
+
+            var maxFileNumber = FindMaxEntropyFileName();
+
+            foreach (var resource in _resourcesJson.Resources)
+            {
+                if (resource.ResourceKind != ResourceKind.LocalFile)
+                    continue;
+
+                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
+                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
+                    continue;
+
+                string msappFileName;
+                if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
+                {
+                    maxFileNumber++;
+                    msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
+                }
+
+                var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
+                resource.Path = updatedPath.ToMsAppPath();
+                resource.FileName = msappFileName;
+
+                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
+                fileEntry.Name = withoutPrefix;
+                _assetFiles.Remove(assetFilePath);
+                _assetFiles.Add(withoutPrefix, fileEntry);
+            }
+        }
+
         // Helper for traversing and ensuring unique control names. 
-        class UniqueControlNameVistor
+        internal class UniqueControlNameVistor
         {
             // Control names are case sensitive. 
             private readonly Dictionary<string, SourceLocation?> _names = new Dictionary<string, SourceLocation?>(StringComparer.Ordinal);

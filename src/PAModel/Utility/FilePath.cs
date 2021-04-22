@@ -53,6 +53,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
             return new FilePath(segments.ToArray());
         }
 
+        public FilePath Append(string segment)
+        {
+            var newSegments = new List<string>(_pathSegments);
+            newSegments.Add(segment);
+            return new FilePath(newSegments.ToArray());
+        }
+
         public bool StartsWith(string root, StringComparison stringComparison)
         {
             return _pathSegments.Length > 0 && _pathSegments[0].Equals(root, stringComparison);
@@ -61,6 +68,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         public bool HasExtension(string extension)
         {
             return _pathSegments.Length > 0 && _pathSegments.Last().EndsWith(extension, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public string GetExtension()
+        {
+            if (_pathSegments.Length == 0)
+                return string.Empty;
+            return Path.GetExtension(_pathSegments.Last());
         }
 
         public override bool Equals(object obj)
