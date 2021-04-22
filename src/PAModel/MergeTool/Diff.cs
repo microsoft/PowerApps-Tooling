@@ -72,7 +72,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             foreach (var remaining in childResourcesDict)
             {
                 FileEntry file = null;
-                if (remaining.Value.ResourceKind == "LocalFile")
+                if (remaining.Value.ResourceKind == Schemas.ResourceKind.LocalFile)
                 {
                     var resourceName = remaining.Value.Path.Substring("Assets\\".Length);
                     child._assetFiles.TryGetValue(FilePath.FromMsAppPath(resourceName), out file);
@@ -87,6 +87,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             {
                 if (!parent._dataSources.ContainsKey(ds.Key))
                     deltas.Add(new AddDataSource() { Name = ds.Key, Contents = ds.Value });
+            }
+
+
+            foreach (var ds in parent._dataSources)
+            {
+                if (!child._dataSources.ContainsKey(ds.Key))
+                    deltas.Add(new RemoveDataSource() { Name = ds.Key});
             }
         }
     }

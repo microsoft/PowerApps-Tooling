@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                 return;
 
             resources.Add(Name, Resource);
-            if (Resource.ResourceKind == "LocalFile")
+            if (Resource.ResourceKind == ResourceKind.LocalFile)
             {
                 document.AddAssetFile(File);
             }
