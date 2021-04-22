@@ -8,6 +8,13 @@
         "build",
         "${workspaceFolder}/targets/targets.csproj"
       ]
+    },
+    {
+      "label": "build",
+      "command": "${workspaceFolder}/build",
+      "args": [
+        "rebuild"
+      ]
     }
 	]
 }

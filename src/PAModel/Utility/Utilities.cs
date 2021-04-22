@@ -21,10 +21,10 @@ using System.Text.Json.Serialization;
 [assembly: InternalsVisibleTo("PASopa, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5fc90e7027f67871e773a8fde8938c81dd402ba65b9201d60593e96c492651e889cc13f1415ebb53fac1131ae0bd333c5ee6021672d9718ea31a8aebd0da0072f25d87dba6fc90ffd598ed4da35e44c398c454307e8e33b8426143daec9f596836f97c8f74750e5975c64e2189f45def46b2a2b1247adc3652bf5c308055da9")]
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
-    // Various utility methods. 
+    // Various utility methods.
     internal static class Utilities
     {
-        // Allows using with { } initializers, which require an Add() method. 
+        // Allows using with { } initializers, which require an Add() method.
         public static void Add<T>(this Stack<T> stack, T item)
         {
             stack.Push(item);
@@ -74,14 +74,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var opts = new JsonSerializerOptions();
 
-            // encodes quote as \" rather than unicode. 
+            // encodes quote as \" rather than unicode.
             opts.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
 
             opts.Converters.Add(new JsonStringEnumConverter());
 
             opts.Converters.Add(new JsonDateTimeConverter());
             opts.Converters.Add(new JsonVersionConverter());
-            
+
             opts.WriteIndented = true;
             opts.IgnoreNullValues = true;
 
@@ -124,7 +124,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             using (var s = e.Open())
             {
-                // Non-seekable stream. 
+                // Non-seekable stream.
                 var len = e.Length;
                 var buffer = new byte[len];
                 s.Read(buffer, 0, (int)len);
@@ -132,8 +132,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        // JsonElement is loss-less, handles unknown fields without dropping them. 
-        // Convertering to a Poco drops fields we don't recognize. 
+        // JsonElement is loss-less, handles unknown fields without dropping them.
+        // Convertering to a Poco drops fields we don't recognize.
         public static JsonElement ToJson(this ZipArchiveEntry e)
         {
             using (var s = e.Open())
@@ -152,12 +152,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
         public static string GetRelativePath(string full, string basePath)
         {
-            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePath));
-            Uri toUri = new Uri(AppendDirectorySeparatorChar(full));
+            // Constructing a second uri from the absolute path avoids an issue in .NET Core on linux
+            // where the % escape in file names leads to an incorrect Relative path later on
+            Uri fromUri = new Uri(new Uri(AppendDirectorySeparatorChar(basePath)).AbsolutePath);
+            Uri toUri = new Uri(new Uri(AppendDirectorySeparatorChar(full)).AbsolutePath);
 
             // path can't be made relative.
             if (fromUri.Scheme != toUri.Scheme)
-                return full; 
+                return full;
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
             string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
@@ -190,7 +192,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        // Useful when we need to mutate an object (such as adding back properties) 
+        // Useful when we need to mutate an object (such as adding back properties)
         // but don't want to mutate the original.
         public static T JsonClone<T>(this T obj)
         {
@@ -210,19 +212,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static bool DontEscapeChar(char ch)
         {
-            // List of "safe" characters that aren't escaped. 
-            // Note that the EscapeChar must be escaped, so can't appear on this list! 
+            // List of "safe" characters that aren't escaped.
+            // Note that the EscapeChar must be escaped, so can't appear on this list!
             return
                 (ch >= '0' && ch <= '9') ||
                 (ch >= 'a' && ch <= 'z') ||
                 (ch >= 'A' && ch <= 'Z') ||
-                (ch == '[' || ch == ']') || // common in SQL connection names 
+                (ch == '[' || ch == ']') || // common in SQL connection names
                 (ch == '_') ||
                 (ch == '.') ||
                 (ch == ' '); // allow spaces, very common.
         }
 
-        // For writing out to a director. 
+        // For writing out to a director.
         public static string EscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
@@ -233,7 +235,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     sb.Append(ch);
                 } else
                 {
-                    
+
                     var x = (int)ch;
                     if (x <= 255)
                     {
@@ -276,20 +278,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var ch = path[i];
                 if (ch == EscapeChar)
                 {
-                    // Unescape 
+                    // Unescape
                     int x;
                     if (path[i+1] == EscapeChar)
                     {
                         i++;
-                        x = ToHex(path[i + 1]) * 16 *16 * 16+ 
-                            ToHex(path[i + 2]) * 16 *16 + 
-                            ToHex(path[i + 3]) * 16 + 
+                        x = ToHex(path[i + 1]) * 16 *16 * 16+
+                            ToHex(path[i + 2]) * 16 *16 +
+                            ToHex(path[i + 3]) * 16 +
                             ToHex(path[i + 4]);
                         i += 4;
                     } else
                     {
                         // 2 digit
-                        x = ToHex(path[i + 1]) * 16 + 
+                        x = ToHex(path[i + 1]) * 16 +
                             ToHex(path[i + 2]);
                         i += 2;
                     }
@@ -297,7 +299,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 else
                 {
-                    // Anything that is not explicitly escaped gets copied. 
+                    // Anything that is not explicitly escaped gets copied.
                     sb.Append(ch);
                 }
             }

@@ -15,18 +15,18 @@ using System.Xml.Linq;
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     /// <summary>
-    /// Create a checksum over an .msapp file. 
-    /// Must be tolerant to JSON files being non-canonical. 
+    /// Create a checksum over an .msapp file.
+    /// Must be tolerant to JSON files being non-canonical.
     /// To aide in computing, allow checksum is computed out of order .
     /// </summary>
     public class ChecksumMaker
     {
-        // Given checksum an easy prefix so that we can identify algorithm version changes. 
+        // Given checksum an easy prefix so that we can identify algorithm version changes.
         public static string Version = "C6";
 
         public const string ChecksumName = "checksum.json";
 
-        // Track a checksum per file and then merge into a single one at the end. 
+        // Track a checksum per file and then merge into a single one at the end.
         private readonly Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
 
         public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(string fullpathToMsApp)
@@ -59,13 +59,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Return null if not checksumed
-        // T is the checksum aglorithm to use  - this allows passing in a debug algorithm. 
+        // T is the checksum aglorithm to use  - this allows passing in a debug algorithm.
         internal static byte[] ChecksumFile<T>(string filename, byte[] bytes)
             where T : IHashMaker, new()
         {
             if (filename.EndsWith(ChecksumName, StringComparison.OrdinalIgnoreCase))
             {
-                // Ignore the checksum file, else we'd have a circular reference. 
+                // Ignore the checksum file, else we'd have a circular reference.
                 return null;
             }
 
@@ -99,8 +99,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             "DataSources\\WadlMetadata\\WadlXml",
         };
 
-        // Helper for identifying which paths are double encoded. 
-        // All of these should be resolved and fixed by the server. 
+        // Helper for identifying which paths are double encoded.
+        // All of these should be resolved and fixed by the server.
         private class Context
         {
             public string Filename;
@@ -152,7 +152,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        // Add json - handle the non-canonical format. 
+        // Add json - handle the non-canonical format.
         private static byte[] ChecksumJsonFile<T>(string filename, byte[] bytes)
             where T : IHashMaker, new()
         {
@@ -179,7 +179,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         /// <summary>
-        /// Called after all files are added to get a checksum. 
+        /// Called after all files are added to get a checksum.
         /// </summary>
         public (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum()
         {
@@ -197,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             var h = hash.GetHashAndReset();
-            
+
             return (ChecksumToString(h), perFileChecksum);
         }
 
@@ -225,7 +225,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     lastCharIsWhitespace = false;
                 }
             }
-            // Don't include trailing whitespace 
+            // Don't include trailing whitespace
             while ((sb.Length > 1) && sb[sb.Length - 1] == ' ') { sb.Length--; }
 
             return sb.ToString();
@@ -248,10 +248,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 case JsonValueKind.Object:
                     hash.AppendStartObj();
                     // Server has bug where it double emits the same property!
-                    // Only use once in checksum. 
+                    // Only use once in checksum.
                     HashSet<string> propertyNames = new HashSet<string>();
 
-                    // Need to determinsitically order the properties. 
+                    // Need to determinsitically order the properties.
                     foreach (var prop in je.EnumerateObject().OrderBy(x => x.Name))
                     {
                         if (propertyNames.Add(prop.Name))
@@ -262,7 +262,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                             if (kind == JsonValueKind.String && prop.Name == "InvariantScript")
                             {
-                                // Invariant script can contain Formulas. 
+                                // Invariant script can contain Formulas.
                                 var str2 = prop.Value.GetString();
                                 str2 = NormFormulaWhitespace(str2);
                                 hash.AppendData(str2);
@@ -272,9 +272,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 ctx.Push(prop.Name);
                                 ChecksumJson(ctx, hash, prop.Value);
                                 ctx.Pop();
-                            } else
+                            }
+                            else
                             {
-
+                                hash.AppendNull();
                             }
                         }
                     }
@@ -294,7 +295,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     break;
 
                 case JsonValueKind.Null:
-                    hash.AppendNull();                    
+                    hash.AppendNull();
                     break;
 
                 case JsonValueKind.String:
@@ -313,7 +314,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                     else
                     {
-                        str = str.TrimStart().Replace("\r\n", "\n"); // Normalize line endings. 
+                        str = str.TrimStart().Replace("\r\n", "\n"); // Normalize line endings.
                         hash.AppendData(str);
                     }
                     break;
