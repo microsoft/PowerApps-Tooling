@@ -42,7 +42,59 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 delta.Add(new AddTemplate() { Name = template.Key, Template = template.Value, JsonTemplate = jsonTemplate });
             }
 
+            AddResourceDeltas(parent, child, delta);
+
+            AddDataSourceDeltas(parent, child, delta);
+
             return delta;
+        }
+
+        private static void AddResourceDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            var childResourcesDict = child._resourcesJson.Resources.ToDictionary(resource => resource.Name);
+            foreach (var resource in parent._resourcesJson.Resources)
+            {
+                if (childResourcesDict.ContainsKey(resource.Name))
+                {
+                    // $$$ Need resource contents diff here to detect resource replacements
+                    // eg, delete old resource, add new resource with same name but different contents
+
+                    childResourcesDict.Remove(resource.Name);
+                }
+
+                // We don't care about the asset files for remove for now,
+                // studio just won't load ones that don't have a ref in the json
+                // And they'll get cleaned up next save
+                // $$$ If we want a clean git history, we should apply that here
+                deltas.Add(new RemoveResource() { Name = resource.Name });
+            }
+
+            foreach (var remaining in childResourcesDict)
+            {
+                FileEntry file = null;
+                if (remaining.Value.ResourceKind == Schemas.ResourceKind.LocalFile)
+                {
+                    var resourceName = remaining.Value.Path.Substring("Assets\\".Length);
+                    child._assetFiles.TryGetValue(FilePath.FromMsAppPath(resourceName), out file);
+                }
+                deltas.Add(new AddResource() { Name = remaining.Key, Resource = remaining.Value, File = file});
+            }
+        }
+
+        private static void AddDataSourceDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            foreach (var ds in child._dataSources)
+            {
+                if (!parent._dataSources.ContainsKey(ds.Key))
+                    deltas.Add(new AddDataSource() { Name = ds.Key, Contents = ds.Value });
+            }
+
+
+            foreach (var ds in parent._dataSources)
+            {
+                if (!child._dataSources.ContainsKey(ds.Key))
+                    deltas.Add(new RemoveDataSource() { Name = ds.Key});
+            }
         }
     }
 }
