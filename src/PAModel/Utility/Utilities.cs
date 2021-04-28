@@ -36,11 +36,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return list;
         }
 
-        public static void AddRange<TKey,TValue>(
+        public static void AddRange<TKey, TValue>(
             this IDictionary<TKey, TValue> thisDictionary,
             IEnumerable<KeyValuePair<TKey, TValue>> other)
         {
-            foreach(var kv in other)
+            foreach (var kv in other)
             {
                 thisDictionary[kv.Key] = kv.Value;
             }
@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return @default;
         }
 
-        public static TValue GetOrCreate<TKey,TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
             where TValue : new()
         {
             TValue value;
@@ -173,8 +173,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static string AppendDirectorySeparatorChar(string path)
         {
             // Append a slash only if the path is a directory and does not have a slash.
-            if (!Path.HasExtension(path) &&
-                !path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            var isFilePath = File.Exists(path);
+            var isDirectoryPath = Directory.Exists(path);
+
+            var pathExists = isFilePath || isDirectoryPath;
+            if (pathExists && isFilePath)
+            {
+                return path;
+            }
+            else if (pathExists && isDirectoryPath)
+            {
+                if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                    return path + Path.DirectorySeparatorChar;
+            }
+            else if (!Path.HasExtension(path) && !path.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
                 return path + Path.DirectorySeparatorChar;
             }
@@ -184,7 +196,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void EnsureNoExtraData(Dictionary<string, JsonElement> extra)
         {
-            if (extra!= null && extra.Count > 0)
+            if (extra != null && extra.Count > 0)
             {
                 throw new NotSupportedException("There are fields in json we don't recognize");
             }
@@ -228,12 +240,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string EscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var ch in path)
+            foreach (var ch in path)
             {
                 if (DontEscapeChar(ch))
                 {
                     sb.Append(ch);
-                } else
+                }
+                else
                 {
 
                     var x = (int)ch;
@@ -241,7 +254,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         sb.Append(EscapeChar);
                         sb.Append(x.ToString("x2"));
-                    } else
+                    }
+                    else
                     {
                         sb.Append(EscapeChar);
                         sb.Append(EscapeChar);
@@ -273,22 +287,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string UnEscapeFilename(string path)
         {
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < path.Length; i++)
+            for (int i = 0; i < path.Length; i++)
             {
                 var ch = path[i];
                 if (ch == EscapeChar)
                 {
                     // Unescape
                     int x;
-                    if (path[i+1] == EscapeChar)
+                    if (path[i + 1] == EscapeChar)
                     {
                         i++;
-                        x = ToHex(path[i + 1]) * 16 *16 * 16+
-                            ToHex(path[i + 2]) * 16 *16 +
+                        x = ToHex(path[i + 1]) * 16 * 16 * 16 +
+                            ToHex(path[i + 2]) * 16 * 16 +
                             ToHex(path[i + 3]) * 16 +
                             ToHex(path[i + 4]);
                         i += 4;
-                    } else
+                    }
+                    else
                     {
                         // 2 digit
                         x = ToHex(path[i + 1]) * 16 +
