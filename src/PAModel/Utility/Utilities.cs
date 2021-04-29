@@ -148,16 +148,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // returns "bar\hi.txt"
 
         // Net Core 2.1 provides a Path.GetRelativePath api
-        // but since we target netstandard, we can convert to URIs and make the relative path from that
+        // but since we target netstandard 2.0, we can convert to URIs and make the relative path from that
         // see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
-        public static string GetRelativePath(string full, string basePath)
+        // For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
+        public static string GetRelativePath(string fullPathFile, string basePathDirectory)
         {
-            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePath));
-            Uri toUri = new Uri(AppendDirectorySeparatorChar(full));
+            // First arg is always a path name, 2nd arg is always a directory.
+            // directory is always a prefix. 
+            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePathDirectory));
+            Uri toUri = new Uri(fullPathFile);
 
             // path can't be made relative.
             if (fromUri.Scheme != toUri.Scheme)
-                return full;
+                return fullPathFile;
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
             string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
@@ -170,16 +173,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return relativePath;
         }
 
-        private static string AppendDirectorySeparatorChar(string path)
+        private static string AppendDirectorySeparatorChar(string fullDirectory)
         {
-            // Append a slash only if the path is a directory and does not have a slash.
-            if (!Path.HasExtension(path) &&
-                !path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            // Append a slash only if the path does not already have a slash.
+            if (!fullDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
-                return path + Path.DirectorySeparatorChar;
+                return fullDirectory + Path.DirectorySeparatorChar;
             }
 
-            return path;
+            return fullDirectory;
         }
 
         public static void EnsureNoExtraData(Dictionary<string, JsonElement> extra)
