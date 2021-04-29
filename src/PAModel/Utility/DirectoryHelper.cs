@@ -162,7 +162,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
             var entries = from fullPath in fullPaths
-                          let relativePath = Utilities.GetRelativePath(fullPath, root)
+                          let relativePath = Utilities.GetRelativePath(root, fullPath)
                           select new Entry(fullPath)
                           {
                               _relativeName = relativePath,
