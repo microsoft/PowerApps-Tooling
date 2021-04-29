@@ -143,19 +143,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        // basePath:     C:\foo
-        // full: c:\foo\bar\hi.txt
-        // returns "bar\hi.txt"
-
-        // Net Core 2.1 provides a Path.GetRelativePath api
-        // but since we target netstandard 2.0, we can convert to URIs and make the relative path from that
-        // see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
-        // For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
-        public static string GetRelativePath(string fullPathFile, string basePathDirectory)
+        /// <summary>
+        /// Create a relative path from one path to another. Paths will be resolved before calculating the difference.
+        /// Default path comparison for the active platform will be used (OrdinalIgnoreCase for Windows or Mac, Ordinal for Unix).
+        ///   basePath:     C:\foo
+        ///   full: c:\foo\bar\hi.txt
+        ///   returns "bar\hi.txt"
+        /// </summary>
+        /// <param name="relativeTo">The source path the output should be relative to. This path is always considered to be a directory.</param>
+        /// <param name="fullPathFile">The destination path. This is always a full path to a file.</param>
+        /// <returns>The relative path or <paramref name="path"/> if the paths don't share the same root.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="relativeTo"/> or <paramref name="path"/> is <c>null</c> or an empty string.</exception>
+        /// <remarks>
+        /// Want to use Path.GetRelativePath() from Net 2.1. But since we target netstandard 2.0, we need to shim it.
+        /// Convert to URIs and make the relative path. 
+        /// see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
+        /// For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
+        /// </remarks>
+        public static string GetRelativePath(string relativeTo, string fullPathFile)
         {
             // First arg is always a path name, 2nd arg is always a directory.
             // directory is always a prefix. 
-            Uri fromUri = new Uri(AppendDirectorySeparatorChar(basePathDirectory));
+            Uri fromUri = new Uri(AppendDirectorySeparatorChar(relativeTo));
             Uri toUri = new Uri(fullPathFile);
 
             // path can't be made relative.

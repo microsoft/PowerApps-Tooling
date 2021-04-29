@@ -72,7 +72,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static FileEntry FromFile(string fullPath, string root)
         {
-            var relativePath = Utilities.GetRelativePath(fullPath, root);
+            var relativePath = Utilities.GetRelativePath(root, fullPath);
             var bytes = File.ReadAllBytes(fullPath);
             var entry = new FileEntry
             {

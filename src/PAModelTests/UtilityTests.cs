@@ -54,7 +54,7 @@ namespace PAModelTests
                 basePath = basePath.Replace('\\', '/');
                 expectedRelativePath = expectedRelativePath.Replace('\\', '/');
             }
-            Assert.AreEqual(expectedRelativePath, Utilities.GetRelativePath(fullPath, basePath));
+            Assert.AreEqual(expectedRelativePath, Utilities.GetRelativePath(basePath, fullPath));
         }
 
 
