@@ -42,6 +42,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         // We preserve it in Entropy.json for roundtrip purposes only.
         public string RootPath { get; set; }
 
+        // Original filename used if there were collisions when rewriting the filenames
+        public string OriginalName { get; set; }
+
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

@@ -445,6 +445,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
 
+                if (_entropy.LocalResourceFileNames.ContainsKey(resource.Name))
+                {
+                    int i = 1;
+                    var newResourceName = resource.Name + '_' + i;
+                    while (_entropy.LocalResourceFileNames.ContainsKey(newResourceName))
+                    {
+                        ++i;
+                        newResourceName = resource.Name + '_' + i;
+                    }
+
+                    resource.OriginalName = resource.Name;
+                    resource.Name = newResourceName;
+                }
+
                 var extension = assetFilePath.GetExtension();
                 var newFileName = resource.Name + extension;
 
@@ -497,6 +511,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     maxFileNumber++;
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
+                }
+
+                if (resource.OriginalName != null)
+                {
+                    resource.Name = resource.OriginalName;
+                    resource.OriginalName = null;
                 }
 
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
