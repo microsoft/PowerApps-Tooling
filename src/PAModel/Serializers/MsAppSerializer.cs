@@ -274,6 +274,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LocalDatabaseReferences = null;
                     app._entropy.LocalDatabaseReferencesAsEmpty = false;
                 }
+                if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
+                {
+                    app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey};
+                    app._properties.InstrumentationKey = null;
+                }
                 else
                 {
                     app._entropy.LocalDatabaseReferencesAsEmpty = true;
@@ -484,6 +489,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
+            }
+            if(app._appInsights != null)
+            {
+                props.InstrumentationKey = app._appInsights.InstrumentationKey;
+                props.InstrumentationKey = null;
             }
             if (app._dataSourceReferences != null)
             {
