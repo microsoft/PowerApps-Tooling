@@ -86,7 +86,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             var dir = new DirectoryReader(directory2);
             var app = new CanvasDocument();
-            var appInsightsInstumentationKey = string.Empty;
+            string appInsightsInstumentationKey = null;
 
             // Do the manifest check (and version check) first. 
             // MAnifest lives in top-level directory. 
