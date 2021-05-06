@@ -43,6 +43,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public string RootPath { get; set; }
 
         // Original filename used if there were collisions when rewriting the filenames
+        // This only exists in the unpacked app, and must not be present in the
+        // packed msapp 
         public string OriginalName { get; set; }
 
         [JsonExtensionData]

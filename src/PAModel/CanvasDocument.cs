@@ -308,7 +308,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 transformer.ApplyAfterRead(ctrl.Value);
             }
 
-            StabilizeAssetFilePaths();
+            StabilizeAssetFilePaths(errors);
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -431,12 +431,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
         }
 
-        private void StabilizeAssetFilePaths()
+        private void StabilizeAssetFilePaths(ErrorContainer errors)
         {
             _entropy.LocalResourceFileNames.Clear();
 
             // Update AssetFile paths
-            foreach (var resource in _resourcesJson.Resources)
+            foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
@@ -457,6 +457,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                     resource.OriginalName = resource.Name;
                     resource.Name = newResourceName;
+
+                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, resource.OriginalName, StringComparison.OrdinalIgnoreCase));
+                    errors.GenericWarning($"Asset named {resource.OriginalName} collides with {colliding}, unpacking as {resource.Name}");
                 }
 
                 var extension = assetFilePath.GetExtension();
