@@ -444,9 +444,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
-                if (!caseInsensitiveNames.Contains(resource.Name))
+                if (caseInsensitiveNames.Add(resource.Name))
                 {
-                    caseInsensitiveNames.Add(resource.Name);
                     caseSensitiveNames.Add(resource.Name);
                 }
             }
