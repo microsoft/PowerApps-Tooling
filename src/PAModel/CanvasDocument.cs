@@ -441,6 +441,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
+                resource.OriginalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
@@ -519,9 +520,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (resource.OriginalName != null)
                 {
                     resource.Name = resource.OriginalName;
-                    resource.OriginalName = null;
                 }
 
+                resource.OriginalName = null;
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;
