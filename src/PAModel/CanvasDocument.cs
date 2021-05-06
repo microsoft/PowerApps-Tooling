@@ -311,7 +311,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 transformer.ApplyAfterRead(ctrl.Value);
             }
 
-            StabilizeAssetFilePaths();
+            StabilizeAssetFilePaths(errors);
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -434,19 +434,56 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
         }
 
-        private void StabilizeAssetFilePaths()
+        internal void StabilizeAssetFilePaths(ErrorContainer errors)
         {
             _entropy.LocalResourceFileNames.Clear();
 
-            // Update AssetFile paths
-            foreach (var resource in _resourcesJson.Resources)
+
+            // If a name matches caseinsensitive but not casesensitive, it is a candidate for rename
+            var caseInsensitiveNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var caseSensitiveNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
+                if (caseInsensitiveNames.Add(resource.Name))
+                {
+                    caseSensitiveNames.Add(resource.Name);
+                }
+            }
+
+
+            // Update AssetFile paths
+            foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
+            {
+                if (resource.ResourceKind != ResourceKind.LocalFile)
+                    continue;
+
+                resource.OriginalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
+
+                if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
+                {
+                    int i = 1;
+                    var newResourceName = resource.Name + '_' + i;
+                    while (caseInsensitiveNames.Contains(newResourceName))
+                    {
+                        ++i;
+                        newResourceName = resource.Name + '_' + i;
+                    }
+
+                    resource.OriginalName = resource.Name;
+                    resource.Name = newResourceName;
+
+                    caseInsensitiveNames.Add(resource.Name);
+                    caseSensitiveNames.Add(resource.Name);
+
+                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, resource.OriginalName, StringComparison.OrdinalIgnoreCase));
+                    errors.GenericWarning($"Asset named {resource.OriginalName} collides with {colliding}, unpacking as {resource.Name}");
+                }
 
                 var extension = assetFilePath.GetExtension();
                 var newFileName = resource.Name + extension;
@@ -502,6 +539,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
                 }
 
+                if (resource.OriginalName != null)
+                {
+                    resource.Name = resource.OriginalName;
+                }
+
+                resource.OriginalName = null;
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;

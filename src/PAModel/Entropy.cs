@@ -52,7 +52,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
         // Key is resource name, value is filename
-        public Dictionary<string, string> LocalResourceFileNames { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+        public Dictionary<string, string> LocalResourceFileNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         // Key is control name, this should be unused if no datatables are present
         public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
