@@ -60,6 +60,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is a Connection.Id
         internal IDictionary<string, ConnectionJson> _connections;
 
+        // Extracted from _properties.InstrumentationKey
+        internal AppInsightsKeyJson _appInsights;
+
         // Extracted from _properties.LocalDatasourceReferences
         // Key is a dataset name
         internal IDictionary<string, LocalDatabaseReferenceJson> _dataSourceReferences;

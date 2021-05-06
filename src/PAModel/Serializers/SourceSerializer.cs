@@ -86,6 +86,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             var dir = new DirectoryReader(directory2);
             var app = new CanvasDocument();
+            string appInsightsInstumentationKey = null;
 
             // Do the manifest check (and version check) first. 
             // MAnifest lives in top-level directory. 
@@ -117,7 +118,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         var refs = file.ToObject<ComponentDependencyInfo[]>();
                         app._libraryReferences = refs;
                         break;
+                    case FileKind.AppInsightsKey:
+                        var appInsights = file.ToObject<AppInsightsKeyJson>();
+                        appInsightsInstumentationKey = appInsights.InstrumentationKey;
+                        break;
                 }
+            }
+            if(appInsightsInstumentationKey != null)
+            {
+                app._properties.InstrumentationKey = appInsightsInstumentationKey;
             }
             if (app._header == null)
             {
@@ -487,6 +496,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._libraryReferences != null)
             {
                 dir.WriteAllJson("", FileKind.ComponentReferences, app._libraryReferences);
+            }
+            if (app._appInsights != null)
+            {
+                dir.WriteAllJson("", FileKind.AppInsightsKey, app._appInsights);
             }
 
             dir.WriteAllJson(EntropyDir, FileKind.Entropy, app._entropy);

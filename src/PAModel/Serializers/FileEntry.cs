@@ -51,6 +51,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         CanvasManifest,
         Connections,
         ComponentReferences, // ComponentReferences.json
+
+        // AppInsights
+        AppInsightsKey
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -123,7 +126,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"CanvasManifest.json", FileKind.CanvasManifest },
             {"ControlTemplates.json", FileKind.Templates },
             {"Connections.json", FileKind.Connections },
-            {"ComponentReferences.json", FileKind.ComponentReferences }
+            {"ComponentReferences.json", FileKind.ComponentReferences },
+            {"AppInsightsKey.json", FileKind.AppInsightsKey }
         };
 
 
