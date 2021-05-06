@@ -124,7 +124,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                 }
             }
-            if(!string.IsNullOrEmpty(appInsightsInstumentationKey))
+            if(appInsightsInstumentationKey != null)
             {
                 app._properties.InstrumentationKey = appInsightsInstumentationKey;
             }

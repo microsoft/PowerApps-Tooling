@@ -279,7 +279,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._entropy.LocalDatabaseReferencesAsEmpty = true;
                 }
 
-                if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
+                if (app._properties.InstrumentationKey != null)
                 {
                     app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
                     app._properties.InstrumentationKey = null;
