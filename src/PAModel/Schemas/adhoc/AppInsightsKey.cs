@@ -13,8 +13,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     class AppInsightsKeyJson
     {
         public string InstrumentationKey { get; set; } // a guid
-
-        [JsonExtensionData]
-        public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 }
