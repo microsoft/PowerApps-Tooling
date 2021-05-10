@@ -14,12 +14,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         Control,
         UxComponent,
         DataComponent,
-        Test
+        Test,
+        CommandComponent
     }
 
     internal class SourceFile
     {
-        // the source of truth. 
+        // the source of truth.
         public ControlInfoJson Value { get; set; }
 
         public SourceKind Kind { get; set; }
@@ -28,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public string ControlName => this.Value.TopParent.Name;
         public string ControlId => this.Value.TopParent.ControlUniqueId;
 
-        // For a data component, this is a guid. Very important. 
+        // For a data component, this is a guid. Very important.
         public string TemplateName => this.Value.TopParent.Template.Name;
 
         internal string GetMsAppFilename()
@@ -37,7 +38,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return $"Controls\\{ControlId}.json";
             }
-            else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent)
+            else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent || this.Kind == SourceKind.CommandComponent)
             {
                 return $"Components\\{ControlId}.json";
             }
@@ -75,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var x = sf.Value.TopParent;
             if (x.Template.Id == ControlInfoJson.Template.DataComponentId)
             {
-                sf.Kind = SourceKind.DataComponent;                
+                sf.Kind = SourceKind.DataComponent;
             }
             else if (x.Template.Id == ControlInfoJson.Template.UxComponentId)
             {
@@ -85,9 +86,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 sf.Kind = SourceKind.Test;
             }
-            else 
+            else if (x.Template.Id == ControlInfoJson.Template.CommandComponentId)
             {
-                // UX Control has many different Template ids. 
+                sf.Kind = SourceKind.CommandComponent;
+            }
+            else
+            {
+                // UX Control has many different Template ids.
                 sf.Kind = SourceKind.Control;
             }
 
