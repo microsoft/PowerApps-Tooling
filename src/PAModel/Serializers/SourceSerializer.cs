@@ -583,7 +583,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     TrimViewNames(dataSourceStateToWrite, dataSourceDef.DatasetName);
                 }
 
-                if (dataSourceDef?.DatasetName != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
+                if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
                     // copy over the localconnectionreference
                     if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
@@ -621,7 +621,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         ExtensionData = tableDef.ExtensionData,
                         instanceUrl = tableDef.InstanceUrl
                     };
-                    app._dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
+                    if (!app._entropy.LocalDatabaseReferencesAsEmpty)
+                    {
+                        app._dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
+                    }
                 }
                 if (localDatabaseReferenceJson.instanceUrl != tableDef.InstanceUrl)
                 {
@@ -631,7 +634,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new DocumentException();
                 }
 
-                localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+                if (tableDef.LocalReferenceDSJson != null)
+                {
+                    localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+                }
             }
 
             // key is filename, value is stringified xml
