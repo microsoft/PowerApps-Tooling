@@ -253,14 +253,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
-                if (app._properties.LibraryDependencies != null)
+                if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
                 {
                     var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
                     app._libraryReferences = refs;
                     app._properties.LibraryDependencies = null;
                 }
 
-                if (app._properties.LocalConnectionReferences != null)
+                if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
                 {
                     var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
                     app._connections = cxs;

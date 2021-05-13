@@ -48,6 +48,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     kindName = ComponentType.CanvasComponent.ToString();
                 else if (componentTemplate.Id == ControlInfoJson.Template.DataComponentId)
                     kindName = ComponentType.DataComponent.ToString();
+                else if (componentTemplate.Id == ControlInfoJson.Template.CommandComponentId)
+                    kindName = ComponentType.CanvasComponent.ToString();
                 else
                     return; // We couldn't find a component type. Just keep using the guid.
             }
