@@ -58,7 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
             HashSet<string> propNames = null;
-            if (_controlStore.TryGetControlState(controlName, out var controlState))
+            if (_controlStore.TryGetControlState(controlName, out var controlState) && controlState.Properties != null)
             {
                 styleName = controlState.StyleName;
                 propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName)

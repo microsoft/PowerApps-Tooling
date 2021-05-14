@@ -305,7 +305,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
-                properties = properties.OrderBy(prop => state.Properties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property)).ToList();
+                properties = properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1).ToList();
                 resultControlInfo = new ControlInfoJson.Item()
                 {
                     Parent = parent,
@@ -455,7 +455,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             property.InvariantScript = expression;
 
             PropertyState propState = null;
-            if (state.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
+            if (state.Properties != null && state.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
             {
                 property.ExtensionData = propState.ExtensionData;
                 property.NameMap = propState.NameMap;
