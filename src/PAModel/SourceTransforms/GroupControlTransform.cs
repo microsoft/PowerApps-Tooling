@@ -82,11 +82,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     // There may not be editorstate present for this. Create a fake state to use
                     groupControlState = new ControlState()
                     {
+                        Name = groupControlName,
                         StyleName = "",
-                        ParentIndex = -1,
+                        ParentIndex = int.MaxValue, // Group controls must be ordered after their children
                         IsGroupControl = true,
                         ExtensionData = ControlInfoJson.Item.CreateDefaultExtensionData()
                     };
+                    _editorStateStore.TryAddControl(groupControlState);
                 }
 
                 var groupedControlNames = groupControl.Children
