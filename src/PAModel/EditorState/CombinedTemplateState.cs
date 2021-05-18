@@ -13,6 +13,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     // A combination of the control templates present in Templates.json and the control files
     internal class CombinedTemplateState
     {
+        private bool _isXmlTemplate = false;
+
         public string Id { get; set; }
 
         // Very important for data components.
@@ -49,6 +51,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         // Maps to TemplateMetadataJson ExtensionData
         public Dictionary<string, object> ComponentExtraMetadata { get; set; }
+
+        public bool IsWidgetTemplate
+        {
+            get
+            {
+                return _isXmlTemplate;
+            }
+            set
+            {
+                _isXmlTemplate = value;
+            }
+        }
 
 
         public CombinedTemplateState() { }

@@ -316,27 +316,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._themes = file.ToObject<ThemesJson>();
             }
 
-
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
-            {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
-            }
-
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
 
             }
 
-            foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
-            {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
-            }
-
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
                 app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
+            }
+
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
+            {
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+            }
+
+            foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
+            {
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
         }
 
@@ -368,6 +367,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     return; // error condition
                 }
+
+                // validate that all the packages refferred are not accidentally deleted from pkgs dierectory
+                ValidateIfTemplateExists(app, controlIR, errors);
 
                 var collection = (isComponent) ? app._components : app._screens;
                 collection.Add(controlIR.Name.Identifier, controlIR);
@@ -795,5 +797,78 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        private static void ValidateIfTemplateExists(CanvasDocument app, BlockNode node, ErrorContainer errors)
+        {
+            // parse all children of the root nodes to see if al of them have the temeplate they require.
+            foreach(var child in node.Children)
+            {
+                if (string.IsNullOrEmpty(child?.Name?.Kind?.TypeName))
+                {
+                    // could not perform validation, hence continue.
+                    continue;
+                }
+
+                // check if it is a group control. group control isn't a real control and don't have templates, but have child control which have templates.
+                if (child.Name.Kind.TypeName == "group" || child.Name.Kind.TypeName == "groupContainer")
+                {
+                    foreach (var child1 in child.Children)
+                    {
+                        ValidateIfTemplateExistsInternal(app, node, child1, errors);
+                    }
+                }
+                // check if its a xml template
+                else
+                {
+                    ValidateIfTemplateExistsInternal(app, node, child, errors);
+                }
+            }
+        }
+
+        private static void ValidateIfTemplateExistsInternal(CanvasDocument app, BlockNode parentNode, BlockNode childNode, ErrorContainer errors)
+        {
+            if (string.IsNullOrEmpty(childNode?.Name?.Kind?.TypeName))
+            {
+                // could not perform validation.
+                return;
+            }
+            // group and grouContainer controls aren't real controls they contain other child controls.
+            if (childNode.Name.Kind.TypeName == "group" || childNode.Name.Kind.TypeName == "groupContainer")
+            {
+                foreach (var child in childNode.Children)
+                {
+                    ValidateIfTemplateExistsInternal(app, childNode, child, errors);
+                }
+                return;
+            }
+            
+            CombinedTemplateState templateState;
+            app._templateStore.TryGetTemplate(childNode.Name.Kind.TypeName, out templateState);
+            // For each of the template there mus be an entry in the _templateStore.
+            if(templateState == null)
+            {
+                errors.ValidationError($"Could not find the template with name: {childNode.Name.Kind.TypeName} which is referred in {parentNode.Name.Identifier}. " +
+                    $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
+            }
+            // If its a widget template then there must be a xml file in the pkgs directory.
+            if(templateState.IsWidgetTemplate && !app._templates.UsedTemplates.Any(x => x.Name.Equals(childNode.Name.Kind.TypeName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                errors.ValidationError($"Widget control template: {templateState.Name}, version {templateState.Version} was not found in the pkgs directory and is referred in {parentNode.Name.Identifier}. " +
+                    $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
+            }
+            // if its a component template then check if the templateexists in the Src/Components directory
+            else if (templateState.IsComponentTemplate == true && !app._components.Keys.Any(x => x == childNode.Name.Kind.TypeName))
+            {
+                errors.ValidationError($"Component template: {templateState.Name} was not found in Src/Components directory and is referred in {parentNode.Name.Identifier}. " +
+                    $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
+            }
+            // PCF are dynamically imported controls and their template definition is stored in the DynamicControlDefinitionJson property, check if that exists.
+            else if (templateState.Id.StartsWith("http://microsoft.com/appmagic/powercontrol")
+                && (!templateState.ExtensionData.ContainsKey("DynamicControlDefinitionJson") || templateState.ExtensionData["DynamicControlDefinitionJson"] == null))
+            {
+                errors.ValidationError($"Power control template: {templateState.Name} not found in ControlTemplates.json and is referred in {parentNode.Name.Identifier}. " +
+                    $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template. " +
+                    $"If not please check DynamicControlDefinitionJson property exists and is not noll for this template in ControlTemplates.json");
+            }
+        }
     }
 }
