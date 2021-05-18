@@ -816,7 +816,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         ValidateIfTemplateExistsInternal(app, node, child1, errors);
                     }
                 }
-                // check if its a xml template
+                // validate if template exists.
                 else
                 {
                     ValidateIfTemplateExistsInternal(app, node, child, errors);
