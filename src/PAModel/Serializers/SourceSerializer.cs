@@ -547,7 +547,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         if (ds.ApiId == "/providers/microsoft.powerapps/apis/shared_commondataservice")
                         {
                             // This is the old CDS connector, we can't support it since it's optionset format is incompatable with the newer one
-                            errors.UnsupportedError($"Connection {ds.Name} is using the old CDS connector which is incompatable with this tool");
+                            errors.UnsupportedError($"Connection {ds.Name} is using the old CDS connector which is incompatible with this tool");
                             throw new DocumentException();
                         }
                         dataSourceDef = new DataSourceDefinition();
