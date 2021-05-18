@@ -58,6 +58,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
+        // Some of the cases which the tool doesn't support, see below example:
+        // Connection Accounts is using the old CDS connector which is incompatable with this tool
+        UnsupportedError = 4001
+
     }
 
     internal static class ErrorCodeExtensions
@@ -102,7 +106,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}");
         }
 
-        public static void UnsupportedError(this ErrorContainer errors, string message)
+        public static void UnsupportedOperationError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedUseStudio, default(SourceLocation), $"Unsupported operation error. {message}");
         }
@@ -137,5 +141,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");
         }
 
+        public static void UnsupportedError(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.UnsupportedError, default(SourceLocation), $"Not Supported: {message}");
+        }
     }
 }

@@ -465,7 +465,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (state.IsComponentDefinition ?? false)
                 {
-                    errors.UnsupportedError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                    errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
                     throw new DocumentException();
                 }
 
