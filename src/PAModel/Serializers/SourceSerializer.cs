@@ -846,7 +846,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // PCF are dynamically imported controls and their template definition is stored in the DynamicControlDefinitionJson property, check if that exists.
                 else if (templateState.Id.StartsWith("http://microsoft.com/appmagic/powercontrol"))
                 {
-                    if (!templateState.ExtensionData.ContainsKey("DynamicControlDefinitionJson") || templateState.ExtensionData["DynamicControlDefinitionJson"] == null)
+                    if (!templateState.ExtensionData.ContainsKey(PAConstants.DynamicControlDefinitionJson) || templateState.ExtensionData[PAConstants.DynamicControlDefinitionJson] == null)
                     {
                         errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Power control template: {templateState.Name} not found in ControlTemplates.json and is referred in {root.Name.Identifier}. " +
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template. " +

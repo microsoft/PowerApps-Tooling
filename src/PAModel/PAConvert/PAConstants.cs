@@ -19,5 +19,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ThisPropertyIdentifier = "ThisProperty";
 
         public const string Header = "//! PAFile:0.1";
+
+        // this is used by the dynamically imported controls like PCF.
+        public const string DynamicControlDefinitionJson = "DynamicControlDefinitionJson";
     }
 }
