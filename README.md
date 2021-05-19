@@ -49,19 +49,21 @@ The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html). 
 
 ## Merging changes from Studio
 When merging changes made in two different Studio sessions:
-- Ensure that all control names are unique.  It is easy for them not to be, as inserting a button in two different sessions can easily result in two Button1 controls.  We recommend naming controls soon after creating them to avoid this problem.  The tool will not accept two controls with the same name.  
+- Ensure that all control names are unique.  It is easy for them not to be, as inserting a button in two different sessions can easily result in two `Button1` controls.  We recommend naming controls soon after creating them to avoid this problem.  The tool will not accept two controls with the same name.  
+- Ensure  variable and collection names don't conflict. These won't have merge conflicts, but they can have semantic conflicts. 
 - For these files, merge them as you normally would:
-	- \src\*.pa.yaml 
+	- \src\*.fx.yaml 
 - If there are conflicts or errors, you can delete these files:
-	- \src\editorstate\*.json  - These files contain optional information in studio. 
-	- \other\entropy.json  
-- For any conflict in these files, it’s ok to accept the latest version: 
-	- \checksum.json 
-- If there are any merge conflicts under these paths, it is not safe to merge.   Let us know if this happens often and we will work on restructuring the file format to avoid conflicts.
-	- \Connections\*
+	- \src\editorstate\*.json  - These files contain optional information in studio (such as whether a control is locked for editing). 
+	- \Entropy\*  - this includes checksum.json and entropy.json. 
+	- \Connections\* - these files save per-org connection information. Deleting them is similar to "logging out".  Note for security purposes, these files  *don't* include the actual login tokens, they just include a guid pointing into the environment where the login tokens are stored. 
+- If there are any merge conflicts under these paths, it is not safe to merge.   Let us know if this happens often and we will work on restructuring the file format to avoid conflicts.   However, it is safe to add whole files when they don't conflict. 
 	- \DataSources\*
 	- \pkgs\*
 	- CanvasManifest.json 
+
+When merging multiple apps together into a single app:
+- Be sure to merge App.OnStart formulas together. 
 
 ## Contributing
 
