@@ -50,6 +50,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // Maps to TemplateMetadataJson ExtensionData
         public Dictionary<string, object> ComponentExtraMetadata { get; set; }
 
+        // Some of the xml templates have widget root node, and these are templates which are returned by the doc server in the UsedTemplates collection.
+        public bool IsWidgetTemplate { get; set; }
+
 
         public CombinedTemplateState() { }
 

@@ -58,7 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
         public static readonly string ComponentPackageDir = Path.Combine("pkgs", "Components");
         public const string OtherDir = "Other";
-        public const string EntropyDir = "Entropy";  
+        public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
 
@@ -124,7 +124,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                 }
             }
-            if(appInsightsInstumentationKey != null)
+            if (appInsightsInstumentationKey != null)
             {
                 app._properties.InstrumentationKey = appInsightsInstumentationKey;
             }
@@ -239,7 +239,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             loadedTemplates = new Dictionary<string, ControlTemplate>();
             var templateList = new List<TemplatesJson.TemplateJson>();
-            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false)) {
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false))
+            {
                 var xmlContents = file.GetContents();
                 if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
                 {
@@ -305,7 +306,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         // This might happen due to a bad merge.
                         errors.EditorStateError(file.SourceSpan, $"Control '{control.Value.Name}' is already defined.");
                     }
-                }                
+                }
             }
 
             // For now, the Themes file lives in CodeDir as a json file
@@ -316,27 +317,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._themes = file.ToObject<ThemesJson>();
             }
 
-
-            foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
-            {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
-            }
-
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
 
             }
 
-            foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
-            {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
-            }
-
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
                 app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
+            }
+
+            foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
+            {
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+            }
+
+            foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
+            {
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
         }
 
@@ -369,6 +369,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return; // error condition
                 }
 
+                // validate that all the packages refferred are not accidentally deleted from pkgs dierectory
+                ValidateIfTemplateExists(app, controlIR, controlIR, errors);
+
                 var collection = (isComponent) ? app._components : app._screens;
                 collection.Add(controlIR.Name.Identifier, controlIR);
             }
@@ -380,12 +383,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static Dictionary<string, ControlTemplate> ReadTemplates(TemplatesJson templates)
         {
-            throw new NotImplementedException();   
+            throw new NotImplementedException();
         }
 
         // Write out to a directory (this shards it) 
         public static void SaveAsSource(CanvasDocument app, string directory2, ErrorContainer errors)
-        { 
+        {
             var dir = new DirectoryWriter(directory2);
             dir.DeleteAllSubdirs();
 
@@ -470,7 +473,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ReadOnlyMemory<byte> span = file.RawBytes;
                     var je = JsonDocument.Parse(span).RootElement;
                     var jsonStr = JsonNormalizer.Normalize(je);
-                    dir.WriteAllText(OtherDir, file.Name, jsonStr); 
+                    dir.WriteAllText(OtherDir, file.Name, jsonStr);
                 }
                 else
                 {
@@ -480,7 +483,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var manifest = new CanvasManifestJson
             {
-                FormatVersion =  CurrentSourceVersion,
+                FormatVersion = CurrentSourceVersion,
                 Properties = app._properties,
                 Header = app._header,
                 PublishInfo = app._publishInfo,
@@ -672,7 +675,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 ds.TableName = definition.TableName;
                                 break;
                             case "OptionSetInfo":
-                                ds.DatasetName = ds.DatasetName != string.Empty? definition.DatasetName : null;
+                                ds.DatasetName = ds.DatasetName != string.Empty ? definition.DatasetName : null;
                                 break;
                             case "ViewInfo":
                                 if (definition != null)
@@ -689,7 +692,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
                         var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
-                        
+
                         if (foundXML || foundJson)
                         {
                             ds.WadlMetadata = new WadlDefinition() { WadlXml = xmlDef, SwaggerJson = swaggerDef };
@@ -743,7 +746,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             string filename = controlName + ".fx.yaml";
 
-            
+
             dir.WriteAllText(subDir, new FilePath(filename), text);
 
             var extraData = new Dictionary<string, ControlState>();
@@ -795,5 +798,62 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        /// <summary>
+        /// This method validates if the templates being references in the sources do exist.
+        /// </summary>
+        private static void ValidateIfTemplateExists(CanvasDocument app, BlockNode node, BlockNode root, ErrorContainer errors)
+        {
+            foreach (var child in node.Children)
+            {
+                // group, grouContainer, gallery etc. have nested controls so run the validation for all the children.
+                if (child.Children?.Count > 0)
+                {
+                    foreach (var child1 in child.Children)
+                    {
+                        ValidateIfTemplateExists(app, child1, root, errors);
+                    }
+                }
+
+                CombinedTemplateState templateState;
+                app._templateStore.TryGetTemplate(child.Name.Kind.TypeName, out templateState);
+
+                // Some of the child components don't have a template eg. TestStep, so we can safely continue if we can't find an entry in the templateStore.
+                if (templateState == null)
+                {
+                    continue;
+                }
+
+                // If its a widget template then there must be a xml file in the pkgs directory.
+                if (templateState.IsWidgetTemplate)
+                {
+                    if (!app._templates.UsedTemplates.Any(x => x.Name == child.Name.Kind.TypeName))
+                    {
+                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.Name}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
+                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
+                    }
+                    continue;
+                }
+                // if its a component template then check if the template exists in the Src/Components directory
+                else if (templateState.IsComponentTemplate == true)
+                {
+                    if (!app._components.Keys.Any(x => x == child.Name.Kind.TypeName))
+                    {
+                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.Name} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
+                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
+                    }
+                    continue;
+                }
+                // PCF are dynamically imported controls and their template definition is stored in the DynamicControlDefinitionJson property, check if that exists.
+                else if (templateState.Id.StartsWith("http://microsoft.com/appmagic/powercontrol"))
+                {
+                    if (!templateState.ExtensionData.ContainsKey(PAConstants.DynamicControlDefinitionJson) || templateState.ExtensionData[PAConstants.DynamicControlDefinitionJson] == null)
+                    {
+                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Power control template: {templateState.Name} not found in ControlTemplates.json and is referred in {root.Name.Identifier}. " +
+                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template. " +
+                            $"If not please check DynamicControlDefinitionJson property exists and is not null for this template in ControlTemplates.json");
+                    }
+                }
+            }
+        }
     }
 }
