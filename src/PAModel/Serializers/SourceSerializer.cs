@@ -145,7 +145,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._resourcesJson = file.ToObject<ResourcesJson>();
                     continue;
                 }
-                app.AddAssetFile(file.ToFileEntry());
+
+                // skip adding the json files which were created to contain the information for duplicate asset files.
+                // the name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
+                var fileName = file._relativeName;
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+                // check if the original extension was .json and the remaining file name has still got an extension, then this is an additional file that was created to contain information for duplicate assets.
+                if (Path.HasExtension(fileNameWithoutExtension) && Path.GetExtension(fileName) == ".json")
+                {
+                    var localAssetInfoJson = file.ToObject<LocalAssetInfoJson>();
+                    app._localAssetInfoJson.Add(localAssetInfoJson.NewName, localAssetInfoJson);
+                }
+                else
+                {
+                    app.AddAssetFile(file.ToFileEntry());
+                }
             }
 
             foreach (var file in dir.EnumerateFiles(EntropyDir))
@@ -440,6 +455,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._appCheckerResultJson != null)
             {
                 dir.WriteAllJson(EntropyDir, FileKind.AppCheckerResult, app._appCheckerResultJson);
+            }
+
+            foreach (var file in app._localAssetInfoJson)
+            {
+                dir.WriteAllJson(AssetsDir, FilePath.FromPlatformPath(file.Value.Path), file.Value);
             }
 
             foreach (var file in app._assetFiles.Values)

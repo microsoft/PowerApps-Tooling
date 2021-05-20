@@ -81,6 +81,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Track all asset files, key is file name
         internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
+        internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new Dictionary<string, LocalAssetInfoJson>();
         internal static string AssetFilePathPrefix = @"Assets\";
 
         #region Save/Load
@@ -115,7 +116,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (doc, errors);
         }
 
-        public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
+        public static (CanvasDocument, ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
             Utilities.EnsurePathRooted(pathToSourceDirectory);
 
@@ -200,7 +201,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
         }
-                
+
         internal CanvasDocument()
         {
             _editorStateStore = new EditorStateStore();
@@ -312,6 +313,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             StabilizeAssetFilePaths(errors);
+
+            // don't persist entries for LocalFile resources in Resources.json
+            this.TranformResourceJsonOnLoad();
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -349,6 +353,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
+
+            // add the Local resource asset entries back to Resource.json
+            this.TransformResourceJsonOnSave();
 
             RestoreAssetFilePaths();
         }
@@ -421,7 +428,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var set = new HashSet<string>();
             if (this._libraryReferences != null)
             {
-                foreach(var item in this._libraryReferences)
+                foreach (var item in this._libraryReferences)
                 {
                     set.Add(item.OriginalComponentDefinitionTemplateId);
                 }
@@ -460,7 +467,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
-                resource.OriginalName = resource.Name;
+                var originalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
@@ -475,14 +482,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         newResourceName = resource.Name + '_' + i;
                     }
 
-                    resource.OriginalName = resource.Name;
                     resource.Name = newResourceName;
 
                     caseInsensitiveNames.Add(resource.Name);
                     caseSensitiveNames.Add(resource.Name);
 
-                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, resource.OriginalName, StringComparison.OrdinalIgnoreCase));
-                    errors.GenericWarning($"Asset named {resource.OriginalName} collides with {colliding}, unpacking as {resource.Name}");
+                    // for every duplicate an additional <filename>.json file which contains information like what is the original name of the file.
+                    if (!_localAssetInfoJson.ContainsKey(newResourceName))
+                    {
+                        var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(newResourceName + assetFilePath.GetExtension() + ".json");
+                        _localAssetInfoJson.Add(newResourceName, new LocalAssetInfoJson() { OriginalName = originalName, NewName = newResourceName, Path = assetFileInfoPath.ToPlatformPath() });
+                    }
+
+                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, originalName, StringComparison.OrdinalIgnoreCase));
+                    errors.GenericWarning($"Asset named {originalName} collides with {colliding}, unpacking as {resource.Name}");
                 }
 
                 var extension = assetFilePath.GetExtension();
@@ -539,12 +552,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
                 }
 
-                if (resource.OriginalName != null)
+                LocalAssetInfoJson localAssetInfoJson = null;
+                if (_localAssetInfoJson?.TryGetValue(resource.Name, out localAssetInfoJson) == true)
                 {
-                    resource.Name = resource.OriginalName;
+                    resource.Name = localAssetInfoJson.OriginalName;
                 }
 
-                resource.OriginalName = null;
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;
@@ -579,7 +592,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 this.Visit(node.Name);
-                foreach(var child in node.Children )
+                foreach (var child in node.Children)
                 {
                     this.Visit(child);
                 }
@@ -596,7 +609,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     _names.Add(node.Identifier, node.SourceSpan);
                 }
-            }            
+            }
         }
     }
 }

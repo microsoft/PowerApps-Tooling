@@ -26,7 +26,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Json serialize these. 
-        public Dictionary<string, string> TemplateVersions { get; set; }  = new Dictionary<string, string>(StringComparer.Ordinal);
+        public Dictionary<string, string> TemplateVersions { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
 
@@ -42,6 +42,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is component name, value is Index. 
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
+
+        // Key is resource name, value is Index. 
+        public Dictionary<string, double> ResourceJsonIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         // Key is control name, value is publish order index
         public Dictionary<string, double> PublishOrderIndices { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
@@ -66,7 +69,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public int GetOrder(DataSourceEntry dataSource)
         {
-            return this.OrderDataSource.GetOrDefault<string,int>(dataSource.GetUniqueName(), -1);
+            return this.OrderDataSource.GetOrDefault<string, int>(dataSource.GetUniqueName(), -1);
         }
         public void Add(DataSourceEntry entry, int? order)
         {
@@ -114,7 +117,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void SetHeaderLastSaved(DateTime? x)
         {
-            this.HeaderLastSavedDateTimeUTC = x;            
+            this.HeaderLastSavedDateTimeUTC = x;
         }
         public DateTime? GetHeaderLastSaved()
         {

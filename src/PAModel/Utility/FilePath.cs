@@ -70,6 +70,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
             return _pathSegments.Length > 0 && _pathSegments.Last().EndsWith(extension, StringComparison.OrdinalIgnoreCase);
         }
 
+        public string GetFileName()
+        {
+            if (_pathSegments.Length == 0)
+                return string.Empty;
+            return Path.GetFileName(_pathSegments.Last());
+        }
+
+        public string GetFileNameWithoutExtension()
+        {
+            if (_pathSegments.Length == 0)
+                return string.Empty;
+            return Path.GetFileNameWithoutExtension(_pathSegments.Last());
+        }
+
         public string GetExtension()
         {
             if (_pathSegments.Length == 0)
