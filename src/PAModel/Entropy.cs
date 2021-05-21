@@ -44,7 +44,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         // Key is resource name, value is Index. 
-        public Dictionary<string, double> ResourceJsonIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
+        public Dictionary<string, int> ResourceJsonIndices { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
         // Key is control name, value is publish order index
         public Dictionary<string, double> PublishOrderIndices { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);

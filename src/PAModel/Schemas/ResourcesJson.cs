@@ -24,6 +24,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         Uri,
     }
 
+    // these are the schema types used by the server to identify what type of resource is it.
+    // i - refers to image files
+    // m - refers to media files - audio/video
+    // o - refers to pdf files
     internal enum Schema
     {
         i,

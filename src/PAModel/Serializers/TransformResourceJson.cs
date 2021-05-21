@@ -35,9 +35,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
             {
-                if (app._entropy?.ResourceJsonIndexes != null && !app._entropy.ResourceJsonIndexes.ContainsKey(app._resourcesJson.Resources[i].Name))
+                if (app._entropy?.ResourceJsonIndices != null && !app._entropy.ResourceJsonIndices.ContainsKey(app._resourcesJson.Resources[i].Name))
                 {
-                    app._entropy.ResourceJsonIndexes.Add(app._resourcesJson.Resources[i].Name, i);
+                    app._entropy.ResourceJsonIndices.Add(app._resourcesJson.Resources[i].Name, i);
                 }
             }
             app._resourcesJson.Resources = app._resourcesJson.Resources.Where(x => x.ResourceKind != ResourceKind.LocalFile).ToArray();
@@ -64,10 +64,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._resourcesJson.Resources = app._resourcesJson.Resources.Concat(localFileResourceJsonEntries).ToArray();
 
             // bring the order of resourceJson back to avoid checksum violation.
-            if (app._entropy?.ResourceJsonIndexes != null && app._entropy.ResourceJsonIndexes.Count > 0)
+            if (app._entropy?.ResourceJsonIndices != null && app._entropy.ResourceJsonIndices.Count > 0)
             {
                 var orderedResourcesList = new List<ResourceJson>();
-                var orderedIndices = app._entropy.ResourceJsonIndexes.OrderBy(x => x.Value);
+                var orderedIndices = app._entropy.ResourceJsonIndices.OrderBy(x => x.Value);
                 foreach (var kvp in orderedIndices)
                 {
                     var resource = app._resourcesJson.Resources.Where(x => x.Name == kvp.Key);
@@ -75,7 +75,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 // handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
-                orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourceJsonIndexes.ContainsKey(x.Name)));
+                orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourceJsonIndices.ContainsKey(x.Name)));
                 app._resourcesJson.Resources = orderedResourcesList.ToArray();
             }
         }
