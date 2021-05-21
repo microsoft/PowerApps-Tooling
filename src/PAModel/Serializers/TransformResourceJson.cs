@@ -64,7 +64,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._resourcesJson.Resources = app._resourcesJson.Resources.Concat(localFileResourceJsonEntries).ToArray();
 
             // bring the order of resourceJson back to avoid checksum violation.
-            if (app._entropy?.ResourceJsonIndexes != null)
+            if (app._entropy?.ResourceJsonIndexes != null && app._entropy.ResourceJsonIndexes.Count > 0)
             {
                 var orderedResourcesList = new List<ResourceJson>();
                 var orderedIndices = app._entropy.ResourceJsonIndexes.OrderBy(x => x.Value);
@@ -73,6 +73,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var resource = app._resourcesJson.Resources.Where(x => x.Name == kvp.Key);
                     orderedResourcesList.Add(resource.SingleOrDefault());
                 }
+
+                // handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
+                orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourceJsonIndexes.ContainsKey(x.Name)));
                 app._resourcesJson.Resources = orderedResourcesList.ToArray();
             }
         }
