@@ -527,7 +527,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach(var resource in app._resourcesJson.Resources)
                 {
-                    dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.FileName) + ".json"), resource);
+                    dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.Name) + ".json"), resource);
                 }
             }
 
