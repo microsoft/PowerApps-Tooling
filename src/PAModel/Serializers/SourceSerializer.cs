@@ -40,8 +40,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 17 - Moved PublishOrderIndex entirely to Entropy 
         // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
         // 19 - Switch extension to .fx.yaml  
-        // 20 - Only load themes that match the specified theme name 
-        public static Version CurrentSourceVersion = new Version(0, 20);
+        // 20 - Only load themes that match the specified theme name
+        // 21 - Resourcesjson is sharded into individual json files for non-local resources.
+        public static Version CurrentSourceVersion = new Version(0, 21);
 
         // Layout is:
         //  src\
@@ -141,66 +142,45 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // The resource entries for sample data is sharded into individual json files.
             // Add each of these entries back into Resrouces.json
             var resources = new List<ResourceJson>();
-            
+            app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
             foreach (var file in dir.EnumerateFiles(AssetsDir, "*", false))
             {
                 var fileEntry = file.ToFileEntry();
-                // although should never be the case, but if it happens that both Resources.json file and individual sharded files exist, then read both.
-                if (file._relativeName == "Resources.json")
+                if (fileEntry.Name.GetExtension() == ".json")
                 {
-                    app._resourcesJson = file.ToObject<ResourcesJson>();
-                }
-                else if(fileEntry.Name.GetExtension() == ".json")
-                {
-                    // if its a json file then this must be one of the sharded files from Resources.json
+                    // If its a json file then this must be one of the sharded files from Resources.json
                     resources.Add(file.ToObject<ResourceJson>());
                 }
                 else
                 {
-                    // if its not a json file then add it to the asset files.
-                    // eg. logo file.
+                    // If its not a json file then add it to the asset files.
+                    // Eg. logo file.
                     app.AddAssetFile(fileEntry);
                 }
             }
 
-            if(resources.Count > 0)
+            // Add the resources from sharded files to _resourcesJson.Resources
+            if (resources.Count > 0)
             {
-                // if there is no Resources.json file then app._resourcesJson would be null, so make sure to initialize it before adding resource entries.
-                if (app._resourcesJson == null)
-                {
-                    app._resourcesJson = new ResourcesJson();
-                }
-
-                // although we should not have resouces.json file when the individual sharded files are there.
-                // but if that happens then try to do a union of all the resources in Resources.json and the sharded files.
-                var resourceDictionary = app._resourcesJson.Resources?.ToDictionary(x => x.Name);
-                app._resourcesJson.Resources = app._resourcesJson.Resources == null
-                                                ? resources.ToArray()
-                                                : app._resourcesJson.Resources.Concat(resources.Where(x => !resourceDictionary.ContainsKey(x.Name))).ToArray();
+                app._resourcesJson.Resources = resources.ToArray();
             }
 
-            // if there is no resource in the app, then this could be null so initialize it to create a Resrouces.json file with empty array.
-            if(app._resourcesJson == null)
-            {
-                app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
-            }
-
-            // we have processed all the files in Assets directory, now iterate through each of the subdirectories in Assets directory.
+            // We have processed all the files in Assets directory, now iterate through each of the subdirectories in Assets directory.
             foreach (var directory in dir.EnumerateDirectories(AssetsDir))
             {
                 foreach (var file in directory.EnumerateFiles(""))
                 {
-                    // skip adding the json files which were created to contain the information for duplicate asset files.
-                    // the name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
+                    // Skip adding the json files which were created to contain the information for duplicate asset files.
+                    // The name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
                     var fileName = file._relativeName;
                     var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
 
-                    // check if the original extension was .json and the remaining file name has still got an extension,
-                    // then this is an additional file that was created to contain information for duplicate assets.
+                    // Check if the original extension was .json and the remaining file name has still got an extension,
+                    // Then this is an additional file that was created to contain information for duplicate assets.
                     if (Path.HasExtension(fileNameWithoutExtension) && Path.GetExtension(fileName) == ".json")
                     {
                         var localAssetInfoJson = file.ToObject<LocalAssetInfoJson>();
-                        app._localAssetInfoJson.Add(localAssetInfoJson.NewName, localAssetInfoJson);
+                        app._localAssetInfoJson.Add(localAssetInfoJson.NewFileName, localAssetInfoJson);
                     }
                     else
                     {
@@ -525,7 +505,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._resourcesJson != null)
             {
-                foreach(var resource in app._resourcesJson.Resources)
+                foreach (var resource in app._resourcesJson.Resources)
                 {
                     dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.Name) + ".json"), resource);
                 }

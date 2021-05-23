@@ -47,6 +47,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public ResourceKind ResourceKind { get; set; }
         public string Path { get; set; }
         public ContentKind Content { get; set; }
+
+        // These are the schema types used by the server to identify what type of resource is it.
+        // i - refers to image files
+        // m - refers to media files - audio/video
+        // o - refers to pdf files
+        // ? - refers to unknown types
         public string Schema { get; set; }
         public string Type { get; set; }
         public bool IsSampleData { get; set; }

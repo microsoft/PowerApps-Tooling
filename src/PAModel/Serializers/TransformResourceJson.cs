@@ -30,7 +30,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <summary>
         /// Remove the LocalFile entries from Resources.json and also persist the index of each entry in entropy.
         /// </summary>
-        /// <param name="app"></param>
+        /// <param name="app">The app.</param>
         public static void TranformResourceJsonOnLoad(this CanvasDocument app)
         {
             for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
@@ -46,7 +46,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <summary>
         /// Adds the entries of LocalFile assets back to Resources.json in an ordered manner.
         /// </summary>
-        /// <param name="app"></param>
+        /// <param name="app">The app.</param>
         public static void TransformResourceJsonOnSave(this CanvasDocument app)
         {
             var localFileResourceJsonEntries = new List<ResourceJson>();
@@ -63,7 +63,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             app._resourcesJson.Resources = app._resourcesJson.Resources.Concat(localFileResourceJsonEntries).ToArray();
 
-            // bring the order of resourceJson back to avoid checksum violation.
+            // Bring the order of resourceJson back to avoid checksum violation.
             if (app._entropy?.ResourceJsonIndices != null && app._entropy.ResourceJsonIndices.Count > 0)
             {
                 var orderedResourcesList = new List<ResourceJson>();
@@ -74,13 +74,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     orderedResourcesList.Add(resource.SingleOrDefault());
                 }
 
-                // handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
+                // Handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
                 orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourceJsonIndices.ContainsKey(x.Name)));
                 app._resourcesJson.Resources = orderedResourcesList.ToArray();
             }
         }
 
-        // create the resource json entry dynamically from the asset file.
+        // Create the resource json entry dynamically from the asset file.
         private static ResourceJson GenerateResourceJsonEntryFromAssetFile(FilePath filePath)
         {
             var fileName = filePath.GetFileName();
@@ -99,6 +99,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             };
         }
 
+        // Get the ContentKind of the resource based on its file extension.
         private static ContentKind GetContentKind(string name)
         {
             if (ImageExtensionRegEx.IsMatch(name))
@@ -113,6 +114,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return ContentKind.Unknown;
         }
 
+        // Get the Schema type of the resrouce based on its ContentKind.
         private static string GetSchema(ContentKind contentKind)
         {
             string schema;

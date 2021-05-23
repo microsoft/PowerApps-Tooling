@@ -147,7 +147,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return File.ReadAllText(_fullpath);
             }
-        }      
+        }
 
         // Returns file entries. 
         public Entry[] EnumerateFiles(string subdir, string pattern = "*", bool searchSubdirectories = true)
@@ -172,7 +172,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return entries.ToArray();
         }
 
-        // Returns subDirectories. 
+        // Returns subdirectories. 
         public DirectoryReader[] EnumerateDirectories(string subdir, string pattern = "*", bool searchSubdirectories = false)
         {
             var root = Path.Combine(_directory, subdir);

@@ -43,7 +43,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is component name, value is Index. 
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
-        // Key is resource name, value is Index. 
+        // Key is new FileName of the duplicate resource, value is Index from Resources.json. 
         public Dictionary<string, int> ResourceJsonIndices { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
         // Key is control name, value is publish order index

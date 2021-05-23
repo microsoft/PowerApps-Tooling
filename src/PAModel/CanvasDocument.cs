@@ -76,11 +76,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
 
-        // checksum from existing msapp. 
+        // Checksum from existing msapp. 
         internal ChecksumJson _checksum;
 
         // Track all asset files, key is file name
         internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
+
+        // Tracks duplicate asset file information. When a name collision happens we generate a new name for the duplicate asset file.
+        // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
+        // Key is a (case-insesitive) new fileName of the resource.
+        // Reason for using FileName of the resource as the key is to avoid name collision across different types eg. Images/close.png, Videos/close.mp4.
         internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new Dictionary<string, LocalAssetInfoJson>();
         internal static string AssetFilePathPrefix = @"Assets\";
 
@@ -314,7 +319,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             StabilizeAssetFilePaths(errors);
 
-            // don't persist entries for LocalFile resources in Resources.json
+            // Don't persist entries for LocalFile resources in Resources.json
             this.TranformResourceJsonOnLoad();
         }
 
@@ -354,7 +359,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
 
-            // add the Local resource asset entries back to Resource.json
+            // Add the LocalFile resource asset entries back to Resources.json
             this.TransformResourceJsonOnSave();
 
             RestoreAssetFilePaths();
@@ -487,13 +492,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     caseInsensitiveNames.Add(resource.Name);
                     caseSensitiveNames.Add(resource.Name);
 
-                    // for every duplicate an additional <filename>.json file which contains information like what is the original name of the file.
-                    if (!_localAssetInfoJson.ContainsKey(newResourceName))
-                    {
-                        var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(newResourceName + assetFilePath.GetExtension() + ".json");
-                        _localAssetInfoJson.Add(newResourceName, new LocalAssetInfoJson() { OriginalName = originalName, NewName = newResourceName, Path = assetFileInfoPath.ToPlatformPath() });
-                    }
-
                     var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, originalName, StringComparison.OrdinalIgnoreCase));
                     errors.GenericWarning($"Asset named {originalName} collides with {colliding}, unpacking as {resource.Name}");
                 }
@@ -511,6 +509,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
                 _assetFiles.Add(withoutPrefix, fileEntry);
+
+                // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
+                if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
+                {
+                    var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
+                    _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
+                }
             }
         }
 
@@ -552,8 +557,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
                 }
 
+                // Restore the original names of the duplicate asset files.
                 LocalAssetInfoJson localAssetInfoJson = null;
-                if (_localAssetInfoJson?.TryGetValue(resource.Name, out localAssetInfoJson) == true)
+                if (_localAssetInfoJson?.TryGetValue(resource.FileName, out localAssetInfoJson) == true)
                 {
                     resource.Name = localAssetInfoJson.OriginalName;
                 }
