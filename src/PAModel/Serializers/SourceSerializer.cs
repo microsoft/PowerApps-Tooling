@@ -40,8 +40,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 17 - Moved PublishOrderIndex entirely to Entropy 
         // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
         // 19 - Switch extension to .fx.yaml  
-        // 20 - Only load themes that match the specified theme name 
-        public static Version CurrentSourceVersion = new Version(0, 20);
+        // 20 - Only load themes that match the specified theme name
+        // 21 - Resourcesjson is sharded into individual json files for non-local resources.
+        public static Version CurrentSourceVersion = new Version(0, 21);
 
         // Layout is:
         //  src\
@@ -138,16 +139,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Load template files, recreate References/templates.json
             LoadTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
 
-            foreach (var file in dir.EnumerateFiles(AssetsDir))
-            {
-                if (file._relativeName == "Resources.json")
-                {
-                    app._resourcesJson = file.ToObject<ResourcesJson>();
-                    continue;
-                }
-                app.AddAssetFile(file.ToFileEntry());
-            }
-
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
                 switch (file.Kind)
@@ -169,6 +160,52 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            // The resource entries for sample data is sharded into individual json files.
+            // Add each of these entries back into Resrouces.json
+            var resources = new List<ResourceJson>();
+            app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
+            foreach (var file in dir.EnumerateFiles(AssetsDir, "*", false))
+            {
+                var fileEntry = file.ToFileEntry();
+                if (fileEntry.Name.GetExtension() == ".json")
+                {
+                    // If its a json file then this must be one of the sharded files from Resources.json
+                    resources.Add(file.ToObject<ResourceJson>());
+                }
+            }
+
+            // Add the resources from sharded files to _resourcesJson.Resources
+            if (resources.Count > 0)
+            {
+                app._resourcesJson.Resources = resources.ToArray();
+            }
+
+            // We have processed all the json files in Assets directory, now interate through all tge files to add the asset files.
+            foreach (var file in dir.EnumerateFiles(AssetsDir))
+            {
+                // Skip adding the json files which were created to contain the information for duplicate asset files.
+                // The name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
+                var fileName = file._relativeName;
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+                // Check if the original extension was .json and the remaining file name has still got an extension,
+                // Then this is an additional file that was created to contain information for duplicate assets.
+                if (Path.HasExtension(fileNameWithoutExtension) && Path.GetExtension(fileName) == ".json")
+                {
+                    var localAssetInfoJson = file.ToObject<LocalAssetInfoJson>();
+                    app._localAssetInfoJson.Add(localAssetInfoJson.NewFileName, localAssetInfoJson);
+                }
+                // Add non json files to _assetFiles
+                else if (Path.GetExtension(fileName) != ".json")
+                {
+                    app.AddAssetFile(file.ToFileEntry());
+                }
+            }
+
+            app.GetLogoFile();
+
+            // Add the entries for local assets back to resrouces.json
+            TranformResourceJson.AddLocalAssetEntriesToResourceJson(app);
 
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -187,9 +224,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 }
             } // each loose file in '\other' 
-
-
-            app.GetLogoFile();
 
             LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
@@ -442,6 +476,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(EntropyDir, FileKind.AppCheckerResult, app._appCheckerResultJson);
             }
 
+            foreach (var file in app._localAssetInfoJson)
+            {
+                dir.WriteAllJson(AssetsDir, FilePath.FromPlatformPath(file.Value.Path), file.Value);
+            }
+
             foreach (var file in app._assetFiles.Values)
             {
                 dir.WriteAllBytes(AssetsDir, file.Name, file.RawBytes);
@@ -459,7 +498,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._resourcesJson != null)
             {
-                dir.WriteAllJson(AssetsDir, new FilePath("Resources.json"), app._resourcesJson);
+                foreach (var resource in app._resourcesJson.Resources)
+                {
+                    // Shard ResourceKind.Uri resources into individual json files.
+                    if (resource.ResourceKind != ResourceKind.LocalFile)
+                    {
+                        dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.Name) + ".json"), resource);
+                    }
+                }
             }
 
             WriteDataSources(dir, app, errors);

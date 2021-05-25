@@ -147,7 +147,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return File.ReadAllText(_fullpath);
             }
-        }      
+        }
 
         // Returns file entries. 
         public Entry[] EnumerateFiles(string subdir, string pattern = "*", bool searchSubdirectories = true)
@@ -168,6 +168,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                               _relativeName = relativePath,
                               Kind = FileEntry.TriageKind(FilePath.FromPlatformPath(relativePath))
                           };
+
+            return entries.ToArray();
+        }
+
+        // Returns subdirectories. 
+        public DirectoryReader[] EnumerateDirectories(string subdir, string pattern = "*", bool searchSubdirectories = false)
+        {
+            var root = Path.Combine(_directory, subdir);
+
+            if (!Directory.Exists(root))
+            {
+                return new DirectoryReader[0];
+            }
+
+            var fullPaths = Directory.EnumerateDirectories(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+
+            var entries = from fullPath in fullPaths
+                          let relativePath = Utilities.GetRelativePath(root, fullPath)
+                          select new DirectoryReader(fullPath);
 
             return entries.ToArray();
         }

@@ -76,11 +76,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Save for roundtripping.
         internal Entropy _entropy = new Entropy();
 
-        // checksum from existing msapp. 
+        // Checksum from existing msapp. 
         internal ChecksumJson _checksum;
 
         // Track all asset files, key is file name
         internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
+
+        // Tracks duplicate asset file information. When a name collision happens we generate a new name for the duplicate asset file.
+        // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
+        // Key is a (case-insesitive) new fileName of the resource.
+        // Reason for using FileName of the resource as the key is to avoid name collision across different types eg. Images/close.png, Videos/close.mp4.
+        internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new Dictionary<string, LocalAssetInfoJson>();
         internal static string AssetFilePathPrefix = @"Assets\";
 
         #region Save/Load
@@ -115,7 +121,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (doc, errors);
         }
 
-        public static (CanvasDocument,ErrorContainer) LoadFromSources(string pathToSourceDirectory)
+        public static (CanvasDocument, ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
             Utilities.EnsurePathRooted(pathToSourceDirectory);
 
@@ -200,7 +206,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
         }
-                
+
         internal CanvasDocument()
         {
             _editorStateStore = new EditorStateStore();
@@ -312,6 +318,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             StabilizeAssetFilePaths(errors);
+
+            // Don't persist entries for LocalFile resources in Resources.json
+            this.PersisOrderingOfResourcesJsonEntries();
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -421,7 +430,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var set = new HashSet<string>();
             if (this._libraryReferences != null)
             {
-                foreach(var item in this._libraryReferences)
+                foreach (var item in this._libraryReferences)
                 {
                     set.Add(item.OriginalComponentDefinitionTemplateId);
                 }
@@ -460,7 +469,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
-                resource.OriginalName = resource.Name;
+                var originalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
@@ -475,14 +484,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         newResourceName = resource.Name + '_' + i;
                     }
 
-                    resource.OriginalName = resource.Name;
                     resource.Name = newResourceName;
 
                     caseInsensitiveNames.Add(resource.Name);
                     caseSensitiveNames.Add(resource.Name);
 
-                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, resource.OriginalName, StringComparison.OrdinalIgnoreCase));
-                    errors.GenericWarning($"Asset named {resource.OriginalName} collides with {colliding}, unpacking as {resource.Name}");
+                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, originalName, StringComparison.OrdinalIgnoreCase));
+                    errors.GenericWarning($"Asset named {originalName} collides with {colliding}, unpacking as {resource.Name}");
                 }
 
                 var extension = assetFilePath.GetExtension();
@@ -498,6 +506,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
                 _assetFiles.Add(withoutPrefix, fileEntry);
+
+                // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
+                if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
+                {
+                    var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
+                    _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
+                }
             }
         }
 
@@ -539,12 +554,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
                 }
 
-                if (resource.OriginalName != null)
+                // Restore the original names of the duplicate asset files.
+                LocalAssetInfoJson localAssetInfoJson = null;
+                if (_localAssetInfoJson?.TryGetValue(resource.FileName, out localAssetInfoJson) == true)
                 {
-                    resource.Name = resource.OriginalName;
+                    resource.Name = localAssetInfoJson.OriginalName;
                 }
 
-                resource.OriginalName = null;
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;
@@ -579,7 +595,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 this.Visit(node.Name);
-                foreach(var child in node.Children )
+                foreach (var child in node.Children)
                 {
                     this.Visit(child);
                 }
@@ -596,7 +612,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     _names.Add(node.Identifier, node.SourceSpan);
                 }
-            }            
+            }
         }
     }
 }
