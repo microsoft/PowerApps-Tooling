@@ -28,26 +28,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static Regex PdfExtensionRegEx = new Regex(".*\\.(?i)(pdf)$", RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// Remove the LocalFile entries from Resources.json and also persist the index of each entry in entropy.
+        /// Persists the original order of resources in Resources.json in Entropy.
         /// </summary>
         /// <param name="app">The app.</param>
-        public static void TranformResourceJsonOnLoad(this CanvasDocument app)
+        public static void PersisOrderingOfResourcesJsonEntries(this CanvasDocument app)
         {
             for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
             {
-                if (app._entropy?.ResourceJsonIndices != null && !app._entropy.ResourceJsonIndices.ContainsKey(app._resourcesJson.Resources[i].Name))
-                {
-                    app._entropy.ResourceJsonIndices.Add(app._resourcesJson.Resources[i].Name, i);
-                }
+                app._entropy.Add(app._resourcesJson.Resources[i], i);
             }
-            app._resourcesJson.Resources = app._resourcesJson.Resources.Where(x => x.ResourceKind != ResourceKind.LocalFile).ToArray();
         }
 
         /// <summary>
-        /// Adds the entries of LocalFile assets back to Resources.json in an ordered manner.
+        /// Adds the entries of LocalFile assets to the Resources.json in an ordered manner.
         /// </summary>
         /// <param name="app">The app.</param>
-        public static void TransformResourceJsonOnSave(this CanvasDocument app)
+        public static void AddLocalAssetEntriesToResourceJson(this CanvasDocument app)
         {
             var localFileResourceJsonEntries = new List<ResourceJson>();
             var logoFileName = app._logoFile?.Name?.GetFileName();
@@ -64,18 +60,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._resourcesJson.Resources = app._resourcesJson.Resources.Concat(localFileResourceJsonEntries).ToArray();
 
             // Bring the order of resourceJson back to avoid checksum violation.
-            if (app._entropy?.ResourceJsonIndices != null && app._entropy.ResourceJsonIndices.Count > 0)
+            if (app._entropy?.ResourcesJsonIndices != null && app._entropy.ResourcesJsonIndices.Count > 0)
             {
                 var orderedResourcesList = new List<ResourceJson>();
-                var orderedIndices = app._entropy.ResourceJsonIndices.OrderBy(x => x.Value);
+                var orderedIndices = app._entropy.ResourcesJsonIndices.OrderBy(x => x.Value);
                 foreach (var kvp in orderedIndices)
                 {
-                    var resource = app._resourcesJson.Resources.Where(x => x.Name == kvp.Key);
+                    var resourceName = app._entropy.GetResourceNameFromKey(kvp.Key);
+                    var resource = app._resourcesJson.Resources.Where(x => x.Name == resourceName);
                     orderedResourcesList.Add(resource.SingleOrDefault());
                 }
 
                 // Handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
-                orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourceJsonIndices.ContainsKey(x.Name)));
+                orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourcesJsonIndices.ContainsKey(app._entropy.GetResourcesJsonIndicesKey(x))));
                 app._resourcesJson.Resources = orderedResourcesList.ToArray();
             }
         }

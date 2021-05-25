@@ -44,7 +44,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
         // Key is new FileName of the duplicate resource, value is Index from Resources.json. 
-        public Dictionary<string, int> ResourceJsonIndices { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> ResourcesJsonIndices { get; set; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         // Key is control name, value is publish order index
         public Dictionary<string, double> PublishOrderIndices { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
@@ -113,6 +113,29 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AddComponent(TemplateMetadataJson entry, int order)
         {
             this.OrderComponentTemplate[entry.Name] = order;
+        }
+
+        public void Add(ResourceJson resource, int order)
+        {
+            var key = GetResourcesJsonIndicesKey(resource);
+            if (!this.ResourcesJsonIndices.ContainsKey(key))
+            {
+                this.ResourcesJsonIndices.Add(key, order);
+            }
+        }
+
+        // Using the name of the resource combined with the content kind as a key to avoid collisions across different resource types.
+        public string GetResourcesJsonIndicesKey(ResourceJson resource)
+        {
+            return resource.Content + "-" + resource.Name;
+        }
+
+        // The key is of the format ContentKind-ResourceName. eg. Image-close.
+        // Removing the 'ContentKind-' gives the resource name
+        public string GetResourceNameFromKey(string key)
+        {
+            var prefix = key.Split(new char[] { '-' }).First();
+            return key.Substring(prefix.Length + 1);
         }
 
         public void SetHeaderLastSaved(DateTime? x)

@@ -139,56 +139,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Load template files, recreate References/templates.json
             LoadTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
 
-            // The resource entries for sample data is sharded into individual json files.
-            // Add each of these entries back into Resrouces.json
-            var resources = new List<ResourceJson>();
-            app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
-            foreach (var file in dir.EnumerateFiles(AssetsDir, "*", false))
-            {
-                var fileEntry = file.ToFileEntry();
-                if (fileEntry.Name.GetExtension() == ".json")
-                {
-                    // If its a json file then this must be one of the sharded files from Resources.json
-                    resources.Add(file.ToObject<ResourceJson>());
-                }
-                else
-                {
-                    // If its not a json file then add it to the asset files.
-                    // Eg. logo file.
-                    app.AddAssetFile(fileEntry);
-                }
-            }
-
-            // Add the resources from sharded files to _resourcesJson.Resources
-            if (resources.Count > 0)
-            {
-                app._resourcesJson.Resources = resources.ToArray();
-            }
-
-            // We have processed all the files in Assets directory, now iterate through each of the subdirectories in Assets directory.
-            foreach (var directory in dir.EnumerateDirectories(AssetsDir))
-            {
-                foreach (var file in directory.EnumerateFiles(""))
-                {
-                    // Skip adding the json files which were created to contain the information for duplicate asset files.
-                    // The name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
-                    var fileName = file._relativeName;
-                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-
-                    // Check if the original extension was .json and the remaining file name has still got an extension,
-                    // Then this is an additional file that was created to contain information for duplicate assets.
-                    if (Path.HasExtension(fileNameWithoutExtension) && Path.GetExtension(fileName) == ".json")
-                    {
-                        var localAssetInfoJson = file.ToObject<LocalAssetInfoJson>();
-                        app._localAssetInfoJson.Add(localAssetInfoJson.NewFileName, localAssetInfoJson);
-                    }
-                    else
-                    {
-                        app.AddAssetFile(file.ToFileEntry());
-                    }
-                }
-            }
-
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
                 switch (file.Kind)
@@ -210,6 +160,52 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            // The resource entries for sample data is sharded into individual json files.
+            // Add each of these entries back into Resrouces.json
+            var resources = new List<ResourceJson>();
+            app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
+            foreach (var file in dir.EnumerateFiles(AssetsDir, "*", false))
+            {
+                var fileEntry = file.ToFileEntry();
+                if (fileEntry.Name.GetExtension() == ".json")
+                {
+                    // If its a json file then this must be one of the sharded files from Resources.json
+                    resources.Add(file.ToObject<ResourceJson>());
+                }
+            }
+
+            // Add the resources from sharded files to _resourcesJson.Resources
+            if (resources.Count > 0)
+            {
+                app._resourcesJson.Resources = resources.ToArray();
+            }
+
+            // We have processed all the json files in Assets directory, now interate through all tge files to add the asset files.
+            foreach (var file in dir.EnumerateFiles(AssetsDir))
+            {
+                // Skip adding the json files which were created to contain the information for duplicate asset files.
+                // The name of the such json files is of the format - <assetFileName>.<assetFileExtension>.json (eg. close_1.jpg.json)
+                var fileName = file._relativeName;
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+                // Check if the original extension was .json and the remaining file name has still got an extension,
+                // Then this is an additional file that was created to contain information for duplicate assets.
+                if (Path.HasExtension(fileNameWithoutExtension) && Path.GetExtension(fileName) == ".json")
+                {
+                    var localAssetInfoJson = file.ToObject<LocalAssetInfoJson>();
+                    app._localAssetInfoJson.Add(localAssetInfoJson.NewFileName, localAssetInfoJson);
+                }
+                // Add non json files to _assetFiles
+                else if (Path.GetExtension(fileName) != ".json")
+                {
+                    app.AddAssetFile(file.ToFileEntry());
+                }
+            }
+
+            app.GetLogoFile();
+
+            // Add the entries for local assets back to resrouces.json
+            TranformResourceJson.AddLocalAssetEntriesToResourceJson(app);
 
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {
@@ -228,9 +224,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 }
             } // each loose file in '\other' 
-
-
-            app.GetLogoFile();
 
             LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
@@ -507,7 +500,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (var resource in app._resourcesJson.Resources)
                 {
-                    dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.Name) + ".json"), resource);
+                    // Shard ResourceKind.Uri resources into individual json files.
+                    if (resource.ResourceKind != ResourceKind.LocalFile)
+                    {
+                        dir.WriteAllJson(AssetsDir, new FilePath(Path.GetFileName(resource.Name) + ".json"), resource);
+                    }
                 }
             }
 

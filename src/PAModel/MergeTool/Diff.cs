@@ -37,7 +37,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 if (parent._templateStore.TryGetTemplate(template.Key, out _))
                     continue;
 
-                childTemplatesDict.TryGetValue(template.Key.ToLower(), out var jsonTemplate); 
+                childTemplatesDict.TryGetValue(template.Key.ToLower(), out var jsonTemplate);
 
                 delta.Add(new AddTemplate() { Name = template.Key, Template = template.Value, JsonTemplate = jsonTemplate });
             }
@@ -66,7 +66,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 // studio just won't load ones that don't have a ref in the json
                 // And they'll get cleaned up next save
                 // $$$ If we want a clean git history, we should apply that here
-                deltas.Add(new RemoveResource() { Name = resource.Name });
+                else
+                {
+                    deltas.Add(new RemoveResource() { Name = resource.Name });
+                }
             }
 
             foreach (var remaining in childResourcesDict)
@@ -77,7 +80,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                     var resourceName = remaining.Value.Path.Substring("Assets\\".Length);
                     child._assetFiles.TryGetValue(FilePath.FromMsAppPath(resourceName), out file);
                 }
-                deltas.Add(new AddResource() { Name = remaining.Key, Resource = remaining.Value, File = file});
+                deltas.Add(new AddResource() { Name = remaining.Key, Resource = remaining.Value, File = file });
             }
         }
 
@@ -93,7 +96,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             foreach (var ds in parent._dataSources)
             {
                 if (!child._dataSources.ContainsKey(ds.Key))
-                    deltas.Add(new RemoveDataSource() { Name = ds.Key});
+                    deltas.Add(new RemoveDataSource() { Name = ds.Key });
             }
         }
     }

@@ -320,7 +320,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             StabilizeAssetFilePaths(errors);
 
             // Don't persist entries for LocalFile resources in Resources.json
-            this.TranformResourceJsonOnLoad();
+            this.PersisOrderingOfResourcesJsonEntries();
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)
@@ -358,9 +358,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
-
-            // Add the LocalFile resource asset entries back to Resources.json
-            this.TransformResourceJsonOnSave();
 
             RestoreAssetFilePaths();
         }
