@@ -69,7 +69,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public int GetOrder(DataSourceEntry dataSource)
         {
-            return this.OrderDataSource.GetOrDefault<string, int>(dataSource.GetUniqueName(), -1);
+            // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.
+            var defaultValue = dataSource.TableDefinition != null ? int.MaxValue : -1;
+            return this.OrderDataSource.GetOrDefault<string, int>(dataSource.GetUniqueName(), defaultValue);
         }
         public void Add(DataSourceEntry entry, int? order)
         {
