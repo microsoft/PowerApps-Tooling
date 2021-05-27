@@ -319,7 +319,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             StabilizeAssetFilePaths(errors);
 
-            // Don't persist entries for LocalFile resources in Resources.json
+            // Persist the original order of resource entries in Resources.json in the entropy.
             this.PersisOrderingOfResourcesJsonEntries();
         }
 

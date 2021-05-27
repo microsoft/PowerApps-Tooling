@@ -537,14 +537,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 yield return ToFile(FileKind.PublishInfo, publishInfo);
 
             // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
+            // In case the the entropy is missing then make sure that tableDefinitions are being added towards the end in DataSources.json file
+            // This is to respect the serialization order of the server.
             var dataSources = new DataSourcesJson
             {
                 DataSources = app.GetDataSources()
                     .SelectMany(x => x.Value)
-                    .Where(x => !x.IsDataComponent)
+                    .Where(x => !x.IsDataComponent && x.TableDefinition == null)
                     .OrderBy(x => app._entropy.GetOrder(x))
                     .ToArray()
             };
+            dataSources.DataSources = dataSources.DataSources.Concat(app.GetDataSources()
+                    .SelectMany(x => x.Value)
+                    .Where(x => x.TableDefinition != null))
+                    .OrderBy(x => app._entropy.GetOrder(x))
+                    .ToArray();
+
             yield return ToFile(FileKind.DataSources, dataSources);
 
             var sourceFiles = new List<SourceFile>();
@@ -789,7 +797,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return new FileEntry { Name = filename, RawBytes = bytes };
         }
     }
-
-
 
 }
