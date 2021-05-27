@@ -320,7 +320,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             StabilizeAssetFilePaths(errors);
 
             // Persist the original order of resource entries in Resources.json in the entropy.
-            this.PersisOrderingOfResourcesJsonEntries();
+            this.PersistOrderingOfResourcesJsonEntries();
         }
 
         internal void ApplyBeforeMsAppWriteTransforms(ErrorContainer errors)

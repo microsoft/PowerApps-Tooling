@@ -31,7 +31,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// Persists the original order of resources in Resources.json in Entropy.
         /// </summary>
         /// <param name="app">The app.</param>
-        public static void PersisOrderingOfResourcesJsonEntries(this CanvasDocument app)
+        public static void PersistOrderingOfResourcesJsonEntries(this CanvasDocument app)
         {
             for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
             {
