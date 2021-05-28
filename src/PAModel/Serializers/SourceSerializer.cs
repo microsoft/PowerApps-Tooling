@@ -464,7 +464,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     foreach (var child in control.Value.Children)
                     {
-                        WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression, child, subDir, controlName);
+                        WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
                     }
                 }
                 else
