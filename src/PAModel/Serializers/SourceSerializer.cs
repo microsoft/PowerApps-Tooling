@@ -370,7 +370,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
 
-            // When loading TestSuites sharded files, add them within the top parent Test_7F478737223C4B69, i.e. the control name for AppTest
+            // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
@@ -829,7 +829,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out of all the other state for roundtripping 
             string extraContent = (topParentname ?? controlName) + ".editorstate.json";
 
-            // We wwrite editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
+            // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
             // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
             if (!File.Exists(Path.Combine(subDir, extraContent)))
             {
