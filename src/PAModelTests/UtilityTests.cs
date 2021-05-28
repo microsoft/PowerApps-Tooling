@@ -12,7 +12,7 @@ namespace PAModelTests
     {
         [DataTestMethod]
         [DataRow("\r\t!$^%/\\", "%0d%09%21%24%5e%25%2f%5c")]
-        [DataRow("\u4523", "%%4523")]
+        [DataRow("одиндваодиндваодиндваодиндваодиндваодинд", "одиндваодиндваодиндваодиндваодиндваодинд")]
         public void TestEscaping(string unescaped, string escaped)
         {
             Assert.AreEqual(Utilities.EscapeFilename(unescaped), escaped);
@@ -43,7 +43,7 @@ namespace PAModelTests
         [DataRow("C:\\Foo\\Bar.msapp", "C:\\", "Foo\\Bar.msapp")]
         [DataRow(@"C:\DataSources\JourneyPlanner|Sendforapproval.json", "C:\\", @"DataSources\JourneyPlanner|Sendforapproval.json")]
         [DataRow(@"C:\DataSources\JourneyPlanner%7cSendforapproval.json", "C:\\", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
-        [DataRow(@"d:\app\Src\EditorState\Screen%252.editorstate.json", @"d:\app", @"Src\EditorState\Screen%252.editorstate.json" )]
+        [DataRow(@"d:\app\Src\EditorState\Screen%252.editorstate.json", @"d:\app", @"Src\EditorState\Screen%252.editorstate.json")]
         [DataRow(@"C:\Temp\MySolution\MySolution.Project\DataSources\JourneyPlanner%7cSendforapproval.json", @"C:\Temp\MySolution\MySolution.Project", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {

@@ -13,7 +13,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 {
     internal class FilePath
     {
-        private const int MAX_PATH = 260;
+        public const int MAX_PATH = 260;
         private const string yamlExtension = ".fx.yaml";
         private const string editorStateExtension = ".editorstate.json";
         private readonly string[] _pathSegments;
