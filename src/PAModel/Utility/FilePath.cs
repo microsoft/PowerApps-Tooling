@@ -13,6 +13,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 {
     internal class FilePath
     {
+        private const int MAX_PATH = 260;
+        private const string yamlExtension = ".fx.yaml";
+        private const string editorStateExtension = ".editorstate.json";
         private readonly string[] _pathSegments;
 
         public FilePath(params string[] segments)
@@ -28,6 +31,29 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         public string ToPlatformPath()
         {
             return Path.Combine(_pathSegments.Select(Utilities.EscapeFilename).ToArray());
+        }
+
+        /// <summary>
+        /// Checks if the path length is more than MAX_PATH (260)
+        /// then it truncates the path, and adds a hash to the filename while retaining the file extension.
+        /// </summary>
+        /// <param name="path">Full path of the file.</param>
+        /// <returns></returns>
+        public static string ToValidPath(string path)
+        {
+            if (path.Length > MAX_PATH)
+            {
+                var extension = path.EndsWith(yamlExtension)
+                    ? yamlExtension
+                    : path.EndsWith(editorStateExtension)
+                    ? editorStateExtension
+                    : Path.GetExtension(path);
+
+                var hash = string.Format("{0:X}", path.GetHashCode());
+                path = path.Substring(0, MAX_PATH - (extension.Length + hash.Length));
+                path = string.Concat(path, hash, extension);
+            }
+            return path;
         }
 
         public static FilePath FromPlatformPath(string path)
