@@ -42,7 +42,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 19 - Switch extension to .fx.yaml  
         // 20 - Only load themes that match the specified theme name
         // 21 - Resourcesjson is sharded into individual json files for non-local resources.
-        public static Version CurrentSourceVersion = new Version(0, 21);
+        // 22 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
+        public static Version CurrentSourceVersion = new Version(0, 22);
 
         // Layout is:
         //  src\

@@ -69,7 +69,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void WriteAllText(string subdir, FilePath filename, string text)
         {
-            string path = FilePath.ToValidPath(Path.Combine(_directory, subdir, filename.ToPlatformPath()));
+            string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
             EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }

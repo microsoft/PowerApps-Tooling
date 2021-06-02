@@ -13,7 +13,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 {
     internal class FilePath
     {
-        public const int MAX_PATH = 260;
+        public const int MaxFileNameLength = 60;
         private const string yamlExtension = ".fx.yaml";
         private const string editorStateExtension = ".editorstate.json";
         private readonly string[] _pathSegments;
@@ -28,32 +28,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
             return string.Join("\\", _pathSegments);
         }
 
+        /// <summary>
+        /// Performs escaping on the path, and also truncates the filename to a max length of 60, if longer.
+        /// </summary>
+        /// <returns></returns>
         public string ToPlatformPath()
         {
-            return Path.Combine(_pathSegments.Select(Utilities.EscapeFilename).ToArray());
-        }
-
-        /// <summary>
-        /// Checks if the path length is more than MAX_PATH (260)
-        /// then it truncates the path, and adds a hash to the filename while retaining the file extension.
-        /// </summary>
-        /// <param name="path">Full path of the file.</param>
-        /// <returns></returns>
-        public static string ToValidPath(string path)
-        {
-            if (path.Length > MAX_PATH)
-            {
-                var extension = path.EndsWith(yamlExtension)
-                    ? yamlExtension
-                    : path.EndsWith(editorStateExtension)
-                    ? editorStateExtension
-                    : Path.GetExtension(path);
-
-                var hash = string.Format("{0:X}", path.GetHashCode());
-                path = path.Substring(0, MAX_PATH - (extension.Length + hash.Length));
-                path = string.Concat(path, hash, extension);
-            }
-            return path;
+            var originalFileName = this.GetFileName();
+            var newFileName = GetTruncatedFileNameIfTooLong(this.GetFileName());
+            var remainingPath =  Path.Combine(_pathSegments.Where(x => x != originalFileName).Select(Utilities.EscapeFilename).ToArray());
+            return Path.Combine(remainingPath, newFileName);
         }
 
         public static FilePath FromPlatformPath(string path)
@@ -138,5 +122,44 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
             return ToMsAppPath().GetHashCode();
         }
 
+        /// <summary>
+        /// If the file name length is longer than 60, it is truncated and appeded with a hash (to avoid collisions).
+        /// Checks the length of the escaped file name, since its possible that the length is under 60 before excaping but goes beyond 60 later.
+        /// We do module by 1000 of the hash to limit it to 3 characters.
+        /// </summary>
+        /// <returns></returns>
+        private string GetTruncatedFileNameIfTooLong(string fileName)
+        {
+            var newFileName = Utilities.EscapeFilename(fileName);
+            if (newFileName.Length > 60)
+            {
+                var extension = newFileName.EndsWith(yamlExtension)
+                    ? yamlExtension
+                    : newFileName.EndsWith(editorStateExtension)
+                    ? editorStateExtension
+                    : Path.GetExtension(newFileName);
+
+                // limit the hash to 3 characters by doing a module by 1000
+                var hash = (GetHash(newFileName) % 1000).ToString("x3");
+                newFileName = newFileName.Substring(0, MaxFileNameLength - extension.Length - hash.Length) + hash + extension;
+            }
+            return newFileName;
+        }
+
+        /// <summary>
+        /// djb2 algorithm to compute the hash of a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private ulong GetHash(string str)
+        {
+            ulong hash = 5381;
+            foreach(char c in str)
+            {
+                hash = ((hash << 5) + hash) + c;
+            }
+
+            return hash;
+        }
     }
 }
