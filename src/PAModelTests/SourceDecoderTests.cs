@@ -20,7 +20,7 @@ namespace PAModelTests
         [DataRow("GroupControlTest.msapp", "",  "Screen1.fx.yaml", "GroupControl_Test.fx.yaml")]
         [DataRow("GalleryTestApp.msapp", "",  "Screen1.fx.yaml", "Gallery_ScreenTest.fx.yaml")]
         [DataRow("SimpleScopeVariables.msapp", "Components", "Component1.fx.yaml", "ComponentFunction_Test.fx.yaml")]
-        [DataRow("TestStudio_Test.msapp", "Tests", "Test_7F478737223C4B69.fx.yaml", "TestStudio_Test.fx.yaml")]
+        [DataRow("TestStudio_Test.msapp", "Tests", "Suite.fx.yaml", "TestStudio_Test.fx.yaml")]
         [DataRow("autolayouttest.msapp", "",  "Screen1.fx.yaml", "AutoLayout_test.fx.yaml")]
         public void TestScreenBaselines(string appName, string basePath, string sourceFileName, string screenBaselineName)
         {

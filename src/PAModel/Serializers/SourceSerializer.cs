@@ -42,8 +42,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 19 - Switch extension to .fx.yaml  
         // 20 - Only load themes that match the specified theme name
         // 21 - Resourcesjson is sharded into individual json files for non-local resources.
-        // 22 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
-        public static Version CurrentSourceVersion = new Version(0, 22);
+        // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
+        // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
+        public static Version CurrentSourceVersion = new Version(0, 23);
 
         // Layout is:
         //  src\
@@ -66,6 +67,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
+        internal static readonly string AppTestControlType = "AppTest";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
         private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
         private static BuildVerJson _buildVerJson = GetBuildDetails();
@@ -369,6 +371,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
 
+            // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, false, file.GetContents(), errors);
@@ -407,8 +410,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // validate that all the packages refferred are not accidentally deleted from pkgs dierectory
                 ValidateIfTemplateExists(app, controlIR, controlIR, errors);
 
-                var collection = (isComponent) ? app._components : app._screens;
-                collection.Add(controlIR.Name.Identifier, controlIR);
+                // Since the TestSuites are sharded into individual files instead of being in a top control.
+                // so we need to reconstruct the parent control by adding individual TestSuite as the chiild.
+                if (AppTestTransform.IsTestSuite(controlIR.Name.Kind.TypeName))
+                {
+                    AddTestSuiteControl(app, controlIR);
+                }
+                else
+                {
+                    var collection = (isComponent) ? app._components : app._screens;
+                    collection.Add(controlIR.Name.Identifier, controlIR);
+                }
             }
             catch (DocumentException)
             {
@@ -448,7 +460,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var isTest = controlName == AppTestControlName;
                 var subDir = isTest ? TestDir : CodeDir;
 
-                WriteTopParent(dir, app, control.Key, control.Value, subDir);
+                // For AppTest conrol, shard TestSuites into individual files (using DisplayName as the fileName), to make the merging of two (or more) apps easier.
+                if (isTest && control.Value.Children.Count > 0)
+                {
+                    foreach (var child in control.Value.Children)
+                    {
+                        WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
+                    }
+                }
+                else
+                {
+                    WriteTopParent(dir, app, control.Key, control.Value, subDir);
+                }
             }
 
             foreach (var control in app._components)
@@ -781,12 +804,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// This writes out the IR, editor state cache, and potentially component templates
         /// for a single top level control, such as the App object, a screen, or component
         /// Name refers to the control name
+        /// Only in case of AppTest, the topParentName is passed down, since for AppTest the TestSuites are sharded into individual files.
         private static void WriteTopParent(
             DirectoryWriter dir,
             CanvasDocument app,
             string name,
             BlockNode ir,
-            string subDir)
+            string subDir,
+            string topParentname = null)
         {
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
@@ -797,14 +822,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             dir.WriteAllText(subDir, new FilePath(filename), text);
 
             var extraData = new Dictionary<string, ControlState>();
-            foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
+            foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
             {
                 extraData.Add(item.Name, item);
             }
 
             // Write out of all the other state for roundtripping 
-            string extraContent = controlName + ".editorstate.json";
-            dir.WriteAllJson(EditorStateDir, new FilePath(extraContent), extraData);
+            string extraContent = (topParentname ?? controlName) + ".editorstate.json";
+
+            // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
+            // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
+            if (!File.Exists(Path.Combine(subDir, extraContent)))
+            {
+                dir.WriteAllJson(EditorStateDir, new FilePath(extraContent), extraData);
+            }
 
             // Write out component templates next to the component
             if (app._templateStore.TryGetTemplate(name, out var templateState))
@@ -901,6 +932,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
             }
+        }
+
+        /// Adds TestSuite as a child control of AppTest control
+        private static void AddTestSuiteControl(CanvasDocument app, BlockNode controlIR)
+        {
+            if (!app._screens.ContainsKey(AppTestControlName))
+            {
+                app._screens.Add(AppTestControlName, new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = AppTestControlName,
+                        Kind = new TypeNode() { TypeName = AppTestControlType }
+                    }
+                });
+            }
+            app._screens[AppTestControlName].Children.Add(controlIR);
         }
     }
 }

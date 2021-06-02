@@ -41,7 +41,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             ComponentsMetadataJson componentsMetadata = null;
             DataComponentTemplatesJson dctemplate = null;
-            DataComponentSourcesJson dcsources  = null;
+            DataComponentSourcesJson dcsources = null;
 
             ChecksumMaker checksumMaker = new ChecksumMaker();
             // key = screen, value = index
@@ -50,7 +50,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             ZipArchive zipOpen;
             try
             {
-                zipOpen = new ZipArchive(streamToMsapp, ZipArchiveMode.Read);                
+                zipOpen = new ZipArchive(streamToMsapp, ZipArchiveMode.Read);
             }
             catch (Exception e)
             {
@@ -195,9 +195,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 } // foreach zip entry
 
-                foreach(var template in app._templates.UsedTemplates)
+                foreach (var template in app._templates.UsedTemplates)
                 {
-                    if(app._templateStore.TryGetTemplate(template.Name, out var templateState))
+                    if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
                     {
                         templateState.IsWidgetTemplate = true;
                     }
@@ -385,7 +385,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                
+
                 throw new InvalidOperationException("Only works for .msapp files");
             }
 
@@ -461,7 +461,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
             }
-            
+
             var checksumJson = new ChecksumJson
             {
                 ClientStampedChecksum = hash.wholeChecksum,
@@ -492,14 +492,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var header = app._header.JsonClone();
             header.LastSavedDateTimeUTC = app._entropy.GetHeaderLastSaved();
             yield return ToFile(FileKind.Header, header);
-            
+
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
                 var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
-            if(app._appInsights != null)
+            if (app._appInsights != null)
             {
                 props.InstrumentationKey = app._appInsights.InstrumentationKey;
             }
@@ -513,13 +513,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     if (app._entropy.LocalDatabaseReferencesAsEmpty)
                     {
                         json = "";
-                    } else
+                    }
+                    else
                     {
                         json = "{}";
                     }
                 }
 
-                props.LocalDatabaseReferences = json;                
+                props.LocalDatabaseReferences = json;
             }
 
             if (app._libraryReferences != null)
@@ -789,7 +790,4 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return new FileEntry { Name = filename, RawBytes = bytes };
         }
     }
-
-
-
 }

@@ -31,7 +31,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         public static bool IsTestSuite(string templateName)
         {
-            return templateName == "AppTest";
+            return templateName == "TestSuite";
         }
 
         public AppTestTransform(ErrorContainer errors, TemplateStore templateStore, EditorStateStore stateStore, Entropy entropy)
