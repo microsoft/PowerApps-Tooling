@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
-using System;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
@@ -36,6 +34,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (dir.EndsWith(".git"))
                     continue;
                 Directory.Delete(dir, recursive: true);
+            }
+            foreach (var file in Directory.EnumerateFiles(_directory))
+            {
+                if (file.StartsWith(".git"))
+                    continue;
+                File.Delete(file);
             }
         }
 
@@ -72,6 +76,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void WriteAllText(string subdir, FilePath filename, string text)
         {
             string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+
+            // Check for collision so that we don't overwrite an existing file.
+            if (File.Exists(path))
+            {
+                path = FilePath.ToFilePath(path).HandleFileNameCollisions(path);
+            }
+
             EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }
