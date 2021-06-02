@@ -255,12 +255,8 @@ namespace PASopa
             }
             catch (Exception e)
             {
-                // Add unhandled exception to the error container if its empty.
-                // This could happen if the the exception is thrown before the wrapper is invoked from within the operation.
-                if (!errors.HasErrors)
-                {
-                    errors.InternalError(e);
-                }
+                // Add unhandled exception to the error container.
+                errors.InternalError(e);
             }
             return (app, errors);
         }
@@ -274,12 +270,8 @@ namespace PASopa
             }
             catch (Exception e)
             {
-                // Add unhandled exception to the error container if its empty.
-                // This could happen if the the exception is thrown before the wrapper is invoked from within the operation.
-                if (!errors.HasErrors)
-                {
-                    errors.InternalError(e);
-                }
+                // Add unhandled exception to the error container.
+                errors.InternalError(e);
             }
             return errors;
         }

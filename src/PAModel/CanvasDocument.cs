@@ -178,14 +178,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 return document;
             }
-            catch (Exception e)
+            catch (DocumentException e)
             {
-                // Internal error - something was thrown without adding to the error container.
-                errors.InternalError(e);
-
-                if (!(e is DocumentException))
+                if (!errors.HasErrors)
                 {
-                    throw;
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
                 }
                 return null;
             }
@@ -197,14 +196,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 worker();
             }
-            catch (Exception e)
+            catch (DocumentException e)
             {
-                // Internal error - something was thrown without adding to the error container.
-                errors.InternalError(e);
-
-                if (!(e is DocumentException))
+                if (!errors.HasErrors)
                 {
-                    throw;
+                    // Internal error - something was thrown without adding to the error container.
+                    // Add at least one error
+                    errors.InternalError(e);
                 }
             }
         }
