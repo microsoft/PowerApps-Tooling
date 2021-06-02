@@ -35,8 +35,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         public string ToPlatformPath()
         {
             var originalFileName = this.GetFileName();
-            var newFileName = GetTruncatedFileNameIfTooLong(this.GetFileName());
-            var remainingPath =  Path.Combine(_pathSegments.Where(x => x != originalFileName).Select(Utilities.EscapeFilename).ToArray());
+            var newFileName = GetTruncatedFileNameIfTooLong(originalFileName);
+            var remainingPath = Path.Combine(_pathSegments.Where(x => x != originalFileName).Select(Utilities.EscapeFilename).ToArray());
             return Path.Combine(remainingPath, newFileName);
         }
 
@@ -54,6 +54,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
                 return new FilePath();
             var segments = path.Split('\\');
             return new FilePath(segments);
+        }
+
+        public static FilePath ToFilePath(string path)
+        {
+            if (path == null)
+                return new FilePath();
+            var segments = path.Split(Path.DirectorySeparatorChar).Select(x => x);
+            return new FilePath(segments.ToArray());
         }
 
         public static FilePath RootedAt(string root, FilePath remainder)
@@ -123,24 +131,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         }
 
         /// <summary>
-        /// If the file name length is longer than 60, it is truncated and appeded with a hash (to avoid collisions).
-        /// Checks the length of the escaped file name, since its possible that the length is under 60 before excaping but goes beyond 60 later.
-        /// We do module by 1000 of the hash to limit it to 3 characters.
+        /// If there is a collision in the filename then it generates a new name for the file by appending '_1', '_2' ... to the filename.S
+        /// </summary>
+        /// <param name="path">The string representation of the path including filename.</param>
+        /// <returns>Returns the updated path which has new filename.</returns>
+        public string HandleFileNameCollisions(string path)
+        {
+            var suffixCounter = 0;
+            var fileName = this.GetFileName();
+            var extension = GetCustomExtension(fileName);
+            var fileNameWithoutExtension = fileName.Substring(0, fileName.Length - extension.Length);
+            var pathWithoutFileName = path.Substring(0, path.Length - fileName.Length);
+            while (File.Exists(path))
+            {
+                var filename = fileNameWithoutExtension + '_' + ++suffixCounter + extension;
+                path = pathWithoutFileName + filename;
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// If the file name length is longer than 60, it is truncated and appended with a hash (to avoid collisions).
+        /// Checks the length of the escaped file name, since its possible that the length is under 60 before escaping but goes beyond 60 later.
+        /// We do modulo by 1000 of the hash to limit it to 3 characters.
         /// </summary>
         /// <returns></returns>
         private string GetTruncatedFileNameIfTooLong(string fileName)
         {
             var newFileName = Utilities.EscapeFilename(fileName);
-            if (newFileName.Length > 60)
+            if (newFileName.Length > MaxFileNameLength)
             {
-                var extension = newFileName.EndsWith(yamlExtension)
-                    ? yamlExtension
-                    : newFileName.EndsWith(editorStateExtension)
-                    ? editorStateExtension
-                    : Path.GetExtension(newFileName);
+                var extension = GetCustomExtension(newFileName);
 
                 // limit the hash to 3 characters by doing a module by 1000
-                var hash = (GetHash(newFileName) % 1000).ToString("x3");
+                var hash = (GetHash(newFileName.Substring(0, newFileName.Length - extension.Length)) % 1000).ToString("x3");
                 newFileName = newFileName.Substring(0, MaxFileNameLength - extension.Length - hash.Length) + hash + extension;
             }
             return newFileName;
@@ -154,12 +178,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         private ulong GetHash(string str)
         {
             ulong hash = 5381;
-            foreach(char c in str)
+            foreach (char c in str)
             {
                 hash = ((hash << 5) + hash) + c;
             }
 
             return hash;
+        }
+
+        private string GetCustomExtension(string fileName)
+        {
+            var extension = fileName.EndsWith(yamlExtension, StringComparison.OrdinalIgnoreCase)
+                    ? yamlExtension
+                    : fileName.EndsWith(editorStateExtension, StringComparison.OrdinalIgnoreCase)
+                    ? editorStateExtension
+                    : Path.GetExtension(fileName);
+            return extension;
         }
     }
 }

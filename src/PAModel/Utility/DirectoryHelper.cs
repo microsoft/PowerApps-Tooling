@@ -35,6 +35,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
                 Directory.Delete(dir, recursive: true);
             }
+            foreach (var file in Directory.EnumerateFiles(_directory))
+            {
+                if (file.StartsWith(".git"))
+                    continue;
+                File.Delete(file);
+            }
         }
 
         public void WriteAllJson<T>(string subdir, FileKind kind, T obj)
@@ -70,6 +76,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void WriteAllText(string subdir, FilePath filename, string text)
         {
             string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+
+            // Check for collision so that we don't overwrite an existing file.
+            if (File.Exists(path))
+            {
+                path = FilePath.ToFilePath(path).HandleFileNameCollisions(path);
+            }
+
             EnsureFileDirExists(path);
             File.WriteAllText(path, text);
         }
