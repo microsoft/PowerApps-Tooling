@@ -178,7 +178,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 return document;
             }
-            catch (Exception e)
+            catch (DocumentException e)
             {
                 if (!errors.HasErrors)
                 {
@@ -196,7 +196,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 worker();
             }
-            catch (Exception e)
+            catch (DocumentException e)
             {
                 if (!errors.HasErrors)
                 {
