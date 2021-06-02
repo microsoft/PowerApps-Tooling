@@ -19,7 +19,7 @@ namespace PASopa
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
-            if (mode =="-test")
+            if (mode == "-test")
             {
                 if (args.Length < 2)
                 {
@@ -46,7 +46,7 @@ namespace PASopa
                 int countTotal = 0;
                 int countPass = 0;
                 Console.WriteLine("Test roundtripping all .msapps in : " + msAppPathDir);
-                foreach(var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
+                foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
                 {
                     Stopwatch sw = Stopwatch.StartNew();
                     bool ok = MsAppTest.StressTest(msAppPath);
@@ -54,7 +54,7 @@ namespace PASopa
                     countTotal++;
                     if (ok) { countPass++; }
                     sw.Stop();
-                    Console.WriteLine($"Test: {Path.GetFileName(msAppPath)}: {str}  ({sw.ElapsedMilliseconds/1000}s)");
+                    Console.WriteLine($"Test: {Path.GetFileName(msAppPath)}: {str}  ({sw.ElapsedMilliseconds / 1000}s)");
                 }
                 Console.WriteLine($"{countPass}/{countTotal}  ({countPass * 100 / countTotal}% passed");
             }
@@ -86,7 +86,7 @@ namespace PASopa
 
                 Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
-                (CanvasDocument msApp, ErrorContainer errors) = CanvasDocument.LoadFromMsapp(msAppPath);
+                (CanvasDocument msApp, ErrorContainer errors) = TryOperation(() => CanvasDocument.LoadFromMsapp(msAppPath));
                 errors.Write(Console.Error);
 
                 if (errors.HasErrors)
@@ -94,7 +94,7 @@ namespace PASopa
                     return;
                 }
 
-                errors = msApp.SaveToSources(outDir);
+                errors = TryOperation(() => msApp.SaveToSources(outDir));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
@@ -103,7 +103,7 @@ namespace PASopa
 
                 // Test that we can repack
                 {
-                    (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(outDir);
+                    (CanvasDocument msApp2, ErrorContainer errors2) = TryOperation(() => CanvasDocument.LoadFromSources(outDir));
                     errors2.Write(Console.Error);
                     if (errors2.HasErrors)
                     {
@@ -112,7 +112,7 @@ namespace PASopa
 
                     using (var temp = new TempFile())
                     {
-                        errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
+                        errors2 = TryOperation(() => msApp2.SaveToMsAppValidation(temp.FullPath));
                         errors2.Write(Console.Error);
                         if (errors2.HasErrors)
                         {
@@ -136,13 +136,13 @@ namespace PASopa
 
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
-                (CanvasDocument msApp, ErrorContainer errors) =  CanvasDocument.LoadFromSources(inputDir);
+                (CanvasDocument msApp, ErrorContainer errors) = TryOperation(() => CanvasDocument.LoadFromSources(inputDir));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
                 }
-                errors = msApp.SaveToMsApp(msAppPath);
+                errors = TryOperation(() => msApp.SaveToMsApp(msAppPath));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
@@ -165,13 +165,13 @@ namespace PASopa
 
                 var appName = Path.GetFileName(msAppPath);
 
-                (var app, var errors) = CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA });
+                (var app, var errors) = TryOperation(() => CanvasDocument.MakeFromSources(appName, pkgsPath, new List<string>() { inputPA }));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
                 }
-                errors = app.SaveToMsApp(msAppPath);
+                errors = TryOperation(() => app.SaveToMsApp(msAppPath));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
@@ -195,21 +195,21 @@ namespace PASopa
                 Console.WriteLine($"Merge: {path1}, {path2} --> {pathresult} ");
 
 
-                (var app1, var errors1) = CanvasDocument.LoadFromSources(path1);
+                (var app1, var errors1) = TryOperation(() => CanvasDocument.LoadFromSources(path1));
                 errors1.Write(Console.Error);
                 if (errors1.HasErrors)
                 {
                     return;
                 }
 
-                (var app2, var errors2) = CanvasDocument.LoadFromSources(path2);
+                (var app2, var errors2) = TryOperation(() => CanvasDocument.LoadFromSources(path2));
                 errors2.Write(Console.Error);
                 if (errors2.HasErrors)
                 {
                     return;
                 }
 
-                (var parentApp, var errors3) = CanvasDocument.LoadFromSources(parent);
+                (var parentApp, var errors3) = TryOperation(() => CanvasDocument.LoadFromSources(parent));
                 errors3.Write(Console.Error);
                 if (errors3.HasErrors)
                 {
@@ -243,6 +243,45 @@ namespace PASopa
                 -merge path1 path2 parentPath resultpath
 
                 ");
+        }
+
+        private static (CanvasDocument, ErrorContainer) TryOperation(Func<(CanvasDocument, ErrorContainer)> operation)
+        {
+            CanvasDocument app = null;
+            ErrorContainer errors = new ErrorContainer();
+            try
+            {
+                (app, errors) = operation();
+            }
+            catch (Exception e)
+            {
+                // Add unhandled exception to the error container if its empty.
+                // This could happen if the the exception is thrown before the wrapper is invoked from within the operation.
+                if (!errors.HasErrors)
+                {
+                    errors.InternalError(e);
+                }
+            }
+            return (app, errors);
+        }
+
+        private static ErrorContainer TryOperation(Func<ErrorContainer> operation)
+        {
+            ErrorContainer errors = new ErrorContainer();
+            try
+            {
+                errors = operation();
+            }
+            catch (Exception e)
+            {
+                // Add unhandled exception to the error container if its empty.
+                // This could happen if the the exception is thrown before the wrapper is invoked from within the operation.
+                if (!errors.HasErrors)
+                {
+                    errors.InternalError(e);
+                }
+            }
+            return errors;
         }
     }
 }

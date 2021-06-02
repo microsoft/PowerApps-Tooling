@@ -96,7 +96,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// </summary>
         /// <param name="fullPathToMsApp">path to an .msapp file</param>
         /// <returns>A tuple of the document and errors and warnings. If there are errors, the document is null.  </returns>
-        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(string fullPathToMsApp, bool throwOnException = false)
+        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(string fullPathToMsApp)
         {
             var errors = new ErrorContainer();
 
@@ -109,24 +109,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             using (var stream = new FileStream(fullPathToMsApp, FileMode.Open))
             {
-                var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors, throwOnException);
+                var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors);
                 return (doc, errors);
             }
         }
 
-        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(Stream streamToMsapp, bool throwOnException = false)
+        public static (CanvasDocument, ErrorContainer) LoadFromMsapp(Stream streamToMsapp)
         {
             var errors = new ErrorContainer();
-            var doc = Wrapper(() => MsAppSerializer.Load(streamToMsapp, errors), errors, throwOnException);
+            var doc = Wrapper(() => MsAppSerializer.Load(streamToMsapp, errors), errors);
             return (doc, errors);
         }
 
-        public static (CanvasDocument, ErrorContainer) LoadFromSources(string pathToSourceDirectory, bool throwOnException = false)
+        public static (CanvasDocument, ErrorContainer) LoadFromSources(string pathToSourceDirectory)
         {
             Utilities.EnsurePathRooted(pathToSourceDirectory);
 
             var errors = new ErrorContainer();
-            var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors, throwOnException);
+            var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
             return (doc, errors);
         }
 
@@ -156,17 +156,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
             return errors;
         }
-        public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles, bool throwOnException = false)
+        public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
         {
             var errors = new ErrorContainer();
-            var doc = Wrapper(() => SourceSerializer.Create(appName, packagesPath, paFiles, errors), errors, throwOnException);
+            var doc = Wrapper(() => SourceSerializer.Create(appName, packagesPath, paFiles, errors), errors);
             return (doc, errors);
         }
 
         #endregion
 
         // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors. 
-        private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors, bool throwOnException)
+        private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors)
         {
             CanvasDocument document = null;
             try
@@ -180,15 +180,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             catch (Exception e)
             {
-                if (throwOnException && !(e is DocumentException))
+                // Internal error - something was thrown without adding to the error container.
+                errors.InternalError(e);
+
+                if (!(e is DocumentException))
                 {
                     throw;
-                }
-                if (!errors.HasErrors)
-                {
-                    // Internal error - something was thrown without adding to the error container.
-                    // Add at least one error
-                    errors.InternalError(e);
                 }
                 return null;
             }
@@ -202,11 +199,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             catch (Exception e)
             {
-                if (!errors.HasErrors)
+                // Internal error - something was thrown without adding to the error container.
+                errors.InternalError(e);
+
+                if (!(e is DocumentException))
                 {
-                    // Internal error - something was thrown without adding to the error container.
-                    // Add at least one error
-                    errors.InternalError(e);
+                    throw;
                 }
             }
         }
