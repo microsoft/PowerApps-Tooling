@@ -23,6 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public Dictionary<string, int> ControlCount { get; set; }
             public double? DeserializationLoadTime { get; set; }
             public double? AnalysisLoadTime { get; set; }
+            public double? ErrorCount { get; set; }
         }
 
         // Json serialize these. 
@@ -176,11 +177,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AnalysisLoadTime = documentProperties.AnalysisLoadTime,
                 DeserializationLoadTime = documentProperties.DeserializationLoadTime,
                 ControlCount = documentProperties.ControlCount,
+                ErrorCount = documentProperties.ErrorCount
             };
 
             documentProperties.AnalysisLoadTime = null;
             documentProperties.DeserializationLoadTime = null;
             documentProperties.ControlCount = null;
+            documentProperties.ErrorCount = null;
         }
 
         public void GetProperties(DocumentPropertiesJson documentProperties)
@@ -190,6 +193,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
                 documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
                 documentProperties.ControlCount = VolatileProperties.ControlCount;
+                documentProperties.ErrorCount = VolatileProperties.ErrorCount;
             }
         }
 
