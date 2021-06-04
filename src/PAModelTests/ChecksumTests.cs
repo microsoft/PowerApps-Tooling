@@ -27,6 +27,9 @@ namespace PAModelTests
             Assert.AreEqual(expectedFileCount, actualChecksum.perFileChecksum.Count);
             Assert.IsTrue(actualChecksum.perFileChecksum.TryGetValue(file, out var perFileChecksum));
             Assert.AreEqual(innerExpectedChecksum, perFileChecksum);
+
+            // Test checksum version
+            Assert.AreEqual(ChecksumMaker.GetChecksumVersion(expectedChecksum), ChecksumMaker.Version);
         }
 
         [DataTestMethod]

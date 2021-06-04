@@ -228,9 +228,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // This is debug only. The server checksum is out of date with the client checksum
                 // The main checksum validation that matters is the repack after unpack
 #if DEBUG
+                // In case the server stamped checksum on the msapp is older than the client, treat it like its missing checksum.
                 var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null
                                 ? true
-                                : int.Parse(app._checksum.ServerStampedChecksum.Split('_').First(), NumberStyles.HexNumber) < int.Parse(ChecksumMaker.Version, NumberStyles.HexNumber);
+                                : ChecksumMaker.GetChecksumVersion(app._checksum.ServerStampedChecksum) < ChecksumMaker.Version;
                 if (!isNullOrOlderChecksum &&  app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
