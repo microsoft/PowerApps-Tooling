@@ -7,6 +7,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -227,8 +228,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // This is debug only. The server checksum is out of date with the client checksum
                 // The main checksum validation that matters is the repack after unpack
 #if DEBUG
-                // 
-                if (app._checksum.ServerStampedChecksum != null && !app._checksum.ServerStampedChecksum.StartsWith(ChecksumMaker.VersionC6) && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
+                var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null
+                                ? true
+                                : int.Parse(app._checksum.ServerStampedChecksum.Split('_').First(), NumberStyles.HexNumber) < int.Parse(ChecksumMaker.Version, NumberStyles.HexNumber);
+                if (!isNullOrOlderChecksum &&  app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.

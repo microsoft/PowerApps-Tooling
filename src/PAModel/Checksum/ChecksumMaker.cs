@@ -21,9 +21,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     /// </summary>
     public class ChecksumMaker
     {
-        // If the checksum is generated with C6 version then treat it as if it's missing.
-        public static string VersionC6 = "C6";
-
         // Given checksum an easy prefix so that we can identify algorithm version changes.
         public static string Version = "C7";
 
