@@ -53,17 +53,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     using (var tempDir = new TempDir())
                     {
                         string outSrcDir = tempDir.Dir;
-                        errors = msapp.SaveToSources(outSrcDir);
+                        errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath : pathToMsApp);
                         errors.ThrowOnErrors();
-
-                        // Source --> Model
-                        (var msapp2, var errors2) = CanvasDocument.LoadFromSources(outSrcDir);
-                        errors2.ThrowOnErrors();
-
-                        errors2 = msapp2.SaveToMsApp(outFile); // Write out .pa files.
-                        errors2.ThrowOnErrors();
-                        var ok2 = MsAppTest.Compare(pathToMsApp, outFile, log);
-                        return ok2;
+                        return true;
                     }
                 }
             }

@@ -148,12 +148,49 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors, isValidation: true), errors);
             return errors;
         }
-        public ErrorContainer SaveToSources(string pathToSourceDirectory)
+
+        /// <summary>
+        /// Save the document in a textual source format that can be checked into source control
+        /// </summary>
+        /// <param name="pathToSourceDirectory"></param>
+        /// <param name="verifyOriginalPath">true if we should immediately repack the sources to verify they successfully roundtrip. </param>
+        /// <returns></returns>
+        public ErrorContainer SaveToSources(string pathToSourceDirectory, string verifyOriginalPath = null)
         {
             Utilities.EnsurePathRooted(pathToSourceDirectory);
 
             var errors = new ErrorContainer();
             Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
+
+
+            // Test that we can repack
+            if (!errors.HasErrors && verifyOriginalPath != null)
+            {
+                (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(pathToSourceDirectory);
+                if (errors2.HasErrors)
+                {
+                    errors2.PostUnpackValidationFailed();
+                    return errors2;
+                }
+
+                using (var temp = new TempFile())
+                {
+                    errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
+                    if (errors2.HasErrors)
+                    {
+                        errors2.PostUnpackValidationFailed();
+                        return errors2;
+                    }
+
+                    bool ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null);
+                    if (!ok)
+                    {
+                        errors2.PostUnpackValidationFailed();
+                        return errors2;
+                    }
+                }
+            }
+
             return errors;
         }
         public static (CanvasDocument, ErrorContainer) MakeFromSources(string appName, string packagesPath, IList<string> paFiles)
