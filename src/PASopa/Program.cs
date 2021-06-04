@@ -94,34 +94,12 @@ namespace PASopa
                     return;
                 }
 
-                errors = TryOperation(() => msApp.SaveToSources(outDir));
+                errors = TryOperation(() => msApp.SaveToSources(outDir, verifyOriginalPath : msAppPath));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {
                     return;
-                }
-
-                // Test that we can repack
-                {
-                    (CanvasDocument msApp2, ErrorContainer errors2) = TryOperation(() => CanvasDocument.LoadFromSources(outDir));
-                    errors2.Write(Console.Error);
-                    if (errors2.HasErrors)
-                    {
-                        return;
-                    }
-
-                    using (var temp = new TempFile())
-                    {
-                        errors2 = TryOperation(() => msApp2.SaveToMsAppValidation(temp.FullPath));
-                        errors2.Write(Console.Error);
-                        if (errors2.HasErrors)
-                        {
-                            return;
-                        }
-
-                        bool ok = MsAppTest.Compare(msAppPath, temp.FullPath, TextWriter.Null);
-                    }
-                }
+                }                
             }
             else if (mode == "-pack")
             {
