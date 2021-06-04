@@ -63,7 +63,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (var entry in z.Entries)
                 {
-                    checksumMaker.AddFile(entry.FullName, entry.ToBytes());
+                    checksumMaker.AddFile(FileEntry.FromZip(entry).Name.ToMsAppPath(), entry.ToBytes());
 
                     var fullName = entry.FullName;
                     var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(fullName));
@@ -436,7 +436,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             errors.ChecksumMismatch("Missing file " + file.Key);
                         }
-                        if (fileChecksum != file.Value)
+                        else if (fileChecksum != file.Value)
                         {
                             errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
                         }

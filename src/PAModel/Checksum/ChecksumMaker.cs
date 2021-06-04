@@ -189,7 +189,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var kv in _files.OrderBy(x => x.Key))
             {
-                hash.AppendData(kv.Value);
+                var fileNameInBytes = Encoding.ASCII.GetBytes(kv.Key);
+                hash.AppendData(fileNameInBytes.Concat(kv.Value).ToArray());
                 singleFileHash.AppendData(kv.Value);
                 var singleFileHashResult = singleFileHash.GetHashAndReset();
 

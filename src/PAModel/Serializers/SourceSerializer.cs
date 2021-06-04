@@ -64,6 +64,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
+        public const int MaxControlNameLength = 50;
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
@@ -805,6 +806,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// for a single top level control, such as the App object, a screen, or component
         /// Name refers to the control name
         /// Only in case of AppTest, the topParentName is passed down, since for AppTest the TestSuites are sharded into individual files.
+        /// We truncate the control names to limit it to 50 charactes length (escaped name).
         private static void WriteTopParent(
             DirectoryWriter dir,
             CanvasDocument app,
@@ -816,10 +818,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
 
-            string filename = controlName + ".fx.yaml";
+            var newControlName = TruncateControlNameIfTooLong(controlName);
 
+            string filename = newControlName + ".fx.yaml";
 
-            dir.WriteAllText(subDir, new FilePath(filename), text);
+            dir.WriteAllText(subDir, filename, text);
 
             var extraData = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
@@ -828,19 +831,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Write out of all the other state for roundtripping 
-            string extraContent = (topParentname ?? controlName) + ".editorstate.json";
+            string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
 
             // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
             // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
             if (!File.Exists(Path.Combine(subDir, extraContent)))
             {
-                dir.WriteAllJson(EditorStateDir, new FilePath(extraContent), extraData);
+                dir.WriteAllJson(EditorStateDir, extraContent, extraData);
             }
 
             // Write out component templates next to the component
             if (app._templateStore.TryGetTemplate(name, out var templateState))
             {
-                dir.WriteAllJson(subDir, new FilePath(controlName + ".json"), templateState);
+                dir.WriteAllJson(subDir, newControlName + ".json", templateState);
             }
         }
 
@@ -949,6 +952,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 });
             }
             app._screens[AppTestControlName].Children.Add(controlIR);
+        }
+
+        /// <summary>
+        /// If the control name length is longer than 50, it is truncated and appended with a hash (to avoid collisions).
+        /// Checks the length of the escaped name, since its possible that the length is under 60 before escaping but goes beyond 60 later.
+        /// We do modulo by 1000 of the hash to limit it to 3 characters.
+        /// </summary>
+        /// <returns></returns>
+        private static string TruncateControlNameIfTooLong(string controlName)
+        {
+            var newControlName = Utilities.EscapeFilename(controlName);
+            if (newControlName.Length > MaxControlNameLength)
+            {
+                // limit the hash to 3 characters by doing a module by 1000
+                var hash = (GetHash(newControlName) % 1000).ToString("x3");
+                newControlName = newControlName.Substring(0, MaxControlNameLength - hash.Length) + hash;
+            }
+            return newControlName;
+        }
+
+        /// <summary>
+        /// djb2 algorithm to compute the hash of a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private static ulong GetHash(string str)
+        {
+            ulong hash = 5381;
+            foreach (char c in str)
+            {
+                hash = ((hash << 5) + hash) + c;
+            }
+
+            return hash;
         }
     }
 }

@@ -57,6 +57,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             WriteAllText(subdir, filename, text);
         }
 
+        // Use this if the filename is already escaped.
+        public void WriteAllJson<T>(string subdir, string filename, T obj)
+        {
+            var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
+            text = JsonNormalizer.Normalize(text);
+            WriteAllText(subdir, filename, text);
+        }
+
         public void WriteDoubleEncodedJson(string subdir, FilePath filename, string jsonStr)
         {
             if (!string.IsNullOrWhiteSpace(jsonStr) && jsonStr != "{}")
@@ -76,6 +84,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void WriteAllText(string subdir, FilePath filename, string text)
         {
             string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+            EnsureFileDirExists(path);
+            File.WriteAllText(path, text);
+        }
+
+        // Use this if the filename is already escaped.
+        public void WriteAllText(string subdir, string filename, string text)
+        {
+            string path = Path.Combine(_directory, subdir, filename);
 
             // Check for collision so that we don't overwrite an existing file.
             if (File.Exists(path))
