@@ -375,7 +375,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 // limit the hash to 3 characters by doing a module by 4096 (16^3)
                 var hash = (GetHash(escapedName) % 4096).ToString("x3");
-                escapedName = escapedName.Substring(0, MaxNameLength - hash.Length) + hash;
+                escapedName = escapedName.Substring(0, MaxNameLength - (hash.Length + 1)) + "_" + hash;
             }
             return escapedName;
         }

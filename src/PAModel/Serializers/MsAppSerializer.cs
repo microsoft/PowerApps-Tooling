@@ -225,14 +225,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
 
-                // This is debug only. The server checksum is out of date with the client checksum
-                // The main checksum validation that matters is the repack after unpack
-#if DEBUG
                 // In case the server stamped checksum on the msapp is older than the client, treat it like its missing checksum.
-                var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null
-                                ? true
-                                : ChecksumMaker.GetChecksumVersion(app._checksum.ServerStampedChecksum) < ChecksumMaker.Version;
-                if (!isNullOrOlderChecksum &&  app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
+                var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null || ChecksumMaker.GetChecksumVersion(app._checksum.ServerStampedChecksum) < ChecksumMaker.Version;
+                if (!isNullOrOlderChecksum && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
@@ -259,7 +254,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
-#endif
 
                 app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
                 app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
