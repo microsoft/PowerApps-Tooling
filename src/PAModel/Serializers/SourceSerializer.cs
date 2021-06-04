@@ -64,7 +64,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
-        public const int MaxControlNameLength = 50;
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
@@ -818,7 +817,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
 
-            var newControlName = TruncateControlNameIfTooLong(controlName);
+            var newControlName = Utilities.TruncateNameIfTooLong(controlName);
 
             string filename = newControlName + ".fx.yaml";
 
@@ -952,40 +951,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 });
             }
             app._screens[AppTestControlName].Children.Add(controlIR);
-        }
-
-        /// <summary>
-        /// If the control name length is longer than 50, it is truncated and appended with a hash (to avoid collisions).
-        /// Checks the length of the escaped name, since its possible that the length is under 60 before escaping but goes beyond 60 later.
-        /// We do modulo by 1000 of the hash to limit it to 3 characters.
-        /// </summary>
-        /// <returns></returns>
-        private static string TruncateControlNameIfTooLong(string controlName)
-        {
-            var newControlName = Utilities.EscapeFilename(controlName);
-            if (newControlName.Length > MaxControlNameLength)
-            {
-                // limit the hash to 3 characters by doing a module by 1000
-                var hash = (GetHash(newControlName) % 1000).ToString("x3");
-                newControlName = newControlName.Substring(0, MaxControlNameLength - hash.Length) + hash;
-            }
-            return newControlName;
-        }
-
-        /// <summary>
-        /// djb2 algorithm to compute the hash of a string
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        private static ulong GetHash(string str)
-        {
-            ulong hash = 5381;
-            foreach (char c in str)
-            {
-                hash = ((hash << 5) + hash) + c;
-            }
-
-            return hash;
         }
     }
 }

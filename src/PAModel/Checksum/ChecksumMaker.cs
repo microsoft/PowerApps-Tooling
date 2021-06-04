@@ -21,8 +21,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     /// </summary>
     public class ChecksumMaker
     {
+        // If the checksum is generated with C6 version then treat it as if it's missing.
+        public static string VersionC6 = "C6";
+
         // Given checksum an easy prefix so that we can identify algorithm version changes.
-        public static string Version = "C6";
+        public static string Version = "C7";
 
         public const string ChecksumName = "checksum.json";
 
@@ -190,7 +193,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var kv in _files.OrderBy(x => x.Key))
             {
                 var fileNameInBytes = Encoding.ASCII.GetBytes(kv.Key);
-                hash.AppendData(fileNameInBytes.Concat(kv.Value).ToArray());
+                hash.AppendData(fileNameInBytes);
+                hash.AppendData(kv.Value);
                 singleFileHash.AppendData(kv.Value);
                 var singleFileHashResult = singleFileHash.GetHashAndReset();
 

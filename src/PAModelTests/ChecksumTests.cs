@@ -15,7 +15,7 @@ namespace PAModelTests
     public class ChecksumTests
     {
         [DataTestMethod]
-        [DataRow("MyWeather.msapp", "C6_ZXZwZAG3P0lmCkNAGjsIjYb503akWCyudsk8DEi2aX0=", 11, "References\\DataSources.json", "C6_2dpVudcymwNaHoHtQugF1MSpzsY1I6syuPiB0B+jTYc=")]
+        [DataRow("MyWeather.msapp", "C7_ZXZwZAG3P0lmCkNAGjsIjYb503akWCyudsk8DEi2aX0=", 11, "References\\DataSources.json", "C7_2dpVudcymwNaHoHtQugF1MSpzsY1I6syuPiB0B+jTYc=")]
         public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
@@ -58,28 +58,28 @@ namespace PAModelTests
         // Physically check in the actual checksum results.
         // Checksum must be very stable since these get checked into all our customers now.
         // Use const fields to help for cases when checksums should be the same. 
-        const string C1 = "C6_VrBVZxNCyyq6nNHBFhEi1p8/+LEgauFoOxISpTMfidA=";
-        const string C2 = "C6_bSgalCJTSBUuXr/l9syvLFQtQveX9OeUkRFO+bXaxsY=";
-        const string C3 = "C6_pV4gc7whiqiJA6qNnhtYNgnoy0AV19//Bs/JF+bwvks=";
-        const string C4 = "C6_XRxPTS3gnYmfjZL2jlOD/3STXSC8VniAOx8bfu0p3Bc=";
-        const string C5 = "C6_6mPsJ1PnWkhrz7kOmeIdrtdFtkUH+WrnfOrR/YWwB4Q=";
-        const string C6 = "C6_JpWWJaI11Wjp10J8M8WQ/ZKTOLDqyuh2XpuhrnjNIZI=";
-        const string C7 = "C6_SsPqlOsAkyDo7QmBft/8uwvbbDAEpX0rfiYqNUZdC/s=";
-        const string C8 = "C6_8ZdpKBDUV+KX/OnFZTsCWB/5mlCFI3DynX5f5H2dN+Y=";
-        const string C9 = "C6_mBjUrHTZUVjb7YgLtnZAWXjp25eh8h/uN1rgzH0qTmY=";
-        const string C10 = "C6_B0Pu6r/4VrrelJ4VYXbhTNJQfG6zem/OvUxIEweFAa4=";
-        const string C11 = "C6_rNmFqjFuTa2nSPd+9J11Dkq2CE1d3UHrdRPbakKNsz8=";
+        const string C1 = "C7_VrBVZxNCyyq6nNHBFhEi1p8/+LEgauFoOxISpTMfidA=";
+        const string C2 = "C7_bSgalCJTSBUuXr/l9syvLFQtQveX9OeUkRFO+bXaxsY=";
+        const string C3 = "C7_pV4gc7whiqiJA6qNnhtYNgnoy0AV19//Bs/JF+bwvks=";
+        const string C4 = "C7_XRxPTS3gnYmfjZL2jlOD/3STXSC8VniAOx8bfu0p3Bc=";
+        const string C5 = "C7_6mPsJ1PnWkhrz7kOmeIdrtdFtkUH+WrnfOrR/YWwB4Q=";
+        const string C6 = "C7_JpWWJaI11Wjp10J8M8WQ/ZKTOLDqyuh2XpuhrnjNIZI=";
+        const string C7 = "C7_SsPqlOsAkyDo7QmBft/8uwvbbDAEpX0rfiYqNUZdC/s=";
+        const string C8 = "C7_8ZdpKBDUV+KX/OnFZTsCWB/5mlCFI3DynX5f5H2dN+Y=";
+        const string C9 = "C7_mBjUrHTZUVjb7YgLtnZAWXjp25eh8h/uN1rgzH0qTmY=";
+        const string C10 = "C7_B0Pu6r/4VrrelJ4VYXbhTNJQfG6zem/OvUxIEweFAa4=";
+        const string C11 = "C7_rNmFqjFuTa2nSPd+9J11Dkq2CE1d3UHrdRPbakKNsz8=";
 
-        const string C12 = "C6_xinyFpAi3E1fug553zcwOQphnA26HzffwtFHFYvwBIQ=";
-        const string C13 = "C6_tLvF8n0SCv0h+OVpNzeBfjvnMsfWN2SvOttGXgkzud8=";
-        const string C14 = "C6_But9amnuGeX733SQGNPSq/oEvL0TZdsxLrhtxxaTibg=";
-        const string C15 = "C6_mF50+afGew2Ea527fnP0EhsQSunAh8GbgaBbxpNPKpM=";
-        const string C16 = "C6_tpIqQWd4zNcNsjI8xQKjvoocOT+cACVDU9oEmpw/I7Y=";
-        const string C17 = "C6_nxln5Ugv128wodPRdYyn8U9mXYzeCvPefCJwkLyof8A=";
+        const string C12 = "C7_xinyFpAi3E1fug553zcwOQphnA26HzffwtFHFYvwBIQ=";
+        const string C13 = "C7_tLvF8n0SCv0h+OVpNzeBfjvnMsfWN2SvOttGXgkzud8=";
+        const string C14 = "C7_But9amnuGeX733SQGNPSq/oEvL0TZdsxLrhtxxaTibg=";
+        const string C15 = "C7_mF50+afGew2Ea527fnP0EhsQSunAh8GbgaBbxpNPKpM=";
+        const string C16 = "C7_tpIqQWd4zNcNsjI8xQKjvoocOT+cACVDU9oEmpw/I7Y=";
+        const string C17 = "C7_nxln5Ugv128wodPRdYyn8U9mXYzeCvPefCJwkLyof8A=";
 
-        const string C18 = "C6_HyC9hHMBR+0EPsD6yYguZ+cYv2ovwlgEfh3iygNbWHM=";
-        const string C19 = "C6_f8iCQ1KTyoVxp/xpbpwNXvjEZgIeNIaTXdzTe0q26ps=";
-        const string C20 = "C6_2YUFpLVLEYtdFvV9iLN8F6TM+cWczemMx4m0VEIpfrg=";
+        const string C18 = "C7_HyC9hHMBR+0EPsD6yYguZ+cYv2ovwlgEfh3iygNbWHM=";
+        const string C19 = "C7_f8iCQ1KTyoVxp/xpbpwNXvjEZgIeNIaTXdzTe0q26ps=";
+        const string C20 = "C7_2YUFpLVLEYtdFvV9iLN8F6TM+cWczemMx4m0VEIpfrg=";
 
 
         [DataTestMethod]

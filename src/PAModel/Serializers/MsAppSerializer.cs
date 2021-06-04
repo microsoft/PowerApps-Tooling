@@ -227,7 +227,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // This is debug only. The server checksum is out of date with the client checksum
                 // The main checksum validation that matters is the repack after unpack
 #if DEBUG
-                if (app._checksum.ServerStampedChecksum != null && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
+                // 
+                if (app._checksum.ServerStampedChecksum != null && !app._checksum.ServerStampedChecksum.StartsWith(ChecksumMaker.VersionC6) && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
@@ -240,7 +241,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 errors.ChecksumMismatch("Missing file " + file.Key);
                             }
-                            if (fileChecksum != file.Value)
+                            else if (fileChecksum != file.Value)
                             {
                                 errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
                             }
