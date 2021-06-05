@@ -24,6 +24,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Various utility methods.
     internal static class Utilities
     {
+        public const int MaxNameLength = 50;
+
         // Allows using with { } initializers, which require an Add() method.
         public static void Add<T>(this Stack<T> stack, T item)
         {
@@ -357,6 +359,42 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 default:
                     throw new NotSupportedException("Unrecognized Content Kind for local resource");
             }
+        }
+
+        /// <summary>
+        /// If the name length is longer than 50, it is truncated and appended with a hash (to avoid collisions).
+        /// Checks the length of the escaped name, since its possible that the length is under 60 before escaping but goes beyond 60 later.
+        /// We do modulo by 1000 of the hash to limit it to 3 characters.
+        /// </summary>
+        /// <param name="name">The name that needs to be truncated.</param>
+        /// <returns>Returns the truncated name if the escaped version of it is longer than 50 characters.</returns>
+        public static string TruncateNameIfTooLong(string name)
+        {
+            var escapedName = EscapeFilename(name);
+            if (escapedName.Length > MaxNameLength)
+            {
+                // limit the hash to 3 characters by doing a module by 4096 (16^3)
+                var hash = (GetHash(escapedName) % 4096).ToString("x3");
+                escapedName = escapedName.Substring(0, MaxNameLength - (hash.Length + 1)) + "_" + hash;
+            }
+            return escapedName;
+        }
+
+        /// <summary>
+        /// djb2 algorithm to compute the hash of a string
+        /// This must be determinstic and stable since it's used in file names
+        /// </summary>
+        /// <param name="str">The string for which we need to compute the hash.</param>
+        /// <returns></returns>
+        public static ulong GetHash(string str)
+        {
+            ulong hash = 5381;
+            foreach (char c in str)
+            {
+                hash = ((hash << 5) + hash) + c;
+            }
+
+            return hash;
         }
     }
 }

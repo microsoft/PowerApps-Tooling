@@ -71,5 +71,15 @@ namespace PAModelTests
 
             Assert.AreEqual(path, original);
         }
+
+        [DataTestMethod]
+        [DataRow("Long*Control*Name*Truncation*Tests***", "Long%2aControl%2aName%2aTruncation%2aTests%2a%_959")]
+        [DataRow("TestReallyLoooooooooooooooooooooooooooooooooooongControlName", "TestReallyLooooooooooooooooooooooooooooooooooo_cad")]
+        [DataRow("TestControlName", "TestControlName")]
+        public void TestControlNameTruncation(string originalName, string expectedName)
+        {
+            var truncatedName = Utilities.TruncateNameIfTooLong(originalName);
+            Assert.AreEqual(truncatedName, expectedName);
+        }
     }
 }

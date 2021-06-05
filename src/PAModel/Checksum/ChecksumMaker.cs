@@ -22,7 +22,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ChecksumMaker
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes.
-        public static string Version = "C6";
+        // The checksum is prefix with 'C' and this int value.
+        public static int Version = 7;
 
         public const string ChecksumName = "checksum.json";
 
@@ -175,7 +176,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         internal static string ChecksumToString(byte[] bytes)
         {
-            return Version + "_" + Convert.ToBase64String(bytes);
+            return "C" + Version.ToString() + "_" + Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// Checksum version is of the format: C<int version><hash>. Eg. C6_S88Ujgp7HEnrT7m55yNtgjimcgSoY70Krf8k2HecWYA=
+        /// This method extracts the int version of the checksum.
+        /// </summary>
+        /// <param name="checksum">The checksum.</param>
+        /// <returns>Returns the int version of the checksum</returns>
+        internal static int GetChecksumVersion(string checksum)
+        {
+            var version = checksum.Split('_').First();
+            return int.Parse(version.Substring(1));
         }
 
         /// <summary>
@@ -189,6 +202,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var kv in _files.OrderBy(x => x.Key))
             {
+                var fileNameInBytes = Encoding.ASCII.GetBytes(kv.Key);
+                hash.AppendData(fileNameInBytes);
                 hash.AppendData(kv.Value);
                 singleFileHash.AppendData(kv.Value);
                 var singleFileHashResult = singleFileHash.GetHashAndReset();

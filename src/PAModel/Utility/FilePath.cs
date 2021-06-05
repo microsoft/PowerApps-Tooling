@@ -25,19 +25,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 
         public string ToMsAppPath()
         {
-            return string.Join("\\", _pathSegments);
+            var path = string.Join("\\", _pathSegments);
+
+            // Some paths mistakenly start with DirectorySepChar in the msapp,
+            // We replaced it with `_/` when writing, remove that now. 
+            if (path.StartsWith(FileEntry.FilenameLeadingUnderscore.ToString()))
+            {
+                path = path.TrimStart(FileEntry.FilenameLeadingUnderscore);
+            }
+
+            return path;
         }
 
-        /// <summary>
-        /// Performs escaping on the path, and also truncates the filename to a max length of 60, if longer.
-        /// </summary>
-        /// <returns></returns>
         public string ToPlatformPath()
         {
-            var originalFileName = this.GetFileName();
-            var newFileName = GetTruncatedFileNameIfTooLong(originalFileName);
-            var remainingPath = Path.Combine(_pathSegments.Where(x => x != originalFileName).Select(Utilities.EscapeFilename).ToArray());
-            return Path.Combine(remainingPath, newFileName);
+            return Path.Combine(_pathSegments.Select(Utilities.EscapeFilename).ToArray());
         }
 
         public static FilePath FromPlatformPath(string path)
@@ -148,42 +150,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
                 path = pathWithoutFileName + filename;
             }
             return path;
-        }
-
-        /// <summary>
-        /// If the file name length is longer than 60, it is truncated and appended with a hash (to avoid collisions).
-        /// Checks the length of the escaped file name, since its possible that the length is under 60 before escaping but goes beyond 60 later.
-        /// We do modulo by 1000 of the hash to limit it to 3 characters.
-        /// </summary>
-        /// <returns></returns>
-        private string GetTruncatedFileNameIfTooLong(string fileName)
-        {
-            var newFileName = Utilities.EscapeFilename(fileName);
-            if (newFileName.Length > MaxFileNameLength)
-            {
-                var extension = GetCustomExtension(newFileName);
-
-                // limit the hash to 3 characters by doing a module by 1000
-                var hash = (GetHash(newFileName.Substring(0, newFileName.Length - extension.Length)) % 1000).ToString("x3");
-                newFileName = newFileName.Substring(0, MaxFileNameLength - extension.Length - hash.Length) + hash + extension;
-            }
-            return newFileName;
-        }
-
-        /// <summary>
-        /// djb2 algorithm to compute the hash of a string
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        private ulong GetHash(string str)
-        {
-            ulong hash = 5381;
-            foreach (char c in str)
-            {
-                hash = ((hash << 5) + hash) + c;
-            }
-
-            return hash;
         }
 
         private string GetCustomExtension(string fileName)

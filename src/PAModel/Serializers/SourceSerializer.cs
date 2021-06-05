@@ -805,6 +805,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// for a single top level control, such as the App object, a screen, or component
         /// Name refers to the control name
         /// Only in case of AppTest, the topParentName is passed down, since for AppTest the TestSuites are sharded into individual files.
+        /// We truncate the control names to limit it to 50 charactes length (escaped name).
         private static void WriteTopParent(
             DirectoryWriter dir,
             CanvasDocument app,
@@ -816,10 +817,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var controlName = name;
             var text = PAWriterVisitor.PrettyPrint(ir);
 
-            string filename = controlName + ".fx.yaml";
+            var newControlName = Utilities.TruncateNameIfTooLong(controlName);
 
+            string filename = newControlName + ".fx.yaml";
 
-            dir.WriteAllText(subDir, new FilePath(filename), text);
+            dir.WriteAllText(subDir, filename, text);
 
             var extraData = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
@@ -828,19 +830,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Write out of all the other state for roundtripping 
-            string extraContent = (topParentname ?? controlName) + ".editorstate.json";
+            string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
 
             // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
             // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
             if (!File.Exists(Path.Combine(subDir, extraContent)))
             {
-                dir.WriteAllJson(EditorStateDir, new FilePath(extraContent), extraData);
+                dir.WriteAllJson(EditorStateDir, extraContent, extraData);
             }
 
             // Write out component templates next to the component
             if (app._templateStore.TryGetTemplate(name, out var templateState))
             {
-                dir.WriteAllJson(subDir, new FilePath(controlName + ".json"), templateState);
+                dir.WriteAllJson(subDir, newControlName + ".json", templateState);
             }
         }
 

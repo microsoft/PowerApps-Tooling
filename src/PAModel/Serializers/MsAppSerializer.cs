@@ -7,6 +7,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -63,7 +64,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (var entry in z.Entries)
                 {
-                    checksumMaker.AddFile(entry.FullName, entry.ToBytes());
+                    checksumMaker.AddFile(FileEntry.FromZip(entry).Name.ToMsAppPath(), entry.ToBytes());
 
                     var fullName = entry.FullName;
                     var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(fullName));
@@ -224,10 +225,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Checksums?
                 var currentChecksum = checksumMaker.GetChecksum();
 
-                // This is debug only. The server checksum is out of date with the client checksum
-                // The main checksum validation that matters is the repack after unpack
-#if DEBUG
-                if (app._checksum.ServerStampedChecksum != null && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
+                // In case the server stamped checksum on the msapp is older than the client, treat it like its missing checksum.
+                var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null || ChecksumMaker.GetChecksumVersion(app._checksum.ServerStampedChecksum) < ChecksumMaker.Version;
+                if (!isNullOrOlderChecksum && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
                 {
                     // The server checksum doesn't match the actual contents. 
                     // likely has been tampered.
@@ -240,7 +240,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             {
                                 errors.ChecksumMismatch("Missing file " + file.Key);
                             }
-                            if (fileChecksum != file.Value)
+                            else if (fileChecksum != file.Value)
                             {
                                 errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
                             }
@@ -254,7 +254,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         }
                     }
                 }
-#endif
 
                 app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
                 app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
@@ -436,7 +435,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             errors.ChecksumMismatch("Missing file " + file.Key);
                         }
-                        if (fileChecksum != file.Value)
+                        else if (fileChecksum != file.Value)
                         {
                             errors.ChecksumMismatch($"File {file.Key} checksum does not match on extract");
                         }
