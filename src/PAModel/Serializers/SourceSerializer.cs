@@ -80,14 +80,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (directory2.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new ArgumentException($"Must point to a source directory, not an msapp file ({directory2}");
+                    errors.BadParameter($"Must point to a source directory, not an msapp file ({directory2}");
                 }
             }
 
-            if (!Directory.Exists(directory2))
+            Utilities.VerifyDirectoryExists(errors, directory2);
+
+            if (errors.HasErrors)
             {
-                throw new InvalidOperationException($"No directory {directory2}");
+                return null;
             }
+
             var dir = new DirectoryReader(directory2);
             var app = new CanvasDocument();
             string appInsightsInstumentationKey = null;
@@ -834,7 +837,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
             // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
-            if (!File.Exists(Path.Combine(subDir, extraContent)))
+            if (!dir.FileExists(EditorStateDir, extraContent))
             {
                 dir.WriteAllJson(EditorStateDir, extraContent, extraData);
             }

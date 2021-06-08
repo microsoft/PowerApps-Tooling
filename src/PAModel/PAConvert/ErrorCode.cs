@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 using System;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
@@ -54,6 +52,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Post-unpack validation failed, this always indicates a bug on our side
         UnpackValidationFailed = 3011,
+
+        // Bad parameter (such as a missing file)
+        BadParameter= 3012, 
 
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
@@ -149,6 +150,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void UnsupportedError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedError, default(SourceLocation), $"Not Supported: {message}");
+        }
+
+        public static void BadParameter(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
         }
     }
 }

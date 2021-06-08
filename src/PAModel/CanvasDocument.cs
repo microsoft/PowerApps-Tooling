@@ -23,6 +23,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     /// </summary>
     public class CanvasDocument
     {
+        /// <summary>
+        /// Current source format version. 
+        /// </summary>
+        public Version CurrentSourceVersion => SourceSerializer.CurrentSourceVersion;
+
         // Rules for CanvasDocument
         // - Save/Load must faithfully roundtrip an msapp exactly. 
         // - this is an in-memory representation - so it must parse/shard everything on load. 
@@ -104,7 +109,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("Only works for .msapp files");
+                errors.BadParameter("Only works for .msapp files");                
+            }
+
+            Utilities.VerifyFileExists(errors, fullPathToMsApp);
+            if (errors.HasErrors)
+            {
+                return (null, errors);
             }
 
             using (var stream = new FileStream(fullPathToMsApp, FileMode.Open))
