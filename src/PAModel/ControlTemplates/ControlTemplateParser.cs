@@ -13,7 +13,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
     {
         internal static Regex _reservedIdentifierRegex = new Regex(@"%([a-zA-Z]*)\.RESERVED%");
 
-
         internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
         {
             template = null;
@@ -144,7 +143,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             var defaultOverride = includeProperty.Attribute(ControlMetadataXNames.DefaultValueAttribute);
             if (defaultOverride != null)
                 template.InputDefaults.Add(propertyName, UnescapeReservedName(defaultOverride.Value));
-            else 
+            else
                 template.InputDefaults.Add(propertyName, CommonControlProperties.Instance.GetDefaultValue(propertyName, type) ?? string.Empty);
         }
 
@@ -155,21 +154,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             if (nameAttr == null)
                 return null;
 
+            var typeAttr = property.Attribute(ControlMetadataXNames.DataTypeAttribute);
+
+            // Format
+            var format = string.Empty;
+            var formatAttribute = property.Attribute(ControlMetadataXNames.FormatAttribute);
+            if (formatAttribute != null)
+                format = formatAttribute.Value;
+
+            bool isExpr = false;
+            var exprAttrib = property.Attribute(ControlMetadataXNames.IsExprAttribute);
+            if (exprAttrib != null)
+                bool.TryParse(exprAttrib.Value, out isExpr);
+
             string defaultValue = null;
             string phoneDefaultValue = null;
             string webDefaultValue = null;
 
             var defaultValueAttrib = property.Attribute(ControlMetadataXNames.DefaultValueAttribute);
             if (defaultValueAttrib != null)
-                defaultValue = UnescapeReservedName(defaultValueAttrib.Value);
+                defaultValue = GetExpressionValue(UnescapeReservedName(defaultValueAttrib.Value), typeAttr.Value, isExpr, format);
 
             var phoneDefaultValueAttrib = property.Attribute(ControlMetadataXNames.PhoneDefaultValueAttribute);
             if (phoneDefaultValueAttrib != null)
-                phoneDefaultValue = UnescapeReservedName(phoneDefaultValueAttrib.Value);
+                phoneDefaultValue = GetExpressionValue(UnescapeReservedName(phoneDefaultValueAttrib.Value), typeAttr.Value, isExpr, format);
 
             var webDefaultValueAttrib = property.Attribute(ControlMetadataXNames.WebDefaultValueAttribute);
             if (webDefaultValueAttrib != null)
-                webDefaultValue = UnescapeReservedName(webDefaultValueAttrib.Value);
+                webDefaultValue = GetExpressionValue(UnescapeReservedName(webDefaultValueAttrib.Value), typeAttr.Value, isExpr, format);
 
             return new ControlProperty(nameAttr.Value, defaultValue, phoneDefaultValue, webDefaultValue);
         }
@@ -177,6 +189,31 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
         internal static string UnescapeReservedName(string expression)
         {
             return _reservedIdentifierRegex.Replace(expression, "$1");
+        }
+
+        private static string GetExpressionValue(string value, string type, bool isExpr, string format)
+        {
+            if (isExpr || format == "uri" || IsLocalizationKey(value))
+            {
+                return value;
+            }
+            switch (type)
+            {
+                case "String":
+                    return "\"" + value + "\"";
+                default:
+                    return value;
+            }
+        }
+
+        // Helper to detect localization key default rules
+        // Some default rules like Label.Text are references into localization files
+        // Studio replaces them at design-time with the text from the author's current locale.
+        // We can't do that here, so we ignore localizationkey default rules when processing defaults
+        private static readonly Regex _localizationRegex = new Regex("##(\\w+?)##");
+        internal static bool IsLocalizationKey(string rule)
+        {
+            return _localizationRegex.IsMatch(rule);
         }
     }
 }
