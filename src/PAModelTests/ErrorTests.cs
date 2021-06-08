@@ -12,6 +12,12 @@ namespace PAModelTests
     [TestClass]
     public class ErrorTests
     {
+        public static string PathToValidMsapp = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+
+        public static string PathMissingMsapp = Path.Combine(Environment.CurrentDirectory, "Missing", "Missing.msapp");
+
+        public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
+
         [TestMethod]
         public void OpenCorruptedMsApp()
         {
@@ -26,12 +32,10 @@ namespace PAModelTests
         [TestMethod]
         public void OpenMissingMsApp()
         {
-            (var doc, var errors) = CanvasDocument.LoadFromMsapp(@"x:\missing\missing.msapp");
+            (var doc, var errors) = CanvasDocument.LoadFromMsapp(PathMissingMsapp);
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNull(doc);
         }
-
-        public static string PathToValidMsapp = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
 
         [TestMethod]
         public void OpenBadSources()
@@ -47,7 +51,7 @@ namespace PAModelTests
         [TestMethod]
         public void OpenMissingSources()
         {
-            (var doc, var errors) = CanvasDocument.LoadFromSources(@"x:\missing\missingdir");
+            (var doc, var errors) = CanvasDocument.LoadFromSources(PathMissingDir);
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNull(doc);
         }
