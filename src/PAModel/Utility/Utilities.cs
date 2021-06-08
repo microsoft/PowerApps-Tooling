@@ -396,5 +396,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             return hash;
         }
+
+
+        public static void VerifyFileExists(ErrorContainer errors, string fullpath)
+        {
+            if (!File.Exists(fullpath))
+            {
+                errors.BadParameter($"File not found: {fullpath}");
+            }
+        }
+
+        public static void VerifyDirectoryExists(ErrorContainer errors, string fullpath)
+        {
+            if (!Directory.Exists(fullpath))
+            {
+                errors.BadParameter($"Directory not found: {fullpath}");
+            }
+        }
     }
 }

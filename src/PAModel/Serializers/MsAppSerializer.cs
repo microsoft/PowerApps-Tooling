@@ -384,15 +384,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-
-                throw new InvalidOperationException("Only works for .msapp files");
+                errors.BadParameter("Only works for .msapp files");
+                return;
             }
 
             if (File.Exists(fullpathToMsApp)) // Overwrite!
             {
                 File.Delete(fullpathToMsApp);
             }
-
 
             var checksum = new ChecksumMaker();
 
