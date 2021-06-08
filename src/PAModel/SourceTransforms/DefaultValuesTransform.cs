@@ -14,7 +14,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 {
     internal class DefaultValuesTransform
     {
-        private const string MultiValueDelimiterKey = "MultiValueDelimiter";
         private EditorStateStore _controlStore;
         private Theme _theme;
         private Dictionary<string, ControlTemplate> _templateStore;
@@ -86,16 +85,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     Identifier = defaultkvp.Key,
                     Expression = new ExpressionNode
                     {
-                        Expression = IsMultiValueDelimiterKey(defaultkvp.Key) ? Utilities.EscapePAString(defaultkvp.Value) : defaultkvp.Value
+                        Expression = defaultkvp.Value
                     }
                 });
             }
-        }
-
-        // MultiValueDelimiter key needs escaping since its value in the studio needs to include double quotes.
-        private bool IsMultiValueDelimiterKey(string key)
-        {
-            return key == MultiValueDelimiterKey;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     internal class Theme
     {
         // Outer key is stylename, inner key is property name, inner value is expression
-        private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>();
+        private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         
         public Theme(ThemesJson themeJson)
         {

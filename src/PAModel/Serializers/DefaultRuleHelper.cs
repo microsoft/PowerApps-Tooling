@@ -47,7 +47,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             if (_theme.TryLookup(_styleName, propertyName, out defaultScript))
             {
-                if (IsLocalizationKey(defaultScript))
+                if (ControlTemplateParser.IsLocalizationKey(defaultScript))
                     return false;
                 return true;
             }
@@ -59,7 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
                 defaults.TryGetValue(propertyName, out defaultScript)) ||
                 template.InputDefaults.TryGetValue(propertyName, out defaultScript)))
             {
-                if (IsLocalizationKey(defaultScript))
+                if (ControlTemplateParser.IsLocalizationKey(defaultScript))
                     return false;
 
                 // Found in template.
@@ -89,10 +89,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
                 if (hasVariantDefaults)
                     defaults.AddRange(variantDefaults);
 
-                defaults.AddRange(_template.InputDefaults.Where(kvp => !IsLocalizationKey(kvp.Value) && !(hasVariantDefaults && variantDefaults.ContainsKey(kvp.Key))));
+                defaults.AddRange(_template.InputDefaults.Where(kvp => !ControlTemplateParser.IsLocalizationKey(kvp.Value) && !(hasVariantDefaults && variantDefaults.ContainsKey(kvp.Key))));
             }
 
-            defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !IsLocalizationKey(kvp.Value)));
+            defaults.AddRange(_theme.GetStyle(_styleName).Where(kvp => !ControlTemplateParser.IsLocalizationKey(kvp.Value)));
 
             if (_inResponsiveContext)
             {
@@ -101,16 +101,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers
 
             return defaults;
         }
-
-        // Helper to detect localization key default rules
-        // Some default rules like Label.Text are references into localization files
-        // Studio replaces them at design-time with the text from the author's current locale.
-        // We can't do that here, so we ignore localizationkey default rules when processing defaults
-        private readonly Regex _localizationRegex = new Regex("##(\\w+?)##");
-        private bool IsLocalizationKey(string rule)
-        {
-            return _localizationRegex.IsMatch(rule);
-        }
-
     }
 }
