@@ -18,9 +18,12 @@
     <Description>Preview Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
     <PackageReleaseNotes>
         Notice: 
-            This package is an preview release. - Use at your own risk.
+            This package is a preview release. - Use at your own risk.
             This package is a .NET Standard 2.0 project, intended to work with .NET Framework 4.7.2 or later, and .NET Core 2.2 or later
             We have not stabilized on Namespace or Class names with this package as of yet and things will change as we move though the preview.
+
+        0.3.0-preview
+            Improved error and exception handling, better file sharding, other bug fixes and improvements
 
         0.2.0-preview
             Changed file extension to .fx.yaml, other bug fixes and improvements
