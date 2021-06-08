@@ -834,7 +834,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
             // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
-            if (!File.Exists(Path.Combine(subDir, extraContent)))
+            if (!dir.FileExists(EditorStateDir, extraContent))
             {
                 dir.WriteAllJson(EditorStateDir, extraContent, extraData);
             }

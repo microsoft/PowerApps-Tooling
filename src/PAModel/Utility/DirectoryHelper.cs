@@ -117,6 +117,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             System.IO.FileInfo file = new System.IO.FileInfo(path);
             file.Directory.Create(); // If the directory already exists, this method does nothing.
         }
+
+        /// <summary>
+        /// Checks if the file exists in the specified subdirectory.
+        /// </summary>
+        /// <param name="subdir">The subdirectory</param>
+        /// <param name="filename">Name of  the file.</param>
+        /// <returns>True if the file exists.</returns>
+        public bool FileExists(string subdir, string filename)
+        {
+            string path = Path.Combine(_directory, subdir, filename);
+            return File.Exists(path);
+        }
     }
 
     // Abstraction over file system. 
