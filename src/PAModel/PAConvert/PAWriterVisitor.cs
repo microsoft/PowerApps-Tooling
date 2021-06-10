@@ -145,8 +145,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             context._yaml.WriteStartObject(node.Identifier);
             context._sb.Clear();
+
+            // Write Default property
             node.Default.Accept(this, context);
             context._yaml.WriteProperty("Default", context._sb.ToString());
+
+            // Write InvariantScript property if not null
+            if (node.InvariantScript != null)
+            {
+                context._sb.Clear();
+                node.InvariantScript.Accept(this, context);
+                context._yaml.WriteProperty("InvariantScript", context._sb.ToString());
+            }
+
             context._yaml.WriteEndObject();
         }
     }

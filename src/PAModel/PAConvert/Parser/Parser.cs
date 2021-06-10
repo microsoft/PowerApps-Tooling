@@ -324,6 +324,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                     case YamlTokenKind.Property:
                         if (p.Property == nameof(ArgMetadataBlockNode.Default))
                             argNode.Default = new ExpressionNode() { Expression = p.Value };
+                        else if(p.Property == nameof(ArgMetadataBlockNode.InvariantScript))
+                            argNode.InvariantScript = new ExpressionNode() { Expression = p.Value };
                         else
                         {
                             _errorContainer.ParseError(p.Span, $"Unexpected key in function definition: {p}");
