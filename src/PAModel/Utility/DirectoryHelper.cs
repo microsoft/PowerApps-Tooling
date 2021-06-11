@@ -29,17 +29,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 Directory.CreateDirectory(_directory);
             }
-            foreach (var dir in Directory.EnumerateDirectories(_directory))
+            if (IsValidForDelete())
             {
-                if (dir.EndsWith(".git"))
-                    continue;
-                Directory.Delete(dir, recursive: true);
-            }
-            foreach (var file in Directory.EnumerateFiles(_directory))
-            {
-                if (file.StartsWith(".git"))
-                    continue;
-                File.Delete(file);
+                foreach (var dir in Directory.EnumerateDirectories(_directory))
+                {
+                    if (dir.EndsWith(".git"))
+                        continue;
+                    Directory.Delete(dir, recursive: true);
+                }
+                foreach (var file in Directory.EnumerateFiles(_directory))
+                {
+                    if (file.StartsWith(".git"))
+                        continue;
+                    File.Delete(file);
+                }
             }
         }
 
@@ -128,6 +131,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             string path = Path.Combine(_directory, subdir, filename);
             return File.Exists(path);
+        }
+
+        /// <summary>
+        /// Returns true if it's either an empty directory or it contains CanvasManifest.json file.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsValidForDelete()
+        {
+            return !Directory.EnumerateFiles(_directory).Any()
+                || File.Exists(Path.Combine(_directory, "CanvasManifest.json"));
         }
     }
 
