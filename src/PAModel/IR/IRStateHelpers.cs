@@ -289,7 +289,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                                 continue;
 
-                            // Use InvariantScript expression if present otherwise use Default expression.
                             properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.Default.Expression));
                         }
 
