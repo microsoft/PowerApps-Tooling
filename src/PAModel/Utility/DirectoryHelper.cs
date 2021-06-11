@@ -29,7 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 Directory.CreateDirectory(_directory);
             }
-            if (IsValidForDelete(errors))
+            if (ValidateSafeToDelete(errors))
             {
                 foreach (var dir in Directory.EnumerateDirectories(_directory))
                 {
@@ -137,7 +137,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// Returns true if it's either an empty directory or it contains CanvasManifest.json file.
         /// </summary>
         /// <returns></returns>
-        private bool IsValidForDelete(ErrorContainer errors)
+        private bool ValidateSafeToDelete(ErrorContainer errors)
         {
             if(Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
             {
