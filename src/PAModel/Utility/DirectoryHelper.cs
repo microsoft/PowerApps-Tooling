@@ -23,23 +23,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Remove all subdirectories. This is important to avoid have previous
         // artifacts in the directories that we then pull back when round-tripping.
-        public void DeleteAllSubdirs()
+        public void DeleteAllSubdirs(ErrorContainer errors)
         {
             if (!Directory.Exists(_directory))
             {
                 Directory.CreateDirectory(_directory);
             }
-            foreach (var dir in Directory.EnumerateDirectories(_directory))
+            if (ValidateSafeToDelete(errors))
             {
-                if (dir.EndsWith(".git"))
-                    continue;
-                Directory.Delete(dir, recursive: true);
-            }
-            foreach (var file in Directory.EnumerateFiles(_directory))
-            {
-                if (file.StartsWith(".git"))
-                    continue;
-                File.Delete(file);
+                foreach (var dir in Directory.EnumerateDirectories(_directory))
+                {
+                    if (dir.EndsWith(".git"))
+                        continue;
+                    Directory.Delete(dir, recursive: true);
+                }
+                foreach (var file in Directory.EnumerateFiles(_directory))
+                {
+                    if (file.StartsWith(".git"))
+                        continue;
+                    File.Delete(file);
+                }
             }
         }
 
@@ -128,6 +131,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             string path = Path.Combine(_directory, subdir, filename);
             return File.Exists(path);
+        }
+
+        /// <summary>
+        /// Returns true if it's either an empty directory or it contains CanvasManifest.json file.
+        /// </summary>
+        /// <returns></returns>
+        private bool ValidateSafeToDelete(ErrorContainer errors)
+        {
+            if(Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
+            {
+                errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked.");
+                throw new DocumentException();
+            }
+            return true;
         }
     }
 
