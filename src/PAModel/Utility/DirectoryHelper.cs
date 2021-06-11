@@ -23,13 +23,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Remove all subdirectories. This is important to avoid have previous
         // artifacts in the directories that we then pull back when round-tripping.
-        public void DeleteAllSubdirs()
+        public void DeleteAllSubdirs(ErrorContainer errors)
         {
             if (!Directory.Exists(_directory))
             {
                 Directory.CreateDirectory(_directory);
             }
-            if (IsValidForDelete())
+            if (IsValidForDelete(errors))
             {
                 foreach (var dir in Directory.EnumerateDirectories(_directory))
                 {
@@ -137,10 +137,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// Returns true if it's either an empty directory or it contains CanvasManifest.json file.
         /// </summary>
         /// <returns></returns>
-        private bool IsValidForDelete()
+        private bool IsValidForDelete(ErrorContainer errors)
         {
-            return !Directory.EnumerateFiles(_directory).Any()
-                || File.Exists(Path.Combine(_directory, "CanvasManifest.json"));
+            if(Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
+            {
+                errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked.");
+                throw new DocumentException();
+            }
+            return true;
         }
     }
 

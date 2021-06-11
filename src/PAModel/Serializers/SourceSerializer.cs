@@ -440,7 +440,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void SaveAsSource(CanvasDocument app, string directory2, ErrorContainer errors)
         {
             var dir = new DirectoryWriter(directory2);
-            dir.DeleteAllSubdirs();
+            dir.DeleteAllSubdirs(errors);
 
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
