@@ -79,12 +79,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Default = new ExpressionNode()
                                 {
-                                    Expression = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
-                                },
-                                // In few cases the value of InvariantScript for parameter property could be different from its default value, hence storing this information explictily.
-                                InvariantScript = new ExpressionNode()
-                                {
                                     Expression = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript
+                                                 ?? arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
                                 }
                             });
 
@@ -294,7 +290,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 continue;
 
                             // Use InvariantScript expression if present otherwise use Default expression.
-                            properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.InvariantScript.Expression ?? arg.Default.Expression));
+                            properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.Default.Expression));
                         }
 
                         RepopulateTemplateCustomProperties(func, templateState, errors);

@@ -155,10 +155,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         public string Identifier;
         public ExpressionNode Default;
 
-        // In certain cases the Default value is not used as the InvariantScript value in the RuleEntry of the Parameter property.
-        // Store this explicitly if that is the case to avoid modifying the app definition.
-        public ExpressionNode InvariantScript { get; set; }
-
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
         {
             visitor.Visit(this, context);
