@@ -15,20 +15,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class IRStateHelpers
     {
-        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
+        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR, ErrorContainer errors)
         {
             var topParentJson = file.Value.TopParent;
-            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR);
+            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR, errors);
         }
 
-        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
+        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR, ErrorContainer errors)
         {
             // Bottom up, recursively process children
             var children = new List<BlockNode>();
             var childIndex = 0;
             foreach (var child in control.Children)
             {
-                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock);
+                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock, errors);
                 children.Add(childBlock);
                 ++childIndex;
             }
@@ -74,13 +74,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
                             });
 
+                            var invariantScriptValue = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
+                            var defaultScriptValue = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n");
+                            if (invariantScriptValue != defaultScriptValue)
+                            {
+                                errors.ValidationError($"Default script does not match with InvariantScript value for parameter: {arg.Name} for custom property: {customProp.Name}. " +
+                                    $"Please save the app in studio again and then retry unpacking.");
+                            }
+
                             argMetadata.Add(new ArgMetadataBlockNode()
                             {
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Default = new ExpressionNode()
                                 {
-                                    Expression = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript
-                                                 ?? arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
+                                    Expression = invariantScriptValue.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
                                 }
                             });
 

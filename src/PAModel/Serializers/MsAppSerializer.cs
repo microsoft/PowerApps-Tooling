@@ -154,7 +154,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     app._entropy.ComponentIndexes.Add(ctrl.Name, ctrl.Index);
                                 }
 
-                                IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, app._entropy, out var controlIR);
+                                IRStateHelpers.SplitIRAndState(sf, app._editorStateStore, app._templateStore, app._entropy, out var controlIR, errors);
                                 if (kind == FileKind.ComponentSrc)
                                     app._components.Add(sf.ControlName, controlIR);
                                 else
