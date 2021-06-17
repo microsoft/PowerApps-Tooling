@@ -376,8 +376,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             // Make sure to load the the Test_7F478737223C4B69.fx.yaml file first to add the top parent control.
-            var appTestControl = directory.EnumerateFiles(TestDir, AppTestControlName + ".fx.yaml")?.First();
-            AddControl(app, appTestControl._relativeName, false, appTestControl.GetContents(), errors);
+            var appTestControl = directory.EnumerateFiles(TestDir, AppTestControlName + ".fx.yaml").FirstOrDefault();
+            if (appTestControl != null)
+            {
+                AddControl(app, appTestControl._relativeName, false, appTestControl.GetContents(), errors);
+            }
             foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
                 if (file._relativeName != AppTestControlName + ".fx.yaml")
