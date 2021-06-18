@@ -53,7 +53,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         ComponentReferences, // ComponentReferences.json
 
         // AppInsights
-        AppInsightsKey
+        AppInsightsKey,
+
+        // AppTest parent control source file
+        AppTestParentControl
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -62,7 +65,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         // Name relative to root. Can be triaged to a FileKind
         public FilePath Name;
-        
+
         public byte[] RawBytes;
 
         public FileEntry() { }
@@ -127,7 +130,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"ControlTemplates.json", FileKind.Templates },
             {"Connections.json", FileKind.Connections },
             {"ComponentReferences.json", FileKind.ComponentReferences },
-            {"AppInsightsKey.json", FileKind.AppInsightsKey }
+            {"AppInsightsKey.json", FileKind.AppInsightsKey },
+            { "Test_7F478737223C4B69.fx.yaml", FileKind.AppTestParentControl }
         };
 
 

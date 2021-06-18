@@ -375,10 +375,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
+            // Make sure to load the the Test_7F478737223C4B69.fx.yaml file first to add the top parent control.
+            var shardedTestSuites = new List<DirectoryReader.Entry>();
             foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+                if (file.Kind == FileKind.AppTestParentControl)
+                {
+                    AddControl(app, file._relativeName, false, file.GetContents(), errors);
+                }
+                else
+                {
+                    shardedTestSuites.Add(file);
+                }
             }
+            shardedTestSuites.ForEach(x => AddControl(app, x._relativeName, false, x.GetContents(), errors));
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -413,8 +423,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // validate that all the packages refferred are not accidentally deleted from pkgs dierectory
                 ValidateIfTemplateExists(app, controlIR, controlIR, errors);
 
-                // Since the TestSuites are sharded into individual files instead of being in a top control.
-                // so we need to reconstruct the parent control by adding individual TestSuite as the chiild.
+                // Since the TestSuites are sharded into individual files make sure to add them as children of AppTest control
                 if (AppTestTransform.IsTestSuite(controlIR.Name.Kind.TypeName))
                 {
                     AddTestSuiteControl(app, controlIR);
@@ -463,18 +472,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var isTest = controlName == AppTestControlName;
                 var subDir = isTest ? TestDir : CodeDir;
 
-                // For AppTest conrol, shard TestSuites into individual files (using DisplayName as the fileName), to make the merging of two (or more) apps easier.
-                if (isTest && control.Value.Children.Count > 0)
-                {
-                    foreach (var child in control.Value.Children)
-                    {
-                        WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
-                    }
-                }
-                else
-                {
-                    WriteTopParent(dir, app, control.Key, control.Value, subDir);
-                }
+                WriteTopParent(dir, app, control.Key, control.Value, subDir);
             }
 
             foreach (var control in app._components)
@@ -818,12 +816,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string topParentname = null)
         {
             var controlName = name;
-            var text = PAWriterVisitor.PrettyPrint(ir);
-
             var newControlName = Utilities.TruncateNameIfTooLong(controlName);
 
             string filename = newControlName + ".fx.yaml";
 
+            // For AppTest control shard each test suite into individual file.
+            if (controlName == AppTestControlName)
+            {
+                foreach (var child in ir.Children)
+                {
+                    WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
+                }
+
+                // Clear the children since they have already been sharded into their individual files.
+                ir.Children.Clear();
+            }
+
+            var text = PAWriterVisitor.PrettyPrint(ir);
             dir.WriteAllText(subDir, filename, text);
 
             var extraData = new Dictionary<string, ControlState>();
