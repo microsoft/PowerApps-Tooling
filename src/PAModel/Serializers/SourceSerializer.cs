@@ -376,18 +376,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             // Make sure to load the the Test_7F478737223C4B69.fx.yaml file first to add the top parent control.
-            var appTestControl = directory.EnumerateFiles(TestDir, AppTestControlName + ".fx.yaml").FirstOrDefault();
-            if (appTestControl != null)
-            {
-                AddControl(app, appTestControl._relativeName, false, appTestControl.GetContents(), errors);
-            }
+            var shardedTestSuites = new List<DirectoryReader.Entry>();
             foreach (var file in directory.EnumerateFiles(TestDir, "*.fx.yaml"))
             {
-                if (file._relativeName != AppTestControlName + ".fx.yaml")
+                if (file.Kind == FileKind.AppTestParentControl)
                 {
                     AddControl(app, file._relativeName, false, file.GetContents(), errors);
                 }
+                else
+                {
+                    shardedTestSuites.Add(file);
+                }
             }
+            shardedTestSuites.ForEach(x => AddControl(app, x._relativeName, false, x.GetContents(), errors));
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -820,9 +821,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string filename = newControlName + ".fx.yaml";
 
             // For AppTest control shard each test suite into individual file.
-            if(controlName == AppTestControlName)
+            if (controlName == AppTestControlName)
             {
-                foreach(var child in ir.Children)
+                foreach (var child in ir.Children)
                 {
                     WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
                 }
