@@ -2,7 +2,7 @@
 
 # Power Apps Source File Pack and Unpack Utility
 
-**This project is still in Experimental - format may change **
+**This project is still in Experimental - format may change**
  
 **We welcome feedback on the project, file format, and capabilities.** 
 
@@ -16,17 +16,23 @@ This tool enables Canvas apps to be edited outside of Power Apps Studio and mana
 
 This is similar to the [Solution Packager](https://docs.microsoft.com/en-us/power-platform/alm/solution-packager-tool) for Microsoft Dataverse.
 
-## Usage
-Use the test console app to unpack/pack today.  In the future, this functionality will be included with the [Power Apps CLI](https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/powerapps-cli).
+## Power Platform CLI usage
 
-You will need [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1) in order to build. 
+To get started, download and install the [Microsoft Power Platform CLI](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/powerapps-cli).
+
+To unpack a .msapp file: `pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder`
+To pack a .msapp file: `pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder`
+
+## Test app usage
+
+You can also use this functionality stand alone, using our test console app.  
+
+Download and install the [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1) in order to build.
 Build the test console app by running: `\build.cmd`  
 This will create: `\bin\Debug\PASopa\PASopa.exe`
 
 To unpack a .msapp file: `pasopa -unpack FromApp.msapp ToSourceFolder`
 To pack a .msapp file: `pasopa -pack ToApp.msapp FromSourceFolder`
-
-The tool aggressively ensures that it can faithfully round trip the conversion from .msapp to source files.  An unpack will immediately do a sanity test by performing a repack and compare.
 
 ## Folder structure
 Unpack and pack use this folder structure:
