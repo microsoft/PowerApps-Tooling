@@ -59,6 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
         internal AppCheckerResultJson _appCheckerResultJson;
+        internal Dictionary<string, PcfControl> _powerAppsControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
         // Environment-specific information
         // Extracted from _properties.LocalConnectionReferences
@@ -109,7 +110,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
-                errors.BadParameter("Only works for .msapp files");                
+                errors.BadParameter("Only works for .msapp files");
             }
 
             Utilities.VerifyFileExists(errors, fullPathToMsApp);
@@ -348,6 +349,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
 
+            // PCF tempaltes
+            if (_powerAppsControls.Count == 0)
+            {
+                foreach (var kvp in _templateStore.Contents)
+                {
+                    if (kvp.Value.IsPcfControl && kvp.Value.DynamicControlDefinitionJson != null)
+                    {
+                        _powerAppsControls.Add(kvp.Key, PcfControl.GetPowerAppsControlFromJson(kvp.Value));
+                        kvp.Value.DynamicControlDefinitionJson = null;
+                    }
+                }
+            }
+
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
@@ -389,6 +403,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
+
+            // Generate DynamicControlDefinitionJson for power apps controls
+            foreach (var kvp in _powerAppsControls)
+            {
+                if (_templateStore.TryGetTemplate(kvp.Key, out var template))
+                {
+                    template.DynamicControlDefinitionJson = PcfControl.GenerateDynamicControlDefinition(kvp.Value);
+                }
+            }
 
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 {
@@ -38,6 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         // Present on PCF
         public string TemplateDisplayName { get; set; } = null;
+        public string DynamicControlDefinitionJson { get; set; }
 
         public ComponentManifest ComponentManifest { get; set; } = null;
 
@@ -53,6 +55,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // Some of the xml templates have widget root node, and these are templates which are returned by the doc server in the UsedTemplates collection.
         public bool IsWidgetTemplate { get; set; }
 
+        public bool IsPcfControl { get; set; }
 
         public CombinedTemplateState() { }
 
@@ -70,6 +73,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             ComponentType = template.ComponentType;
             FirstParty = template.FirstParty;
             CustomControlDefinitionJson = template.CustomControlDefinitionJson;
+            DynamicControlDefinitionJson = template.DynamicControlDefinitionJson;
+            IsPcfControl = template.Id.StartsWith(Template.PcfControl);
         }
 
         public ControlInfoJson.Template ToControlInfoTemplate()
@@ -87,7 +92,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
                 ExtensionData = ExtensionData,
                 ComponentType = ComponentType,
                 FirstParty = FirstParty,
-                CustomControlDefinitionJson = CustomControlDefinitionJson
+                CustomControlDefinitionJson = CustomControlDefinitionJson,
+                DynamicControlDefinitionJson = DynamicControlDefinitionJson
             };
         }
 

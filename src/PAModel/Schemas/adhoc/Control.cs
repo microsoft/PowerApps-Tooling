@@ -35,6 +35,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public const string DataComponentId = "http://microsoft.com/appmagic/DataComponent";
             public const string UxComponentId = "http://microsoft.com/appmagic/Component";
             public const string CommandComponentId = "http://microsoft.com/appmagic/CommandComponent";
+            public const string PcfControl = "http://microsoft.com/appmagic/powercontrol";
             public string Id { get; set; }
 
             // Very important for data components.
@@ -54,6 +55,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Present on PCF
             public string TemplateDisplayName { get; set; } = null;
             public bool FirstParty { get; set; }
+            public string DynamicControlDefinitionJson { get; set; }
 
             // Present on Legacy DataTable columns
             public string CustomControlDefinitionJson { get; set; } = null;
