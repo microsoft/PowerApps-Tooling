@@ -55,7 +55,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var name = customProp.Name;
                         customPropsToHide.Add(name);
-                        var expression = control.Rules.First(rule => rule.Property == name).InvariantScript;
+                        var rule = control.Rules.FirstOrDefault(rule => rule.Property == name);
+                        if (rule == null)
+                        {
+                            // Control does not have a rule for the custom property. 
+                            continue;
+                        }
+                        var expression = rule.InvariantScript;
                         var expressionNode = new ExpressionNode() { Expression = expression };
 
                         var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
