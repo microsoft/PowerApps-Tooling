@@ -60,6 +60,8 @@ Obj1:
 
         // Different ending newlines will have different escapes. 
         [DataTestMethod]
+        [DataRow("  1")] // leading whitespace
+        [DataRow("  1\n2\n3")] // leading whitespace with multiline
         [DataRow("12 + \r\n\r\n34")]
         [DataRow("abc\r\ndef")]
         [DataRow("\"brows_4.0\"")]
