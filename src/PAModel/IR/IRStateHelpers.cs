@@ -85,7 +85,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Default = new ExpressionNode()
                                 {
-                                    Expression = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
+                                    Expression = arg.ScopeVariableInfo.DefaultRule
                                 },
                             });
 
@@ -100,7 +100,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             Identifier = PAConstants.ThisPropertyIdentifier,
                             Default = new ExpressionNode()
                             {
-                                Expression = expression.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart(),
+                                Expression = expression,
                             },
                         });
 
@@ -197,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static (PropertyNode prop, PropertyState state) SplitProperty(ControlInfoJson.RuleEntry rule)
         {
-            var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart();
+            var script = rule.InvariantScript;
             var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
             var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
             return (prop, state);
