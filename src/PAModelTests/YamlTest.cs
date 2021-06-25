@@ -60,6 +60,7 @@ Obj1:
 
         // Different ending newlines will have different escapes. 
         [DataTestMethod]
+        [DataRow("abc\r\ndef")]
         [DataRow("\"brows_4.0\"")]
         [DataRow("a # b")] // Test with yaml comment. 
         [DataRow("x")] // easy, no newlines. 
