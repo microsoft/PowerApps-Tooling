@@ -60,6 +60,7 @@ Obj1:
 
         // Different ending newlines will have different escapes. 
         [DataTestMethod]
+        [DataRow("12 + \r\n\r\n34")]
         [DataRow("abc\r\ndef")]
         [DataRow("\"brows_4.0\"")]
         [DataRow("a # b")] // Test with yaml comment. 
@@ -80,9 +81,11 @@ Obj1:
 
             var text = sw.ToString();
 
+            var normalizedValue = NormNewlines(value);
+
             // Validate it passes YamlDotNet
             var valueFromYaml = ParseSinglePropertyViaYamlDotNot(text);
-            Assert.AreEqual(value, valueFromYaml);            
+            Assert.AreEqual(normalizedValue, NormNewlines(valueFromYaml));            
 
             // Validate it passes our subset. 
             var sr = new StringReader(text);
@@ -91,8 +94,13 @@ Obj1:
             Assert.AreEqual(YamlTokenKind.Property, p.Kind);
             Assert.AreEqual("Foo", p.Property);
 
-            var normalizedValue = value.Replace("\r\n", "\n").Replace("\r", "\n");
-            Assert.AreEqual(normalizedValue, p.Value.Replace("\r\n", "\n").Replace("\r", "\n"));
+            Assert.AreEqual(normalizedValue, NormNewlines(p.Value));
+        }
+
+        // Normalize newlines across OSes. 
+        static string NormNewlines(string x)
+        {
+            return x.Replace("\r\n", "\n").Replace("\r", "\n");
         }
 
         // Error on 1st token read
