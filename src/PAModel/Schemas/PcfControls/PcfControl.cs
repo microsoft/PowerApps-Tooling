@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
+namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 {
-    class PcfControl
+    internal class PcfControl
     {
         private const string EventsKey = "Events";
         private const string CommonEventsKey = "CommonEvents";
@@ -23,7 +24,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 
         public string ControlNamespace { get; set; }
         public string ControlConstructor { get; set; }
-        public string FullyQualifiedControlName { get; set; }
         public Resource[] Resources { get; set; }
         public IDictionary<string, string> SubscribedFunctionalities { get; set; }
         public IEnumerable<Property> Properties { get; set; }
@@ -34,131 +34,87 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public IEnumerable<Event> Events { get; set; }
         public IEnumerable<Event> CommonEvents { get; set; }
 
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
+
+
+        private static IEnumerable<IDictionary<string, AuthConfigProperty>> GetAutConfigProperties(string authConfigPropertiesJson)
+        {
+            var authConfigPropertiesGroup = new List<IDictionary<string, AuthConfigProperty>>();
+            using (var doc = JsonDocument.Parse(authConfigPropertiesJson))
+            {
+                var je = doc.RootElement;
+                foreach (var section in je.EnumerateArray())
+                {
+                    var authConfigProperties = new Dictionary<string, AuthConfigProperty>();
+                    foreach (var authProperty in section.EnumerateObject())
+                    {
+                        authConfigProperties.Add(authProperty.Name, authProperty.Value.ToObject<AuthConfigProperty>());
+                    }
+                    authConfigPropertiesGroup.Add(authConfigProperties);
+                }
+            }
+            return authConfigPropertiesGroup;
+        }
+
         public static PcfControl GetPowerAppsControlFromJson(CombinedTemplateState template)
         {
-            var powerAppControl = new PcfControl();
+            var pcfControl = new PcfControl();
 
-            var dynamicControlDefinition = Utilities.JsonParse<IDictionary<string, string>>(template.DynamicControlDefinitionJson);
+            var dynamicControlDefinition = Utilities.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
+            pcfControl.ControlNamespace = dynamicControlDefinition.ControlNamespace;
+            pcfControl.ControlConstructor = dynamicControlDefinition.ControlConstructor;
+            pcfControl.Resources = dynamicControlDefinition.Resources != null ? Utilities.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
+            pcfControl.Properties = dynamicControlDefinition.Properties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
+            pcfControl.AuthConfigProperties = dynamicControlDefinition.AuthConfigProperties != null ? GetAutConfigProperties(dynamicControlDefinition.AuthConfigProperties) : null;
+            pcfControl.DataConnectors = dynamicControlDefinition.DataConnectors != null ? Utilities.JsonParse<IEnumerable<DataConnectorMetadata>>(dynamicControlDefinition.DataConnectors) : null;
+            pcfControl.SubscribedFunctionalities = dynamicControlDefinition.SubscribedFunctionalities != null ? Utilities.JsonParse<Dictionary<string, string>>(dynamicControlDefinition.SubscribedFunctionalities) : null;
+            pcfControl.IncludedProperties = dynamicControlDefinition.IncludedProperties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.IncludedProperties) : null;
+            pcfControl.Events = dynamicControlDefinition.Events != null ? Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.Events) : null;
+            pcfControl.CommonEvents = dynamicControlDefinition.CommonEvents != null ? Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.CommonEvents) : null;
+            pcfControl.PropertyDependencies = dynamicControlDefinition.PropertyDependencies != null ? Utilities.JsonParse<IEnumerable<PropertyDependency>>(dynamicControlDefinition.PropertyDependencies) : null;
+            pcfControl.ExtensionData = dynamicControlDefinition.ExtensionData;
 
-            if (dynamicControlDefinition.ContainsKey(NamespaceKey))
-            {
-                powerAppControl.ControlNamespace = dynamicControlDefinition[NamespaceKey];
-            }
-            if (dynamicControlDefinition.ContainsKey(ConstructorKey))
-            {
-                powerAppControl.ControlConstructor = dynamicControlDefinition[ConstructorKey];
-            }
-            if (dynamicControlDefinition.ContainsKey(ResourcesKey))
-            {
-                powerAppControl.Resources = Utilities.JsonParse<Resource[]>(dynamicControlDefinition[ResourcesKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(PropertiesKey))
-            {
-                powerAppControl.Properties = Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition[PropertiesKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(AuthConfigPropertiesKey))
-            {
-                var authConfigPropertiesGroup = new List<IDictionary<string, AuthConfigProperty>>();
-                using (var doc = JsonDocument.Parse(dynamicControlDefinition[AuthConfigPropertiesKey]))
-                {
-                    var je = doc.RootElement;
-                    foreach (var section in je.EnumerateArray())
-                    {
-                        var authConfigProperties = new Dictionary<string, AuthConfigProperty>();
-                        foreach (var authProperty in section.EnumerateObject())
-                        {
-                            authConfigProperties.Add(authProperty.Name, authProperty.Value.ToObject<AuthConfigProperty>());
-                        }
-                        authConfigPropertiesGroup.Add(authConfigProperties);
-                    }
-                }
-                powerAppControl.AuthConfigProperties = authConfigPropertiesGroup;
-            }
-            if (dynamicControlDefinition.ContainsKey(DataConnectorsKey))
-            {
-                powerAppControl.DataConnectors = Utilities.JsonParse<IEnumerable<DataConnectorMetadata>>(dynamicControlDefinition[DataConnectorsKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(SubscribedFunctionalitiesKey))
-            {
-                powerAppControl.SubscribedFunctionalities = Utilities.JsonParse<Dictionary<string, string>>(dynamicControlDefinition[SubscribedFunctionalitiesKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(IncludedPropertiesKey))
-            {
-                powerAppControl.IncludedProperties = Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition[IncludedPropertiesKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(EventsKey))
-            {
-                powerAppControl.Events = Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition[EventsKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(CommonEventsKey))
-            {
-                powerAppControl.CommonEvents = Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition[CommonEventsKey]);
-            }
-            if (dynamicControlDefinition.ContainsKey(PropertyDependenciesKey))
-            {
-                powerAppControl.PropertyDependencies = Utilities.JsonParse<IEnumerable<PropertyDependency>>(dynamicControlDefinition[PropertyDependenciesKey]);
-            }
-
-            return powerAppControl;
+            return pcfControl;
         }
 
         internal static string GenerateDynamicControlDefinition(PcfControl control)
         {
             // PowerApps controls require dynamic control definition added to control's template.
-            IDictionary<string, string> _dynamicControlDefinition = new Dictionary<string, string>
-            {
-                { NamespaceKey, control.ControlNamespace },
-                { ConstructorKey, control.ControlConstructor }
-            };
-
+            PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded() { ExtensionData = new Dictionary<string, object>() };
+            _dynamicControlDefinition.ControlNamespace = control.ControlNamespace;
+            _dynamicControlDefinition.ControlConstructor = control.ControlConstructor;
             var jsonOptions = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+            _dynamicControlDefinition.Resources = control.Resources != null ? JsonSerializer.Serialize(control.Resources, jsonOptions) : null;
+            _dynamicControlDefinition.Properties = control.Properties != null ? JsonSerializer.Serialize(control.Properties, jsonOptions) : null;
+            _dynamicControlDefinition.IncludedProperties = control.IncludedProperties != null ? JsonSerializer.Serialize(control.IncludedProperties, jsonOptions) : null ;
+            _dynamicControlDefinition.Events = control.Events != null ? JsonSerializer.Serialize(control.Events, jsonOptions) : null;
+            _dynamicControlDefinition.CommonEvents = control.CommonEvents != null ? JsonSerializer.Serialize(control.CommonEvents, jsonOptions) : null;
+            _dynamicControlDefinition.PropertyDependencies = control.PropertyDependencies != null ? JsonSerializer.Serialize(control.PropertyDependencies, jsonOptions) : null;
+            _dynamicControlDefinition.SubscribedFunctionalities = control.SubscribedFunctionalities != null ? JsonSerializer.Serialize(control.SubscribedFunctionalities, jsonOptions) : null;
+            _dynamicControlDefinition.AuthConfigProperties = control.AuthConfigProperties != null ? JsonSerializer.Serialize(control.AuthConfigProperties, jsonOptions) : null;
+            _dynamicControlDefinition.DataConnectors = control.DataConnectors != null ? JsonSerializer.Serialize(control.DataConnectors, jsonOptions) : null;
 
-            var resources = JsonSerializer.Serialize(control.Resources, jsonOptions);
-            _dynamicControlDefinition.Add(ResourcesKey, resources);
-
-            var properties = JsonSerializer.Serialize(control.Properties, jsonOptions);
-            _dynamicControlDefinition.Add(PropertiesKey, properties);
-
-            var includedProperties = JsonSerializer.Serialize(control.IncludedProperties, jsonOptions);
-            _dynamicControlDefinition.Add(IncludedPropertiesKey, includedProperties);
-
-            if (control.Events?.Count() > 0)
-            {
-                var events = JsonSerializer.Serialize(control.Events, jsonOptions);
-                _dynamicControlDefinition.Add(EventsKey, events);
-            }
-
-            if (control.CommonEvents?.Count() > 0)
-            {
-                var commonEvents = JsonSerializer.Serialize(control.CommonEvents, jsonOptions);
-                _dynamicControlDefinition.Add(CommonEventsKey, commonEvents);
-            }
-
-            if (control.PropertyDependencies?.Count() > 0)
-            {
-                var propertyDependencies = JsonSerializer.Serialize(control.PropertyDependencies, jsonOptions);
-                _dynamicControlDefinition.Add(PropertyDependenciesKey, propertyDependencies);
-            }
-
-            if (control.SubscribedFunctionalities?.Count() > 0)
-            {
-                var subscribedFunctionalities = JsonSerializer.Serialize(control.SubscribedFunctionalities, jsonOptions);
-                _dynamicControlDefinition.Add(SubscribedFunctionalitiesKey, subscribedFunctionalities);
-            }
-
-            if (control.AuthConfigProperties?.Count() > 0)
-            {
-                var authConfigProperties = JsonSerializer.Serialize(control.AuthConfigProperties, jsonOptions);
-                _dynamicControlDefinition.Add(AuthConfigPropertiesKey, authConfigProperties);
-            }
-
-            if (control.DataConnectors?.Count() > 0)
-            {
-                var dataConnectors = JsonSerializer.Serialize(control.DataConnectors, jsonOptions);
-                _dynamicControlDefinition.Add(DataConnectorsKey, dataConnectors);
-            }
-
-            return JsonSerializer.Serialize(_dynamicControlDefinition, jsonOptions);
+            return Utilities.JsonSerialize(_dynamicControlDefinition);
         }
+    }
+
+    internal class PcfControlDoublyEncoded
+    {
+        public string ControlNamespace { get; set; }
+        public string ControlConstructor { get; set; }
+        public string FullyQualifiedControlName { get; set; }
+        public string Resources { get; set; }
+        public string SubscribedFunctionalities { get; set; }
+        public string Properties { get; set; }
+        public string IncludedProperties { get; set; }
+        public string AuthConfigProperties { get; set; }
+        public string PropertyDependencies { get; set; }
+        public string DataConnectors { get; set; }
+        public string Events { get; set; }
+        public string CommonEvents { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
     }
 }

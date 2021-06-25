@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
@@ -313,7 +314,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             foreach(var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
             {
-                app._powerAppsControls.Add(new FilePath(file._relativeName).GetFileNameWithoutExtension(), file.ToObject<PcfControl>());
+                app._pcfControls.Add(new FilePath(file._relativeName).GetFileNameWithoutExtension(), file.ToObject<PcfControl>());
             }
         }
 
@@ -475,7 +476,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // For pcf control shard the templates
-            foreach (var kvp in app._powerAppsControls)
+            foreach (var kvp in app._pcfControls)
             {
                 dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, kvp.Key + ".json"), kvp.Value);
             }
@@ -953,15 +954,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
                     }
                     continue;
-                }
-                // PCF are dynamically imported controls and their template definition is stored in the DynamicControlDefinitionJson property, check if that exists.
-                else if (templateState.Id.StartsWith(Template.PcfControl))
-                {
-                    if (!app._powerAppsControls.ContainsKey(child.Name.Kind.TypeName))
-                    {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Power control template: {templateState.TemplateDisplayName} not found in pkgs/PcfControlTemplates directory and is referred in {root.Name.Identifier}. " +
-                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
-                    }
                 }
             }
         }
