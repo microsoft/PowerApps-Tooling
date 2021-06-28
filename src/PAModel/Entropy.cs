@@ -58,6 +58,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is resource name, value is filename
         public Dictionary<string, string> LocalResourceFileNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        // Some of the properties have different InvariantScript than the Default script.
+        public Dictionary<string, string> FunctionParamsInvariantScripts { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         // Key is control name, this should be unused if no datatables are present
         public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
 

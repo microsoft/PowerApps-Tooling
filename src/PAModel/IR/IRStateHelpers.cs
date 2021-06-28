@@ -89,6 +89,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 },
                             });
 
+                            // Handle the case where invariantScript value of the property is not same as the default script.
+                            var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
+                            if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
+                            {
+                                entropy.FunctionParamsInvariantScripts.Add(arg.Name, invariantScript);
+                            }
+
                             arg.ScopeVariableInfo.DefaultRule = null;
                             arg.ScopeVariableInfo.ScopePropertyDataType = null;
                             arg.ScopeVariableInfo.ParameterIndex = null;
@@ -294,7 +301,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                                 continue;
 
-                            properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.Default.Expression));
+                            // Use InvariantScript expression if present otherwise use Default expression.
+                            var propName = funcName + "_" + arg.Identifier;
+                            var script = entropy.FunctionParamsInvariantScripts.ContainsKey(propName) ? entropy.FunctionParamsInvariantScripts[propName] : arg.Default.Expression;
+                            properties.Add(GetPropertyEntry(state, errors, propName, script));
                         }
 
                         RepopulateTemplateCustomProperties(func, templateState, errors);
@@ -305,9 +315,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // For component uses, recreate the dummy props for function parameters
                     foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
                     {
-                        properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule));
+                        if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
+                        {
+                            // Use InvariantScript expression if present otherwise use Default expression.
+                            var script = entropy.FunctionParamsInvariantScripts.ContainsKey(hiddenScopeRule.Name) ? entropy.FunctionParamsInvariantScripts[hiddenScopeRule.Name] : hiddenScopeRule.ScopeVariableInfo.DefaultRule;
+                            properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
+                        }
                     }
-                }                
+                }
 
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
