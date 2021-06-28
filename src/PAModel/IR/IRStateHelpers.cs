@@ -15,20 +15,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class IRStateHelpers
     {
-        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR, ErrorContainer errors)
+        internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
             var topParentJson = file.Value.TopParent;
-            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR, errors);
+            SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR);
         }
 
-        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR, ErrorContainer errors)
+        private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
         {
             // Bottom up, recursively process children
             var children = new List<BlockNode>();
             var childIndex = 0;
             foreach (var child in control.Children)
             {
-                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock, errors);
+                SplitIRAndState(child, topParentName, childIndex, stateStore, templateStore, entropy, out var childBlock);
                 children.Add(childBlock);
                 ++childIndex;
             }
@@ -55,7 +55,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         var name = customProp.Name;
                         customPropsToHide.Add(name);
-                        var expression = control.Rules.First(rule => rule.Property == name).InvariantScript;
+                        var rule = control.Rules.FirstOrDefault(rule => rule.Property == name);
+                        if (rule == null)
+                        {
+                            // Control does not have a rule for the custom property. 
+                            continue;
+                        }
+                        var expression = rule.InvariantScript;
                         var expressionNode = new ExpressionNode() { Expression = expression };
 
                         var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
@@ -74,21 +80,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
                             });
 
-                            var invariantScriptValue = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
-                            var defaultScriptValue = arg.ScopeVariableInfo.DefaultRule.Replace("\r\n", "\n");
-                            if (invariantScriptValue != defaultScriptValue)
-                            {
-                                errors.ValidationError($"Default script does not match with InvariantScript value for parameter: {arg.Name} for custom property: {customProp.Name}. " +
-                                    $"Please save the app in studio again and then retry unpacking.");
-                            }
-
                             argMetadata.Add(new ArgMetadataBlockNode()
                             {
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Default = new ExpressionNode()
                                 {
-                                    Expression = invariantScriptValue.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart()
-                                }
+                                    Expression = arg.ScopeVariableInfo.DefaultRule
+                                },
                             });
 
                             arg.ScopeVariableInfo.DefaultRule = null;
@@ -102,7 +100,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             Identifier = PAConstants.ThisPropertyIdentifier,
                             Default = new ExpressionNode()
                             {
-                                Expression = expression.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart(),
+                                Expression = expression,
                             },
                         });
 
@@ -199,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static (PropertyNode prop, PropertyState state) SplitProperty(ControlInfoJson.RuleEntry rule)
         {
-            var script = rule.InvariantScript.Replace("\r\n", "\n").Replace("\r", "\n").TrimStart();
+            var script = rule.InvariantScript;
             var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
             var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
             return (prop, state);

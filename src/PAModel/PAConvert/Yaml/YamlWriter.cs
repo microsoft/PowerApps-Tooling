@@ -110,6 +110,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                         WriteIndent();
                         needIndent = false;
                     }
+
+                    if (ch == '\r')
+                    {
+                        // skip and handle at the \n
+                        continue; 
+                    }
+
                     if (ch == '\n')
                     {
                         _text.WriteLine();
