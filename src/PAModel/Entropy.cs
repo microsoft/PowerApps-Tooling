@@ -58,6 +58,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is resource name, value is filename
         public Dictionary<string, string> LocalResourceFileNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        // Some Component Function Parameter Properties are serialized with a different InvariantScript and DefaultScript.
+        // We show the InvariantScript in the .yaml, and persist the difference in Entropy to ensure we have accurate roundtripping behavior.
+        // The reason for using string[] is to have a way to lookup InvariantScript when the template custom properties are updated with default values in RepopulateTemplateCustomProperties.
+        // Key is the fully qualified function argument name ('FunctionName'_'ScoreVariableName'), eg. SelectAppointment_AppointmentId
+        public Dictionary<string, string[]> FunctionParamsInvariantScripts { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+
         // Key is control name, this should be unused if no datatables are present
         public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
 
@@ -237,6 +243,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             return DataTableCustomControlTemplateJsons.TryGetValue(controlName, out json);
+        }
+
+        public string GetDefaultScript(string propName, string defaultValue)
+        {
+            if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
+            {
+                return value[0];
+            }
+            return defaultValue;
+        }
+
+        public string GetInvariantScript(string propName, string defaultValue)
+        {
+            if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
+            {
+                return value[1];
+            }
+            return defaultValue;
         }
     }
 }

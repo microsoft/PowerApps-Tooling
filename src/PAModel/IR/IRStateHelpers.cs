@@ -80,14 +80,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 }
                             });
 
+                            var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
                             argMetadata.Add(new ArgMetadataBlockNode()
                             {
                                 Identifier = arg.ScopeVariableInfo.ScopeVariableName,
                                 Default = new ExpressionNode()
                                 {
-                                    Expression = arg.ScopeVariableInfo.DefaultRule
+                                    Expression = invariantScript ?? arg.ScopeVariableInfo.DefaultRule
                                 },
                             });
+
+                            // Handle the case where invariantScript value of the property is not same as the default script.
+                            if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
+                            {
+                                entropy.FunctionParamsInvariantScripts.Add(arg.Name, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                            }
 
                             arg.ScopeVariableInfo.DefaultRule = null;
                             arg.ScopeVariableInfo.ScopePropertyDataType = null;
@@ -294,10 +301,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                                 continue;
 
-                            properties.Add(GetPropertyEntry(state, errors, funcName + "_" + arg.Identifier, arg.Default.Expression));
+                            var propName = funcName + "_" + arg.Identifier;
+                            properties.Add(GetPropertyEntry(state, errors, propName, entropy.GetInvariantScript(propName, arg.Default.Expression)));
                         }
 
-                        RepopulateTemplateCustomProperties(func, templateState, errors);
+                        RepopulateTemplateCustomProperties(func, templateState, errors, entropy);
                     }
                 }
                 else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
@@ -305,9 +313,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // For component uses, recreate the dummy props for function parameters
                     foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
                     {
-                        properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule));
+                        if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
+                        {
+                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
+                            properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
+                        }
                     }
-                }                
+                }
 
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
@@ -372,7 +384,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
-        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors)
+        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors, Entropy entropy)
         {
             var funcName = func.Identifier;
             var customProp = templateState.CustomProperties.FirstOrDefault(prop => prop.Name == funcName);
@@ -391,8 +403,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                     continue;
 
-                var defaultRule = arg.Default.Expression;
                 var propertyName = funcName + "_" + arg.Identifier;
+                var defaultRule = entropy.GetDefaultScript(propertyName, arg.Default.Expression);
 
                 if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
                 {
