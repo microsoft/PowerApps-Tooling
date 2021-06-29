@@ -58,7 +58,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is resource name, value is filename
         public Dictionary<string, string> LocalResourceFileNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        // Some of the properties have different value of InvariantScript than the DefaultScript which should be the case, hence need special handling.
+        // Some Component Function Parameter Properties are serialized with a different InvariantScript and DefaultScript.
+        // We show the InvariantScript in the .yaml, and persist the difference in Entropy to ensure we have accurate roundtripping behavior.
+        // The reason for using string[] is to have a way to lookup InvariantScript when the template custom properties are updated with default values in RepopulateTemplateCustomProperties.
+        // Key is the fully qualified function argument name ('FunctionName'_'ScoreVariableName'), eg. SelectAppointment_AppointmentId
         public Dictionary<string, string[]> FunctionParamsInvariantScripts { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
 
         // Key is control name, this should be unused if no datatables are present
@@ -244,14 +247,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public string GetDefaultScript(string propName, string defaultValue)
         {
-            if(FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
+            if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
             {
                 return value[0];
             }
             return defaultValue;
         }
 
-        public string GetUserScript(string propName, string defaultValue)
+        public string GetInvariantScript(string propName, string defaultValue)
         {
             if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
             {

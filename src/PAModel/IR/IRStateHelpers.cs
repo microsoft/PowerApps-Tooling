@@ -302,11 +302,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 continue;
 
                             var propName = funcName + "_" + arg.Identifier;
-                            properties.Add(GetPropertyEntry(state, errors, propName, entropy.GetUserScript(propName, arg.Default.Expression)));
-                            arg.Default.Expression = entropy.GetDefaultScript(propName, arg.Default.Expression);
+                            properties.Add(GetPropertyEntry(state, errors, propName, entropy.GetInvariantScript(propName, arg.Default.Expression)));
                         }
 
-                        RepopulateTemplateCustomProperties(func, templateState, errors);
+                        RepopulateTemplateCustomProperties(func, templateState, errors, entropy);
                     }
                 }
                 else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
@@ -316,7 +315,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
                         {
-                            var script = entropy.GetUserScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
+                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
                             properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
                         }
                     }
@@ -385,7 +384,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
-        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors)
+        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors, Entropy entropy)
         {
             var funcName = func.Identifier;
             var customProp = templateState.CustomProperties.FirstOrDefault(prop => prop.Name == funcName);
@@ -404,8 +403,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
                     continue;
 
-                var defaultRule = arg.Default.Expression;
                 var propertyName = funcName + "_" + arg.Identifier;
+                var defaultRule = entropy.GetDefaultScript(propertyName, arg.Default.Expression);
 
                 if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
                 {
