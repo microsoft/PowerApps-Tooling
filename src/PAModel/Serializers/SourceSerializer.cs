@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
@@ -13,8 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
+using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -44,7 +45,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 21 - Resourcesjson is sharded into individual json files for non-local resources.
         // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
         // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
-        public static Version CurrentSourceVersion = new Version(0, 23);
+        // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
+        public static Version CurrentSourceVersion = new Version(0, 24);
 
         // Layout is:
         //  src\
@@ -56,6 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static readonly string EditorStateDir = Path.Combine("Src", "EditorState");
         public static readonly string ComponentCodeDir = Path.Combine("Src", "Components");
         public const string PackagesDir = "pkgs";
+        public const string PcfControlTemplatesDir = "PcfControlTemplates";
         public static readonly string DataSourcePackageDir = Path.Combine("pkgs", "TableDefinitions");
         public static readonly string WadlPackageDir = Path.Combine("pkgs", "Wadl");
         public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
@@ -144,6 +147,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Load template files, recreate References/templates.json
             LoadTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir), out var templateDefaults);
+
+            // Load PowerAppsControl Templates
+            LoadPcfControlTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir, PcfControlTemplatesDir));
 
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
@@ -304,6 +310,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
         }
 
+        private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
+        {
+            foreach(var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
+            {
+                var pcfControl = file.ToObject<PcfControl>();
+                app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
+            }
+        }
+
         // The publish info points to the logo file. Grab it from the unknowns. 
         private static void GetLogoFile(this CanvasDocument app)
         {
@@ -459,6 +474,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
                 if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // For pcf control shard the templates
+            foreach (var kvp in app._pcfControls)
+            {
+                dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, $"{kvp.Value.Name}_{kvp.Value.Version}.json"), kvp.Value);
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -920,7 +941,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (!app._templates.UsedTemplates.Any(x => x.Name == child.Name.Kind.TypeName))
                     {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.Name}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
+                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.TemplateDisplayName}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
                     }
                     continue;
@@ -930,20 +951,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (!app._components.Keys.Any(x => x == child.Name.Kind.TypeName))
                     {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.Name} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
+                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.TemplateDisplayName} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
                     }
                     continue;
-                }
-                // PCF are dynamically imported controls and their template definition is stored in the DynamicControlDefinitionJson property, check if that exists.
-                else if (templateState.Id.StartsWith("http://microsoft.com/appmagic/powercontrol"))
-                {
-                    if (!templateState.ExtensionData.ContainsKey(PAConstants.DynamicControlDefinitionJson) || templateState.ExtensionData[PAConstants.DynamicControlDefinitionJson] == null)
-                    {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Power control template: {templateState.Name} not found in ControlTemplates.json and is referred in {root.Name.Identifier}. " +
-                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template. " +
-                            $"If not please check DynamicControlDefinitionJson property exists and is not null for this template in ControlTemplates.json");
-                    }
                 }
             }
         }

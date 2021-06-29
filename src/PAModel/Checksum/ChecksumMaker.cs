@@ -23,7 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         // Given checksum an easy prefix so that we can identify algorithm version changes.
         // The checksum is prefix with 'C' and this int value.
-        public static int Version = 7;
+        public static int Version = 8;
 
         public const string ChecksumName = "checksum.json";
 
@@ -91,6 +91,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             "LibraryDependencies",
             "DataSources\\TableDefinition",
             "DataSources\\WadlMetadata\\SwaggerJson",
+            "Template\\DynamicControlDefinitionJson",
+            "Template\\DynamicControlDefinitionJson\\AuthConfigProperties",
+            "Template\\DynamicControlDefinitionJson\\CommonEvents",
+            "Template\\DynamicControlDefinitionJson\\Events",
+            "Template\\DynamicControlDefinitionJson\\IncludedProperties",
+            "Template\\DynamicControlDefinitionJson\\Properties",
+            "Template\\DynamicControlDefinitionJson\\Resources",
+            "Template\\DynamicControlDefinitionJson\\SubscribedFunctionalities",
         };
 
         // These paths are xml double-encoded and need a different comparer.
@@ -129,7 +137,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                     if (this.s.Count >= 2)
                     {
-                        if (_jsonDouble.Contains(string.Join("\\", s.Reverse())))
+                        var path = string.Join("\\", s.Reverse());
+                        if (_jsonDouble.Any(x => path.EndsWith(x)))
                         {
                             return true;
                         }

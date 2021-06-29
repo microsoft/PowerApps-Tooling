@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -59,6 +60,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
         internal AppCheckerResultJson _appCheckerResultJson;
+        internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
         // Environment-specific information
         // Extracted from _properties.LocalConnectionReferences
@@ -109,7 +111,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
             {
-                errors.BadParameter("Only works for .msapp files");                
+                errors.BadParameter("Only works for .msapp files");
             }
 
             Utilities.VerifyFileExists(errors, fullPathToMsApp);
@@ -348,6 +350,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
 
+            // PCF templates
+            if (_pcfControls.Count == 0)
+            {
+                foreach (var kvp in _templateStore.Contents)
+                {
+                    if (kvp.Value.IsPcfControl && kvp.Value.DynamicControlDefinitionJson != null)
+                    {
+                        _pcfControls.Add(kvp.Key, PcfControl.GetPowerAppsControlFromJson(kvp.Value));
+                        kvp.Value.DynamicControlDefinitionJson = null;
+                    }
+                }
+            }
+
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
@@ -389,6 +404,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
+
+            // Generate DynamicControlDefinitionJson for power apps controls
+            foreach (var kvp in _pcfControls)
+            {
+                if (_templateStore.TryGetTemplate(kvp.Key, out var template))
+                {
+                    template.DynamicControlDefinitionJson = PcfControl.GenerateDynamicControlDefinition(kvp.Value);
+                }
+                else
+                {
+                    // Validation for accidental deletion of ocf control templates.
+                    errors.ValidationError($"Could not find Pcf Control Template with name: {kvp.Key} in pkgs/PcfControlTemplates directory. " +
+                        $"If it was intentionally deleted, please delete the entry from ControlTemplates.json along with its references from source files.");
+                }
+            }
 
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
             var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
