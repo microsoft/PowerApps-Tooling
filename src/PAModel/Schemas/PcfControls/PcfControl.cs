@@ -10,18 +10,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 {
     internal class PcfControl
     {
-        private const string EventsKey = "Events";
-        private const string CommonEventsKey = "CommonEvents";
-        private const string ResourcesKey = "Resources";
-        private const string PropertiesKey = "Properties";
-        private const string NamespaceKey = "ControlNamespace";
-        private const string ConstructorKey = "ControlConstructor";
-        private const string IncludedPropertiesKey = "IncludedProperties";
-        private const string PropertyDependenciesKey = "PropertyDependencies";
-        private const string SubscribedFunctionalitiesKey = "SubscribedFunctionalities";
-        private const string AuthConfigPropertiesKey = "AuthConfigProperties";
-        private const string DataConnectorsKey = "DataConnectors";
-
         // Name and Version are not part of the DynamicControlDefinitionJson.
         // These are used generate the filename that is sharded into pkgs/PcfTemplates directory.
         public string Name { get; set; }
@@ -86,6 +74,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         internal static string GenerateDynamicControlDefinition(PcfControl control)
         {
             // PowerApps controls require dynamic control definition added to control's template.
+            // When generating DynamicControlDefinitionJson don't add Name and Version as those aren't part of it.
             PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded() { ExtensionData = new Dictionary<string, object>() };
             _dynamicControlDefinition.ControlNamespace = control.ControlNamespace;
             _dynamicControlDefinition.ControlConstructor = control.ControlConstructor;
@@ -102,24 +91,5 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 
             return Utilities.JsonSerialize(_dynamicControlDefinition);
         }
-    }
-
-    internal class PcfControlDoublyEncoded
-    {
-        public string ControlNamespace { get; set; }
-        public string ControlConstructor { get; set; }
-        public string FullyQualifiedControlName { get; set; }
-        public string Resources { get; set; }
-        public string SubscribedFunctionalities { get; set; }
-        public string Properties { get; set; }
-        public string IncludedProperties { get; set; }
-        public string AuthConfigProperties { get; set; }
-        public string PropertyDependencies { get; set; }
-        public string DataConnectors { get; set; }
-        public string Events { get; set; }
-        public string CommonEvents { get; set; }
-
-        [JsonExtensionData]
-        public Dictionary<string, object> ExtensionData { get; set; }
     }
 }
