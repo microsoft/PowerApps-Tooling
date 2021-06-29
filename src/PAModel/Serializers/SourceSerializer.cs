@@ -314,7 +314,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             foreach(var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
             {
-                app._pcfControls.Add(new FilePath(file._relativeName).GetFileNameWithoutExtension(), file.ToObject<PcfControl>());
+                var pcfControl = file.ToObject<PcfControl>();
+                app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
             }
         }
 
@@ -478,7 +479,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // For pcf control shard the templates
             foreach (var kvp in app._pcfControls)
             {
-                dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, kvp.Key + ".json"), kvp.Value);
+                dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, $"{kvp.Value.Name}_{kvp.Value.Version}.json"), kvp.Value);
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)

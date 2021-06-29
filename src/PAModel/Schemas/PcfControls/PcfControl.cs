@@ -22,6 +22,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         private const string AuthConfigPropertiesKey = "AuthConfigProperties";
         private const string DataConnectorsKey = "DataConnectors";
 
+        // Name and Version are not part of the DynamicControlDefinitionJson.
+        // These are used generate the filename that is sharded into pkgs/PcfTemplates directory.
+        public string Name { get; set; }
+        public string Version { get; set; }
+
         public string ControlNamespace { get; set; }
         public string ControlConstructor { get; set; }
         public Resource[] Resources { get; set; }
@@ -59,7 +64,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 
         public static PcfControl GetPowerAppsControlFromJson(CombinedTemplateState template)
         {
-            var pcfControl = new PcfControl();
+            var pcfControl = new PcfControl() { Name = template.TemplateDisplayName, Version = template.Version };
 
             var dynamicControlDefinition = Utilities.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
             pcfControl.ControlNamespace = dynamicControlDefinition.ControlNamespace;
@@ -87,7 +92,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
             var jsonOptions = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             _dynamicControlDefinition.Resources = control.Resources != null ? JsonSerializer.Serialize(control.Resources, jsonOptions) : null;
             _dynamicControlDefinition.Properties = control.Properties != null ? JsonSerializer.Serialize(control.Properties, jsonOptions) : null;
-            _dynamicControlDefinition.IncludedProperties = control.IncludedProperties != null ? JsonSerializer.Serialize(control.IncludedProperties, jsonOptions) : null ;
+            _dynamicControlDefinition.IncludedProperties = control.IncludedProperties != null ? JsonSerializer.Serialize(control.IncludedProperties, jsonOptions) : null;
             _dynamicControlDefinition.Events = control.Events != null ? JsonSerializer.Serialize(control.Events, jsonOptions) : null;
             _dynamicControlDefinition.CommonEvents = control.CommonEvents != null ? JsonSerializer.Serialize(control.CommonEvents, jsonOptions) : null;
             _dynamicControlDefinition.PropertyDependencies = control.PropertyDependencies != null ? JsonSerializer.Serialize(control.PropertyDependencies, jsonOptions) : null;
