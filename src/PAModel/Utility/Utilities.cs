@@ -375,9 +375,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 // limit the hash to 3 characters by doing a module by 4096 (16^3)
                 var hash = (GetHash(escapedName) % 4096).ToString("x3");
-                escapedName = escapedName.Substring(0, MaxNameLength - (hash.Length + 1)) + "_" + hash;
+                escapedName = TruncateName(escapedName, MaxNameLength - hash.Length -1) + "_" + hash;
             }
             return escapedName;
+        }
+
+        /// <summary>
+        /// Truncates a string with the given length and strips off incomplete escape characters if any.
+        /// Each EscapeChar (%) must be followed by two integer values if that is not the case then it is likely that the truncation left incomplete escapes.
+        /// </summary>
+        /// <param name="name">The string to be truncated</param>
+        /// <param name="length">The max length of the truncated string.</param>
+        /// <returns>Truncated string.</returns>
+        private static string TruncateName(string name, int length)
+        {
+            int removeTrailingCharsLength = name[length - 1] == EscapeChar ? 1 : (name[length - 2] == EscapeChar ? 2 : 0);
+            return name.Substring(0, length - removeTrailingCharsLength);
         }
 
         /// <summary>
