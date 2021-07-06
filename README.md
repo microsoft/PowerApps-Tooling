@@ -23,6 +23,19 @@ To get started, download and install the [Microsoft Power Platform CLI](https://
 To unpack a .msapp file: `pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder`
 To pack a .msapp file: `pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder`
 
+### Versioning
+
+The output files (ie, "yaml version") have a version number. During preview, the tool is not backwards compatible, so the version used to re-pack must match the version used to pack.  When unpacking, keep a copy of the original msapp so that you can unpack it with future versions of the tool. 
+
+| Pac CLI Version | Yaml version |
+| --- | --- |
+| 1.7.2 | 0.23 | 
+| 1.7.4 | 0.23 | 
+
+Latest Yaml version is: https://github.com/microsoft/PowerApps-Language-Tooling/blob/0a4c9e624ffad1f93b6c085aff029945a0fbc00a/src/PAModel/Serializers/SourceSerializer.cs#L49 
+
+
+
 ## Test app usage
 
 You can also use this functionality stand alone, using our test console app.  
