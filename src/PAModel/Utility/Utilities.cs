@@ -383,6 +383,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         /// <summary>
         /// Truncates a string with the given length and strips off incomplete escape characters if any.
+        /// Each EscapeChar (%) must be followed by two integer values if that is not the case then it is likely that the truncation left incomplete escapes.
         /// </summary>
         /// <param name="name">The string to be truncated</param>
         /// <param name="length">The max length of the truncated string.</param>
