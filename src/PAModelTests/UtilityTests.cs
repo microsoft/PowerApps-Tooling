@@ -73,7 +73,7 @@ namespace PAModelTests
         }
 
         [DataTestMethod]
-        [DataRow("Long*Control*Name*Truncation*Tests***", "Long%2aControl%2aName%2aTruncation%2aTests%2a%_959")]
+        [DataRow("Long*Control*Name*Truncation*Tests***", "Long%2aControl%2aName%2aTruncation%2aTests%2a_959")]
         [DataRow("TestReallyLoooooooooooooooooooooooooooooooooooongControlName", "TestReallyLooooooooooooooooooooooooooooooooooo_cad")]
         [DataRow("TestControlName", "TestControlName")]
         public void TestControlNameTruncation(string originalName, string expectedName)
