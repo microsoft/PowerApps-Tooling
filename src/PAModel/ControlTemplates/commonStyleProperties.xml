@@ -585,4 +585,10 @@
     <appMagic:displayName>##CommonProperties_ActualY_DisplayName##</appMagic:displayName>
     <appMagic:tooltip>##CommonProperties_ActualY_Tooltip##</appMagic:tooltip>
   </property>
+  <property name="ContentLanguage" localizedName="##CommonProperties_ContentLanguage##" datatype="String" defaultValue="">
+    <title>ContentLanguage</title>
+    <appMagic:category>data</appMagic:category>
+    <appMagic:displayName>##CommonProperties_ContentLanguage_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ContentLanguage_Tooltip##</appMagic:tooltip>
+  </property>
 </properties>
