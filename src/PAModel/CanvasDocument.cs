@@ -27,7 +27,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <summary>
         /// Current source format version. 
         /// </summary>
-        public Version CurrentSourceVersion => SourceSerializer.CurrentSourceVersion;
+        public static Version CurrentSourceVersion => SourceSerializer.CurrentSourceVersion;
 
         // Rules for CanvasDocument
         // - Save/Load must faithfully roundtrip an msapp exactly. 
