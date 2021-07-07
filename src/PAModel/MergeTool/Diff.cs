@@ -15,22 +15,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
         public static IEnumerable<IDelta> ComputeDelta(CanvasDocument parent, CanvasDocument child)
         {
             var delta = new List<IDelta>();
-            foreach (var originalScreen in parent._screens)
+            AddControlDeltas(parent, child, parent._screens, child._screens, isComponents: false, delta);
+            AddControlDeltas(parent, child, parent._components, child._components, isComponents: true, delta);
+            AddTemplateDeltas(parent, child, delta);
+            AddResourceDeltas(parent, child, delta);
+            AddDataSourceDeltas(parent, child, delta);
+
+            return delta;
+        }
+
+        private static void AddControlDeltas(CanvasDocument parent, CanvasDocument child, Dictionary<string, IR.BlockNode> parentControlSet, Dictionary<string, IR.BlockNode> childControlSet, bool isComponents, List<IDelta> deltas)
+        {
+
+            foreach (var originalTopParentControl in parentControlSet)
             {
-                if (child._screens.TryGetValue(originalScreen.Key, out var childScreen))
+                if (childControlSet.TryGetValue(originalTopParentControl.Key, out var childScreen))
                 {
-                    delta.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalScreen.Value, parent._editorStateStore));
+                    deltas.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalTopParentControl.Value, parent._editorStateStore, isComponents));
                 }
                 else
                 {
-                    delta.Add(new RemoveControl() { ControlName = originalScreen.Key, ParentControlPath = ControlPath.Empty });
+                    deltas.Add(new RemoveControl(ControlPath.Empty, originalTopParentControl.Key, isComponents));
                 }
             }
-            foreach (var newScreen in child._screens.Where(kvp => !parent._screens.ContainsKey(kvp.Key)))
+            foreach (var newScreen in childControlSet.Where(kvp => !parentControlSet.ContainsKey(kvp.Key)))
             {
-                delta.Add(new AddControl() { Control = newScreen.Value, ControlStates = child._editorStateStore.GetControlsWithTopParent(newScreen.Key).ToDictionary(state => state.Name), ParentControlPath = ControlPath.Empty });
+                deltas.Add(new AddControl(ControlPath.Empty, newScreen.Value, child._editorStateStore.GetControlsWithTopParent(newScreen.Key).ToDictionary(state => state.Name), isComponents));
             }
+        }
 
+        private static void AddTemplateDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
             var childTemplatesDict = child._templates.UsedTemplates.ToDictionary(temp => temp.Name.ToLower());
             foreach (var template in child._templateStore.Contents)
             {
@@ -39,14 +54,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
 
                 childTemplatesDict.TryGetValue(template.Key.ToLower(), out var jsonTemplate);
 
-                delta.Add(new AddTemplate() { Name = template.Key, Template = template.Value, JsonTemplate = jsonTemplate });
+                deltas.Add(new AddTemplate() { Name = template.Key, Template = template.Value, JsonTemplate = jsonTemplate });
             }
-
-            AddResourceDeltas(parent, child, delta);
-
-            AddDataSourceDeltas(parent, child, delta);
-
-            return delta;
         }
 
         private static void AddResourceDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
@@ -58,17 +67,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 {
                     // $$$ Need resource contents diff here to detect resource replacements
                     // eg, delete old resource, add new resource with same name but different contents
-
+                    // Use UpdateResource once implemented.
                     childResourcesDict.Remove(resource.Name);
                 }
-
-                // We don't care about the asset files for remove for now,
-                // studio just won't load ones that don't have a ref in the json
-                // And they'll get cleaned up next save
-                // $$$ If we want a clean git history, we should apply that here
                 else
                 {
-                    deltas.Add(new RemoveResource() { Name = resource.Name });
+                    if (resource.ResourceKind == Schemas.ResourceKind.LocalFile)
+                    {
+                        var resourceName = resource.Path.Substring("Assets\\".Length);
+                        deltas.Add(new RemoveResource(resource.Name, FilePath.FromMsAppPath(resourceName)));
+                    }
+                    else
+                    {
+                        deltas.Add(new RemoveResource(resource.Name));
+                    }
                 }
             }
 
@@ -79,8 +91,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 {
                     var resourceName = remaining.Value.Path.Substring("Assets\\".Length);
                     child._assetFiles.TryGetValue(FilePath.FromMsAppPath(resourceName), out file);
+                    deltas.Add(new AddResource(remaining.Key, remaining.Value, file));
                 }
-                deltas.Add(new AddResource() { Name = remaining.Key, Resource = remaining.Value, File = file });
+                else
+                {
+                    deltas.Add(new AddResource(remaining.Key, remaining.Value));
+                }
             }
         }
 
