@@ -354,7 +354,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var topParentName = file._relativeName.Replace(".editorstate.json", "");
                 foreach (var control in controlExtraData)
                 {
-                    control.Value.TopParentName = topParentName;
+                    control.Value.TopParentName = Utilities.UnEscapeFilename(topParentName);
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
