@@ -12,29 +12,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 {
     internal class AddControl : IDelta
     {
-        public ControlPath ParentControlPath;
-        public BlockNode Control;
-        public Dictionary<string, ControlState> ControlStates;
+        private bool _isInComponent;
+        private ControlPath _parentControlPath;
+        private BlockNode _control;
+        private Dictionary<string, ControlState> _controlStates;
+
+        public AddControl(ControlPath parentControlPath, BlockNode control, Dictionary<string, ControlState> controlStates, bool isInComponent)
+        {
+            _isInComponent = isInComponent;
+            _parentControlPath = parentControlPath;
+            _control = control;
+            _controlStates = controlStates;
+        }
 
         public void Apply(CanvasDocument document)
         {
-            // Screen addition
-            if (ParentControlPath == ControlPath.Empty)
+            var controlSet = _isInComponent ? document._components : document._screens;
+
+            // Top level addition
+            if (_parentControlPath == ControlPath.Empty)
             {
-                if (!IsControlTreeCollisionFree(this.Control, document._editorStateStore))
+                if (!IsControlTreeCollisionFree(_control, document._editorStateStore))
                     return;
 
-                AddControlStates(this.Control, document._editorStateStore);
+                AddControlStates(_control, document._editorStateStore);
 
-                document._screens.Add(this.Control.Name.Identifier, this.Control);
+                controlSet.Add(_control.Name.Identifier, _control);
                 return;
             }
 
-            // screen was removed?
-            if (!document._screens.TryGetValue(ParentControlPath.Current, out var control))
+            // Top Parent was removed
+            if (!controlSet.TryGetValue(_parentControlPath.Current, out var control))
                 return;
 
-            var path = ParentControlPath.Next();
+            var path = _parentControlPath.Next();
             while (path.Current != null)
             {
                 var found = false;
@@ -55,12 +66,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                 }
             }
 
-            if (!IsControlTreeCollisionFree(this.Control, document._editorStateStore))
+            if (!IsControlTreeCollisionFree(_control, document._editorStateStore))
                 return;
 
-            AddControlStates(this.Control, document._editorStateStore);
+            AddControlStates(_control, document._editorStateStore);
 
-            control.Children.Add(this.Control);
+            control.Children.Add(_control);
         }
 
         private bool IsControlTreeCollisionFree(BlockNode root, EditorStateStore stateStore)
@@ -84,7 +95,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 
             var name = root.Name.Identifier;
             // If the state exists, add to merged document
-            if (ControlStates.TryGetValue(name, out var state))
+            if (_controlStates.TryGetValue(name, out var state))
             {
                 stateStore.TryAddControl(state);
             }
