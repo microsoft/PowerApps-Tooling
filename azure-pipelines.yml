@@ -12,8 +12,8 @@ variables:
 - group: 'Nuget And PSGallery Publishing Data'
 
 jobs:
-- job: 'Build_PowerFx'
-  displayName: 'Build Power Fx Solution'
+- job: 'Build_PowerPlatform.Formulas.Tools'
+  displayName: 'Build PowerPlatform.Formulas.Tools Solution'
 
   strategy:
     matrix:
