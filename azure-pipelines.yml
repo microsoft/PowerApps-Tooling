@@ -59,47 +59,47 @@ jobs:
       Pattern: '*.dll'
       signConfigType: inlineSignParams
       inlineOperation: |
-      [
-          {
-                "keyCode": "CP-233863-SN",
-                "operationSetCode": "StrongNameSign",
-                "parameters": [ ],
+        [
+            {
+                  "keyCode": "CP-233863-SN",
+                  "operationSetCode": "StrongNameSign",
+                  "parameters": [ ],
+                  "toolName": "sign",
+                  "toolVersion": "1.0"
+            },
+            {
+                "keyCode": "CP-230012",
+                "operationSetCode": "SigntoolSign",
+                "parameters": [
+                {
+                    "parameterName": "OpusName",
+                    "parameterValue": "Microsoft"
+                },
+                {
+                    "parameterName": "OpusInfo",
+                    "parameterValue": "http://www.microsoft.com"
+                },
+                {
+                    "parameterName": "Append",
+                    "parameterValue": "/as"
+                },
+                {
+                    "parameterName": "FileDigest",
+                    "parameterValue": "/fd \"SHA256\""
+                },
+                {
+                    "parameterName": "PageHash",
+                    "parameterValue": "/NPH"
+                },
+                {
+                    "parameterName": "TimeStamp",
+                    "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                }
+                ],
                 "toolName": "sign",
                 "toolVersion": "1.0"
-          },
-          {
-              "keyCode": "CP-230012",
-              "operationSetCode": "SigntoolSign",
-              "parameters": [
-              {
-                  "parameterName": "OpusName",
-                  "parameterValue": "Microsoft"
-              },
-              {
-                  "parameterName": "OpusInfo",
-                  "parameterValue": "http://www.microsoft.com"
-              },
-              {
-                  "parameterName": "Append",
-                  "parameterValue": "/as"
-              },
-              {
-                  "parameterName": "FileDigest",
-                  "parameterValue": "/fd \"SHA256\""
-              },
-              {
-                  "parameterName": "PageHash",
-                  "parameterValue": "/NPH"
-              },
-              {
-                  "parameterName": "TimeStamp",
-                  "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-              }
-              ],
-              "toolName": "sign",
-              "toolVersion": "1.0"
-          }
-      ]
+            }
+        ]
       ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'    
 
   - task: DotNetCoreCLI@2
@@ -117,32 +117,31 @@ jobs:
       Pattern: '*.nupkg'
       signConfigType: inlineSignParams
       inlineOperation: |
-      [
-        {
-          "keyCode": "CP-401405",
-          "operationSetCode": "NuGetSign",
-          "parameters": [],
-          "toolName": "sign",
-          "toolVersion": "1.0"
-        },
-        {
-          "keyCode": "CP-401405",
-          "operationSetCode": "NuGetVerify",
-          "parameters": [],
-          "toolName": "sign",
-          "toolVersion": "1.0"
-        }
-      ]
+        [
+          {
+            "keyCode": "CP-401405",
+            "operationSetCode": "NuGetSign",
+            "parameters": [],
+            "toolName": "sign",
+            "toolVersion": "1.0"
+          },
+          {
+            "keyCode": "CP-401405",
+            "operationSetCode": "NuGetVerify",
+            "parameters": [],
+            "toolName": "sign",
+            "toolVersion": "1.0"
+          }
+        ]
       ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
-      
+
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.SourcesDirectory)/pkg/PackResult'
       ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
       publishLocation: 'Container'
     condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-
-
+    
   - task: tagBuildOrRelease@0
     inputs:
       type: 'Build'
