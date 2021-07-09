@@ -126,8 +126,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public Dictionary<string, LocalDatabaseReferenceDataSource> dataSources { get; set; }
         public string instanceUrl { get; set; }
 
-        public List<AppCdsComponent> components { get; set; }
-
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

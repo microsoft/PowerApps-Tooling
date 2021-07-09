@@ -249,6 +249,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     case FileKind.Connections:
                         app._connections = file.ToObject<IDictionary<string, ConnectionJson>>();
                         break;
+                    default:
+                        var ldr = file.ToObject<LocalDatabaseReferenceJson>();
+                        app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
+                        break;
                 }
             }
 
@@ -603,6 +607,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
+            var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
             foreach (var kvp in app.GetDataSources())
@@ -681,6 +686,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
+                    untrackedLdr.Remove(dataSourceDef.DatasetName);
                     // copy over the localconnectionreference
                     if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
                     {
@@ -696,18 +702,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
             }
 
-            if (app._dataSourceReferences != null)
+            foreach (var dsName in untrackedLdr)
             {
-                foreach (var kvp in app._dataSourceReferences)
-                {
-                    if (kvp.Value?.components?.Any() == true)
-                    {
-                        var componentReferencesJson = kvp.Value.JsonClone();
-                        componentReferencesJson.dataSources = null;
-
-                        dir.WriteAllJson(DataSourcesDir, new FilePath(ComponentReferencesDir, kvp.Key + ".json"), componentReferencesJson);
-                    }
-                }
+                dir.WriteAllJson(ConnectionDir, new FilePath(dsName + ".json"), app._dataSourceReferences[dsName]);
             }
         }
 
@@ -807,21 +804,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
 
                     app.AddDataSourceForLoad(ds);
-                }
-            }
-
-            foreach (var file in directory.EnumerateFiles(Path.Combine(DataSourcesDir, ComponentReferencesDir), "*"))
-            {
-                var key = Path.GetFileNameWithoutExtension(file._relativeName);
-                if (!app._dataSourceReferences.ContainsKey(key))
-                {
-                    var localDatabaseReferences = file.ToObject<LocalDatabaseReferenceJson>();
-                    localDatabaseReferences.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
-                    app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), localDatabaseReferences);
-                }
-                else
-                {
-                    app._dataSourceReferences[key].components = file.ToObject<LocalDatabaseReferenceJson>().components;
                 }
             }
         }
