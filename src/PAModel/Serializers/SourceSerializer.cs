@@ -67,6 +67,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
+        public const string ComponentReferencesDir = "ComponentReferences";
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
@@ -312,7 +313,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
         {
-            foreach(var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
+            foreach (var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
             {
                 var pcfControl = file.ToObject<PcfControl>();
                 app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
@@ -694,6 +695,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
             }
+
+            if (app._dataSourceReferences != null)
+            {
+                foreach (var kvp in app._dataSourceReferences)
+                {
+                    if (kvp.Value?.components?.Any() == true)
+                    {
+                        var componentReferencesJson = kvp.Value.JsonClone();
+                        componentReferencesJson.dataSources = null;
+
+                        dir.WriteAllJson(DataSourcesDir, new FilePath(ComponentReferencesDir, kvp.Key + ".json"), componentReferencesJson);
+                    }
+                }
+            }
         }
 
         private static void LoadDataSources(CanvasDocument app, DirectoryReader directory, ErrorContainer errors)
@@ -749,7 +764,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 swaggerDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
             }
 
-            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
+            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*", false))
             {
                 var dataSources = file.ToObject<List<DataSourceEntry>>();
                 foreach (var ds in dataSources)
@@ -792,6 +807,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
 
                     app.AddDataSourceForLoad(ds);
+                }
+            }
+
+            foreach (var file in directory.EnumerateFiles(Path.Combine(DataSourcesDir, ComponentReferencesDir), "*"))
+            {
+                var key = Path.GetFileNameWithoutExtension(file._relativeName);
+                if (!app._dataSourceReferences.ContainsKey(key))
+                {
+                    var localDatabaseReferences = file.ToObject<LocalDatabaseReferenceJson>();
+                    localDatabaseReferences.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
+                    app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), localDatabaseReferences);
+                }
+                else
+                {
+                    app._dataSourceReferences[key].components = file.ToObject<LocalDatabaseReferenceJson>().components;
                 }
             }
         }
