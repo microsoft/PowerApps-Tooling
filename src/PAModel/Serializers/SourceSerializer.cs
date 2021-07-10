@@ -67,6 +67,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
+        public const string ComponentReferencesDir = "ComponentReferences";
 
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
@@ -248,6 +249,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     case FileKind.Connections:
                         app._connections = file.ToObject<IDictionary<string, ConnectionJson>>();
                         break;
+                    default:
+                        var ldr = file.ToObject<LocalDatabaseReferenceJson>();
+                        app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
+                        break;
                 }
             }
 
@@ -312,7 +317,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
         {
-            foreach(var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
+            foreach (var file in new DirectoryReader(paControlTemplatesPath).EnumerateFiles("", "*.json"))
             {
                 var pcfControl = file.ToObject<PcfControl>();
                 app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
@@ -602,6 +607,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
+            var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
             foreach (var kvp in app.GetDataSources())
@@ -680,6 +686,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
+                    untrackedLdr.Remove(dataSourceDef.DatasetName);
                     // copy over the localconnectionreference
                     if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
                     {
@@ -693,6 +700,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
 
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
+            }
+
+            foreach (var dsName in untrackedLdr)
+            {
+                dir.WriteAllJson(ConnectionDir, new FilePath(dsName + ".json"), app._dataSourceReferences[dsName]);
             }
         }
 
@@ -749,7 +761,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 swaggerDefs.Add(Path.GetFileNameWithoutExtension(file._relativeName), file.GetContents());
             }
 
-            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*"))
+            foreach (var file in directory.EnumerateFiles(DataSourcesDir, "*", false))
             {
                 var dataSources = file.ToObject<List<DataSourceEntry>>();
                 foreach (var ds in dataSources)
