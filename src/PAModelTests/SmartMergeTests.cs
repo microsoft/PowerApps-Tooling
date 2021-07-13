@@ -124,6 +124,36 @@ namespace PAModelTests
             });
         }
 
+
+
+        [TestMethod]
+        public void DefaultPropertyEditTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                // Nothing
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._screens.TryGetValue("Screen1", out var control);
+                var label = control.Children.First(child => child.Name.Identifier == "Label1");
+                label.Properties.Add(new PropertyNode() { Identifier = "Fill", Expression = new ExpressionNode() { Expression = "Color.Blue" } });
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen1", out var control);
+                var label = control.Children.First(child => child.Name.Identifier == "Label1");
+                var fillProp = label.Properties.First(prop => prop.Identifier == "Fill");
+
+                Assert.AreEqual("Color.Blue", fillProp.Expression.Expression);
+            });
+        }
+
         [TestMethod]
         public void PropertyEditCollisonTest()
         {

@@ -73,6 +73,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                             return;
                         }
                     }
+
+                    // Property wasn't present in base
+                    node.Properties.Add(new PropertyNode() { Expression = new ExpressionNode() { Expression = _expression }, Identifier = _property });
                     return;
                 }
 

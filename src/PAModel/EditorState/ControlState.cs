@@ -52,5 +52,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // This is a list of the controls represented as a child of the group control in studio
         // Used in GroupControlTransform.cs, and not written to .editorstate.json
         internal List<string> GroupedControlsKey;
+
+
+        public ControlState Clone()
+        {
+            var newState = Utilities.JsonClone(this);
+            newState.TopParentName = TopParentName;
+            return newState;
+        }
     }
 }
