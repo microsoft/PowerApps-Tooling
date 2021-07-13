@@ -20,7 +20,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         public EditorStateStore(EditorStateStore other)
         {
-            _controls = other._controls.JsonClone();
+            _controls = other._controls.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Clone());
         }
 
         public bool ContainsControl(string name)
