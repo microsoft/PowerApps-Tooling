@@ -42,9 +42,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             while (templateStore.TryGetTemplate(_testStepTemplateName, out _))
                 _testStepTemplateName = "TestStep" + i;
 
-            var idRestorer = new UniqueIdRestorer(entropy);
             _screenIdToScreenName = app._screens
-                .Select(screen => new KeyValuePair<string, string>(idRestorer.GetControlId(screen.Key).ToString(), screen.Key)).ToList();
+                .Select(screen => new KeyValuePair<string, string>(app._idRestorer.GetControlId(screen.Key).ToString(), screen.Key)).ToList();
 
             _errors = errors;
         }

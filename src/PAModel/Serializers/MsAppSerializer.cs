@@ -360,6 +360,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            app._idRestorer = new UniqueIdRestorer(app._entropy);
+
             app.ApplyAfterMsAppLoadTransforms(errors);
             app.OnLoadComplete(errors);
 
