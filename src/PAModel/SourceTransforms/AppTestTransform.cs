@@ -34,7 +34,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             return templateName == "TestSuite";
         }
 
-        public AppTestTransform(ErrorContainer errors, TemplateStore templateStore, EditorStateStore stateStore, Entropy entropy)
+        public AppTestTransform(CanvasDocument app, ErrorContainer errors, TemplateStore templateStore, EditorStateStore stateStore, Entropy entropy)
         {
             _testStepTemplateName = "TestStep";
 
@@ -43,9 +43,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 _testStepTemplateName = "TestStep" + i;
 
             var idRestorer = new UniqueIdRestorer(entropy);
-            _screenIdToScreenName = stateStore.Contents
-                .Where(state => state.TopParentName == state.Name)
-                .Select(state => new KeyValuePair<string, string>(idRestorer.GetControlId(state.Name).ToString(), state.Name)).ToList();
+            _screenIdToScreenName = app._screens
+                .Select(screen => new KeyValuePair<string, string>(idRestorer.GetControlId(screen.Key).ToString(), screen.Key)).ToList();
 
             _errors = errors;
         }
