@@ -25,8 +25,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 return id;
             if (controlName == "App")
                 return 1;
-
-            return _nextId++;
+            var nextId = _nextId++;
+            _controlUniqueIds.Add(controlName, nextId);
+            return nextId;
         }
     }
 }

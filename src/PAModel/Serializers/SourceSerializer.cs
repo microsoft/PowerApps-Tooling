@@ -261,6 +261,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // - DynamicTypes.Json, Resources.Json , Templates.Json - could all be empty
             // - Themes.json- default to
 
+            app._idRestorer = new UniqueIdRestorer(app._entropy);
 
             app.OnLoadComplete(errors);
 

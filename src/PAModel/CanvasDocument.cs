@@ -89,6 +89,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Track all asset files, key is file name
         internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
 
+        internal UniqueIdRestorer _idRestorer;
+
         // Tracks duplicate asset file information. When a name collision happens we generate a new name for the duplicate asset file.
         // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
         // Key is a (case-insesitive) new fileName of the resource.
@@ -373,7 +375,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 componentDefTransform.AfterRead(ctrl.Value);
             }
 
-            var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
+            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
 
             foreach (var ctrl in _screens.Concat(_components))
             {
@@ -430,7 +432,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddComponentDefaults(ctrl.Value, templateDefaults);
             }
 
-            var transformer = new SourceTransformer(errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
+            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
 
             foreach (var ctrl in _screens.Concat(_components))
             {
