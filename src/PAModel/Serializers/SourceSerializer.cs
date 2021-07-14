@@ -193,7 +193,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 app._resourcesJson.Resources = resources.ToArray();
             }
 
-            // We have processed all the json files in Assets directory, now interate through all tge files to add the asset files.
+            // We have processed all the json files in Assets directory, now interate through all the files to add the asset files.
             foreach (var file in dir.EnumerateFiles(AssetsDir))
             {
                 // Skip adding the json files which were created to contain the information for duplicate asset files.
