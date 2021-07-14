@@ -124,7 +124,27 @@ namespace PAModelTests
             });
         }
 
+        [TestMethod]
+        public void ScreenDeletionTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "Chess_for_Power_Apps_v1.03.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
 
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                // Nothing
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._screens.Remove("Home Screen", out var control);
+            },
+            (resultDoc) =>
+            {
+                Assert.IsFalse(resultDoc._screens.ContainsKey("Home Screen"));
+            });
+        }
 
         [TestMethod]
         public void DefaultPropertyEditTest()

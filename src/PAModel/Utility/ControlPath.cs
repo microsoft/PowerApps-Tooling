@@ -43,6 +43,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
             _segments = segments;
         }
 
+        public static bool operator ==(ControlPath left, ControlPath right) => left?.Equals(right) ?? right == null;
+
+        public static bool operator !=(ControlPath left, ControlPath right) => !(left?.Equals(right) ?? right == null);
+
         public override bool Equals(object obj)
         {
             return obj is ControlPath other &&
