@@ -165,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static string GetRelativePath(string relativeTo, string fullPathFile)
         {
             // First arg is always a path name, 2nd arg is always a directory.
-            // directory is always a prefix. 
+            // directory is always a prefix.
             Uri fromUri = new Uri(AppendDirectorySeparatorChar(relativeTo));
             Uri toUri = new Uri(fullPathFile);
 
@@ -180,6 +180,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
             }
+
+            // If there was any replacement chracter (black diamond with a white heart) in the original string, it gets encoded to %EF%BF%BD
+            // see details here: http://www.cogsci.ed.ac.uk/~richard/utf-8.cgi?input=%EF%BF%BD&mode=char
+            // spcial handling to add replacement character back to the original string
+            relativePath = relativePath.Replace("%EF%BF%BD", "�");
 
             return relativePath;
         }

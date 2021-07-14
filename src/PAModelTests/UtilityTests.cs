@@ -13,6 +13,7 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow("\r\t!$^%/\\", "%0d%09%21%24%5e%25%2f%5c")]
         [DataRow("одиндваодиндваодиндваодиндваодиндваодинд", "одиндваодиндваодиндваодиндваодиндваодинд")]
+        [DataRow("İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg", "İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg")]
         public void TestEscaping(string unescaped, string escaped)
         {
             Assert.AreEqual(Utilities.EscapeFilename(unescaped), escaped);
@@ -22,6 +23,7 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow("foo-%41", "foo-A")]
         [DataRow("[]_' ", "[]_' ")] // unescape only touches % character.
+        [DataRow("İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg", "İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg")]
         public void TestUnescape(string escaped, string unescaped)
         {
             Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
@@ -45,6 +47,7 @@ namespace PAModelTests
         [DataRow(@"C:\DataSources\JourneyPlanner%7cSendforapproval.json", "C:\\", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
         [DataRow(@"d:\app\Src\EditorState\Screen%252.editorstate.json", @"d:\app", @"Src\EditorState\Screen%252.editorstate.json")]
         [DataRow(@"C:\Temp\MySolution\MySolution.Project\DataSources\JourneyPlanner%7cSendforapproval.json", @"C:\Temp\MySolution\MySolution.Project", @"DataSources\JourneyPlanner%7cSendforapproval.json")]
+        [DataRow(@"D:\Testing\Power-fx\LocalTest\Unpack\Multi-Lang-App-MX\Assets\Images\İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg", @"D:\Testing\Power-fx\LocalTest\Unpack\Multi-Lang-App-MX\Assets", @"Images\İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg")]
         public void TestRelativePath(string fullPath, string basePath, string expectedRelativePath)
         {
             // Test non-windows paths if on other platforms
