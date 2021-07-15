@@ -26,6 +26,7 @@ namespace PAModelTests
                 $"{ns}.{nameof(ChecksumMaker)}",
                 $"{ns}.{nameof(ErrorContainer)}",
                 $"{ns}.{nameof(Error)}",
+                $"Microsoft.PowerPlatform.YamlConverter"
             };
 
             StringBuilder sb = new StringBuilder();

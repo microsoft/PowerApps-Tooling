@@ -104,7 +104,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 case YamlTokenKind.Property: return $"{Property}={Value}";
                 case YamlTokenKind.StartObj: return $"{Property}:";
-                case YamlTokenKind.Error: return $"Error: {Value}";
+                case YamlTokenKind.Error: return $"Yaml error: {Span.FileName}:{Span.StartLine},{Span.StartChar} {Value}";
                 default:
                     return $"<{Kind}>";
             }
