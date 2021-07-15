@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform
     {
         public static Dictionary<string, string> Read(TextReader reader, string filenameHint = null)
         {
-            var d = new Dictionary<string, string>(StringComparer.Ordinal);
+            var properties = new Dictionary<string, string>(StringComparer.Ordinal);
 
             var yaml = new YamlLexer(reader, filenameHint);
 
@@ -38,9 +38,9 @@ namespace Microsoft.PowerPlatform
                     throw new InvalidOperationException(t.ToString());
                 }
 
-                d[t.Property] = t.Value;
+                properties[t.Property] = t.Value;
             }
-            return d;
+            return properties;
         }
 
         public static void Write(TextWriter writer, IDictionary<string, string> properties)
