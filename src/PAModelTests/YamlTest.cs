@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.Serialization;
@@ -398,6 +399,51 @@ Obj1:
             Assert.AreEqual(2, loc.StartLine);
             Assert.AreEqual(4, loc.StartChar);
         }
+
+        const string expectedYaml = @"P1: =123
+P2: = ""hello"" & ""world""
+";
+
+        [TestMethod]
+        public void ReadDict()
+        {
+            var reader = new StringReader(expectedYaml);
+
+            var props = Microsoft.PowerPlatform.YamlConverter.Read(reader);
+            Assert.AreEqual(props.Count, 2);
+            Assert.AreEqual(props["P1"], "123");
+            Assert.AreEqual(props["P2"], " \"hello\" & \"world\"");
+
+        }
+
+        [TestMethod]
+        public void ReadDictError()
+        {
+            var reader = new StringReader(
+@"P1:
+    sub1: 123"); // error, not supported objects 
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => Microsoft.PowerPlatform.YamlConverter.Read(reader));
+        }
+
+        [TestMethod]
+        public void WriteDict()
+        {
+            var writer = new StringWriter();
+
+            var d = new Dictionary<string, string>
+            {
+                {"P2",  " \"hello\" & \"world\""},
+                {"P1", "123" }
+            };
+
+            Microsoft.PowerPlatform.YamlConverter.Write(writer, d);
+            
+            // order should be alphabetical
+            Assert.AreEqual(expectedYaml, writer.ToString());
+        }
+
 
         #region Helpers
         static void AssertLexEndFile(YamlLexer y)
