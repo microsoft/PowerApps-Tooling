@@ -5,7 +5,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -46,13 +45,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void AddLocalAssetEntriesToResourceJson(this CanvasDocument app)
         {
             var localFileResourceJsonEntries = new List<ResourceJson>();
-            var logoFileName = app._logoFile?.Name?.GetFileName();
 
             // Iterate through local asset files to add their entries back to Resources.Json
             foreach (var file in app._assetFiles)
             {
                 var fileName = file.Key.GetFileName();
-                if (!app._resourcesJson.Resources.Any(x => x.FileName == fileName) && logoFileName != fileName)
+                if (!app._resourcesJson.Resources.Any(x => x.FileName == fileName) && !IsLogoFile(file.Key, app))
                 {
                     localFileResourceJsonEntries.Add(GenerateResourceJsonEntryFromAssetFile(file.Key));
                 }
@@ -134,6 +132,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             return schema;
+        }
+
+        private static bool IsLogoFile(FilePath path, CanvasDocument app)
+        {
+            var logoFileName = app._logoFile?.Name?.GetFileName();
+            return string.IsNullOrEmpty(logoFileName) ? false : path.Equals(new FilePath(logoFileName));
         }
     }
 
