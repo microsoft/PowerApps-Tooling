@@ -96,6 +96,48 @@ namespace PAModelTests
         }
 
         [TestMethod]
+        public void ControlCollisionTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._screens.TryGetValue("Screen1", out var control);
+                control.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                });
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._screens.TryGetValue("Screen1", out var control);
+                control.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                });
+
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen1", out var control);
+                Assert.AreEqual(1, control.Children.Count(item => item.Name.Identifier == "Foo"));
+            });
+        }
+
+        [TestMethod]
         public void SimplePropertyEditTest()
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");

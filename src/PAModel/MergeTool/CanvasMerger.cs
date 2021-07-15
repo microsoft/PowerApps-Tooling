@@ -32,8 +32,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             resultDeltas.AddRange(ours.OfType<RemoveControl>());
             resultDeltas.AddRange(theirs.OfType<RemoveControl>());
 
-            resultDeltas.AddRange(ours.OfType<AddControl>());
-            resultDeltas.AddRange(theirs.OfType<AddControl>());
+            var ourControlAdds = ours.OfType<AddControl>();
+            resultDeltas.AddRange(ourControlAdds);
+            resultDeltas.AddRange(theirs.OfType<AddControl>().Where(add => !ourControlAdds.Any(ourAdd => ourAdd.ControlName == add.ControlName)));
 
             var ourPropChanges = ours.OfType<ChangeProperty>();
             var theirPropChanges = theirs.OfType<ChangeProperty>();

@@ -17,6 +17,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         private BlockNode _control;
         private Dictionary<string, ControlState> _controlStates;
 
+        public string ControlName => _control.Name.Identifier;
+
         public AddControl(ControlPath parentControlPath, BlockNode control, Dictionary<string, ControlState> controlStates, bool isInComponent)
         {
             _isInComponent = isInComponent;
