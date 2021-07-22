@@ -40,6 +40,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                 AddControlStates(_control, document._editorStateStore);
 
                 controlSet.Add(_control.Name.Identifier, _control);
+
+                // Add screen to order set to avoid confusing diffs
+                if (!_isInComponent)
+                    document._screenOrder.Add(_control.Name.Identifier);
                 return;
             }
 
