@@ -31,6 +31,7 @@ The output files (ie, "yaml version") have a version number. During preview, the
 | --- | --- |
 | 1.7.2 | 0.23 | 
 | 1.7.4 | 0.23 | 
+| 1.8.5 | 0.24 |
 
 Latest Yaml version is: https://github.com/microsoft/PowerApps-Language-Tooling/blob/0a4c9e624ffad1f93b6c085aff029945a0fbc00a/src/PAModel/Serializers/SourceSerializer.cs#L49 
 
