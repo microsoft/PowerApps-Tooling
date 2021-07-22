@@ -1,5 +1,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -307,6 +309,43 @@ namespace PAModelTests
                 resultDoc._screens.TryGetValue("Screen32", out var control);
                 Assert.AreEqual(1, control.Properties.Count(item => item.Identifier == "SomeProp"));
                 Assert.IsTrue(resultDoc._screenOrder.Contains("Screen32"));
+            });
+        }
+
+        [TestMethod]
+        public void AddedPCFTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._screens.TryGetValue("Screen1", out var control);
+                control.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "PCFTemplate" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                });
+
+                // These are mocks, feel free to improve if needed to make this test more accurate
+                branchADoc._templateStore.AddTemplate("PCFTemplate", new CombinedTemplateState() { Name = "PCFTemplate", IsPcfControl = true });
+                branchADoc._pcfControls.Add("PCFTemplate", new PcfControl() { Name = "PCFTemplate" });
+            },
+            (branchBDoc) =>
+            {
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen1", out var control);
+                Assert.AreEqual(1, control.Children.Count(item => item.Name.Identifier == "Foo"));
+                Assert.IsTrue(resultDoc._templateStore.TryGetTemplate("PCFTemplate", out _));
+                Assert.IsTrue(resultDoc._pcfControls.ContainsKey("PCFTemplate"));
             });
         }
     }
