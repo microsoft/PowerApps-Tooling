@@ -276,5 +276,38 @@ namespace PAModelTests
                 Assert.AreEqual(default, textProp);
             });
         }
+
+
+
+        [TestMethod]
+        public void ScreenAddTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._screens.Add("Screen32", new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Screen32",
+                        Kind = new TypeNode() { TypeName = "screen" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                });
+            },
+            (branchBDoc) =>
+            {
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen32", out var control);
+                Assert.AreEqual(1, control.Properties.Count(item => item.Identifier == "SomeProp"));
+                Assert.IsTrue(resultDoc._screenOrder.Contains("Screen32"));
+            });
+        }
     }
 }
