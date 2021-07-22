@@ -46,15 +46,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
 
         private static void AddTemplateDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
         {
-            var childTemplatesDict = child._templates.UsedTemplates.ToDictionary(temp => temp.Name.ToLower());
+            var childClassicTemplatesDict = child._templates.UsedTemplates.ToDictionary(temp => temp.Name.ToLower());
             foreach (var template in child._templateStore.Contents)
             {
                 if (parent._templateStore.TryGetTemplate(template.Key, out _))
                     continue;
 
-                childTemplatesDict.TryGetValue(template.Key.ToLower(), out var jsonTemplate);
-
-                deltas.Add(new AddTemplate() { Name = template.Key, Template = template.Value, JsonTemplate = jsonTemplate });
+                if (!template.Value.IsPcfControl)
+                {
+                    childClassicTemplatesDict.TryGetValue(template.Key.ToLower(), out var jsonTemplate);
+                    deltas.Add(new AddTemplate(template.Key, template.Value, jsonTemplate));
+                }
+                else
+                {
+                    child._pcfControls.TryGetValue(template.Key, out var pcfTemplate);
+                    deltas.Add(new AddTemplate(template.Key, template.Value, pcfTemplate));
+                }
             }
         }
 
