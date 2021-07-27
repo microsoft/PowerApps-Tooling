@@ -22,7 +22,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return ApplyDelta(commonParent, resultDelta);
         }
 
-        // fix these to be hashsets eventually?
         private static IEnumerable<IDelta> UnionDelta(IEnumerable<IDelta> ours, IEnumerable<IDelta> theirs)
         {
             var resultDeltas = new List<IDelta>();
@@ -58,6 +57,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             resultDeltas.AddRange(ours.OfType<AddDataSource>());
             resultDeltas.AddRange(theirs.OfType<AddDataSource>());
+
+            // Take the local theme only
+            resultDeltas.AddRange(ours.OfType<ThemeChange>());
+
+            var ourSettingsChanges = ours.OfType<DocumentPropertiesChange>();
+            var theirSettingsChanges = theirs.OfType<DocumentPropertiesChange>();
+            resultDeltas.AddRange(ourSettingsChanges);
+            resultDeltas.AddRange(theirSettingsChanges.Where(change => !ourSettingsChanges.Any(ourChange => ourChange.Name == change.Name)));
 
             return resultDeltas;
         }
