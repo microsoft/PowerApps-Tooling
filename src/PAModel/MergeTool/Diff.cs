@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
@@ -20,6 +22,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             AddTemplateDeltas(parent, child, delta);
             AddResourceDeltas(parent, child, delta);
             AddDataSourceDeltas(parent, child, delta);
+            AddSettingsDelta(parent, child, delta);
+            AddThemeDelta(parent, child, delta);
 
             return delta;
         }
@@ -121,6 +125,62 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 if (!child._dataSources.ContainsKey(ds.Key))
                     deltas.Add(new RemoveDataSource() { Name = ds.Key });
             }
+        }
+
+        private static void AddSettingsDelta(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            // Use reflection to iterate over the keys in each document properties object and compare them
+            var parentProps = parent._properties;
+            var childProps = child._properties;
+
+            var properties = typeof(DocumentPropertiesJson).GetProperties();
+            foreach (PropertyInfo pi in properties)
+            {
+                var propName = pi.Name;
+                // Diff ExtensionData separately
+                if (propName == "ExtensionData")
+                    continue;
+
+                var parentValue = pi.GetValue(parentProps);
+                var childValue = pi.GetValue(childProps);
+
+                bool areEqual;
+                if (pi.PropertyType.IsArray)
+                    areEqual = Enumerable.SequenceEqual<object>(parentValue as object[], childValue as object[]);
+                else
+                    areEqual = Equals(parentValue, childValue);
+
+                if (!areEqual)
+                {
+                    deltas.Add(new DocumentPropertiesChange(propName, childValue));
+                }
+            }
+
+            foreach (var field in parent._properties.ExtensionData)
+            {
+                if (!child._properties.ExtensionData.TryGetValue(field.Key, out var value))
+                {
+                    deltas.Add(new DocumentPropertiesChange(field.Key, wasRemoved: true));
+                    continue;
+                }
+
+                if (value.ToString() == field.Value.ToString())
+                    continue;
+
+                deltas.Add(new DocumentPropertiesChange(field.Key, value));
+            }
+
+            foreach (var field in child._properties.ExtensionData.Where(kvp => !parent._properties.ExtensionData.ContainsKey(kvp.Key)))
+            {
+                // Added properties
+                deltas.Add(new DocumentPropertiesChange(field.Key, field.Value));
+            }
+        }
+
+        private static void AddThemeDelta(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            // Just replace the themes at this point.
+            deltas.Add(new ThemeChange(child._themes));
         }
     }
 }

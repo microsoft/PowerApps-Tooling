@@ -279,8 +279,6 @@ namespace PAModelTests
             });
         }
 
-
-
         [TestMethod]
         public void ScreenAddTest()
         {
@@ -346,6 +344,32 @@ namespace PAModelTests
                 Assert.AreEqual(1, control.Children.Count(item => item.Name.Identifier == "Foo"));
                 Assert.IsTrue(resultDoc._templateStore.TryGetTemplate("PCFTemplate", out _));
                 Assert.IsTrue(resultDoc._pcfControls.ContainsKey("PCFTemplate"));
+            });
+        }
+
+        [TestMethod]
+        public void PropertiesTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._properties.DocumentLayoutWidth = 1111;
+                branchADoc._properties.ExtensionData.Add("Foo", branchADoc._properties.ExtensionData.Values.First());
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._properties.DocumentLayoutWidth = 2222;
+                branchBDoc._properties.AppPreviewFlagsKey = branchBDoc._properties.AppPreviewFlagsKey.Concat(new List<string>() { "NewFlag" }).ToArray();
+            },
+            (resultDoc) =>
+            {
+                Assert.AreEqual(1111, resultDoc._properties.DocumentLayoutWidth);
+                Assert.AreEqual(msapp._properties.ExtensionData.Values.First().ToString(), resultDoc._properties.ExtensionData["Foo"].ToString());
+                Assert.IsTrue(resultDoc._properties.AppPreviewFlagsKey.Contains("NewFlag"));
             });
         }
     }
