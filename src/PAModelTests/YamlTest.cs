@@ -63,13 +63,22 @@ Obj1:
         [DataTestMethod]
         [DataRow("  1")] // leading whitespace
         [DataRow("  1\n2\n3")] // leading whitespace with multiline
+        [DataRow("  1\r2\r3")] // leading whitespace with Mac style multiline
         [DataRow("12 + \r\n\r\n34")]
         [DataRow("abc\r\ndef")]
+        [DataRow("abc\rdef")] // MacOS style multiline
         [DataRow("\"brows_4.0\"")]
         [DataRow("a # b")] // Test with yaml comment. 
         [DataRow("x")] // easy, no newlines. 
         [DataRow("1\n2")] // multiline
+        [DataRow("1\n\n2")] // 2 lines linux
+        [DataRow("1\r\r2")] // 2 lines mac
+        [DataRow("1\r\n\r\n2")] // 2 lines windows
+        [DataRow("1\r\n\r2")] // 2 lines mixed
+        [DataRow("1\n\r\n2")] // 2 lines mixed
+        [DataRow("1\n\r2")] // 2 lines mixed
         [DataRow("1\n2\n")] // multiline, trailing newline
+        [DataRow("1\n2\r3\r\n")] // Mixed multiline
         [DataRow("1 \n2 \n")] 
         [DataRow("1\n 2 \n ")]
         [DataRow("1\n2 \n ")]
