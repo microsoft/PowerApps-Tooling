@@ -144,11 +144,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 var parentValue = pi.GetValue(parentProps);
                 var childValue = pi.GetValue(childProps);
 
+
                 bool areEqual;
-                if (pi.PropertyType.IsArray)
-                    areEqual = Enumerable.SequenceEqual<object>(parentValue as object[], childValue as object[]);
+                if (parentValue == null && childValue == null)
+                {
+                    areEqual = true;
+
+                }
+                else if (pi.PropertyType.IsArray)
+                {
+                    areEqual = parentValue != null &&
+                                childValue != null &&
+                                Enumerable.SequenceEqual<object>(parentValue as object[], childValue as object[]);
+                }
                 else
+                {
                     areEqual = Equals(parentValue, childValue);
+                }
 
                 if (!areEqual)
                 {
