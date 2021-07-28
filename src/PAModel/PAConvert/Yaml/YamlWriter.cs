@@ -62,6 +62,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 return;
             }
 
+            value = NormalizeNewlines(value);
+
             bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
             // For consistency, both single and multiline PA properties prefix with '='.
@@ -111,12 +113,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                         needIndent = false;
                     }
 
-                    if (ch == '\r')
-                    {
-                        // skip and handle at the \n
-                        continue; 
-                    }
-
                     if (ch == '\n')
                     {
                         _text.WriteLine();
@@ -148,6 +144,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 _text.Write(Indent);
             }
+        }
+
+        public static string NormalizeNewlines(string x)
+        {
+            return x.Replace("\r\n", "\n").Replace("\r", "\n");
         }
     }
 }
