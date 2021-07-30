@@ -2,25 +2,28 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 {
     internal class ChangeComponentFunction : IDelta
     {
-        private ControlPath _controlPath;
-        private string _propertyName;
+        public readonly ControlPath ControlPath;
+        public readonly string PropertyName;
         private FunctionNode _func;
         private bool _wasRemoved;
+        private readonly CustomPropertyJson _customProperty;
 
         // For a function that changed
         public ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func)
         {
-            _controlPath = path;
-            _propertyName = propertyName;
+            ControlPath = path;
+            PropertyName = propertyName;
             _func = func;
             _wasRemoved = false;
         }
@@ -28,24 +31,36 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         // For a function that was removed
         public ChangeComponentFunction(ControlPath path, string propertyName)
         {
-            _controlPath = path;
-            _propertyName = propertyName;
+            ControlPath = path;
+            PropertyName = propertyName;
             _wasRemoved = true;
         }
 
         public void Apply(CanvasDocument document)
         {
-            var topParentName = _controlPath.Current;
+            var topParentName = ControlPath.Current;
             if (document._screens.TryGetValue(topParentName, out var blockNode))
             {
-                ChangeComponentFunctionVisitor.ApplyChange(blockNode, _controlPath.Next(), _propertyName, _func, _wasRemoved);
-                return;
+                if (!ChangeComponentFunctionVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, _func, _wasRemoved))
+                    return;
             }
 
             if (document._components.TryGetValue(topParentName, out blockNode))
             {
-                ChangeComponentFunctionVisitor.ApplyChange(blockNode, _controlPath.Next(), _propertyName, _func, _wasRemoved);
-                return;
+                if (!ChangeComponentFunctionVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, _func, _wasRemoved))
+                    return;
+
+                if (document._templateStore.TryGetTemplate(topParentName, out var updatableTemplate))
+                {
+                    var customProps = updatableTemplate.CustomProperties.ToDictionary(prop => prop.Name);
+                    if (_wasRemoved)
+                        customProps.Remove(PropertyName);
+                    else if (_customProperty != null)
+                        customProps[PropertyName] = _customProperty;
+                    else
+                        return;
+                    updatableTemplate.CustomProperties = customProps.Values.ToArray();
+                }
             }
         }
 
@@ -55,10 +70,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             private string _property;
             private FunctionNode _func;
             private bool _wasRemoved;
+            private bool _success = false;
 
-            public static void ApplyChange(BlockNode block, ControlPath path, string property, FunctionNode func, bool wasRemoved)
+            public static bool ApplyChange(BlockNode block, ControlPath path, string property, FunctionNode func, bool wasRemoved)
             {
-                new ChangeComponentFunctionVisitor(property, func, wasRemoved).Visit(block, path);
+                var visitor = new ChangeComponentFunctionVisitor(property, func, wasRemoved);
+                visitor.Visit(block, path);
+                return visitor._success;
             }
 
             private ChangeComponentFunctionVisitor(string property, FunctionNode func, bool wasRemoved)
@@ -80,6 +98,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                         if (funcNode.Identifier == _property)
                         {
                             node.Functions.Remove(funcNode);
+                            _success = true;
 
                             if (_wasRemoved)
                                 return;
@@ -89,6 +108,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                     }
 
                     // Function wasn't present in base
+                    _success = true;
                     node.Functions.Add(_func);
                     return;
                 }
