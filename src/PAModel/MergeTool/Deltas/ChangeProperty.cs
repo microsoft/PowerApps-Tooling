@@ -1,36 +1,78 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 {
     internal class ChangeProperty : IDelta
     {
-        public ControlPath ControlPath;
-        public string PropertyName;
-        public string Expression;
-        public bool WasRemoved = false;
+        public readonly ControlPath ControlPath;
+        public readonly string PropertyName;
+        private readonly string _expression;
+        private readonly bool _wasRemoved;
+        private readonly CustomPropertyJson _customProperty;
+
+        // For a normal property that changed
+        public ChangeProperty(ControlPath path, string propertyName, string expression)
+        {
+            ControlPath = path;
+            PropertyName = propertyName;
+            _expression = expression;
+            _wasRemoved = false;
+        }
+
+        // For a component custom property that changed
+        public ChangeProperty(ControlPath path, string propertyName, string expression, CustomPropertyJson customProperty)
+        {
+            ControlPath = path;
+            PropertyName = propertyName;
+            _expression = expression;
+            _customProperty = customProperty;
+            _wasRemoved = false;
+        }
+
+        // For a property that was removed
+        public ChangeProperty(ControlPath path, string propertyName)
+        {
+            ControlPath = path;
+            PropertyName = propertyName;
+            _wasRemoved = true;
+        }
 
         public void Apply(CanvasDocument document)
         {
             var topParentName = ControlPath.Current;
             if (document._screens.TryGetValue(topParentName, out var blockNode))
             {
-                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression, WasRemoved);
-                return;
+                if (!ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, _expression, _wasRemoved))
+                    return;
             }
 
             if (document._components.TryGetValue(topParentName, out blockNode))
             {
-                ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, Expression, WasRemoved);
-                return;
+                if (!ChangePropertyVisitor.ApplyChange(blockNode, ControlPath.Next(), PropertyName, _expression, _wasRemoved))
+                    return;
+
+                if (document._templateStore.TryGetTemplate(topParentName, out var updatableTemplate))
+                {
+                    var customProps = updatableTemplate.CustomProperties.ToDictionary(prop => prop.Name);
+                    if (_wasRemoved)
+                        customProps.Remove(PropertyName);
+                    else if (_customProperty != null)
+                        customProps[PropertyName] = _customProperty;
+                    else
+                        return;
+                    updatableTemplate.CustomProperties = customProps.Values.ToArray();
+                }
             }
-            // Throw here? what does an error look like in this scenario
         }
 
 
@@ -39,10 +81,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             private string _property;
             private string _expression;
             private bool _wasRemoved;
+            private bool _success = false;
 
-            public static void ApplyChange(BlockNode block, ControlPath path, string property, string expression, bool wasRemoved)
+            public static bool ApplyChange(BlockNode block, ControlPath path, string property, string expression, bool wasRemoved)
             {
-                new ChangePropertyVisitor(property, expression, wasRemoved).Visit(block, path);
+                var visitor = new ChangePropertyVisitor(property, expression, wasRemoved);
+                visitor.Visit(block, path);
+                return visitor._success;
             }
 
             private ChangePropertyVisitor(string property, string expression, bool wasRemoved)
@@ -66,6 +111,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                             if (_wasRemoved)
                             {
                                 node.Properties.Remove(propertyNode);
+                                _success = true;
                                 return;
                             }
 
@@ -75,6 +121,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                     }
 
                     // Property wasn't present in base
+                    _success = true;
                     node.Properties.Add(new PropertyNode() { Expression = new ExpressionNode() { Expression = _expression }, Identifier = _property });
                     return;
                 }
@@ -100,6 +147,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             public override void Visit(ExpressionNode node, ControlPath context)
             {
                 node.Expression = _expression;
+                _success = true;
             }
         }
     }
