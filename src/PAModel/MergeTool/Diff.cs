@@ -69,15 +69,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
             }
         }
-
-         
-        private static FilePath GetPath(Schemas.ResourceJson res)
-        {
-            var resourceName = res.Path.Substring("Assets\\".Length);
-            var path = FilePath.FromMsAppPath(resourceName);
-            return path;
-        }
-
+          
         // https://stackoverflow.com/a/48599119/534514
         static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
         {
@@ -93,9 +85,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             bool diffFlags = Schemas.ResourceJson.ResourcesMayBeDifferent(res1, res2);
 
             // Check actual contents. Ie, in case an image has been replaced.
-            var path = GetPath(res1);
+            var path = res1.GetPath();
 
-            Contract.Assert(path.Equals(GetPath(res2)));
+            Contract.Assert(path.Equals(res2.GetPath()));
 
             doc1._assetFiles.TryGetValue(path, out var file1);
             doc2._assetFiles.TryGetValue(path, out var file2);
@@ -141,7 +133,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 {
                     if (resource.ResourceKind == Schemas.ResourceKind.LocalFile)
                     {
-                        var path = GetPath(resource);
+                        var path = resource.GetPath();
                         deltas.Add(new RemoveResource(resource.Name, path));
                     }
                     else
@@ -156,7 +148,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 FileEntry file = null;
                 if (remaining.Value.ResourceKind == Schemas.ResourceKind.LocalFile)
                 {
-                    var path = GetPath(remaining.Value);
+                    var path = remaining.Value.GetPath();
                     child._assetFiles.TryGetValue(path, out file);
                     deltas.Add(new AddResource(remaining.Key, remaining.Value, file));
                 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -66,6 +67,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
+        public FilePath GetPath()
+        {
+            var resourceName = this.Path.Substring("Assets\\".Length);
+            var path = FilePath.FromMsAppPath(resourceName);
+            return path;
+        }
 
         // Check the various fields for any differences.
         // This doesn't check the contents, so it's inconclusive. 
