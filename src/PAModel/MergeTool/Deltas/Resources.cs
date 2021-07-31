@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using System.Diagnostics.Contracts;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
 {
@@ -78,35 +79,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
     internal class UpdateResource : IDelta
     {
         private string _name;
-        private FileEntry _file;
+        private FileEntry _file; // null if no contents. 
         private ResourceJson _resource;
-        private FilePath _assetKey;
+        private FilePath _assetKey; // needed for deletion (in case file is missing)
 
-        public UpdateResource(string name, FilePath assetKey, ResourceJson resource, FileEntry file)
+        public UpdateResource(FilePath assetKey, ResourceJson resource, FileEntry file)
         {
-            _name = name;
+            _name = resource.Name;
             _file = file; 
             _assetKey = assetKey;
             _resource = resource;
-        }
 
-        public UpdateResource(string name, ResourceJson resource)
-        {
-            _name = name;
-            _file = null;
-            _assetKey = null;
-            _resource = resource;
+            Contract.Assert(assetKey != null);
+            Contract.Assert(file == null || file.Name.Equals(assetKey));
         }
 
         public void Apply(CanvasDocument document)
         {
             var resources = document._resourcesJson.Resources.ToDictionary(res => res.Name);
-            resources.Remove(_name);
-            resources.Add(_name, _resource);
+            resources[_name] = _resource;
             document._resourcesJson.Resources = resources.Values.ToArray();
 
-            if (_assetKey == null)
-                document._assetFiles.Remove(_assetKey);
+            document._assetFiles.Remove(_assetKey);
 
             if (_file != null)
                 document.AddAssetFile(_file);
