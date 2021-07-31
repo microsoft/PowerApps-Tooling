@@ -11,6 +11,7 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
 {
+    [DebuggerDisplay("{ToPlatformPath()}")]
     internal class FilePath
     {
         public const int MaxFileNameLength = 60;

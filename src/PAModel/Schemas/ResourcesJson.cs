@@ -65,5 +65,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
+
+
+        // Check the various fields for any differences.
+        // This doesn't check the contents, so it's inconclusive. 
+        public static bool ResourcesMayBeDifferent(ResourceJson res1, ResourceJson res2)
+        {
+            if (res1.Name != res2.Name)
+                return true;
+
+            if (res1.ResourceKind != res2.ResourceKind)
+                return true;
+
+            if (res1.Content != res2.Content)
+                return true;
+
+            if (res1.Schema != res2.Schema)
+                return true;
+
+            if (res1.Type != res2.Type)
+                return true;
+
+            if (res1.Path != res2.Path)
+                return true;
+
+            // Ignore volatile fields like RootPath
+            
+            return false;
+        }
     }
 }

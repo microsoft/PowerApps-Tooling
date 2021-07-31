@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -69,24 +70,79 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             }
         }
 
+         
+        private static FilePath GetPath(Schemas.ResourceJson res)
+        {
+            var resourceName = res.Path.Substring("Assets\\".Length);
+            var path = FilePath.FromMsAppPath(resourceName);
+            return path;
+        }
+
+        // https://stackoverflow.com/a/48599119/534514
+        static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
+        {
+            // Be sure this calls ReadOnlySpan<T>.SequenceEqual, which is more optimized than IEnumerable.SequenceEqual
+            return a1.SequenceEqual(a2);
+        }
+
+        // Look for change from res1 (before) to res2 (after).
+        // Return null if same. Else return an update object if different. 
+        private static UpdateResource TryGetResourceUpdateDelta(Schemas.ResourceJson res1, Schemas.ResourceJson res2, CanvasDocument doc1, CanvasDocument doc2)
+        {
+            // check the many individual flags. 
+            bool diffFlags = Schemas.ResourceJson.ResourcesMayBeDifferent(res1, res2);
+
+            // Check actual contents. Ie, in case an image has been replaced.
+            var path = GetPath(res1);
+
+            Contract.Assert(path.Equals(GetPath(res2)));
+
+            doc1._assetFiles.TryGetValue(path, out var file1);
+            doc2._assetFiles.TryGetValue(path, out var file2);
+
+            bool diffContent;
+            if (file1 == null)
+            {
+                diffContent = file2 != null;
+            } else if (file2 == null)
+            {
+                diffContent = true;
+            } else
+            {
+                diffContent = !ByteArrayCompare(file1.RawBytes, file2.RawBytes);
+            }
+
+            if (diffFlags || diffContent)
+            {                
+                return new UpdateResource(path, res2, file2);
+            }
+
+            return null; // no diff
+        }
+
         private static void AddResourceDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
         {
             var childResourcesDict = child._resourcesJson.Resources.ToDictionary(resource => resource.Name);
             foreach (var resource in parent._resourcesJson.Resources)
             {
-                if (childResourcesDict.ContainsKey(resource.Name))
+                if (childResourcesDict.TryGetValue(resource.Name, out var resource2))
                 {
-                    // $$$ Need resource contents diff here to detect resource replacements
-                    // eg, delete old resource, add new resource with same name but different contents
-                    // Use UpdateResource once implemented.
-                    childResourcesDict.Remove(resource.Name);
+                    var changed = TryGetResourceUpdateDelta(resource, resource2, parent, child);
+
+                    if (changed != null)
+                    {
+                        deltas.Add(changed);
+                    }
+                    
+                    // Same resource in parent and child - no change. 
+                    childResourcesDict.Remove(resource.Name);                    
                 }
                 else
                 {
                     if (resource.ResourceKind == Schemas.ResourceKind.LocalFile)
                     {
-                        var resourceName = resource.Path.Substring("Assets\\".Length);
-                        deltas.Add(new RemoveResource(resource.Name, FilePath.FromMsAppPath(resourceName)));
+                        var path = GetPath(resource);
+                        deltas.Add(new RemoveResource(resource.Name, path));
                     }
                     else
                     {
@@ -100,8 +156,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 FileEntry file = null;
                 if (remaining.Value.ResourceKind == Schemas.ResourceKind.LocalFile)
                 {
-                    var resourceName = remaining.Value.Path.Substring("Assets\\".Length);
-                    child._assetFiles.TryGetValue(FilePath.FromMsAppPath(resourceName), out file);
+                    var path = GetPath(remaining.Value);
+                    child._assetFiles.TryGetValue(path, out file);
                     deltas.Add(new AddResource(remaining.Key, remaining.Value, file));
                 }
                 else

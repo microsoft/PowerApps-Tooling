@@ -52,6 +52,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             resultDeltas.AddRange(ours.OfType<AddResource>());
             resultDeltas.AddRange(theirs.OfType<AddResource>());
 
+            resultDeltas.AddRange(theirs.OfType<UpdateResource>());
+            resultDeltas.AddRange(ours.OfType<UpdateResource>());
+
             resultDeltas.AddRange(ours.OfType<RemoveDataSource>());
             resultDeltas.AddRange(theirs.OfType<RemoveDataSource>());
 
