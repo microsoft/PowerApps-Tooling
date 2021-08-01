@@ -70,13 +70,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             }
         }
           
-        // https://stackoverflow.com/a/48599119/534514
-        static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
-        {
-            // Be sure this calls ReadOnlySpan<T>.SequenceEqual, which is more optimized than IEnumerable.SequenceEqual
-            return a1.SequenceEqual(a2);
-        }
-
         // Look for change from res1 (before) to res2 (after).
         // Return null if same. Else return an update object if different. 
         private static UpdateResource TryGetResourceUpdateDelta(Schemas.ResourceJson res1, Schemas.ResourceJson res2, CanvasDocument doc1, CanvasDocument doc2)
@@ -96,12 +89,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             if (file1 == null)
             {
                 diffContent = file2 != null;
-            } else if (file2 == null)
+            }
+            else if (file2 == null)
             {
                 diffContent = true;
-            } else
+            }
+            else
             {
-                diffContent = !ByteArrayCompare(file1.RawBytes, file2.RawBytes);
+                diffContent = !Utilities.ByteArrayCompare(file1.RawBytes, file2.RawBytes);
             }
 
             if (diffFlags || diffContent)

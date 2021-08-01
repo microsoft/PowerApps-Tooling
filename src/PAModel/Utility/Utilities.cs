@@ -26,6 +26,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const int MaxNameLength = 50;
 
+        // https://stackoverflow.com/a/48599119/534514
+        public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
+        {
+            // Be sure this calls ReadOnlySpan<T>.SequenceEqual, which is more optimized than IEnumerable.SequenceEqual
+            return a1.SequenceEqual(a2);
+        }
+
         // Allows using with { } initializers, which require an Add() method.
         public static void Add<T>(this Stack<T> stack, T item)
         {
