@@ -15,7 +15,7 @@ namespace PASopa
     class Program
     {
         static void Main(string[] args)
-        {
+        {            
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
@@ -34,6 +34,39 @@ namespace PASopa
                 MsAppTest.StressTest(msAppPath);
                 return;
             }
+
+            if (mode == "-testall2")
+            {
+                if (args.Length < 2)
+                {
+                    Usage();
+                    return;
+                }
+                // Roundtrip all .msapps in a folder.
+                string msAppPathDir = args[1];
+                int countTotal = 0;
+                int countPass = 0;
+                Console.WriteLine("Test2 roundtripping all .msapps in : " + msAppPathDir);
+                string msAppCommon = null;
+                foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
+                {
+                    // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item. 
+                    msAppCommon ??= msAppPath; 
+
+                    Stopwatch sw = Stopwatch.StartNew();
+                    bool ok = MsAppTest.DiffStressTest(msAppPath);
+
+                    ok = ok && MsAppTest.MergeStressTest(msAppCommon, msAppPath);
+
+                    var str = ok ? "Pass" : "FAIL";
+                    countTotal++;
+                    if (ok) { countPass++; }
+                    sw.Stop();
+                    Console.WriteLine($"Test: {Path.GetFileName(msAppPath)}: {str}  ({sw.ElapsedMilliseconds / 1000}s)");
+                }
+                Console.WriteLine($"{countPass}/{countTotal}  ({countPass * 100 / countTotal}% passed");
+            }
+
             if (mode == "-testall")
             {
                 if (args.Length < 2)
