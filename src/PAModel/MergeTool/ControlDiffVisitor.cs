@@ -111,7 +111,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
             }
 
-            _parentTemplateStore.TryGetTemplate(node.Name.Identifier, out var parentTemplate);
             // Removed props
             foreach (var kvp in theirPropDict)
             {
@@ -127,12 +126,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 if (theirPropDict.TryGetValue(propName, out var theirProp))
                 {
                     func.Accept(this, new ControlDiffContext(controlPath, theirProp, context.IsInComponent));
-                    theirPropDict.Remove(propName);
+                    theirComponentFunctions.Remove(propName);
                 }
                 else
                 {
-
+                    if (childTemplate?.IsComponentTemplate ?? false)
+                    {
+                        var childCustomProperties = childTemplate.CustomProperties.ToDictionary(c => c.Name);
+                        if (childCustomProperties.TryGetValue(func.Identifier, out var customProperty))
+                        {
+                            _deltas.Add(new ChangeComponentFunction(context.Path, func.Identifier, func, customProperty));
+                            continue;
+                        }
+                    }
                 }
+            }
+
+            // Removed functions
+            foreach (var kvp in theirComponentFunctions)
+            {
+                _deltas.Add(new ChangeComponentFunction(controlPath, kvp.Key));
             }
 
         }
@@ -143,22 +156,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 return;
 
             var currentControlKind = context.Path.Current;
-            if (_childTemplateStore.TryGetTemplate(currentControlKind, out var template) && (template.IsComponentTemplate ?? false)
-                 && _parentTemplateStore.TryGetTemplate(currentControlKind, out var parentTemplate))
+            if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
             {
-                var childCustomProperties = template.CustomProperties.ToDictionary(c => c.Name);
-                var parentCustomProperties = parentTemplate.CustomProperties.ToDictionary(c => c.Name);
-                if (childCustomProperties.TryGetValue(node.Identifier, out var customProperty))
-                {
-                    if (!parentCustomProperties.TryGetValue(node.Identifier, out var parentCustomProp) ||
-                        parentCustomProp != customProperty)
-                    {
-                        _deltas.Add(new ChangeProperty(context.Path, node.Identifier, node.Expression.Expression, customProperty));
-                        return;
-                    }
-                }
+                _deltas.Add(new ChangeProperty(context.Path, node.Identifier, node.Expression.Expression, customProperty));
+                return;
             }
-
 
             if (node.Expression.Expression != theirs.Expression.Expression)
                 _deltas.Add(new ChangeProperty(context.Path, node.Identifier, node.Expression.Expression));
@@ -169,6 +171,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             if (!(context.Theirs is FunctionNode theirs))
                 return;
 
+            var currentControlKind = context.Path.Current;
+            if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
+            {
+                _deltas.Add(new ChangeComponentFunction(context.Path, node.Identifier, node, customProperty));
+                return;
+            }
+
+            if (!node.Equals(theirs))
+            {
+                _deltas.Add(new ChangeComponentFunction(context.Path, node.Identifier, node));
+            }
+        }
+
+        private bool TryGetUpdatedCustomPropertyMetadata(string currentControlKind, string propertyName, out Schemas.CustomPropertyJson customProperty)
+        {
+            if (_childTemplateStore.TryGetTemplate(currentControlKind, out var template) &&
+                (template.IsComponentTemplate ?? false) &&
+                _parentTemplateStore.TryGetTemplate(currentControlKind, out var parentTemplate))
+            {
+                var childCustomProperties = template.CustomProperties.ToDictionary(c => c.Name);
+                var parentCustomProperties = parentTemplate.CustomProperties.ToDictionary(c => c.Name);
+                if (childCustomProperties.TryGetValue(propertyName, out customProperty))
+                {
+                    return !parentCustomProperties.TryGetValue(propertyName, out var parentCustomProp) ||
+                        parentCustomProp != customProperty;
+                }
+            }
+            customProperty = null;
+            return false;
         }
     }
 

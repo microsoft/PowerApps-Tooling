@@ -19,7 +19,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         private bool _wasRemoved;
         private readonly CustomPropertyJson _customProperty;
 
-        // For a function that changed
+        // For a function that changed with metadata
+        public ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func, CustomPropertyJson customProperty)
+        {
+            ControlPath = path;
+            PropertyName = propertyName;
+            _func = func;
+            _customProperty = customProperty;
+            _wasRemoved = false;
+        }
+
+        // For a function that changed without metadata change
         public ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func)
         {
             ControlPath = path;
