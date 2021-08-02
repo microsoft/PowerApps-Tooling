@@ -15,20 +15,24 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
     internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
     {
         private List<IDelta> _deltas;
-        private readonly EditorStateStore _editorStateStore;
+        private readonly EditorStateStore _childStateStore;
+        private readonly TemplateStore _parentTemplateStore;
+        private readonly TemplateStore _childTemplateStore;
 
-        public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent, EditorStateStore stateStore, bool isInComponent)
+        public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent, EditorStateStore childStateStore, TemplateStore parentTemplateStore, TemplateStore childTemplateStore, bool isInComponent)
         {
-            var visitor = new ControlDiffVisitor(stateStore);
+            var visitor = new ControlDiffVisitor(childStateStore, parentTemplateStore, childTemplateStore);
             visitor.Visit(ours, new ControlDiffContext(new ControlPath(new List<string>()), parent, isInComponent));
 
             return visitor._deltas;
         }
 
-        private ControlDiffVisitor(EditorStateStore stateStore)
+        private ControlDiffVisitor(EditorStateStore childStateStore, TemplateStore parentTemplateStore, TemplateStore childTemplateStore)
         {
             _deltas = new List<IDelta>();
-            _editorStateStore = stateStore;
+            _childStateStore = childStateStore;
+            _parentTemplateStore = parentTemplateStore;
+            _childTemplateStore = childTemplateStore;
         }
 
         private Dictionary<string, ControlState> GetSubtreeStates(BlockNode node)
@@ -40,7 +44,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
         {
             var childstates = node.Children?.SelectMany(child => GetSubtreeStatesImpl(child)) ?? Enumerable.Empty<ControlState>();
 
-            if (!_editorStateStore.TryGetControlState(node.Name.Identifier, out var state))
+            if (!_childStateStore.TryGetControlState(node.Name.Identifier, out var state))
                 return childstates;
 
             return childstates.Concat(new List<ControlState>() { state });
@@ -80,6 +84,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 _deltas.Add(new RemoveControl(controlPath, kvp.Key, context.IsInComponent));
             }
 
+            _childTemplateStore.TryGetTemplate(node.Name.Identifier, out var childTemplate);
             // Let's handle properties:
             var theirPropDict = theirs.Properties.ToDictionary(prop => prop.Identifier);
             foreach (var prop in node.Properties)
@@ -92,17 +97,56 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                 }
                 else
                 {
-                    // Added prop
-                    _deltas.Add(new ChangeProperty() { ControlPath = controlPath, Expression = prop.Expression.Expression, PropertyName = prop.Identifier });
+                    // Added property
+                    if (childTemplate?.IsComponentTemplate ?? false)
+                    {
+                        var childCustomProperties = childTemplate.CustomProperties.ToDictionary(c => c.Name);
+                        if (childCustomProperties.TryGetValue(prop.Identifier, out var customProp))
+                        {
+                            _deltas.Add(ChangeProperty.GetComponentCustomPropertyChange(controlPath, prop.Identifier, prop.Expression.Expression, customProp));
+                            continue;
+                        }
+                    }
+                    _deltas.Add(ChangeProperty.GetNormalPropertyChange(controlPath, prop.Identifier, prop.Expression.Expression));
                 }
             }
 
+            // Removed props
             foreach (var kvp in theirPropDict)
             {
-                // removed prop
-                _deltas.Add(new ChangeProperty() { ControlPath = controlPath, PropertyName = kvp.Key, WasRemoved = true });
+                _deltas.Add(ChangeProperty.GetPropertyRemovedChange(controlPath, kvp.Key));
             }
 
+
+            // And component functions
+            var theirComponentFunctions = theirs.Functions.ToDictionary(func => func.Identifier);
+            foreach (var func in node.Functions)
+            {
+                var propName = func.Identifier;
+                if (theirPropDict.TryGetValue(propName, out var theirProp))
+                {
+                    func.Accept(this, new ControlDiffContext(controlPath, theirProp, context.IsInComponent));
+                    theirComponentFunctions.Remove(propName);
+                }
+                else
+                {
+                    if (childTemplate?.IsComponentTemplate ?? false)
+                    {
+                        var childCustomProperties = childTemplate.CustomProperties.ToDictionary(c => c.Name);
+                        if (childCustomProperties.TryGetValue(func.Identifier, out var customProperty))
+                        {
+                            _deltas.Add(ChangeComponentFunction.GetFunctionChangeWithMetadata(context.Path, func.Identifier, func, customProperty));
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // Removed functions
+            foreach (var kvp in theirComponentFunctions)
+            {
+                _deltas.Add(ChangeComponentFunction.GetFunctionRemoval(controlPath, kvp.Key));
+            }
 
         }
 
@@ -111,9 +155,51 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             if (!(context.Theirs is PropertyNode theirs))
                 return;
 
-            // Maybe add smarter diff here eventually
+            var currentControlKind = context.Path.Current;
+            if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
+            {
+                _deltas.Add(ChangeProperty.GetComponentCustomPropertyChange(context.Path, node.Identifier, node.Expression.Expression, customProperty));
+                return;
+            }
+
             if (node.Expression.Expression != theirs.Expression.Expression)
-                _deltas.Add(new ChangeProperty() { ControlPath = context.Path, Expression = node.Expression.Expression, PropertyName = node.Identifier });
+                _deltas.Add(ChangeProperty.GetNormalPropertyChange(context.Path, node.Identifier, node.Expression.Expression));
+        }
+
+        public override void Visit(FunctionNode node, ControlDiffContext context)
+        {
+            if (!(context.Theirs is FunctionNode theirs))
+                return;
+
+            var currentControlKind = context.Path.Current;
+            if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
+            {
+                _deltas.Add(ChangeComponentFunction.GetFunctionChangeWithMetadata(context.Path, node.Identifier, node, customProperty));
+                return;
+            }
+
+            if (!node.Equals(theirs))
+            {
+                _deltas.Add(ChangeComponentFunction.GetFunctionChange(context.Path, node.Identifier, node));
+            }
+        }
+
+        private bool TryGetUpdatedCustomPropertyMetadata(string currentControlKind, string propertyName, out Schemas.CustomPropertyJson customProperty)
+        {
+            if (_childTemplateStore.TryGetTemplate(currentControlKind, out var template) &&
+                (template.IsComponentTemplate ?? false) &&
+                _parentTemplateStore.TryGetTemplate(currentControlKind, out var parentTemplate))
+            {
+                var childCustomProperties = template.CustomProperties.ToDictionary(c => c.Name);
+                var parentCustomProperties = parentTemplate.CustomProperties.ToDictionary(c => c.Name);
+                if (childCustomProperties.TryGetValue(propertyName, out customProperty))
+                {
+                    return !parentCustomProperties.TryGetValue(propertyName, out var parentCustomProp) ||
+                        parentCustomProp != customProperty;
+                }
+            }
+            customProperty = null;
+            return false;
         }
     }
 

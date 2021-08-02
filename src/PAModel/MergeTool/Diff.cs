@@ -31,12 +31,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
 
         private static void AddControlDeltas(CanvasDocument parent, CanvasDocument child, Dictionary<string, IR.BlockNode> parentControlSet, Dictionary<string, IR.BlockNode> childControlSet, bool isComponents, List<IDelta> deltas)
         {
-
             foreach (var originalTopParentControl in parentControlSet)
             {
                 if (childControlSet.TryGetValue(originalTopParentControl.Key, out var childScreen))
                 {
-                    deltas.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalTopParentControl.Value, parent._editorStateStore, isComponents));
+                    deltas.AddRange(ControlDiffVisitor.GetControlDelta(childScreen, originalTopParentControl.Value, child._editorStateStore, parent._templateStore, child._templateStore, isComponents));
                 }
                 else
                 {

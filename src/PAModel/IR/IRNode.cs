@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Represents block construct, may have 0-N child blocks and 0-N properties
     /// </summary>
     [DebuggerDisplay("{Name}: {Properties.Count} props")]
-    internal class BlockNode : IRNode, ICloneable<BlockNode>
+    internal class BlockNode : IRNode, ICloneable<BlockNode>, IEquatable<BlockNode>
     {
         public TypedNameNode Name;
         public IList<PropertyNode> Properties = new List<PropertyNode>();
@@ -46,6 +46,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 Children = Children.Clone(),
             };
         }
+
+        public bool Equals(BlockNode other)
+        {
+            return other != null &&
+                Name == other.Name &&
+                Properties.SequenceEqual(other.Properties) &&
+                Functions.SequenceEqual(other.Functions) &&
+                Children.SequenceEqual(other.Children);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BlockNode other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Name, Properties, Functions, Children).GetHashCode();
+        }
     }
 
     /// <summary>
@@ -57,12 +76,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
     /// Kind = label
     /// </summary>
     [DebuggerDisplay("{Identifier} as {Kind}")]
-    internal class TypedNameNode : IRNode, ICloneable<TypedNameNode>
+    internal class TypedNameNode : IRNode, ICloneable<TypedNameNode>, IEquatable<TypedNameNode>
     {
         public string Identifier;
 
         /// <summary>
-        /// Kind is not required in all cases. 
+        /// Kind is not required in all cases.
         /// </summary>
         public TypeNode Kind;
 
@@ -79,13 +98,30 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 Kind = Kind.Clone()
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TypedNameNode other && Equals(other);
+        }
+
+        public bool Equals(TypedNameNode other)
+        {
+            return other != null &&
+                Identifier == other.Identifier &&
+                Kind == other.Kind;
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Identifier, Kind).GetHashCode();
+        }
     }
 
     /// <summary>
     /// Represents a template like `label` or `gallery.HorizontalGallery`
     /// </summary>
     [DebuggerDisplay("{TypeName}.{OptionalVariant}")]
-    internal class TypeNode : IRNode, ICloneable<TypeNode>
+    internal class TypeNode : IRNode, ICloneable<TypeNode>, IEquatable<TypeNode>
     {
         public string TypeName;
         public string OptionalVariant;
@@ -103,10 +139,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 OptionalVariant = OptionalVariant
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TypeNode other && Equals(other);
+        }
+
+        public bool Equals(TypeNode other)
+        {
+            return other != null &&
+                TypeName == other.TypeName &&
+                OptionalVariant == other.OptionalVariant;
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, TypeName, OptionalVariant).GetHashCode();
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Expression}")]
-    internal class PropertyNode : IRNode, ICloneable<PropertyNode>
+    internal class PropertyNode : IRNode, ICloneable<PropertyNode>, IEquatable<PropertyNode>
     {
         public string Identifier;
         public ExpressionNode Expression;
@@ -124,10 +177,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 Expression = Expression.Clone()
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PropertyNode other && Equals(other);
+        }
+
+        public bool Equals(PropertyNode other)
+        {
+            return other != null &&
+                Identifier == other.Identifier &&
+                Expression == other.Expression;
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Identifier, Expression).GetHashCode();
+        }
     }
 
     [DebuggerDisplay("{Identifier}({string.Join(',', Args)}):")]
-    internal class FunctionNode : IRNode, ICloneable<FunctionNode>
+    internal class FunctionNode : IRNode, ICloneable<FunctionNode>, IEquatable<FunctionNode>
     {
         public string Identifier;
         public IList<TypedNameNode> Args = new List<TypedNameNode>();
@@ -147,10 +217,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 Metadata = Metadata.Clone(),
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FunctionNode other && Equals(other);
+        }
+
+        public bool Equals(FunctionNode other)
+        {
+            return other != null &&
+                Identifier == other.Identifier &&
+                Args.SequenceEqual(other.Args) &&
+                Metadata.SequenceEqual(other.Metadata);
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Identifier, Args, Metadata).GetHashCode();
+        }
     }
 
     [DebuggerDisplay("{Identifier}: ={Default}")]
-    internal class ArgMetadataBlockNode : IRNode, ICloneable<ArgMetadataBlockNode>
+    internal class ArgMetadataBlockNode : IRNode, ICloneable<ArgMetadataBlockNode>, IEquatable<ArgMetadataBlockNode>
     {
         public string Identifier;
         public ExpressionNode Default;
@@ -168,10 +256,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
                 Default = Default.Clone(),
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ArgMetadataBlockNode other && Equals(other);
+        }
+
+        public bool Equals(ArgMetadataBlockNode other)
+        {
+            return other != null &&
+                Identifier == other.Identifier &&
+                Default == other.Default;
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Identifier, Default).GetHashCode();
+        }
     }
 
     [DebuggerDisplay("{Expression}")]
-    internal class ExpressionNode : IRNode, ICloneable<ExpressionNode>
+    internal class ExpressionNode : IRNode, ICloneable<ExpressionNode>, IEquatable<ExpressionNode>
     {
         public string Expression;
         public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
@@ -185,6 +290,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
             {
                 Expression = Expression
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ExpressionNode other && Equals(other);
+        }
+
+        public bool Equals(ExpressionNode other)
+        {
+            return other != null &&
+                Expression == other.Expression;
+        }
+
+        public override int GetHashCode()
+        {
+            return (SourceSpan, Expression).GetHashCode();
         }
     }
 }
