@@ -54,7 +54,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Present on PCF
             public string TemplateDisplayName { get; set; } = null;
-            public bool FirstParty { get; set; }
+            public bool? FirstParty { get; set; }
             public string DynamicControlDefinitionJson { get; set; }
 
             // Present on Legacy DataTable columns

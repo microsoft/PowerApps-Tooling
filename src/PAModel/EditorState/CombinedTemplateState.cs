@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 
         // Used with templates. 
         public bool? IsComponentTemplate { get; set; }
-        public bool FirstParty { get; set; }
+        public bool? FirstParty { get; set; }
         public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; } = null;
 
         // Present for component templates with functions
