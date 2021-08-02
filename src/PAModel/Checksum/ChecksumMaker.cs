@@ -299,6 +299,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                             else
                             {
+                                hash.AppendNull();
                             }
                         }
                     }
