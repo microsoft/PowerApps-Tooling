@@ -20,31 +20,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         private readonly bool _wasRemoved;
         private readonly CustomPropertyJson _customProperty;
 
-        // For a normal property that changed
-        public ChangeProperty(ControlPath path, string propertyName, string expression)
-        {
-            ControlPath = path;
-            PropertyName = propertyName;
-            _expression = expression;
-            _wasRemoved = false;
-        }
-
-        // For a component custom property that changed
-        public ChangeProperty(ControlPath path, string propertyName, string expression, CustomPropertyJson customProperty)
+        private ChangeProperty(ControlPath path, string propertyName, string expression, CustomPropertyJson customProperty, bool wasRemoved)
         {
             ControlPath = path;
             PropertyName = propertyName;
             _expression = expression;
             _customProperty = customProperty;
-            _wasRemoved = false;
+            _wasRemoved = wasRemoved;
         }
 
-        // For a property that was removed
-        public ChangeProperty(ControlPath path, string propertyName)
+        public static ChangeProperty GetNormalPropertyChange(ControlPath path, string propertyName, string expression)
         {
-            ControlPath = path;
-            PropertyName = propertyName;
-            _wasRemoved = true;
+            return new ChangeProperty(path, propertyName, expression, null, false);
+        }
+
+        public static ChangeProperty GetComponentCustomPropertyChange(ControlPath path, string propertyName, string expression, CustomPropertyJson customProperty)
+        {
+            return new ChangeProperty(path, propertyName, expression, customProperty, false);
+        }
+
+        public static ChangeProperty GetPropertyRemovedChange(ControlPath path, string propertyName)
+        {
+            return new ChangeProperty(path, propertyName, null, null, true);
         }
 
         public void Apply(CanvasDocument document)

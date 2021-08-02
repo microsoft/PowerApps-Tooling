@@ -19,31 +19,28 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
         private bool _wasRemoved;
         private readonly CustomPropertyJson _customProperty;
 
-        // For a function that changed with metadata
-        public ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func, CustomPropertyJson customProperty)
+        private ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func, CustomPropertyJson customProperty, bool wasRemoved)
         {
             ControlPath = path;
             PropertyName = propertyName;
             _func = func;
             _customProperty = customProperty;
-            _wasRemoved = false;
+            _wasRemoved = wasRemoved;
         }
 
-        // For a function that changed without metadata change
-        public ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func)
+        public static ChangeComponentFunction GetFunctionChangeWithMetadata(ControlPath path, string propertyName, FunctionNode func, CustomPropertyJson customProperty)
         {
-            ControlPath = path;
-            PropertyName = propertyName;
-            _func = func;
-            _wasRemoved = false;
+            return new ChangeComponentFunction(path, propertyName, func, customProperty, false);
         }
 
-        // For a function that was removed
-        public ChangeComponentFunction(ControlPath path, string propertyName)
+        public static ChangeComponentFunction GetFunctionChange(ControlPath path, string propertyName, FunctionNode func)
         {
-            ControlPath = path;
-            PropertyName = propertyName;
-            _wasRemoved = true;
+            return new ChangeComponentFunction(path, propertyName, func, null, false);
+        }
+
+        public static ChangeComponentFunction GetFunctionRemoval(ControlPath path, string propertyName)
+        {
+            return new ChangeComponentFunction(path, propertyName, null, null, true);
         }
 
         public void Apply(CanvasDocument document)

@@ -103,18 +103,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                         var childCustomProperties = childTemplate.CustomProperties.ToDictionary(c => c.Name);
                         if (childCustomProperties.TryGetValue(prop.Identifier, out var customProp))
                         {
-                            _deltas.Add(new ChangeProperty(controlPath, prop.Identifier, prop.Expression.Expression, customProp));
+                            _deltas.Add(ChangeProperty.GetComponentCustomPropertyChange(controlPath, prop.Identifier, prop.Expression.Expression, customProp));
                             continue;
                         }
                     }
-                    _deltas.Add(new ChangeProperty(controlPath, prop.Identifier, prop.Expression.Expression));
+                    _deltas.Add(ChangeProperty.GetNormalPropertyChange(controlPath, prop.Identifier, prop.Expression.Expression));
                 }
             }
 
             // Removed props
             foreach (var kvp in theirPropDict)
             {
-                _deltas.Add(new ChangeProperty(controlPath, kvp.Key));
+                _deltas.Add(ChangeProperty.GetPropertyRemovedChange(controlPath, kvp.Key));
             }
 
 
@@ -135,7 +135,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
                         var childCustomProperties = childTemplate.CustomProperties.ToDictionary(c => c.Name);
                         if (childCustomProperties.TryGetValue(func.Identifier, out var customProperty))
                         {
-                            _deltas.Add(new ChangeComponentFunction(context.Path, func.Identifier, func, customProperty));
+                            _deltas.Add(ChangeComponentFunction.GetFunctionChangeWithMetadata(context.Path, func.Identifier, func, customProperty));
                             continue;
                         }
                     }
@@ -145,7 +145,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             // Removed functions
             foreach (var kvp in theirComponentFunctions)
             {
-                _deltas.Add(new ChangeComponentFunction(controlPath, kvp.Key));
+                _deltas.Add(ChangeComponentFunction.GetFunctionRemoval(controlPath, kvp.Key));
             }
 
         }
@@ -158,12 +158,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             var currentControlKind = context.Path.Current;
             if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
             {
-                _deltas.Add(new ChangeProperty(context.Path, node.Identifier, node.Expression.Expression, customProperty));
+                _deltas.Add(ChangeProperty.GetComponentCustomPropertyChange(context.Path, node.Identifier, node.Expression.Expression, customProperty));
                 return;
             }
 
             if (node.Expression.Expression != theirs.Expression.Expression)
-                _deltas.Add(new ChangeProperty(context.Path, node.Identifier, node.Expression.Expression));
+                _deltas.Add(ChangeProperty.GetNormalPropertyChange(context.Path, node.Identifier, node.Expression.Expression));
         }
 
         public override void Visit(FunctionNode node, ControlDiffContext context)
@@ -174,13 +174,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             var currentControlKind = context.Path.Current;
             if (TryGetUpdatedCustomPropertyMetadata(currentControlKind, node.Identifier, out var customProperty))
             {
-                _deltas.Add(new ChangeComponentFunction(context.Path, node.Identifier, node, customProperty));
+                _deltas.Add(ChangeComponentFunction.GetFunctionChangeWithMetadata(context.Path, node.Identifier, node, customProperty));
                 return;
             }
 
             if (!node.Equals(theirs))
             {
-                _deltas.Add(new ChangeComponentFunction(context.Path, node.Identifier, node));
+                _deltas.Add(ChangeComponentFunction.GetFunctionChange(context.Path, node.Identifier, node));
             }
         }
 
