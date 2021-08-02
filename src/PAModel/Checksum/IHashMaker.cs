@@ -168,7 +168,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void AppendEndObj()
         {
+            if (_wroteProperty)
+            {
+                _writer.WriteNullValue();
+            }
             _writer.WriteEndObject();
+            _wroteProperty = false;
         }
 
         public void AppendNull()

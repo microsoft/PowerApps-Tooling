@@ -23,6 +23,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             AddTemplateDeltas(parent, child, delta);
             AddResourceDeltas(parent, child, delta);
             AddDataSourceDeltas(parent, child, delta);
+            AddConnectionDeltas(parent, child, delta);
             AddSettingsDelta(parent, child, delta);
             AddThemeDelta(parent, child, delta);
 
@@ -166,6 +167,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             {
                 if (!child._dataSources.ContainsKey(ds.Key))
                     deltas.Add(new RemoveDataSource() { Name = ds.Key });
+            }
+        }
+
+        private static void AddConnectionDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            foreach (var connection in (child._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>()))
+            {
+                if (!parent._connections.ContainsKey(connection.Key))
+                    deltas.Add(new AddConnection() { Name = connection.Key, Contents = connection.Value });
+            }
+
+
+            foreach (var connection in (parent._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>()))
+            {
+                if (!child._connections.ContainsKey(connection.Key))
+                    deltas.Add(new RemoveConnection() { Name = connection.Key });
             }
         }
 
