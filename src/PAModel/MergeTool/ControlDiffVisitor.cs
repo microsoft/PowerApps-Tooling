@@ -123,9 +123,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             foreach (var func in node.Functions)
             {
                 var propName = func.Identifier;
-                if (theirPropDict.TryGetValue(propName, out var theirProp))
+                if (theirComponentFunctions.TryGetValue(propName, out var theirFunc))
                 {
-                    func.Accept(this, new ControlDiffContext(controlPath, theirProp, context.IsInComponent));
+                    func.Accept(this, new ControlDiffContext(controlPath, theirFunc, context.IsInComponent));
                     theirComponentFunctions.Remove(propName);
                 }
                 else

@@ -61,6 +61,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             resultDeltas.AddRange(ours.OfType<AddDataSource>());
             resultDeltas.AddRange(theirs.OfType<AddDataSource>());
 
+            resultDeltas.AddRange(ours.OfType<RemoveConnection>());
+            resultDeltas.AddRange(theirs.OfType<RemoveConnection>());
+
+            resultDeltas.AddRange(ours.OfType<AddConnection>());
+            resultDeltas.AddRange(theirs.OfType<AddConnection>());
+
             // Take the local theme only
             resultDeltas.AddRange(ours.OfType<ThemeChange>());
 
