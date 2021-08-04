@@ -34,12 +34,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             // Top level addition
             if (_parentControlPath == ControlPath.Empty)
             {
-                if (!IsControlTreeCollisionFree(_control, document._editorStateStore))
+                var repairedTopParent = MakeControlTreeCollisionFree(_control, _controlStates, document._editorStateStore);
+                if (repairedTopParent == null)
                     return;
 
-                AddControlStates(_control, document._editorStateStore);
+                AddControlStates(repairedTopParent, document._editorStateStore);
 
-                controlSet.Add(_control.Name.Identifier, _control);
+                controlSet.Add(_control.Name.Identifier, repairedTopParent);
 
                 // Add screen to order set to avoid confusing diffs
                 if (!_isInComponent)
@@ -72,24 +73,44 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                 }
             }
 
-            if (!IsControlTreeCollisionFree(_control, document._editorStateStore))
+            var repairedControl = MakeControlTreeCollisionFree(_control, _controlStates, document._editorStateStore);
+            if (repairedControl == null)
                 return;
+            AddControlStates(repairedControl, document._editorStateStore);
 
-            AddControlStates(_control, document._editorStateStore);
-
-            control.Children.Add(_control);
+            control.Children.Add(repairedControl);
         }
 
-        private bool IsControlTreeCollisionFree(BlockNode root, EditorStateStore stateStore)
+        private static BlockNode MakeControlTreeCollisionFree(BlockNode root, Dictionary<string, ControlState> states, EditorStateStore stateStore)
         {
-            bool valid = true;
-            foreach (var child in root.Children)
+            var name = root.Name.Identifier;
+            if (stateStore.ContainsControl(name))
             {
-                valid &= IsControlTreeCollisionFree(child, stateStore);
+                RemoveStates(root, states);
+                return null;
             }
 
+            var children = new List<BlockNode>();
+            foreach (var child in root.Children)
+            {
+                var collisionFreeChild = MakeControlTreeCollisionFree(child, states, stateStore);
+                if (collisionFreeChild != null)
+                    children.Add(collisionFreeChild);
+            }
+            root.Children = children;
+
+            return root;
+        }
+
+        private static void RemoveStates(BlockNode root, Dictionary<string, ControlState> states)
+        {
             var name = root.Name.Identifier;
-            return valid && !stateStore.ContainsControl(name);
+            states.Remove(name);
+
+            foreach (var child in root.Children)
+            {
+                RemoveStates(child, states);
+            }
         }
 
         private void AddControlStates(BlockNode root, EditorStateStore stateStore)
@@ -100,6 +121,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
             }
 
             var name = root.Name.Identifier;
+
             // If the state exists, add to merged document
             if (_controlStates.TryGetValue(name, out var state))
             {
