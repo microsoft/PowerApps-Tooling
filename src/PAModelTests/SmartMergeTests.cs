@@ -311,6 +311,120 @@ namespace PAModelTests
         }
 
         [TestMethod]
+        public void ScreenAddWithChildCollisionTest_InLocal()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                var newScreen = new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Screen32",
+                        Kind = new TypeNode() { TypeName = "screen" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                };
+
+                newScreen.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
+                });
+
+                branchADoc._screens.Add("Screen32", newScreen);
+                branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Screen32", TopParentName = "Screen32" });
+                branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen32" });
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._screens.TryGetValue("Screen1", out var control);
+                control.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
+                });
+                branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen32", out var control);
+                Assert.AreEqual(1, control.Children.Count());
+                resultDoc._screens.TryGetValue("Screen1", out control);
+                Assert.IsFalse(control.Children.Any(child => child.Name.Identifier == "Foo"));
+            });
+        }
+
+        [TestMethod]
+        public void ScreenAddWithChildCollisionTest_InRemote()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._screens.TryGetValue("Screen1", out var control);
+                control.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
+                });
+                branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
+            },
+            (branchBDoc) =>
+            {
+                var newScreen = new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Screen32",
+                        Kind = new TypeNode() { TypeName = "screen" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                };
+
+                newScreen.Children.Add(new BlockNode()
+                {
+                    Name = new TypedNameNode()
+                    {
+                        Identifier = "Foo",
+                        Kind = new TypeNode() { TypeName = "label" }
+                    },
+                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
+                });
+
+                branchBDoc._screens.Add("Screen32", newScreen);
+                branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Screen32", TopParentName = "Screen32" });
+                branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen32" });
+            },
+            (resultDoc) =>
+            {
+                resultDoc._screens.TryGetValue("Screen32", out var control);
+                Assert.AreEqual(0, control.Children.Count());
+                resultDoc._screens.TryGetValue("Screen1", out control);
+                Assert.IsTrue(control.Children.Any(child => child.Name.Identifier == "Foo"));
+            });
+        }
+
+        [TestMethod]
         public void AddedPCFTest()
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
