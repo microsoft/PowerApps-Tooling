@@ -486,5 +486,30 @@ namespace PAModelTests
                 Assert.IsTrue(resultDoc._properties.AppPreviewFlagsKey.Contains("NewFlag"));
             });
         }
+
+
+
+        [TestMethod]
+        public void ScreenOrderTest()
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            Assert.IsFalse(errors.HasErrors);
+            msapp._screenOrder = new List<string>() { "A", "B", "C" };
+
+            MergeTester(msapp,
+            (branchADoc) =>
+            {
+                branchADoc._screenOrder = new List<string>() { "B", "C", "A" };
+            },
+            (branchBDoc) =>
+            {
+                branchBDoc._screenOrder = new List<string>() { "C", "A", "B" };
+            },
+            (resultDoc) =>
+            {
+                Assert.IsTrue(new List<string>() { "B", "C", "A" }.SequenceEqual(resultDoc._screenOrder));
+            });
+        }
     }
 }

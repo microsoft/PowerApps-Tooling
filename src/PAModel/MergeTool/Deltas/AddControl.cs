@@ -43,8 +43,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
                 controlSet.Add(_control.Name.Identifier, repairedTopParent);
 
                 // Add screen to order set to avoid confusing diffs
-                if (!_isInComponent)
-                    document._screenOrder.Add(_control.Name.Identifier);
+                if (!_isInComponent && !document._screenOrder.Contains(ControlName))
+                    document._screenOrder.Add(ControlName);
+
                 return;
             }
 
