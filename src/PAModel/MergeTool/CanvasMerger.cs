@@ -26,6 +26,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var resultDeltas = new List<IDelta>();
 
+            // Update screen order first, so potential screen adds later on update the correct ordering
+            // If one from local exists, that takes priority, otherwise add the one from the remote.
+            if (ours.OfType<ScreenOrderChange>().Any())
+                resultDeltas.AddRange(ours.OfType<ScreenOrderChange>());
+            else
+                resultDeltas.AddRange(theirs.OfType<ScreenOrderChange>());
+
             // If we apply the removes before the adds, adds will fail if they're in a tree that's been removed
             // This is intended but we should talk about it
             resultDeltas.AddRange(ours.OfType<RemoveControl>());

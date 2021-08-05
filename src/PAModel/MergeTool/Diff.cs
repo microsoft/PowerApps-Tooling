@@ -26,6 +26,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
             AddConnectionDeltas(parent, child, delta);
             AddSettingsDelta(parent, child, delta);
             AddThemeDelta(parent, child, delta);
+            AddScreenOrderDelta(parent, child, delta);
 
             return delta;
         }
@@ -252,6 +253,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool
         {
             // Just replace the themes at this point.
             deltas.Add(new ThemeChange(child._themes));
+        }
+
+        private static void AddScreenOrderDelta(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
+        {
+            if (parent._screenOrder.SequenceEqual(child._screenOrder))
+                return;
+            deltas.Add(new ScreenOrderChange(child._screenOrder));
         }
     }
 }
