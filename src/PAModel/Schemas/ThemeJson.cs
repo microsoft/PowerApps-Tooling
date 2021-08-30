@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
     internal class PaletteJson
@@ -32,6 +35,9 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string name { get; set; }
         public PaletteJson[] palette { get; set; }
         public StylesJson[] styles { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; }
     }
 
     /// <summary>
