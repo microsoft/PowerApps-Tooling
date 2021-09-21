@@ -52,7 +52,7 @@ To pack a .msapp file: `pasopa -pack ToApp.msapp FromSourceFolder`
 Unpack and pack use this folder structure:
 
 - **\src** - the control and component files. This contains the sources.
-   - \*.pa.yaml - the formulas extracted from the control.json file.  **This is the place to edit your formulas.**- 
+   - \*.fx.yaml - the formulas extracted from the control.json file.  **This is the place to edit your formulas.**- 
    - CanvasManifest.json - a manifest file. This contains what is normally in the header, properties, and publishInfo.
    - \*.json - the raw control.json file.
    - \EditorState\*.editorstate.json - cached information for Studio to use.
@@ -65,7 +65,7 @@ Unpack and pack use this folder structure:
    - Holds other files from the msapp, such as what is in \references
 
 ## File format
-The .pa.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](/docs/YAMLFileFormat.md)
+The .fx.yaml files use a subset of [YAML](https://yaml.org/spec/1.2/spec.html).  Most notably and similar to Excel, all expressions must begin with an `=` sign.  More details are available [here](/docs/YAMLFileFormat.md)
 
 ## Merging changes from Studio
 When merging changes made in two different Studio sessions:
