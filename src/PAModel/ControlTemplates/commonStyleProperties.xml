@@ -591,4 +591,19 @@
     <appMagic:displayName>##CommonProperties_ContentLanguage_DisplayName##</appMagic:displayName>
     <appMagic:tooltip>##CommonProperties_ContentLanguage_Tooltip##</appMagic:tooltip>
   </property>
+
+  <property name="ChildTabPriority" localizedName="##ChildTabPriority##" datatype="Boolean" defaultValue="true">
+    <title>Prioritize child controls</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>childTabPriority</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_ChildTabPriority_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_ChildTabPriority_Tooltip##</appMagic:tooltip>
+  </property>
+  <property name="EnableChildFocus" localizedName="##EnableChildFocus##" datatype="Boolean" defaultValue="true">
+    <title>Enable child control focus</title>
+    <appMagic:category>design</appMagic:category>
+    <appMagic:helperUI>enableChildFocus</appMagic:helperUI>
+    <appMagic:displayName>##CommonProperties_EnableChildFocus_DisplayName##</appMagic:displayName>
+    <appMagic:tooltip>##CommonProperties_EnableChildFocus_Tooltip##</appMagic:tooltip>
+  </property>
 </properties>

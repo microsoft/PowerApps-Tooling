@@ -41,7 +41,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 });
             }
 
-            templates.Add("groupContainer", CreateGroupContainerTemplate(type));
+            if (!templates.ContainsKey("groupContainer"))
+            {
+                templates.Add("groupContainer", CreateGroupContainerTemplate(type));
+            }
             if (!templateStore.TryGetTemplate("groupContainer", out _))
             {
                 templateStore.AddTemplate("groupContainer", new CombinedTemplateState()
