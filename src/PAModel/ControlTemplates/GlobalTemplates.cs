@@ -41,7 +41,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
                 });
             }
 
-            templates.Add("groupContainer", CreateGroupContainerTemplate(type));
+            /*  Prior to PAC Document version 1.318, the groupContainer control was not version
+                flexible, so we must check for its existence here. These can be removed from
+                GlobalTemplates IFF all documents are upgraded to 1.318+ (unlikely) OR if support
+                for documents 1.317 and lower is dropped. */
+            if (!templates.ContainsKey("groupContainer"))
+            {
+                templates.Add("groupContainer", CreateGroupContainerTemplate(type));
+            }
             if (!templateStore.TryGetTemplate("groupContainer", out _))
             {
                 templateStore.AddTemplate("groupContainer", new CombinedTemplateState()
@@ -96,6 +103,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             template.InputDefaults.Add("X", "0");
             template.InputDefaults.Add("Y", "0");
             template.InputDefaults.Add("Visible", "true");
+            template.InputDefaults.Add("ChildTabPriority", "true");
+            template.InputDefaults.Add("EnableChildFocus", "true");
 
 
             // These share a lot of properties, and they should be in the base template, but this is
