@@ -145,7 +145,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         /// <summary>
-        /// Returns true if it's either an empty directory or only includes valid files.
+        /// Returns true if it's either an empty directory or only contains valid files.
         /// </summary>
         /// <returns></returns>
         private bool ValidateSafeToDelete(ErrorContainer errors)
@@ -155,7 +155,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (!file.Equals(Path.Combine(_directory, "CanvasManifest.json"), StringComparison.InvariantCultureIgnoreCase)
                     && !_allowableFileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
                 {
-                    errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked or a directory that only contains project or solution files.");
+                    errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked or a directory that only contains Visual Studio project or solution files.");
                     throw new DocumentException();
                 }
             }
