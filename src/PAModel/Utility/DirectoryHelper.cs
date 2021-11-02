@@ -7,6 +7,8 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using System.Collections.Generic;
+using System;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -15,6 +17,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     internal class DirectoryWriter
     {
         private readonly string _directory;
+
+        private static readonly List<string> _allowableFileExtensions = new List<string>
+        {
+            ".csproj",
+            ".vbproj",
+            ".sln",
+            ".shproj",
+            ".projitems"
+        };
 
         public DirectoryWriter(string directory)
         {
@@ -39,7 +50,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 foreach (var file in Directory.EnumerateFiles(_directory))
                 {
-                    if (file.StartsWith(".git"))
+                    if (file.StartsWith(".git") || _allowableFileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
                         continue;
                     File.Delete(file);
                 }
@@ -134,16 +145,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         /// <summary>
-        /// Returns true if it's either an empty directory or it contains CanvasManifest.json file.
+        /// Returns true if it's either an empty directory or only includes valid files.
         /// </summary>
         /// <returns></returns>
         private bool ValidateSafeToDelete(ErrorContainer errors)
         {
-            if(Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
+            foreach (var file in Directory.EnumerateFiles(_directory))
             {
-                errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked.");
-                throw new DocumentException();
+                if (!file.Equals(Path.Combine(_directory, "CanvasManifest.json"), StringComparison.InvariantCultureIgnoreCase)
+                    && !_allowableFileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
+                {
+                    errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked or a directory that only contains project or solution files.");
+                    throw new DocumentException();
+                }
             }
+
             return true;
         }
     }
