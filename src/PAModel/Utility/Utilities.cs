@@ -134,9 +134,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             using (var s = e.Open())
             {
                 // Non-seekable stream.
-                var len = e.Length;
-                var buffer = new byte[len];
-                s.Read(buffer, 0, (int)len);
+                var buffer = new byte[e.Length];
+                int bytesRead = 0;
+
+                do
+                {
+                    bytesRead += s.Read(buffer, bytesRead, (int) e.Length-bytesRead);
+                } while (bytesRead < e.Length);
+
+
                 return buffer;
             }
         }
