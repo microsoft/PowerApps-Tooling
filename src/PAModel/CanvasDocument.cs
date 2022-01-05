@@ -300,6 +300,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _themes = other._themes.JsonClone();
             _resourcesJson = other._resourcesJson.JsonClone();
             _appCheckerResultJson = other._appCheckerResultJson.JsonClone();
+            _pcfControls = other._pcfControls.JsonClone();
 
             _connections = other._connections.JsonClone();
 
