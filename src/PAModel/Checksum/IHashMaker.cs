@@ -130,9 +130,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         private readonly Utf8JsonWriter _writer;
         private readonly MemoryStream _buffer = new MemoryStream();
+        private bool _wroteProperty;
 
         public DebugTextHashMaker()
-        {            
+        {
             JsonWriterOptions opts = new JsonWriterOptions
             {
                 Indented = true,
@@ -145,16 +146,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AppendData(string value)
         {
             _writer.WriteStringValue(value);
+            _wroteProperty = false;
         }
 
         public void AppendData(double value)
         {
             _writer.WriteNumberValue(value);
+            _wroteProperty = false;
         }
 
         public void AppendData(bool value)
         {
             _writer.WriteBooleanValue(value);
+            _wroteProperty = false;
         }
 
         public void AppendEndArray()
@@ -164,27 +168,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void AppendEndObj()
         {
+            if (_wroteProperty)
+            {
+                _writer.WriteNullValue();
+            }
             _writer.WriteEndObject();
+            _wroteProperty = false;
         }
 
         public void AppendNull()
         {
             _writer.WriteNullValue();
+            _wroteProperty = false;
         }
 
         public void AppendPropName(string name)
         {
+            if (_wroteProperty)
+            {
+                _writer.WriteNullValue();
+            }
             _writer.WritePropertyName(name);
+            _wroteProperty = true;
         }
 
         public void AppendStartArray()
         {
             _writer.WriteStartArray();
+            _wroteProperty = false;
         }
 
         public void AppendStartObj()
         {
             _writer.WriteStartObject();
+            _wroteProperty = false;
         }
 
         public void Dispose()
@@ -198,7 +215,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _writer.Flush();
 
             _buffer.Position = 0;
-            var bytes = this._buffer.ToArray();            
+            var bytes = this._buffer.ToArray();
             return bytes;
         }
     }

@@ -310,6 +310,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _logoFile = other._logoFile != null ? new FileEntry(other._logoFile) : null;
             _entropy = other._entropy.JsonClone();
             _checksum = other._checksum.JsonClone();
+
+            this._idRestorer = new UniqueIdRestorer(this._entropy);
         }
 
         // iOrder is used to preserve ordering value for round-tripping. 
