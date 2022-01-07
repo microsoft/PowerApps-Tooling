@@ -203,8 +203,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         string outSrcDir = tempDir.Dir;
                         errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath : pathToMsApp);
-                        errors.ThrowOnErrors();
-                        return true;
+                        errors.ThrowOnErrors();                 
                     }
                 }
             }
@@ -213,6 +212,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Console.WriteLine(e.ToString());
                 return false;
             }
+
+            return true;
         }
 
         public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)

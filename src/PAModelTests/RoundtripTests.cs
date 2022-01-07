@@ -24,7 +24,9 @@ namespace PAModelTests
         [DataRow("WadlConnector.msapp")]
         [DataRow("GroupControlTest.msapp")]
         [DataRow("EmptyTestCase.msapp")]
-        [DataRow("ComponentTest.msapp")] 
+        [DataRow("ComponentTest.msapp")]
+        [DataRow("autolayouttest.msapp")]
+        [DataRow("TestStudio_Test.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
@@ -34,6 +36,35 @@ namespace PAModelTests
 
             bool ok = MsAppTest.StressTest(root);
             Assert.IsTrue(ok);
+        }
+
+
+        [DataTestMethod]
+        [DataRow("MyWeather.msapp")]
+        [DataRow("Chess_for_Power_Apps_v1.03.msapp")]
+        [DataRow("AppWithLabel.msapp")]
+        [DataRow("GalleryTestApp.msapp")]
+        // [DataRow("AccountPlanReviewerMaster.msapp")] // causes oom 
+        [DataRow("Marc2PowerPlatformDevOpsAlm.msapp")]
+        [DataRow("SimpleScopeVariables.msapp")]
+        [DataRow("WadlConnector.msapp")]
+        [DataRow("GroupControlTest.msapp")]
+        [DataRow("EmptyTestCase.msapp")]
+        [DataRow("ComponentTest.msapp")]
+        [DataRow("autolayouttest.msapp")]
+        [DataRow("TestStudio_Test.msapp")]
+        public void TestClone(string filename)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+
+            // Test ability to Clone the app.
+
+            var cloneOk = MsAppTest.TestClone(root);
+
+            // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
+            Assert.IsTrue(cloneOk, $"Clone failed: " + filename);            
         }
     }
 }
