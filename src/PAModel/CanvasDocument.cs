@@ -302,6 +302,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _appCheckerResultJson = other._appCheckerResultJson.JsonClone();
             _pcfControls = other._pcfControls.JsonClone();
 
+            _appInsights = other._appInsights.JsonClone();
+
             _connections = other._connections.JsonClone();
 
             _dataSourceReferences = other._dataSourceReferences.JsonClone();
