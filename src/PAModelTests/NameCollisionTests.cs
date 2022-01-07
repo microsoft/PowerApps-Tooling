@@ -20,7 +20,7 @@ namespace PAModelTests
             var doc = new CanvasDocument();
             var resource1 = new ResourceJson()
             {
-                Name = "Image",
+                Name = "Image", // Capital
                 Path = "Assets\\Images\\Image.png",
                 FileName = "Image.png",
                 ResourceKind = ResourceKind.LocalFile,
@@ -31,7 +31,7 @@ namespace PAModelTests
 
             var resource2 = new ResourceJson()
             {
-                Name = "image",
+                Name = "image", // Lowercase
                 Path = "Assets\\Images\\image.png",
                 FileName = "image.png",
                 ResourceKind = ResourceKind.LocalFile,
