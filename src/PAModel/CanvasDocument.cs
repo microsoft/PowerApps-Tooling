@@ -314,6 +314,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _checksum = other._checksum.JsonClone();
 
             this._idRestorer = new UniqueIdRestorer(this._entropy);
+
+            _localAssetInfoJson = other._localAssetInfoJson.JsonClone();
         }
 
         // iOrder is used to preserve ordering value for round-tripping. 

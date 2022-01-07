@@ -59,7 +59,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             var docClone = new CanvasDocument(doc1); 
 
-            return HasNoDeltas(doc1, docClone);
+            return HasNoDeltas(doc1, docClone, strict: true);
         }
 
 
@@ -72,7 +72,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         // Verify there are no deltas (detected via smart merge) between doc1 and doc2
-        private static bool HasNoDeltas(CanvasDocument doc1, CanvasDocument doc2)
+        // Strict =true, also compare entropy files. 
+        private static bool HasNoDeltas(CanvasDocument doc1, CanvasDocument doc2, bool strict = false)
         {
             var ourDeltas = Diff.ComputeDelta(doc1, doc1);
 
@@ -97,10 +98,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 doc1.SaveToMsApp(temp1.FullPath);
                 doc2.SaveToMsApp(temp2.FullPath);
 
-                var doc1NoEntropy = RemoveEntropy(temp1.FullPath);
-                var doc2NoEntropy = RemoveEntropy(temp2.FullPath);
+                // bool same = Compare(doc1, doc2, Console.Out);
+                bool same;
+                if (strict)
+                {
+                    same = Compare(temp1.FullPath, temp2.FullPath, Console.Out);
+                }
+                else
+                {
+                    var doc1NoEntropy = RemoveEntropy(temp1.FullPath);
+                    var doc2NoEntropy = RemoveEntropy(temp2.FullPath);
 
-                bool same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out);
+                    same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out);
+                }
+
                 if (!same)
                 {
                     return false;
