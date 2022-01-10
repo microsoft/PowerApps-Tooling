@@ -155,9 +155,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     string outFile = temp1.FullPath;
 
-                    //var log = TextWriter.Null;
-                    var log = Console.Out;
-
+                    var log = TextWriter.Null;
+                    
                     // MsApp --> Model
                     CanvasDocument msapp;
                     ErrorContainer errors = new ErrorContainer();
