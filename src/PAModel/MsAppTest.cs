@@ -37,7 +37,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (var doc2, var errors2) = CanvasDocument.LoadFromMsapp(pathToMsApp2);
                 errors2.ThrowOnErrors();
 
-                var doc1New = CanvasMerger.Merge(ours: doc1, doc2, doc2);
+                var doc1New = CanvasMerger.Merge(doc1, doc2, doc2);
                 var ok1 = HasNoDeltas(doc1, doc1New);
 
                 var doc2New = CanvasMerger.Merge(doc2, doc1, doc1);
@@ -98,7 +98,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 doc1.SaveToMsApp(temp1.FullPath);
                 doc2.SaveToMsApp(temp2.FullPath);
 
-                // bool same = Compare(doc1, doc2, Console.Out);
                 bool same;
                 if (strict)
                 {
@@ -142,33 +141,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 (var doc2, var errors2) = CanvasDocument.LoadFromSources(temp1.Dir);
                 errors.ThrowOnErrors();
 
-
-#if false
-                // $$$ We get different checksums when deleting in-memory vs. files.
-                // In some cases, files are just rearranged (\images),
-                // but in other cases, look different. 
-
-                // Reset Entropy on in-memory model
-                doc1._entropy = new Entropy();
-
-                using (var temp2 = new TempFile())
-                using (var temp3 = new TempFile())
-                {
-                    errors = doc1.SaveToMsApp(temp3.FullPath);
-                    errors.ThrowOnErrors();
-                    errors = doc2.SaveToMsApp(temp2.FullPath);
-                    errors.ThrowOnErrors();
-
-
-                    var checksum1 = ChecksumMaker.GetChecksum(temp3.FullPath);
-                    var checksum2 = ChecksumMaker.GetChecksum(temp2.FullPath);
-
-                    if (checksum1.wholeChecksum != checksum2.wholeChecksum)
-                    {
-
-                    }                    
-                }
-#endif
                 return doc2;
             }
         }
@@ -183,7 +155,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     string outFile = temp1.FullPath;
 
-                    var log = TextWriter.Null;
+                    //var log = TextWriter.Null;
+                    var log = Console.Out;
 
                     // MsApp --> Model
                     CanvasDocument msapp;
@@ -194,7 +167,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         {
                             msapp = MsAppSerializer.Load(stream, errors);
                         }
+                        errors.Write(log);
                         errors.ThrowOnErrors();
+
+                        // We can still get warnings here. Commonly:
+                        // - PA2001, checksum mismatch
+                        // - PA2999, colliding asset names
                     }
                     catch (NotSupportedException)
                     {
@@ -216,6 +194,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath : pathToMsApp);
                         errors.ThrowOnErrors();                 
                     }
+                } // end using
+
+                if (!MsAppTest.TestClone(pathToMsApp))
+                {
+                    return false;
+                }
+
+                if (!MsAppTest.DiffStressTest(pathToMsApp))
+                {
+                    return false;
                 }
             }
             catch(Exception e)
@@ -223,6 +211,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Console.WriteLine(e.ToString());
                 return false;
             }
+
+            
 
             return true;
         }
