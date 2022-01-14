@@ -44,7 +44,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public string Version { get; set; }
             public string LastModifiedTimestamp {get;set;}
 
-            // Used with templates. 
+            // Used with templates.
             public bool? IsComponentDefinition { get; set; }
             public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; }
 

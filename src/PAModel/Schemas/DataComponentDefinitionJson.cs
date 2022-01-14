@@ -72,18 +72,20 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public string LastModifiedTimestamp { get; set; } //  "637335420246436668",
         public ControlInfoJson.RuleEntry[] Rules {get;set;}
         public ControlInfoJson.Item[] Children { get; set; }
+        public bool? AllowAccessToGlobals { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
 
         public ComponentDefinitionInfoJson() { }
 
-        public ComponentDefinitionInfoJson(ControlInfoJson.Item item, string timestamp, ControlInfoJson.Item[] children)
+        public ComponentDefinitionInfoJson(ControlInfoJson.Item item, string timestamp, ControlInfoJson.Item[] children, bool? allowAccessToGlobals)
         {
             Name = item.Name;
             LastModifiedTimestamp = timestamp;
             Rules = item.Rules;
             Children = children;
+            AllowAccessToGlobals = allowAccessToGlobals;
 
             // Once ControlPropertyState has an actual schema, this can be cleaned up.
             if (item.ExtensionData.ContainsKey("ControlPropertyState"))
