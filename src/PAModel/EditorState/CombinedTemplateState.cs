@@ -36,6 +36,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         public string TemplateOriginalName { get; set; } = null;
         public ComponentType? ComponentType { get; set; } = null;
 
+        [JsonIgnore]
+        public bool? AllowAccessToGlobals { get; set; } = null;
 
         // Present on PCF
         public string TemplateDisplayName { get; set; } = null;
@@ -66,6 +68,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             Version = template.Version;
             LastModifiedTimestamp = template.LastModifiedTimestamp;
             ComponentDefinitionInfo = null;
+            AllowAccessToGlobals = template.ComponentDefinitionInfo?.AllowAccessToGlobals;
             IsComponentTemplate = template.IsComponentDefinition;
             CustomProperties = template.CustomProperties;
             TemplateDisplayName = template.TemplateDisplayName;
