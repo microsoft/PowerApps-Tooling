@@ -336,7 +336,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
                     IsGroupControl = state.IsGroupControl,
-                    GroupedControlsKey = state.GroupedControlsKey
+                    GroupedControlsKey = state.GroupedControlsKey,
+                    AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals ?? true,
                 };
 
                 if (state.IsComponentDefinition ?? false)
@@ -379,6 +380,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 bool hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
                 resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
                 resultControlInfo.HasDynamicProperties = hasDynamicProperties;
+                resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals ?? true;
             }
             resultControlInfo.Template = template;
             resultControlInfo.Children = orderedChildren;

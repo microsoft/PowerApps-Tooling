@@ -29,6 +29,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // even though this can be re-derived from the existence of DynamicProperties
         public bool? HasDynamicProperties { get; set; }
 
+        public bool? AllowAccessToGlobals { get; set; }
+
         // Doesn't get written to .msapp
         // Represents the index at which this property appears in it's parent's children list
         public int ParentIndex { get; set; } = -1;
