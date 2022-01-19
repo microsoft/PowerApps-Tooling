@@ -19,6 +19,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public string TemplateGuid { get; set; } // a guid 
                                                  // public string Description { get; set; }
 
+        public bool? AllowAccessToGlobals { get; set; }
+
         // Other properties in ComponentsMetadataJson.Entry
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
@@ -50,6 +52,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var dc = new ComponentManifest
             {
                 Name = x.Name,
+                AllowAccessToGlobals = x.AllowAccessToGlobals,
                 ExtensionData = x.ExtensionData
             };
             dc.SetGuid(x.TemplateName);
@@ -117,6 +120,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             public string Name { get; set;  } // "Component1";
             public string TemplateName { get; set; } // "a70e51d571ae4649a16b8bf1622ffdac";
+            public bool? AllowAccessToGlobals { get; set; }
 
             // public string Description { get; set; }
             //public bool AllowCustomization { get; set; }

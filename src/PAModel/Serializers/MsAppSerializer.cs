@@ -452,13 +452,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 #endif
 
+#if !DEBUG
                 // These are the non-debug warnings, if it's unpack this was a serious error, on -pack it's most likely not
                 if (isValidation)
                 {
                     errors.PostUnpackValidationFailed();
                     throw new DocumentException();
                 }
-
+#endif
                 errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
             }
 
@@ -640,6 +641,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     Name = manifest.Name,
                     TemplateName = manifest.TemplateGuid,
+                    AllowAccessToGlobals = manifest.AllowAccessToGlobals,
                     ExtensionData = manifest.ExtensionData
                 });
 

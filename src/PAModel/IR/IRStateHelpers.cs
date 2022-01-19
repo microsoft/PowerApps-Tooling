@@ -341,7 +341,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (state.IsComponentDefinition ?? false)
                 {
-                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, templateState.AllowAccessToGlobals);
+                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, templateState.ComponentManifest.AllowAccessToGlobals);
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
 
