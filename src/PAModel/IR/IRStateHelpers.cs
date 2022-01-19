@@ -337,7 +337,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ExtensionData = state.ExtensionData,
                     IsGroupControl = state.IsGroupControl,
                     GroupedControlsKey = state.GroupedControlsKey,
-                    AllowAccessToGlobals = (state.IsComponentDefinition ?? false) ? (templateState?.ComponentManifest?.AllowAccessToGlobals ?? true) : true,
+                    AllowAccessToGlobals = (state.IsComponentDefinition ?? false) ? (templateState?.ComponentManifest?.AllowAccessToGlobals ?? true) : state.AllowAccessToGlobals,
                 };
 
                 if (state.IsComponentDefinition ?? false)
