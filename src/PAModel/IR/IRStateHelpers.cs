@@ -503,6 +503,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             DynamicPropertyState propState = null;
             if (state.DynamicProperties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
             {
+                //The DynamicProperties may contain items without an existing corresponding property leading to empty property variables
                 if (propState.Property != null)
                 {
                     property.Rule = new ControlInfoJson.RuleEntry()
