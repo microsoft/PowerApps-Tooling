@@ -509,15 +509,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             DynamicPropertyState propState = null;
             if (state.DynamicProperties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
             {
-                property.Rule = new ControlInfoJson.RuleEntry()
+                //The DynamicProperties may contain items without an existing corresponding property leading to empty property variables
+                if (propState.Property != null)
                 {
-                    InvariantScript = expression,
-                    Property = propName,
-                    ExtensionData = propState.Property.ExtensionData,
-                    NameMap = propState.Property.NameMap,
-                    RuleProviderType = propState.Property.RuleProviderType
-                };
-                property.ExtensionData = propState.ExtensionData;
+                    property.Rule = new ControlInfoJson.RuleEntry()
+                    {
+                        InvariantScript = expression,
+                        Property = propName,
+                        ExtensionData = propState.Property.ExtensionData,
+                        NameMap = propState.Property.NameMap,
+                        RuleProviderType = propState.Property.RuleProviderType
+                    };
+                    property.ExtensionData = propState.ExtensionData;
+                }
             }
             else
             {
