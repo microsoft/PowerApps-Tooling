@@ -31,6 +31,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
 
+        // This tracks the state of whether msapp has AllowGlobalScope property in component instance -> component definition in controls array under screen.
+        public bool IsLegacyComponentAllowGlobalScopeCase { get; set; }
+
         // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         
         public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);

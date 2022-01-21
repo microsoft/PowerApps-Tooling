@@ -27,6 +27,8 @@ namespace PAModelTests
         [DataRow("ComponentTest.msapp")]
         [DataRow("autolayouttest.msapp")]
         [DataRow("TestStudio_Test.msapp")]
+        [DataRow("ComponentDefinitionWithAllowGlobalAccessProperty.msapp")]
+        [DataRow("ComponentDefinitionWithoutAllowGlobalAccessProperty.msapp")]
         public void TestMethod1(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);

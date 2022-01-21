@@ -55,7 +55,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // Used in GroupControlTransform.cs, and not written to .editorstate.json
         internal List<string> GroupedControlsKey;
 
-
         public ControlState Clone()
         {
             var newState = Utilities.JsonClone(this);

@@ -145,6 +145,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 foreach (var ctrl in flattenedControlTree)
                                 {
+                                    var compDef = ctrl.Template?.ComponentDefinitionInfo;
+                                    if (compDef != null)
+                                        app._entropy.IsLegacyComponentAllowGlobalScopeCase = compDef.AllowAccessToGlobals == null;
+
                                     // Add PublishOrderIndex to Entropy so it doesn't affect the editorstate diff.
                                     app._entropy.PublishOrderIndices.Add(ctrl.Name, ctrl.PublishOrderIndex);
 
