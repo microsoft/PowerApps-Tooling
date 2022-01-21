@@ -145,6 +145,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 foreach (var ctrl in flattenedControlTree)
                                 {
+                                    var compDef = ctrl.Template?.ComponentDefinitionInfo;
+                                    if (compDef != null)
+                                        app._entropy.IsLegacyComponentAllowGlobalScopeCase = compDef.AllowAccessToGlobals == null;
+
                                     // Add PublishOrderIndex to Entropy so it doesn't affect the editorstate diff.
                                     app._entropy.PublishOrderIndices.Add(ctrl.Name, ctrl.PublishOrderIndex);
 
@@ -452,13 +456,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
 #endif
 
+#if !DEBUG
                 // These are the non-debug warnings, if it's unpack this was a serious error, on -pack it's most likely not
                 if (isValidation)
                 {
                     errors.PostUnpackValidationFailed();
                     throw new DocumentException();
                 }
-
+#endif
                 errors.ChecksumMismatch("Checksum indicates that sources have been edited since they were unpacked. If this was intentional, ignore this warning.");
             }
 
@@ -640,6 +645,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     Name = manifest.Name,
                     TemplateName = manifest.TemplateGuid,
+                    AllowAccessToGlobals = manifest.AllowAccessToGlobals,
                     ExtensionData = manifest.ExtensionData
                 });
 

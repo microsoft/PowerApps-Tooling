@@ -133,6 +133,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Present on children of AutoLayout controls
             public bool? HasDynamicProperties { get; set; }
 
+            public bool? AllowAccessToGlobals { get; set; }
 
             [JsonExtensionData]
             public Dictionary<string, object> ExtensionData { get; set; }

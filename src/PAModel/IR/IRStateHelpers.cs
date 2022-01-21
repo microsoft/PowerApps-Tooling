@@ -196,6 +196,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 GroupedControlsKey = control.GroupedControlsKey,
                 ExtensionData = control.ExtensionData,
                 ParentIndex = index,
+                AllowAccessToGlobals = control.AllowAccessToGlobals,
                 IsComponentDefinition = control.Template.IsComponentDefinition,
             };
 
@@ -336,12 +337,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     StyleName = state.StyleName,
                     ExtensionData = state.ExtensionData,
                     IsGroupControl = state.IsGroupControl,
-                    GroupedControlsKey = state.GroupedControlsKey
+                    GroupedControlsKey = state.GroupedControlsKey,
+                    AllowAccessToGlobals = (state.IsComponentDefinition ?? false) ? templateState?.ComponentManifest?.AllowAccessToGlobals : state.AllowAccessToGlobals,
                 };
 
                 if (state.IsComponentDefinition ?? false)
                 {
-                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, templateState.AllowAccessToGlobals);
+                    // Before AllowAccessToGlobals added to ComponentDefinition in msapp, it is present in component manifest as well.
+                    // So when reconstructing componentdefinition, we need to identify if it was ever present on component definition or not.
+                    // For this, we use state IsAllowAccessToGlobalsPresent.
+                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : templateState.ComponentManifest.AllowAccessToGlobals);
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
 
@@ -379,6 +384,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 bool hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
                 resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
                 resultControlInfo.HasDynamicProperties = hasDynamicProperties;
+                resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
             }
             resultControlInfo.Template = template;
             resultControlInfo.Children = orderedChildren;

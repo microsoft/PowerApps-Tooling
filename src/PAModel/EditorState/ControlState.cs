@@ -29,6 +29,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // even though this can be re-derived from the existence of DynamicProperties
         public bool? HasDynamicProperties { get; set; }
 
+        public bool? AllowAccessToGlobals { get; set; }
+
         // Doesn't get written to .msapp
         // Represents the index at which this property appears in it's parent's children list
         public int ParentIndex { get; set; } = -1;
@@ -52,7 +54,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         // This is a list of the controls represented as a child of the group control in studio
         // Used in GroupControlTransform.cs, and not written to .editorstate.json
         internal List<string> GroupedControlsKey;
-
 
         public ControlState Clone()
         {
