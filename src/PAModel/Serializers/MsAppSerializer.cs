@@ -3,6 +3,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
@@ -21,8 +22,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
-            var je = entry.ToJson();
-            return je.ToObject<T>();
+            if (entry.Name.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
+            {
+                using (var stream = entry.Open())
+                using (var textReader = new StreamReader(stream))
+                {
+                    var obj = YamlPocoSerializer.Read<T>(textReader);
+                    return obj;
+                }
+            }
+            else
+            {
+                var je = entry.ToJson();
+                return je.ToObject<T>();
+            }
         }
 
         public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
@@ -109,6 +122,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
                         case FileKind.DataComponentSources:
                             dcsources = ToObject<DataComponentSourcesJson>(entry);
+                            break;
+
+                        case FileKind.Schema:
+                            app._parameterSchema = ToObject<ParameterSchema>(entry);
                             break;
 
                         case FileKind.Properties:
@@ -536,6 +553,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             yield return ToFile(FileKind.Properties, props);
 
+            yield return ToFile(FileKind.Schema, app._parameterSchema);
+
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
             yield return logoFile;
 
@@ -787,13 +806,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var filename = FileEntry.GetFilenameForKind(kind);
 
-            var jsonStr = JsonSerializer.Serialize(value, Utilities._jsonOpts);
+            string output;
+            if (filename.GetExtension() == ".yaml")
+            {
+                StringWriter tw = new StringWriter();
+                YamlPocoSerializer.CanonicalWrite(tw, value);
+                output = tw.ToString();
+            }
+            else
+            {
+                var jsonStr = JsonSerializer.Serialize(value, Utilities._jsonOpts);
 
-            jsonStr = JsonNormalizer.Normalize(jsonStr);
+                output = JsonNormalizer.Normalize(jsonStr);
+            }
 
-            var bytes = Encoding.UTF8.GetBytes(jsonStr);
-
-            return new FileEntry { Name = filename, RawBytes = bytes };
+            var bytes = Encoding.UTF8.GetBytes(output);
+            return new FileEntry { Name = filename, RawBytes = bytes };            
         }
     }
 }

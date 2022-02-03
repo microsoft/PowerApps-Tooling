@@ -20,7 +20,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml
     public static class YamlPocoSerializer
     {
         public static T Read<T>(TextReader reader)
-            where T : new()
         {
             var deserializer = new DeserializerBuilder().Build();
 
@@ -36,6 +35,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml
         // - newlines
         public static void CanonicalWrite(TextWriter writer, object obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             var yaml = new YamlWriter(writer);
 
             WriteObject(yaml, obj);
