@@ -61,6 +61,7 @@
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(GitExists)' == true">
     <PackageReference Include="MinVer" Version="2.3.0">

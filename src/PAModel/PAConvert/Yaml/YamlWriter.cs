@@ -46,13 +46,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
+        public void WriteProperty(string propertyName, bool value)
+        {            
+            WriteIndent();
+            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(": ");
+            _text.WriteLine(value ? "true" : "false");            
+        }
+
+        public void WriteProperty(string propertyName, int value)
+        {
+            WriteIndent();
+            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(": ");
+            _text.WriteLine(value);
+        }
+
+        public void WriteProperty(string propertyName, double value)
+        {
+            WriteIndent();
+            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(": ");
+            _text.WriteLine(value);
+        }
+
         /// <summary>
         /// Safely write a property. Based on the value, will chose whether single-line (and prefix with an '=')
         /// or multi-line and pick the right the escape. 
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="value"></param>
-        public void WriteProperty(string propertyName, string value)
+        public void WriteProperty(string propertyName, string value, bool includeEquals=true)
         {
             if (value == null)
             {
@@ -68,7 +92,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
             // For consistency, both single and multiline PA properties prefix with '='.
             // Only single-line actually needs this - to avoid yaml's regular expression escaping.
-            value = '=' + value;
+            if (includeEquals)
+            {
+                // $$$ is this safe? more checks needed?
+                value = '=' + value;
+            }
 
             if (isSingleLine)
             {
