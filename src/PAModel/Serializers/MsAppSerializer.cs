@@ -807,7 +807,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var filename = FileEntry.GetFilenameForKind(kind);
 
             string output;
-            if (filename.GetExtension() == ".yaml")
+            if (Utilities.IsYamlFile(filename))
             {
                 StringWriter tw = new StringWriter();
                 YamlPocoSerializer.CanonicalWrite(tw, value);
