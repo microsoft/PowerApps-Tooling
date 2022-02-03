@@ -7,7 +7,6 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
-using Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml;
 using System;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
