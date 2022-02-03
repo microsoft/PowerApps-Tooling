@@ -135,6 +135,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                 }
             }
+            foreach (var file in dir.EnumerateFiles("", "*.yaml"))
+            {
+                switch (file.Kind)
+                {
+                    case FileKind.Schema:
+                        app._parameterSchema = file.ToObject<ParameterSchema>();
+                        break;
+                }
+            }
+
+
             if (appInsightsInstumentationKey != null)
             {
                 app._properties.InstrumentationKey = appInsightsInstumentationKey;
@@ -274,6 +285,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
+            app._parameterSchema = new ParameterSchema();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
@@ -577,6 +589,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     dir.WriteAllBytes(OtherDir, file.Name, file.RawBytes);
                 }
+            }
+
+            if (app._parameterSchema != null)
+            {
+                dir.WriteAllJson("", FileKind.Schema, app._parameterSchema);
             }
 
             var manifest = new CanvasManifestJson

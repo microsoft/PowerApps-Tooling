@@ -56,7 +56,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         AppInsightsKey,
 
         // AppTest parent control source file
-        AppTestParentControl
+        AppTestParentControl,
+
+        // Schema.yaml describing app's parameters at top level. 
+        Schema            
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -113,6 +116,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"Entities.json", FileKind.OldEntityJSon },
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
+            {"Schema.yaml", FileKind.Schema },
             {ChecksumMaker.ChecksumName, FileKind.Checksum },
             {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
             {"ComponentsMetadata.json", FileKind.ComponentsMetadata },
