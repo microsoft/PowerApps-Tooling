@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void WriteAllJson<T>(string subdir, FilePath filename, T obj)
         {
-            if (filename.GetExtension() == ".yaml")
+            if (Utilities.IsYamlFile(filename))
             {
                 using (var tw = new StringWriter())
                 {
@@ -208,7 +208,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             public T ToObject<T>()
             {
-                if (_fullpath.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
+                if (Utilities.IsYamlFile(_fullpath))
                 {
                     using (var textReader = new StreamReader(_fullpath))
                     {
