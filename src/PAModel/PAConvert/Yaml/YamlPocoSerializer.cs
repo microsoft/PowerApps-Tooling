@@ -12,7 +12,7 @@ using System.Linq;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml
+namespace Microsoft.PowerPlatform
 {
     /// <summary>
     /// Serializer for Writing Pocos as canonical yaml. 

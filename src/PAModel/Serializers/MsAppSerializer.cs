@@ -3,7 +3,6 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.PAConvert.Yaml;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
@@ -553,7 +552,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             yield return ToFile(FileKind.Properties, props);
 
-            yield return ToFile(FileKind.Schema, app._parameterSchema);
+            if (app._parameterSchema != null)
+            {
+                yield return ToFile(FileKind.Schema, app._parameterSchema);
+            }
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
             yield return logoFile;
