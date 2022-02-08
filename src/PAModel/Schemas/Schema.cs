@@ -32,18 +32,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
             public ParamType Type { get; set; }
             public bool Required { get; set; }
 
-            // $$$ Default Value?
-
             // Optional: For entities, specifies the name
             public string Name { get; set; }
 
             // Optional: For records, can become recursive
             public Dictionary<string, Parameter> Fields { get; set; }
         }
-
-        // $$$ enforce Case insenstive
-
-
+                
         // Input parameters (public)
         public Dictionary<string, Parameter> Parameters { get; set; }
 

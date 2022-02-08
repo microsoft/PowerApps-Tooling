@@ -49,7 +49,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         public void WriteProperty(string propertyName, bool value)
         {            
             WriteIndent();
-            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(propertyName);
             _text.Write(": ");
             _text.WriteLine(value ? "true" : "false");            
         }
@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         public void WriteProperty(string propertyName, int value)
         {
             WriteIndent();
-            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(propertyName);
             _text.Write(": ");
             _text.WriteLine(value);
         }
@@ -65,7 +65,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         public void WriteProperty(string propertyName, double value)
         {
             WriteIndent();
-            _text.Write(propertyName);  // $$$ Escape if needed?
+            _text.Write(propertyName);
             _text.Write(": ");
             _text.WriteLine(value);
         }
@@ -93,8 +93,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // For consistency, both single and multiline PA properties prefix with '='.
             // Only single-line actually needs this - to avoid yaml's regular expression escaping.
             if (includeEquals)
-            {
-                // $$$ is this safe? more checks needed?
+            {                
                 value = '=' + value;
             }
 
