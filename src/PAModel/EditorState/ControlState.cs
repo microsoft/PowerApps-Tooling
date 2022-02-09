@@ -1,7 +1,4 @@
-using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
@@ -14,12 +11,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     {
         public string Name { get; set; }
 
-        [JsonIgnore]
         public string TopParentName { get; set; }
 
         // These are properties with namemaps/info beyond the ones present in the control template
         // Key is property name
-        public List<PropertyState> Properties { get; set; } 
+        public List<PropertyState> Properties { get; set; }
 
         // These are properties specific to AutoLayout controls
         public List<DynamicPropertyState> DynamicProperties { get; set; }

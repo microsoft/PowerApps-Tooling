@@ -15,7 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -46,7 +45,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
         // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
         // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
-        public static Version CurrentSourceVersion = new Version(0, 24);
+        // 25 - When loading in sources, use the TopParentControl from the ediot state, if it was serialized.
+        public static Version CurrentSourceVersion = new Version(0, 25);
 
         // Layout is:
         //  src\
@@ -357,10 +357,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Json peer to a .pa file. 
                 var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
-                var topParentName = file._relativeName.Replace(".editorstate.json", "");
+                var topParentFilename = file._relativeName.Replace(".editorstate.json", "");
                 foreach (var control in controlExtraData)
                 {
-                    control.Value.TopParentName = Utilities.UnEscapeFilename(topParentName);
+                    // For backwards compat purposes. We may not have the TopParentName from
+                    // the editor state file. In this case, revert back to the filename itself.
+                    if (string.IsNullOrEmpty(control.Value.TopParentName))
+                    {
+                        control.Value.TopParentName = Utilities.UnEscapeFilename(topParentFilename);
+                    }
+
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
@@ -878,10 +884,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Write out of all the other state for roundtripping 
             string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
 
-            // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
-            // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
-            if (!dir.FileExists(EditorStateDir, extraContent))
+            // For TestSuite controls, only the top parent control has an editor state created.
+            // For other control types, create an editor state.
+            if (string.IsNullOrEmpty(topParentname))
             {
+                // Write out of all the other state properties on the control for roundtripping.
                 dir.WriteAllJson(EditorStateDir, extraContent, extraData);
             }
 
