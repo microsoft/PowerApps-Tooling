@@ -10,7 +10,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
     // Define Schema.yaml - strong typing for input and output parameters
     public class ParameterSchema
     {
-        // What names here?
         public enum ParamType
         {
             Number,
