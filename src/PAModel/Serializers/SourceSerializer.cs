@@ -45,8 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
         // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
         // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
-        // 25 - When loading in sources, use the TopParentControl from the ediot state, if it was serialized.
-        public static Version CurrentSourceVersion = new Version(0, 25);
+        public static Version CurrentSourceVersion = new Version(0, 24);
 
         // Layout is:
         //  src\
