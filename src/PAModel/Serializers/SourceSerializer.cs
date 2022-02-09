@@ -884,7 +884,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 extraData.Add(item.Name, item);
             }
 
-            // Write out of all the other state for roundtripping 
             string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
 
             // For TestSuite controls, only the top parent control has an editor state created.

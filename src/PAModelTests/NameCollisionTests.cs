@@ -109,7 +109,7 @@ namespace PAModelTests
                     }
                     else
                     {
-                        Assert.Fail($"Unexpected file {yamlFile} in Src folder.");
+                        Assert.Fail($"Unexpected file {fileName} in Src folder. Full path: {yamlFile}.");
                     }
                 }
 
@@ -164,7 +164,7 @@ namespace PAModelTests
                     }
                     else
                     {
-                        Assert.Fail($"Unexpected file {editorStateFile} in EditorState folder.");
+                        Assert.Fail($"Unexpected file {fileName} in EditorState folder. Full path: {editorStateFile}.");
                     }
                 }
 
