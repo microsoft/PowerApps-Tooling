@@ -51,7 +51,7 @@ namespace Microsoft.PowerPlatform
             {
                 // Exclude default values.
                 // This provides more stable output as new things are added in the future.
-                return;                
+                return;
             }
             else if (obj is bool valBool)
             {
@@ -88,10 +88,10 @@ namespace Microsoft.PowerPlatform
                         var list = new List<KeyValuePair<string, object>>();
                         foreach (DictionaryEntry kv in dict)
                         {
-                            list.Add(new KeyValuePair<string, object>((string) kv.Key, kv.Value));
+                            list.Add(new KeyValuePair<string, object>((string)kv.Key, kv.Value));
                         }
 
-                        
+
                         yaml.WriteStartObject(propName);
                         WriteCanonicalList(yaml, list);
                         yaml.WriteEndObject();
@@ -129,7 +129,7 @@ namespace Microsoft.PowerPlatform
             // Critical to sort to preserve a canonical order.
             list.Sort((kv1, kv2) => kv1.Key.CompareTo(kv2.Key));
 
-            foreach(var kv in list)
+            foreach (var kv in list)
             {
                 WriteAnything(yaml, kv.Key, kv.Value);
             }
