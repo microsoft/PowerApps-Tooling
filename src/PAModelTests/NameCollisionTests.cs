@@ -154,7 +154,7 @@ namespace PAModelTests
                 msapp.SaveToSources(outSrcDir);
 
                 // Look for the expected EditorState files
-                string srcPath = Path.Combine(outSrcDir, "Src\\EditorState");
+                string srcPath = Path.Combine(outSrcDir, "Src", "EditorState");
                 foreach (string editorStateFile in Directory.GetFiles(srcPath, "*.editorstate.json", SearchOption.TopDirectoryOnly))
                 {
                     string fileName = Path.GetFileName(editorStateFile).ToLower();
