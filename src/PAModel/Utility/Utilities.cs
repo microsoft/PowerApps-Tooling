@@ -26,6 +26,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const int MaxNameLength = 50;
 
+        public static bool IsYamlFile(FilePath path)
+        {
+            return path.GetExtension() == ".yaml";
+        }
+        public static bool IsYamlFile(string path)
+        {
+            return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase);
+        }
+
         // https://stackoverflow.com/a/48599119/534514
         public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
         {

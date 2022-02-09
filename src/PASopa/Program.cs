@@ -11,7 +11,6 @@ using System.IO;
 namespace PASopa
 {
     // Mode: Extract
-
     class Program
     {
         static void Main(string[] args)

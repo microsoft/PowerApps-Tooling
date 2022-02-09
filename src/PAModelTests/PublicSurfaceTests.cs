@@ -26,7 +26,11 @@ namespace PAModelTests
                 $"{ns}.{nameof(ChecksumMaker)}",
                 $"{ns}.{nameof(ErrorContainer)}",
                 $"{ns}.{nameof(Error)}",
-                $"Microsoft.PowerPlatform.YamlConverter"
+                $"Microsoft.PowerPlatform.YamlConverter",
+                $"Microsoft.PowerPlatform.YamlPocoSerializer",
+
+                // Public schemas
+                $"Microsoft.PowerPlatform.Formulas.Tools.Schemas.ParameterSchema"                
             };
 
             StringBuilder sb = new StringBuilder();

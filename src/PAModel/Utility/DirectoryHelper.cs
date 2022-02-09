@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using System;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -55,9 +56,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void WriteAllJson<T>(string subdir, FilePath filename, T obj)
         {
-            var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
-            text = JsonNormalizer.Normalize(text);
-            WriteAllText(subdir, filename, text);
+            if (Utilities.IsYamlFile(filename))
+            {
+                using (var tw = new StringWriter())
+                {
+                    YamlPocoSerializer.CanonicalWrite(tw, obj);
+                    WriteAllText(subdir, filename, tw.ToString());
+                }
+            }
+            else
+            {
+                var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
+                text = JsonNormalizer.Normalize(text);
+                WriteAllText(subdir, filename, text);
+            }
         }
 
         // Use this if the filename is already escaped.
@@ -195,8 +207,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             public T ToObject<T>()
             {
-                var str = File.ReadAllText(_fullpath);
-                return JsonSerializer.Deserialize<T>(str, Utilities._jsonOpts);
+                if (Utilities.IsYamlFile(_fullpath))
+                {
+                    using (var textReader = new StreamReader(_fullpath))
+                    {
+                        var obj = YamlPocoSerializer.Read<T>(textReader);
+                        return obj;
+                    }
+                }
+                else
+                {
+                    var str = File.ReadAllText(_fullpath);
+                    return JsonSerializer.Deserialize<T>(str, Utilities._jsonOpts);
+                }
             }
 
             public string GetContents()
