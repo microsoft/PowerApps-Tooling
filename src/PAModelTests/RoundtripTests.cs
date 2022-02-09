@@ -29,16 +29,16 @@ namespace PAModelTests
         [DataRow("TestStudio_Test.msapp")]
         [DataRow("ComponentDefinitionWithAllowGlobalAccessProperty.msapp")]
         [DataRow("ComponentDefinitionWithoutAllowGlobalAccessProperty.msapp")]
-        public void TestMethod1(string filename)
+        [DataRow("DuplicateScreen.msapp")]
+        [DataRow("ComponentNameCollision.msapp")]
+        public void StressTestApps(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
 
             Assert.IsTrue(File.Exists(root));
 
-
             bool ok = MsAppTest.StressTest(root);
             Assert.IsTrue(ok);
-
 
             var cloneOk = MsAppTest.TestClone(root);
             // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
