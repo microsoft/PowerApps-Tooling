@@ -45,7 +45,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
         // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
         // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
-        // 25 - When loading in sources, use the TopParentControl from the ediot state, if it was serialized.
+        // 25 - When loading in sources, use the TopParentControl from the serialized editor state.
         public static Version CurrentSourceVersion = new Version(0, 25);
 
         // Layout is:
@@ -357,16 +357,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Json peer to a .pa file. 
                 var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
-                var topParentFilename = file._relativeName.Replace(".editorstate.json", "");
                 foreach (var control in controlExtraData)
                 {
-                    // For backwards compat purposes. We may not have the TopParentName from
-                    // the editor state file. In this case, revert back to the filename itself.
-                    if (string.IsNullOrEmpty(control.Value.TopParentName))
-                    {
-                        control.Value.TopParentName = Utilities.UnEscapeFilename(topParentFilename);
-                    }
-
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
