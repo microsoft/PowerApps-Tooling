@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PAModelTests
 {
@@ -79,42 +80,41 @@ namespace PAModelTests
             {
                 string outSrcDir = tempDir.Dir;
 
-                // Create a list of expected YAML file names based on the available screens
-                List<string> expectedYamlFiles = new List<string>();
-                foreach (var control in msapp._screens)
-                {
-                    string originalScreenName = control.Key.ToLower();
-
-                    int duplicateFileSuffix = 0;
-                    string uniqueScreenName = $"{originalScreenName}.fx.yaml";
-                    while (expectedYamlFiles.Contains(uniqueScreenName))
-                    {
-                        uniqueScreenName = $"{originalScreenName}_{++duplicateFileSuffix}.fx.yaml";
-                    }
-
-                    expectedYamlFiles.Add(uniqueScreenName);
-                }
+                // Create a list of screens expected to be seen in the output
+                List<string> expectedScreens = msapp._screens.Keys.ToList();
 
                 // Save to sources
                 msapp.SaveToSources(outSrcDir);
 
-                // Look for the expected YAML files
+                // Look for the expected screens in the YAML files
                 string srcPath = Path.Combine(outSrcDir, "Src");
                 foreach (string yamlFile in Directory.GetFiles(srcPath, "*.fx.yaml", SearchOption.TopDirectoryOnly))
                 {
-                    string fileName = Path.GetFileName(yamlFile).ToLower();
-                    if (expectedYamlFiles.Contains(fileName))
+                    string fileName = Path.GetFileName(yamlFile).Replace(".fx.yaml", string.Empty);
+
+                    // Check for an exact match between the screen name and the file.
+                    if (expectedScreens.Contains(fileName))
                     {
-                        expectedYamlFiles.Remove(fileName);
+                        expectedScreens.Remove(fileName);
+                        continue;
+                    }
+
+                    // Replace any appended suffixes on Windows to see if there was a file collision.
+                    fileName = Regex.Replace(fileName, "(?:_\\d+)?$", string.Empty);
+
+                    // Check if the new file name without a suffix matches, otherwise fail the test
+                    if (expectedScreens.Contains(fileName))
+                    {
+                        expectedScreens.Remove(fileName);
                     }
                     else
                     {
-                        Assert.Fail($"Unexpected file {fileName} in Src folder. Full path: {yamlFile}.");
+                        Assert.Fail($"Unexpected file {yamlFile} in Src folder.");
                     }
                 }
 
                 // There should be no expected files that were not found
-                Assert.AreEqual<int>(expectedYamlFiles.Count, 0, $"{expectedYamlFiles.Count} screens not found in Src directory.");
+                Assert.AreEqual<int>(expectedScreens.Count, 0, $"{expectedScreens.Count} screens not found in Src directory.");
             }
         }
 
@@ -134,42 +134,43 @@ namespace PAModelTests
             {
                 string outSrcDir = tempDir.Dir;
 
-                // Create a list of expected EditorState file names based on the available screens and components
-                List<string> expectedEditorStateFiles = new List<string>();
-                foreach (var control in msapp._screens.Concat(msapp._components))
-                {
-                    string originalEditorStateName = control.Key.ToLower();
-
-                    int duplicateFileSuffix = 0;
-                    string uniqueEditorStateName = $"{originalEditorStateName}.editorstate.json";
-                    while (expectedEditorStateFiles.Contains(uniqueEditorStateName))
-                    {
-                        uniqueEditorStateName = $"{originalEditorStateName}_{++duplicateFileSuffix}.editorstate.json";
-                    }
-
-                    expectedEditorStateFiles.Add(uniqueEditorStateName);
-                }
+                // Create a list of expected controles with an EditorState file
+                List<string> expectedControlsWithEditorState = new List<string>();
+                expectedControlsWithEditorState.AddRange(msapp._screens.Keys);
+                expectedControlsWithEditorState.AddRange(msapp._components.Keys);
 
                 // Save to sources
                 msapp.SaveToSources(outSrcDir);
 
-                // Look for the expected EditorState files
+                // Look for the expected controls in the EditorState files
                 string srcPath = Path.Combine(outSrcDir, "Src", "EditorState");
                 foreach (string editorStateFile in Directory.GetFiles(srcPath, "*.editorstate.json", SearchOption.TopDirectoryOnly))
                 {
-                    string fileName = Path.GetFileName(editorStateFile).ToLower();
-                    if (expectedEditorStateFiles.Contains(fileName))
+                    string fileName = Path.GetFileName(editorStateFile).Replace(".editorstate.json", string.Empty);
+
+                    // Check for an exact match between the control and the file.
+                    if (expectedControlsWithEditorState.Contains(fileName))
                     {
-                        expectedEditorStateFiles.Remove(fileName);
+                        expectedControlsWithEditorState.Remove(fileName);
+                        continue;
+                    }
+
+                    // Replace any appended suffixes on Windows to see if there was a file collision.
+                    fileName = Regex.Replace(fileName, "(?:_\\d+)?$", string.Empty);
+
+                    // Check if the new file name without a suffix matches, otherwise fail the test
+                    if (expectedControlsWithEditorState.Contains(fileName))
+                    {
+                        expectedControlsWithEditorState.Remove(fileName);
                     }
                     else
                     {
-                        Assert.Fail($"Unexpected file {fileName} in EditorState folder. Full path: {editorStateFile}.");
+                        Assert.Fail($"Unexpected file {editorStateFile} in EditorState folder.");
                     }
                 }
 
                 // There should be no expected files that were not found
-                Assert.AreEqual<int>(expectedEditorStateFiles.Count, 0, $"{expectedEditorStateFiles.Count} editor state files not found in EditorState directory.");
+                Assert.AreEqual<int>(expectedControlsWithEditorState.Count, 0, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
             }
         }
     }
