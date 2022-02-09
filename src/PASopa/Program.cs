@@ -17,17 +17,6 @@ namespace PASopa
         {
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
-#if false
-            using (var tr = new StreamReader(@"C:\Users\jmstall\foo.yaml"))
-            {
-                var obj = YamlPocoSerializer.Read<Microsoft.PowerPlatform.Formulas.Tools.Schemas.ParameterSchema>(tr);
-
-                YamlPocoSerializer.CanonicalWrite(Console.Out, obj);
-            }
-#endif
-
-            
-
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
             if (mode == "-test")
             {
