@@ -371,16 +371,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var topParentFilename = file._relativeName.Replace(".editorstate.json", "");
                 foreach (var control in controlExtraData)
                 {
-                    // START v24 backwards compatibility
-                    // For backwards compat purposes. We may not have the TopParentName from
-                    // the editor state file if the app was unpacked prior to these changes.
-                    // In this case, revert back to the using filename as the TopParentName.
-                    // During the next version upgrade, this section could be removed entirely.
-                    if (string.IsNullOrEmpty(control.Value.TopParentName))
-                    {
-                        control.Value.TopParentName = Utilities.UnEscapeFilename(topParentFilename);
-                    }
-                    // END v24 backwards compatibility
+                    ApplyV24BackCompat(control, topParentFilename);
 
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
@@ -431,6 +422,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
             shardedTestSuites.ForEach(x => AddControl(app, x._relativeName, false, x.GetContents(), errors));
+        }
+
+        // For backwards compat purposes. We may not have the TopParentName from
+        // the editor state file if the app was unpacked prior to these changes.
+        // In this case, revert back to the using filename as the TopParentName.
+        // During the next version upgrade, this function could be removed entirely.
+        private static void ApplyV24BackCompat(KeyValuePair<string, ControlState> control, string topParentFilename)
+        {
+            if (string.IsNullOrEmpty(control.Value.TopParentName))
+            {
+                control.Value.TopParentName = Utilities.UnEscapeFilename(topParentFilename);
+            }
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
