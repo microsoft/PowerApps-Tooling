@@ -378,7 +378,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 foreach (var control in controlExtraData)
                 {
                     control.Value.TopParentName = Utilities.UnEscapeFilename(topParentName);
-
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
@@ -892,7 +891,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var text = PAWriterVisitor.PrettyPrint(ir);
             dir.WriteAllText(subDir, filename, text);
 
-            // The key isn't used during deserialization, so just order give the
+            // The key isn't used during deserialization, so just give the
             // parent object a unique key so it can be retrieved when loaded.
             var controls = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
