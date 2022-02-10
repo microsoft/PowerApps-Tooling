@@ -74,6 +74,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
         private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
         private static BuildVerJson _buildVerJson = GetBuildDetails();
+        private const string TopParentObjectKey = "TopParentControl";
 
         // Full fidelity read-write
 
@@ -368,10 +369,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 // Json peer to a .pa file. 
                 var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
-                var topParentFilename = file._relativeName.Replace(".editorstate.json", "");
+                var topParentName = file._relativeName.Replace(".editorstate.json", "");
+
+                // Check for the designated parent control. Fall back on the file name.
+                if (controlExtraData.ContainsKey(TopParentObjectKey) && (controlExtraData[TopParentObjectKey].IsTopParent ?? false))
+                    topParentName = controlExtraData[TopParentObjectKey].Name;
+
                 foreach (var control in controlExtraData)
                 {
-                    ApplyV24BackCompat(control, topParentFilename);
+                    control.Value.TopParentName = Utilities.UnEscapeFilename(topParentName);
 
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
@@ -422,18 +428,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
             shardedTestSuites.ForEach(x => AddControl(app, x._relativeName, false, x.GetContents(), errors));
-        }
-
-        // For backwards compat purposes. We may not have the TopParentName from
-        // the editor state file if the app was unpacked prior to these changes.
-        // In this case, revert back to the using filename as the TopParentName.
-        // During the next version upgrade, this function could be removed entirely.
-        private static void ApplyV24BackCompat(KeyValuePair<string, ControlState> control, string topParentFilename)
-        {
-            if (string.IsNullOrEmpty(control.Value.TopParentName))
-            {
-                control.Value.TopParentName = Utilities.UnEscapeFilename(topParentFilename);
-            }
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -898,20 +892,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var text = PAWriterVisitor.PrettyPrint(ir);
             dir.WriteAllText(subDir, filename, text);
 
-            var extraData = new Dictionary<string, ControlState>();
+            // The key isn't used during deserialization, so just order give the
+            // parent object a unique key so it can be retrieved when loaded.
+            var controls = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
             {
-                extraData.Add(item.Name, item);
+                if (item.IsTopParent ?? false)
+                    controls.Add(TopParentObjectKey, item);
+                else
+                    // Preface with an underscore to prevent unlikely collision with top parent
+                    controls.Add($"_{item.Name}", item);
             }
 
-            string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
+            string editorStateFilename = (topParentname ?? newControlName) + ".editorstate.json";
 
             // For TestSuite controls, only the top parent control has an editor state created.
             // For other control types, create an editor state.
             if (string.IsNullOrEmpty(topParentname))
             {
                 // Write out of all the other state properties on the control for roundtripping.
-                dir.WriteAllJson(EditorStateDir, extraContent, extraData);
+                dir.WriteAllJson(EditorStateDir, editorStateFilename, controls);
             }
 
             // Write out component templates next to the component
