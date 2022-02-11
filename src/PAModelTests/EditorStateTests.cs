@@ -156,7 +156,7 @@ namespace PAModelTests
 
                     // Update the file to remove the IsTopParent
                     string updatedContent = File.ReadAllText(fullFilePath);
-                    updatedContent = updatedContent.Replace("\"IsTopParent\": true,\r\n", string.Empty);
+                    updatedContent = updatedContent.Replace("\"IsTopParent\": true,", string.Empty);
 
                     // Rename the file so we know that the file name itself wasn't
                     // used but rather than correct control name.
