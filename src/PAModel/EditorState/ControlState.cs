@@ -14,23 +14,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
         [JsonIgnore]
         public string TopParentName { get; set; }
 
-        private bool _isTopParent;
-        // Should only return true or null. Returning null will prevent the field from being serialized.
-        public bool? IsTopParent
-        {
-            get
-            {
-                if (_isTopParent || Name.Equals(TopParentName))
-                    return true;
-
-                return null;
-            }
-            set
-            {
-                _isTopParent = value ?? false;
-            }
-        }
-
         // These are properties with namemaps/info beyond the ones present in the control template
         // Key is property name
         public List<PropertyState> Properties { get; set; }
