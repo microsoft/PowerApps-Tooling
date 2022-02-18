@@ -373,7 +373,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 foreach (var control in editorState.ControlStates)
                 {
-                    control.Value.TopParentName = Utilities.UnEscapeFilename(editorState.TopParentName);
+                    control.Value.TopParentName = editorState.TopParentName;
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
@@ -433,7 +433,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void ApplyV24BackCompat(ControlTreeState editorState, DirectoryReader.Entry file)
         {
             editorState.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
-            editorState.TopParentName = file._relativeName.Replace(".editorstate.json", "");
+            editorState.TopParentName = Utilities.UnEscapeFilename(file._relativeName.Replace(".editorstate.json", ""));
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
