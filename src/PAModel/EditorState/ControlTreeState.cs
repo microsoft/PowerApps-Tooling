@@ -6,10 +6,9 @@ using System.Collections.Generic;
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
 {
     /// <summary>
-    /// Represents the `editorstate.json` file created to contain ControlStates,
-    /// which have studio state content that don't wind up in the IR.
+    /// Represents the top level of an editor state and its control tree.
     /// </summary>
-    internal class EditorStateFile
+    internal class ControlTreeState
     {
         /// <summary>
         /// The name of the top level control for the editor state.

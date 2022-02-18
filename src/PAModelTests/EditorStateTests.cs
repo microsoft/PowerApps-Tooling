@@ -5,7 +5,6 @@ using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace PAModelTests
@@ -43,10 +42,10 @@ namespace PAModelTests
                 {
                     // Get the file for the specific control we're looking for
                     DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                    EditorStateFile editorStateFile = file.ToObject<EditorStateFile>();
+                    ControlTreeState editorState = file.ToObject<ControlTreeState>();
 
                     // Check that the IsTopParent was set correctly
-                    Assert.AreEqual(topParentName, editorStateFile.TopParentName);
+                    Assert.AreEqual(topParentName, editorState.TopParentName);
                 }
                 else
                 {
@@ -84,7 +83,7 @@ namespace PAModelTests
                 {
                     // Get the file for the specific control we're looking for
                     DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                    EditorStateFile editorStateFile = file.ToObject<EditorStateFile>();
+                    ControlTreeState editorState = file.ToObject<ControlTreeState>();
 
                     // Rename the file so we know that the file name itself wasn't
                     // used but rather than correct control name.
@@ -97,7 +96,7 @@ namespace PAModelTests
                     var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
 
                     // Find the relevant controls and check their top parent name
-                    foreach (var control in editorStateFile.ControlStates)
+                    foreach (var control in editorState.ControlStates)
                     {
                         app._editorStateStore.TryGetControlState(control.Value.Name, out ControlState state);
                         Assert.AreEqual(topParentName, state.TopParentName);
@@ -117,6 +116,8 @@ namespace PAModelTests
         /// 
         /// This preserves backwards compatability for apps packed prior to
         /// changing how the `TopParentName` was stored and read.
+        /// 
+        /// When SourceSerializer is updated past v24, this could be removed entirely.
         /// </summary>
         [DataTestMethod]
         [DataRow("AppWithLabel.msapp", "Screen1")]
@@ -143,7 +144,7 @@ namespace PAModelTests
                 {
                     // Get the file for the specific control we're looking for
                     DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                    EditorStateFile editorStateFile = file.ToObject<EditorStateFile>();
+                    ControlTreeState editorState = file.ToObject<ControlTreeState>();
 
                     // Rename the file so we know that the file name itself is used.
                     string newFileName = Guid.NewGuid().ToString();
@@ -151,7 +152,7 @@ namespace PAModelTests
 
                     // Write out only the dictionary to the file, which is the older format.
                     DirectoryWriter dir = new DirectoryWriter(newFilePath);
-                    dir.WriteAllJson(newFilePath, $"{newFileName}{EditorStateFileExtension}", editorStateFile.ControlStates);
+                    dir.WriteAllJson(newFilePath, $"{newFileName}{EditorStateFileExtension}", editorState.ControlStates);
 
                     // Remove the old file, we only want the re-written and re-named file
                     File.Delete(fullFilePath);
@@ -160,7 +161,7 @@ namespace PAModelTests
                     var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
 
                     // Find the relevant controls and check their top parent name
-                    foreach (var control in editorStateFile.ControlStates)
+                    foreach (var control in editorState.ControlStates)
                     {
                         app._editorStateStore.TryGetControlState(control.Value.Name, out ControlState state);
                         Assert.AreEqual(newFileName, state.TopParentName);

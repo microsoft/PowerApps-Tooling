@@ -367,13 +367,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 // Json peer to a .pa file.
-                EditorStateFile editorStateFile = file.ToObject<EditorStateFile>();
-                if (editorStateFile.ControlStates == null)
-                    ApplyV24BackCompat(editorStateFile, file);
+                ControlTreeState editorState = file.ToObject<ControlTreeState>();
+                if (editorState.ControlStates == null)
+                    ApplyV24BackCompat(editorState, file);
 
-                foreach (var control in editorStateFile.ControlStates)
+                foreach (var control in editorState.ControlStates)
                 {
-                    control.Value.TopParentName = Utilities.UnEscapeFilename(editorStateFile.TopParentName);
+                    control.Value.TopParentName = Utilities.UnEscapeFilename(editorState.TopParentName);
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
@@ -428,11 +428,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // For backwards compat purposes. We may not have the new model for the
         // editor state file if the app was unpacked prior to these changes.
         // In this case, revert back to the using previous functionality.
-        // During the next version upgrade, this function could be removed entirely.
-        private static void ApplyV24BackCompat(EditorStateFile editorStateFile, DirectoryReader.Entry file)
+        //
+        // When SourceSerializer is updated past v24, this could be removed entirely.
+        private static void ApplyV24BackCompat(ControlTreeState editorState, DirectoryReader.Entry file)
         {
-            editorStateFile.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
-            editorStateFile.TopParentName = file._relativeName.Replace(".editorstate.json", "");
+            editorState.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
+            editorState.TopParentName = file._relativeName.Replace(".editorstate.json", "");
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -902,19 +903,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (string.IsNullOrEmpty(topParentName))
             {
                 string editorStateFilename = $"{newControlName}.editorstate.json";
-                EditorStateFile editorStateFile = new EditorStateFile
+
+                var controlStates = new Dictionary<string, ControlState>();
+                foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
                 {
-                    ControlStates = new Dictionary<string, ControlState>(),
+                    controlStates.Add(item.Name, item);
+                }
+
+                ControlTreeState editorState = new ControlTreeState
+                {
+                    ControlStates = controlStates,
                     TopParentName = controlName
                 };
 
-                foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
-                {
-                    editorStateFile.ControlStates.Add(item.Name, item);
-                }
-
                 // Write out of all the other state properties on the control for roundtripping.
-                dir.WriteAllJson(EditorStateDir, editorStateFilename, editorStateFile);
+                dir.WriteAllJson(EditorStateDir, editorStateFilename, editorState);
             }
 
             // Write out component templates next to the component
