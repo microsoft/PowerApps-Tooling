@@ -128,9 +128,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         public void BeforeWrite(BlockNode control)
         {
-            if (!control.Children.Any())
-                return;
-
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
             foreach (var child in control.Children)
