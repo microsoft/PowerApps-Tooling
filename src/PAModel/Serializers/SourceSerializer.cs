@@ -506,13 +506,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
 
-
-            // For pcf conversions 
-            foreach (var pcfConversions in app._templates.PcfTemplates)
-            {
-                dir.WriteAllJson("pkgs", new FilePath("pcfConversions.json"), pcfConversions);
-            }
-
             // For pcf control shard the templates
             foreach (var kvp in app._pcfControls)
             {
