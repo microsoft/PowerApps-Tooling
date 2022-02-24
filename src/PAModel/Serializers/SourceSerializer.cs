@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
@@ -321,10 +322,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
+            var pcfTemplateConversionsList = new List<PcfTemplateJson>();
+            string pcfTemplatePath = Path.Combine(packagesPath, "pcfConversions.json");
+            if (File.Exists(pcfTemplatePath))
+            {
+                DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
+                var pcfVersioning = file.ToObject<PcfTemplateJson>();
+                pcfTemplateConversionsList.Add(pcfVersioning);
+            }
+            
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
-            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversionsList?.ToArray() };
         }
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
@@ -504,6 +514,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
                 if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // For pcf conversions 
+            foreach (var template in app._templates.PcfTemplates ?? Enumerable.Empty<PcfTemplateJson>())
+            {
+                dir.WriteAllJson("pkgs", new FilePath("pcfConversions.json"), template);
             }
 
             // For pcf control shard the templates
