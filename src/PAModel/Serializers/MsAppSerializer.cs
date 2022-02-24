@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
@@ -209,6 +210,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 foreach (var template in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
                                 {
                                     app._entropy.AddComponent(template, iOrder);
+                                    iOrder++;
+                                }
+                                iOrder = 0;
+                                foreach (var template in app._templates.PcfTemplates ?? Enumerable.Empty<PcfTemplateJson>())
+                                {
+                                    app._entropy.AddPcfVersioning(template, iOrder);
                                     iOrder++;
                                 }
                             }

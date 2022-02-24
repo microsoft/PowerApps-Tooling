@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,5 +32,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
         public TemplateJson[] UsedTemplates { get; set; }
         public TemplateMetadataJson[] ComponentTemplates { get; set; }
+        public PcfTemplateJson[] PcfTemplates { get; set; }
     }
 }
