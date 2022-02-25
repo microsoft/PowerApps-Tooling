@@ -327,8 +327,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (File.Exists(pcfTemplatePath))
             {
                 DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
-                var pcfVersioning = file.ToObject<PcfTemplateJson>();
-                pcfTemplateConversionsList.Add(pcfVersioning);
+                var pcfTemplateConversion = file.ToObject<PcfTemplateJson>();
+                pcfTemplateConversionsList.Add(pcfTemplateConversion);
             }
             
             // Also add Screen and App templates (not xml, constructed in code on the server)

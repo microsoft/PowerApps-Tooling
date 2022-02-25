@@ -657,7 +657,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._templates = new TemplatesJson()
             {
                 ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(x => app._entropy.GetComponentOrder(x)).ToArray() : null,
-                UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray()
+                UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray(),
+                PcfTemplates = app._templates.PcfTemplates.Any() ? app._templates.PcfTemplates.OrderBy(x => app._entropy.GetPcfVersioning(x)).ToArray() : null
             };
 
             yield return ToFile(FileKind.Templates, app._templates);
