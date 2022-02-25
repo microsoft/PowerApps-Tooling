@@ -67,14 +67,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
-        public const string ComponentReferencesDir = "ComponentReferences";
-
+        public const string ComponentReferencesDir = "ComponentReferences";        
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         internal static readonly string AppTestControlType = "AppTest";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
         private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
         private static BuildVerJson _buildVerJson = GetBuildDetails();
+        public const string PCFConversionFileName = "PcfConversions";
 
         // Full fidelity read-write
 
@@ -323,7 +323,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             var pcfTemplateConversionsList = new List<PcfTemplateJson>();
-            string pcfTemplatePath = Path.Combine(packagesPath, "pcfConversions.json");
+            string pcfTemplatePath = Path.Combine(packagesPath, $"{PCFConversionFileName}.json");
             if (File.Exists(pcfTemplatePath))
             {
                 DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
@@ -527,7 +527,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             if (pcfTemplates.Any())
             {
-                dir.WriteAllJson("pkgs", new FilePath("pcfConversions.json"), pcfTemplates);
+                dir.WriteAllJson("pkgs", new FilePath($"{PCFConversionFileName}.json"), pcfTemplates);
             }
 
             // For pcf control shard the templates
