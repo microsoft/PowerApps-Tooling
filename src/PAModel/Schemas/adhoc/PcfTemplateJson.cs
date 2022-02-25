@@ -7,6 +7,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc
     // From PowerApps-Client\src\Cloud\DocumentServer.Core\Document\Document\Persistence\Serialization\Schemas\Control\Template\PcfTemplateJson.cs
     internal class PcfTemplateJson
     {
+
+        public PcfTemplateJson()
+        {
+
+        }
+        public PcfTemplateJson(PcfTemplateJson template)
+        {
+            this.Name = template.Name; 
+            this.Version = template.Version;
+            this.PcfConversions = template.PcfConversions;
+        }
+
         /// <summary>
         /// The name of the pcf template
         /// </summary>

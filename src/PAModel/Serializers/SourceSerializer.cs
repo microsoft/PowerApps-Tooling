@@ -327,8 +327,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (File.Exists(pcfTemplatePath))
             {
                 DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
-                var pcfTemplateConversion = file.ToObject<PcfTemplateJson>();
-                pcfTemplateConversionsList.Add(pcfTemplateConversion);
+                var pcfTemplateConversions = file.ToObject<PcfTemplateJson[]>();
+                foreach (PcfTemplateJson pcfTemplateConversion in pcfTemplateConversions)
+                {
+                    pcfTemplateConversionsList.Add(pcfTemplateConversion);
+                }                
             }
             
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -516,10 +519,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
 
+            var pcfTemplates = new List<PcfTemplateJson>();
             // For pcf conversions 
             foreach (var template in app._templates.PcfTemplates ?? Enumerable.Empty<PcfTemplateJson>())
             {
-                dir.WriteAllJson("pkgs", new FilePath("pcfConversions.json"), template);
+                pcfTemplates.Add(template);                
+            }
+            if (pcfTemplates.Any())
+            {
+                dir.WriteAllJson("pkgs", new FilePath("pcfConversions.json"), pcfTemplates);
             }
 
             // For pcf control shard the templates
