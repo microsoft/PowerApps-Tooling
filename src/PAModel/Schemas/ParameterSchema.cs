@@ -29,15 +29,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
         public class Parameter
         {
             public ParamType Type { get; set; }
+
             public bool Required { get; set; }
 
-            // Optional: For entities, specifies the name
-            public string Name { get; set; }
+            // Optional: For EntityRecord and EntityTable, specifies the logical name of the table
+            // that the type is derived from
+            public string TableLogicalName { get; set; }
 
             // Optional: For records, can become recursive
             public Dictionary<string, Parameter> Fields { get; set; }
         }
-                
+
         // Input parameters (public)
         public Dictionary<string, Parameter> Parameters { get; set; }
 
