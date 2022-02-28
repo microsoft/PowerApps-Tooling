@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc
+namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas
 {
     // From PowerApps-Client\src\Cloud\DocumentServer.Core\Document\Document\Persistence\Serialization\Schemas\Control\Template\PcfTemplateJson.cs
     internal class PcfTemplateJson
     {
+        public PcfTemplateJson() { }
 
-        public PcfTemplateJson()
-        {
-
-        }
         public PcfTemplateJson(PcfTemplateJson template)
         {
-            this.Name = template.Name; 
+            this.Name = template.Name;
             this.Version = template.Version;
             this.PcfConversions = template.PcfConversions;
         }

@@ -4,11 +4,9 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -654,12 +652,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            var pcfTemplates = new List<PcfTemplateJson>(app._templates.PcfTemplates?? Enumerable.Empty<PcfTemplateJson>());
             app._templates = new TemplatesJson()
             {
                 ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(x => app._entropy.GetComponentOrder(x)).ToArray() : null,
                 UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray(),
-                PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(x => app._entropy.GetPcfVersioning(x)).ToArray() : null
+                PcfTemplates = app._templates.PcfTemplates?.OrderBy(x => app._entropy.GetPcfVersioning(x)).ToArray()
             };
 
             yield return ToFile(FileKind.Templates, app._templates);
@@ -832,7 +829,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             var bytes = Encoding.UTF8.GetBytes(output);
-            return new FileEntry { Name = filename, RawBytes = bytes };            
+            return new FileEntry { Name = filename, RawBytes = bytes };
         }
     }
 }

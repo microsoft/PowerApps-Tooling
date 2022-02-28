@@ -6,7 +6,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas.adhoc;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
@@ -67,14 +66,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string EntropyDir = "Entropy";
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
-        public const string ComponentReferencesDir = "ComponentReferences";        
+        public const string ComponentReferencesDir = "ComponentReferences";
+        public const string PCFConversionFileName = "PcfConversions.json";
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         internal static readonly string AppTestControlType = "AppTest";
         private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
         private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
         private static BuildVerJson _buildVerJson = GetBuildDetails();
-        public const string PCFConversionFileName = "PcfConversions";
 
         // Full fidelity read-write
 
@@ -322,18 +321,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
-            var pcfTemplateConversionsList = new List<PcfTemplateJson>();
-            string pcfTemplatePath = Path.Combine(packagesPath, $"{PCFConversionFileName}.json");
+            List<PcfTemplateJson> pcfTemplateConversionsList = null;
+            string pcfTemplatePath = Path.Combine(packagesPath, PCFConversionFileName);
             if (File.Exists(pcfTemplatePath))
             {
+                pcfTemplateConversionsList = new List<PcfTemplateJson>();
+
                 DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
                 var pcfTemplateConversions = file.ToObject<PcfTemplateJson[]>();
                 foreach (PcfTemplateJson pcfTemplateConversion in pcfTemplateConversions)
                 {
                     pcfTemplateConversionsList.Add(pcfTemplateConversion);
-                }                
+                }
             }
-            
+
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
@@ -519,15 +520,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
             }
 
-            var pcfTemplates = new List<PcfTemplateJson>();
-            // For pcf conversions 
-            foreach (var template in app._templates.PcfTemplates ?? Enumerable.Empty<PcfTemplateJson>())
+            // For pcf conversions
+            if (app._templates.PcfTemplates != null)
             {
-                pcfTemplates.Add(template);                
-            }
-            if (pcfTemplates.Any())
-            {
-                dir.WriteAllJson("pkgs", new FilePath($"{PCFConversionFileName}.json"), pcfTemplates);
+                dir.WriteAllJson("pkgs", PCFConversionFileName, app._templates.PcfTemplates.ToList());
             }
 
             // For pcf control shard the templates
