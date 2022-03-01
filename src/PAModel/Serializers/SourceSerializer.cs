@@ -321,24 +321,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
-            List<PcfTemplateJson> pcfTemplateConversionsList = null;
+            PcfTemplateJson[] pcfTemplateConversions = null;
             string pcfTemplatePath = Path.Combine(packagesPath, PCFConversionFileName);
             if (File.Exists(pcfTemplatePath))
             {
-                pcfTemplateConversionsList = new List<PcfTemplateJson>();
-
                 DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
-                var pcfTemplateConversions = file.ToObject<PcfTemplateJson[]>();
-                foreach (PcfTemplateJson pcfTemplateConversion in pcfTemplateConversions)
-                {
-                    pcfTemplateConversionsList.Add(pcfTemplateConversion);
-                }
+                pcfTemplateConversions = file.ToObject<PcfTemplateJson[]>();
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
-            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversionsList?.ToArray() };
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversions };
         }
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
