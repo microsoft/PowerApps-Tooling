@@ -7,7 +7,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -209,6 +208,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 foreach (var template in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
                                 {
                                     app._entropy.AddComponent(template, iOrder);
+                                    iOrder++;
+                                }
+                                iOrder = 0;
+                                foreach (var template in app._templates.PcfTemplates ?? Enumerable.Empty<PcfTemplateJson>())
+                                {
+                                    app._entropy.AddPcfVersioning(template, iOrder);
                                     iOrder++;
                                 }
                             }
@@ -647,10 +652,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            var pcfTemplates = app._templates.PcfTemplates ?? Array.Empty<PcfTemplateJson>();
             app._templates = new TemplatesJson()
             {
                 ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(x => app._entropy.GetComponentOrder(x)).ToArray() : null,
-                UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray()
+                UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray(),
+                PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(x => app._entropy.GetPcfVersioning(x)).ToArray() : null
             };
 
             yield return ToFile(FileKind.Templates, app._templates);
@@ -823,7 +830,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             var bytes = Encoding.UTF8.GetBytes(output);
-            return new FileEntry { Name = filename, RawBytes = bytes };            
+            return new FileEntry { Name = filename, RawBytes = bytes };
         }
     }
 }

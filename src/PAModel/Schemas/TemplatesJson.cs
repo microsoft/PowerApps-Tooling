@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
@@ -31,5 +27,6 @@ namespace Microsoft.AppMagic.Authoring.Persistence
 
         public TemplateJson[] UsedTemplates { get; set; }
         public TemplateMetadataJson[] ComponentTemplates { get; set; }
+        public PcfTemplateJson[] PcfTemplates { get; set; }
     }
 }
