@@ -58,6 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static readonly string ComponentCodeDir = Path.Combine("Src", "Components");
         public const string PackagesDir = "pkgs";
         public const string PcfControlTemplatesDir = "PcfControlTemplates";
+        public const string PcfConversionDir = "PcfConversions";
         public static readonly string DataSourcePackageDir = Path.Combine("pkgs", "TableDefinitions");
         public static readonly string WadlPackageDir = Path.Combine("pkgs", "Wadl");
         public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
@@ -67,7 +68,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
         public const string ComponentReferencesDir = "ComponentReferences";
-        public const string PCFConversionFileName = "PcfConversions.json";
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         internal static readonly string AppTestControlType = "AppTest";
@@ -321,18 +321,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
-            PcfTemplateJson[] pcfTemplateConversions = null;
-            string pcfTemplatePath = Path.Combine(packagesPath, PCFConversionFileName);
-            if (File.Exists(pcfTemplatePath))
+            List<PcfTemplateJson> pcfTemplateConversions = new List<PcfTemplateJson>();
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(PcfConversionDir, "*.json", searchSubdirectories: false))
             {
-                DirectoryReader.Entry file = new DirectoryReader.Entry(pcfTemplatePath);
-                pcfTemplateConversions = file.ToObject<PcfTemplateJson[]>();
+                pcfTemplateConversions.Add(file.ToObject<PcfTemplateJson>());
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
-            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversions };
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversions.ToArray() };
         }
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
@@ -517,7 +515,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // For pcf conversions
             if (app._templates.PcfTemplates != null)
             {
-                dir.WriteAllJson("pkgs", PCFConversionFileName, app._templates.PcfTemplates.ToList());
+                foreach(var pcfConversion in app._templates.PcfTemplates)
+                {
+                    dir.WriteAllJson(PackagesDir, new FilePath(PcfConversionDir, $"{pcfConversion.Name}.json"), pcfConversion);
+                }
             }
 
             // For pcf control shard the templates
