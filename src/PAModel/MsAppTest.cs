@@ -247,6 +247,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass.
         public static void DebugChecksum(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
         {
+            // Path to the directory where we are creating the normalized form
+             string normFormDir = ".\\diffFiles";
+
+            // Create directory if doesn't exist
+            if(!Directory.Exists(normFormDir)){
+                Directory.CreateDirectory(normFormDir);
+            }
+
             using (var z = ZipFile.OpenRead(pathToZip))
             {
                 foreach (ZipArchiveEntry e in z.Entries.OrderBy(x => x.FullName))
@@ -275,10 +283,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 {
                                     // Fail! Mismatch
                                     Console.WriteLine("FAIL: hash mismatch: " + e.FullName);
+    
+                                    // Paths to current diff files
+                                    string aPath = normFormDir + "\\" + e.Name + "-A.json";
+                                    string bPath = normFormDir + "\\" + e.Name + "-B.json";
 
-                                    // Write out normalized form. Easier to spot the diff.
-                                    File.WriteAllBytes(@"c:\temp\a1.json", otherContents);
-                                    File.WriteAllBytes(@"c:\temp\b1.json", key);
+                                    // Create writers for both debug files
+                                    using var aWriter = new FileStream(aPath, FileMode.Append);
+                                    using var bWriter = new FileStream(bPath, FileMode.Append);
+
+                                    // Write out normalized debug files
+                                    aWriter.Write(otherContents, 0, otherContents.Length);
+                                    bWriter.Write(key, 0, key.Length);
 
                                     // For debugging. Help find exactly where the difference is. 
                                     for (int i = 0; i < otherContents.Length; i++)
