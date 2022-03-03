@@ -285,8 +285,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     Console.WriteLine("FAIL: hash mismatch: " + e.FullName);
     
                                     // Paths to current diff files
-                                    string aPath = normFormDir + "\\" + e.Name + "-A.json";
-                                    string bPath = normFormDir + "\\" + e.Name + "-B.json";
+                                    string aPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-A.json";
+                                    string bPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-B.json";
 
                                     // Create writers for both debug files
                                     using var aWriter = new FileStream(aPath, FileMode.Append);
