@@ -501,15 +501,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     errors.FormatNotSupported($"Document consistency error. Connection id mismatch");
                     throw new DocumentException();
                 }
-                foreach (var dataSourceName in connection.dataSources ?? Enumerable.Empty<string>())
-                {
-                    var ds = _dataSources.SelectMany(x => x.Value).Where(x => x.Name == dataSourceName).FirstOrDefault();
-                    if (ds == null)
-                    {
-                        errors.ValidationError($"Connection '{dataSourceName}' does not have a corresponding data source.");
-                        throw new DocumentException();
-                    }
-                }
+                // foreach (var dataSourceName in connection.dataSources ?? Enumerable.Empty<string>())
+                // {
+                //     var ds = _dataSources.SelectMany(x => x.Value).Where(x => x.Name == dataSourceName).FirstOrDefault();
+                //     if (ds == null)
+                //     {
+                //         errors.ValidationError($"Connection '{dataSourceName}' does not have a corresponding data source.");
+                //         throw new DocumentException();
+                //     }
+                // }
             }
         }
 
