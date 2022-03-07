@@ -490,8 +490,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
 
-            // Integrity checks. 
-            // Make sure every connection has a corresponding data source. 
+            // Integrity checks.
             foreach (var kv in _connections.NullOk())
             {
                 var connection = kv.Value;
