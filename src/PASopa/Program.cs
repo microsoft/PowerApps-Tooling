@@ -126,12 +126,6 @@ namespace PASopa
                     outDir = args[2];
                 }
 
-
-                // Use this directory for temporarily unpacking files
-                string tempDir = outDir + "\\..\\temporary-unpacking-directory";
-
-                Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
-
                 (CanvasDocument msApp, ErrorContainer errors) = TryOperation(() => CanvasDocument.LoadFromMsapp(msAppPath));
                 errors.Write(Console.Error);
 
@@ -139,6 +133,10 @@ namespace PASopa
                 {
                     return;
                 }
+
+                // Use this directory for temporarily unpacking files
+                string tempDir = outDir + "\\..\\temporary-unpacking-directory";
+                Console.WriteLine($"Unpack: {msAppPath} --> {tempDir} ");
 
                 // Create a new temporary directory
                 if(Directory.Exists(tempDir)){
