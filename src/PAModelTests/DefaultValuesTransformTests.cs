@@ -35,7 +35,7 @@ namespace PAModelTests
                 Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             };
 
-            var defaultValTransform = new DefaultValuesTransform(createTemplateStore(), createTheme(), createEditorStateStore());
+            var defaultValTransform = new DefaultValuesTransform(getTemplateStore(), getTheme(), getEditorStateStore());
 
             defaultValTransform.BeforeWrite(newNode, false);
 
@@ -53,7 +53,7 @@ namespace PAModelTests
             Assert.IsTrue(nodeProperties.Count == 1);
         }
 
-        private EditorStateStore createEditorStateStore()
+        private EditorStateStore getEditorStateStore()
         {
             // creating dynamic properties with Property value null, but with PropertyName
             var dynPropStates = new List<DynamicPropertyState>();
@@ -79,7 +79,7 @@ namespace PAModelTests
             return editorStateStore;
         }
 
-        private Theme createTheme()
+        private Theme getTheme()
         {
             var CustomTheme = new CustomThemeJson() { name = "SomeCustomTheme" };
             var themeJson = new ThemesJson() { CurrentTheme = "SomeTheme", CustomThemes = new[] { CustomTheme } };
@@ -88,7 +88,7 @@ namespace PAModelTests
         }
 
         //To Load the fluidGrid template defaults
-        private Dictionary<string, ControlTemplate> createTemplateStore()
+        private Dictionary<string, ControlTemplate> getTemplateStore()
         {
             var parsedTemplates = new Dictionary<string, ControlTemplate>();
             var fluidGridTemplatePath = Path.Combine(Environment.CurrentDirectory, "Templates", "fluidGrid_2.2.0.xml");
