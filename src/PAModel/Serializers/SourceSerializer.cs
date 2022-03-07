@@ -15,7 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -59,6 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static readonly string ComponentCodeDir = Path.Combine("Src", "Components");
         public const string PackagesDir = "pkgs";
         public const string PcfControlTemplatesDir = "PcfControlTemplates";
+        public const string PcfConversionDir = "PcfConversions";
         public static readonly string DataSourcePackageDir = Path.Combine("pkgs", "TableDefinitions");
         public static readonly string WadlPackageDir = Path.Combine("pkgs", "Wadl");
         public static readonly string SwaggerPackageDir = Path.Combine("pkgs", "Swagger");
@@ -68,7 +68,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ConnectionDir = "Connections";
         public const string DataSourcesDir = "DataSources";
         public const string ComponentReferencesDir = "ComponentReferences";
-
 
         internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
         internal static readonly string AppTestControlType = "AppTest";
@@ -322,10 +321,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
             }
 
+            List<PcfTemplateJson> pcfTemplateConversions = new List<PcfTemplateJson>();
+            foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(PcfConversionDir, "*.json", searchSubdirectories: false))
+            {
+                pcfTemplateConversions.Add(file.ToObject<PcfTemplateJson>());
+            }
+
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(new TemplateStore(), loadedTemplates, app._properties.DocumentAppType);
 
-            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray() };
+            app._templates = new TemplatesJson() { UsedTemplates = templateList.ToArray(), PcfTemplates = pcfTemplateConversions.ToArray() };
         }
 
         private static void LoadPcfControlTemplateFiles(ErrorContainer errors, CanvasDocument app, string paControlTemplatesPath)
@@ -367,12 +372,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new DocumentException();
                 }
 
-                // Json peer to a .pa file. 
-                var controlExtraData = file.ToObject<Dictionary<string, ControlState>>();
-                var topParentName = file._relativeName.Replace(".editorstate.json", "");
-                foreach (var control in controlExtraData)
+                // Json peer to a .pa file.
+                ControlTreeState editorState = file.ToObject<ControlTreeState>();
+                if (editorState.ControlStates == null)
+                    ApplyV24BackCompat(editorState, file);
+
+                foreach (var control in editorState.ControlStates)
                 {
-                    control.Value.TopParentName = Utilities.UnEscapeFilename(topParentName);
+                    control.Value.TopParentName = editorState.TopParentName;
                     if (!app._editorStateStore.TryAddControl(control.Value))
                     {
                         // Can't have duplicate control names.
@@ -422,6 +429,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
             shardedTestSuites.ForEach(x => AddControl(app, x._relativeName, false, x.GetContents(), errors));
+        }
+
+        // For backwards compat purposes. We may not have the new model for the
+        // editor state file if the app was unpacked prior to these changes.
+        // In this case, revert back to the using previous functionality.
+        //
+        // When SourceSerializer is updated past v24, this could be removed entirely.
+        private static void ApplyV24BackCompat(ControlTreeState editorState, DirectoryReader.Entry file)
+        {
+            editorState.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
+            editorState.TopParentName = Utilities.UnEscapeFilename(file._relativeName.Replace(".editorstate.json", ""));
         }
 
         private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -492,6 +510,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
                 if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
                     throw new NotSupportedException($"Unable to parse template file {template.Name}");
+            }
+
+            // For pcf conversions
+            if (app._templates.PcfTemplates != null)
+            {
+                foreach(var pcfConversion in app._templates.PcfTemplates)
+                {
+                    dir.WriteAllJson(PackagesDir, new FilePath(PcfConversionDir, $"{pcfConversion.Name}.json"), pcfConversion);
+                }
             }
 
             // For pcf control shard the templates
@@ -864,14 +891,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string name,
             BlockNode ir,
             string subDir,
-            string topParentname = null)
+            string topParentName = null)
         {
             var controlName = name;
             var newControlName = Utilities.TruncateNameIfTooLong(controlName);
 
             string filename = newControlName + ".fx.yaml";
 
-            // For AppTest control shard each test suite into individual file.
+            // For AppTest control shard each test suite into individual files.
             if (controlName == AppTestControlName)
             {
                 foreach (var child in ir.Children)
@@ -886,20 +913,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var text = PAWriterVisitor.PrettyPrint(ir);
             dir.WriteAllText(subDir, filename, text);
 
-            var extraData = new Dictionary<string, ControlState>();
-            foreach (var item in app._editorStateStore.GetControlsWithTopParent(topParentname ?? controlName))
+            // For TestSuite controls, only the top parent control has an editor state created.
+            // For other control types, create an editor state.
+            if (string.IsNullOrEmpty(topParentName))
             {
-                extraData.Add(item.Name, item);
-            }
+                string editorStateFilename = $"{newControlName}.editorstate.json";
 
-            // Write out of all the other state for roundtripping 
-            string extraContent = (topParentname ?? newControlName) + ".editorstate.json";
+                var controlStates = new Dictionary<string, ControlState>();
+                foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
+                {
+                    controlStates.Add(item.Name, item);
+                }
 
-            // We write editorstate.json file per top parent control, and hence for the TestSuite control since it is not a top parent
-            // use the top parent name (i.e. Test_7F478737223C4B69) to create the editorstate.json file.
-            if (!dir.FileExists(EditorStateDir, extraContent))
-            {
-                dir.WriteAllJson(EditorStateDir, extraContent, extraData);
+                ControlTreeState editorState = new ControlTreeState
+                {
+                    ControlStates = controlStates,
+                    TopParentName = controlName
+                };
+
+                // Write out of all the other state properties on the control for roundtripping.
+                dir.WriteAllJson(EditorStateDir, editorStateFilename, editorState);
             }
 
             // Write out component templates next to the component

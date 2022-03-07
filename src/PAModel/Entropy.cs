@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Linq;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -40,6 +38,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderXMLTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> OrderPcfTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
         // outer key is group control name, inner key is child grouped control name 
         public Dictionary<string, Dictionary<string, int>> OrderGroupControls { get; set; } = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
@@ -125,6 +124,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public void AddComponent(TemplateMetadataJson entry, int order)
         {
             this.OrderComponentTemplate[entry.Name] = order;
+        }
+
+        public int GetPcfVersioning(PcfTemplateJson entry)
+        {
+            return this.OrderPcfTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        }
+        public void AddPcfVersioning(PcfTemplateJson entry, int order)
+        {
+            this.OrderPcfTemplate[entry.Name] = order;
         }
 
         public void Add(ResourceJson resource, int order)
