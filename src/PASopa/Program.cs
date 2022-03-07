@@ -140,6 +140,15 @@ namespace PASopa
                     return;
                 }
 
+                // Create a new temporary directory
+                if(Directory.Exists(tempDir)){
+                    System.IO.Directory.Delete(tempDir, true);
+                    System.IO.Directory.CreateDirectory(tempDir);
+                }
+                else{
+                    System.IO.Directory.CreateDirectory(tempDir);
+                }
+
                 errors = TryOperation(() => msApp.SaveToSources(tempDir, verifyOriginalPath : msAppPath));
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
@@ -147,18 +156,13 @@ namespace PASopa
                     return;
                 }
 
-                // Remove old out directory if one of the same name already exists
+                // Remove old destination folder if one exists
                 if(Directory.Exists(outDir)){
                     System.IO.Directory.Delete(outDir, true);
                 }
 
-                // Copy everything from the temporary unpacking directory to the destination folder
-                foreach (var file in Directory.GetFiles(tempDir)){
-                    File.Copy(file, Path.Combine(outDir, Path.GetFileName(file)), true);
-                }
-
-                // Delete the temporary unpacking directory
-                System.IO.Directory.Delete(tempDir, true);
+                // Move everything from the temporary unpacking directory to the destination folder
+                Directory.Move(tempDir, outDir);
 
             }
             else if (mode == "-pack")
