@@ -151,6 +151,7 @@ namespace PASopa
                 errors.Write(Console.Error);
                 if (errors.HasErrors)
                 {   
+                    System.IO.Directory.Delete(tempDir, true);
                     return;
                 }
 
