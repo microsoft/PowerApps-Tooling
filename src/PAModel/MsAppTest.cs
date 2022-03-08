@@ -288,13 +288,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     string aPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-A.json";
                                     string bPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-B.json";
 
-                                    // Create writers for both debug files
-                                    using var aWriter = new FileStream(aPath, FileMode.Append);
-                                    using var bWriter = new FileStream(bPath, FileMode.Append);
-
-                                    // Write out normalized debug files
-                                    aWriter.Write(otherContents, 0, otherContents.Length);
-                                    bWriter.Write(key, 0, key.Length);
+                                    File.WriteAllBytes(aPath, otherContents);
+                                    File.WriteAllBytes(bPath, key);
 
                                     // For debugging. Help find exactly where the difference is. 
                                     for (int i = 0; i < otherContents.Length; i++)
