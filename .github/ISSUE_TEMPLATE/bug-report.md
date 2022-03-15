@@ -26,4 +26,4 @@ If applicable, add screenshots of error messages to help explain your problem.
 **Additional context**
 
 Add any other context about the problem here.
-Add any helpful context on the .msapp like created from teams, contains custom pcf components, etc..
+Add any helpful context on the .msapp like created from teams, contains custom pcf components, etc.
