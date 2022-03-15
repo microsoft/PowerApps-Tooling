@@ -2,7 +2,7 @@
 name: Bug Report
 about: Create a report to help us improve
 title: ''
-labels: bug
+labels: ''
 assignees: ''
 
 ---
@@ -18,7 +18,7 @@ Steps to reproduce the behavior:
 1. Unpacking or packing 
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots of error messages to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
