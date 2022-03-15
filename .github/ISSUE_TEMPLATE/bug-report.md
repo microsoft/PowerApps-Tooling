@@ -11,10 +11,11 @@ assignees: ''
 
 **Describe the bug**
 A clear and concise description of what the bug is.
+Please mention if it is reproduced using PAC CLI or PASopa.*(Please mention the version number, if possible)*
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Unpacking or packing (pac canvas unpack or pac canvas pack)
+1. Unpacking or packing 
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
