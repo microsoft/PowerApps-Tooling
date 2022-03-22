@@ -438,6 +438,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 fxYamlList.Add(currFxYamlGroup);
             }
 
+            // Sort the list of fxYaml files alphabetically
+            fxYamlList.OrderBy((fxYamlGroup) => fxYamlGroup.file._relativeName);
+
             // Add control for every .fx.yaml file
             fxYamlList.ForEach(delegate(fxYamlGroup group ) {
             AddControl(app, group.file._relativeName, group.canSearchSubdirs, group.file.GetContents(), errors);
