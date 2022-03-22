@@ -56,13 +56,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Bad parameter (such as a missing file)
         BadParameter= 3012, 
 
+        // If themes.json has empty string values for default scripts
+        ThemesEmptyString = 3013,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
         // Some of the cases which the tool doesn't support, see below example:
         // Connection Accounts is using the old CDS connector which is incompatable with this tool
         UnsupportedError = 4001
-
     }
 
     internal static class ErrorCodeExtensions
@@ -155,6 +157,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void BadParameter(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
+        }
+
+        public static void ThemesEmptyString(this ErrorContainer errors)
+        {
+            errors.AddError(ErrorCode.ThemesEmptyString, default(SourceLocation), $"Themes.json contains a default script of empty string.");
         }
     }
 }
