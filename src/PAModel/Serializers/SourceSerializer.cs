@@ -364,7 +364,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Stores an .fx.yaml file and it's directory bool value
         public struct fxYamlGroup{
-            public Object file;
+            public Microsoft.PowerPlatform.Formulas.Tools.DirectoryReader.Entry file;
             public bool canSearchSubdirs;
         }
 
