@@ -362,6 +362,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+        // Stores an .fx.yaml file and it's directory bool value
+        public struct fxYamlGroup{
+            public Object file;
+            public bool canSearchSubdirs;
+        }
+
         private static void LoadSourceFiles(CanvasDocument app, DirectoryReader directory, Dictionary<string, ControlTemplate> templateDefaults, ErrorContainer errors)
         {
             foreach (var file in directory.EnumerateFiles(EditorStateDir, "*.json"))
@@ -389,6 +395,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            // To contain every .fx.yaml file
+            List<fxYamlGroup> fxYamlList = new List<fxYamlGroup>();
+
             // For now, the Themes file lives in CodeDir as a json file
             // We'd like to make this .fx.yaml as well eventually
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json", searchSubdirectories: false))
@@ -399,8 +408,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
-                AddControl(app, file._relativeName, true, file.GetContents(), errors);
+                // Create new fxYamlGroup object
+                fxYamlGroup currFxYamlGroup;
 
+                // Set it's values
+                currFxYamlGroup.file = file;
+                currFxYamlGroup.canSearchSubdirs = true;
+
+                // Add fxYamlGroup object to the list
+                fxYamlList.Add(currFxYamlGroup);
             }
 
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
@@ -411,8 +427,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
             {
-                AddControl(app, file._relativeName, false, file.GetContents(), errors);
+                // Create new fxYamlGroup object
+                fxYamlGroup currFxYamlGroup;
+
+                // Set it's values
+                currFxYamlGroup.file = file;
+                currFxYamlGroup.canSearchSubdirs = false;
+
+                // Add fxYamlGroup object to the list
+                fxYamlList.Add(currFxYamlGroup);
             }
+
+            // Add control for every .fx.yaml file
+            fxYamlList.ForEach(delegate(fxYamlGroup group ) {
+            AddControl(app, group.file._relativeName, group.canSearchSubdirs, group.file.GetContents(), errors);
+        });
 
             // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             // Make sure to load the the Test_7F478737223C4B69.fx.yaml file first to add the top parent control.
