@@ -46,6 +46,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var styleName = style.name;
                 foreach (var prop in style.propertyValuesMap)
                 {
+                    if(prop.value == ""){
+                        throw new ArgumentException("Themes.json contains a default script of empty string");
+                    }
+
                     var propName = prop.property;
                     var ruleValue = prop.value;
 
@@ -56,8 +60,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         if (match.Success)
                         {
                             var group = match.Groups[1];
-
-
 
                             string resourceValue;
                             // Template may refer to a missing rule. 

@@ -56,9 +56,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Bad parameter (such as a missing file)
         BadParameter= 3012, 
 
-        // If themes.json has empty string values for default scripts
-        ThemesEmptyString = 3013,
-
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -157,11 +154,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void BadParameter(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
-        }
-
-        public static void ThemesEmptyString(this ErrorContainer errors)
-        {
-            errors.AddError(ErrorCode.ThemesEmptyString, default(SourceLocation), $"Themes.json contains a default script of empty string.");
         }
     }
 }
