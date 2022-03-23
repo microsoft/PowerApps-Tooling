@@ -453,5 +453,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 errors.BadParameter($"Directory not found: {fullpath}");
             }
         }
+
+        public static bool IsLocalDatabaseReferencesEmpty(this Entropy entropy)
+        {
+            return (entropy.WasLocalDatabaseReferencesEmpty != null) ?
+                   (bool)entropy.WasLocalDatabaseReferencesEmpty:
+                   entropy.LocalDatabaseReferencesAsEmpty;
+        }
     }
 }

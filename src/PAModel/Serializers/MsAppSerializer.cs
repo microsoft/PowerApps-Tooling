@@ -299,16 +299,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LocalConnectionReferences = null;
                 }
 
-                if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
+                IDictionary<String, LocalDatabaseReferenceJson> dsrs = null;
+                if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences) && (dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences)).Count > 0)
                 {
-                    var dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                     app._dataSourceReferences = dsrs;
                     app._properties.LocalDatabaseReferences = null;
                     app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                    app._entropy.WasLocalDatabaseReferencesEmpty = false;
                 }
                 else
                 {
-                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
+                    app._entropy.LocalDatabaseReferencesAsEmpty = dsrs == null;
+                    app._entropy.WasLocalDatabaseReferencesEmpty = true;
                 }
 
                 if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
