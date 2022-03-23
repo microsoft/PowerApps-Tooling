@@ -48,7 +48,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var styleName = style.name;
                 foreach (var prop in style.propertyValuesMap)
                 {
-                    if(prop.value == ""){
+                    if (prop.value == "")
+                    {
                         errors.ValidationError($"Themes.json cannot contain a default script of empty string.");
                     }
 
