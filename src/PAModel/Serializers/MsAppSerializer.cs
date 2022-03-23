@@ -299,20 +299,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._properties.LocalConnectionReferences = null;
                 }
 
-                IDictionary<String, LocalDatabaseReferenceJson> dsrs = null;
-                if (!string.IsNullOrEmpty(app._properties.LocalDatabaseReferences) && (dsrs = Utilities.JsonParse<IDictionary<String, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences)).Count > 0)
+                app._entropy.WasLocalDatabaseReferencesEmpty = true;
+                if (string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
                 {
-                    app._dataSourceReferences = dsrs;
-                    app._properties.LocalDatabaseReferences = null;
-                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
-                    app._entropy.WasLocalDatabaseReferencesEmpty = false;
+                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
                 }
                 else
                 {
-                    app._entropy.LocalDatabaseReferencesAsEmpty = dsrs == null;
-                    app._entropy.WasLocalDatabaseReferencesEmpty = true;
+                    var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                    if (dsrs.Count > 0)
+                    {
+                        app._entropy.WasLocalDatabaseReferencesEmpty = false;
+                        app._dataSourceReferences = dsrs;
+                        app._properties.LocalDatabaseReferences = null;
+                    }
                 }
-
+              
                 if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
                 {
                     app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };

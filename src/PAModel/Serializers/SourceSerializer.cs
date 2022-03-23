@@ -791,9 +791,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
                 }
             }
-            //Skip the data source references with empty data sources. This avoids data source reference with empty json for data sources
-            app._dataSourceReferences = dataSourceReferences.Where(dataSourceReferenceEntry => dataSourceReferenceEntry.Value.dataSources.Count > 0)
-                                                            .ToDictionary(dataSourceReferenceEntry => dataSourceReferenceEntry.Key, dataSourceReferenceEntry => dataSourceReferenceEntry.Value);
+            // Skip the data source references with empty data sources. This avoids data source reference with empty json for data sources
+            app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
+            foreach (var dataSourceReferenceEntry in dataSourceReferences)
+            {
+                if (dataSourceReferenceEntry.Value.dataSources.Count > 0)
+                {
+                    app._dataSourceReferences.Add(dataSourceReferenceEntry);
+                }
+            }
 
             // key is filename, value is stringified xml
             var xmlDefs = new Dictionary<string, string>();

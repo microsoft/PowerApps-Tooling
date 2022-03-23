@@ -282,5 +282,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             return defaultValue;
         }
+
+        public bool IsLocalDatabaseReferencesEmpty()
+        {
+            return WasLocalDatabaseReferencesEmpty ?? LocalDatabaseReferencesAsEmpty;
+        }
     }
 }
