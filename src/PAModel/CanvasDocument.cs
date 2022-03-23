@@ -384,7 +384,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 componentDefTransform.AfterRead(ctrl.Value);
             }
 
-            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
+            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes, errors), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
 
             foreach (var ctrl in _screens.Concat(_components))
             {
@@ -441,7 +441,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 AddComponentDefaults(ctrl.Value, templateDefaults);
             }
 
-            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
+            var transformer = new SourceTransformer(this, errors, templateDefaults, new Theme(_themes, errors), componentInstanceTransform, _editorStateStore, _templateStore, _entropy);
 
             foreach (var ctrl in _screens.Concat(_components))
             {

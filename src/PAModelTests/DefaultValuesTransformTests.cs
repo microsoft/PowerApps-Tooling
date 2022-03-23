@@ -22,7 +22,7 @@ namespace PAModelTests
         //Testing the DefaultValuesTransform:beforeWrite() behaviour on control node with null dynamic properties
         //Specifically cases where property null but propertynames not null
         [TestMethod]
-        public void TestCaseWithNullDynamicProperties()
+        public void TestCaseWithNullDynamicProperties(ErrorContainer errors)
         {
             //creating a BlockNode with a single property
             var newNode = new BlockNode()
@@ -35,7 +35,7 @@ namespace PAModelTests
                 Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             };
 
-            var defaultValTransform = new DefaultValuesTransform(getTemplateStore(), getTheme(), getEditorStateStore());
+            var defaultValTransform = new DefaultValuesTransform(getTemplateStore(), getTheme(errors), getEditorStateStore());
 
             defaultValTransform.BeforeWrite(newNode, false);
 
@@ -79,12 +79,12 @@ namespace PAModelTests
             return editorStateStore;
         }
 
-        private Theme getTheme()
+        private Theme getTheme(ErrorContainer errors)
         {
             var CustomTheme = new CustomThemeJson() { name = "SomeCustomTheme" };
             var themeJson = new ThemesJson() { CurrentTheme = "SomeTheme", CustomThemes = new[] { CustomTheme } };
 
-            return new Theme(themeJson);
+            return new Theme(themeJson, errors);
         }
 
         //To Load the fluidGrid template defaults

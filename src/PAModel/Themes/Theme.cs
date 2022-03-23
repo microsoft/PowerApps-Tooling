@@ -19,10 +19,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Outer key is stylename, inner key is property name, inner value is expression
         private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         
-        public (ErrorContainer) Theme(ThemesJson themeJson)
+        public Theme(ThemesJson themeJson, ErrorContainer errors)
         {
-            var errors = new ErrorContainer();
-
             Contract.Assert(themeJson != null);
 
             var currentThemeName = themeJson.CurrentTheme;
