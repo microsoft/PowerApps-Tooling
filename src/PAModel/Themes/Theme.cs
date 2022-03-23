@@ -19,21 +19,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Outer key is stylename, inner key is property name, inner value is expression
         private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         
-        public Theme(ThemesJson themeJson)
+        public (ErrorContainer) Theme(ThemesJson themeJson)
         {
+            var errors = new ErrorContainer();
+
             Contract.Assert(themeJson != null);
 
             var currentThemeName = themeJson.CurrentTheme;
             var namedThemes = themeJson.CustomThemes.ToDictionary(theme => theme.name);
             if (namedThemes.TryGetValue(currentThemeName, out var foundTheme))
             {
-                LoadTheme(foundTheme);
+                LoadTheme(foundTheme, errors);
             }
             
         }
 
 
-        private void LoadTheme(CustomThemeJson theme)
+        private void LoadTheme(CustomThemeJson theme, ErrorContainer errors)
         {
             Dictionary<string, string> palleteRules = new Dictionary<string, string>();
             foreach (var item in theme.palette)
@@ -47,7 +49,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 foreach (var prop in style.propertyValuesMap)
                 {
                     if(prop.value == ""){
-                        throw new ArgumentException("Themes.json contains a default script of empty string");
+                        errors.ValidationError($"Themes.json cannot contain a default script of empty string.");
                     }
 
                     var propName = prop.property;
