@@ -11,6 +11,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
     internal class PcfControlDoublyEncoded
     {
         public string ControlNamespace { get; set; }
+        public string DisplayNameKey { get; set; }
         public string ControlConstructor { get; set; }
         public string FullyQualifiedControlName { get; set; }
         public string Resources { get; set; }

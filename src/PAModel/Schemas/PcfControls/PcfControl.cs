@@ -17,6 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         public string Version { get; set; }
 
         public string ControlNamespace { get; set; }
+        public string DisplayNameKey { get; set; }
         public string ControlConstructor { get; set; }
         public Resource[] Resources { get; set; }
         public IDictionary<string, string> SubscribedFunctionalities { get; set; }
@@ -57,6 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 
             var dynamicControlDefinition = Utilities.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
             pcfControl.ControlNamespace = dynamicControlDefinition.ControlNamespace;
+            pcfControl.DisplayNameKey = dynamicControlDefinition.DisplayNameKey;
             pcfControl.ControlConstructor = dynamicControlDefinition.ControlConstructor;
             pcfControl.Resources = dynamicControlDefinition.Resources != null ? Utilities.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
             pcfControl.Properties = dynamicControlDefinition.Properties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
@@ -78,6 +80,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
             // When generating DynamicControlDefinitionJson don't add Name and Version as those aren't part of it.
             PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded();
             _dynamicControlDefinition.ControlNamespace = control.ControlNamespace;
+            _dynamicControlDefinition.DisplayNameKey = control.DisplayNameKey;
             _dynamicControlDefinition.ControlConstructor = control.ControlConstructor;
             var jsonOptions = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             _dynamicControlDefinition.Resources = control.Resources != null ? JsonSerializer.Serialize(control.Resources, jsonOptions) : null;
