@@ -389,9 +389,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            // To contain every .fx.yaml file
-            List<(Microsoft.PowerPlatform.Formulas.Tools.DirectoryReader.Entry, bool)> fxYamlList = new List<(Microsoft.PowerPlatform.Formulas.Tools.DirectoryReader.Entry, bool)>();
-
             // For now, the Themes file lives in CodeDir as a json file
             // We'd like to make this .fx.yaml as well eventually
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.json", searchSubdirectories: false))
@@ -402,8 +399,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
-                // Add tuple to the list
-                fxYamlList.Add((file, true));
+                AddControl(app, file._relativeName, true, file.GetContents(), errors);
             }
 
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
@@ -414,17 +410,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             foreach (var file in directory.EnumerateFiles(CodeDir, "*.fx.yaml", searchSubdirectories: false))
             {
-                // Add tuple to the list
-                fxYamlList.Add((file, false));
+                AddControl(app, file._relativeName, false, file.GetContents(), errors);
             }
-
-            // Sort the list of fxYaml files alphabetically
-            // fxYamlList.OrderBy((fxYamlGroup) => fxYamlGroup.file._relativeName);
-
-            // Add control for every .fx.yaml file
-            fxYamlList.ForEach(delegate( (Microsoft.PowerPlatform.Formulas.Tools.DirectoryReader.Entry, bool) group ) {
-            AddControl(app, group.Item1._relativeName, group.Item2, group.Item1.GetContents(), errors);
-        });
 
             // When loading TestSuites sharded files, add them within the top parent AppTest control (i.e. Test_7F478737223C4B69)
             // Make sure to load the the Test_7F478737223C4B69.fx.yaml file first to add the top parent control.
