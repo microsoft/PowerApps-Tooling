@@ -77,7 +77,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             var ourDeltas = Diff.ComputeDelta(doc1, doc1);
             ErrorContainer errorContainer = new ErrorContainer();
-            
+
             // ThemeDelta always added
             ourDeltas = ourDeltas.Where(x => x.GetType() != typeof(ThemeChange)).ToArray();
 
@@ -179,6 +179,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         errors.FormatNotSupported($"Too old: {pathToMsApp}");
                         return false;
                     }
+
+                    ErrorContainer errorContainer = new ErrorContainer();
 
                     // Model --> MsApp
                     errors = msapp.SaveToMsApp(outFile);
