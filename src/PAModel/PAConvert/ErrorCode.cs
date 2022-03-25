@@ -79,7 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)
         {
-            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. This is always a bug, please file an issue at https://github.com/microsoft/PowerApps-Language-Tooling");
+            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. You have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered. Please open an issue and log it at https://github.com/microsoft/PowerApps-Language-Tooling, along with the following information.");
         }
 
         public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)
