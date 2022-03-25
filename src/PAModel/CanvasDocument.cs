@@ -198,7 +198,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         return errors2;
                     }
 
-                    bool ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null);
+                    bool ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null, errors2);
                     if (!ok)
                     {
                         errors2.PostUnpackValidationFailed();

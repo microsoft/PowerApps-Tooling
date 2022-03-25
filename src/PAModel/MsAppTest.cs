@@ -16,14 +16,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal class MsAppTest
     {
-        public static bool Compare(CanvasDocument doc1, CanvasDocument doc2, TextWriter log)
+        public static bool Compare(CanvasDocument doc1, CanvasDocument doc2, TextWriter log, ErrorContainer errorContainer)
         {
             using (var temp1 = new TempFile())
             using (var temp2 = new TempFile())
             {
                 doc1.SaveToMsApp(temp1.FullPath);
                 doc2.SaveToMsApp(temp2.FullPath);
-                return Compare(temp1.FullPath, temp2.FullPath, log);
+                return Compare(temp1.FullPath, temp2.FullPath, log, errorContainer);
             }
         }
 
@@ -76,7 +76,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static bool HasNoDeltas(CanvasDocument doc1, CanvasDocument doc2, bool strict = false)
         {
             var ourDeltas = Diff.ComputeDelta(doc1, doc1);
-
+            ErrorContainer errorContainer = new ErrorContainer();
+            
             // ThemeDelta always added
             ourDeltas = ourDeltas.Where(x => x.GetType() != typeof(ThemeChange)).ToArray();
 
@@ -101,14 +102,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 bool same;
                 if (strict)
                 {
-                    same = Compare(temp1.FullPath, temp2.FullPath, Console.Out);
+                    same = Compare(temp1.FullPath, temp2.FullPath, Console.Out, errorContainer);
                 }
                 else
                 {
                     var doc1NoEntropy = RemoveEntropy(temp1.FullPath);
                     var doc2NoEntropy = RemoveEntropy(temp2.FullPath);
 
-                    same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out);
+                    same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out, errorContainer);
                 }
 
                 if (!same)
@@ -182,7 +183,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Model --> MsApp
                     errors = msapp.SaveToMsApp(outFile);
                     errors.ThrowOnErrors();
-                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log, errorContainer);
                     if (!ok) { return false; }
 
 
@@ -216,7 +217,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return true;
         }
 
-        public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
+        public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log, ErrorContainer errorContainer)
         {
             var c1 = ChecksumMaker.GetChecksum(pathToZip1);
             var c2 = ChecksumMaker.GetChecksum(pathToZip2);
@@ -235,6 +236,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var kv in comp) // Remaining entries are errors.
             {
                 Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
+
+                // Add each mismatched property name to the error ocntainer
+                errorContainer.ChecksumMismatch("Mismatched Property: " + kv.Key);
             }
 #endif
             return false;
