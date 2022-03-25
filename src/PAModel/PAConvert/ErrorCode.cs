@@ -56,6 +56,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Bad parameter (such as a missing file)
         BadParameter= 3012, 
 
+        // JSON Property doesn't match
+        JSONMismatch=3013,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -75,6 +78,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void ChecksumMismatch(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
+        }
+
+        public static void JSONMismatch(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONMismatch, default(SourceLocation), $"Property: {message}");
         }
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)

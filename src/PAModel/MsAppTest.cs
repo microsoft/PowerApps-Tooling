@@ -240,7 +240,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
 
                 // Add each mismatched property name to the error ocntainer
-                errorContainer.ChecksumMismatch("Mismatched Property: " + kv.Key);
+                errorContainer.JSONMismatch(kv.Key);
             }
 #endif
             return false;
