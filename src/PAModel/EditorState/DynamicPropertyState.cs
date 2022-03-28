@@ -17,7 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
     {
         public string PropertyName { get; set; }
 
-        public PropertyState Property { get; set;}
+        public PropertyState Property { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }

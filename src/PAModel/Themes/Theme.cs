@@ -87,7 +87,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Returns style as copy of dictionary.
         // Must be copy since caller can mutate. 
-        public Dictionary<string,string> GetStyle(string styleName)
+        public Dictionary<string, string> GetStyle(string styleName)
         {
             var d = new Dictionary<string, string>();
             if (_styles.TryGetValue(styleName, out var styles))

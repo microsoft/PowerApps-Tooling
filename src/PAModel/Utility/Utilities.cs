@@ -148,7 +148,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 do
                 {
-                    bytesRead += s.Read(buffer, bytesRead, (int) e.Length-bytesRead);
+                    bytesRead += s.Read(buffer, bytesRead, (int)e.Length - bytesRead);
                 } while (bytesRead < e.Length);
 
 
@@ -402,7 +402,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 // limit the hash to 3 characters by doing a module by 4096 (16^3)
                 var hash = (GetHash(escapedName) % 4096).ToString("x3");
-                escapedName = TruncateName(escapedName, MaxNameLength - hash.Length -1) + "_" + hash;
+                escapedName = TruncateName(escapedName, MaxNameLength - hash.Length - 1) + "_" + hash;
             }
             return escapedName;
         }

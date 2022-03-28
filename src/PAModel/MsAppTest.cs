@@ -205,7 +205,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return false;
@@ -245,13 +245,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // First pass adds file/hash to comp.
         // Second pass checks hash equality and removes files from comp.
         // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass.
-        public static void DebugChecksum(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
+        public static void DebugChecksum(string pathToZip, TextWriter log, Dictionary<string, byte[]> comp, bool first)
         {
             // Path to the directory where we are creating the normalized form
              string normFormDir = ".\\diffFiles";
 
             // Create directory if doesn't exist
-            if(!Directory.Exists(normFormDir)){
+            if (!Directory.Exists(normFormDir)) {
                 Directory.CreateDirectory(normFormDir);
             }
 
@@ -260,7 +260,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 foreach (ZipArchiveEntry e in z.Entries.OrderBy(x => x.FullName))
                 {
                     var key = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(e.FullName, e.ToBytes());
-                    if (key ==null)
+                    if (key == null)
                     {
                         continue;
                     }

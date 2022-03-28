@@ -66,7 +66,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 this.TemplateGuid = guid;
                 return;
             }
-            if (this.TemplateGuid!= guid)
+            if (this.TemplateGuid != guid)
             {
                 throw new InvalidOperationException(); // Mismatch
             }
@@ -96,8 +96,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public Entry[] DataSources { get; set; }
 
-        //[JsonExtensionData]
-        //public Dictionary<string, JsonElement> ExtensionData { get; set; }
+        // [JsonExtensionData]
+        // public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 
     // Writes to \References\DataComponentTemplates.json
@@ -106,8 +106,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public TemplateMetadataJson[] ComponentTemplates { get; set; }
 
         // Should be empty...
-        //[JsonExtensionData]
-        //public Dictionary<string, JsonElement> ExtensionData { get; set; }
+        // [JsonExtensionData]
+        // public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 
 
@@ -123,7 +123,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public bool? AllowAccessToGlobals { get; set; }
 
             // public string Description { get; set; }
-            //public bool AllowCustomization { get; set; }
+            // public bool AllowCustomization { get; set; }
 
             [JsonExtensionData]
             public Dictionary<string, JsonElement> ExtensionData { get; set; }
@@ -132,7 +132,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Order her is random on server. 
         public Entry[] Components { get; set; }
 
-        //[JsonExtensionData]
-        //public Dictionary<string, JsonElement> ExtensionData { get; set; }
+        // [JsonExtensionData]
+        // public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
 }

@@ -76,7 +76,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="value"></param>
-        public void WriteProperty(string propertyName, string value, bool includeEquals=true)
+        public void WriteProperty(string propertyName, string value, bool includeEquals = true)
         {
             if (value == null)
             {

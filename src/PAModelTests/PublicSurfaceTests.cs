@@ -34,7 +34,7 @@ namespace PAModelTests
             };
 
             StringBuilder sb = new StringBuilder();
-            foreach(var type in asm.GetTypes().Where(t => t.IsPublic))
+            foreach (var type in asm.GetTypes().Where(t => t.IsPublic))
             {
                 var name = type.FullName;
                 if (!allowed.Contains(name))

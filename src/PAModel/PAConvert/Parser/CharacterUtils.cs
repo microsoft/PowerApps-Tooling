@@ -122,7 +122,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
         {
             if (IsIdentDelimiter(name[0]))
             {
-                if (!IsIdentDelimiter(name[name.Length-1]))
+                if (!IsIdentDelimiter(name[name.Length - 1]))
                 {
                     // Must match
                     errors.ParseError(default, $"Unmatched escape delimeter in {name}");
@@ -130,7 +130,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
                 }
                 StringBuilder sb = new StringBuilder();
                 int i = 1;
-                while(i <= name.Length-2)
+                while (i <= name.Length - 2)
                 {
                     char ch = name[i];
                     if (ch == PAConstants.IdentifierDelimiter)
