@@ -12,7 +12,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
     /// Notably, property values are always either multi-line escaped or
     /// prefixed with '=' to block yaml from treating it as a yaml expression.
     /// </summary>
-    internal class YamlWriter
+    public class YamlWriter
     {
         private readonly TextWriter _text;
         private int _currentIndent;
