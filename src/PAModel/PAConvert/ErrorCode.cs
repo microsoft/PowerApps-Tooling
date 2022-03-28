@@ -104,7 +104,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void InternalError(this ErrorContainer errors, Exception e)
         {
-            errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}");
+            errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}, \n{e.StackTrace}");
         }
 
         public static void UnsupportedOperationError(this ErrorContainer errors, string message)
