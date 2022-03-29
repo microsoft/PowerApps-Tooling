@@ -82,7 +82,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void JSONMismatch(this ErrorContainer errors, string message)
         {
-            errors.AddError(ErrorCode.JSONMismatch, default(SourceLocation), $"Property: {message}");
+            errors.AddError(ErrorCode.JSONMismatch, default(SourceLocation), message);
         }
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)

@@ -281,28 +281,41 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             byte[] otherContents;
                             if (comp.TryGetValue(entry.FullName, out otherContents))
                             {
-
                                 bool same = key.SequenceEqual(otherContents);
 
                                 if (!same)
                                 {
-                        
+
                                     // Parse each byte array of the different files
-                                    JsonElement element1 = JsonDocument.Parse(key).RootElement;
-                                    JsonElement element2 = JsonDocument.Parse(otherContents).RootElement;
+                                    JsonElement json1 = JsonDocument.Parse(key).RootElement;
+                                    JsonElement json2 = JsonDocument.Parse(otherContents).RootElement;
 
-                                    // 
-                                    foreach (var property1 in element1.EnumerateObject())
+                                    // Check each property and value in json1 to see if each exists and is equal to json2
+                                    foreach (var currentProperty1 in json1.EnumerateObject())
                                     {
-                                        var property2 = element2.GetProperty(property1.Name);
+                                        // If current property from first json file also exists in the second file
+                                        if(json2.TryGetProperty(currentProperty1.Name, out JsonElement value2)){
 
-                                        if (!property1.Value.Equals(property2))
-                                        {
-                                            // We have a mismatch
-                                            errorContainer.JSONMismatch(property1.Name);
-                                      }
+                                            // If current property value from first json file is not the same as in second
+                                            if(!currentProperty1.Value.Equals(value2)){
+                                                errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
+                                            }
+                                        }
+                                        // If current property from first file does not exist in second
+                                        else{
+                                            errorContainer.JSONMismatch(currentProperty1.Name + ": Property Removed");
+                                        }
+
                                     }
 
+                                    // Check each property and value in json2 to see if each exists and is equal to json2
+                                    foreach (var currentProperty2 in json2.EnumerateObject())
+                                    {
+                                        // If current property from second json file does not exist in the first file
+                                        if(!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1)){
+                                            errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
+                                        }
+                                    }
 #if DEBUG
                                     debugMismatch(entry, otherContents, key, normFormDir);
 #endif
