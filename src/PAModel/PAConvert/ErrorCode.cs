@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         BadParameter= 3012, 
 
         // JSON Property doesn't match
-        JSONMismatch=3013,
+        JSONMismatch= 3013,
 
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
@@ -87,7 +87,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)
         {
-            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. You have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered. Please open an issue and log the entirety of this error log at https://github.com/microsoft/PowerApps-Language-Tooling");
+            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. \nYou have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered.\nPlease open an issue and log the entirety of this error log at https://github.com/microsoft/PowerApps-Language-Tooling\n");
         }
 
         public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)
