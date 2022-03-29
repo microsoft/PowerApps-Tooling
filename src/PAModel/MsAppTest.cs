@@ -232,15 +232,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 #if DEBUG
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
+
             DebugChecksum(pathToZip1, log, comp, true);
             DebugChecksum(pathToZip2, log, comp, false);
 
             foreach (var kv in comp) // Remaining entries are errors.
             {
                 Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
-
-                // Add each mismatched property name to the error ocntainer
-                errorContainer.JSONMismatch(kv.Key);
             }
 #endif
             return false;
@@ -250,7 +248,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Get a hash for the MsApp file.
         // First pass adds file/hash to comp.
         // Second pass checks hash equality and removes files from comp.
-        // AFter second pass, comp should be 0. any files in comp were missing from 2nd pass.
+        // After second pass, comp should be 0. Any files in comp were missing from 2nd pass.
         public static void DebugChecksum(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
         {
             // Path to the directory where we are creating the normalized form
