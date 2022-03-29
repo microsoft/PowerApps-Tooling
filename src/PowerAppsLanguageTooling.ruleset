@@ -87,18 +87,18 @@
     <Rule Id="SA1216" Action="None" />
     <Rule Id="SA1217" Action="None" />
     <Rule Id="SA1300" Action="None" />
-    <Rule Id="SA1302" Action="None" />
+    <Rule Id="SA1302" Action="Error" /> <!-- InterfaceNamesMustBeginWithI -->
     <Rule Id="SA1303" Action="None" />
     <Rule Id="SA1304" Action="None" />
     <Rule Id="SA1305" Action="None" />
     <Rule Id="SA1306" Action="None" />
     <Rule Id="SA1307" Action="None" />
-    <Rule Id="SA1308" Action="None" />
+    <Rule Id="SA1308" Action="Error" /> <!-- VariableNamesMustNotBePrefixed -->
     <Rule Id="SA1309" Action="None" />
     <Rule Id="SA1310" Action="None" />
     <Rule Id="SA1311" Action="None" />
     <Rule Id="SA1312" Action="None" />
-    <Rule Id="SA1313" Action="None" />
+    <Rule Id="SA1313" Action="Error" /> <!-- ParameterNamesMustBeginWithLowerCaseLetter -->
     <Rule Id="SA1314" Action="None" />
     <Rule Id="SA1400" Action="None" />
     <Rule Id="SA1401" Action="None" />    
