@@ -79,7 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates
             template.InputDefaults.Add("Fill", "RGBA(255, 255, 255, 1)");
             template.InputDefaults.Add("Height", "Max(App.Height, App.MinScreenHeight)");
             template.InputDefaults.Add("Width", "Max(App.Width, App.MinScreenWidth)");
-            template.InputDefaults.Add("Size", "1 + CountRows(App.SizeBreakpoints) - Countif (App.SizeBreakpoints, Value >= Self.Width)");
+            template.InputDefaults.Add("Size", "1 + CountRows(App.SizeBreakpoints) - Countif(App.SizeBreakpoints, Value >= Self.Width)");
             template.InputDefaults.Add("Orientation", "if(Self.Width < Self.Height, Layout.Vertical, Layout.Horizontal)");
             template.InputDefaults.Add("LoadingSpinner", "LoadingSpinner.None");
             template.InputDefaults.Add("LoadingSpinnerColor", "RGBA(0, 51, 102, 1)");
