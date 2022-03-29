@@ -756,7 +756,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void LoadDataSources(CanvasDocument app, DirectoryReader directory, ErrorContainer errors)
         {
             var tableDefs = new Dictionary<string, DataSourceDefinition>();
-            app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
+            var dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
 
             foreach (var file in directory.EnumerateFiles(DataSourcePackageDir, "*.json"))
             {
@@ -765,7 +765,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (tableDef.DatasetName == null)
                     continue;
 
-                if (!app._dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
+                if (!dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
                 {
                     localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
                     {
@@ -773,9 +773,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         ExtensionData = tableDef.ExtensionData,
                         instanceUrl = tableDef.InstanceUrl
                     };
-                    if (!app._entropy.LocalDatabaseReferencesAsEmpty)
+                    if (!app._entropy.IsLocalDatabaseReferencesEmpty())
                     {
-                        app._dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
+                        dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
                     }
                 }
                 if (localDatabaseReferenceJson.instanceUrl != tableDef.InstanceUrl)
@@ -789,6 +789,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (tableDef.LocalReferenceDSJson != null)
                 {
                     localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+                }
+            }
+            // Skip the data source references with empty data sources. This avoids data source reference with empty json for data sources
+            app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
+            foreach (var dataSourceReferenceEntry in dataSourceReferences)
+            {
+                if (dataSourceReferenceEntry.Value.dataSources.Count > 0)
+                {
+                    app._dataSourceReferences.Add(dataSourceReferenceEntry);
                 }
             }
 
