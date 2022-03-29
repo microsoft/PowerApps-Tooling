@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 {
@@ -12,7 +11,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
     /// Notably, property values are always either multi-line escaped or
     /// prefixed with '=' to block yaml from treating it as a yaml expression.
     /// </summary>
-    internal class YamlWriter
+    public class YamlWriter
     {
         private readonly TextWriter _text;
         private int _currentIndent;
@@ -47,11 +46,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         }
 
         public void WriteProperty(string propertyName, bool value)
-        {            
+        {
             WriteIndent();
             _text.Write(propertyName);
             _text.Write(": ");
-            _text.WriteLine(value ? "true" : "false");            
+            _text.WriteLine(value ? "true" : "false");
         }
 
         public void WriteProperty(string propertyName, int value)
@@ -76,7 +75,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="value"></param>
-        public void WriteProperty(string propertyName, string value, bool includeEquals=true)
+        public void WriteProperty(string propertyName, string value, bool includeEquals = true)
         {
             if (value == null)
             {
@@ -93,7 +92,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // For consistency, both single and multiline PA properties prefix with '='.
             // Only single-line actually needs this - to avoid yaml's regular expression escaping.
             if (includeEquals)
-            {                
+            {
                 value = '=' + value;
             }
 
@@ -173,7 +172,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
-        public static string NormalizeNewlines(string x)
+        private string NormalizeNewlines(string x)
         {
             return x.Replace("\r\n", "\n").Replace("\r", "\n");
         }
