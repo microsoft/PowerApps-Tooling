@@ -8,7 +8,7 @@ using System.IO;
 
 namespace PAModelTests
 {
-    // Test that a series of .msapps can succeesfully roundtrip. 
+    // Test that a series of .msapps can succeesfully roundtrip.
     [TestClass]
     public class RoundtripTests
     {
@@ -31,6 +31,7 @@ namespace PAModelTests
         [DataRow("ComponentDefinitionWithoutAllowGlobalAccessProperty.msapp")]
         [DataRow("DuplicateScreen.msapp")]
         [DataRow("ComponentNameCollision.msapp")]
+        [DataRow("LocaleBasedApplication.msapp")]
         public void StressTestApps(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);

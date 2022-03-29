@@ -1,5 +1,6 @@
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -16,6 +17,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         public string Version { get; set; }
 
         public string ControlNamespace { get; set; }
+        public string DisplayNameKey { get; set; }
         public string ControlConstructor { get; set; }
         public Resource[] Resources { get; set; }
         public IDictionary<string, string> SubscribedFunctionalities { get; set; }
@@ -56,6 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
 
             var dynamicControlDefinition = Utilities.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
             pcfControl.ControlNamespace = dynamicControlDefinition.ControlNamespace;
+            pcfControl.DisplayNameKey = dynamicControlDefinition.DisplayNameKey;
             pcfControl.ControlConstructor = dynamicControlDefinition.ControlConstructor;
             pcfControl.Resources = dynamicControlDefinition.Resources != null ? Utilities.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
             pcfControl.Properties = dynamicControlDefinition.Properties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
@@ -75,8 +78,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         {
             // PowerApps controls require dynamic control definition added to control's template.
             // When generating DynamicControlDefinitionJson don't add Name and Version as those aren't part of it.
-            PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded() { ExtensionData = new Dictionary<string, object>() };
+            PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded();
             _dynamicControlDefinition.ControlNamespace = control.ControlNamespace;
+            _dynamicControlDefinition.DisplayNameKey = control.DisplayNameKey;
             _dynamicControlDefinition.ControlConstructor = control.ControlConstructor;
             var jsonOptions = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             _dynamicControlDefinition.Resources = control.Resources != null ? JsonSerializer.Serialize(control.Resources, jsonOptions) : null;
@@ -88,6 +92,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
             _dynamicControlDefinition.SubscribedFunctionalities = control.SubscribedFunctionalities != null ? JsonSerializer.Serialize(control.SubscribedFunctionalities, jsonOptions) : null;
             _dynamicControlDefinition.AuthConfigProperties = control.AuthConfigProperties != null ? JsonSerializer.Serialize(control.AuthConfigProperties, jsonOptions) : null;
             _dynamicControlDefinition.DataConnectors = control.DataConnectors != null ? JsonSerializer.Serialize(control.DataConnectors, jsonOptions) : null;
+            _dynamicControlDefinition.ExtensionData = control.ExtensionData ?? new Dictionary<string, object>();
 
             return Utilities.JsonSerialize(_dynamicControlDefinition);
         }

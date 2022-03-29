@@ -71,10 +71,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public PropertyEntropy VolatileProperties { get; set; }
 
-        // Sometimes, an empty LocalDatabaseReferences is serialized as "" or { }.
-        // Need to track which so we can round-trip.
-        // if true: "".   Else,  "{}". 
+        /// <summary>
+        /// Sometimes, an empty LocalDatabaseReferences is serialized as "" or {}.<br />
+        /// Need to track which so we can round-trip.<br />
+        /// if true: "".   Else,  "{}".<br />
+        /// Note: Both possible values of this field indicate that  LocalDatabaseReferences  was emptty.
+        /// Therefore the value of this field should not be used to check whether LocalDatabaseReferences was empty or not.
+        /// </summary>
         public bool LocalDatabaseReferencesAsEmpty { get; set; }
+
+        /// <summary>
+        /// Tracks whether LocalDatabaseReferences  was empty or not.
+        /// </summary>
+        public bool? WasLocalDatabaseReferencesEmpty { get; set; }
 
         public int GetOrder(DataSourceEntry dataSource)
         {
@@ -272,6 +281,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return value[1];
             }
             return defaultValue;
+        }
+
+        public bool IsLocalDatabaseReferencesEmpty()
+        {
+            return WasLocalDatabaseReferencesEmpty ?? LocalDatabaseReferencesAsEmpty;
         }
     }
 }
