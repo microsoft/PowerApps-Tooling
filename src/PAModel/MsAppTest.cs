@@ -229,13 +229,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // If there's a checksum mismatch, do a more intensive comparison to find the difference.
-#if DEBUG
+
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
 
-            DebugChecksum(pathToZip1, log, comp, true);
-            DebugChecksum(pathToZip2, log, comp, false);
+            compareChecksums(pathToZip1, log, comp, true);
+            compareChecksums(pathToZip2, log, comp, false);
 
+#if DEBUG
             foreach (var kv in comp) // Remaining entries are errors.
             {
                 Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
@@ -249,7 +250,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // First pass adds file/hash to comp.
         // Second pass checks hash equality and removes files from comp.
         // After second pass, comp should be 0. Any files in comp were missing from 2nd pass.
-        public static void DebugChecksum(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
+        public static void compareChecksums(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
         {
             // Path to the directory where we are creating the normalized form
              string normFormDir = ".\\diffFiles";
@@ -261,9 +262,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             using (var z = ZipFile.OpenRead(pathToZip))
             {
-                foreach (ZipArchiveEntry e in z.Entries.OrderBy(x => x.FullName))
+                foreach (ZipArchiveEntry entry in z.Entries.OrderBy(x => x.FullName))
                 {
-                    var key = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(e.FullName, e.ToBytes());
+                    var key = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
                     if (key ==null)
                     {
                         continue;
@@ -273,56 +274,70 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (first)
                         {
-                            comp.Add(e.FullName, key);
+                            comp.Add(entry.FullName, key);
                         }
                         else
                         {
                             byte[] otherContents;
-                            if (comp.TryGetValue(e.FullName, out otherContents))
+                            if (comp.TryGetValue(entry.FullName, out otherContents))
                             {
 
                                 bool same = key.SequenceEqual(otherContents);
 
                                 if (!same)
                                 {
-                                    // Fail! Mismatch
-                                    Console.WriteLine("FAIL: hash mismatch: " + e.FullName);
-    
-                                    // Paths to current diff files
-                                    string aPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-A.json";
-                                    string bPath = normFormDir + "\\" + Path.ChangeExtension(e.Name, null) + "-B.json";
-
-                                    File.WriteAllBytes(aPath, otherContents);
-                                    File.WriteAllBytes(bPath, key);
-
-                                    // For debugging. Help find exactly where the difference is. 
-                                    for (int i = 0; i < otherContents.Length; i++)
-                                    {
-                                        if (i >= key.Length)
-                                        {
-                                            break;
-                                        }
-                                        if (otherContents[i] != key[i])
-                                        {
-
-                                        }
-                                    }
+                                    // getMismatchedProperties(entry, otherContents, key);
+#if DEBUG
+                                    debugMismatch(entry, otherContents, key, normFormDir);
+#endif
                                 }
                                 else
                                 {
                                     // success
                                 }
-                                comp.Remove(e.FullName);
+                                comp.Remove(entry.FullName);
                             }
                             else
                             {
                                 // Missing file!
-                                Console.WriteLine("FAIL: 2nd has added file: " + e.FullName);
+                                Console.WriteLine("FAIL: 2nd has added file: " + entry.FullName);
                             }
                         }
                     }
                 }
             }
+
+        }
+
+        public void getMismatchedProperties(ZipArchiveEntry entry, byte[] otherContents, byte[] key){
+
+        }
+
+        public static void debugMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, string normFormDir)
+        {
+            // Fail! Mismatch
+            Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
+
+            // Paths to current diff files
+            string aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
+            string bPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-B.json";
+
+            File.WriteAllBytes(aPath, otherContents);
+            File.WriteAllBytes(bPath, key);
+
+            // For debugging. Help find exactly where the difference is. 
+            for (int i = 0; i < otherContents.Length; i++)
+            {
+                if (i >= key.Length)
+                {
+                    break;
+                }
+                if (otherContents[i] != key[i])
+                {
+
+                }
+            }
+
         }
     }
 }
