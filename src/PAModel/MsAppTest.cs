@@ -285,45 +285,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 if (!same)
                                 {
-
-                                    // Parse each byte array of the different files
-                                    JsonElement json1 = JsonDocument.Parse(key).RootElement;
-                                    JsonElement json2 = JsonDocument.Parse(otherContents).RootElement;
-
-                                    // Check each property and value in json1 to see if each exists and is equal to json2
-                                    foreach (var currentProperty1 in json1.EnumerateObject())
-                                    {
-                                        // If current property from first json file also exists in the second file
-                                        if(json2.TryGetProperty(currentProperty1.Name, out JsonElement value2)){
-
-                                            // If current property value from first json file is not the same as in second
-                                            if(!currentProperty1.Value.Equals(value2)){
-                                                errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
-                                            }
-                                        }
-                                        // If current property from first file does not exist in second
-                                        else{
-                                            errorContainer.JSONMismatch(currentProperty1.Name + ": Property Removed");
-                                        }
-
-                                    }
-
-                                    // Check each property and value in json2 to see if each exists and is equal to json2
-                                    foreach (var currentProperty2 in json2.EnumerateObject())
-                                    {
-                                        // If current property from second json file does not exist in the first file
-                                        if(!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1)){
-                                            errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
-                                        }
-                                    }
+                                    checkPropertyMismatch(entry, otherContents, key);
 #if DEBUG
                                     debugMismatch(entry, otherContents, key, normFormDir);
 #endif
                                 }
-                                else
-                                {
-                                    // success
-                                }
+
                                 comp.Remove(entry.FullName);
                             }
                             else
@@ -338,6 +305,40 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
+        public static void checkPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key){
+            
+            // Parse each byte array of the different files
+            JsonElement json1 = JsonDocument.Parse(key).RootElement;
+            JsonElement json2 = JsonDocument.Parse(otherContents).RootElement;
+
+            // Check each property and value in json1 to see if each exists and is equal to json2
+            foreach (var currentProperty1 in json1.EnumerateObject())
+            {
+                // If current property from first json file also exists in the second file
+                if(json2.TryGetProperty(currentProperty1.Name, out JsonElement value2)){
+
+                    // If current property value from first json file is not the same as in second
+                    if(!currentProperty1.Value.Equals(value2)){
+                        errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
+                    }
+                }
+                // If current property from first file does not exist in second
+                else{
+                    errorContainer.JSONMismatch(currentProperty1.Name + ": Property Removed");
+                }
+
+            }
+
+            // Check each property and value in json2 to see if each exists and is equal to json2
+            foreach (var currentProperty2 in json2.EnumerateObject())
+            {
+                // If current property from second json file does not exist in the first file
+                if(!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1)){
+                    errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
+                }
+            }
+        }
+
         public static void debugMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, string normFormDir)
         {
             // Fail! Mismatch
@@ -349,20 +350,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             File.WriteAllBytes(aPath, otherContents);
             File.WriteAllBytes(bPath, key);
-
-            // For debugging. Help find exactly where the difference is. 
-            for (int i = 0; i < otherContents.Length; i++)
-            {
-                if (i >= key.Length)
-                {
-                    break;
-                }
-                if (otherContents[i] != key[i])
-                {
-
-                }
-            }
-
         }
     }
 }
