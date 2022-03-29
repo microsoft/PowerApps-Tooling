@@ -39,7 +39,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 // Nothing
@@ -61,7 +62,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.TryGetValue("Screen1", out var control);
@@ -104,7 +106,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.TryGetValue("Screen1", out var control);
@@ -146,7 +149,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 // Nothing
@@ -175,7 +179,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 // Nothing
@@ -197,7 +202,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 // Nothing
@@ -225,7 +231,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.TryGetValue("Screen1", out var control);
@@ -257,7 +264,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 // Nothing
@@ -286,7 +294,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.Add("Screen32", new BlockNode()
@@ -317,7 +326,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 var newScreen = new BlockNode()
@@ -374,7 +384,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.TryGetValue("Screen1", out var control);
@@ -431,7 +442,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screens.TryGetValue("Screen1", out var control);
@@ -468,7 +480,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             Assert.IsFalse(errors.HasErrors);
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._properties.DocumentLayoutWidth = 1111;
@@ -497,7 +510,8 @@ namespace PAModelTests
             Assert.IsFalse(errors.HasErrors);
             msapp._screenOrder = new List<string>() { "A", "B", "C" };
 
-            MergeTester(msapp,
+            MergeTester(
+            msapp,
             (branchADoc) =>
             {
                 branchADoc._screenOrder = new List<string>() { "B", "C", "A" };

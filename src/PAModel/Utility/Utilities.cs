@@ -239,7 +239,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return obj2;
         }
 
-        public static IList<T> Clone<T>(this IList<T> obj) where T : ICloneable<T>
+        public static IList<T> Clone<T>(this IList<T> obj)
+            where T : ICloneable<T>
         {
             if (obj == null)
                 return null;

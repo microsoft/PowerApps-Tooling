@@ -22,8 +22,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         internal DefaultValuesTransform _defaultValTransform;
 
-        public SourceTransformer(CanvasDocument app, ErrorContainer errors, Dictionary<string, ControlTemplate> defaultValueTemplates, Theme theme, ComponentInstanceTransform componentInstanceTransform,
-            EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy)
+        public SourceTransformer(
+            CanvasDocument app,
+            ErrorContainer errors,
+            Dictionary<string, ControlTemplate> defaultValueTemplates,
+            Theme theme,
+            ComponentInstanceTransform componentInstanceTransform,
+            EditorStateStore stateStore,
+            TemplateStore templateStore,
+            Entropy entropy)
         {
             _templateTransforms = new List<IControlTemplateTransform>();
             _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
