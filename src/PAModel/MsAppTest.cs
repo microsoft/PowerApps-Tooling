@@ -233,8 +233,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
 
-            compareChecksums(pathToZip1, log, comp, true);
-            compareChecksums(pathToZip2, log, comp, false);
+            compareChecksums(pathToZip1, log, comp, true, errorContainer);
+            compareChecksums(pathToZip2, log, comp, false, errorContainer);
 
 #if DEBUG
             foreach (var kv in comp) // Remaining entries are errors.
@@ -250,7 +250,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // First pass adds file/hash to comp.
         // Second pass checks hash equality and removes files from comp.
         // After second pass, comp should be 0. Any files in comp were missing from 2nd pass.
-        public static void compareChecksums(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first)
+        public static void compareChecksums(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first, ErrorContainer errorContainer)
         {
             // Path to the directory where we are creating the normalized form
              string normFormDir = ".\\diffFiles";
@@ -260,12 +260,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Directory.CreateDirectory(normFormDir);
             }
 
-            using (var z = ZipFile.OpenRead(pathToZip))
+            using (var zip = ZipFile.OpenRead(pathToZip))
             {
-                foreach (ZipArchiveEntry entry in z.Entries.OrderBy(x => x.FullName))
+                foreach (ZipArchiveEntry entry in zip.Entries.OrderBy(x => x.FullName))
                 {
                     var key = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
-                    if (key ==null)
+                    if (key == null)
                     {
                         continue;
                     }
@@ -286,7 +286,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 if (!same)
                                 {
-                                    // getMismatchedProperties(entry, otherContents, key);
+                        
+                                    // Parse each byte array of the different files
+                                    JsonElement element1 = JsonDocument.Parse(key).RootElement;
+                                    JsonElement element2 = JsonDocument.Parse(otherContents).RootElement;
+
+                                    // 
+                                    foreach (var property1 in element1.EnumerateObject())
+                                    {
+                                        var property2 = element2.GetProperty(property1.Name);
+
+                                        if (!property1.Value.Equals(property2))
+                                        {
+                                            // We have a mismatch
+                                            errorContainer.JSONMismatch(property1.Name);
+                                      }
+                                    }
+
 #if DEBUG
                                     debugMismatch(entry, otherContents, key, normFormDir);
 #endif
@@ -306,10 +322,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
             }
-
-        }
-
-        public void getMismatchedProperties(ZipArchiveEntry entry, byte[] otherContents, byte[] key){
 
         }
 
