@@ -285,7 +285,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 if (!same)
                                 {
-                                    checkPropertyMismatch(entry, otherContents, key);
+                                    checkPropertyMismatch(entry, otherContents, key, errorContainer);
 #if DEBUG
                                     debugMismatch(entry, otherContents, key, normFormDir);
 #endif
@@ -305,7 +305,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
-        public static void checkPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key){
+        public static void checkPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, ErrorContainer errorContainer){
             
             // Parse each byte array of the different files
             JsonElement json1 = JsonDocument.Parse(key).RootElement;
