@@ -322,14 +322,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void CheckPropertyMismatchOne(ZipArchiveEntry entry, JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
-            
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty1 in json1.EnumerateObject())
             {
 
-             foreach (var subproperty in currentProperty1.Value.EnumerateArray())
+                // If an array
+                if (currentProperty1.Value.ValueKind == JsonValueKind.Array)
                 {
-                    CheckPropertyMismatchOne(entry, subproperty, json2, errorContainer);
+                    foreach (var subproperty in currentProperty1.Value.EnumerateArray())
+                    {
+                        CheckPropertyMismatchOne(entry, subproperty, json2, errorContainer);
+                    }
                 }
 
                 // If current property from first json file also exists in the second file
@@ -354,9 +357,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Check each property and value in json2 to see if each exists and is equal to json2
             foreach (var currentProperty2 in json2.EnumerateObject())
             {
-                foreach (var subproperty in currentProperty2.Value.EnumerateArray())
+                // If an array
+                if (currentProperty2.Value.ValueKind == JsonValueKind.Array)
                 {
-                    CheckPropertyMismatchTwo(entry, json1, subproperty, errorContainer);
+                    foreach (var subproperty in currentProperty2.Value.EnumerateArray())
+                    {
+                        CheckPropertyMismatchTwo(entry, json1, subproperty, errorContainer);
+                    }
                 }
 
                 // If current property from second json file does not exist in the first file
