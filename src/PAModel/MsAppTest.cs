@@ -236,12 +236,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             CompareChecksums(pathToZip1, log, comp, true, errorContainer);
             CompareChecksums(pathToZip2, log, comp, false, errorContainer);
 
-#if DEBUG
-            foreach (var kv in comp) // Remaining entries are errors.
-            {
-                Console.WriteLine("FAIL: 2nd is missing " + kv.Key);
-            }
-#endif
             return false;
         }
 
@@ -264,8 +258,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (ZipArchiveEntry entry in zip.Entries.OrderBy(x => x.FullName))
                 {
-                    var key = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
-                    if (key == null)
+                    var originalContents = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
+                    if (originalContents == null)
                     {
                         continue;
                     }
@@ -274,20 +268,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (first)
                         {
-                            comp.Add(entry.FullName, key);
+                            comp.Add(entry.FullName, originalContents);
                         }
                         else
                         {
-                            byte[] otherContents;
-                            if (comp.TryGetValue(entry.FullName, out otherContents))
+                            byte[] newContents;
+                            if (comp.TryGetValue(entry.FullName, out newContents))
                             {
-                                bool same = key.SequenceEqual(otherContents);
+                                bool same = originalContents.SequenceEqual(newContents);
 
                                 if (!same)
                                 {
-                                    CheckPropertyMismatch(entry, otherContents, key, errorContainer);
+                                    CheckPropertyMismatch(entry, newContents, originalContents, errorContainer);
 #if DEBUG
-                                    DebugMismatch(entry, otherContents, key, normFormDir);
+                                    DebugMismatch(entry, newContents, originalContents, normFormDir);
 #endif
                                 }
 
@@ -305,12 +299,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
-        public static void CheckPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, ErrorContainer errorContainer)
+        public static void CheckPropertyMismatch(ZipArchiveEntry entry, byte[] newContents, byte[] originalContents, ErrorContainer errorContainer)
         {
             
             // Parse each byte array of the different files
-            JsonElement json1 = JsonDocument.Parse(key).RootElement;
-            JsonElement json2 = JsonDocument.Parse(otherContents).RootElement;
+            JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
+            JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
 
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty1 in json1.EnumerateObject())
@@ -343,7 +337,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static void DebugMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, string normFormDir)
+        public static void DebugMismatch(ZipArchiveEntry entry, byte[] newContents, byte[] originalContents, string normFormDir)
         {
             // Fail! Mismatch
             Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
@@ -352,8 +346,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
             string bPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-B.json";
 
-            File.WriteAllBytes(aPath, otherContents);
-            File.WriteAllBytes(bPath, key);
+            File.WriteAllBytes(aPath, newContents);
+            File.WriteAllBytes(bPath, originalContents);
         }
     }
 }
