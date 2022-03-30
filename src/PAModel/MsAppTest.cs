@@ -233,8 +233,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
 
-            compareChecksums(pathToZip1, log, comp, true, errorContainer);
-            compareChecksums(pathToZip2, log, comp, false, errorContainer);
+            CompareChecksums(pathToZip1, log, comp, true, errorContainer);
+            CompareChecksums(pathToZip2, log, comp, false, errorContainer);
 
 #if DEBUG
             foreach (var kv in comp) // Remaining entries are errors.
@@ -250,7 +250,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // First pass adds file/hash to comp.
         // Second pass checks hash equality and removes files from comp.
         // After second pass, comp should be 0. Any files in comp were missing from 2nd pass.
-        public static void CompareChecksums(string pathToZip, TextWriter log, Dictionary<string,byte[]> comp, bool first, ErrorContainer errorContainer)
+        public static void CompareChecksums(string pathToZip, TextWriter log, Dictionary<string, byte[]> comp, bool first, ErrorContainer errorContainer)
         {
             // Path to the directory where we are creating the normalized form
              string normFormDir = ".\\diffFiles";
@@ -285,9 +285,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 if (!same)
                                 {
-                                    checkPropertyMismatch(entry, otherContents, key, errorContainer);
+                                    CheckPropertyMismatch(entry, otherContents, key, errorContainer);
 #if DEBUG
-                                    debugMismatch(entry, otherContents, key, normFormDir);
+                                    DebugMismatch(entry, otherContents, key, normFormDir);
 #endif
                                 }
 
@@ -305,7 +305,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
-        public static void checkPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, ErrorContainer errorContainer){
+        public static void CheckPropertyMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, ErrorContainer errorContainer)
+        {
             
             // Parse each byte array of the different files
             JsonElement json1 = JsonDocument.Parse(key).RootElement;
@@ -315,10 +316,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var currentProperty1 in json1.EnumerateObject())
             {
                 // If current property from first json file also exists in the second file
-                if(json2.TryGetProperty(currentProperty1.Name, out JsonElement value2)){
+                if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
+                {
 
                     // If current property value from first json file is not the same as in second
-                    if(!currentProperty1.Value.Equals(value2)){
+                    if (!currentProperty1.Value.Equals(value2))
+                    {
                         errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
                     }
                 }
@@ -333,13 +336,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var currentProperty2 in json2.EnumerateObject())
             {
                 // If current property from second json file does not exist in the first file
-                if(!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1)){
+                if (!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1))
+                {
                     errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
                 }
             }
         }
 
-        public static void debugMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, string normFormDir)
+        public static void DebugMismatch(ZipArchiveEntry entry, byte[] otherContents, byte[] key, string normFormDir)
         {
             // Fail! Mismatch
             Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);

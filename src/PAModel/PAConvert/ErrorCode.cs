@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         BadParameter = 3012, 
 
         // JSON Property doesn't match
-        JSONMismatch= 3013,
+        JSONMismatch = 3013,
 
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
