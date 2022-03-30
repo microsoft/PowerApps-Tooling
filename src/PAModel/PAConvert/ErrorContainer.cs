@@ -52,7 +52,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             int countWarnings = 0;
             int countErrors = 0;
 
-            foreach(var error in this)
+            foreach (var error in this)
             {
                 if (error.IsError) { countErrors++; } else { countWarnings++;  }
                 output.WriteLine(error);

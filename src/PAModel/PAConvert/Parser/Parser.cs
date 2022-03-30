@@ -119,7 +119,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             ++i;
 
             // Accept any characters up to the next unescaped identifier delimiter.
-            for (; ; )
+            for (; ;)
             {
                 if (i >= source.Length)
                     break;

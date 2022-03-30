@@ -148,7 +148,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 do
                 {
-                    bytesRead += s.Read(buffer, bytesRead, (int) e.Length-bytesRead);
+                    bytesRead += s.Read(buffer, bytesRead, (int)e.Length - bytesRead);
                 } while (bytesRead < e.Length);
 
 
@@ -239,7 +239,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return obj2;
         }
 
-        public static IList<T> Clone<T>(this IList<T> obj) where T : ICloneable<T>
+        public static IList<T> Clone<T>(this IList<T> obj)
+            where T : ICloneable<T>
         {
             if (obj == null)
                 return null;
@@ -402,7 +403,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 // limit the hash to 3 characters by doing a module by 4096 (16^3)
                 var hash = (GetHash(escapedName) % 4096).ToString("x3");
-                escapedName = TruncateName(escapedName, MaxNameLength - hash.Length -1) + "_" + hash;
+                escapedName = TruncateName(escapedName, MaxNameLength - hash.Length - 1) + "_" + hash;
             }
             return escapedName;
         }

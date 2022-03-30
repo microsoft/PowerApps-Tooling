@@ -54,7 +54,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         UnpackValidationFailed = 3011,
 
         // Bad parameter (such as a missing file)
-        BadParameter= 3012, 
+        BadParameter = 3012, 
 
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,

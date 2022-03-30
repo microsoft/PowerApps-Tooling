@@ -151,7 +151,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <returns></returns>
         private bool ValidateSafeToDelete(ErrorContainer errors)
         {
-            if(Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
+            if (Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
             {
                 errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked.");
                 throw new DocumentException();

@@ -37,7 +37,7 @@ namespace PAModelTests
 
                 // Delete Entropy directory
                 var entropyPath = Path.Combine(outSrcDir, "Entropy");
-                if(Directory.Exists(entropyPath))
+                if (Directory.Exists(entropyPath))
                 {
                     Directory.Delete(entropyPath, true);
                 }

@@ -39,12 +39,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private readonly IncrementalHash _hash;
 
         private readonly static byte[] _startObj = new byte[] { (byte)'{' };
-        private readonly static byte[] _endObj = new byte[] { (byte) '}' };
-        private readonly static byte[] _startArray = new byte[] { (byte) '[' };
-        private readonly static byte[] _endArray = new byte[] { (byte) ']' };
+        private readonly static byte[] _endObj = new byte[] { (byte)'}' };
+        private readonly static byte[] _startArray = new byte[] { (byte)'[' };
+        private readonly static byte[] _endArray = new byte[] { (byte)']' };
         private readonly static byte[] _null = new byte[] { 254 };
         private readonly static byte[] _true = new byte[] { 1 };
-        private readonly static byte[] _false  = new byte[] { 0 };
+        private readonly static byte[] _false = new byte[] { 0 };
 
         private readonly static byte[] _marker = new byte[] { 255 };
 

@@ -26,7 +26,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 
         public static SourceLocation FromFile(string filename)
         {
-            return new SourceLocation(0,0,0,0, filename);
+            return new SourceLocation(0, 0, 0, 0, filename);
         }
 
         public override string ToString()

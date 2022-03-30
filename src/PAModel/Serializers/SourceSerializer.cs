@@ -515,7 +515,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // For pcf conversions
             if (app._templates.PcfTemplates != null)
             {
-                foreach(var pcfConversion in app._templates.PcfTemplates)
+                foreach (var pcfConversion in app._templates.PcfTemplates)
                 {
                     dir.WriteAllJson(PackagesDir, new FilePath(PcfConversionDir, $"{pcfConversion.Name}.json"), pcfConversion);
                 }
