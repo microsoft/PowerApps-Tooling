@@ -224,9 +224,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return true;
             }
-
-            // If there's a checksum mismatch, do a more intensive comparison to find the difference.
-
+            
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
 
