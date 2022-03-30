@@ -182,7 +182,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Model --> MsApp
                     errors = msapp.SaveToMsApp(outFile);
                     errors.ThrowOnErrors();
-
                     var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
                     if (!ok) { return false; }
 
