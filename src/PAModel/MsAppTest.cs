@@ -16,14 +16,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal class MsAppTest
     {
-        public static bool Compare(CanvasDocument doc1, CanvasDocument doc2, TextWriter log, ErrorContainer errorContainer)
+        public static bool Compare(CanvasDocument doc1, CanvasDocument doc2, TextWriter log)
         {
             using (var temp1 = new TempFile())
             using (var temp2 = new TempFile())
             {
                 doc1.SaveToMsApp(temp1.FullPath);
                 doc2.SaveToMsApp(temp2.FullPath);
-                return Compare(temp1.FullPath, temp2.FullPath, log, errorContainer);
+                return Compare(temp1.FullPath, temp2.FullPath, log);
             }
         }
 
@@ -76,7 +76,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static bool HasNoDeltas(CanvasDocument doc1, CanvasDocument doc2, bool strict = false)
         {
             var ourDeltas = Diff.ComputeDelta(doc1, doc1);
-            ErrorContainer errorContainer = new ErrorContainer();
 
             // ThemeDelta always added
             ourDeltas = ourDeltas.Where(x => x.GetType() != typeof(ThemeChange)).ToArray();
@@ -102,14 +101,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 bool same;
                 if (strict)
                 {
-                    same = Compare(temp1.FullPath, temp2.FullPath, Console.Out, errorContainer);
+                    same = Compare(temp1.FullPath, temp2.FullPath, Console.Out);
                 }
                 else
                 {
                     var doc1NoEntropy = RemoveEntropy(temp1.FullPath);
                     var doc2NoEntropy = RemoveEntropy(temp2.FullPath);
 
-                    same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out, errorContainer);
+                    same = Compare(doc1NoEntropy, doc2NoEntropy, Console.Out);
                 }
 
                 if (!same)
@@ -180,12 +179,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         return false;
                     }
 
-                    ErrorContainer errorContainer = new ErrorContainer();
-
                     // Model --> MsApp
                     errors = msapp.SaveToMsApp(outFile);
                     errors.ThrowOnErrors();
-                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log, errorContainer);
+
+                    var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
                     if (!ok) { return false; }
 
 
@@ -214,13 +212,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return false;
             }
 
-            
-
             return true;
         }
 
-        public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log, ErrorContainer errorContainer)
+        public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
         {
+            ErrorContainer errorContainer = new ErrorContainer();
+
             var c1 = ChecksumMaker.GetChecksum(pathToZip1);
             var c2 = ChecksumMaker.GetChecksum(pathToZip2);
             if (c1.wholeChecksum == c2.wholeChecksum)
@@ -229,6 +227,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // If there's a checksum mismatch, do a more intensive comparison to find the difference.
+
+            // Provide a comparison that can be very specific about what the difference is.
+            var comp = new Dictionary<string, byte[]>();
+
+            CompareChecksums(pathToZip1, log, comp, true, errorContainer);
+            CompareChecksums(pathToZip2, log, comp, false, errorContainer);
+
+            return false;
+        }
+
+        // Overload with ErrorContainer
+        public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log, ErrorContainer errorContainer)
+        {
+            var c1 = ChecksumMaker.GetChecksum(pathToZip1);
+            var c2 = ChecksumMaker.GetChecksum(pathToZip2);
+            if (c1.wholeChecksum == c2.wholeChecksum)
+            {
+                return true;
+            }
 
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
