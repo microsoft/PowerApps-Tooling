@@ -224,7 +224,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 return true;
             }
-            
+
             // Provide a comparison that can be very specific about what the difference is.
             var comp = new Dictionary<string, byte[]>();
 
@@ -293,7 +293,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 if (!same)
                                 {
-                                    CheckPropertyMismatch(entry, newContents, originalContents, errorContainer);
+                                    // Parse each byte array of the different files
+                                    JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
+                                    JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
+
+                                    CheckPropertyMismatchOne(entry, json1, json2, errorContainer);
+                                    CheckPropertyMismatchTwo(entry, json1, json2, errorContainer);
 #if DEBUG
                                     DebugMismatch(entry, newContents, originalContents, normFormDir);
 #endif
@@ -313,20 +318,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         }
 
-        public static void CheckPropertyMismatch(ZipArchiveEntry entry, byte[] newContents, byte[] originalContents, ErrorContainer errorContainer)
+  
+
+        public static void CheckPropertyMismatchOne(ZipArchiveEntry entry, JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
             
-            // Parse each byte array of the different files
-            JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
-            JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
-
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty1 in json1.EnumerateObject())
             {
+
+             foreach (var subproperty in currentProperty1.Value.EnumerateArray())
+                {
+                    CheckPropertyMismatchOne(entry, subproperty, json2, errorContainer);
+                }
+
                 // If current property from first json file also exists in the second file
                 if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
                 {
-
                     // If current property value from first json file is not the same as in second
                     if (!currentProperty1.Value.Equals(value2))
                     {
@@ -339,10 +347,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
             }
+        }
 
+        public static void CheckPropertyMismatchTwo(ZipArchiveEntry entry, JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        {
             // Check each property and value in json2 to see if each exists and is equal to json2
             foreach (var currentProperty2 in json2.EnumerateObject())
             {
+                foreach (var subproperty in currentProperty2.Value.EnumerateArray())
+                {
+                    CheckPropertyMismatchTwo(entry, json1, subproperty, errorContainer);
+                }
+
                 // If current property from second json file does not exist in the first file
                 if (!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1))
                 {
