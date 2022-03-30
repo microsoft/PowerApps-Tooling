@@ -48,7 +48,7 @@ namespace PAModelTests
         public void ChecksumsUnique()
         {
             HashSet<string> checksums = new HashSet<string>(StringComparer.Ordinal);
-            foreach(var prop in this.GetType().GetFields(BindingFlags.Static | BindingFlags.NonPublic ))
+            foreach (var prop in this.GetType().GetFields(BindingFlags.Static | BindingFlags.NonPublic))
             {
                 if (prop.Name.StartsWith("C"))
                 {

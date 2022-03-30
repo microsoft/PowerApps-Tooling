@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -46,7 +46,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static void Write(JsonElement je, Utf8JsonWriter writer)
         {
-            switch(je.ValueKind)
+            switch (je.ValueKind)
             {
                 case JsonValueKind.Object:
                     writer.WriteStartObject();
@@ -63,7 +63,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // When normalizing... original msapp arrays can be in any order...
                 case JsonValueKind.Array:
                     writer.WriteStartArray();
-                    foreach(JsonElement x in je.EnumerateArray())
+                    foreach (JsonElement x in je.EnumerateArray())
                     {
                         Write(x, writer);
                     }

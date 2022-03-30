@@ -69,8 +69,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
     internal class ComponentDefinitionInfoJson
     {
         public string Name { get; set; }
-        public string LastModifiedTimestamp { get; set; } //  "637335420246436668",
-        public ControlInfoJson.RuleEntry[] Rules {get;set;}
+        public string LastModifiedTimestamp { get; set; } // "637335420246436668",
+        public ControlInfoJson.RuleEntry[] Rules { get; set; }
         public ControlInfoJson.Item[] Children { get; set; }
         public bool? AllowAccessToGlobals { get; set; }
 

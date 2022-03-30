@@ -19,12 +19,12 @@ namespace PAModelTests
     {
         public static readonly List<String> dynamicPropertiesList = new List<String>{ "LayoutX", "LayoutY", "LayoutWidth", "LayoutHeight" };
 
-        //Testing the DefaultValuesTransform:beforeWrite() behaviour on control node with null dynamic properties
-        //Specifically cases where property null but propertynames not null
+        // Testing the DefaultValuesTransform:beforeWrite() behaviour on control node with null dynamic properties
+        // Specifically cases where property null but propertynames not null
         [TestMethod]
         public void TestCaseWithNullDynamicProperties()
         {
-            //creating a BlockNode with a single property
+            // creating a BlockNode with a single property
             var newNode = new BlockNode()
             {
                 Name = new TypedNameNode()
@@ -42,14 +42,14 @@ namespace PAModelTests
             IList<PropertyNode> nodeProperties = newNode.Properties;
             foreach (PropertyNode property in nodeProperties)
             {
-                //check if dynamic property with null values are added, if so fail the test
-                if (dynamicPropertiesList.Contains(property.Identifier) )
+                // check if dynamic property with null values are added, if so fail the test
+                if (dynamicPropertiesList.Contains(property.Identifier))
                 {
                     Assert.Fail($"Dynamic property {property.Identifier} with null value added.");
                 }
             }
 
-            //nodeProperties after BeforeWrite() contains only the SomeProp and none of the null dynamic properties
+            // nodeProperties after BeforeWrite() contains only the SomeProp and none of the null dynamic properties
             Assert.IsTrue(nodeProperties.Count == 1);
         }
 
@@ -57,7 +57,7 @@ namespace PAModelTests
         {
             // creating dynamic properties with Property value null, but with PropertyName
             var dynPropStates = new List<DynamicPropertyState>();
-            dynPropStates.AddRange( new List<DynamicPropertyState> {
+            dynPropStates.AddRange(new List<DynamicPropertyState> {
                 new DynamicPropertyState() { PropertyName = "LayoutX" },
                 new DynamicPropertyState() { PropertyName = "LayoutY" },
                 new DynamicPropertyState() { PropertyName = "LayoutWidth" },
@@ -87,7 +87,7 @@ namespace PAModelTests
             return new Theme(themeJson);
         }
 
-        //To Load the fluidGrid template defaults
+        // To Load the fluidGrid template defaults
         private Dictionary<string, ControlTemplate> getTemplateStore()
         {
             var parsedTemplates = new Dictionary<string, ControlTemplate>();

@@ -54,7 +54,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         UnpackValidationFailed = 3011,
 
         // Bad parameter (such as a missing file)
-        BadParameter= 3012, 
+        BadParameter = 3012, 
 
         // JSON Property doesn't match
         JSONMismatch= 3013,

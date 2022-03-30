@@ -260,7 +260,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 return Error(line, "Use spaces, not tabs.");
             }
 
-            var startColumn = line._idx +1; // 1-based start column number.
+            var startColumn = line._idx + 1; // 1-based start column number.
 
 
             // If last was 'start object', then this indent sets the new level,
@@ -354,7 +354,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             line.MaybeEat(':'); // skip colon. 
 
             // Prop name could have spaces, but no colons. 
-            var propName = line._line.Substring(indentLen, line._idx - indentLen-1).Trim();
+            var propName = line._line.Substring(indentLen, line._idx - indentLen - 1).Trim();
 
             if (requiresClosingDoubleQuote)
             {
@@ -537,8 +537,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         // 1-based indexes. 
         private SourceLocation LocWorker(int startIndex1, int endIndex1)
         {
-            return new SourceLocation(_currentLine, startIndex1, _currentLine, endIndex1,
-            _currentFileName);
+            return new SourceLocation(_currentLine, startIndex1, _currentLine, endIndex1, _currentFileName);
         }
 
         // https://yaml-multiline.info/
@@ -581,7 +580,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             var val = sb.ToString(); 
             if (multilineMode == 0)
             {
-                while(true)
+                while (true)
                 {
                     if (sb.Length > 0 && sb[sb.Length - 1] == '\n')
                     {
@@ -641,7 +640,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 get
                 {
-                    if (_idx-1 >= _line.Length || _idx -1 < 0) { return (char)0; }
+                    if (_idx - 1 >= _line.Length || _idx - 1 < 0) { return (char)0; }
                     return _line[_idx - 1];
                 }
             }
@@ -671,7 +670,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // We require spaces and don't allow tabs. 
             public int EatIndent()
             {
-                while (this.MaybeEat(' ')) ;
+                while (this.MaybeEat(' '));
                 return this._idx;
             }
 
@@ -703,8 +702,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (_previousProperties.TryGetValue(propName, out oldLine))
                 {
                     // Key is already present.
-                    return YamlToken.NewError(default(SourceLocation),
-                        $"Property '{propName}' is already defined on line {oldLine}.");
+                    return YamlToken.NewError(default(SourceLocation), $"Property '{propName}' is already defined on line {oldLine}.");
                 }
                 _previousProperties.Add(propName, currentLine);
                 return null;
