@@ -108,15 +108,13 @@ namespace PAModelTests
             var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
             errors.ThrowOnErrors();
 
+            // Testing if conn instance id is added to entropy
+            Assert.IsNotNull(msApp._entropy.LocalConnectionIDReferences);
+
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
-            ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath);
-            errorsCaptured.ThrowOnErrors();
-
-            var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, new ErrorContainer());
-
-            // Testing if conn instance id is added to entropy
-            Assert.IsNotNull(loadedMsApp._entropy.LocalConnectionIDReferences);
+            ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
+            errorsCaptured.ThrowOnErrors();            
         }
 
         private static T ToObject<T>(ZipArchiveEntry entry)
