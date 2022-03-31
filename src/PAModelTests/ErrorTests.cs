@@ -64,12 +64,12 @@ namespace PAModelTests
             (var doc, var errors) = CanvasDocument.LoadFromMsapp(PathJSONMismatchDir);
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNull(doc);
-            
+
             bool containsJSONMismatch = false;
 
-            foreach (var err in errors.GetEnumerator())
+            foreach (var err in errors)
             {
-                if (err.Code == 3013)
+                if (err.Code == (ErrorCode)3013)
                 {
                     containsJSONMismatch = true;
                 }
