@@ -19,7 +19,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Read/Write to an .msapp file. 
     internal static class MsAppSerializer
     {
-        internal static readonly string ConnectionInstanceIDPropertyName = "connectionInstanceId";
+        public const string ConnectionInstanceIDPropertyName = "connectionInstanceId";
 
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
@@ -566,8 +566,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             connectionIDReferences.Remove(connection.Key);
                         }
                     }
-                    app._entropy.LocalConnectionIDReferences = null;
                 }
+
                 var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }
