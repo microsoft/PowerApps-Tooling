@@ -283,8 +283,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
                                     JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
 
-                                    CheckPropertyMismatchOne(entry, json1, json2, errorContainer);
-                                    CheckPropertyMismatchTwo(entry, json1, json2, errorContainer);
+                                    CheckPropertyMismatchOne(json1, json2, errorContainer);
+                                    CheckPropertyMismatchTwo(json1, json2, errorContainer);
 #if DEBUG
                                     DebugMismatch(entry, newContents, originalContents, normFormDir);
 #endif
@@ -306,7 +306,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
   
 
-        public static void CheckPropertyMismatchOne(ZipArchiveEntry entry, JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyMismatchOne(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty1 in json1.EnumerateObject())
@@ -328,7 +328,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static void CheckPropertyMismatchTwo(ZipArchiveEntry entry, JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyMismatchTwo(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
             // Check each property and value in json2 to see if each exists and is equal to json2
             foreach (var currentProperty2 in json2.EnumerateObject())

@@ -18,7 +18,10 @@ namespace PAModelTests
 
         public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
 
-        public static string PathJSONMismatchDir = Path.Combine(Environment.CurrentDirectory, "Apps", "JSONMismatch.msapp");
+        public static string PathMismatchJSON1 = Path.Combine(Environment.CurrentDirectory, "JSON", "mismatched1.json");
+
+        public static string PathMismatchJSON2 = Path.Combine(Environment.CurrentDirectory, "JSON", "mismatched2.json");
+
 
         [TestMethod]
         public void OpenCorruptedMsApp()
@@ -59,22 +62,27 @@ namespace PAModelTests
         }
 
         [TestMethod]
-        public void OpenJSONMismatchMsApp()
+        public void TestJSONMismatchErrorGiven()
         {
-            (var doc, var errors) = CanvasDocument.LoadFromMsapp(PathJSONMismatchDir);
-            Assert.IsTrue(errors.HasErrors);
-            Assert.IsNull(doc);
+            ErrorContainer errorContainer = new ErrorContainer();
+              
+            // CheckPropertyMismatch on mismatched files
+            CheckPropertyMismatchOne(PathMismatchJSON1, PathMismatchJSON2, errorContainer);
+            CheckPropertyMismatchTwo(PathMismatchJSON1, PathMismatchJSON2, errorContainer);
 
+            // Assume no mismatch
             bool containsJSONMismatch = false;
 
-            foreach (var err in errors)
+            // For every error received, see if any is a JSONMismatch (3013)
+            foreach (var error in errorContainer)
             {
-                if (err.Code == (ErrorCode)3013)
+                if (error.Code == (ErrorCode)3013)
                 {
                     containsJSONMismatch = true;
                 }
             }
 
+            // Confirm that some error was a JSONMismatch
             Assert.IsTrue(containsJSONMismatch);
         }
     }
