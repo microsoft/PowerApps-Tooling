@@ -550,7 +550,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._connections != null)
             {
                 var connectionIDReferences = app._entropy.LocalConnectionIDReferences;
-                if (connectionIDReferences != null)
+                if (connectionIDReferences != null && connectionIDReferences.Count != 0)
                 {
                     foreach (var connection in app._connections)
                     {
