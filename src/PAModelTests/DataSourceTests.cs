@@ -111,7 +111,7 @@ namespace PAModelTests
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
             ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath);
-            errors.ThrowOnErrors();
+            errorsCaptured.ThrowOnErrors();
 
             var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, new ErrorContainer());
 
