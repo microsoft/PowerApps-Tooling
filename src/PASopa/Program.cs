@@ -17,6 +17,8 @@ namespace PASopa
         {
             Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
+            var warningText = "Warning: {0} is in preview, and functionality is not guaranteed. Use extreme caution if using in a production environment. For more information see aka.ms/paccanvas";
+
             var mode = args.Length > 0 ? args[0]?.ToLower() : null;
             if (mode == "-test")
             {
@@ -111,6 +113,8 @@ namespace PASopa
                 string msAppPath = args[1];
                 msAppPath = Path.GetFullPath(msAppPath);
 
+                Console.WriteLine(warningText, "unpack");
+
                 if (!msAppPath.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException("must be path to .msapp file");
@@ -153,6 +157,8 @@ namespace PASopa
 
                 string msAppPath = Path.GetFullPath(args[1]);
                 string inputDir = Path.GetFullPath(args[2]);
+
+                Console.WriteLine(warningText, "pack");
 
                 Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
