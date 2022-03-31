@@ -5,6 +5,8 @@ using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Text.Json;
+
 
 namespace PAModelTests
 {
@@ -66,12 +68,15 @@ namespace PAModelTests
         {
             ErrorContainer errorContainer = new ErrorContainer();
 
-            JsonElement json1 = JsonDocument.Parse(PathMismatchJSON1).RootElement;
-            JsonElement json2 = JsonDocument.Parse(PathMismatchJSON2).RootElement;
+            string jsonPath1 = File.ReadAllText(PathMismatchJSON1);
+            string jsonPath2 = File.ReadAllText(PathMismatchJSON2);
+
+            JsonElement json1 = JsonSerializer.Deserialize<JsonElement>(jsonPath1) !;
+            JsonElement json2 = JsonSerializer.Deserialize<JsonElement>(jsonPath2) !;
 
             // CheckPropertyMismatch on mismatched files
-            CheckPropertyMismatchOne(json1, PathMismatchJSON2, errorContainer);
-            CheckPropertyMismatchTwo(json2, PathMismatchJSON2, errorContainer);
+            MsAppTest.CheckPropertyMismatchOne(json1, json2, errorContainer);
+            MsAppTest.CheckPropertyMismatchTwo(json1, json2, errorContainer);
 
             // Assume no mismatch
             bool containsJSONMismatch = false;
