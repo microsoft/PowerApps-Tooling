@@ -110,23 +110,13 @@ namespace PAModelTests
 
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
-            msApp.SaveToSources(sourcesTempDirPath);
+            ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath);
+            errors.ThrowOnErrors();
 
             var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, new ErrorContainer());
 
             // Testing if conn instance id is added to entropy
             Assert.IsNotNull(loadedMsApp._entropy.LocalConnectionIDReferences);
-
-            using (var tempFile = new TempFile())
-            {
-                // Repack the app
-                MsAppSerializer.SaveAsMsApp(loadedMsApp, tempFile.FullPath, new ErrorContainer());
-
-                // Comparing original .msapp with repacked .msapp
-                // and testing no deltas 
-                bool ok = MsAppTest.MergeStressTest(pathToMsApp, tempFile.FullPath);
-                Assert.IsTrue(ok);
-            }
         }
 
         private static T ToObject<T>(ZipArchiveEntry entry)
