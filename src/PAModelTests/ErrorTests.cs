@@ -68,11 +68,11 @@ namespace PAModelTests
         {
             ErrorContainer errorContainer = new ErrorContainer();
 
-            string jsonPath1 = File.ReadAllText(PathMismatchJSON1);
-            string jsonPath2 = File.ReadAllText(PathMismatchJSON2);
+            string jsonString1 = File.ReadAllText(PathMismatchJSON1);
+            string jsonString2 = File.ReadAllText(PathMismatchJSON2);
 
-            JsonElement json1 = JsonSerializer.Deserialize<JsonElement>(jsonPath1) !;
-            JsonElement json2 = JsonSerializer.Deserialize<JsonElement>(jsonPath2) !;
+            JsonElement json1 = JsonDocument.Parse(jsonString1).RootElement;
+            JsonElement json2 = JsonDocument.Parse(jsonString2).RootElement;
 
             // CheckPropertyMismatch on mismatched files
             MsAppTest.CheckPropertyMismatchOne(json1, json2, errorContainer);
