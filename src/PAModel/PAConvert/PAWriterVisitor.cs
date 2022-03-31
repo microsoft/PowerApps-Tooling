@@ -61,7 +61,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             context._yaml.WriteNewline();
 
-            foreach (var child in node.Children.OrderBy(child => GetZIndex(child)).ThenBy(child => child.Name.Identifier))
+            foreach (var child in node.Children.OrderBy(child => GetZIndex(child)))
             {
                 child.Accept(this, context);
             }
