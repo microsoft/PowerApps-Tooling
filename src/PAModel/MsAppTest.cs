@@ -311,16 +311,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty1 in json1.EnumerateObject())
             {
-
-                // If an array
-                if (currentProperty1.Value.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var subproperty in currentProperty1.Value.EnumerateArray())
-                    {
-                        CheckPropertyMismatchOne(entry, subproperty, json2, errorContainer);
-                    }
-                }
-
                 // If current property from first json file also exists in the second file
                 if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
                 {
@@ -343,15 +333,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Check each property and value in json2 to see if each exists and is equal to json2
             foreach (var currentProperty2 in json2.EnumerateObject())
             {
-                // If an array
-                if (currentProperty2.Value.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var subproperty in currentProperty2.Value.EnumerateArray())
-                    {
-                        CheckPropertyMismatchTwo(entry, json1, subproperty, errorContainer);
-                    }
-                }
-
                 // If current property from second json file does not exist in the first file
                 if (!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1))
                 {
