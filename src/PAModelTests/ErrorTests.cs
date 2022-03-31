@@ -84,7 +84,7 @@ namespace PAModelTests
             // For every error received, see if any is a JSONMismatch (3013)
             foreach (var error in errorContainer)
             {
-                if (error.Code == (ErrorCode)3013)
+                if (error.Code == ErrorCode.JSONMismatch)
                 {
                     containsJSONMismatch = true;
                 }
