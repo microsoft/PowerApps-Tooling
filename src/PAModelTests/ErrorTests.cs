@@ -18,6 +18,8 @@ namespace PAModelTests
 
         public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
 
+        public static string PathJSONMismatchDir = Path.Combine(Environment.CurrentDirectory, "Apps", "JSONMismatch.msapp");
+
         [TestMethod]
         public void OpenCorruptedMsApp()
         {
@@ -54,6 +56,23 @@ namespace PAModelTests
             (var doc, var errors) = CanvasDocument.LoadFromSources(PathMissingDir);
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNull(doc);
+        }
+
+        [TestMethod]
+        public void OpenJSONMismatchMsApp()
+        {
+            (var doc, var errors) = CanvasDocument.LoadFromMsapp(PathJSONMismatchDir);
+            Assert.IsTrue(errors.HasErrors);
+            Assert.IsNull(doc);
+            bool containsJSONMismatch = false;
+
+            foreach(var err in errors.GetEnumerator() ){
+                if(err.Code == 3013){
+                    containsJSONMismatch = true;
+                }
+            }
+
+            Assert.IsTrue(containsJSONMismatch);
         }
     }
 }
