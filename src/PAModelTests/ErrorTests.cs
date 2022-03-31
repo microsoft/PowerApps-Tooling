@@ -91,6 +91,7 @@ namespace PAModelTests
             }
 
             // Confirm that some error was a JSONMismatch
+            Assert.IsTrue(errorContainer.HasErrors);
             Assert.IsTrue(containsJSONMismatch);
         }
     }

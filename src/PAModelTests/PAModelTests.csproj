@@ -20,6 +20,9 @@
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="JSON\*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SrcBaseline\*.fx.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>    

@@ -309,34 +309,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void CheckPropertyMismatchOne(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
-            foreach (var currentProperty1 in json1.EnumerateObject())
+            if (json1.ValueKind == JsonValueKind.Object)
             {
-                // If current property from first json file also exists in the second file
-                if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
+                foreach (var currentProperty1 in json1.EnumerateObject())
                 {
-                    // If current property value from first json file is not the same as in second
-                    if (!currentProperty1.Value.Equals(value2))
+                    // If current property from first json file also exists in the second file
+                    if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
                     {
-                        errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
+                        // If current property value from first json file is not the same as in second
+                        if (!currentProperty1.Value.Equals(value2))
+                        {
+                            errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
+                        }
+                    }
+                    // If current property from first file does not exist in second
+                    else{
+                        errorContainer.JSONMismatch(currentProperty1.Name + ": Property Removed");
                     }
                 }
-                // If current property from first file does not exist in second
-                else{
-                    errorContainer.JSONMismatch(currentProperty1.Name + ": Property Removed");
-                }
-
             }
         }
 
         public static void CheckPropertyMismatchTwo(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
-            // Check each property and value in json2 to see if each exists and is equal to json2
-            foreach (var currentProperty2 in json2.EnumerateObject())
+            if (json2.ValueKind == JsonValueKind.Object)
             {
-                // If current property from second json file does not exist in the first file
-                if (!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1))
+                // Check each property and value in json2 to see if each exists and is equal to json2
+                foreach (var currentProperty2 in json2.EnumerateObject())
                 {
-                    errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
+                    // If current property from second json file does not exist in the first file
+                    if (!json1.TryGetProperty(currentProperty2.Name, out JsonElement value1))
+                    {
+                        errorContainer.JSONMismatch(currentProperty2.Name + ": Property Added");
+                    }
                 }
             }
         }
