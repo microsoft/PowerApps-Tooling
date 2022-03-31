@@ -97,7 +97,38 @@ namespace PAModelTests
             Assert.IsFalse(loadedMsApp._entropy.LocalDatabaseReferencesAsEmpty);
             Assert.IsTrue(loadedMsApp._dataSourceReferences.Count == 0);
         }
-       
+
+        [DataTestMethod]
+        [DataRow("EmptyLocalDBRefsHashMismatchProperties.msapp")]
+        public void TestConnectionInstanceIDHandling(string appName)
+        {
+            var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(pathToMsApp));
+            
+            var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+            errors.ThrowOnErrors();
+
+            using var sourcesTempDir = new TempDir();
+            var sourcesTempDirPath = sourcesTempDir.Dir;
+            msApp.SaveToSources(sourcesTempDirPath);
+
+            var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, new ErrorContainer());
+
+            // Testing if conn instance id is added to entropy
+            Assert.IsNotNull(loadedMsApp._entropy.LocalConnectionIDReferences);
+
+            using (var tempFile = new TempFile())
+            {
+                // Repack the app
+                MsAppSerializer.SaveAsMsApp(loadedMsApp, tempFile.FullPath, new ErrorContainer());
+
+                // Comparing original .msapp with repacked .msapp
+                // and testing no deltas 
+                bool ok = MsAppTest.MergeStressTest(pathToMsApp, tempFile.FullPath);
+                Assert.IsTrue(ok);
+            }
+        }
+
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
             var je = entry.ToJson();
