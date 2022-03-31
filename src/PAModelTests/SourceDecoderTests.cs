@@ -23,7 +23,6 @@ namespace PAModelTests
         [DataRow("TestStudio_Test.msapp", "Tests", "Suite.fx.yaml", "TestStudio_Test_Suite.fx.yaml")]
         [DataRow("TestStudio_Test.msapp", "Tests", "Test_7F478737223C4B69.fx.yaml", "TestStudio_Test.fx.yaml")]
         [DataRow("autolayouttest.msapp", "", "Screen1.fx.yaml", "AutoLayout_test.fx.yaml")]
-        [DataRow("Same_ZIndex_Test.msapp", "", "Screen1.fx.yaml", "Same_ZIndex_Test.fx.yaml")]
         public void TestScreenBaselines(string appName, string basePath, string sourceFileName, string screenBaselineName)
         {
             // Pull both the msapp and the baseline from our embedded resources. 
