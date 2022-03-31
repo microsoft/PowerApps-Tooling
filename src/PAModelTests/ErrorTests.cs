@@ -65,10 +65,13 @@ namespace PAModelTests
         public void TestJSONMismatchErrorGiven()
         {
             ErrorContainer errorContainer = new ErrorContainer();
-              
+
+            JsonElement json1 = JsonDocument.Parse(PathMismatchJSON1).RootElement;
+            JsonElement json2 = JsonDocument.Parse(PathMismatchJSON2).RootElement;
+
             // CheckPropertyMismatch on mismatched files
-            CheckPropertyMismatchOne(PathMismatchJSON1, PathMismatchJSON2, errorContainer);
-            CheckPropertyMismatchTwo(PathMismatchJSON1, PathMismatchJSON2, errorContainer);
+            CheckPropertyMismatchOne(json1, PathMismatchJSON2, errorContainer);
+            CheckPropertyMismatchTwo(json2, PathMismatchJSON2, errorContainer);
 
             // Assume no mismatch
             bool containsJSONMismatch = false;
