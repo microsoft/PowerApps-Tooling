@@ -217,21 +217,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
         {
             ErrorContainer errorContainer = new ErrorContainer();
-
-            var c1 = ChecksumMaker.GetChecksum(pathToZip1);
-            var c2 = ChecksumMaker.GetChecksum(pathToZip2);
-            if (c1.wholeChecksum == c2.wholeChecksum)
-            {
-                return true;
-            }
-
-            // Provide a comparison that can be very specific about what the difference is.
-            var comp = new Dictionary<string, byte[]>();
-
-            CompareChecksums(pathToZip1, log, comp, true, errorContainer);
-            CompareChecksums(pathToZip2, log, comp, false, errorContainer);
-
-            return false;
+            return Compare(pathToZip1, pathToZip2, log, errorContainer);
         }
 
         // Overload with ErrorContainer
