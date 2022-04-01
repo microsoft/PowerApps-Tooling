@@ -256,8 +256,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 foreach (ZipArchiveEntry entry in zip.Entries.OrderBy(x => x.FullName))
                 {
-                    var originalContents = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
-                    if (originalContents == null)
+                    var newContents = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
+                    if (newContents == null)
                     {
                         continue;
                     }
@@ -266,20 +266,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (first)
                         {
-                            comp.Add(entry.FullName, originalContents);
+                            comp.Add(entry.FullName, newContents);
                         }
                         else
                         {
-                            byte[] newContents;
-                            if (comp.TryGetValue(entry.FullName, out newContents))
+                            byte[] originalContents;
+                            if (comp.TryGetValue(entry.FullName, out originalContents))
                             {
-                                bool same = originalContents.SequenceEqual(newContents);
+                                bool same = newContents.SequenceEqual(originalContents);
 
                                 if (!same)
                                 {
                                     // Parse each byte array of the different files
-                                    JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
-                                    JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
+                                    JsonElement json1 = JsonDocument.Parse(newContents).RootElement;
+                                    JsonElement json2 = JsonDocument.Parse(originalContents).RootElement;
 
                                     // Add JSONMismatch error if JSON property was changed or removed
                                     CheckPropertyChangedRemoved(json1, json2, errorContainer, "");
@@ -287,7 +287,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     // Add JSONMismatch error if JSON property was added
                                     CheckPropertyAdded(json1, json2, errorContainer, "");
 #if DEBUG
-                                    DebugMismatch(entry, newContents, originalContents, normFormDir);
+                                    DebugMismatch(entry, originalContents, newContents, normFormDir);
 #endif
                                 }
 
@@ -359,7 +359,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static void DebugMismatch(ZipArchiveEntry entry, byte[] newContents, byte[] originalContents, string normFormDir)
+        public static void DebugMismatch(ZipArchiveEntry entry, byte[] originalContents, byte[] newContents, string normFormDir)
         {
             // Fail! Mismatch
             Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
@@ -368,8 +368,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
             string bPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-B.json";
 
-            File.WriteAllBytes(aPath, newContents);
-            File.WriteAllBytes(bPath, originalContents);
+            File.WriteAllBytes(aPath, originalContents);
+            File.WriteAllBytes(bPath, newContents);
         }
     }
 }
