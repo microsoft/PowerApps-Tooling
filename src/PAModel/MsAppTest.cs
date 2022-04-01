@@ -317,7 +317,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     if (json2.TryGetProperty(currentProperty1.Name, out JsonElement value2))
                     {
                         // If current property value from first json file is not the same as in second
-                        if (!currentProperty1.Value.Equals(value2))
+                        if (!currentProperty1.Value.GetRawText().Equals(value2.GetRawText()))
                         {
                             errorContainer.JSONMismatch(currentProperty1.Name + ": Value Changed");
                         }
