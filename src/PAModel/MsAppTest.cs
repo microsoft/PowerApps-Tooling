@@ -282,10 +282,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
 
                                     // Add JSONMismatch error if JSON property was changed or removed
-                                    CheckPropertyChangedRemoved(json1, json2, errorContainer);
+                                    CheckPropertyChangedRemoved(json1, json2, errorContainer, "");
 
                                     // Add JSONMismatch error if JSON property was added
-                                    CheckPropertyAdded(json1, json2, errorContainer);
+                                    CheckPropertyAdded(json1, json2, errorContainer, "");
 #if DEBUG
                                     DebugMismatch(entry, newContents, originalContents, normFormDir);
 #endif
@@ -304,7 +304,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static void CheckPropertyChangedRemoved(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyChangedRemoved(JsonElement json1, JsonElement json2, ErrorContainer errorContainer, string jsonPath)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty in json1.EnumerateObject())
@@ -314,7 +314,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     foreach (var subproperty in currentProperty.Value.EnumerateArray())
                     {
-                        CheckPropertyChangedRemoved(json1, json2, errorContainer);
+                        jsonPath = jsonPath + currentProperty.Name + ".";
+                        CheckPropertyChangedRemoved(subproperty, json2, errorContainer, jsonPath);
                     }
                 }
 
@@ -322,20 +323,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (json2.TryGetProperty(currentProperty.Name, out JsonElement value2))
                 {
                     // If current property value from first json file is not the same as in second
-                    if (!currentProperty.Value.Equals(value2))
+                   if (!currentProperty.Value.GetRawText().Equals(value2.GetRawText()))
                     {
-                         errorContainer.JSONMismatch(currentProperty.Name + ": Value Changed");
+                         errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Value Changed");
                     }
                 }
                 // If current property from first file does not exist in second
                 else
                 {
-                    errorContainer.JSONMismatch(currentProperty.Name + ": Property Removed");
+                    errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Property Removed");
                 }
             }
         }
 
-        public static void CheckPropertyAdded(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyAdded(JsonElement json1, JsonElement json2, ErrorContainer errorContainer, string jsonPath)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty in json2.EnumerateObject())
@@ -345,14 +346,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     foreach (var subproperty in currentProperty.Value.EnumerateArray())
                     {
-                        CheckPropertyAdded(json1, json2, errorContainer);
+                        jsonPath = jsonPath + currentProperty.Name + ".";
+                        CheckPropertyAdded(json1, subproperty, errorContainer, jsonPath);
                     }
                 }
 
                 // If current property from second json file does not exist in the first file
                 if (!json1.TryGetProperty(currentProperty.Name, out JsonElement value1))
                 {
-                    errorContainer.JSONMismatch(currentProperty.Name + ": Property Added");
+                    errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Property Added");
                 }
             }
         }
