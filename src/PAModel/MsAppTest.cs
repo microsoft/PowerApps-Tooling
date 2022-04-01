@@ -278,8 +278,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 if (!same)
                                 {
                                     // Parse each byte array of the different files
-                                    JsonElement json1 = JsonDocument.Parse(newContents).RootElement;
-                                    JsonElement json2 = JsonDocument.Parse(originalContents).RootElement;
+                                    JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
+                                    JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
 
                                     // Add JSONMismatch error if JSON property was changed or removed
                                     CheckPropertyChangedRemoved(json1, json2, errorContainer, "");
