@@ -75,8 +75,8 @@ namespace PAModelTests
             JsonElement json2 = JsonDocument.Parse(jsonString2).RootElement;
 
             // IsMismatched on mismatched files
-            MsAppTest.IsMismatched1(json1, json2, errorContainer);
-            MsAppTest.IsMismatched2(json1, json2, errorContainer);
+            MsAppTest.CheckPropertyChangedRemoved(json1, json2, errorContainer);
+            MsAppTest.CheckPropertyAdded(json1, json2, errorContainer);
 
             // Assume no mismatch
             bool containsJSONMismatch = false;

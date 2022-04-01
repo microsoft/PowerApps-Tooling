@@ -62,7 +62,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return HasNoDeltas(doc1, docClone, strict: true);
         }
 
-
         public static bool DiffStressTest(string pathToMsApp)
         {
             (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
@@ -144,7 +143,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return doc2;
             }
         }
-
 
         // Given an msapp (original source of truth), stress test the conversions
         public static bool StressTest(string pathToMsApp)
@@ -283,19 +281,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
                                     JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
 
-                                    // If mismatched, print name of top level object
-                                    if (IsMismatched1(json1, json2, errorContainer))
-                                    {
-                                        errorContainer.JSONMismatch("Mismatched Property: " + currentProperty1.Name);
-                                    }                                    
+                                    // Add JSONMismatch error if JSON property was changed or removed
+                                    CheckPropertyChangedRemoved(json1, json2, errorContainer);
 
-                                    // If mismatched, print name of top level object
-                                    if (IsMismatched2(json1, json2, errorContainer))
-                                    {
-                                        errorContainer.JSONMismatch("Mismatched Property: " + currentProperty2.Name);
-                                    }
-                                
-
+                                    // Add JSONMismatch error if JSON property was added
+                                    CheckPropertyAdded(json1, json2, errorContainer);
 #if DEBUG
                                     DebugMismatch(entry, newContents, originalContents, normFormDir);
 #endif
@@ -312,12 +302,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
             }
-
         }
 
-  
-
-        public static bool IsMismatched1(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyChangedRemoved(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
             foreach (var currentProperty in json1.EnumerateObject())
@@ -327,7 +314,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     foreach (var subproperty in currentProperty.Value.EnumerateArray())
                     {
-                        IsMismatched1(json1, json2, errorContainer);
+                        CheckPropertyChangedRemoved(json1, json2, errorContainer);
                     }
                 }
 
@@ -337,38 +324,37 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // If current property value from first json file is not the same as in second
                     if (!currentProperty.Value.Equals(value2))
                     {
-                        return true;
+                         errorContainer.JSONMismatch(currentProperty.Name + ": Value Changed");
                     }
                 }
                 // If current property from first file does not exist in second
                 else
                 {
-                    return true;
+                    errorContainer.JSONMismatch(currentProperty.Name + ": Property Removed");
                 }
             }
-            return false;
         }
 
-
-
-        public static bool IsMismatched2(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
+        public static void CheckPropertyAdded(JsonElement json1, JsonElement json2, ErrorContainer errorContainer)
         {
-            // If an array
-            if (currentProperty.Value.ValueKind == JsonValueKind.Array)
+            // Check each property and value in json1 to see if each exists and is equal to json2
+            foreach (var currentProperty in json2.EnumerateObject())
             {
-                foreach (var subproperty in currentProperty.Value.EnumerateArray())
+                // If an array
+                if (currentProperty.Value.ValueKind == JsonValueKind.Array)
                 {
-                    IsMismatched2(json1, json2, errorContainer);
+                    foreach (var subproperty in currentProperty.Value.EnumerateArray())
+                    {
+                        CheckPropertyAdded(json1, json2, errorContainer);
+                    }
+                }
+
+                // If current property from second json file does not exist in the first file
+                if (!json1.TryGetProperty(currentProperty.Name, out JsonElement value1))
+                {
+                    errorContainer.JSONMismatch(currentProperty.Name + ": Property Added");
                 }
             }
-
-            // If current property from second json file does not exist in the first file
-            if (!json1.TryGetProperty(currentProperty.Name, out JsonElement value1))
-            {
-                return true;
-            }
-            
-            return false;
         }
 
         public static void DebugMismatch(ZipArchiveEntry entry, byte[] newContents, byte[] originalContents, string normFormDir)
