@@ -85,6 +85,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// </summary>
         public bool? WasLocalDatabaseReferencesEmpty { get; set; }
 
+        // Key is connection id, value is connection instance id
+        public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.

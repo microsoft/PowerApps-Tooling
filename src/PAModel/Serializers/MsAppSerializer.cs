@@ -12,12 +12,15 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Encodings;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     // Read/Write to an .msapp file. 
     internal static class MsAppSerializer
     {
+        public const string ConnectionInstanceIDPropertyName = "connectionInstanceId";
+
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
             if (entry.Name.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
@@ -295,6 +298,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
                 {
                     var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+
+                    foreach (var connectionJson in cxs)
+                    {
+                        var extensionData = connectionJson.Value.ExtensionData;
+                        if (extensionData != null)
+                        {
+                            if (extensionData.TryGetValue(ConnectionInstanceIDPropertyName, out JsonElement connectionInstanceID))
+                            {
+                                var serializedID = JsonSerializer.Serialize(connectionInstanceID);
+
+                                // Mapping the connection key to the serializedID and adding it to _entropy                                
+                                app._entropy.LocalConnectionIDReferences.Add(connectionJson.Key, serializedID);
+
+                                // Basically making sure conn instance id is not added to app._connections
+                                extensionData.Remove(ConnectionInstanceIDPropertyName);
+                            }                              
+                        }
+                    }
+
                     app._connections = cxs;
                     app._properties.LocalConnectionReferences = null;
                 }
@@ -527,6 +549,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var props = app._properties.JsonClone();
             if (app._connections != null)
             {
+                var connectionIDReferences = app._entropy.LocalConnectionIDReferences;
+                if (connectionIDReferences != null && connectionIDReferences.Count != 0)
+                {
+                    foreach (var connection in app._connections)
+                    {
+                        if (connectionIDReferences.TryGetValue(connection.Key, out string instanceID))
+                        {
+                            var extensionData = connection.Value.ExtensionData;
+                            JsonElement connectionInstanceID = JsonSerializer.Deserialize<JsonElement>(instanceID);
+
+                            // Deserialized conn instance id is added to the extension data to eventually add it back to properties.json while packing
+                            extensionData.Add(ConnectionInstanceIDPropertyName, connectionInstanceID);
+
+                            // Making sure instance references are removed after adding it to the extension data
+                            connectionIDReferences.Remove(connection.Key);
+                        }
+                    }
+                }
+
                 var json = Utilities.JsonSerialize(app._connections);
                 props.LocalConnectionReferences = json;
             }

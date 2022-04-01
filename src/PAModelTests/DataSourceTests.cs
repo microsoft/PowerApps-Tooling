@@ -97,7 +97,26 @@ namespace PAModelTests
             Assert.IsFalse(loadedMsApp._entropy.LocalDatabaseReferencesAsEmpty);
             Assert.IsTrue(loadedMsApp._dataSourceReferences.Count == 0);
         }
-       
+
+        [DataTestMethod]
+        [DataRow("EmptyLocalDBRefsHashMismatchProperties.msapp")]
+        public void TestConnectionInstanceIDHandling(string appName)
+        {
+            var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(pathToMsApp));
+            
+            var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+            errors.ThrowOnErrors();
+
+            // Testing if conn instance id is added to entropy
+            Assert.IsNotNull(msApp._entropy.LocalConnectionIDReferences);
+
+            using var sourcesTempDir = new TempDir();
+            var sourcesTempDirPath = sourcesTempDir.Dir;
+            ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
+            errorsCaptured.ThrowOnErrors();            
+        }
+
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
             var je = entry.ToJson();
