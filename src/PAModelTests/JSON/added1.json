@@ -4,7 +4,6 @@
     "IsSampleData": true,
     "IsWritable": false,
     "Name": "CustomGallerySample",
-    "OrderedColumnNames": [ "SampleImage", "SampleHeading", "SampleText" ]
-
+    "OrderedColumnNames": ["SampleImage", "SampleHeading", "SampleText"]
   }
 }

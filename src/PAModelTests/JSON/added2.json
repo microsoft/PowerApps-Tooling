@@ -5,6 +5,6 @@
     "IsWritable": false,
     "Name": "CustomGallerySample",
     "OrderedColumnNames": ["SampleImage", "SampleHeading", "SampleText"],
-    "OriginalNam": "CustomGallerySample"
+    "OriginalName": "CustomGallerySample"
   }
 }
