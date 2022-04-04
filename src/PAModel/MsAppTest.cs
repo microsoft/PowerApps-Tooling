@@ -365,14 +365,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
                     if (!currentPair1.Value.GetRawText().Equals(json2.GetRawText()))
                     {
-                        errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
+                        errorContainer.JSONValueChanged(currentPair1.Key);
                     }
 
                 }
                 // If current property from first file does not exist in second
                 else
                 {
-                    errorContainer.JSONMismatch(currentPair1.Key + ": Property Removed");
+                    errorContainer.JSONPropertyRemoved(currentPair1.Key);
                 }
 
             }
@@ -386,7 +386,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // If current property from second json file does not exist in the first file
                 if (!dictionary1.TryGetValue(currentPair2.Key, out JsonElement value1))
                 {
-                    errorContainer.JSONMismatch(currentPair2.Key + ": Property Added");
+                    errorContainer.JSONPropertyAdded(currentPair2.Key);
                 }
             }
         }

@@ -20,10 +20,6 @@ namespace PAModelTests
 
         public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
 
-        public static string PathMismatchJSON1 = Path.Combine(Environment.CurrentDirectory, "JSON", "mismatched1.json");
-
-        public static string PathMismatchJSON2 = Path.Combine(Environment.CurrentDirectory, "JSON", "mismatched2.json");
-
 
         [TestMethod]
         public void OpenCorruptedMsApp()
@@ -64,12 +60,16 @@ namespace PAModelTests
         }
 
         [TestMethod]
-        public void TestJSONMismatchErrorGiven()
+        public void TestJSONValueChanged()
         {
-            ErrorContainer errorContainer = new ErrorContainer();
 
-            byte[] jsonString1 = File.ReadAllBytes(PathMismatchJSON1);
-            byte[] jsonString2 = File.ReadAllBytes(PathMismatchJSON2);
+        string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", "changed1.json");
+        string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", "changed2.json");
+
+        ErrorContainer errorContainer = new ErrorContainer();
+
+            byte[] jsonString1 = File.ReadAllBytes(path1);
+            byte[] jsonString2 = File.ReadAllBytes(path2);
 
             var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
             var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
@@ -81,18 +81,90 @@ namespace PAModelTests
             // Assume no mismatch
             bool containsJSONMismatch = false;
 
-            // For every error received, see if any is a JSONMismatch (3013)
+            // For every error received, see if any is a JSONValueChanged (3013)
             foreach (var error in errorContainer)
             {
-                if (error.Code == ErrorCode.JSONMismatch)
+                if (error.Code == ErrorCode.JSONValueChanged)
                 {
                     containsJSONMismatch = true;
                 }
             }
 
-            // Confirm that some error was a JSONMismatch
+            // Confirm that some error was a JSON Mismatch
             Assert.IsTrue(errorContainer.HasErrors);
             Assert.IsTrue(containsJSONMismatch);
+        }
+
+        [TestMethod]
+        public void TestJSONPropertyAdded()
+        {
+
+            string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", "added1.json");
+            string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", "added2.json");
+
+            ErrorContainer errorContainer = new ErrorContainer();
+
+            byte[] jsonString1 = File.ReadAllBytes(path1);
+            byte[] jsonString2 = File.ReadAllBytes(path2);
+
+            var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
+            var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
+
+            // IsMismatched on mismatched files
+            MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+            MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+
+            // Assume no mismatch
+            bool containsJSONPropertyAdded = false;
+
+            // For every error received, see if any is a JSONPropertyAdded (3014)
+            foreach (var error in errorContainer)
+            {
+                if (error.Code == ErrorCode.JSONPropertyAdded)
+                {
+                    containsJSONPropertyAdded = true;
+                }
+            }
+
+            // Confirm that some error was a JSON Mismatch
+            Assert.IsTrue(errorContainer.HasErrors);
+            Assert.IsTrue(containsJSONPropertyAdded);
+        }
+
+        [TestMethod]
+        public void TestJSONPropertyRemoved()
+        {
+
+            string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", "removed1.json");
+            string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", "removed2.json");
+
+            ErrorContainer errorContainer = new ErrorContainer();
+
+            byte[] jsonString1 = File.ReadAllBytes(path1);
+            byte[] jsonString2 = File.ReadAllBytes(path2);
+
+            var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
+            var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
+
+            // IsMismatched on mismatched files
+            MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+            MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+
+            // Assume no mismatch
+            bool containsJSONPropertyRemoved = false;
+
+            // For every error received, see if any is a JSONPropertyRemoved (3015)
+            foreach (var error in errorContainer)
+            {
+                if (error.Code == ErrorCode.JSONPropertyRemoved)
+                {
+                    containsJSONPropertyRemoved = true;
+                }
+            }
+
+            // Confirm that some error was a JSON Mismatch
+            Assert.IsTrue(errorContainer.HasErrors);
+            Assert.IsTrue(containsJSONPropertyRemoved);
         }
     }
 }

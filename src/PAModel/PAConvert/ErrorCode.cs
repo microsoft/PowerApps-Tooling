@@ -56,8 +56,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Bad parameter (such as a missing file)
         BadParameter = 3012, 
 
-        // JSON Property doesn't match
-        JSONMismatch = 3013,
+        // JSON Property's Value was Changed, Doesn't Match
+        JSONValueChanged = 3013,
+
+        // JSON Property was added
+        JSONPropertyAdded = 3014,
+
+        // JSON Property was removed
+        JSONPropertyRemoved = 3015,
 
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
@@ -78,11 +84,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void ChecksumMismatch(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
-        }
-
-        public static void JSONMismatch(this ErrorContainer errors, string message)
-        {
-            errors.AddError(ErrorCode.JSONMismatch, default(SourceLocation), message);
         }
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)
@@ -155,6 +156,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");
         }
 
+        public static void JSONValueChanged(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONValueChanged, default(SourceLocation), $"Property Value Changed: {message}");
+        }
+
+        public static void JSONPropertyAdded(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONPropertyAdded, default(SourceLocation), $"Property Added: {message}");
+        }
+
+        public static void JSONPropertyRemoved(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONPropertyRemoved, default(SourceLocation), $"Property Removed: {message}");
+        }
         public static void UnsupportedError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedError, default(SourceLocation), $"Not Supported: {message}");
