@@ -79,20 +79,32 @@ namespace PAModelTests
             MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
             // Assume no mismatch
-            bool containsJSONMismatch = false;
+            bool JSONPropertyAdded = false;
+            bool JSONPropertyRemoved = false;
+            bool JSONValueChanged = false;
 
-            // For every error received, see if any is a JSONValueChanged (3013)
+            // For every error received, check JSON Mismatches
             foreach (var error in errorContainer)
             {
-                if (error.Code == ErrorCode.JSONValueChanged)
+                if (error.Code == ErrorCode.JSONPropertyAdded)
                 {
-                    containsJSONMismatch = true;
+                    JSONPropertyAdded = true;
+                }
+                else if (error.Code == ErrorCode.JSONPropertyRemoved)
+                {
+                    JSONPropertyRemoved = true;
+                }
+                else if (error.Code == ErrorCode.JSONValueChanged)
+                {
+                    JSONValueChanged = true;
                 }
             }
 
             // Confirm that some error was a JSON Mismatch
             Assert.IsTrue(errorContainer.HasErrors);
-            Assert.IsTrue(containsJSONMismatch);
+            Assert.IsTrue(JSONValueChanged);
+            Assert.IsTrue(!JSONPropertyAdded);
+            Assert.IsTrue(!JSONPropertyRemoved);
         }
 
         [TestMethod]
@@ -115,20 +127,32 @@ namespace PAModelTests
             MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
             // Assume no mismatch
-            bool containsJSONPropertyAdded = false;
+            bool JSONPropertyAdded = false;
+            bool JSONPropertyRemoved = false;
+            bool JSONValueChanged = false;
 
-            // For every error received, see if any is a JSONPropertyAdded (3014)
+            // For every error received, check JSON Mismatches
             foreach (var error in errorContainer)
             {
                 if (error.Code == ErrorCode.JSONPropertyAdded)
                 {
-                    containsJSONPropertyAdded = true;
+                    JSONPropertyAdded = true;
+                }
+                else if (error.Code == ErrorCode.JSONPropertyRemoved)
+                {
+                    JSONPropertyRemoved = true;
+                }
+                else if (error.Code == ErrorCode.JSONValueChanged)
+                {
+                    JSONValueChanged = true;
                 }
             }
 
             // Confirm that some error was a JSON Mismatch
             Assert.IsTrue(errorContainer.HasErrors);
-            Assert.IsTrue(containsJSONPropertyAdded);
+            Assert.IsTrue(JSONPropertyAdded);
+            Assert.IsTrue(!JSONValueChanged);
+            Assert.IsTrue(!JSONPropertyRemoved);
         }
 
         [TestMethod]
@@ -151,20 +175,31 @@ namespace PAModelTests
             MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
             // Assume no mismatch
-            bool containsJSONPropertyRemoved = false;
+            bool JSONPropertyAdded = false;
+            bool JSONPropertyRemoved = false;
+            bool JSONValueChanged = false;
 
-            // For every error received, see if any is a JSONPropertyRemoved (3015)
+            // For every error received, check JSON Mismatches
             foreach (var error in errorContainer)
             {
-                if (error.Code == ErrorCode.JSONPropertyRemoved)
+                if (error.Code == ErrorCode.JSONPropertyAdded)
                 {
-                    containsJSONPropertyRemoved = true;
+                    JSONPropertyAdded = true;
+                }
+                else if (error.Code == ErrorCode.JSONPropertyRemoved)
+                {
+                    JSONPropertyRemoved = true;
+                }
+                else if (error.Code == ErrorCode.JSONValueChanged)
+                {
+                    JSONValueChanged = true;
                 }
             }
-
             // Confirm that some error was a JSON Mismatch
             Assert.IsTrue(errorContainer.HasErrors);
-            Assert.IsTrue(containsJSONPropertyRemoved);
+            Assert.IsTrue(JSONPropertyRemoved);
+            Assert.IsTrue(!JSONValueChanged);
+            Assert.IsTrue(!JSONPropertyAdded);
         }
     }
 }
