@@ -342,16 +342,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Check if the second dictionary contains the same key as in Dictionary 1
                 if (dictionary2.TryGetValue(currentPair1.Key, out JsonElement json2))
                 {
+                                
                     // Iterate through properties of the json element matching this key in Dictionary 2
-                    var jsonObj2 = json2.EnumerateObject();
-                    foreach (var property2 in jsonObj2)
-                    {
-                        // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
-                        if (!property2.Value.GetRawText().Equals(currentPair1.Value.GetRawText()))
-                        {
-                            errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
-                        }
-                    }
+                    // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
+                    // errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
+
                 }
                 // If current property from first file does not exist in second
                 else
