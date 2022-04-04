@@ -324,13 +324,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 path += "." + property.Name;
             }
 
-            if (property.Value.ValueKind != JsonValueKind.Object)
+            if (property.Value.ValueKind == JsonValueKind.Object)
             {
-                return new[] { (Path: path, property) };
+                return property.Value.EnumerateObject().SelectMany(child => GetLeaves(path, child));
+            }
+            else if (property.Value.ValueKind == JsonValueKind.Array)
+            {
+                if (property.Value.GetArrayLength() == 0)
+                {
+                    return new[] { (Path: path, property) };
+                }
+                else
+                {
+                    var firstVar = property.Value.EnumerateArray().First();
+                    if (firstVar.ValueKind == JsonValueKind.Object)
+                    {
+                        return firstVar.EnumerateObject().SelectMany(child => GetLeaves(path, child));
+                    }
+                    else
+                    {
+                        return new[] { (Path: path, property) };
+                    
+                    }
+                }
             }
             else
             {
-                return property.Value.EnumerateObject().SelectMany(child => GetLeaves(path, child));
+                return new[] { (Path: path, property) };
             }
         }
 
@@ -342,10 +362,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Check if the second dictionary contains the same key as in Dictionary 1
                 if (dictionary2.TryGetValue(currentPair1.Key, out JsonElement json2))
                 {
-                                
-                    // Iterate through properties of the json element matching this key in Dictionary 2
                     // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
-                    // errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
+                    if (!currentPair1.Value.GetRawText().Equals(json2.GetRawText()))
+                    {
+                        errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
+                    }
 
                 }
                 // If current property from first file does not exist in second
