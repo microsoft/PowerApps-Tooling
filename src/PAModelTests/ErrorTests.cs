@@ -68,15 +68,15 @@ namespace PAModelTests
         {
             ErrorContainer errorContainer = new ErrorContainer();
 
-            string jsonString1 = File.ReadAllText(PathMismatchJSON1);
-            string jsonString2 = File.ReadAllText(PathMismatchJSON2);
+            byte[] jsonString1 = File.ReadAllBytes(PathMismatchJSON1);
+            byte[] jsonString2 = File.ReadAllBytes(PathMismatchJSON2);
 
-            JsonElement json1 = JsonDocument.Parse(jsonString1).RootElement;
-            JsonElement json2 = JsonDocument.Parse(jsonString2).RootElement;
+            var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
+            var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
 
             // IsMismatched on mismatched files
-            MsAppTest.CheckPropertyChangedRemoved(json1, json2, errorContainer, "");
-            MsAppTest.CheckPropertyAdded(json1, json2, errorContainer, "");
+            MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+            MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
             // Assume no mismatch
             bool containsJSONMismatch = false;

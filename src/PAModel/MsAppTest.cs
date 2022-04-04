@@ -276,16 +276,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 bool same = newContents.SequenceEqual(originalContents);
 
                                 if (!same)
-                                {
-                                    // Parse each byte array of the different files
-                                    JsonElement json1 = JsonDocument.Parse(originalContents).RootElement;
-                                    JsonElement json2 = JsonDocument.Parse(newContents).RootElement;
+                                { 
+                                    var jsonDictionary1 = FlattenJson(originalContents);
+                                    var jsonDictionary2 = FlattenJson(newContents);
 
                                     // Add JSONMismatch error if JSON property was changed or removed
-                                    CheckPropertyChangedRemoved(json1, json2, errorContainer, "");
+                                    CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
                                     // Add JSONMismatch error if JSON property was added
-                                    CheckPropertyAdded(json1, json2, errorContainer, "");
+                                    CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 #if DEBUG
                                     DebugMismatch(entry, originalContents, newContents, normFormDir);
 #endif
@@ -304,57 +303,74 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        public static void CheckPropertyChangedRemoved(JsonElement json1, JsonElement json2, ErrorContainer errorContainer, string jsonPath)
+        public static Dictionary<string, JsonElement> FlattenJson(byte[] json)
         {
-            // Check each property and value in json1 to see if each exists and is equal to json2
-            foreach (var currentProperty in json1.EnumerateObject())
+            using (JsonDocument document = JsonDocument.Parse(json))
             {
-                // If an array
-                if (currentProperty.Value.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var subproperty in currentProperty.Value.EnumerateArray())
-                    {
-                        jsonPath = jsonPath + currentProperty.Name + ".";
-                        CheckPropertyChangedRemoved(subproperty, json2, errorContainer, jsonPath);
-                    }
-                }
+                var jsonObject = document.RootElement.EnumerateObject().SelectMany(property => GetLeaves(null, property));
+                return jsonObject.ToDictionary(key => key.Path, value => value.Property.Value.Clone());
+            }
+                
+        }
 
-                // If current property from first json file also exists in the second file
-                if (json2.TryGetProperty(currentProperty.Name, out JsonElement value2))
+        public static IEnumerable<(string Path, JsonProperty Property)> GetLeaves(string path, JsonProperty property)
+        {
+            if (path == null)
+            {
+                path = property.Name;
+            }
+            else
+            {
+                path += "." + property.Name;
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.Object)
+            {
+                return new[] { (Path: path, property) };
+            }
+            else
+            {
+                return property.Value.EnumerateObject().SelectMany(child => GetLeaves(path, child));
+            }
+        }
+
+        public static void CheckPropertyChangedRemoved(Dictionary<string, JsonElement> dictionary1, Dictionary<string, JsonElement> dictionary2, ErrorContainer errorContainer, string jsonPath)
+        {
+            // Iterate through each path/json pair in Dictionary 1
+            foreach (var currentPair1 in dictionary1)
+            {
+                // Check if the second dictionary contains the same key as in Dictionary 1
+                if (dictionary2.TryGetValue(currentPair1.Key, out JsonElement json2))
                 {
-                    // If current property value from first json file is not the same as in second
-                   if (!currentProperty.Value.GetRawText().Equals(value2.GetRawText()))
+                    // Iterate through properties of the json element matching this key in Dictionary 2
+                    var jsonObj2 = json2.EnumerateObject();
+                    foreach (var property2 in jsonObj2)
                     {
-                         errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Value Changed");
+                        // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
+                        if (!property2.Value.GetRawText().Equals(currentPair1.Value.GetRawText()))
+                        {
+                            errorContainer.JSONMismatch(currentPair1.Key + ": Value Changed");
+                        }
                     }
                 }
                 // If current property from first file does not exist in second
                 else
                 {
-                    errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Property Removed");
+                    errorContainer.JSONMismatch(currentPair1.Key + ": Property Removed");
                 }
+
             }
         }
 
-        public static void CheckPropertyAdded(JsonElement json1, JsonElement json2, ErrorContainer errorContainer, string jsonPath)
+        public static void CheckPropertyAdded(Dictionary<string, JsonElement> dictionary1, Dictionary<string, JsonElement> dictionary2, ErrorContainer errorContainer, string jsonPath)
         {
             // Check each property and value in json1 to see if each exists and is equal to json2
-            foreach (var currentProperty in json2.EnumerateObject())
+            foreach (var currentPair2 in dictionary2)
             {
-                // If an array
-                if (currentProperty.Value.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var subproperty in currentProperty.Value.EnumerateArray())
-                    {
-                        jsonPath = jsonPath + currentProperty.Name + ".";
-                        CheckPropertyAdded(json1, subproperty, errorContainer, jsonPath);
-                    }
-                }
-
                 // If current property from second json file does not exist in the first file
-                if (!json1.TryGetProperty(currentProperty.Name, out JsonElement value1))
+                if (!dictionary1.TryGetValue(currentPair2.Key, out JsonElement value1))
                 {
-                    errorContainer.JSONMismatch(jsonPath + currentProperty.Name + ": Property Added");
+                    errorContainer.JSONMismatch(currentPair2.Key + ": Property Added");
                 }
             }
         }
