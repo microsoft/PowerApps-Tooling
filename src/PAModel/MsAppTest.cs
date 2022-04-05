@@ -337,7 +337,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
                 else
                 {
-                    FlattenArray(path, property);
+                    return FlattenArray(path, property.Value);
                 }
             }
             else
@@ -345,7 +345,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 return new[] { (Path: path, property) };
             }
         }
-        public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonProperty array)
+        public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonElement array)
         {
             List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
 
@@ -359,7 +359,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             int index = 0;
 
-            foreach (var member in array.Value.EnumerateArray())
+            foreach (var member in array.EnumerateArray())
             {
                 string arraySubPath = $"{path}[{index}]";
 
