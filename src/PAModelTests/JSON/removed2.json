@@ -4,6 +4,29 @@
     "IsSampleData": true,
     "IsWritable": false,
     "Name": "CustomGallerySample",
-    "OrderedColumnNames": ["SampleImage", "SampleHeading", "SampleText"]
+    "OrderedColumnNames": [
+      {
+        "OrderedColumnShapes": [
+          {
+            "2-D": "Square",
+            "3-D": "Cube"
+          },
+          {
+            "2-D": "Circle",
+            "3-D": "Sphere"
+          }
+        ]
+      },
+      {
+        "OrderedColumnColors": [
+          {
+            "Reds": "Maroon",
+            "Blues": "Navy"
+          }
+        ]
+      }
+    ],
+
+    "OriginalName": "CustomGallerySample"
   }
 }

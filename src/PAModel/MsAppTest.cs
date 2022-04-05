@@ -330,28 +330,51 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else if (property.Value.ValueKind == JsonValueKind.Array)
             {
+
                 if (property.Value.GetArrayLength() == 0)
                 {
                     return new[] { (Path: path, property) };
                 }
                 else
                 {
-                    var firstVar = property.Value.EnumerateArray().First();
-                    if (firstVar.ValueKind == JsonValueKind.Object)
-                    {
-                        return firstVar.EnumerateObject().SelectMany(child => GetLeaves(path, child));
-                    }
-                    else
-                    {
-                        return new[] { (Path: path, property) };
-                    
-                    }
+                    FlattenArray(path, property);
                 }
             }
             else
             {
                 return new[] { (Path: path, property) };
             }
+        }
+        public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonProperty array)
+        {
+            List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
+
+            var arrayType = enumeratedObjects.First().Item2.Value.ValueKind;
+
+            // Peek, if member types, return
+            if (arrayType != JsonValueKind.Array && arrayType != JsonValueKind.Object)
+            {
+                return enumeratedObjects;
+            }
+
+            int index = 0;
+
+            foreach (var member in array.Value.EnumerateArray())
+            {
+                string arraySubPath = $"{path}[{index}]";
+
+                if (member.ValueKind == JsonValueKind.Array)
+                {
+                    return FlattenArray(arraySubPath, member);
+                }
+                else if (member.ValueKind == JsonValueKind.Object)
+                {
+                    enumeratedObjects.AddRange(member.EnumerateObject().SelectMany(child => GetLeaves(arraySubPath, child)));
+                }
+
+                index++;
+            }
+            return enumeratedObjects.ToArray();
         }
 
         public static void CheckPropertyChangedRemoved(Dictionary<string, JsonElement> dictionary1, Dictionary<string, JsonElement> dictionary2, ErrorContainer errorContainer, string jsonPath)
