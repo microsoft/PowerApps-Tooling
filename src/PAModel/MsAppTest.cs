@@ -349,13 +349,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
 
-            var arrayType = enumeratedObjects.First().Item2.Value.ValueKind;
-
-            // Peek, if member types, return
-            if (arrayType != JsonValueKind.Array && arrayType != JsonValueKind.Object)
+            if (enumeratedObjects.Any())
             {
-                return enumeratedObjects;
+                var arrayType = enumeratedObjects.First().Item2.Value.ValueKind;
+
+                // Peek, if member types, return
+                if (arrayType != JsonValueKind.Array && arrayType != JsonValueKind.Object)
+                {
+                    return enumeratedObjects;
+                }
             }
+            
 
             int index = 0;
 

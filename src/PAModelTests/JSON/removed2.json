@@ -3,14 +3,16 @@
     "Name": "CustomName",
     "Adjectives": [
       {
-        {
-          "Colors": [
-            {
-              "Primary": "Red",
-              "Secondary": "Orange"
-            }
-          ]
-        }
+        "Shapes": [
+          {
+            "2-D": "Square",
+            "3-D": "Cube"
+          },
+          {
+            "2-D": "Circle",
+            "3-D": "Sphere"
+          }
+        ]
       }
     ]
   }
