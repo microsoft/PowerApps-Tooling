@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -12,17 +11,12 @@ using Xunit;
 namespace PAModelTests
 {
     // Verify we get errors (and not exceptions). 
-    [TestClass]
     public class ErrorTests
     {
         public static string PathToValidMsapp = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
-
         public static string PathMissingMsapp = Path.Combine(Environment.CurrentDirectory, "Missing", "Missing.msapp");
-
         public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
 
-
-        [TestMethod]
         [Fact]
         public void OpenCorruptedMsApp()
         {
@@ -30,38 +24,35 @@ namespace PAModelTests
             MemoryStream ms = new MemoryStream();
 
             (var doc, var errors) = CanvasDocument.LoadFromMsapp(ms);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errors.HasErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(doc);
+            Assert.True(errors.HasErrors);
+            Assert.Null(doc);
         }
 
-        [TestMethod]
         [Fact]
         public void OpenMissingMsApp()
         {
             (var doc, var errors) = CanvasDocument.LoadFromMsapp(PathMissingMsapp);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errors.HasErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(doc);
+            Assert.True(errors.HasErrors);
+            Assert.Null(doc);
         }
 
-        [TestMethod]
         [Fact]
         public void OpenBadSources()
         {
             // Common error can be mixing up arguments. Ensure that we detect passing a valid msapp as a source param.
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(File.Exists(PathToValidMsapp));
+            Assert.True(File.Exists(PathToValidMsapp));
 
             (var doc, var errors) = CanvasDocument.LoadFromSources(PathToValidMsapp);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errors.HasErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(doc);            
+            Assert.True(errors.HasErrors);
+            Assert.Null(doc);            
         }
 
-        [TestMethod]
         [Fact]
         public void OpenMissingSources()
         {
             (var doc, var errors) = CanvasDocument.LoadFromSources(PathMissingDir);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errors.HasErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(doc);
+            Assert.True(errors.HasErrors);
+            Assert.Null(doc);
         }
 
         [Theory]
@@ -109,10 +100,10 @@ namespace PAModelTests
             }
 
             // Confirm that some error was a JSON Mismatch
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errorContainer.HasErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(JSONValueChanged == changed);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(JSONPropertyAdded == added);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(JSONPropertyRemoved == removed);
+            Assert.True(errorContainer.HasErrors);
+            Assert.True(JSONValueChanged == changed);
+            Assert.True(JSONPropertyAdded == added);
+            Assert.True(JSONPropertyRemoved == removed);
         }
     }
 }
