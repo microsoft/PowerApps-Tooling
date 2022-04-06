@@ -56,10 +56,12 @@ namespace PAModelTests
         }
 
         [Theory]
-        [InlineData("changed1.json", "changed2.json", true, false, false)]
-        [InlineData("added1.json", "added2.json", false, true, false)]
-        [InlineData("removed1.json", "removed2.json", false, false, true)]
-        public void TestJSONValueChanged(string file1, string file2, bool changed, bool added, bool removed)
+        [InlineData("changed1.json", "changed2.json", "Shapes", "Secondary", true, false, false)]
+        [InlineData("changed1.json", "changed2.json", "Colors", "Secondary", true, false, false)]
+        [InlineData("changed1.json", "changed2.json", "Primary", "Secondary", true, false, false)]
+        [InlineData("added1.json", "added2.json", "Colors", "Shapes", false, true, false)]
+        [InlineData("removed1.json", "removed2.json", "Colors", "Shapes", false, false, true)]
+        public void TestJSONValueChanged(string file1, string file2, string errorMessage, string notError, bool changed, bool added, bool removed)
         {
 
         string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", file1);
@@ -104,6 +106,8 @@ namespace PAModelTests
             Assert.True(JSONValueChanged == changed);
             Assert.True(JSONPropertyAdded == added);
             Assert.True(JSONPropertyRemoved == removed);
+            Assert.Contains(errorMessage, errorContainer.ToString());
+            Assert.DoesNotContain(notError, errorContainer.ToString());
         }
     }
 }
