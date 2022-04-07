@@ -28,6 +28,9 @@
     <Content Include="JSON\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Text\*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SrcBaseline\*.fx.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>    
@@ -38,6 +41,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="JSON\addedOutput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSON\changedOutput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSON\removedOutput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

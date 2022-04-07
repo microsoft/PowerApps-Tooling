@@ -16,6 +16,7 @@ namespace PAModelTests
         public static string PathToValidMsapp = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
         public static string PathMissingMsapp = Path.Combine(Environment.CurrentDirectory, "Missing", "Missing.msapp");
         public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
+        public static int counter = 0;
 
         [Fact]
         public void OpenCorruptedMsApp()
@@ -56,18 +57,17 @@ namespace PAModelTests
         }
 
         [Theory]
-        [InlineData("changed1.json", "changed2.json", "Shapes", "Secondary", true, false, false)]
-        [InlineData("changed1.json", "changed2.json", "Colors", "Secondary", true, false, false)]
-        [InlineData("changed1.json", "changed2.json", "Primary", "Secondary", true, false, false)]
-        [InlineData("added1.json", "added2.json", "Colors", "Shapes", false, true, false)]
-        [InlineData("removed1.json", "removed2.json", "Colors", "Shapes", false, false, true)]
-        public void TestJSONValueChanged(string file1, string file2, string errorMessage, string notError, bool changed, bool added, bool removed)
+        [InlineData("changed1.json", "changed2.json", "changedOutput.txt")]
+        [InlineData("added1.json", "added2.json", "addedOutput.txt")]
+        [InlineData("removed1.json", "removed2.json", "removedOutput.txt")]
+        public void TestJSONValueChanged(string file1, string file2, string file3)
         {
 
-        string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", file1);
-        string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", file2);
+            string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", file1);
+            string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", file2);
+            string path3 = Path.Combine(Environment.CurrentDirectory, "Text", file3);
 
-        ErrorContainer errorContainer = new ErrorContainer();
+            ErrorContainer errorContainer = new ErrorContainer();
 
             byte[] jsonString1 = File.ReadAllBytes(path1);
             byte[] jsonString2 = File.ReadAllBytes(path2);
@@ -79,35 +79,8 @@ namespace PAModelTests
             MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
             MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
-            // Assume no mismatch
-            bool JSONPropertyAdded = false;
-            bool JSONPropertyRemoved = false;
-            bool JSONValueChanged = false;
-
-            // For every error received, check JSON Mismatches
-            foreach (var error in errorContainer)
-            {
-                if (error.Code == ErrorCode.JSONPropertyAdded)
-                {
-                    JSONPropertyAdded = true;
-                }
-                else if (error.Code == ErrorCode.JSONPropertyRemoved)
-                {
-                    JSONPropertyRemoved = true;
-                }
-                else if (error.Code == ErrorCode.JSONValueChanged)
-                {
-                    JSONValueChanged = true;
-                }
-            }
-
-            // Confirm that some error was a JSON Mismatch
-            Assert.True(errorContainer.HasErrors);
-            Assert.True(JSONValueChanged == changed);
-            Assert.True(JSONPropertyAdded == added);
-            Assert.True(JSONPropertyRemoved == removed);
-            Assert.Contains(errorMessage, errorContainer.ToString());
-            Assert.DoesNotContain(notError, errorContainer.ToString());
+            // Confirm that the unit tests have the expected output
+            Assert.Equal(File.ReadAllText(path3), errorContainer.ToString());
         }
     }
 }
