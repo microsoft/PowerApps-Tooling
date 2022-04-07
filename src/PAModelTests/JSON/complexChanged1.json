@@ -1,0 +1,31 @@
+{
+  "Noun": {
+    "Name": "CustomName",
+    "Adjectives": [
+      {
+        "Shapes": [
+          {
+            "2-D": "Square",
+            "3-D": "Cube"
+          },
+          {
+            "2-D": "Circle",
+            "3-D": "Sphere"
+          }
+        ]
+      },
+      {
+        "Colors": [
+          {
+            "Primary": "Red",
+            "Secondary": "Orange"
+          },
+          {
+            "Primary": "Blue",
+            "Secondary": "Green"
+          }
+        ]
+      }
+    ]
+  }
+}
