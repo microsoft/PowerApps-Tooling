@@ -25,10 +25,10 @@
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="JSON\*.json">
+    <Content Include="TestData\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Text\*.json">
+    <Content Include="TestData\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SrcBaseline\*.fx.yaml">
@@ -40,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="JSON\simpleArray1.json" />
-    <None Remove="JSON\SimpleArray2.json" />
+    <None Remove="TestData\simpleArray1.json" />
+    <None Remove="TestData\SimpleArray2.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,28 +49,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Text\complexAddedOutput.txt">
+    <None Update="TestData\complexAddedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\complexChangedOutput.txt">
+    <None Update="TestData\complexChangedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\complexRemovedOutput.txt">
+    <None Update="TestData\complexRemovedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\simpleArrayOutput.txt">
+    <None Update="TestData\simpleArrayOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\emptyNestedArrayOutput.txt">
+    <None Update="TestData\emptyNestedArrayOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\simpleAddedOutput.txt">
+    <None Update="TestData\simpleAddedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\simpleChangedOutput.txt">
+    <None Update="TestData\simpleChangedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\simpleRemovedOutput.txt">
+    <None Update="TestData\simpleRemovedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
