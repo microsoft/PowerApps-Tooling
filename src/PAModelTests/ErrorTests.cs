@@ -57,9 +57,12 @@ namespace PAModelTests
         }
 
         [Theory]
-        [InlineData("changed1.json", "changed2.json", "changedOutput.txt")]
-        [InlineData("added1.json", "added2.json", "addedOutput.txt")]
-        [InlineData("removed1.json", "removed2.json", "removedOutput.txt")]
+        [InlineData("complexChanged1.json", "complexChanged2.json", "complexChangedOutput.txt")]
+        [InlineData("complexAdded1.json", "complexAdded2.json", "complexAddedOutput.txt")]
+        [InlineData("complexRemoved1.json", "complexRemoved2.json", "complexRemovedOutput.txt")]
+        [InlineData("simpleChanged1.json", "simpleChanged2.json", "simpleChangedOutput.txt")]
+        [InlineData("simpleAdded1.json", "simpleAdded2.json", "simpleAddedOutput.txt")]
+        [InlineData("simpleRemoved1.json", "simpleRemoved2.json", "simpleRemovedOutput.txt")]
         public void TestJSONValueChanged(string file1, string file2, string file3)
         {
 

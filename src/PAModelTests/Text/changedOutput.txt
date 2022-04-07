@@ -1,6 +1,0 @@
-Error   PA3013: Property Value Changed: Noun.Adjectives[0].Shapes[0].2-D
-Error   PA3013: Property Value Changed: Noun.Adjectives[0].Shapes[0].3-D
-Error   PA3013: Property Value Changed: Noun.Adjectives[0].Shapes[1].2-D
-Error   PA3013: Property Value Changed: Noun.Adjectives[0].Shapes[1].3-D
-Error   PA3013: Property Value Changed: Noun.Adjectives[1].Colors[0].Primary
-5 errors, 0 warnings.

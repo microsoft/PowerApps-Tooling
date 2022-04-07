@@ -1,5 +1,0 @@
-Error   PA3014: Property Added: Noun.Adjectives[1].Colors[0].Primary
-Error   PA3014: Property Added: Noun.Adjectives[1].Colors[0].Secondary
-Error   PA3014: Property Added: Noun.Adjectives[1].Colors[1].Primary
-Error   PA3014: Property Added: Noun.Adjectives[1].Colors[1].Secondary
-4 errors, 0 warnings.

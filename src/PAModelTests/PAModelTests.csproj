@@ -44,22 +44,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="JSON\addedOutput.txt">
+    <None Update="Text\complexAddedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="JSON\changedOutput.txt">
+    <None Update="Text\complexChangedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="JSON\removedOutput.txt">
+    <None Update="Text\complexRemovedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\addedOutput.txt">
+    <None Update="Text\simpleAddedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\changedOutput.txt">
+    <None Update="Text\simpleChangedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\removedOutput.txt">
+    <None Update="Text\simpleRemovedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
