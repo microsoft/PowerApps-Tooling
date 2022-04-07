@@ -40,6 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="JSON\simpleArray1.json" />
+    <None Remove="JSON\SimpleArray2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj" />
   </ItemGroup>
 
@@ -53,7 +58,10 @@
     <None Update="Text\complexRemovedOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Text\emptyArrayOutput.txt">
+    <None Update="Text\simpleArrayOutput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Text\emptyNestedArrayOutput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Text\simpleAddedOutput.txt">

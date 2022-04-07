@@ -333,45 +333,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (property.Value.GetArrayLength() == 0)
                 {
-                    return new[] { (Path: path, property) };
+                    return new[] { (path, property) };
                 }
                 else
                 {
-                    return FlattenArray(path, property.Value);
+                    var arrayType = property.Value[0].ValueKind;
+
+                    // Peek, if member types, return
+                    if (arrayType == JsonValueKind.Object)
+                    {
+                        return FlattenArray(path, property.Value);
+                    }
+                    else
+                    {
+                        return new[] { (path, property) };
+                    }
                 }
             }
             else
             {
-                return new[] { (Path: path, property) };
+                return new[] { (path, property) };
             }
         }
         public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonElement array)
         {
             List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
-
-            if (enumeratedObjects.Any())
-            {
-                var arrayType = enumeratedObjects.First().Item2.Value.ValueKind;
-
-                // Peek, if member types, return
-                if (arrayType != JsonValueKind.Array && arrayType != JsonValueKind.Object)
-                {
-                    return enumeratedObjects;
-                }
-            }
             
-
             int index = 0;
 
             foreach (var member in array.EnumerateArray())
             {
                 string arraySubPath = $"{path}[{index}]";
 
-                if (member.ValueKind == JsonValueKind.Array)
-                {
-                    return FlattenArray(arraySubPath, member);
-                }
-                else if (member.ValueKind == JsonValueKind.Object)
+                if (member.ValueKind == JsonValueKind.Object)
                 {
                     enumeratedObjects.AddRange(member.EnumerateObject().SelectMany(child => GetLeaves(arraySubPath, child)));
                 }
