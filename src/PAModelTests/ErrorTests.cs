@@ -69,9 +69,9 @@ namespace PAModelTests
         public void TestJSONValueChanged(string file1, string file2, string file3)
         {
 
-            string path1 = Path.Combine(Environment.CurrentDirectory, "JSON", file1);
-            string path2 = Path.Combine(Environment.CurrentDirectory, "JSON", file2);
-            string path3 = Path.Combine(Environment.CurrentDirectory, "Text", file3);
+            string path1 = Path.Combine(Environment.CurrentDirectory, "TestData", file1);
+            string path2 = Path.Combine(Environment.CurrentDirectory, "TestData", file2);
+            string path3 = Path.Combine(Environment.CurrentDirectory, "TestData", file3);
 
             ErrorContainer errorContainer = new ErrorContainer();
 
