@@ -330,7 +330,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else if (property.Value.ValueKind == JsonValueKind.Array)
             {
-
                 if (property.Value.GetArrayLength() == 0)
                 {
                     return new[] { (path, property) };
@@ -405,7 +404,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var currentPair2 in dictionary2)
             {
                 // If current property from second json file does not exist in the first file
-                if (!dictionary1.TryGetValue(currentPair2.Key, out JsonElement value1))
+                if (!dictionary1.ContainsKey(currentPair2.Key))
                 {
                     errorContainer.JSONPropertyAdded(currentPair2.Key);
                 }
