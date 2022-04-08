@@ -1,0 +1,10 @@
+Error   PA3015: Property Removed: Words.Noun
+Error   PA3015: Property Removed: Words.Adjective
+Error   PA3015: Property Removed: Words.Verb
+Error   PA3015: Property Removed: Words.Adverb
+Error   PA3013: Property Value Changed: Numbers.Double
+Error   PA3014: Property Added: Things.Noun
+Error   PA3014: Property Added: Things.Adjective
+Error   PA3014: Property Added: Things.Verb
+Error   PA3014: Property Added: Things.Adverb
+9 errors, 0 warnings.

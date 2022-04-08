@@ -56,6 +56,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Bad parameter (such as a missing file)
         BadParameter = 3012, 
 
+        // JSON Property's Value was Changed, Doesn't Match
+        JSONValueChanged = 3013,
+
+        // JSON Property was added
+        JSONPropertyAdded = 3014,
+
+        // JSON Property was removed
+        JSONPropertyRemoved = 3015,
+
         // Catch-all.  Should review and make these more specific. 
         Generic = 3999,
 
@@ -79,7 +88,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)
         {
-            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. This is always a bug, please file an issue at https://github.com/microsoft/PowerApps-Language-Tooling");
+            errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. \nYou have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered.\nPlease open an issue and log the entirety of this error log at https://github.com/microsoft/PowerApps-Language-Tooling\n");
         }
 
         public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)
@@ -147,6 +156,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");
         }
 
+        public static void JSONValueChanged(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONValueChanged, default(SourceLocation), $"Property Value Changed: {message}");
+        }
+
+        public static void JSONPropertyAdded(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONPropertyAdded, default(SourceLocation), $"Property Added: {message}");
+        }
+
+        public static void JSONPropertyRemoved(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.JSONPropertyRemoved, default(SourceLocation), $"Property Removed: {message}");
+        }
         public static void UnsupportedError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedError, default(SourceLocation), $"Not Supported: {message}");
