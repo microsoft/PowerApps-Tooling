@@ -104,7 +104,7 @@ namespace PAModelTests
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(pathToMsApp));
-            
+
             var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
             errors.ThrowOnErrors();
 
@@ -113,27 +113,17 @@ namespace PAModelTests
 
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
-            ErrorContainer  errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
-            errorsCaptured.ThrowOnErrors();            
+            ErrorContainer errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
+            errorsCaptured.ThrowOnErrors();
         }
 
         [DataTestMethod]
-        [DataRow("NameOne")]
-        [DataRow("NameTwo>")]
-        [DataRow("NameThree><*/")]
-        public void TestGetExtensionEncoded(string fileString)
+        [DataRow(new string[] {"FileNameOne.txt" }, ".txt")]
+        [DataRow(new string[] {"FileNameTwo.tx<t" }, ".tx%3ct")]
+        public void TestGetExtensionEncoded(string[] fileExtension, string encodedExtension)
         {
-            // Make sure exception is not thrown
-            try
-            {
-                FilePath filePath = new FilePath(fileString);
-                filePath.GetExtension();
-            }
-            // If it is thrown, Fail test
-            catch (System.ArgumentException)
-            {
-                Assert.Fail();
-            }
+            FilePath filePath = new FilePath(fileExtension);
+            Assert.AreEqual(filePath.GetExtension(), encodedExtension);
         }
 
         private static T ToObject<T>(ZipArchiveEntry entry)
