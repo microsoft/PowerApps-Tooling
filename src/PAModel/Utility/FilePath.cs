@@ -109,7 +109,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility
         {
             if (_pathSegments.Length == 0)
                 return string.Empty;
-            return Path.GetExtension(_pathSegments.Last());
+            return Path.GetExtension(Utilities.EscapeFilename(_pathSegments.Last()));
         }
 
         public override bool Equals(object obj)
