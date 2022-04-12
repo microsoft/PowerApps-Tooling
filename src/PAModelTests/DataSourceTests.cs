@@ -117,6 +117,25 @@ namespace PAModelTests
             errorsCaptured.ThrowOnErrors();            
         }
 
+        [DataTestMethod]
+        [DataRow("NameOne")]
+        [DataRow("NameTwo>")]
+        [DataRow("NameThree><*/")]
+        public void TestGetExtensionEncoded(string fileString)
+        {
+            // Make sure exception is not thrown
+            try
+            {
+                FilePath filePath = new FilePath(fileString);
+                filePath.GetExtension();
+            }
+            // If it is thrown, Fail test
+            catch (System.ArgumentException)
+            {
+                Assert.Fail();
+            }
+        }
+
         private static T ToObject<T>(ZipArchiveEntry entry)
         {
             var je = entry.ToJson();
