@@ -120,6 +120,7 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow(new string[] {"FileNameOne.txt" }, ".txt")]
         [DataRow(new string[] {"FileNameTwo.tx<t" }, ".tx%3ct")]
+        [DataRow(new string[] { "FileNameThr<ee.txt" }, ".txt")]
         public void TestGetExtensionEncoded(string[] fileExtension, string encodedExtension)
         {
             FilePath filePath = new FilePath(fileExtension);
