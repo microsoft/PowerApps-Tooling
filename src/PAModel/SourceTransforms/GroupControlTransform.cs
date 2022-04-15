@@ -58,7 +58,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     if (!peerControlsDict.TryGetValue(childKey, out var newChild))
                     {
                         _errors.ValidationError($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
-                        throw new DocumentException();
                     }
                     groupControl.Children.Add(newChild);
                     peerControlsDict.Remove(childKey);
