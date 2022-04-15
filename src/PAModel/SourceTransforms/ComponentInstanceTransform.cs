@@ -37,12 +37,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         private void DoRename(BlockNode control)
         {
             var templateName = control.Name?.Kind?.TypeName ?? string.Empty;
-            if (!ComponentRenames.TryGetValue(templateName, out var rename))
+            if (ComponentRenames.TryGetValue(templateName, out var rename))
+            {
+                control.Name.Kind.TypeName = rename;
+            }
+            else
             {
                 _errors.ValidationError("Renaming component instance but unable to find target name");
-                throw new DocumentException();
             }
-            control.Name.Kind.TypeName = rename;
         }
     }
 }
