@@ -55,13 +55,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
                 foreach (var childKey in groupControlState.GroupedControlsKey)
                 {
-                    if (!peerControlsDict.TryGetValue(childKey, out var newChild))
+                    if (peerControlsDict.TryGetValue(childKey, out var newChild))
+                    {
+                        groupControl.Children.Add(newChild);
+                        peerControlsDict.Remove(childKey);
+                    }
+                    else
                     {
                         _errors.ValidationError($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
-                        throw new DocumentException();
                     }
-                    groupControl.Children.Add(newChild);
-                    peerControlsDict.Remove(childKey);
                 }
                 groupControlState.GroupedControlsKey = null;
             }

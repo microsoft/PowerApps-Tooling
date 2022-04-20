@@ -141,7 +141,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 if (child.Properties.Count > 3)
                 {
                     _errors.ValidationError($"Test Step {propName} has unexpected properties");
-                    throw new DocumentException();
                 }
                 var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");
                 if (descriptionProp == null)
