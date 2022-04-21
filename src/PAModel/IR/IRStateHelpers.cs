@@ -486,9 +486,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 property.NameMap = propState.NameMap;
                 property.RuleProviderType = propState.RuleProviderType;
             }
-            else
+            else if (state.IsComponentDefinition ?? false)
             {
-                errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                    errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                    throw new DocumentException();
+            }
+            else 
+            {
+                errors.UnsupportedOperationError("You cannot add an empty property.");
                 throw new DocumentException();
             }
 
