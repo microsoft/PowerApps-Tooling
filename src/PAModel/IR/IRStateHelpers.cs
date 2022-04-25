@@ -308,17 +308,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         RepopulateTemplateCustomProperties(func, templateState, errors, entropy);
                     }
                 }
-                else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
+                else 
                 {
-                    // For component uses, recreate the dummy props for function parameters
-                    foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
+                    if (state.IsComponentDefinition ?? false)
                     {
-                        if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
-                        {
-                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
-                            properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
-                        }
+                        errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                        throw new DocumentException();
                     }
+
+                    property.RuleProviderType = "Unknown";
                 }
 
                 // Preserve ordering from serialized IR
