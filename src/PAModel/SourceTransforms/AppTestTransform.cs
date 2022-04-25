@@ -29,6 +29,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         private IList<KeyValuePair<string, string>> _screenIdToScreenName;
         private ErrorContainer _errors;
 
+        // To hold entropy passed in by constructor
         private Entropy _entropy;
 
         public static bool IsTestSuite(string templateName)
@@ -53,7 +54,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         public void AfterRead(BlockNode control)
         {
-
+            // Say that TestStepsMetadata is empty, by default
             _entropy.TestStepsMetadataEmpty = true;
 
             var properties = control.Properties.ToDictionary(prop => prop.Identifier);
@@ -74,6 +75,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var testStep in testStepsMetadata)
             {
+                // If ever encountering TestStepsMetadata, set empty to false
                 _entropy.TestStepsMetadataEmpty = false;
 
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
@@ -138,7 +140,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
-            if (_entropy.TestStepsMetadataEmpty == true)
+            // If there were TestStepsMetadata in AfterRead, allow code to run
+            if (_entropy.TestStepsMetadataEmpty == false)
             {
                 foreach (var child in control.Children)
                 {
