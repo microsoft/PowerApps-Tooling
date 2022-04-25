@@ -85,6 +85,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// </summary>
         public bool? WasLocalDatabaseReferencesEmpty { get; set; }
 
+        /// <summary>
+        /// Tracks whether TestStepsMetadata is empty or not.
+        /// </summary>
+        public bool? TestStepsMetadataEmpty { get; set; }
+
         // Key is connection id, value is connection instance id
         public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
