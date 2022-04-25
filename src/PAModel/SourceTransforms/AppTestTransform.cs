@@ -78,7 +78,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var testStep in testStepsMetadata)
             {
-
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
                 {
                     _errors.ValidationError($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
