@@ -187,19 +187,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     Identifier = propName
                 });
             }
-            
+
             // If TestStepsMetadata does not exist, return early
-            if (!_entropy.DoesTestStepsMetadataExist)
-            {
-                return;
+            if (_entropy.DoesTestStepsMetadataExist)
+            {            
+                var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+                control.Properties.Add(new PropertyNode()
+                {
+                    Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
+                    Identifier = _metadataPropName
+                });
             }
 
-            var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
-            control.Properties.Add(new PropertyNode()
-            {
-                Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
-                Identifier = _metadataPropName
-            });
             control.Children = new List<BlockNode>();
         }
     }
