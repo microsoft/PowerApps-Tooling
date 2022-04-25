@@ -47,6 +47,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             _screenIdToScreenName = app._screens
                 .Select(screen => new KeyValuePair<string, string>(app._idRestorer.GetControlId(screen.Key).ToString(), screen.Key)).ToList();
 
+            _entropy = entropy;
             _errors = errors;
         }
 
