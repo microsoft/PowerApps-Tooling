@@ -139,13 +139,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
         public void BeforeWrite(BlockNode control)
         {
-            var testStepsMetadata = new List<TestStepsMetadataJson>();
-
             // If TestStepsMetadata does not exist, return early
             if (!_entropy.DoesTestStepsMetadataExist)
             {
                 return;
             }
+
+            var testStepsMetadata = new List<TestStepsMetadataJson>();
 
             foreach (var child in control.Children)
             {
