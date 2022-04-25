@@ -50,9 +50,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             _entropy = entropy;
             _errors = errors;
-
-            // Say that TestStepsMetadata is empty, by default
-            _entropy.TestStepsMetadataEmpty = true;
         }
 
         public void AfterRead(BlockNode control)
@@ -60,6 +57,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var properties = control.Properties.ToDictionary(prop => prop.Identifier);
             if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
             {
+                // If no metadata props, TestStepsMetadata nonexistent
+                _entropy.DoesTestStepsMetadataExist = false;
+
                 // If the test studio is opened, but no tests are created, it's possible for a test case to exist without any
                 // steps or teststepmetadata. In that case, write only the base properties.
                 if (properties.Count == 2)
@@ -68,6 +68,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
                 throw new DocumentException();
             }
+            else{
+                _entropy.DoesTestStepsMetadataExist = true;
+            }
             properties.Remove(_metadataPropName);
             var metadataJsonString = Utilities.UnEscapePAString(metadataProperty.Expression.Expression);
             var testStepsMetadata = JsonSerializer.Deserialize<List<TestStepsMetadataJson>>(metadataJsonString);
@@ -75,8 +78,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             foreach (var testStep in testStepsMetadata)
             {
-                // If ever encountering TestStepsMetadata, set empty to false
-                _entropy.TestStepsMetadataEmpty = false;
 
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
                 {
@@ -140,8 +141,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
-            // If no TestStepsMetadata were added in AfterRead, exit
-            if (_entropy.TestStepsMetadataEmpty == true)
+            // If TestStepsMetadata does not exist, return early
+            if (!_entropy.DoesTestStepsMetadataExist)
             {
                 return;
             }
