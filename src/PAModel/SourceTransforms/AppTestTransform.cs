@@ -136,9 +136,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             control.Children = newChildren;
         }
 
-       public void BeforeWrite(BlockNode control)
+        public void BeforeWrite(BlockNode control)
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
+
+            // If no TestStepsMetadata were added in AfterRead, exit
+            if(_entropy.TestStepsMetadataEmpty == true){
+                return;
+            }
 
             foreach (var child in control.Children)
             {
