@@ -202,17 +202,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
             }
 
-
-
-            var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
-            control.Properties.Add(new PropertyNode()
+            // If TestStepsMetadata exists, add
+            if (_entropy.DoesTestStepsMetadataExist)
             {
-                Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
-                Identifier = _metadataPropName
-            });
+
+                var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+                control.Properties.Add(new PropertyNode()
+                {
+                    Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
+                    Identifier = _metadataPropName
+                });
 
 
-            control.Children = new List<BlockNode>();
+                control.Children = new List<BlockNode>();
+
+            }
         }
     }
 }
