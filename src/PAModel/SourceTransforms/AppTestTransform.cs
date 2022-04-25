@@ -141,7 +141,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
             // If no TestStepsMetadata were added in AfterRead, exit
-            if(_entropy.TestStepsMetadataEmpty == true){
+            if (_entropy.TestStepsMetadataEmpty == true)
+            {
                 return;
             }
 
