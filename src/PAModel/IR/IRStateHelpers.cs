@@ -486,7 +486,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 property.NameMap = propState.NameMap;
                 property.RuleProviderType = propState.RuleProviderType;
             }
-            else 
+            else
             {
                 if (state.IsComponentDefinition ?? false)
                 {
