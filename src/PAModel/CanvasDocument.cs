@@ -592,8 +592,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 else
                 {
                     _assetFiles.Add(withoutPrefix, fileEntry);
-                }
-                
+                }                
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
                 if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
