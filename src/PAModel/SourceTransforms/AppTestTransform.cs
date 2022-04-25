@@ -140,56 +140,58 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
-            // If no TestStepsMetadata were added in AfterRead, do not add
-            if (_entropy.TestStepsMetadataEmpty == false)
+            // If no TestStepsMetadata were added in AfterRead, exit
+            if (_entropy.TestStepsMetadataEmpty == true)
             {
-                foreach (var child in control.Children)
+                return;
+            }
+
+            foreach (var child in control.Children)
+            {
+                var propName = child.Name.Identifier;
+                if (child.Name.Kind.TypeName != _testStepTemplateName)
                 {
-                    var propName = child.Name.Identifier;
-                    if (child.Name.Kind.TypeName != _testStepTemplateName)
-                    {
-                        _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
-                        throw new DocumentException();
-                    }
-                    if (child.Properties.Count > 3)
-                    {
-                        _errors.ValidationError($"Test Step {propName} has unexpected properties");
-                    }
-                    var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");
-                    if (descriptionProp == null)
-                    {
-                        _errors.ValidationError($"Test Step {propName} is missing a Description property");
-                        throw new DocumentException();
-                    }
-                    var valueProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Value");
-                    if (valueProp == null)
-                    {
-                        _errors.ValidationError($"Test Step {propName} is missing a Value property");
-                        throw new DocumentException();
-                    }
-                    var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
-
-                    string screenId = null;
-                    // Lookup screenID by Name
-                    if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
-                    {
-                        _errors.ValidationError($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
-                        throw new DocumentException();
-                    }
-
-                    testStepsMetadata.Add(new TestStepsMetadataJson()
-                    {
-                        Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
-                        Rule = propName,
-                        ScreenId = screenId
-                    });
-
-                    control.Properties.Add(new PropertyNode()
-                    {
-                        Expression = valueProp.Expression,
-                        Identifier = propName
-                    });
+                    _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
+                    throw new DocumentException();
                 }
+                if (child.Properties.Count > 3)
+                {
+                    _errors.ValidationError($"Test Step {propName} has unexpected properties");
+                }
+                var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");
+                if (descriptionProp == null)
+                {
+                    _errors.ValidationError($"Test Step {propName} is missing a Description property");
+                    throw new DocumentException();
+                }
+                var valueProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Value");
+                if (valueProp == null)
+                {
+                    _errors.ValidationError($"Test Step {propName} is missing a Value property");
+                    throw new DocumentException();
+                }
+                var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
+
+                string screenId = null;
+                // Lookup screenID by Name
+                if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
+                {
+                    _errors.ValidationError($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                    throw new DocumentException();
+                }
+
+                testStepsMetadata.Add(new TestStepsMetadataJson()
+                {
+                    Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
+                    Rule = propName,
+                    ScreenId = screenId
+                });
+
+                control.Properties.Add(new PropertyNode()
+                {
+                    Expression = valueProp.Expression,
+                    Identifier = propName
+                });
             }
             var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
             control.Properties.Add(new PropertyNode()
