@@ -178,6 +178,7 @@ namespace PAModelTests
         public void TestAssetPathCollision()
         {
             var doc = new CanvasDocument();
+
             var resource1 = new ResourceJson()
             {
                 Name = "Image", 
@@ -186,9 +187,9 @@ namespace PAModelTests
                 ResourceKind = ResourceKind.LocalFile,
                 Content = ContentKind.Image,
             };
-
             doc._assetFiles.Add(new FilePath("Images", "Image.png"), new FileEntry());
-            
+
+            // Adding another resource pointing to the same path
             var resource2 = new ResourceJson()
             {
                 Name = "Image2", 
@@ -197,7 +198,6 @@ namespace PAModelTests
                 ResourceKind = ResourceKind.LocalFile,
                 Content = ContentKind.Image,
             };
-
             doc._assetFiles.Add(new FilePath("Images", "Image2.png"), new FileEntry());
 
             doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2 } };
