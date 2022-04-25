@@ -308,15 +308,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         RepopulateTemplateCustomProperties(func, templateState, errors, entropy);
                     }
                 }
-                else 
+                else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
                 {
-                    if (state.IsComponentDefinition ?? false)
+                    // For component uses, recreate the dummy props for function parameters
+                    foreach (var hiddenScopeRule in template.CustomProperties.Where(prop => prop.IsFunctionProperty).SelectMany(prop => prop.PropertyScopeKey.PropertyScopeRulesKey))
                     {
-                        errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
-                        throw new DocumentException();
+                        if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
+                        {
+                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
+                            properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
+                        }
                     }
-
-                    property.RuleProviderType = "Unknown";
                 }
 
                 // Preserve ordering from serialized IR
@@ -484,15 +486,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 property.NameMap = propState.NameMap;
                 property.RuleProviderType = propState.RuleProviderType;
             }
-            else if (state.IsComponentDefinition ?? false)
-            {
-                    errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
-                    throw new DocumentException();
-            }
             else 
             {
-                errors.UnsupportedOperationError("You cannot add an empty property.");
-                throw new DocumentException();
+                if (state.IsComponentDefinition ?? false)
+                {
+                    errors.UnsupportedOperationError("This tool currently does not support adding new custom properties to components. Please use Power Apps Studio to edit component definitions");
+                    throw new DocumentException();
+                }
+
+                property.RuleProviderType = "Unknown";
             }
 
             return property;
