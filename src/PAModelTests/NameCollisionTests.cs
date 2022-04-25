@@ -173,5 +173,39 @@ namespace PAModelTests
                 Assert.AreEqual<int>(expectedControlsWithEditorState.Count, 0, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
             }
         }
+
+        [TestMethod]
+        public void TestAssetPathCollision()
+        {
+            var doc = new CanvasDocument();
+            var resource1 = new ResourceJson()
+            {
+                Name = "Image", 
+                Path = "Assets\\Images\\Image.png",
+                FileName = "Image.png",
+                ResourceKind = ResourceKind.LocalFile,
+                Content = ContentKind.Image,
+            };
+
+            doc._assetFiles.Add(new FilePath("Images", "Image.png"), new FileEntry());
+            
+            var resource2 = new ResourceJson()
+            {
+                Name = "Image2", 
+                Path = "Assets\\Images\\Image.png",
+                FileName = "Image.png",
+                ResourceKind = ResourceKind.LocalFile,
+                Content = ContentKind.Image,
+            };
+
+            doc._assetFiles.Add(new FilePath("Images", "Image2.png"), new FileEntry());
+
+            doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2 } };
+
+            var errorContainer = new ErrorContainer();
+            doc.StabilizeAssetFilePaths(errorContainer);
+
+            Assert.IsFalse(errorContainer.HasErrors);
+        }
     }
 }
