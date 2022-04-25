@@ -50,13 +50,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             _entropy = entropy;
             _errors = errors;
+
+            // Say that TestStepsMetadata is empty, by default
+            _entropy.TestStepsMetadataEmpty = true;
         }
 
         public void AfterRead(BlockNode control)
         {
-            // Say that TestStepsMetadata is empty, by default
-            _entropy.TestStepsMetadataEmpty = true;
-
             var properties = control.Properties.ToDictionary(prop => prop.Identifier);
             if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
             {
