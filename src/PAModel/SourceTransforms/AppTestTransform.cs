@@ -212,11 +212,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
                     Identifier = _metadataPropName
                 });
-
-
-                control.Children = new List<BlockNode>();
-
             }
+                control.Children = new List<BlockNode>();
         }
     }
 }
