@@ -137,8 +137,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
 
-            if(_entropy.TestStepsMetadataEmpty == true){
-                
+            if (_entropy.TestStepsMetadataEmpty == true)
+            {
                 foreach (var child in control.Children)
                 {
                     var propName = child.Name.Identifier;
