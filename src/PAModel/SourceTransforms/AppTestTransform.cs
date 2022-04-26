@@ -139,6 +139,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         public void BeforeWrite(BlockNode control)
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
+            bool doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? true;
 
             foreach (var child in control.Children)
             {
@@ -182,13 +183,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     throw new DocumentException();
                 }
                 
-                // If TestStepsMetadata exists, add
-                if (_entropy.DoesTestStepsMetadataExist == null)
-                {
-                    _entropy.DoesTestStepsMetadataExist = true;
-                }
-                
-                if (_entropy.DoesTestStepsMetadataExist == true)
+
+                if (doesTestStepsMetadataExist)
                 {
 
                     testStepsMetadata.Add(new TestStepsMetadataJson()
@@ -206,14 +202,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
                 }
             }
-
-            // If TestStepsMetadata exists, add
-            if (_entropy.DoesTestStepsMetadataExist == null)
-            {
-                 _entropy.DoesTestStepsMetadataExist = true;
-            }
             
-            if (_entropy.DoesTestStepsMetadataExist == true)
+            if (doesTestStepsMetadataExist)
             {
                 var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
                 control.Properties.Add(new PropertyNode()
