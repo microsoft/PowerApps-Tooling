@@ -139,7 +139,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         public void BeforeWrite(BlockNode control)
         {
             var testStepsMetadata = new List<TestStepsMetadataJson>();
-
+            
             foreach (var child in control.Children)
             {
                 var propName = child.Name.Identifier;
@@ -185,7 +185,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 // If TestStepsMetadata exists, add
                 if (_entropy.DoesTestStepsMetadataExist == null)
                 {
-                    _errors.ValidationError($"Cannot verify if TestStepMetadata exists or not.");
+                    var properties = control.Properties.ToDictionary(prop => prop.Identifier);
+                    if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
+                    {
+                        // If no metadata props, TestStepsMetadata nonexistent
+                        _entropy.DoesTestStepsMetadataExist = false;
+                    }
+                    else{
+                        _entropy.DoesTestStepsMetadataExist = true;
+                    }
                 }
                 else if (_entropy.DoesTestStepsMetadataExist == true)
                 {
@@ -209,7 +217,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             // If TestStepsMetadata exists, add
             if (_entropy.DoesTestStepsMetadataExist == null)
             {
-                _errors.ValidationError($"Cannot verify if TestStepMetadata exists or not.");
+                var properties = control.Properties.ToDictionary(prop => prop.Identifier);
+                if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
+                {
+                    // If no metadata props, TestStepsMetadata nonexistent
+                    _entropy.DoesTestStepsMetadataExist = false;
+                }
+                else{
+                    _entropy.DoesTestStepsMetadataExist = true;
+                }
             }
             else if (_entropy.DoesTestStepsMetadataExist == true)
             {
