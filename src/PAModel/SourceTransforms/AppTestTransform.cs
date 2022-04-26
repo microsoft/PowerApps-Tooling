@@ -183,7 +183,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
                 
                 // If TestStepsMetadata exists, add
-                if (_entropy.DoesTestStepsMetadataExist)
+                if (_entropy.DoesTestStepsMetadataExist == null)
+                {
+                    _errors.ValidationError($"Cannot verify if TestStepMetadata exists or not.");
+                }
+                else if (_entropy.DoesTestStepsMetadataExist == true)
                 {
 
                     testStepsMetadata.Add(new TestStepsMetadataJson()
@@ -203,9 +207,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             }
 
             // If TestStepsMetadata exists, add
-            if (_entropy.DoesTestStepsMetadataExist)
+            if (_entropy.DoesTestStepsMetadataExist == null)
             {
-
+                _errors.ValidationError($"Cannot verify if TestStepMetadata exists or not.");
+            }
+            else if (_entropy.DoesTestStepsMetadataExist == true)
+            {
                 var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
                 control.Properties.Add(new PropertyNode()
                 {
