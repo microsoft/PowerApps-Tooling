@@ -182,20 +182,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     throw new DocumentException();
                 }
                 
-                // If TestStepsMetadata exists, add
-                if (_entropy.DoesTestStepsMetadataExist == null)
-                {
-                    var properties = control.Properties.ToDictionary(prop => prop.Identifier);
-                    if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
-                    {
-                        // If no metadata props, TestStepsMetadata nonexistent
-                        _entropy.DoesTestStepsMetadataExist = false;
-                    }
-                    else{
-                        _entropy.DoesTestStepsMetadataExist = true;
-                    }
-                }
-                else if (_entropy.DoesTestStepsMetadataExist == true)
+
+                if (_entropy.DoesTestStepsMetadataExist == true)
                 {
 
                     testStepsMetadata.Add(new TestStepsMetadataJson()
@@ -214,20 +202,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
             }
 
-            // If TestStepsMetadata exists, add
-            if (_entropy.DoesTestStepsMetadataExist == null)
-            {
-                var properties = control.Properties.ToDictionary(prop => prop.Identifier);
-                if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
-                {
-                    // If no metadata props, TestStepsMetadata nonexistent
-                    _entropy.DoesTestStepsMetadataExist = false;
-                }
-                else{
-                    _entropy.DoesTestStepsMetadataExist = true;
-                }
-            }
-            else if (_entropy.DoesTestStepsMetadataExist == true)
+            if (_entropy.DoesTestStepsMetadataExist == true)
             {
                 var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
                 control.Properties.Add(new PropertyNode()
