@@ -25,3 +25,14 @@ This can occur if the AllowAccessToGlobals field (associated with the Access app
 5. Unpack this new msapp
 
 The msapp should now unpack successfully without errors.
+
+## Warning PA2001: Checksum mismatch. File Controls\198.json checksum does not match on extract
+## Error   PA3013: Property Value Changed: TopParent.Children[4].Children[0].Rules[4].InvariantScript (or similar)
+
+This can occur if the function property InvariantScript value of controls with component definition set to false is not in sync with the same field in the Component definition. This can be resolved by the following steps -
+
+1. Open the msapp back into the Power Apps Studio
+2. Save and download this app back to your workspace
+3. Unpack this new msapp
+
+The msapp should now unpack successfully without errors.
