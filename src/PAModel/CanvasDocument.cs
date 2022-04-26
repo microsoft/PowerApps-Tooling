@@ -585,6 +585,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
 
+                // Add or Update the assetFile path entry
                 if (_assetFiles.ContainsKey(withoutPrefix)) { 
                     _assetFiles.Remove(withoutPrefix);
                     _assetFiles.Add(withoutPrefix, fileEntry);
