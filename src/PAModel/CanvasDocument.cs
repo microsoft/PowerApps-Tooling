@@ -584,7 +584,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
-                _assetFiles.Add(withoutPrefix, fileEntry);
+
+                // Add or Update the assetFile path entry
+                if (_assetFiles.ContainsKey(withoutPrefix)) { 
+                    _assetFiles.Remove(withoutPrefix);
+                    _assetFiles.Add(withoutPrefix, fileEntry);
+                }
+                else
+                {
+                    _assetFiles.Add(withoutPrefix, fileEntry);
+                }                
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
                 if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
