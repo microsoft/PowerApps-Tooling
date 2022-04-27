@@ -435,7 +435,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             app.ApplyBeforeMsAppWriteTransforms(errors);
 
-            if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
+            if (fullpathToMsApp == null){
+                errors.BadParameter("Path to msapp cannot be null.");
+                return;
+            }
+            else if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
                 fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 errors.BadParameter("Only works for .msapp files");
