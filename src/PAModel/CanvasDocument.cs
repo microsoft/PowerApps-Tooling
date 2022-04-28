@@ -624,7 +624,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (_entropy.LocalResourceFileNames == null)
                 return;
 
-            var maxFileNumber = FindMaxEntropyFileName();
+            if (_resourcesJson == null)
+                return;
+
+            var maxFileNumber = FindMaxEntropyFileName();          
 
             foreach (var resource in _resourcesJson.Resources)
             {
