@@ -435,9 +435,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             app.ApplyBeforeMsAppWriteTransforms(errors);
 
-            if (fullpathToMsApp == null)
+            if (String.IsNullOrEmpty(fullpathToMsApp))
             {
-                errors.BadParameter("Path to msapp cannot be null.");
+                errors.BadParameter("Path to msapp cannot be null or empty.");
                 return;
             }
             else if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
