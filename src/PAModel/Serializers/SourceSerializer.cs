@@ -249,6 +249,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             } // each loose file in '\other' 
 
             LoadDataSources(app, dir, errors);
+
+            if (templateDefaults == null)
+            {
+                errors.BadParameter("Template Defaults cannot be null.");
+                throw new DocumentException();
+            }
+
             LoadSourceFiles(app, dir, templateDefaults, errors);
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
