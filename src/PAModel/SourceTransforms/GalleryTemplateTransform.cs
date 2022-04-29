@@ -92,11 +92,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             }
 
             Contract.Assert(galleryTemplateChild != null);
-
-            if (galleryTemplateChild.Properties == null)
-            {
-                return;
-            }
+            Contract.Assert(galleryTemplateChild.Properties != null);
 
             control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
             control.Children.Remove(galleryTemplateChild);
