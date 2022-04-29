@@ -79,6 +79,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static CanvasDocument LoadFromSource(string directory2, ErrorContainer errors)
         {
+
             if (File.Exists(directory2))
             {
                 if (directory2.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
@@ -406,6 +407,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
+
+                // adding this check since ComponentManifest this is default to null
+                if (componentTemplate.ComponentManifest == null)
+                {
+                    errors.GenericError("Could not find ComponentManifest for " + componentTemplate.ComponentType);
+                    throw new DocumentException();
+                }
+
                 app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
             }
 
