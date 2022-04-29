@@ -83,16 +83,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         public void AfterRead(BlockNode control)
         {
             BlockNode galleryTemplateChild = null;
+
+
             foreach (var child in control.Children)
             {
-                if ((child.Name?.Kind?.TypeName ?? string.Empty) == _childTemplateName)
+                if (child.Name.Kind.TypeName == _childTemplateName)
                 {
                     galleryTemplateChild = child;
                     break;
                 }
             }
 
-            Contract.Assert(galleryTemplateChild != null);
+            if (galleryTemplateChild == null)
+            {
+                return;
+            }
 
             control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
             control.Children.Remove(galleryTemplateChild);
