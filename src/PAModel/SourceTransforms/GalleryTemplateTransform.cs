@@ -75,14 +75,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 Properties = childRules
             };
 
-
-
             control.Children = control.Children.Prepend(galleryTemplateChild).ToList();
         }
 
         public void AfterRead(BlockNode control)
         {
             BlockNode galleryTemplateChild = null;
+
             foreach (var child in control.Children)
             {
                 if (child.Name.Kind.TypeName == _childTemplateName)
@@ -92,8 +91,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
             }
 
-
-            Contract.Assert(galleryTemplateChild != null);
+            if (galleryTemplateChild == null)
+            {
+                return;
+            }
 
             control.Properties = control.Properties.Concat(galleryTemplateChild.Properties).ToList();
             control.Children.Remove(galleryTemplateChild);
