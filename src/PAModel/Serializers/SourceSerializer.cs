@@ -401,7 +401,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
-
             }
 
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
