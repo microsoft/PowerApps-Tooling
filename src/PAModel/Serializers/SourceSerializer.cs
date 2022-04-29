@@ -79,7 +79,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static CanvasDocument LoadFromSource(string directory2, ErrorContainer errors)
         {
-
             if (File.Exists(directory2))
             {
                 if (directory2.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
