@@ -85,7 +85,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             BlockNode galleryTemplateChild = null;
             foreach (var child in control.Children)
             {
-                if (child.Name.Kind.TypeName == _childTemplateName)
+                if ((child.Name?.Kind?.TypeName ?? string.Empty) == _childTemplateName)
                 {
                     galleryTemplateChild = child;
                     break;
