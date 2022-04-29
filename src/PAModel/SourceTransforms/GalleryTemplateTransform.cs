@@ -75,8 +75,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 Properties = childRules
             };
 
-
-
             control.Children = control.Children.Prepend(galleryTemplateChild).ToList();
         }
 
