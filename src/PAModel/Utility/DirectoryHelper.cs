@@ -129,6 +129,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Must pre-create it before writing. 
         public static void EnsureFileDirExists(string path)
         {
+            var errors = new ErrorContainer();
+
             if (string.IsNullOrEmpty(path))
             {
                 errors.BadParameter("Path to file directory cannot be null or empty.");
