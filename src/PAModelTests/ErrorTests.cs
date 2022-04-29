@@ -7,7 +7,6 @@ using System.IO;
 using System.Text.Json;
 using Xunit;
 
-
 namespace PAModelTests
 {
     // Verify we get errors (and not exceptions). 
@@ -54,6 +53,13 @@ namespace PAModelTests
             (var doc, var errors) = CanvasDocument.LoadFromSources(PathMissingDir);
             Assert.True(errors.HasErrors);
             Assert.Null(doc);
+        }
+
+        [Fact]
+        public void BadWriteDir()
+        {
+            string path = null;
+            Assert.Throws<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));   
         }
 
         [Theory]
