@@ -91,6 +91,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
             }
 
+            Contract.Assert(galleryTemplateChild != null);
+
             if (galleryTemplateChild == null)
             {
                 return;
