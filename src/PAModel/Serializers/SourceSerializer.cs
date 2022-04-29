@@ -406,7 +406,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
 
-                // adding this check since ComponentManifest this is default to null
+                // adding this check since ComponentManifest is default to null
                 if (componentTemplate.ComponentManifest == null)
                 {
                     errors.GenericError("Could not find ComponentManifest for " + componentTemplate.ComponentType);
