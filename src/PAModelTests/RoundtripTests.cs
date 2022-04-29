@@ -5,9 +5,6 @@ using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
-using System.Collections.Generic;
 
 namespace PAModelTests
 {
@@ -47,24 +44,6 @@ namespace PAModelTests
             var cloneOk = MsAppTest.TestClone(root);
             // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
             Assert.IsTrue(cloneOk, $"Clone failed: " + filename);
-        }
-
-        [TestMethod]
-        public void AfterReadNullChildren()
-        {
-            BlockNode control = null;
-
-            control.Children.Add(new BlockNode()
-                {
-                    Name = new TypedNameNode()
-                    {
-                        Identifier = "ID"
-                    },
-                    Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "PropID", Expression = new ExpressionNode() { Expression = "E" } } }
-                });
-
-            GalleryTemplateTransform.AfterRead(control);
-
         }
     }
 }
