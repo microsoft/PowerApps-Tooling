@@ -141,16 +141,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.ParseError, span, $"Parse error: {message}");
         }
 
-        public static void ValidationError(this ErrorContainer errors, string message)
-        {
-            errors.AddError(ErrorCode.Validation, default(SourceLocation), $"Validation error: {message}");
-        }
-
-        public static void ValidationError(this ErrorContainer errors, SourceLocation span, string message)
-        {
-            errors.AddError(ErrorCode.Validation, span, $"Validation error: {message}");
-        }
-
         public static void MsAppFormatError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");

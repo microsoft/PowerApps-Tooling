@@ -423,12 +423,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     template.DynamicControlDefinitionJson = PcfControl.GenerateDynamicControlDefinition(kvp.Value);
                 }
-                else
-                {
-                    // Validation for accidental deletion of ocf control templates.
-                    errors.ValidationError($"Could not find Pcf Control Template with name: {kvp.Key} in pkgs/PcfControlTemplates directory. " +
-                        $"If it was intentionally deleted, please delete the entry from ControlTemplates.json along with its references from source files.");
-                }
             }
 
             var componentInstanceTransform = new ComponentInstanceTransform(errors);
