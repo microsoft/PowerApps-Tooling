@@ -73,11 +73,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 return;
             }
 
+            if (!_templateStore.TryGetTemplate(controlName, out var componentTemplate) ||
+                !(componentTemplate.IsComponentTemplate ?? false))
+            {
+                _errors.ValidationWarning($"Unable to find template for component {controlName}");
+            }
 
-            _templateStore.TryGetTemplate(controlName, out var componentTemplate);
             var originalTemplateName = componentTemplate.Name;
-            
-            _templateStore.TryRenameTemplate(controlName, originalTemplateName);
+            if (!_templateStore.TryRenameTemplate(controlName, originalTemplateName))
+            {
+                _errors.ValidationWarning($"Unable to update template for component {controlName}, id {originalTemplateName}");
+            }
 
             _componentInstanceTransform.ComponentRenames.Add(controlName, originalTemplateName);
             control.Name.Kind.TypeName = originalTemplateName;

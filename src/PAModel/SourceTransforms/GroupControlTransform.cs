@@ -45,8 +45,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var groupControl in groupControls)
             {
                 var groupControlName = groupControl.Name.Identifier;
-                _editorStateStore.TryGetControlState(groupControlName, out var groupControlState);
-                
+                if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState) || groupControlState.GroupedControlsKey.Count == 0)
+                {
+                    _errors.ValidationWarning($"Group control state is missing or empty for {groupControlName}");
+                }
+
                 _entropy.AddGroupControl(groupControlState);
 
                 foreach (var childKey in groupControlState.GroupedControlsKey)
@@ -55,6 +58,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     {
                         groupControl.Children.Add(newChild);
                         peerControlsDict.Remove(childKey);
+                    }
+                    else
+                    {
+                        _errors.ValidationWarning($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
                     }
                 }
                 groupControlState.GroupedControlsKey = null;
