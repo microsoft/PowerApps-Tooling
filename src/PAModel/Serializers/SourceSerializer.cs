@@ -778,13 +778,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
                     }
                 }
-                if (localDatabaseReferenceJson.instanceUrl != tableDef.InstanceUrl)
-                {
-                    // Generate an error, dataset defs have diverged in a way that shouldn't be possible
-                    // Each dataset has one instanceurl
-                    errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
-                    throw new DocumentException();
-                }
 
                 if (tableDef.LocalReferenceDSJson != null)
                 {
@@ -1011,21 +1004,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // If its a widget template then there must be a xml file in the pkgs directory.
                 if (templateState.IsWidgetTemplate)
                 {
-                    if (!app._templates.UsedTemplates.Any(x => x.Name == child.Name.Kind.TypeName))
-                    {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.TemplateDisplayName}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
-                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
-                    }
                     continue;
                 }
                 // if its a component template then check if the template exists in the Src/Components directory
                 else if (templateState.IsComponentTemplate == true)
                 {
-                    if (!app._components.Keys.Any(x => x == child.Name.Kind.TypeName))
-                    {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.TemplateDisplayName} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
-                            $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
-                    }
                     continue;
                 }
             }
