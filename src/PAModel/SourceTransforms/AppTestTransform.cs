@@ -138,6 +138,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
                 string screenId = null;
 
+                _screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId);
+
                 if (doesTestStepsMetadataExist)
                 {
                     testStepsMetadata.Add(new TestStepsMetadataJson()
