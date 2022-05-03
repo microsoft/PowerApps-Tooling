@@ -144,7 +144,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var child in control.Children)
             {
                 var propName = child.Name.Identifier;
-
+                
                 if (child.Name.Kind.TypeName != _testStepTemplateName)
                 {
                     _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
