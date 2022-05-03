@@ -47,7 +47,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 var groupControlName = groupControl.Name.Identifier;
                 if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState) || groupControlState.GroupedControlsKey.Count == 0)
                 {
-                    _errors.ValidationWarning($"Group control state is missing or empty for {groupControlName}");
+                    _errors.ValidationError($"Group control state is missing or empty for {groupControlName}");
+                    throw new DocumentException();
                 }
 
                 _entropy.AddGroupControl(groupControlState);

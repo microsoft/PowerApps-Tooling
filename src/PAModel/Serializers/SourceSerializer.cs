@@ -788,7 +788,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     // Generate an error, dataset defs have diverged in a way that shouldn't be possible
                     // Each dataset has one instanceurl
-                    errors.ValidationWarning($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
+                    errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
+                    throw new DocumentException();
                 }
 
                 if (tableDef.LocalReferenceDSJson != null)

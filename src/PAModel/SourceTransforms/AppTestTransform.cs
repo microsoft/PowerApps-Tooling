@@ -65,7 +65,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 if (properties.Count == 2)
                     return;
 
-                _errors.ValidationWarning($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
+                _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
+                throw new DocumentException();
             }
             else{
                 _entropy.DoesTestStepsMetadataExist = true;
@@ -79,10 +80,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             {
                 if (!properties.TryGetValue(testStep.Rule, out var testStepProp))
                 {
-                    _errors.ValidationWarning($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
+                    _errors.ValidationError($"Unable to find corresponding property for test step {testStep.Rule} in {control.Name.Identifier}");
+                    throw new DocumentException();
                 }
 
-                var childProperties = new List<PropertyNode>()
+                    var childProperties = new List<PropertyNode>()
                     {
                         new PropertyNode()
                         {
@@ -103,7 +105,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 {
                     if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
                     {
-                        _errors.ValidationWarning($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                        _errors.ValidationError($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                        throw new DocumentException();
                     }
 
                     childProperties.Add(new PropertyNode()
@@ -141,12 +144,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var child in control.Children)
             {
                 var propName = child.Name.Identifier;
-                
+
                 if (child.Name.Kind.TypeName != _testStepTemplateName)
                 {
-                    _errors.ValidationWarning($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
+                    _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
+                    throw new DocumentException();
                 }
-                
+
                 if (child.Properties.Count > 3)
                 {
                     _errors.ValidationWarning($"Test Step {propName} has unexpected properties");
@@ -156,14 +160,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 
                 if (descriptionProp == null)
                 {
-                    _errors.ValidationWarning($"Test Step {propName} is missing a Description property");
+                    _errors.ValidationError($"Test Step {propName} is missing a Description property");
+                    throw new DocumentException();
                 }
                 
                 var valueProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Value");
                 
                 if (valueProp == null)
                 {
-                    _errors.ValidationWarning($"Test Step {propName} is missing a Value property");
+                    _errors.ValidationError($"Test Step {propName} is missing a Value property");
+                    throw new DocumentException();
                 }
                 
                 var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
@@ -173,7 +179,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 // Lookup screenID by Name
                 if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
                 {
-                    _errors.ValidationWarning($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                    _errors.ValidationError($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                    throw new DocumentException();
                 }
                 
 

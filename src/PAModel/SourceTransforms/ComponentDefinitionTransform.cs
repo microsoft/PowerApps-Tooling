@@ -76,13 +76,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             if (!_templateStore.TryGetTemplate(controlName, out var componentTemplate) ||
                 !(componentTemplate.IsComponentTemplate ?? false))
             {
-                _errors.ValidationWarning($"Unable to find template for component {controlName}");
+                _errors.ValidationError($"Unable to find template for component {controlName}");
+                throw new DocumentException();
             }
 
             var originalTemplateName = componentTemplate.Name;
             if (!_templateStore.TryRenameTemplate(controlName, originalTemplateName))
             {
-                _errors.ValidationWarning($"Unable to update template for component {controlName}, id {originalTemplateName}");
+                _errors.ValidationError($"Unable to update template for component {controlName}, id {originalTemplateName}");
+                throw new DocumentException();
             }
 
             _componentInstanceTransform.ComponentRenames.Add(controlName, originalTemplateName);
