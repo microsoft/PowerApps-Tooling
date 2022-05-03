@@ -400,12 +400,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var file in EnumerateComponentDirs(directory, "*.fx.yaml"))
             {
                 AddControl(app, file._relativeName, true, file.GetContents(), errors);
-
             }
 
             foreach (var file in EnumerateComponentDirs(directory, "*.json"))
             {
                 var componentTemplate = file.ToObject<CombinedTemplateState>();
+
+                if (componentTemplate.ComponentManifest == null)
+                {
+                    errors.GenericError("Could not find ComponentManifest for " + componentTemplate.ComponentType);
+                    throw new DocumentException();
+                }
+
                 app._templateStore.AddTemplate(componentTemplate.ComponentManifest.Name, componentTemplate);
             }
 
