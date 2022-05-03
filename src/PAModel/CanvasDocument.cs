@@ -426,7 +426,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 else
                 {
                     // Validation for accidental deletion of ocf control templates.
-                    errors.ValidationError($"Could not find Pcf Control Template with name: {kvp.Key} in pkgs/PcfControlTemplates directory. " +
+                    errors.ValidationWarning($"Could not find Pcf Control Template with name: {kvp.Key} in pkgs/PcfControlTemplates directory. " +
                         $"If it was intentionally deleted, please delete the entry from ControlTemplates.json along with its references from source files.");
                 }
             }

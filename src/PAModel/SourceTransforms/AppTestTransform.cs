@@ -150,10 +150,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
                     throw new DocumentException();
                 }
-                
+
                 if (child.Properties.Count > 3)
                 {
-                    _errors.ValidationError($"Test Step {propName} has unexpected properties");
+                    _errors.ValidationWarning($"Test Step {propName} has unexpected properties");
                 }
 
                 var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");

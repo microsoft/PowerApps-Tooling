@@ -45,27 +45,39 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             }
         }
 
-        public void WriteProperty(string propertyName, bool value)
+        public void WriteProperty(string propertyName, bool value, bool includeEquals = true)
         {
             WriteIndent();
             _text.Write(propertyName);
             _text.Write(": ");
+            if (includeEquals)
+            {
+                _text.Write("=");
+            }
             _text.WriteLine(value ? "true" : "false");
         }
 
-        public void WriteProperty(string propertyName, int value)
+        public void WriteProperty(string propertyName, int value, bool includeEquals = true)
         {
             WriteIndent();
             _text.Write(propertyName);
             _text.Write(": ");
+            if (includeEquals)
+            {
+                _text.Write("=");
+            }
             _text.WriteLine(value);
         }
 
-        public void WriteProperty(string propertyName, double value)
+        public void WriteProperty(string propertyName, double value, bool includeEquals = true)
         {
             WriteIndent();
             _text.Write(propertyName);
             _text.Write(": ");
+            if (includeEquals)
+            {
+                _text.Write("=");
+            }
             _text.WriteLine(value);
         }
 

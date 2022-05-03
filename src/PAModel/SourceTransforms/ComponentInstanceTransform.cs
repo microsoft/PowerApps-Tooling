@@ -43,7 +43,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             }
             else
             {
-                _errors.ValidationError("Renaming component instance but unable to find target name");
+                _errors.ValidationWarning("Renaming component instance but unable to find target name");
             }
         }
     }

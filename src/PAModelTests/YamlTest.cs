@@ -109,6 +109,48 @@ Obj1:
             Assert.AreEqual(normalizedValue, NormNewlines(p.Value));
         }
 
+
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public void WriteBool(bool value)
+        {
+            var sw = new StringWriter();
+            var yw = new YamlWriter(sw);
+            yw.WriteProperty("P0", value);
+
+            var t = sw.ToString();
+            var expected = $@"P0: ={value.ToString().ToLower()}
+";
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), t.Replace("\r\n", "\n"));
+        }
+
+        [TestMethod]
+        public void WriteInt()
+        {
+            var sw = new StringWriter();
+            var yw = new YamlWriter(sw);
+            yw.WriteProperty("P0", 12);
+
+            var t = sw.ToString();
+            var expected = @"P0: =12
+";
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), t.Replace("\r\n", "\n"));
+        }
+
+        [TestMethod]
+        public void WriteDouble()
+        {
+            var sw = new StringWriter();
+            var yw = new YamlWriter(sw);
+            yw.WriteProperty("P0", 1.2);
+
+            var t = sw.ToString();
+            var expected = @"P0: =1.2
+";
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), t.Replace("\r\n", "\n"));
+        }
+
         // Normalize newlines across OSes. 
         static string NormNewlines(string x)
         {

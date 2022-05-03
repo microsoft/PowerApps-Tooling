@@ -15,6 +15,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Warnings start at 2000
         ChecksumMismatch = 2001,
 
+        // Missing properties or values where they're required
+        ValidationWarning = 2002,
+
         // Something in the Yaml file won't round-trip. 
         YamlWontRoundtrip = 2010,
 
@@ -33,7 +36,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         UnsupportedUseStudio = 3004,
 
         // Missing properties or values where they're required
-        Validation = 3005,
+        ValidationError = 3005,
 
         // Editor State file is corrupt. Delete it. 
         IllegalEditorState = 3006,
@@ -85,6 +88,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
         }
+
+        public static void ValidationWarning(this ErrorContainer errors, string message)
+        {
+            errors.AddError(ErrorCode.ValidationWarning, default(SourceLocation), $"Validation issue: {message}");
+        }
+
+        public static void ValidationWarning(this ErrorContainer errors, SourceLocation span, string message)
+        {
+            errors.AddError(ErrorCode.ValidationWarning, span, $"Validation issue {message}");
+        }    
 
         public static void PostUnpackValidationFailed(this ErrorContainer errors)
         {
@@ -143,12 +156,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public static void ValidationError(this ErrorContainer errors, string message)
         {
-            errors.AddError(ErrorCode.Validation, default(SourceLocation), $"Validation error: {message}");
+            errors.AddError(ErrorCode.ValidationError, default(SourceLocation), $"Validation error: {message}");
         }
 
         public static void ValidationError(this ErrorContainer errors, SourceLocation span, string message)
         {
-            errors.AddError(ErrorCode.Validation, span, $"Validation error: {message}");
+            errors.AddError(ErrorCode.ValidationError, span, $"Validation error: {message}");
         }
 
         public static void MsAppFormatError(this ErrorContainer errors, string message)
