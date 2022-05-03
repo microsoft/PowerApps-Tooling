@@ -1019,7 +1019,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (!app._templates.UsedTemplates.Any(x => x.Name == child.Name.Kind.TypeName))
                     {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.TemplateDisplayName}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
+                        errors.ValidationWarning(root.SourceSpan.GetValueOrDefault(), $"Widget control template: {templateState.TemplateDisplayName}, version {templateState.Version} was not found in the pkgs directory and is referred in {root.Name.Identifier}. " +
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
                     }
                     continue;
@@ -1029,7 +1029,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     if (!app._components.Keys.Any(x => x == child.Name.Kind.TypeName))
                     {
-                        errors.ValidationError(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.TemplateDisplayName} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
+                        errors.ValidationWarning(root.SourceSpan.GetValueOrDefault(), $"Component template: {templateState.TemplateDisplayName} was not found in Src/Components directory and is referred in {root.Name.Identifier}. " +
                             $"If the template was deleted intentionally please make sure to update the source files to remove the references to this template.");
                     }
                     continue;

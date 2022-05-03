@@ -62,7 +62,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     }
                     else
                     {
-                        _errors.ValidationError($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
+                        _errors.ValidationWarning($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
                     }
                 }
                 groupControlState.GroupedControlsKey = null;
