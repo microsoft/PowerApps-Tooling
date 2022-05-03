@@ -84,7 +84,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     throw new DocumentException();
                 }
 
-                    var childProperties = new List<PropertyNode>()
+                var childProperties = new List<PropertyNode>()
                     {
                         new PropertyNode()
                         {
