@@ -94,7 +94,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     template.ExtensionData.Add("FirstParty", true);
                     template.ExtensionData.Add("IsCustomGroupControlTemplate", false);
                     template.ExtensionData.Add("CustomGroupControlTemplateName", "");
-                    template.ExtensionData.Add("OverridableProperties", new object());
                 }
                 return template;
             }
