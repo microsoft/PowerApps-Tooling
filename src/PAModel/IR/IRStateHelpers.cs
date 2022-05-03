@@ -95,7 +95,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 entropy.FunctionParamsInvariantScripts.Add(arg.Name, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
                             }
 
-                            arg.ScopeVariableInfo.DefaultRule = null;
                             arg.ScopeVariableInfo.ScopePropertyDataType = null;
                             arg.ScopeVariableInfo.ParameterIndex = null;
                             arg.ScopeVariableInfo.ParentPropertyName = null;
@@ -424,7 +423,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     throw new DocumentException();
                 }
 
-                propScopeRule.ScopeVariableInfo.DefaultRule = defaultRule;
                 propScopeRule.ScopeVariableInfo.ParameterIndex = i;
                 propScopeRule.ScopeVariableInfo.ParentPropertyName = funcName;
                 propScopeRule.ScopeVariableInfo.ScopePropertyDataType = (int)propTypeEnum;
