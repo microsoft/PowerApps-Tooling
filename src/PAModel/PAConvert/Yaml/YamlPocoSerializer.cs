@@ -58,7 +58,7 @@ namespace Microsoft.PowerPlatform
                 // Exclude default values.
                 if (valBool)
                 {
-                    yaml.WriteProperty(propName, valBool);
+                    yaml.WriteProperty(propName, valBool, false);
                 }
             }
             else if (obj is string valString)
@@ -67,11 +67,11 @@ namespace Microsoft.PowerPlatform
             }
             else if (obj is int valInt)
             {
-                yaml.WriteProperty(propName, valInt);
+                yaml.WriteProperty(propName, valInt, false);
             }
             else if (obj is double valDouble)
             {
-                yaml.WriteProperty(propName, valDouble);
+                yaml.WriteProperty(propName, valDouble, false);
             }
             else if (obj.GetType().IsEnum)
             {
