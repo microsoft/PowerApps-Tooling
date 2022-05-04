@@ -337,7 +337,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ExtensionData = state.ExtensionData,
                     IsGroupControl = state.IsGroupControl,
                     GroupedControlsKey = state.GroupedControlsKey,
-                    AllowAccessToGlobals = (state.IsComponentDefinition ?? false) ? templateState?.ComponentManifest?.AllowAccessToGlobals : state.AllowAccessToGlobals,
+                    AllowAccessToGlobals = state.AllowAccessToGlobals,
                 };
 
                 if (state.IsComponentDefinition ?? false)
@@ -345,7 +345,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Before AllowAccessToGlobals added to ComponentDefinition in msapp, it is present in component manifest as well.
                     // So when reconstructing componentdefinition, we need to identify if it was ever present on component definition or not.
                     // For this, we use state IsAllowAccessToGlobalsPresent.
-                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : templateState.ComponentManifest.AllowAccessToGlobals);
+                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : state.AllowAccessToGlobals);
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
 
