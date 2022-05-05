@@ -184,10 +184,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     {
                         screenId = screenIdReference;
                     }
-                    else
-                    {
-                        throw new DocumentException();
-                    }
                 }
                 
 
