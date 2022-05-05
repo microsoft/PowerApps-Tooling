@@ -188,7 +188,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     {
                         throw new DocumentException();
                     }
-
                 }
                 
 
