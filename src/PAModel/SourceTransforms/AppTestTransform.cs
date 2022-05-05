@@ -184,8 +184,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     {
                         screenId = screenIdReference;
                     }
-                }
-                
+                }                
 
                 if (doesTestStepsMetadataExist)
                 {
