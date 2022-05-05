@@ -37,7 +37,7 @@ namespace PAModelTests
             msapp.ApplyAfterMsAppLoadTransforms(errorContainer);
 
             // Test step with invalid screen is no more an error, but warning thrown
-            // Logic handled in AppTestsTransform.cs
+            // Logic handled in AppTestTransform.cs
             Assert.IsFalse(errorContainer.HasErrors);
             Assert.IsTrue(errorContainer.HasWarnings);
         }
