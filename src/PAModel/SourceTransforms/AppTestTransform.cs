@@ -106,7 +106,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                     if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
                     {
                         _errors.ValidationWarning($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
-                        _entropy.RuleScreenIdWithoutScreen[testStep.Rule] = testStep.ScreenId;
+                        var testStepRuleKey = $"{control.Name.Identifier}.{testStep.Rule}";
+
+                        // checking if this key already exist, not an ideal situation
+                        // Fallback logic just to make sure collisions are avoided.
+                        if (_entropy.RuleScreenIdWithoutScreen.ContainsKey(testStepRuleKey))
+                        {
+                            _errors.ValidationWarning($"RuleScreenIdWithoutScreen has a duplicate key {testStepRuleKey}");
+                            throw new DocumentException();
+                        }
+
+                        _entropy.RuleScreenIdWithoutScreen.Add(testStepRuleKey, testStep.ScreenId);
                     }
 
                     childProperties.Add(new PropertyNode()
