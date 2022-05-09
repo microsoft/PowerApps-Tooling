@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.PAConvert;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -17,16 +18,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ErrorContainer : IEnumerable<Error>
     {
         private List<Error> _errors = new List<Error>();
-                
+
         internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
         {
             _errors.Add(new Error(code, span, errorMessage));
-        }        
+        }
 
         public bool HasErrors => _errors.Any(error => error.IsError);
 
         // Helper for interupting processing once we have errors.
-        // Ignores warnings. 
+        // Ignores warnings.
         internal void ThrowOnErrors()
         {
             if (this.HasErrors)

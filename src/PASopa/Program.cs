@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,12 +51,12 @@ namespace PASopa
                 string msAppCommon = Path.Combine(msAppPathDir, "empty.msapp");
                 foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
                 {
-                    // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item. 
+                    // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item.
                     msAppCommon ??= msAppPath;
 
                     Stopwatch sw = Stopwatch.StartNew();
                     bool ok = MsAppTest.MergeStressTest(msAppCommon, msAppPath);
-                    
+
                     var str = ok ? "Pass" : "FAIL";
                     countTotal++;
                     if (ok) { countPass++; }
@@ -145,7 +144,7 @@ namespace PASopa
                 if (errors.HasErrors)
                 {
                     return;
-                }                
+                }
             }
             else if (mode == "-pack")
             {

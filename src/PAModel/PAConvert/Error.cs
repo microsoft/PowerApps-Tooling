@@ -4,13 +4,14 @@
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.PowerPlatform.Formulas.Tools.PAConvert;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     /// <summary>
-    /// An Error or warning encountered while doing a source operation. 
+    /// An Error or warning encountered while doing a source operation.
     /// </summary>
-    public class Error
+    public class Error : IError
     {
         internal ErrorCode Code;
         internal SourceLocation Span;
