@@ -11,23 +11,11 @@ namespace PAModelTests
 {
     [TestClass]
     public class ReadTransformTests
-    {   
+    {  
         [DataTestMethod]
-        [DataRow("GalleryTemplateNullChildren.msapp")]
-        public void AfterReadNullChildren(string filename)
-        {
-            var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
-            Assert.IsTrue(File.Exists(path));
-
-            (var msapp, var errorContainer) = CanvasDocument.LoadFromMsapp(path);
-            errorContainer.ThrowOnErrors();
-            msapp.ApplyAfterMsAppLoadTransforms(errorContainer);
-            Assert.IsFalse(errorContainer.HasErrors);
-        }
-
-        [DataTestMethod]
-        [DataRow("TestStepWithInvalidScreen.msapp")]
-        public void TestStepWithInvalidScreenAfterRead(string filename)
+        [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
+        [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
+        public void ApplyAfterMsAppLoadTransforms_Test(string filename, bool hasErrors, bool hasWarnings)
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(path));
@@ -36,10 +24,8 @@ namespace PAModelTests
             errorContainer.ThrowOnErrors();
             msapp.ApplyAfterMsAppLoadTransforms(errorContainer);
 
-            // Test step with invalid screen is no more an error, but warning thrown
-            // Logic handled in AppTestTransform.cs
-            Assert.IsFalse(errorContainer.HasErrors);
-            Assert.IsTrue(errorContainer.HasWarnings);
+            Assert.AreEqual(errorContainer.HasErrors, hasErrors);
+            Assert.AreEqual(errorContainer.HasWarnings, hasWarnings);
         }
     }
 }
