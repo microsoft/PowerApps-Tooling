@@ -112,8 +112,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                         // Fallback logic just to make sure collisions are avoided.
                         if (_entropy.RuleScreenIdWithoutScreen.ContainsKey(testStepRuleKey))
                         {
-                            _errors.ValidationError($"RuleScreenIdWithoutScreen has a duplicate key");
-                            throw new DocumentException();
+                            _errors.GenericError($"RuleScreenIdWithoutScreen has a duplicate key {testStepRuleKey}");
                         }
 
                         _entropy.RuleScreenIdWithoutScreen.Add(testStepRuleKey, testStep.ScreenId);
