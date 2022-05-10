@@ -21,16 +21,15 @@ namespace Backdoor.Repl.Functions
             new ListChildren(),
         };
 
-        public bool TryDo(ICanvasDocument thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors)
+        public IResult<ICanvasDocument> Invoke(ICanvasDocument thing, IEnumerable<string> args)
         {
             var argsList = args.ToList();
-            var errorsList = new List<IError>();
             if (argsList.Count() < 1)
             {
-                errorsList.Add(new BackdoorError(true, true, "Incorrect number of arguments."));
-                errors = errorsList;
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, new List<IError>()
+                {
+                    new BackdoorError(true, true, "Incorrect number of arguments.")
+                });
             }
 
             // The valid list functions are themselves functions that are named for the second argument of list
@@ -40,18 +39,13 @@ namespace Backdoor.Repl.Functions
             var function = _listFunctions.FirstOrDefault(function => function.Name == type);
             if (function == default(IFunction<ICanvasDocument>))
             {
-                errorsList.Add(new BackdoorError(true, true, "Invalid argument"));
-                errors = errorsList;
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, new List<IError>()
+                {
+                    new BackdoorError(true, true, "Invalid argument.")
+                });
             }
 
-            var success = function.TryDo(thing, argsList.Skip(1), out result, out var functionErrors);
-            if (functionErrors != null && functionErrors.Any())
-                errorsList.AddRange(functionErrors);
-
-            errors = errorsList;
-            return success;
+            return function.Invoke(thing, argsList.Skip(1)) as ResultState<ICanvasDocument>;
         }
     }
 }

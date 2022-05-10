@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using Microsoft.PowerPlatform.Formulas.Tools.PAConvert;
+using Backdoor.Repl.Functions;
 
 namespace Backdoor.Repl.Menus
 {
     public interface IMenu<T>
     {
-        public (IMenu<T>, string) TransferFunction(string input, T document, out IEnumerable<IError> errors);
+        public IMenuResultState<T> TransferFunction(string input, T document);
         public string Title { get; }
         public string Description { get; }
     }

@@ -16,32 +16,29 @@ namespace Backdoor.Repl.Functions
 
         public abstract string Name { get; }
 
-        public bool TryDo(ICanvasDocument thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors)
+        public IResult<ICanvasDocument> Invoke(ICanvasDocument thing, IEnumerable<string> args)
         {
-            var errorsList = new List<IError>();
             var argsList = args.ToList();
             if (argsList.Count() == 0)
             {
-                errorsList.Add(new BackdoorError(true, false, "No arguments!"));
-                errors = errorsList;
-
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, new List<IError>()
+                {
+                    new BackdoorError(true, false, "No arguments!")
+                });
             }
 
             var path =  Path.GetFullPath(argsList.First());
             if (File.Exists(path))
             {
-                errorsList.Add(new BackdoorError(true, false, $"{path} exists!"));
-                errors = errorsList;
-
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, new List<IError>()
+                {
+                    new BackdoorError(true, false, $"{path} exists!")
+                });
             }
 
-            errors = Utility.TryOperation(() => SaveToFile(thing, path));
-            result = $"File saved at {path}";
-            return !errors.Any(error => error.IsError);
+            var errors = Utility.TryOperation(() => SaveToFile(thing, path));
+            var message = $"File saved at {path}";
+            return new ResultState<ICanvasDocument>(thing, errors, message);
         }
     }
 }

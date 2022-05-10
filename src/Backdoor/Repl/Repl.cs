@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Backdoor.Repl.Menus;
+using Microsoft.PowerPlatform.Formulas.Tools.PAConvert;
 
 namespace Backdoor.Repl
 {
@@ -18,15 +20,20 @@ namespace Backdoor.Repl
                 try
                 {
                     var input = Console.ReadLine();
-                    string output;
-                    (current, output) = current.TransferFunction(input, subject, out var errors);
-                    foreach (var error in errors)
+                    var result = current.TransferFunction(input, subject);
+
+                    if (result.Errors != default(IEnumerable<IError>))
                     {
-                        Console.WriteLine($"Error:  {error}");
+                        foreach (var error in result.Errors)
+                        {
+                            Console.WriteLine($"Error:  {error}");
+                        }
                     }
 
-                    if (output != default(string))
-                        Console.WriteLine($"\n{output}");
+                    if (result.Message != default(string))
+                        Console.WriteLine($"\n{result.Message}");
+
+                    subject = result.Context;
                 }
                 catch (Exception e) {
                     Console.WriteLine(e);

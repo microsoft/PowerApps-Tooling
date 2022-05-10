@@ -11,12 +11,10 @@ namespace Backdoor.Repl.Functions
     public class Exit : IFunction<ICanvasDocument>
     {
         public string Name => "exit";
-        public bool TryDo(ICanvasDocument thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors)
+        public IResult<ICanvasDocument> Invoke(ICanvasDocument thing, IEnumerable<string> args)
         {
             Environment.Exit(0);
-            result = default(string);
-            errors = default(IEnumerable<IError>);
-            return true;
+            return new ResultState<ICanvasDocument>(thing);
         }
     }
 }

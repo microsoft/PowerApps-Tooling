@@ -13,6 +13,7 @@ namespace Backdoor.Repl.Menus
     {
         public static IList<IFunction<ICanvasDocument>> FunctionLibrary { get; } = new List<IFunction<ICanvasDocument>>()
         {
+            new Open(),
             new Delete(),
             new Pack(),
             new ToSource(),
@@ -20,15 +21,13 @@ namespace Backdoor.Repl.Menus
             new Exit()
         };
 
-        public (IMenu<ICanvasDocument>, string) TransferFunction(string input, ICanvasDocument document, out IEnumerable<IError> errors)
+        public IMenuResultState<ICanvasDocument> TransferFunction(string input, ICanvasDocument document)
         {
             var tokens = Parser.Tokenize(input).ToArray();
             var command = tokens.FirstOrDefault();
-            var errorsList = new List<IError>();
             if (command == null)
             {
-                errors = errorsList;
-                return (this, default(string));
+                return new MenuResultState<ICanvasDocument>(this, document);
             }
 
             var function = FunctionLibrary.FirstOrDefault(function =>
@@ -38,19 +37,13 @@ namespace Backdoor.Repl.Menus
 
             if (function == null)
             {
-                errorsList.Add(new BackdoorError(true, false, $"{command} is not a valid command."));
-                errors = errorsList;
-                return (this, default(string));
+                return new MenuResultState<ICanvasDocument>(this, document, new List<IError>()
+                {
+                    new BackdoorError(true, false, $"{command} is not a valid command.")
+                });
             }
 
-            if (!function.TryDo(document, tokens.Skip(1), out var result, out var functionErrors))
-            {
-                errorsList.Add(new BackdoorError(true, false, $"Command {function.Name} failed."));
-                errorsList.AddRange(functionErrors);
-            }
-
-            errors = errorsList;
-            return (this, result);
+            return MenuResultState<ICanvasDocument>.FromResultState(function.Invoke(document, tokens.Skip(1)), this);
         }
 
         public string Title => "";

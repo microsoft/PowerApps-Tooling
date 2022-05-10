@@ -49,7 +49,9 @@
         <Compile Include="Repl\Functions\ListControls.cs" />
         <Compile Include="Repl\Functions\ListFunctions\ListChildren.cs" />
         <Compile Include="Repl\Functions\ListFunctions\ListScreens.cs" />
+        <Compile Include="Repl\Functions\Open.cs" />
         <Compile Include="Repl\Functions\Pack.cs" />
+        <Compile Include="Repl\Functions\Result\Result.cs" />
         <Compile Include="Repl\Functions\SaveToFileFunction.cs" />
         <Compile Include="Repl\Functions\ToSource.cs" />
         <Compile Include="Repl\Menus\IMenu.cs" />

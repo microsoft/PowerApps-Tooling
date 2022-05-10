@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.PowerPlatform.Formulas.Tools.PAConvert;
+using Microsoft.PowerPlatform.Formulas.Tools;
 
 namespace Backdoor.Repl.Functions
 {
     public interface IFunction<T>
     {
         public string Name { get; }
-        public bool TryDo(T thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors);
+        public IResult<ICanvasDocument> Invoke(T thing, IEnumerable<string> args);
     }
 }

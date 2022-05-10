@@ -12,7 +12,7 @@ namespace Backdoor.Repl.Functions.ListFunctions
     public class ListChildren : IFunction<ICanvasDocument>
     {
         public string Name => "children";
-        public bool TryDo(ICanvasDocument thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors)
+        public IResult<ICanvasDocument> Invoke(ICanvasDocument thing, IEnumerable<string> args)
         {
             var argsList = args.ToList();
             var errorsList = new List<IError>();
@@ -20,22 +20,17 @@ namespace Backdoor.Repl.Functions.ListFunctions
             if (parent == default(string))
             {
                 errorsList.Add(new BackdoorError(true, false, "No arguments provided"));
-                errors = errorsList;
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, errorsList);
             }
 
             if (!thing.Exists(parent))
             {
                 errorsList.Add(new BackdoorError(true, false, $"{parent} does not exist"));
-                errors = errorsList;
-                result = default(string);
-                return false;
+                return new ResultState<ICanvasDocument>(thing, errorsList);
             }
 
-            errors = errorsList;
-            result = String.Join("\n", thing.GetChildren(parent));
-            return true;
+            var message = String.Join("\n", thing.GetChildren(parent));
+            return new ResultState<ICanvasDocument>(thing, errorsList, message);
         }
     }
 }

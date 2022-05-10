@@ -11,10 +11,8 @@ namespace Backdoor.Repl.Functions
     public class Delete : IFunction<ICanvasDocument>
     {
         public string Name => "delete";
-        public bool TryDo(ICanvasDocument thing, IEnumerable<string> args, out string result, out IEnumerable<IError> errors)
+        public IResult<ICanvasDocument> Invoke(ICanvasDocument thing, IEnumerable<string> args)
         {
-            result = default(string);
-
             // To avoid errors, we validate the input before mutating the document
             var errorsList = new List<IError>();
             foreach (var arg in args)
@@ -27,8 +25,7 @@ namespace Backdoor.Repl.Functions
 
             if (errorsList.Any())
             {
-                errors = errorsList;
-                return false;
+                return new ResultState<ICanvasDocument>(thing, errorsList);
             }
 
             foreach (var arg in args)
@@ -41,8 +38,7 @@ namespace Backdoor.Repl.Functions
                 }
             }
 
-            errors = errorsList;
-            return true;
+            return new ResultState<ICanvasDocument>(thing, errorsList);
         }
     }
 }
