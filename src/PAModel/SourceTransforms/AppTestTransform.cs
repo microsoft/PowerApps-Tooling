@@ -105,8 +105,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 {
                     if (!_screenIdToScreenName.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).TryGetValue(testStep.ScreenId, out var screenName))
                     {
-                        _errors.ValidationError($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
-                        throw new DocumentException();
+                        _errors.ValidationWarning($"ScreenId referenced by TestStep {testStep.Rule} in {control.Name.Identifier} could not be found");
+                        var testStepRuleKey = $"{control.Name.Identifier}.{testStep.Rule}";
+
+                        // checking if this key already exist, not an ideal situation
+                        // Fallback logic just to make sure collisions are avoided.
+                        if (_entropy.RuleScreenIdWithoutScreen.ContainsKey(testStepRuleKey))
+                        {
+                            _errors.GenericError($"RuleScreenIdWithoutScreen has a duplicate key {testStepRuleKey}");
+                        }
+
+                        _entropy.RuleScreenIdWithoutScreen.Add(testStepRuleKey, testStep.ScreenId);
                     }
 
                     childProperties.Add(new PropertyNode()
@@ -114,7 +123,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                         Identifier = "Screen",
                         Expression = new ExpressionNode()
                         {
-                            Expression = screenName
+                            Expression = screenName ?? null
                         }
                     });
                 }
@@ -179,10 +188,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 // Lookup screenID by Name
                 if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
                 {
-                    _errors.ValidationError($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
-                    throw new DocumentException();
-                }
-                
+                    _errors.ValidationWarning($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                    if (_entropy.RuleScreenIdWithoutScreen.TryGetValue(propName, out var screenIdReference))
+                    {
+                        screenId = screenIdReference;
+                    }
+                }                
 
                 if (doesTestStepsMetadataExist)
                 {

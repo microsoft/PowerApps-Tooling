@@ -11,10 +11,11 @@ namespace PAModelTests
 {
     [TestClass]
     public class ReadTransformTests
-    {   
+    {  
         [DataTestMethod]
-        [DataRow("GalleryTemplateNullChildren.msapp")]
-        public void AfterReadNullChildren(string filename)
+        [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
+        [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
+        public void ApplyAfterMsAppLoadTransforms_Test(string filename, bool hasErrors, bool hasWarnings)
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(path));
@@ -22,7 +23,9 @@ namespace PAModelTests
             (var msapp, var errorContainer) = CanvasDocument.LoadFromMsapp(path);
             errorContainer.ThrowOnErrors();
             msapp.ApplyAfterMsAppLoadTransforms(errorContainer);
-            Assert.IsFalse(errorContainer.HasErrors);
+
+            Assert.AreEqual(errorContainer.HasErrors, hasErrors);
+            Assert.AreEqual(errorContainer.HasWarnings, hasWarnings);
         }
     }
 }

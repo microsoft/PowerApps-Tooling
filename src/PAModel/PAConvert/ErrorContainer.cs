@@ -25,6 +25,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public bool HasErrors => _errors.Any(error => error.IsError);
 
+        public bool HasWarnings => _errors.Any(error => error.IsWarning);
+
         // Helper for interupting processing once we have errors.
         // Ignores warnings. 
         internal void ThrowOnErrors()
