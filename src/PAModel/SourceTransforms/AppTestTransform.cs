@@ -186,13 +186,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 string screenId = null;
                 
                 // Lookup screenID by Name
-                if (screenProp != null && !_screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId))
+                if (screenProp != null)
                 {
-                    _errors.ValidationWarning($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
-                    if (_entropy.RuleScreenIdWithoutScreen.TryGetValue(propName, out var screenIdReference))
+                    foreach (var pair in _screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key))
                     {
-                        screenId = screenIdReference;
+                        // in roundtrip scenario screen name could be assigned null so to avoid null key in dictionary need this check 
+                        if (pair.Value != null && pair.Value.Equals(screenProp.Expression.Expression))
+                        {
+                            screenId = pair.Key;
+                        }
                     }
+                    if (screenId == null)
+                    {
+                        _errors.ValidationWarning($"Test Step {propName} references screen {screenProp.Expression.Expression} that is not present in the app");
+                        var testStepRuleKey = $"{control.Name.Identifier}.{propName}";
+                        if (_entropy.RuleScreenIdWithoutScreen.TryGetValue(testStepRuleKey, out var screenIdReference))
+                        {
+                            screenId = screenIdReference;
+                            _entropy.RuleScreenIdWithoutScreen.Remove(testStepRuleKey);
+                        }
+                    }                    
                 }                
 
                 if (doesTestStepsMetadataExist)
