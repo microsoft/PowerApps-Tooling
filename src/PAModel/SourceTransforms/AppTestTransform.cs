@@ -190,10 +190,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 {
                     foreach (var pair in _screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key))
                     {
-                        // in roundtrip scenario screen name could be assigned null so to avoid null key in dictionary need this check 
-                        if (pair.Value != null && pair.Value.Equals(screenProp.Expression.Expression))
+                        // in roundtrip scenario pair could have null Key and need this check 
+                        if (pair.Value != null && pair.Key.Equals(screenProp.Expression.Expression))
                         {
-                            screenId = pair.Key;
+                            screenId = pair.Value;
                         }
                     }
                     if (screenId == null)
