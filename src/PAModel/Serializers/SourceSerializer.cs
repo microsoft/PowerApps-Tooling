@@ -132,6 +132,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         var appInsights = file.ToObject<AppInsightsKeyJson>();
                         appInsightsInstumentationKey = appInsights.InstrumentationKey;
                         break;
+                    case FileKind.CustomPageInputs:
+                        var customPageMetadata = file.ToObject<Dictionary<string, string>>();
+                        app._customPageInputsMetadata = customPageMetadata;
+                        break;
                 }
             }
             foreach (var file in dir.EnumerateFiles("", "*.yaml"))
