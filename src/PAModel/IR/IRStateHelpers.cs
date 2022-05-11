@@ -46,6 +46,34 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         .SelectMany(customProp =>
                             customProp.PropertyScopeKey.PropertyScopeRulesKey
                                 .Select(propertyScopeRule => propertyScopeRule.Name)));
+                    
+
+                   foreach (var customProp in control.Template.CustomProperties.Where(prop => prop.IsFunctionProperty))
+                    {
+                        var name = customProp.Name;
+                        var rule = control.Rules.FirstOrDefault(rule => rule.Property == name);
+                        if (rule == null)
+                        {
+                            // Control does not have a rule for the custom property. 
+                            continue;
+                        }
+                        var expression = rule.InvariantScript;
+                        var expressionNode = new ExpressionNode() { Expression = expression };
+
+                        var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
+                     
+                        foreach (var arg in customProp.PropertyScopeKey.PropertyScopeRulesKey)
+                        {
+                            var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
+
+                            // Handle the case where invariantScript value of the property is not same as the default script.
+                            if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
+                            {
+                                var argKey = $"{control.Name}.{arg.Name}";
+                                entropy.FunctionParamsInvariantScriptsonOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -315,7 +343,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
                         {
-                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
+                            var argKey = $"{controlName}.{hiddenScopeRule.Name}";
+                            var script = entropy.GetInvariantScriptOnInstances(argKey, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
                             properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
                         }
                     }
