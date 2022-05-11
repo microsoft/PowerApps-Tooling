@@ -59,7 +59,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         AppTestParentControl,
 
         // Schema.yaml describing app's parameters at top level. 
-        Schema            
+        Schema,
+
+        // Custom page inputs for outbound custom page navigate calls.
+        CustomPageInputs,
     }
 
     // Represent a file from disk or a Zip archive. 
@@ -117,6 +120,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
             {"Schema.yaml", FileKind.Schema },
+            {"CustomPagesMetadata.json", FileKind.CustomPageInputs },
             {ChecksumMaker.ChecksumName, FileKind.Checksum },
             {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
             {"ComponentsMetadata.json", FileKind.ComponentsMetadata },

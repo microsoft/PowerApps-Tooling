@@ -285,6 +285,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
             app._parameterSchema = new ParameterSchema();
+            app._customPageInputsMetadata = new Dictionary<string, string>();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
@@ -627,6 +628,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._parameterSchema != null)
             {
                 dir.WriteAllJson("", FileKind.Schema, app._parameterSchema);
+            }
+
+            if (app._customPageInputsMetadata != null)
+            {
+                dir.WriteAllJson("", FileKind.CustomPageInputs, app._customPageInputsMetadata);
             }
 
             var manifest = new CanvasManifestJson

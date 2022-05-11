@@ -60,6 +60,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
         internal ParameterSchema _parameterSchema;
+        internal Dictionary<string, string> _customPageInputsMetadata;
         internal AppCheckerResultJson _appCheckerResultJson;
         internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
@@ -297,6 +298,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _header = other._header.JsonClone();
             _properties = other._properties.JsonClone();
             _parameterSchema = other._parameterSchema.JsonClone();
+            _customPageInputsMetadata = other._customPageInputsMetadata.JsonClone();
             _publishInfo = other._publishInfo.JsonClone();
             _templates = other._templates.JsonClone();
             _themes = other._themes.JsonClone();

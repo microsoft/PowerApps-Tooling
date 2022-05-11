@@ -128,6 +128,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.Schema:
                             app._parameterSchema = ToObject<ParameterSchema>(entry);
                             break;
+                        case FileKind.CustomPageInputs:
+                            app._customPageInputsMetadata = ToObject<Dictionary<string, string>>(entry);
+                            break;
 
                         case FileKind.Properties:
                             app._properties = ToObject<DocumentPropertiesJson>(entry);
@@ -603,6 +606,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._parameterSchema != null)
             {
                 yield return ToFile(FileKind.Schema, app._parameterSchema);
+            }
+
+            if (app._customPageInputsMetadata != null)
+            {
+                yield return ToFile(FileKind.CustomPageInputs, app._customPageInputsMetadata);
             }
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
