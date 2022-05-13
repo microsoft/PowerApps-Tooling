@@ -344,7 +344,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     // There seems to situation where ComponentManifest AllowAccessToGlobals is out of sync with instance AllowAccessToGlobals value
                     // But ComponentDefinitionInfo AllowAccessToGlobals property value is the source of truth, hence using it
-                    // When reconstructing componentdefinition, we need to track, whether msapp has AllowGlobalScope property in component instance
+                    // When reconstructing componentdefinition, we need to track whether msapp has AllowGlobalScope property in component instance
                     // For this, we use state IsLegacyComponentAllowGlobalScopeCase.
                     templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : (templateState.ComponentDefinitionInfo?.AllowAccessToGlobals ?? state.AllowAccessToGlobals));
                     template = templateState.ToControlInfoTemplate();
