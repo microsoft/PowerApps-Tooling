@@ -321,15 +321,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
-                if (template.ComponentDefinitionInfo != null)
-                {
-                    if (state.AllowAccessToGlobals != template.ComponentDefinitionInfo.AllowAccessToGlobals && state.IsComponentDefinition == false)
-                    {
-                        // state.AllowAccessToGlobals = templateState.ComponentDefinitionInfo?.AllowAccessToGlobals ?? state.AllowAccessToGlobals;
-                       //  Console.WriteLine("Component Manifest allowaccesstoglobals not in sync with instance property value" + controlName);
-                    }
-                }
-
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
                 properties = properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1).ToList();
