@@ -175,7 +175,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             else
             {
                 templateState = new CombinedTemplateState(control.Template);
-                templateState.ComponentDefinitionInfo = null;
+                templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
                 templateStore.AddTemplate(templateName, templateState);
             }
@@ -321,6 +321,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 }
 
+                if (template.ComponentDefinitionInfo != null)
+                {
+                    if (state.AllowAccessToGlobals != template.ComponentDefinitionInfo.AllowAccessToGlobals && state.IsComponentDefinition == false)
+                    {
+                        // state.AllowAccessToGlobals = templateState.ComponentDefinitionInfo?.AllowAccessToGlobals ?? state.AllowAccessToGlobals;
+                       //  Console.WriteLine("Component Manifest allowaccesstoglobals not in sync with instance property value" + controlName);
+                    }
+                }
+
                 // Preserve ordering from serialized IR
                 // Required for roundtrip checks
                 properties = properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1).ToList();
@@ -337,15 +346,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     ExtensionData = state.ExtensionData,
                     IsGroupControl = state.IsGroupControl,
                     GroupedControlsKey = state.GroupedControlsKey,
-                    AllowAccessToGlobals = state.AllowAccessToGlobals,
+                    AllowAccessToGlobals = (state.IsComponentDefinition ?? false) ? (templateState?.ComponentDefinitionInfo?.AllowAccessToGlobals) ?? state.AllowAccessToGlobals : state.AllowAccessToGlobals,
                 };
 
                 if (state.IsComponentDefinition ?? false)
                 {
-                    // Before AllowAccessToGlobals added to ComponentDefinition in msapp, it is present in component manifest as well.
-                    // So when reconstructing componentdefinition, we need to identify if it was ever present on component definition or not.
-                    // For this, we use state IsAllowAccessToGlobalsPresent.
-                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : state.AllowAccessToGlobals);
+                    // There seems to situation where component manifest AllowAccessToGlobals could be out of sync with instance AllowAccessToGlobals value
+                    // But ComponentDefinitionInfo AllowAccessToGlobals property value is considered the source of truth, hence using it
+                    // When reconstructing componentdefinition, we need to track, whether msapp has AllowGlobalScope property in component instance
+                    // For this, we use state IsLegacyComponentAllowGlobalScopeCase.
+                    templateState.ComponentDefinitionInfo = new ComponentDefinitionInfoJson(resultControlInfo, template.LastModifiedTimestamp, orderedChildren, entropy.IsLegacyComponentAllowGlobalScopeCase ? null : (templateState.ComponentDefinitionInfo?.AllowAccessToGlobals ?? state.AllowAccessToGlobals));
                     template = templateState.ToControlInfoTemplate();
                     template.IsComponentDefinition = true;
 
