@@ -17,16 +17,22 @@ namespace PAModelTests
         public void StressTestApps()
         {
             var directory = Path.Combine(Environment.CurrentDirectory, "Apps");
-            foreach (var root in Directory.GetFiles(directory))
-            { 
-                Assert.IsTrue(File.Exists(root));
+            try
+            {
+                foreach (var root in Directory.GetFiles(directory))
+                {
+                    Assert.IsTrue(File.Exists(root));
 
-                bool ok = MsAppTest.StressTest(root);
-                Assert.IsTrue(ok);
+                    bool ok = MsAppTest.StressTest(root);
+                    Assert.IsTrue(ok);
 
-                var cloneOk = MsAppTest.TestClone(root);
-                // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
-                Assert.IsTrue(cloneOk, $"Clone failed: " + root);
+                    var cloneOk = MsAppTest.TestClone(root);
+                    // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
+                    Assert.IsTrue(cloneOk, $"Clone failed: " + root);
+                }
+            }
+            catch (Exception ex) {
+                Assert.Fail(ex.ToString());
             }
         }
     }
