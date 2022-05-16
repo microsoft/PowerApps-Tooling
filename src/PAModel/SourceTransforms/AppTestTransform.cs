@@ -188,7 +188,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 // Lookup screenID by Name
                 if (screenProp != null)
                 {
-                    _screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key).TryGetValue(screenProp.Expression.Expression, out screenId);
+                    foreach (var prop in _screenIdToScreenName.ToDictionary(kvp => kvp.Value, kvp => kvp.Key))
+                    {
+                        if (prop.Key != null && prop.Key == screenProp.Expression.Expression)
+                        {
+                            screenId = prop.Value;
+                        }
+                    }
 
                     // in roundtrip scenario screenId could be null
                     if (screenId == null)
