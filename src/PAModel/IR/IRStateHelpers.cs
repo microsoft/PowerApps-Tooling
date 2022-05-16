@@ -40,38 +40,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (!isComponentDef)
                 {
-                    // Skip component property params on instances
-                    customPropsToHide = new HashSet<string>(control.Template.CustomProperties
+                   
+                    var customPropScopeRules = control.Template.CustomProperties
                         .Where(customProp => customProp.IsFunctionProperty)
                         .SelectMany(customProp =>
-                            customProp.PropertyScopeKey.PropertyScopeRulesKey
-                                .Select(propertyScopeRule => propertyScopeRule.Name)));
-                    
+                            customProp.PropertyScopeKey.PropertyScopeRulesKey);
 
-                   foreach (var customProp in control.Template.CustomProperties.Where(prop => prop.IsFunctionProperty))
+                    // Skip component property params on instances
+                    customPropsToHide = new HashSet<string>(customPropScopeRules
+                               .Select(propertyScopeRule => propertyScopeRule.Name));
+
+                    foreach (var arg in customPropScopeRules)
                     {
-                        var name = customProp.Name;
-                        var rule = control.Rules.FirstOrDefault(rule => rule.Property == name);
-                        if (rule == null)
-                        {
-                            // Control does not have a rule for the custom property. 
-                            continue;
-                        }
-                        var expression = rule.InvariantScript;
-                        var expressionNode = new ExpressionNode() { Expression = expression };
+                        var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
 
-                        var resultType = new TypeNode() { TypeName = customProp.PropertyDataTypeKey };
-                     
-                        foreach (var arg in customProp.PropertyScopeKey.PropertyScopeRulesKey)
+                        // Handle the case where invariantScript value of the property is not same as the default script.
+                        if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                         {
-                            var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
-
-                            // Handle the case where invariantScript value of the property is not same as the default script.
-                            if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
-                            {
-                                var argKey = $"{control.Name}.{arg.Name}";
-                                entropy.FunctionParamsInvariantScriptsonOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
-                            }
+                            var argKey = $"{control.Name}.{arg.Name}";
+                            entropy.FunctionParamsInvariantScriptsonOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
                         }
                     }
                 }
