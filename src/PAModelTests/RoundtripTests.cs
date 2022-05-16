@@ -13,37 +13,21 @@ namespace PAModelTests
     public class RoundtripTests
     {
         // Apps live in the "Apps" folder, and should have a build action of "Copy to output"
-        [DataTestMethod]
-        [DataRow("MyWeather.msapp")]
-        [DataRow("Chess_for_Power_Apps_v1.03.msapp")]
-        [DataRow("AppWithLabel.msapp")]
-        [DataRow("GalleryTestApp.msapp")]
-        [DataRow("AccountPlanReviewerMaster.msapp")]
-        [DataRow("Marc2PowerPlatformDevOpsAlm.msapp")]
-        [DataRow("SimpleScopeVariables.msapp")]
-        [DataRow("WadlConnector.msapp")]
-        [DataRow("GroupControlTest.msapp")]
-        [DataRow("EmptyTestCase.msapp")]
-        [DataRow("ComponentTest.msapp")]
-        [DataRow("autolayouttest.msapp")]
-        [DataRow("TestStudio_Test.msapp")]
-        [DataRow("ComponentDefinitionWithAllowGlobalAccessProperty.msapp")]
-        [DataRow("ComponentDefinitionWithoutAllowGlobalAccessProperty.msapp")]
-        [DataRow("DuplicateScreen.msapp")]
-        [DataRow("ComponentNameCollision.msapp")]
-        [DataRow("LocaleBasedApplication.msapp")]
-        public void StressTestApps(string filename)
+        [TestMethod]
+        public void StressTestApps()
         {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            var directory = Path.Combine(Environment.CurrentDirectory, "Apps");
+            foreach (var root in Directory.GetFiles(directory))
+            { 
+                Assert.IsTrue(File.Exists(root));
 
-            Assert.IsTrue(File.Exists(root));
+                bool ok = MsAppTest.StressTest(root);
+                Assert.IsTrue(ok);
 
-            bool ok = MsAppTest.StressTest(root);
-            Assert.IsTrue(ok);
-
-            var cloneOk = MsAppTest.TestClone(root);
-            // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
-            Assert.IsTrue(cloneOk, $"Clone failed: " + filename);
+                var cloneOk = MsAppTest.TestClone(root);
+                // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
+                Assert.IsTrue(cloneOk, $"Clone failed: " + root);
+            }
         }
     }
 }
