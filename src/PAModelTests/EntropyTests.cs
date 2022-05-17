@@ -14,6 +14,7 @@ namespace PAModelTests
     {
         [DataTestMethod]
         [DataRow("ComponentTest.msapp", true)]
+        [DataRow("ComponentWithSameParam.msapp", false)]
         public void TestFunctionParameters(string filename, bool invariantScriptsOnInstancesExist)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
