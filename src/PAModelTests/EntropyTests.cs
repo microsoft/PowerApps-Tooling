@@ -13,8 +13,8 @@ namespace PAModelTests
     public class EntropyTests
     {
         [DataTestMethod]
-        [DataRow("ComponentTest.msapp")]
-        public void TestFunctionParameterOnInstances(string filename)
+        [DataRow("ComponentTest.msapp", true)]
+        public void TestFunctionParameterOnInstances(string filename, bool invariantScriptsOnInstancesExist)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(root));
@@ -22,7 +22,10 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-            Assert.IsNotNull(msapp._entropy.FunctionParamsInvariantScriptsOnInstances);
+            if (invariantScriptsOnInstancesExist)
+            {
+                Assert.IsNotNull(msapp._entropy.FunctionParamsInvariantScriptsOnInstances);
+            }
 
             using (var tempDir = new TempDir())
             {
