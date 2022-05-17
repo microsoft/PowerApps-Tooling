@@ -32,9 +32,9 @@
   </PropertyGroup>
 
   <Target Name="PALTVersion" AfterTargets="MinVer">
-   <PropertyGroup>
-    <AssemblyVersion>$(MinVer)</AssemblyVersion>
-   </PropertyGroup>
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVer)</AssemblyVersion>
+    </PropertyGroup>
   </Target>
     
   <ItemGroup>
