@@ -30,7 +30,7 @@ namespace PAModelTests
 
                 // Save to sources
                 ErrorContainer errorSources = msapp.SaveToSources(outSrcDir);
-                errors.ThrowOnErrors();
+                errorSources.ThrowOnErrors();
             }
         }
     }
