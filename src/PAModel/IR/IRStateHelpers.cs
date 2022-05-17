@@ -40,12 +40,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (!isComponentDef)
                 {
-                    // Skip component property params on instances
-                    customPropsToHide = new HashSet<string>(control.Template.CustomProperties
+                   
+                    var customPropScopeRules = control.Template.CustomProperties
                         .Where(customProp => customProp.IsFunctionProperty)
                         .SelectMany(customProp =>
-                            customProp.PropertyScopeKey.PropertyScopeRulesKey
-                                .Select(propertyScopeRule => propertyScopeRule.Name)));
+                            customProp.PropertyScopeKey.PropertyScopeRulesKey);
+
+                    // Skip component property params on instances
+                    customPropsToHide = new HashSet<string>(customPropScopeRules
+                               .Select(propertyScopeRule => propertyScopeRule.Name));
+
+                    foreach (var arg in customPropScopeRules)
+                    {
+                        var invariantScript = control.Rules.First(rule => rule.Property == arg.Name)?.InvariantScript;
+
+                        // Handle the case where invariantScript value of the property is not same as the default script.
+                        if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
+                        {
+                            var argKey = $"{control.Name}.{arg.Name}";
+                            entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                        }
+                    }
                 }
                 else
                 {
@@ -92,7 +107,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             // Handle the case where invariantScript value of the property is not same as the default script.
                             if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                             {
-                                entropy.FunctionParamsInvariantScripts.Add(arg.Name, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                                var argKey = $"{control.Name}.{arg.Name}";
+                                entropy.FunctionParamsInvariantScripts.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
                             }
 
                             arg.ScopeVariableInfo.DefaultRule = null;
@@ -302,10 +318,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 continue;
 
                             var propName = funcName + "_" + arg.Identifier;
-                            properties.Add(GetPropertyEntry(state, errors, propName, entropy.GetInvariantScript(propName, arg.Default.Expression)));
+                            var argKey = $"{controlName}.{propName}";
+                            properties.Add(GetPropertyEntry(state, errors, propName, entropy.GetInvariantScript(argKey, arg.Default.Expression)));
                         }
 
-                        RepopulateTemplateCustomProperties(func, templateState, errors, entropy);
+                        RepopulateTemplateCustomProperties(func, templateState, errors, entropy, controlName);
                     }
                 }
                 else if (template.CustomProperties?.Any(prop => prop.IsFunctionProperty) ?? false)
@@ -315,7 +332,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         if (!properties.Any(x => x.Property == hiddenScopeRule.Name))
                         {
-                            var script = entropy.GetInvariantScript(hiddenScopeRule.Name, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
+                            var argKey = $"{controlName}.{hiddenScopeRule.Name}";
+                            var script = entropy.GetInvariantScriptOnInstances(argKey, hiddenScopeRule.ScopeVariableInfo.DefaultRule);
                             properties.Add(GetPropertyEntry(state, errors, hiddenScopeRule.Name, script));
                         }
                     }
@@ -392,7 +410,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
-        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors, Entropy entropy)
+        private static void RepopulateTemplateCustomProperties(FunctionNode func, CombinedTemplateState templateState, ErrorContainer errors, Entropy entropy, string controlName)
         {
             var funcName = func.Identifier;
             var customProp = templateState.CustomProperties.FirstOrDefault(prop => prop.Name == funcName);
@@ -412,7 +430,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
 
                 var propertyName = funcName + "_" + arg.Identifier;
-                var defaultRule = entropy.GetDefaultScript(propertyName, arg.Default.Expression);
+                var argKey = $"{controlName}.{propertyName}";
+                var defaultRule = entropy.GetDefaultScript(argKey, arg.Default.Expression);
 
                 if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
                 {
