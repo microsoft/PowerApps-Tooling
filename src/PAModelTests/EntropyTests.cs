@@ -14,7 +14,7 @@ namespace PAModelTests
     {
         [DataTestMethod]
         [DataRow("ComponentTest.msapp", true)]
-        public void TestFunctionParameterOnInstances(string filename, bool invariantScriptsOnInstancesExist)
+        public void TestFunctionParameters(string filename, bool invariantScriptsOnInstancesExist)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(root));
