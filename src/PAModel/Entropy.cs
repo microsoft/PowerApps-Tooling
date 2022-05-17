@@ -67,7 +67,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, string[]> FunctionParamsInvariantScripts { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
 
         // Some Component Function Parameter Properties on instances are serialized with a different InvariantScript and DefaultScript.
-        public Dictionary<string, string[]> FunctionParamsInvariantScriptsonOnInstances { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string[]> FunctionParamsInvariantScriptsOnInstances { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
 
         // Key is control name, this should be unused if no datatables are present
         public Dictionary<string, string> DataTableCustomControlTemplateJsons { get; set; }
@@ -299,7 +299,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public string GetInvariantScriptOnInstances(string propName, string defaultValue)
         {
-            if (FunctionParamsInvariantScriptsonOnInstances.TryGetValue(propName, out string[] value) && value?.Length == 2)
+            if (FunctionParamsInvariantScriptsOnInstances.TryGetValue(propName, out string[] value) && value?.Length == 2)
             {
                 return value[1];
             }

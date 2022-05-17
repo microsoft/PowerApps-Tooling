@@ -22,7 +22,7 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-            Assert.IsNotNull(msapp._entropy.FunctionParamsInvariantScriptsonOnInstances);
+            Assert.IsNotNull(msapp._entropy.FunctionParamsInvariantScriptsOnInstances);
 
             using (var tempDir = new TempDir())
             {

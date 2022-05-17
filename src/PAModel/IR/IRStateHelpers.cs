@@ -58,7 +58,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                         {
                             var argKey = $"{control.Name}.{arg.Name}";
-                            entropy.FunctionParamsInvariantScriptsonOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                            entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
                         }
                     }
                 }
