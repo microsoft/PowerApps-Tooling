@@ -1,10 +1,13 @@
 ## Type
 
-- [ ] Bug fix
-- [ ] Enhancement
-- [ ] Documentation
-- [ ] Fix breaking change
-- [ ] Testing/Error reporting
+Only keep relevant type. Delete the rest and this comment.
+
+- Bug fix
+- Git files
+- Enhancement
+- Documentation
+- Fix breaking change
+- Testing/Error reporting
 
 ## Problem
 
