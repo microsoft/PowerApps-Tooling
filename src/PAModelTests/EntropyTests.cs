@@ -29,6 +29,7 @@ namespace PAModelTests
                 string outSrcDir = tempDir.Dir;
 
                 // Save to sources
+                // Also tests repacking, errors captured if any
                 ErrorContainer errorSources = msapp.SaveToSources(outSrcDir);
                 errorSources.ThrowOnErrors();
             }
