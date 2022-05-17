@@ -3,10 +3,10 @@
 Only keep relevant type. Delete the rest and this comment.
 
 - Bug fix
-- Git files
 - Enhancement
 - Documentation
 - Fix breaking change
+- Update to Git files
 - Testing/Error reporting
 
 ## Problem
@@ -22,3 +22,7 @@ What are we doing to solve this issue?
 - Log what was changed
 - Log what was changed
 - Log what was changed
+
+## Validation
+
+- How did you verify that this issue is truly fixed?
