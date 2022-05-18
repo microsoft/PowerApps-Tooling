@@ -31,7 +31,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <Target Name="PALTVersion" AfterTargets="MinVer">
+  <Target Name="PALT" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVer)</AssemblyVersion>
     </PropertyGroup>
