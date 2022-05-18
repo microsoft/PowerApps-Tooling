@@ -31,6 +31,12 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <Target Name="PALT" AfterTargets="MinVer">
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVer)</AssemblyVersion>
+    </PropertyGroup>
+  </Target>
+    
   <ItemGroup>
     <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
     <EmbeddedResource Include="Themes/DefaultTheme.json" />
