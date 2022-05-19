@@ -32,6 +32,7 @@ namespace PAModelTests
         [DataRow("DuplicateScreen.msapp")]
         [DataRow("ComponentNameCollision.msapp")]
         [DataRow("LocaleBasedApplication.msapp")]
+        [DataRow("TestNavigatePageInputs.msapp")]
         public void StressTestApps(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
