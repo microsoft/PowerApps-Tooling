@@ -433,6 +433,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var argKey = $"{controlName}.{propertyName}";
                 var defaultRule = entropy.GetDefaultScript(argKey, arg.Default.Expression);
 
+                //print structure of arg.Default.Expression using 'StructuralPrint'
+
+                // Check validity of arg.Default.Expression before letting program continue
+                // if(arg.Default.Expression)
+                // if(arg.Default.Expression)
+                // if(arg.Default.Expression)
+                
                 if (!scopeArgs.TryGetValue(propertyName, out var propScopeRule))
                 {
                     errors.ParseError(func.SourceSpan.GetValueOrDefault(), "Functions are not yet supported without corresponding custom properties in ControlTemplates.json");
