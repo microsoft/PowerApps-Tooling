@@ -132,10 +132,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         var appInsights = file.ToObject<AppInsightsKeyJson>();
                         appInsightsInstumentationKey = appInsights.InstrumentationKey;
                         break;
-                    case FileKind.CustomPageInputs:
-                        var customPageMetadata = file.ToObject<Dictionary<string, string>>();
-                        app._customPageInputsMetadata = customPageMetadata;
-                        break;
                 }
             }
             foreach (var file in dir.EnumerateFiles("", "*.yaml"))
@@ -254,6 +250,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
+
+            foreach (var file in dir.EnumerateFiles(PackagesDir))
+            {
+                if (file.Kind == FileKind.CustomPageInputs)
+                {
+                    var customPageMetadata = file.ToObject<Dictionary<string, string>>();
+                    app._customPageInputsMetadata = customPageMetadata;
+                }
+            }
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
@@ -636,7 +641,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._customPageInputsMetadata != null)
             {
-                dir.WriteAllJson("", FileKind.CustomPageInputs, app._customPageInputsMetadata);
+                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
             }
 
             var manifest = new CanvasManifestJson
