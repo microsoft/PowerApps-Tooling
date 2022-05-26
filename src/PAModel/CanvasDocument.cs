@@ -659,7 +659,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
-                _assetFiles.Add(withoutPrefix, fileEntry);
+                _assetFiles[withoutPrefix] = fileEntry;
             }
         }
 
