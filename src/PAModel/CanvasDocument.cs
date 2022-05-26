@@ -638,7 +638,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
 
-                string msappFileName;
+                string msappFileName = "";
                 if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
                 {
                     maxFileNumber++;
