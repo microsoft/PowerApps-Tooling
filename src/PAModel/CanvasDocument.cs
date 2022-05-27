@@ -624,7 +624,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (_entropy.LocalResourceFileNames == null)
                 return;
 
-            if (_resourcesJson == null)
+            if (_resourcesJson == null || _assetFiles == null)
                 return;
 
             var maxFileNumber = FindMaxEntropyFileName();          
@@ -639,7 +639,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     continue;
 
                 string msappFileName = "";
-                if (_entropy.LocalResourceFileNames != null && !_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
+                if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
                 {
                     maxFileNumber++;
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();

@@ -28,5 +28,22 @@ namespace PAModelTests
             msapp.ApplyBeforeMsAppWriteTransforms(errors);
             Assert.IsFalse(errors.HasErrors);
         }
+
+        [DataTestMethod]
+        [DataRow("AccountPlanReviewerMaster.msapp")]
+        public void TestAssetFilesNullCase(string filename)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            // explicitly setting it to null
+            msapp._assetFiles = null;
+
+            msapp.ApplyBeforeMsAppWriteTransforms(errors);
+            Assert.IsFalse(errors.HasErrors);
+        }
     }
 }
