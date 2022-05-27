@@ -543,6 +543,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, $"{kvp.Value.Name}_{kvp.Value.Version}.json"), kvp.Value);
             }
 
+            if (app._customPageInputsMetadata != null)
+            {
+                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
+            }
+
             // Also add Screen and App templates (not xml, constructed in code on the server)
             GlobalTemplates.AddCodeOnlyTemplates(app._templateStore, templateDefaults, app._properties.DocumentAppType);
 
@@ -637,12 +642,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._parameterSchema != null)
             {
                 dir.WriteAllJson("", FileKind.Schema, app._parameterSchema);
-            }
-
-            if (app._customPageInputsMetadata != null)
-            {
-                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
-            }
+            }            
 
             var manifest = new CanvasManifestJson
             {
