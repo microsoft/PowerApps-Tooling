@@ -15,7 +15,7 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
         [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
-        [DataRow("GroupControlStateMissing.msapp", false, true)]
+        [DataRow("GroupControlStateEmpty.msapp", false, true)]
         public void ApplyAfterMsAppLoadTransforms_Test(string filename, bool hasErrors, bool hasWarnings)
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
