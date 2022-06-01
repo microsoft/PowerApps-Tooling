@@ -624,7 +624,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (_entropy.LocalResourceFileNames == null)
                 return;
 
-            if (_resourcesJson == null)
+            if (_resourcesJson == null || _assetFiles == null)
                 return;
 
             var maxFileNumber = FindMaxEntropyFileName();          
@@ -659,7 +659,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 fileEntry.Name = withoutPrefix;
                 _assetFiles.Remove(assetFilePath);
-                _assetFiles.Add(withoutPrefix, fileEntry);
+                _assetFiles[withoutPrefix] = fileEntry;
             }
         }
 
