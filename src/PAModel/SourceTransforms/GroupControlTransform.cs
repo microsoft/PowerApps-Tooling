@@ -45,10 +45,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var groupControl in groupControls)
             {
                 var groupControlName = groupControl.Name.Identifier;
-                if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState) || groupControlState.GroupedControlsKey.Count == 0)
+                if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
                 {
-                    _errors.ValidationError($"Group control state is missing or empty for {groupControlName}");
+                    _errors.ValidationError($"Group control state is missing for {groupControlName}");
                     throw new DocumentException();
+                }
+
+                if (groupControlState.GroupedControlsKey.Count == 0)
+                {
+                    _errors.ValidationWarning($"Group control state is empty for {groupControlName}");
                 }
 
                 _entropy.AddGroupControl(groupControlState);

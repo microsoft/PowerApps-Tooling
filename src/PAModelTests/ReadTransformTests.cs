@@ -15,14 +15,15 @@ namespace PAModelTests
         [DataTestMethod]
         [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
         [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
+        [DataRow("GroupControlStateEmpty.msapp", false, true)]
         public void ApplyAfterMsAppLoadTransforms_Test(string filename, bool hasErrors, bool hasWarnings)
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(path));
 
+            // ApplyAfterMsAppLoadTransforms is called in LoadFromMsapp
             (var msapp, var errorContainer) = CanvasDocument.LoadFromMsapp(path);
             errorContainer.ThrowOnErrors();
-            msapp.ApplyAfterMsAppLoadTransforms(errorContainer);
 
             Assert.AreEqual(errorContainer.HasErrors, hasErrors);
             Assert.AreEqual(errorContainer.HasWarnings, hasWarnings);
