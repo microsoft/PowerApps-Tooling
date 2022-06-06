@@ -342,7 +342,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (line.Current == 0) // EOL
                 {
                     if (isEscaped)
-                        return Unsupported(line, "Missing closing \'.");
+                        return Unsupported(line, $"Missing closing \' in {line._line?.Substring(0, line._idx - 1)}");
 
                     if (requiresClosingDoubleQuote)
                         return Unsupported(line, "Missing closing \".");
