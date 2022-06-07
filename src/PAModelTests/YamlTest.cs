@@ -584,7 +584,7 @@ P2: = ""hello"" & ""world""
         {
             var text =
 @"Comp1 As CanvasComponent:
-    fun'c1(Parameter1 As String, Parameter2_000 As String):
+    fun'c1(Parameter1 As String, Parameter2 As String):
         Parameter1:
             Default: =""Text""
         Parameter2:
