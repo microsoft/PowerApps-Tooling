@@ -156,8 +156,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser
             return false;
         }
 
-        public BlockNode ParseControl()
+        public BlockNode ParseControl(bool isComponent)
         {
+            _yaml.isComponent = isComponent;
             var p = _yaml.ReadNext();
             var control = ParseNestedControl(p);
 

@@ -129,6 +129,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         private YamlToken _lastPair;
 
+        public bool isComponent { get; set; } 
+
         // for error handling
         private readonly string _currentFileName;
         private int _currentLine; // 1-based line number
@@ -326,12 +328,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // Get identifier
             // toggle isEscaped on every ' appearance
             bool isEscaped = false;
+            int lastSingleQuoteIndex = 0;
             bool requiresClosingDoubleQuote = line.MaybeEat('"');
 
             while (line.Current != ':' || isEscaped || requiresClosingDoubleQuote)
             {
                 if (line.Current == '\'')
+                {
+                    lastSingleQuoteIndex++;
                     isEscaped = !isEscaped;
+                }
 
                 if (requiresClosingDoubleQuote && line.Current == '"' && line.Previous != '\\')
                 {
@@ -342,7 +348,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (line.Current == 0) // EOL
                 {
                     if (isEscaped)
-                        return Unsupported(line, $"Missing closing \' in {line._line?.Substring(0, line._idx - 1)}");
+                        return UnsupportedSingleQuote(line, lastSingleQuoteIndex, isComponent);
 
                     if (requiresClosingDoubleQuote)
                         return Unsupported(line, "Missing closing \".");
@@ -507,6 +513,33 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         private YamlToken Unsupported(LineParser line, string message)
         {
             return Error(line, message);
+        }
+
+        private YamlToken UnsupportedSingleQuote(LineParser line, int lastSingleQuoteIndex, bool isComponent)
+        {
+            string[] lineSplit = line._line.ToString().Split(new string[] { "As" }, StringSplitOptions.None);
+
+            if (lineSplit.Length > 2)
+            {
+                return Error(line, $"Missing closing \'in Function node");
+            }
+            if (lineSplit.Length > 1)
+            {
+                if (lastSingleQuoteIndex < lineSplit[0].Length)
+                {
+                    if (isComponent)
+                    {
+                         return Error(line, $"Missing closing \' in Component Identifier");
+                    }
+                    return Error(line, $"Missing closing \'in Type node Identifier");
+                }
+                if (isComponent)
+                {
+                    return Error(line, $"Missing closing \' in Component type value");
+                }
+                return Error(line, $"Missing closing \'in Type node type value");
+            }
+            return Error(line, $"Missing closing \'in property name");
         }
 
         private YamlToken UnsupportedComment(LineParser line)
