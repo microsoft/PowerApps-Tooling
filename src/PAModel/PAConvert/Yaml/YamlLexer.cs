@@ -141,10 +141,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         // We allow comments, but don't round-trip them. Issue a warning. 
         public SourceLocation? _commentStrippedWarning = null;
 
-        public const string MissingSingleQuoteFunctionNode = "Missing closing \'in Function Node";
-        public const string MissingSingleQuoteComponent = "Missing closing \'in Component";
-        public const string MissingSingleQuoteTypeNode = "Missing closing \'in TypeNode";
-        public const string MissingSingleQuoteProperty = "Missing closing \'in Property";
+        public const string MissingSingleQuoteFunctionNode = "Missing closing \' in Function Node";
+        public const string MissingSingleQuoteComponent = "Missing closing \' in Component";
+        public const string MissingSingleQuoteTypeNode = "Missing closing \' in TypeNode";
+        public const string MissingSingleQuoteProperty = "Missing closing \' in Property";
 
         public YamlLexer(TextReader source, string filenameHint = null)
         {
