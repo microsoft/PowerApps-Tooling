@@ -129,7 +129,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         private YamlToken _lastPair;
 
-        public bool isComponent { get; set; } 
+        public bool IsComponent { get; set; } 
 
         // for error handling
         private readonly string _currentFileName;
@@ -351,7 +351,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (line.Current == 0) // EOL
                 {
                     if (isEscaped)
-                        return UnsupportedSingleQuote(line, isComponent);
+                        return UnsupportedSingleQuote(line, IsComponent);
 
                     if (requiresClosingDoubleQuote)
                         return Unsupported(line, "Missing closing \".");
