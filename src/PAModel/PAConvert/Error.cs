@@ -38,11 +38,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             sb.Append($"PA{(int)Code}: ");
             sb.Append(this.Message);
 
-            if (this.Span.FileName != null)
-            {
-                sb.Append(" at ");
-                sb.Append(this.Span);
-            }
             return sb.ToString();
         }
     }
