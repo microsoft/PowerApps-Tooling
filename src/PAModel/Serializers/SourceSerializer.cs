@@ -471,7 +471,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             try
             {
                 var parser = new Parser.Parser(filePath, fileContents, errors);
-                var controlIR = parser.ParseControl();
+                var controlIR = parser.ParseControl(isComponent);
                 if (controlIR == null)
                 {
                     return; // error condition

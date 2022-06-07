@@ -558,6 +558,105 @@ P2: = ""hello"" & ""world""
             }
             return val;
         }
+
+        [TestMethod]
+        public void MissingClosingQuoteComponentError()
+        {
+            var text =
+@"Co'mp'1 As CanvasComp'onent:
+    Fill: =RGBA(0, 0, 0, 0)
+    Height: =640
+    OnReset: =
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+            y.IsComponent = true;
+
+            AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteComponent);
+        }
+
+        [TestMethod]
+        public void MissingClosingQuoteFunctionNodeError()
+        {
+            var text =
+@"Comp1 As CanvasComponent:
+    fun'c1(Parameter1 As String, Parameter2 As String):
+        Parameter1:
+            Default: =""Text""
+        Parameter2:
+            Default: = ""Text""
+    Fill: =RGBA(0, 0, 0, 0)
+    Height: =640
+    OnReset: =
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+            y.IsComponent = true;
+
+            AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteFunctionNode);
+        }
+
+        [TestMethod]
+        public void MissingClosingQuoteTypeNodeError()
+        {
+            var text =
+@"Scr'een1 As screen:
+    Fill: =RGBA(0, 0, 0, 0)
+    Height: =640
+    OnReset: =
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteTypeNode);
+        }
+
+        [TestMethod]
+        public void MissingClosingQuotePropertyError()
+        {
+            var text =
+@"Screen1 As screen:
+    Fi'll: =RGBA(0, 0, 0, 0)
+    Height: =640
+    OnReset: =
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+";
+            var sr = new StringReader(text);
+            var y = new YamlLexer(sr);
+
+            AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteProperty);
+        }
+
+        static void AssertLexErrorMessage(YamlLexer y, string expectedErrorMessage)
+        {
+            var p = y.ReadNext();
+            while (p.Kind != YamlTokenKind.EndOfFile)
+            {
+                if (p.Kind == YamlTokenKind.Error)
+                {
+                    Assert.AreEqual(p.Value, expectedErrorMessage);
+                    return;
+                }               
+                p = y.ReadNext();
+            }
+            Assert.Fail();
+        }
+
         #endregion
 
     }
