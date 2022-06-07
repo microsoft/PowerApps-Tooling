@@ -141,6 +141,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
         // We allow comments, but don't round-trip them. Issue a warning. 
         public SourceLocation? _commentStrippedWarning = null;
 
+        public const string MissingSingleQuoteFunctionNode = "Missing closing \'in Function Node";
+        public const string MissingSingleQuoteComponent = "Missing closing \'in Component";
+        public const string MissingSingleQuoteTypeNode = "Missing closing \'in TypeNode";
+        public const string MissingSingleQuoteProperty = "Missing closing \'in Property";
+
         public YamlLexer(TextReader source, string filenameHint = null)
         {
             _reader = source;
@@ -328,14 +333,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             // Get identifier
             // toggle isEscaped on every ' appearance
             bool isEscaped = false;
-            int lastSingleQuoteIndex = 0;
             bool requiresClosingDoubleQuote = line.MaybeEat('"');
 
             while (line.Current != ':' || isEscaped || requiresClosingDoubleQuote)
             {
                 if (line.Current == '\'')
                 {
-                    lastSingleQuoteIndex++;
                     isEscaped = !isEscaped;
                 }
 
@@ -348,7 +351,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (line.Current == 0) // EOL
                 {
                     if (isEscaped)
-                        return UnsupportedSingleQuote(line, lastSingleQuoteIndex, isComponent);
+                        return UnsupportedSingleQuote(line, isComponent);
 
                     if (requiresClosingDoubleQuote)
                         return Unsupported(line, "Missing closing \".");
@@ -515,23 +518,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             return Error(line, message);
         }
 
-        private YamlToken UnsupportedSingleQuote(LineParser line, int lastSingleQuoteIndex, bool isComponent)
+        private YamlToken UnsupportedSingleQuote(LineParser line, bool isComponent)
         {
-            string[] lineSplit = line._line.ToString().Split(new string[] { "As" }, StringSplitOptions.None);
+            string[] lineSplit = line._line.ToString().ToLower().Split(new string[] { " As " }, StringSplitOptions.None);
 
             if (lineSplit.Length > 2)
             {
-                return Error(line, $"Missing closing \'in Function node");
+                return Error(line, MissingSingleQuoteFunctionNode);
             }
             if (lineSplit.Length > 1)
             {
-                if (lastSingleQuoteIndex < lineSplit[0].Length)
-                {
-                    return isComponent ? Error(line, $"Missing closing \' in Component Identifier") : Error(line, $"Missing closing \'in Type node Identifier");                    
-                }
-                return isComponent ? Error(line, $"Missing closing \' in Component value") : Error(line, $"Missing closing \'in Type node value");                
+                return isComponent ? Error(line, MissingSingleQuoteComponent) : Error(line, MissingSingleQuoteTypeNode);                
             }
-            return Error(line, $"Missing closing \'in property");
+            return Error(line, MissingSingleQuoteProperty);
         }
 
         private YamlToken UnsupportedComment(LineParser line)
