@@ -520,7 +520,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
 
         private YamlToken UnsupportedSingleQuote(LineParser line, bool isComponent)
         {
-            string[] lineSplit = line._line.ToString().ToLower().Split(new string[] { " As " }, StringSplitOptions.None);
+            string[] lineSplit = line._line.ToString().ToLower().Split(new string[] { " as " }, StringSplitOptions.None);
 
             if (lineSplit.Length > 2)
             {
