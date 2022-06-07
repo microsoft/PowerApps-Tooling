@@ -527,14 +527,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
             {
                 if (lastSingleQuoteIndex < lineSplit[0].Length)
                 {
-                    var err = isComponent ? Error(line, $"Missing closing \' in Component Identifier") : Error(line, $"Missing closing \'in Type node Identifier");
-                    return err;
+                    return isComponent ? Error(line, $"Missing closing \' in Component Identifier") : Error(line, $"Missing closing \'in Type node Identifier");                    
                 }
-                if (isComponent)
-                {
-                    var err = isComponent ? Error(line, $"Missing closing \' in Component value") : Error(line, $"Missing closing \'in Type node value");
-                    return err;
-                }
+                return isComponent ? Error(line, $"Missing closing \' in Component value") : Error(line, $"Missing closing \'in Type node value");                
             }
             return Error(line, $"Missing closing \'in property");
         }
