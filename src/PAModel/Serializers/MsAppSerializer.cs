@@ -129,7 +129,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             app._parameterSchema = ToObject<ParameterSchema>(entry);
                             break;
                         case FileKind.CustomPageInputs:
-                            app._customPageInputsMetadata = ToObject<Dictionary<string, string>>(entry);
+                            app._customPageInputsMetadata = ToObject<Dictionary<string, ParameterSchema>>(entry);
                             break;
 
                         case FileKind.Properties:
@@ -316,7 +316,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 // Basically making sure conn instance id is not added to app._connections
                                 extensionData.Remove(ConnectionInstanceIDPropertyName);
-                            }                              
+                            }
                         }
                     }
 
@@ -340,7 +340,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._properties.LocalDatabaseReferences = null;
                     }
                 }
-              
+
                 if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
                 {
                     app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };

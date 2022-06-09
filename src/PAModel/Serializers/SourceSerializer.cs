@@ -255,7 +255,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (file.Kind == FileKind.CustomPageInputs)
                 {
-                    var customPageMetadata = file.ToObject<Dictionary<string, string>>();
+                    var customPageMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
                     app._customPageInputsMetadata = customPageMetadata;
                 }
             }
@@ -294,7 +294,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
             app._parameterSchema = new ParameterSchema();
-            app._customPageInputsMetadata = new Dictionary<string, string>();
+            app._customPageInputsMetadata = new Dictionary<string, ParameterSchema>();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
