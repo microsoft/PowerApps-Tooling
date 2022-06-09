@@ -82,6 +82,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             RawBytes = other.RawBytes.ToArray(); // ToArray clones byte arrays
         }
 
+        public const string CustomPagesMetadataFileName = "CustomPagesMetadata.json";
+
         public static FileEntry FromFile(string fullPath, string root)
         {
             var relativePath = Utilities.GetRelativePath(root, fullPath);
@@ -120,7 +122,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {"Properties.json", FileKind.Properties },
             {"Header.json", FileKind.Header},
             {"Schema.yaml", FileKind.Schema },
-            {"CustomPagesMetadata.json", FileKind.CustomPageInputs },
+            {CustomPagesMetadataFileName, FileKind.CustomPageInputs },
             {ChecksumMaker.ChecksumName, FileKind.Checksum },
             {"AppCheckerResult.sarif", FileKind.AppCheckerResult },
             {"ComponentsMetadata.json", FileKind.ComponentsMetadata },

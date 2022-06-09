@@ -162,6 +162,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Load PowerAppsControl Templates
             LoadPcfControlTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir, PcfControlTemplatesDir));
 
+            // Load used custom pages schema metadata
+            LoadCustomPagesSchemaMetadata(errors, app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
+
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
                 switch (file.Kind)
@@ -250,15 +253,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             LoadDataSources(app, dir, errors);
             LoadSourceFiles(app, dir, templateDefaults, errors);
-
-            foreach (var file in dir.EnumerateFiles(PackagesDir))
-            {
-                if (file.Kind == FileKind.CustomPageInputs)
-                {
-                    var customPageMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
-                    app._customPageInputsMetadata = customPageMetadata;
-                }
-            }
 
             foreach (var file in dir.EnumerateFiles(ConnectionDir))
             {
@@ -349,6 +343,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var pcfControl = file.ToObject<PcfControl>();
                 app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
+            }
+        }
+
+        private static void LoadCustomPagesSchemaMetadata(ErrorContainer errors, CanvasDocument app, string custompagesMetadataPath)
+        {
+            if (File.Exists(custompagesMetadataPath))
+            {
+                DirectoryReader.Entry file = new DirectoryReader.Entry(custompagesMetadataPath);
+                app._customPageInputsMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
             }
         }
 

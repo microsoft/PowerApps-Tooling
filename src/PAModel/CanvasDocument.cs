@@ -52,7 +52,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
         internal List<string> _screenOrder = new List<string>();
 
-
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
         internal PublishInfoJson _publishInfo;
@@ -60,6 +59,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
         internal ParameterSchema _parameterSchema;
+
+        // Dictionary with input schemas for custom pages used in the app through Navigate function, key is custom page logical name, value is parameter schema for that page
         internal Dictionary<string, ParameterSchema> _customPageInputsMetadata;
         internal AppCheckerResultJson _appCheckerResultJson;
         internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
