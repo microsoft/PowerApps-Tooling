@@ -726,7 +726,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
                 if (_previousProperties.TryGetValue(propName, out oldLine))
                 {
                     // Key is already present.
-                    return YamlToken.NewError(default(SourceLocation), $"Property '{propName}' is already defined on line {oldLine}.");
+                    return YamlToken.NewError(default(SourceLocation), $"Property is already defined on line {oldLine}.");
                 }
                 _previousProperties.Add(propName, currentLine);
                 return null;
