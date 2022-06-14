@@ -128,6 +128,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         case FileKind.Schema:
                             app._parameterSchema = ToObject<ParameterSchema>(entry);
                             break;
+                        case FileKind.CustomPageInputs:
+                            app._customPageInputsMetadata = ToObject<Dictionary<string, ParameterSchema>>(entry);
+                            break;
 
                         case FileKind.Properties:
                             app._properties = ToObject<DocumentPropertiesJson>(entry);
@@ -313,7 +316,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                 // Basically making sure conn instance id is not added to app._connections
                                 extensionData.Remove(ConnectionInstanceIDPropertyName);
-                            }                              
+                            }
                         }
                     }
 
@@ -337,7 +340,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._properties.LocalDatabaseReferences = null;
                     }
                 }
-              
+
                 if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
                 {
                     app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
@@ -603,6 +606,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._parameterSchema != null)
             {
                 yield return ToFile(FileKind.Schema, app._parameterSchema);
+            }
+
+            if (app._customPageInputsMetadata != null)
+            {
+                yield return ToFile(FileKind.CustomPageInputs, app._customPageInputsMetadata);
             }
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();

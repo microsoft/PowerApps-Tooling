@@ -52,7 +52,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
         internal List<string> _screenOrder = new List<string>();
 
-
         internal HeaderJson _header;
         internal DocumentPropertiesJson _properties;
         internal PublishInfoJson _publishInfo;
@@ -60,6 +59,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
         internal ParameterSchema _parameterSchema;
+
+        // Dictionary with input schemas for custom pages used in the app through Navigate function, key is custom page logical name, value is parameter schema for that page
+        internal Dictionary<string, ParameterSchema> _customPageInputsMetadata;
         internal AppCheckerResultJson _appCheckerResultJson;
         internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
@@ -297,6 +299,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _header = other._header.JsonClone();
             _properties = other._properties.JsonClone();
             _parameterSchema = other._parameterSchema.JsonClone();
+            _customPageInputsMetadata = other._customPageInputsMetadata.JsonClone();
             _publishInfo = other._publishInfo.JsonClone();
             _templates = other._templates.JsonClone();
             _themes = other._themes.JsonClone();
@@ -586,14 +589,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 _assetFiles.Remove(assetFilePath);
 
                 // Add or Update the assetFile path entry
-                if (_assetFiles.ContainsKey(withoutPrefix)) { 
+                if (_assetFiles.ContainsKey(withoutPrefix))
+                {
                     _assetFiles.Remove(withoutPrefix);
                     _assetFiles.Add(withoutPrefix, fileEntry);
                 }
                 else
                 {
                     _assetFiles.Add(withoutPrefix, fileEntry);
-                }                
+                }
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
                 if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
@@ -627,7 +631,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (_resourcesJson == null || _assetFiles == null)
                 return;
 
-            var maxFileNumber = FindMaxEntropyFileName();          
+            var maxFileNumber = FindMaxEntropyFileName();
 
             foreach (var resource in _resourcesJson.Resources)
             {

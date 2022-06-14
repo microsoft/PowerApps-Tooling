@@ -162,6 +162,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Load PowerAppsControl Templates
             LoadPcfControlTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir, PcfControlTemplatesDir));
 
+            // Load used custom pages schema metadata
+            LoadCustomPagesSchemaMetadata(errors, app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
+
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
                 switch (file.Kind)
@@ -285,6 +288,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
             app._parameterSchema = new ParameterSchema();
+            app._customPageInputsMetadata = new Dictionary<string, ParameterSchema>();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
@@ -339,6 +343,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 var pcfControl = file.ToObject<PcfControl>();
                 app._pcfControls.Add(pcfControl.Name, file.ToObject<PcfControl>());
+            }
+        }
+
+        private static void LoadCustomPagesSchemaMetadata(ErrorContainer errors, CanvasDocument app, string custompagesMetadataPath)
+        {
+            if (File.Exists(custompagesMetadataPath))
+            {
+                DirectoryReader.Entry file = new DirectoryReader.Entry(custompagesMetadataPath);
+                app._customPageInputsMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
             }
         }
 
@@ -531,6 +544,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             foreach (var kvp in app._pcfControls)
             {
                 dir.WriteAllJson(PackagesDir, new FilePath(PcfControlTemplatesDir, $"{kvp.Value.Name}_{kvp.Value.Version}.json"), kvp.Value);
+            }
+
+            if (app._customPageInputsMetadata != null)
+            {
+                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
