@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Apps\AnimationControlIdIsGuid.msapp" />
     <None Remove="TestData\simpleArray1.json" />
     <None Remove="TestData\SimpleArray2.json" />
   </ItemGroup>

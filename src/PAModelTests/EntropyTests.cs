@@ -38,5 +38,33 @@ namespace PAModelTests
                 errorSources.ThrowOnErrors();
             }
         }
+
+        [DataTestMethod]
+        [DataRow("AnimationControlIdIsGuid.msapp", false)]
+        public void TestControlIdGuidParsing(string filename, bool invariantScriptsOnInstancesExist)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.ControlUniqueGuids.Count > 0);
+            Assert.AreEqual(msapp._entropy.ControlUniqueIds.Count, 0);
+        }
+
+        [DataTestMethod]
+        [DataRow("AppWithLabel.msapp", false)]
+        public void TestControlIdIntParsing(string filename, bool invariantScriptsOnInstancesExist)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.ControlUniqueIds.Count > 0);
+            Assert.AreEqual(msapp._entropy.ControlUniqueGuids.Count, 0);
+        }
     }
 }
