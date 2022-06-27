@@ -40,8 +40,8 @@ namespace PAModelTests
         }
 
         [DataTestMethod]
-        [DataRow("AnimationControlIdIsGuid.msapp", false)]
-        public void TestControlIdGuidParsing(string filename, bool invariantScriptsOnInstancesExist)
+        [DataRow("AnimationControlIdIsGuid.msapp")]
+        public void TestControlIdGuidParsing(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(root));
@@ -54,8 +54,8 @@ namespace PAModelTests
         }
 
         [DataTestMethod]
-        [DataRow("AppWithLabel.msapp", false)]
-        public void TestControlIdIntParsing(string filename, bool invariantScriptsOnInstancesExist)
+        [DataRow("AppWithLabel.msapp")]
+        public void TestControlIdIntParsing(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(root));
