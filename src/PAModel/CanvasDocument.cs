@@ -2,19 +2,17 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
+using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
-using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System.IO;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
-using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
+using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -625,16 +623,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private void RestoreAssetFilePaths()
         {
             // For apps unpacked before this asset rewrite was added, skip the restore step
-            if (_entropy.LocalResourceFileNames == null)
+            if (_entropy?.LocalResourceFileNames == null)
                 return;
 
-            if (_resourcesJson == null || _assetFiles == null)
+            if (_resourcesJson?.Resources == null || _assetFiles == null)
                 return;
 
             var maxFileNumber = FindMaxEntropyFileName();
 
             foreach (var resource in _resourcesJson.Resources)
             {
+                if (resource == null)
+                    continue;
+
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
 
