@@ -24,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public double? ErrorCount { get; set; }
         }
 
-        // Json serialize these. 
+        // Json serialize these.
         public Dictionary<string, string> TemplateVersions { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
         public DateTime? HeaderLastSavedDateTimeUTC { get; set; }
         public string OldLogoFileName { get; set; }
@@ -32,7 +32,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // This tracks the state of whether msapp has AllowGlobalScope property in component instance -> component definition in controls array under screen.
         public bool IsLegacyComponentAllowGlobalScopeCase { get; set; }
 
-        // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.         
+        // To fully round-trip, we need to preserve array order for the various un-ordered arrays that we may split apart.
         public Dictionary<string, int> OrderDataSource { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderComponentMetadata { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -40,20 +40,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, int> OrderComponentTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
         public Dictionary<string, int> OrderPcfTemplate { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
 
-        // outer key is group control name, inner key is child grouped control name 
+        // outer key is group control name, inner key is child grouped control name
         public Dictionary<string, Dictionary<string, int>> OrderGroupControls { get; set; } = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
 
-        // Key is component name, value is Index. 
+        // Key is component name, value is Index.
         public Dictionary<string, double> ComponentIndexes { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
-        // Key is new FileName of the duplicate resource, value is Index from Resources.json. 
+        // Key is new FileName of the duplicate resource, value is Index from Resources.json.
         public Dictionary<string, int> ResourcesJsonIndices { get; set; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         // Key is control name, value is publish order index
         public Dictionary<string, double> PublishOrderIndices { get; set; } = new Dictionary<string, double>(StringComparer.Ordinal);
 
-        // Key is control name, value is uniqueId
+        // Key is control name, value is uniqueId (Ids in an app will either be int or Guids but not a mix of both)
         public Dictionary<string, int> ControlUniqueIds { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, Guid> ControlUniqueGuids { get; set; } = new Dictionary<string, Guid>(StringComparer.Ordinal);
+
         // Key is resource name
         public Dictionary<string, string> LocalResourceRootPaths { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -200,7 +202,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             string version;
             TemplateVersions.TryGetValue(dataComponentGuid, out version);
 
-            // Version string is ok to be null. 
+            // Version string is ok to be null.
             // DateTime.Now.ToUniversalTime().Ticks.ToString();
             return version;
         }
