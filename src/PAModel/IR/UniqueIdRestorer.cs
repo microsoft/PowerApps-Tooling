@@ -25,15 +25,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
         {
             if (controlName == "App")
             {
-                if (_controlUniqueIds.Count >= 0)
+                if (_controlUniqueIds.Count > 0)
                 {
                     return "1";
                 }
                 else
                 {
-                    var newGuid = Guid.NewGuid();
-                    _controlUniqueGuids[controlName] = newGuid;
-                    return newGuid.ToString();
+                    if (_controlUniqueGuids.TryGetValue(controlName, out var appGuid))
+                    {
+                        return appGuid.ToString();
+                    }
+                    else
+                    {
+                        var newGuid = Guid.NewGuid();
+                        _controlUniqueGuids[controlName] = newGuid;
+                        return newGuid.ToString();
+                    }
                 }
             }
 
@@ -44,7 +51,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IR
 
             if (_controlUniqueIds.TryGetValue(controlName, out var id))
                 return id.ToString();
-            
+
             var nextId = _nextId++;
             _controlUniqueIds.Add(controlName, nextId);
             return nextId.ToString();
