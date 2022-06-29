@@ -33,14 +33,13 @@
     </Content>
     <Content Include="SrcBaseline\*.fx.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>    
+    </Content>
     <Content Include="Templates\*.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Apps\AnimationControlIdIsGuid.msapp" />
     <None Remove="TestData\simpleArray1.json" />
     <None Remove="TestData\SimpleArray2.json" />
   </ItemGroup>
