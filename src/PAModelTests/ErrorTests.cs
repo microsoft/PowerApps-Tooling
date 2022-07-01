@@ -4,7 +4,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using System;
 using System.IO;
-using System.Text.Json;
+using System.Linq;
 using Xunit;
 
 namespace PAModelTests
@@ -93,6 +93,39 @@ namespace PAModelTests
 
             // Confirm that the unit tests have the expected output
             Assert.Equal(File.ReadAllText(path3), errorContainer.ToString());
+        }
+
+        [Fact]
+        public void TestNullExceptionIsThrownWhenNoDiagnosticInformationIsReturnedFromException()
+        {
+            var nullRefException = new NullReferenceException();
+            Assert.Throws<NullReferenceException>(() =>
+            {
+                var errors = new ErrorContainer();
+                errors.NullReferenceExceptionError(nullRefException);
+            });
+        }
+
+        [Fact]
+        public void TestNullExceptionErrorIsAddedToContainerWhenDiagnosticInformationIsReturnedFromException()
+        {
+            try
+            {
+                string firstString = null;
+                var secondString = "foobar";
+                var addition = firstString + secondString;
+            }
+            catch (NullReferenceException nullRefException)
+            {
+                var errors = new ErrorContainer();
+                errors.NullReferenceExceptionError(nullRefException);
+                var span = Utilities.GetDiagnosticInformationInTopStackFrame(nullRefException);
+                Assert.True(errors.HasErrors);
+                Assert.NotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
+                var error = errors.Where(error => error.Code == ErrorCode.InternalError).First();
+                Assert.Contains(error.Message, span.Value.StartLine.ToString());
+                Assert.Contains(error.Message, nullRefException.TargetSite.Name);
+            }
         }
     }
 }

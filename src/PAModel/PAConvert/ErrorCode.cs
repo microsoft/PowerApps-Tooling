@@ -73,8 +73,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Some of the cases which the tool doesn't support, see below example:
         // Connection Accounts is using the old CDS connector which is incompatable with this tool
-        UnsupportedError = 4001
+        UnsupportedError = 4001,
 
+        /// <summary>
+        /// 
+        /// </summary>
+        NullReferenceExceptionError = 4002
     }
 
     internal static class ErrorCodeExtensions
@@ -191,6 +195,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void BadParameter(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
+        }
+
+        public static void NullReferenceExceptionError(this ErrorContainer errors, NullReferenceException nullReferenceException)
+        {
+            var nullRefExceptionSpan = Utilities.GetDiagnosticInformationInTopStackFrame(nullReferenceException);
+            if (!nullRefExceptionSpan.HasValue)
+            {
+                throw nullReferenceException;
+            }
+
+            var targetInfo = nullReferenceException.TargetSite.Name;
+            errors.AddError(ErrorCode.NullReferenceExceptionError, nullRefExceptionSpan.Value, $"Null Reference exception occured on line {nullRefExceptionSpan.Value.StartLine} in {targetInfo}");
         }
     }
 }

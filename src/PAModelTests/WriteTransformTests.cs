@@ -48,22 +48,6 @@ namespace PAModelTests
 
         [DataTestMethod]
         [DataRow("AccountPlanReviewerMaster.msapp")]
-        public void TestResourcesJsonIsNullWhenRestoringAssetFilePaths(string filename)
-        {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
-            Assert.IsTrue(File.Exists(root));
-
-            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
-            errors.ThrowOnErrors();
-
-            msapp._resourcesJson = null;
-
-            msapp.ApplyBeforeMsAppWriteTransforms(errors);
-            Assert.IsFalse(errors.HasErrors);
-        }
-
-        [DataTestMethod]
-        [DataRow("AccountPlanReviewerMaster.msapp")]
         public void TestResourcesInResourcesJsonIsNullWhenRestoringAssetFilePaths(string filename)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
