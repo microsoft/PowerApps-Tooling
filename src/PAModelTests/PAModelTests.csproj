@@ -34,7 +34,7 @@
     </Content>
     <Content Include="SrcBaseline\*.fx.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>    
+    </Content>
     <Content Include="Templates\*.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

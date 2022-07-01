@@ -40,7 +40,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (!isComponentDef)
                 {
-                   
+
                     var customPropScopeRules = control.Template.CustomProperties
                         .Where(customProp => customProp.IsFunctionProperty)
                         .SelectMany(customProp =>
@@ -72,7 +72,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         var rule = control.Rules.FirstOrDefault(rule => rule.Property == name);
                         if (rule == null)
                         {
-                            // Control does not have a rule for the custom property. 
+                            // Control does not have a rule for the custom property.
                             continue;
                         }
                         var expression = rule.InvariantScript;
@@ -198,7 +198,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             SplitCustomTemplates(entropy, control.Template, control.Name);
 
-            entropy.ControlUniqueIds.Add(control.Name, int.Parse(control.ControlUniqueId));
+            int controlId;
+            if (int.TryParse(control.ControlUniqueId, out controlId))
+            {
+                entropy.ControlUniqueIds.Add(control.Name, controlId);
+            }
+            else
+            {
+                entropy.ControlUniqueGuids.Add(control.Name, Guid.Parse(control.ControlUniqueId));
+            }
             var controlState = new ControlState()
             {
                 Name = control.Name,
@@ -216,6 +224,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             };
 
             stateStore.TryAddControl(controlState);
+        }
+
+        private static Tuple<string, bool> ParseControlId(string controlId)
+        {
+            int id;
+            Guid? guidId = null;
+            if (!int.TryParse(controlId, out id))
+            {
+                guidId = Guid.Parse(controlId);
+            }
+            return guidId == null ? new Tuple<string, bool>(guidId.ToString(), true) : new Tuple<string, bool>(id.ToString(), false);
         }
 
         private static (PropertyNode prop, PropertyState state) SplitProperty(ControlInfoJson.RuleEntry rule)
@@ -276,7 +295,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var dynamicProperties = new List<ControlInfoJson.DynamicPropertyJson>();
                 foreach (var propIR in blockNode.Properties)
                 {
-                    // Dynamic properties could be null for the galleryTemplateTemplate 
+                    // Dynamic properties could be null for the galleryTemplateTemplate
                     if (isInResponsiveLayout && state.DynamicProperties != null && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier))
                     {
                         dynamicProperties.Add(CombineDynamicPropertyIRAndState(propIR, state));
