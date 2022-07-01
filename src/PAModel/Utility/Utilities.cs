@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Persistence.Converters;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;

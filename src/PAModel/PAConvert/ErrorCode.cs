@@ -74,6 +74,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Some of the cases which the tool doesn't support, see below example:
         // Connection Accounts is using the old CDS connector which is incompatable with this tool
         UnsupportedError = 4001
+
     }
 
     internal static class ErrorCodeExtensions
