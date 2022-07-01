@@ -7,7 +7,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -453,22 +452,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 errors.BadParameter($"Directory not found: {fullpath}");
             }
-        }
-
-        public static SourceLocation? GetDiagnosticInformationInTopStackFrame(Exception exception)
-        {
-            var stackTrace = new StackTrace(exception, true);
-            if (stackTrace.FrameCount > 0)
-            {
-                var topStackTrace = stackTrace.GetFrame(stackTrace.FrameCount - 1);
-                var lineNumber = topStackTrace.GetFileLineNumber();
-                var fileName = topStackTrace.GetFileName();
-                var startingColumnIndex = topStackTrace.GetFileColumnNumber();
-                var sourceSpanFromInfoInStackTrace = new SourceLocation(lineNumber, startingColumnIndex, lineNumber, startingColumnIndex, fileName);
-                return sourceSpanFromInfoInStackTrace;
-            }
-
-            return null;
         }
     }
 }

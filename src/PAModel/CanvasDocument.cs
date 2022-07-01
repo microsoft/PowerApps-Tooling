@@ -671,7 +671,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             catch (NullReferenceException nullReferenceException)
             {
-                errors.NullReferenceExceptionError(nullReferenceException); 
+                errors.InternalError(nullReferenceException); 
                 return;
             }
         }

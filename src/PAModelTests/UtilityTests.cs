@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO;
 
 namespace PAModelTests
@@ -84,28 +83,6 @@ namespace PAModelTests
         {
             var truncatedName = Utilities.TruncateNameIfTooLong(originalName);
             Assert.AreEqual(truncatedName, expectedName);
-        }
-
-        [TestMethod]
-        public void TestNullLineNumberIsReturnedIfStackTraceIsEmpty()
-        {
-            var exception = new Exception();
-            var lineNumber = Utilities.GetDiagnosticInformationInTopStackFrame(exception);
-            Assert.IsFalse(lineNumber.HasValue);
-        }
-
-        [TestMethod]
-        public void TestValidLineNumberIsReturnedIfStackTraceIsEmpty()
-        {
-            try
-            {
-                string firstString = null;
-                firstString = firstString.Substring(0, 1);
-            }
-            catch (Exception exception)
-            {
-                Assert.IsTrue(Utilities.GetDiagnosticInformationInTopStackFrame(exception).HasValue);
-            }
         }
     }
 }

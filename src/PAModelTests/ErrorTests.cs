@@ -4,7 +4,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using System;
 using System.IO;
-using System.Linq;
+using System.Text.Json;
 using Xunit;
 
 namespace PAModelTests
@@ -93,43 +93,6 @@ namespace PAModelTests
 
             // Confirm that the unit tests have the expected output
             Assert.Equal(File.ReadAllText(path3), errorContainer.ToString());
-        }
-
-        [Fact]
-        public void TestNullExceptionIsAddedToContainerWithExceptionMessageWhenNoDiagnosticInformationIsReturnedFromException()
-        {
-            var nullRefException = new NullReferenceException("null ref");
-            var errors = new ErrorContainer();
-            errors.NullReferenceExceptionError(nullRefException);
-            Assert.True(errors.HasErrors);
-            Assert.NotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
-            var error = errors.Where(error => error.Code == ErrorCode.InternalError).First();
-            var nullRefMessageInMessage = error.Message.Contains(nullRefException.Message);
-            Assert.True(nullRefMessageInMessage);
-        }
-
-        [Fact]
-        public void TestNullExceptionErrorIsAddedToContainerWithCustomizedMessageWhenDiagnosticInformationIsReturnedFromException()
-        {
-            try
-            {
-                string firstString = null;
-                firstString = firstString.Substring(0, 1);
-            }
-            catch (NullReferenceException nullRefException)
-            {
-                var errors = new ErrorContainer();
-                errors.NullReferenceExceptionError(nullRefException);
-                var span = Utilities.GetDiagnosticInformationInTopStackFrame(nullRefException);
-                Assert.True(errors.HasErrors);
-                Assert.NotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
-                var error = errors.Where(error => error.Code == ErrorCode.InternalError).First();
-                var message = error.Message;
-                var lineNumberInMessage = message.Contains(span.Value.StartLine.ToString());
-                var targetNameInMessage = message.Contains(nullRefException.TargetSite.Name);
-                Assert.True(lineNumberInMessage);
-                Assert.True(targetNameInMessage);
-            }
         }
     }
 }

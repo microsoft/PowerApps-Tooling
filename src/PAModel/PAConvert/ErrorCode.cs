@@ -128,11 +128,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}\r\nStack Trace:\r\n{e.StackTrace}");
         }
 
-        public static void InternalError(this ErrorContainer errors, Exception e, string message = null)
-        {
-            errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {(string.IsNullOrWhiteSpace(message) ? e.Message : message)}\r\nStack Trace:\r\n{e.StackTrace}");
-        }
-
         public static void UnsupportedOperationError(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.UnsupportedUseStudio, default(SourceLocation), $"Unsupported operation error. {message}");
@@ -195,21 +190,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void BadParameter(this ErrorContainer errors, string message)
         {
             errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
-        }
-
-        public static void NullReferenceExceptionError(this ErrorContainer errors, NullReferenceException nullReferenceException)
-        {
-            var nullRefExceptionSpan = Utilities.GetDiagnosticInformationInTopStackFrame(nullReferenceException);
-
-            if (nullRefExceptionSpan.HasValue)
-            {
-                var targetInfo = nullReferenceException.TargetSite.Name;
-                errors.InternalError(nullReferenceException, $"Null Reference exception occured on line {nullRefExceptionSpan.Value.StartLine} in {targetInfo}");
-            }
-            else
-            {
-                errors.InternalError(nullReferenceException);
-            }
         }
     }
 }
