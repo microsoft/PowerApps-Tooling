@@ -100,8 +100,7 @@ namespace PAModelTests
             try
             {
                 string firstString = null;
-                var secondString = "foobar";
-                var addition = firstString + secondString;
+                firstString = firstString.Substring(0, 1);
             }
             catch (Exception exception)
             {

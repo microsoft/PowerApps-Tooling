@@ -96,24 +96,25 @@ namespace PAModelTests
         }
 
         [Fact]
-        public void TestNullExceptionIsThrownWhenNoDiagnosticInformationIsReturnedFromException()
+        public void TestNullExceptionIsAddedToContainerWithExceptionMessageWhenNoDiagnosticInformationIsReturnedFromException()
         {
-            var nullRefException = new NullReferenceException();
-            Assert.Throws<NullReferenceException>(() =>
-            {
-                var errors = new ErrorContainer();
-                errors.NullReferenceExceptionError(nullRefException);
-            });
+            var nullRefException = new NullReferenceException("null ref");
+            var errors = new ErrorContainer();
+            errors.NullReferenceExceptionError(nullRefException);
+            Assert.True(errors.HasErrors);
+            Assert.NotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
+            var error = errors.Where(error => error.Code == ErrorCode.InternalError).First();
+            var nullRefMessageInMessage = error.Message.Contains(nullRefException.Message);
+            Assert.True(nullRefMessageInMessage);
         }
 
         [Fact]
-        public void TestNullExceptionErrorIsAddedToContainerWhenDiagnosticInformationIsReturnedFromException()
+        public void TestNullExceptionErrorIsAddedToContainerWithCustomizedMessageWhenDiagnosticInformationIsReturnedFromException()
         {
             try
             {
                 string firstString = null;
-                var secondString = "foobar";
-                var addition = firstString + secondString;
+                firstString = firstString.Substring(0, 1);
             }
             catch (NullReferenceException nullRefException)
             {
@@ -123,8 +124,11 @@ namespace PAModelTests
                 Assert.True(errors.HasErrors);
                 Assert.NotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
                 var error = errors.Where(error => error.Code == ErrorCode.InternalError).First();
-                Assert.Contains(error.Message, span.Value.StartLine.ToString());
-                Assert.Contains(error.Message, nullRefException.TargetSite.Name);
+                var message = error.Message;
+                var lineNumberInMessage = message.Contains(span.Value.StartLine.ToString());
+                var targetNameInMessage = message.Contains(nullRefException.TargetSite.Name);
+                Assert.True(lineNumberInMessage);
+                Assert.True(targetNameInMessage);
             }
         }
     }
