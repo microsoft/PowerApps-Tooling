@@ -449,7 +449,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 transformer.ApplyBeforeWrite(ctrl.Value);
             }
 
-            RestoreAssetFilePaths();
+            RestoreAssetFilePaths(errors);
         }
 
         private void AddComponentDefaults(BlockNode topParent, Dictionary<string, ControlTemplate> templateDefaults)
@@ -620,51 +620,59 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return max;
         }
 
-        private void RestoreAssetFilePaths()
+        private void RestoreAssetFilePaths(ErrorContainer errors)
         {
             // For apps unpacked before this asset rewrite was added, skip the restore step
-            if (_entropy?.LocalResourceFileNames == null)
-                return;
-
-            if (_resourcesJson?.Resources == null || _assetFiles == null)
-                return;
-
-            var maxFileNumber = FindMaxEntropyFileName();
-
-            foreach (var resource in _resourcesJson.Resources)
+            try
             {
-                if (resource == null)
-                    continue;
+                if (_entropy?.LocalResourceFileNames == null)
+                    return;
 
-                if (resource.ResourceKind != ResourceKind.LocalFile)
-                    continue;
+                if (_resourcesJson?.Resources == null || _assetFiles == null)
+                    return;
 
-                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
-                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
-                    continue;
+                var maxFileNumber = FindMaxEntropyFileName();
 
-                string msappFileName;
-                if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
+                foreach (var resource in _resourcesJson.Resources)
                 {
-                    maxFileNumber++;
-                    msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
+                    if (resource == null)
+                        continue;
+
+                    if (resource.ResourceKind != ResourceKind.LocalFile)
+                        continue;
+
+                    var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
+                    if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
+                        continue;
+
+                    string msappFileName;
+                    if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
+                    {
+                        maxFileNumber++;
+                        msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
+                    }
+
+                    // Restore the original names of the duplicate asset files.
+                    LocalAssetInfoJson localAssetInfoJson = null;
+                    if (_localAssetInfoJson?.TryGetValue(resource.FileName, out localAssetInfoJson) == true)
+                    {
+                        resource.Name = localAssetInfoJson.OriginalName;
+                    }
+
+                    var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
+                    resource.Path = updatedPath.ToMsAppPath();
+                    resource.FileName = msappFileName;
+
+                    var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
+                    fileEntry.Name = withoutPrefix;
+                    _assetFiles.Remove(assetFilePath);
+                    _assetFiles[withoutPrefix] = fileEntry;
                 }
-
-                // Restore the original names of the duplicate asset files.
-                LocalAssetInfoJson localAssetInfoJson = null;
-                if (_localAssetInfoJson?.TryGetValue(resource.FileName, out localAssetInfoJson) == true)
-                {
-                    resource.Name = localAssetInfoJson.OriginalName;
-                }
-
-                var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
-                resource.Path = updatedPath.ToMsAppPath();
-                resource.FileName = msappFileName;
-
-                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
-                fileEntry.Name = withoutPrefix;
-                _assetFiles.Remove(assetFilePath);
-                _assetFiles[withoutPrefix] = fileEntry;
+            }
+            catch (NullReferenceException nullReferenceException)
+            {
+                errors.InternalError(nullReferenceException); 
+                return;
             }
         }
 
