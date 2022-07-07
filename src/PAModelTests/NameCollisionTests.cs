@@ -224,7 +224,6 @@ namespace PAModelTests
                 msapp.SaveToSources(outSrcDir);
             }
 
-            Assert.IsTrue(errors.HasWarnings);
             Assert.IsFalse(errors.HasErrors);
         }
     }
