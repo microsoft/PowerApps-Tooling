@@ -207,5 +207,24 @@ namespace PAModelTests
 
             Assert.IsFalse(errorContainer.HasErrors);
         }
+
+        [DataTestMethod]
+        [DataRow("CollidingFilenames.msapp")]
+        public void TestDataSourceNameCollision(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            using (var tempDir = new TempDir())
+            {
+                string outSrcDir = tempDir.Dir;
+                msapp.SaveToSources(outSrcDir);
+            }
+
+            Assert.IsFalse(errors.HasErrors);
+        }
     }
 }

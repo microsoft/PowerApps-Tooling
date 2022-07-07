@@ -690,7 +690,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     int index = 1;
                     var altFileName = kvp.Key + "_" + index + ".json";
                     while (!filenames.Add(altFileName.ToLower()))
+                    {
                         ++index;
+                        altFileName = kvp.Key + "_" + index + ".json";
+                    }
 
                     errors.GenericWarning("Data source name collision: " + filename + ", writing as " + altFileName + " to avoid.");
                     filename = altFileName;
