@@ -257,7 +257,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
         private static string UnescapeUnicodeCharacters(string stringToUnescape)
         {
             Regex rx = new Regex(@"\\[uU]([0-9A-F]{4})");
-            return rx.Replace(stringToUnescape, match => ((char)Int32.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString());
+            return rx.Replace(stringToUnescape, match => ((char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString());
         }
     }
 }
