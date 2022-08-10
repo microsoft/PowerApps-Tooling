@@ -41,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Apps\UnicodeEscapingInTestSteps.msapp" />
     <None Remove="TestData\simpleArray1.json" />
     <None Remove="TestData\SimpleArray2.json" />
   </ItemGroup>

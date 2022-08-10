@@ -4,9 +4,11 @@
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using System;
-using System.Text.Json;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 {
@@ -68,7 +70,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
                 throw new DocumentException();
             }
-            else{
+            else
+            {
                 _entropy.DoesTestStepsMetadataExist = true;
             }
             properties.Remove(_metadataPropName);
@@ -153,7 +156,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
             foreach (var child in control.Children)
             {
                 var propName = child.Name.Identifier;
-                
+
                 if (child.Name.Kind.TypeName != _testStepTemplateName)
                 {
                     _errors.ValidationError($"Only controls of type {_testStepTemplateName} are valid children of a TestCase");
@@ -166,25 +169,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                 }
 
                 var descriptionProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Description");
-                
+
                 if (descriptionProp == null)
                 {
                     _errors.ValidationError($"Test Step {propName} is missing a Description property");
                     throw new DocumentException();
                 }
-                
+
                 var valueProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Value");
-                
+
                 if (valueProp == null)
                 {
                     _errors.ValidationError($"Test Step {propName} is missing a Value property");
                     throw new DocumentException();
                 }
-                
+
                 var screenProp = child.Properties.FirstOrDefault(prop => prop.Identifier == "Screen");
 
                 string screenId = null;
-                
+
                 // Lookup screenID by Name
                 if (screenProp != null)
                 {
@@ -207,11 +210,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                             _entropy.RuleScreenIdWithoutScreen.Remove(testStepRuleKey);
                         }
                     }
-                }                
+                }
 
                 if (doesTestStepsMetadataExist)
                 {
-
                     testStepsMetadata.Add(new TestStepsMetadataJson()
                     {
                         Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
@@ -224,20 +226,38 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
                         Expression = valueProp.Expression,
                         Identifier = propName
                     });
-
                 }
             }
-            
+
             if (doesTestStepsMetadataExist)
             {
-                var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() {Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+                var testStepMetadataStr = JsonSerializer.Serialize<List<TestStepsMetadataJson>>(testStepsMetadata, new JsonSerializerOptions() { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+
+                /* When Canvas creates the TestStepsMetadata value, it does so using Newtonsoft, creating a JArray of JObjects and calling 
+                 * the ToString method on that JArray with no special formatting. This skips escaping on a number of Unicode characters 
+                 * (such as a no-break space). System.Text.Json (used here) allows some control of escaping, but has a global block list 
+                 * which causes certain Unicode characters to be escaped in all cases. As such, we need special handling to undo any Unicode
+                 * character encoding that happens here. The appropriate encoding will ultimately happen when the full document is 
+                 * serialized to JSON during the creation of the msapp, and will be consistent with how Canvas serializes an msapp.
+                 * 
+                 * See: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-character-encoding#global-block-list
+                 */
+                testStepMetadataStr = UnescapeUnicodeCharacters(testStepMetadataStr);
+
                 control.Properties.Add(new PropertyNode()
                 {
                     Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
                     Identifier = _metadataPropName
                 });
             }
-                control.Children = new List<BlockNode>();
+
+            control.Children = new List<BlockNode>();
+        }
+
+        private static string UnescapeUnicodeCharacters(string stringToUnescape)
+        {
+            Regex rx = new Regex(@"\\[uU]([0-9A-F]{4})");
+            return rx.Replace(stringToUnescape, match => ((char)Int32.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString());
         }
     }
 }
