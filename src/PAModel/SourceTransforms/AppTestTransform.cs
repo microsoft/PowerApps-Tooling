@@ -228,11 +228,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms
 
             if (doesTestStepsMetadataExist)
             {
-                /* When Canvas creates the TestStepsMetadata value, it does so using Newtonsoft, creating a JArray of JObjects and calling 
-                 * the ToString method on that JArray with no special formatting. This skips escaping on a number of Unicode characters 
+                /* When Canvas creates the TestStepsMetadata value, it does so using Newtonsoft, creating a JArray of JObjects and calling
+                 * the ToString method on that JArray with no special formatting. This skips escaping on a number of Unicode characters
                  * (such as a no-break space). System.Text.Json allows some control of escaping, but has a global block list  which causes
-                 * certain Unicode characters to be escaped in all cases. As such, we use Newtonsoft for TestStepsMetadata to match the 
-                 * behavior in Canvas and prevent roundtrip errors. The appropriate encoding will ultimately happen when the full document 
+                 * certain Unicode characters to be escaped in all cases. As such, we use Newtonsoft for TestStepsMetadata to match the
+                 * behavior in Canvas and prevent roundtrip errors. The appropriate encoding will ultimately happen when the full document
                  * is serialized to JSON during the creation of the msapp, and will be consistent with how Canvas serializes an msapp.
                  * 
                  * See: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-character-encoding#global-block-list
