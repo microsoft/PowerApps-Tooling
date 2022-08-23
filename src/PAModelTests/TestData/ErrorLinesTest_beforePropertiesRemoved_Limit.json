@@ -1,0 +1,19 @@
+{
+  "Words": {
+    "Noun": "Tree",
+    "Adjective": "Green",
+    "Verb": "Run",
+    "Adverb1": "Slow",
+    "Adverb2": "Fast",
+    "Adverb3": "Great",
+    "Adverb4": "Poor"
+  },
+  "Numbers": {
+    "Single": 1,
+    "Double": 52,
+    "Triple1": 905,
+    "Triple2": 910,
+    "Triple3": 909,
+    "Triple6": 906
+  }
+}

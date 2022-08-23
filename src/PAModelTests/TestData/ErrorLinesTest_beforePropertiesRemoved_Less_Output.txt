@@ -1,0 +1,5 @@
+Error   PA3015: Property Removed: Words.Adverb4
+Error   PA3015: Property Removed: Numbers.Single
+Error   PA3015: Property Removed: Numbers.Double
+Error   PA3015: Property Removed: Numbers.Triple6
+4 errors, 0 warnings.
