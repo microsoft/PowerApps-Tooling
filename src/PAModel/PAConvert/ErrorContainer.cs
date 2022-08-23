@@ -18,7 +18,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private List<Error> _errors = new List<Error>();
         private int _countErrors = 0;
         private int _countWarnings = 0;
-        // TODO: Determine limit
         private const int _errorsToPrint = 10; // Enforcing a limit in code to prevent oversized message body from getting trimmed
 
         internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
