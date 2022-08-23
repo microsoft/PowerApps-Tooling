@@ -4,7 +4,6 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using System;
 using System.IO;
-using System.Text.Json;
 using Xunit;
 
 namespace PAModelTests
@@ -95,36 +94,29 @@ namespace PAModelTests
         }
 
         [Theory]
-        // [InlineData("simpleChanged1.json", "simpleChanged2.json", "simpleChangedOutput.txt")]
-        // [InlineData("complexChanged1.json", "complexChanged2.json", "complexChangedOutput.txt")]
-        // [InlineData("simpleAdded1.json", "simpleAdded2.json", "simpleAddedOutput.txt")]
-        // [InlineData("complexAdded1.json", "complexAdded2.json", "complexAddedOutput.txt")]
-        // [InlineData("simpleArray1.json", "simpleArray2.json", "simpleArrayOutput.txt")]
-        // [InlineData("emptyNestedArray1.json", "emptyNestedArray2.json", "emptyNestedArrayOutput.txt")]
-        [InlineData("simpleRemoved1_Extra.json", "simpleRemoved2.json", "simpleRemoved_Extra_Output.txt")]
-        // [InlineData("complexRemoved1.json", "complexRemoved2.json", "complexRemovedOutput.txt")]
+        [InlineData("ErrorLinesTest_beforePropertiesRemoved_Less.json", "ErrorLinesTest_afterPropertiesRemoved.json", "ErrorLinesTest_beforePropertiesRemoved_Less_Output.txt")]
+        [InlineData("ErrorLinesTest_beforePropertiesRemoved_Limit.json", "ErrorLinesTest_afterPropertiesRemoved.json", "ErrorLinesTest_beforePropertiesRemoved_Limit_Output.txt")]
+        [InlineData("ErrorLinesTest_beforePropertiesRemoved_Excess.json", "ErrorLinesTest_afterPropertiesRemoved.json", "ErrorLinesTest_beforePropertiesRemoved_Excess_Output.txt")]
         public void TestMessageWithTooManyErrors(string before, string after, string output)
         {
 
-            string path1 = Path.Combine(Environment.CurrentDirectory, "TestData", before);
-            string path2 = Path.Combine(Environment.CurrentDirectory, "TestData", after);
-            string path3 = Path.Combine(Environment.CurrentDirectory, "TestData", output);
+            string beforeFilePath = Path.Combine(Environment.CurrentDirectory, "TestData", before);
+            string afterFilePath = Path.Combine(Environment.CurrentDirectory, "TestData", after);
+            string outputFilePath = Path.Combine(Environment.CurrentDirectory, "TestData", output);
 
             ErrorContainer errorContainer = new ErrorContainer();
 
-            byte[] jsonString1 = File.ReadAllBytes(path1);
-            byte[] jsonString2 = File.ReadAllBytes(path2);
+            byte[] beforeFileJsonString = File.ReadAllBytes(beforeFilePath);
+            byte[] afterFileJsonString = File.ReadAllBytes(afterFilePath);
 
-            var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
-            var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
+            var beforeFileJsonDictionary = MsAppTest.FlattenJson(beforeFileJsonString);
+            var afterFileJsonDictionary = MsAppTest.FlattenJson(afterFileJsonString);
 
-            // IsMismatched on mismatched files
-            // TODO: More variations
-            MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
-            MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
-
+            // Run a test to produce errors
+            MsAppTest.CheckPropertyChangedRemoved(beforeFileJsonDictionary, afterFileJsonDictionary, errorContainer, "");
+            
             // Confirm that the unit tests have the expected output
-            Assert.Equal(File.ReadAllText(path3), errorContainer.ToString());
+            Assert.Equal(File.ReadAllText(outputFilePath), errorContainer.ToString());
         }
     }
 }

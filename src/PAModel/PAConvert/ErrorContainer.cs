@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// TODO: Sort Imports
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.Parser;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +24,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
         {
             var error = new Error(code, span, errorMessage);
-            // TODO: Capture count in a new private variable
+
             if (error.IsError) { _countErrors++; } else { _countWarnings++; }
 
             if (_errors.Count < _errorsToPrint)
@@ -66,14 +63,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             foreach (var error in this)
             {
-                // if (error.IsError) { countErrors++; } else { countWarnings++; }
                 output.WriteLine(error);
             }
 
             if (_countErrors > _errorsToPrint)
             {
                 var additionalErrors = _countErrors - _errorsToPrint;
-                output.WriteLine($"...and {additionalErrors} errors.");
+                output.WriteLine($"...and {additionalErrors} more errors.");
             }
 
             if (_countErrors + _countWarnings > 0)
