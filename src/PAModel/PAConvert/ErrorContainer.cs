@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// TODO: Sort Imports
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -17,11 +19,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     public class ErrorContainer : IEnumerable<Error>
     {
         private List<Error> _errors = new List<Error>();
-                
+        private int _countErrors = 0;
+        private int _countWarnings = 0;
+        // TODO: Determine limit
+        private const int _errorsToPrint = 10; // Enforcing a limit in code to prevent oversized message body from getting trimmed
+
         internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
         {
-            _errors.Add(new Error(code, span, errorMessage));
-        }        
+            var error = new Error(code, span, errorMessage);
+            // TODO: Capture count in a new private variable
+            if (error.IsError) { _countErrors++; } else { _countWarnings++; }
+
+            if (_errors.Count < _errorsToPrint)
+            {
+                _errors.Add(error);
+            }
+        }
 
         public bool HasErrors => _errors.Any(error => error.IsError);
 
@@ -51,18 +64,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Helper for writing out errors.
         public void Write(TextWriter output)
         {
-            int countWarnings = 0;
-            int countErrors = 0;
-
             foreach (var error in this)
             {
-                if (error.IsError) { countErrors++; } else { countWarnings++;  }
+                // if (error.IsError) { countErrors++; } else { countWarnings++; }
                 output.WriteLine(error);
             }
 
-            if (countErrors + countWarnings > 0)
+            if (_countErrors > _errorsToPrint)
             {
-                output.WriteLine($"{countErrors} errors, {countWarnings} warnings.");
+                var additionalErrors = _countErrors - _errorsToPrint;
+                output.WriteLine($"...and {additionalErrors} errors.");
+            }
+
+            if (_countErrors + _countWarnings > 0)
+            {
+                output.WriteLine($"{_countErrors} errors, {_countWarnings} warnings.");
             }
         }
 

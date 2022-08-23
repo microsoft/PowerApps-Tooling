@@ -44,7 +44,7 @@ namespace PAModelTests
 
             (var doc, var errors) = CanvasDocument.LoadFromSources(PathToValidMsapp);
             Assert.True(errors.HasErrors);
-            Assert.Null(doc);            
+            Assert.Null(doc);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace PAModelTests
         public void BadWriteDir()
         {
             string path = null;
-            Assert.Throws<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));   
+            Assert.Throws<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));
         }
 
         [Theory]
@@ -71,7 +71,6 @@ namespace PAModelTests
         [InlineData("simpleRemoved1.json", "simpleRemoved2.json", "simpleRemovedOutput.txt")]
         [InlineData("emptyNestedArray1.json", "emptyNestedArray2.json", "emptyNestedArrayOutput.txt")]
         [InlineData("simpleArray1.json", "simpleArray2.json", "simpleArrayOutput.txt")]
-
         public void TestJSONValueChanged(string file1, string file2, string file3)
         {
 
@@ -88,6 +87,39 @@ namespace PAModelTests
             var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
 
             // IsMismatched on mismatched files
+            MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+            MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+
+            // Confirm that the unit tests have the expected output
+            Assert.Equal(File.ReadAllText(path3), errorContainer.ToString());
+        }
+
+        [Theory]
+        // [InlineData("simpleChanged1.json", "simpleChanged2.json", "simpleChangedOutput.txt")]
+        // [InlineData("complexChanged1.json", "complexChanged2.json", "complexChangedOutput.txt")]
+        // [InlineData("simpleAdded1.json", "simpleAdded2.json", "simpleAddedOutput.txt")]
+        // [InlineData("complexAdded1.json", "complexAdded2.json", "complexAddedOutput.txt")]
+        // [InlineData("simpleArray1.json", "simpleArray2.json", "simpleArrayOutput.txt")]
+        // [InlineData("emptyNestedArray1.json", "emptyNestedArray2.json", "emptyNestedArrayOutput.txt")]
+        [InlineData("simpleRemoved1_Extra.json", "simpleRemoved2.json", "simpleRemoved_Extra_Output.txt")]
+        // [InlineData("complexRemoved1.json", "complexRemoved2.json", "complexRemovedOutput.txt")]
+        public void TestMessageWithTooManyErrors(string before, string after, string output)
+        {
+
+            string path1 = Path.Combine(Environment.CurrentDirectory, "TestData", before);
+            string path2 = Path.Combine(Environment.CurrentDirectory, "TestData", after);
+            string path3 = Path.Combine(Environment.CurrentDirectory, "TestData", output);
+
+            ErrorContainer errorContainer = new ErrorContainer();
+
+            byte[] jsonString1 = File.ReadAllBytes(path1);
+            byte[] jsonString2 = File.ReadAllBytes(path2);
+
+            var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
+            var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
+
+            // IsMismatched on mismatched files
+            // TODO: More variations
             MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
             MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 
