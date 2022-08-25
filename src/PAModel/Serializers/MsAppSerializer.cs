@@ -12,7 +12,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Encodings;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -436,48 +435,55 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Write back out to a msapp file. 
         public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors, bool isValidation = false)
         {
-            app.ApplyBeforeMsAppWriteTransforms(errors);
-
-            if (string.IsNullOrEmpty(fullpathToMsApp))
+            try
             {
-                errors.BadParameter("Path to msapp cannot be null or empty.");
-                return;
-            }
-            else if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
-                fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-            {
-                errors.BadParameter("Only works for .msapp files");
-                return;
-            }
+                app.ApplyBeforeMsAppWriteTransforms(errors);
 
-            if (File.Exists(fullpathToMsApp)) // Overwrite!
-            {
-                File.Delete(fullpathToMsApp);
-            }
-
-            var checksum = new ChecksumMaker();
-
-            DirectoryWriter.EnsureFileDirExists(fullpathToMsApp);
-            using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
-            {
-                foreach (FileEntry entry in app.GetMsAppFiles(errors))
+                if (string.IsNullOrEmpty(fullpathToMsApp))
                 {
-                    if (entry != null)
-                    {
-                        var e = z.CreateEntry(entry.Name.ToMsAppPath());
-                        using (var dest = e.Open())
-                        {
-                            dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
-                            checksum.AddFile(entry.Name.ToMsAppPath(), entry.RawBytes);
-                        }
-                    }
+                    errors.BadParameter("Path to msapp cannot be null or empty.");
+                    return;
+                }
+                else if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
+                    fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                {
+                    errors.BadParameter("Only works for .msapp files");
+                    return;
                 }
 
-                ComputeAndWriteChecksum(app, checksum, z, errors, isValidation);
-            }
+                if (File.Exists(fullpathToMsApp)) // Overwrite!
+                {
+                    File.Delete(fullpathToMsApp);
+                }
 
-            // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
-            app.ApplyAfterMsAppLoadTransforms(errors);
+                var checksum = new ChecksumMaker();
+
+                DirectoryWriter.EnsureFileDirExists(fullpathToMsApp);
+                using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
+                {
+                    foreach (FileEntry entry in app.GetMsAppFiles(errors))
+                    {
+                        if (entry != null)
+                        {
+                            var e = z.CreateEntry(entry.Name.ToMsAppPath());
+                            using (var dest = e.Open())
+                            {
+                                dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+                                checksum.AddFile(entry.Name.ToMsAppPath(), entry.RawBytes);
+                            }
+                        }
+                    }
+
+                    ComputeAndWriteChecksum(app, checksum, z, errors, isValidation);
+                }
+
+                // Undo BeforeWrite transforms so CanvasDocument representation is unchanged
+                app.ApplyAfterMsAppLoadTransforms(errors);
+            }
+            catch (NullReferenceException nullRefException)
+            {
+                errors.InternalError(nullRefException);
+            }
         }
 
         private static void ComputeAndWriteChecksum(CanvasDocument app, ChecksumMaker checksum, ZipArchive z, ErrorContainer errors, bool isValidation)
@@ -800,17 +806,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (app._resourcesJson != null)
             {
                 var resources = app._resourcesJson.JsonClone();
-                foreach (var resource in resources.Resources)
+                if (resources.Resources != null)
                 {
-                    if (resource.ResourceKind == ResourceKind.LocalFile)
+                    foreach (var resource in resources.Resources)
                     {
-                        var rootPath = string.Empty;
-                        if (app._entropy?.LocalResourceRootPaths.TryGetValue(resource.Name, out rootPath) ?? false)
-                            resource.RootPath = rootPath;
-                        else
-                            resource.RootPath = string.Empty;
+                        if (resource == null)
+                            continue;
+                        if (resource.ResourceKind == ResourceKind.LocalFile)
+                        {
+                            var rootPath = string.Empty;
+                            if (app._entropy?.LocalResourceRootPaths.TryGetValue(resource.Name, out rootPath) ?? false)
+                                resource.RootPath = rootPath;
+                            else
+                                resource.RootPath = string.Empty;
+                        }
                     }
                 }
+
                 yield return ToFile(FileKind.Resources, resources);
             }
 
