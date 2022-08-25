@@ -81,5 +81,33 @@ namespace PAModelTests
             Assert.IsTrue(errors.HasErrors);
             Assert.IsNotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
         }
+
+        [DataTestMethod]
+        [DataRow("AccountPlanReviewerMaster.msapp")]
+        public void TestNullExceptionInGetMsAppFilesIsLoggedAsAnInternalError(string filename)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+
+            using var sourcesTempDir = new TempDir();
+            var sourcesTempDirPath = sourcesTempDir.Dir;
+            msapp.SaveToSources(sourcesTempDirPath);
+
+            var loadFromSourceErrors = new ErrorContainer();
+            var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, loadFromSourceErrors);
+            loadFromSourceErrors.ThrowOnErrors();
+
+            // explicitly setting it to null
+            loadedMsApp._header = null;
+            using var tempFile = new TempFile();
+            var saveToMsAppErrors = loadedMsApp.SaveToMsApp(tempFile.FullPath);
+
+            Assert.IsTrue(saveToMsAppErrors.HasErrors);
+            Assert.IsNotNull(saveToMsAppErrors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
+        }
     }
 }
