@@ -92,7 +92,6 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
             msapp.SaveToSources(sourcesTempDirPath);
