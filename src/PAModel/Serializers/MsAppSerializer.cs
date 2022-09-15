@@ -133,12 +133,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
 
                         case FileKind.Schema:
-                            // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                            // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
                             // Validation is done in Canvas
                             app._parameterSchema = AsString(entry);
                             break;
                         case FileKind.CustomPageInputs:
-                            // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                            // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
                             // Validation is done in Canvas
                             app._customPageInputsMetadata = AsString(entry);
                             break;

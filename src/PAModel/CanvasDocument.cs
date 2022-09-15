@@ -56,10 +56,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal TemplatesJson _templates;
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
-        internal string _parameterSchema;
 
-        // Dictionary with input schemas for custom pages used in the app through Navigate function, key is custom page logical name, value is parameter schema for that page
+        // Yaml strings, handled by Canvas without interaction in PALT
+        internal string _parameterSchema;
         internal string _customPageInputsMetadata;
+
         internal AppCheckerResultJson _appCheckerResultJson;
         internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
