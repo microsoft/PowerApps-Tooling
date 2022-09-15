@@ -139,7 +139,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 switch (file.Kind)
                 {
                     case FileKind.Schema:
-                        app._parameterSchema = file.ToObject<ParameterSchema>();
+                        // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                        // Validation is done in Canvas
+                        app._parameterSchema = file.GetContents();
                         break;
                 }
             }
@@ -287,8 +289,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
-            app._parameterSchema = new ParameterSchema();
-            app._customPageInputsMetadata = new Dictionary<string, ParameterSchema>();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
@@ -351,7 +351,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (File.Exists(custompagesMetadataPath))
             {
                 DirectoryReader.Entry file = new DirectoryReader.Entry(custompagesMetadataPath);
-                app._customPageInputsMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
+                app._customPageInputsMetadata = file.GetContents();
             }
         }
 

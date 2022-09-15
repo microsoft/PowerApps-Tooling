@@ -38,6 +38,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+
+        private static string AsString(ZipArchiveEntry entry)
+        {
+            using var stream = entry.Open();
+            using var textReader = new StreamReader(stream);
+            return textReader.ReadToEnd();
+        }
+
         public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
         {
             if (streamToMsapp == null)
@@ -125,10 +133,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             break;
 
                         case FileKind.Schema:
-                            app._parameterSchema = ToObject<ParameterSchema>(entry);
+                            // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                            // Validation is done in Canvas
+                            app._parameterSchema = AsString(entry);
                             break;
                         case FileKind.CustomPageInputs:
-                            app._customPageInputsMetadata = ToObject<Dictionary<string, ParameterSchema>>(entry);
+                            // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                            // Validation is done in Canvas
+                            app._customPageInputsMetadata = AsString(entry);
                             break;
 
                         case FileKind.Properties:

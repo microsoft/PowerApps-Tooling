@@ -56,10 +56,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         internal TemplatesJson _templates;
         internal ThemesJson _themes;
         internal ResourcesJson _resourcesJson;
-        internal ParameterSchema _parameterSchema;
+        internal string _parameterSchema;
 
         // Dictionary with input schemas for custom pages used in the app through Navigate function, key is custom page logical name, value is parameter schema for that page
-        internal Dictionary<string, ParameterSchema> _customPageInputsMetadata;
+        internal string _customPageInputsMetadata;
         internal AppCheckerResultJson _appCheckerResultJson;
         internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
 
