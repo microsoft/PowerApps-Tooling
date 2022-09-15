@@ -28,9 +28,6 @@ namespace PAModelTests
                 $"Microsoft.PowerPlatform.YamlConverter",
                 $"Microsoft.PowerPlatform.YamlPocoSerializer",
                 $"Microsoft.PowerPlatform.Formulas.Tools.Yaml.YamlWriter",
-
-                // Public schemas
-                $"Microsoft.PowerPlatform.Formulas.Tools.Schemas.ParameterSchema"
             };
 
             StringBuilder sb = new StringBuilder();

@@ -139,7 +139,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 switch (file.Kind)
                 {
                     case FileKind.Schema:
-                        // We do not interact with this .yaml files from the .msapp, just pass them straight through as text
+                        // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
                         // Validation is done in Canvas
                         app._parameterSchema = file.GetContents();
                         break;
