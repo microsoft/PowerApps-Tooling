@@ -226,5 +226,49 @@ namespace PAModelTests
 
             Assert.IsFalse(errors.HasErrors);
         }
+
+        [TestMethod]
+        public void TestAssetFileCollision()
+        {
+            var doc = new CanvasDocument();
+            var resource1 = new ResourceJson()
+            {
+                Name = "0012", 
+                Path = "Assets\\Images\\0002.png",
+                FileName = "0002.png",
+                ResourceKind = ResourceKind.LocalFile,
+                Content = ContentKind.Image,
+            };
+
+            FileEntry f1 = new FileEntry();
+            f1.Name = new FilePath("Images", "0002.png");
+
+            // First Asset file
+            doc._assetFiles.Add(new FilePath("Images", "0002.png"), f1);
+
+            var resource2 = new ResourceJson()
+            {
+                Name = "0038",
+                Path = "Assets\\Images\\0012.png",
+                FileName = "0012.png",
+                ResourceKind = ResourceKind.LocalFile,
+                Content = ContentKind.Image,
+            };
+
+            FileEntry f2 = new FileEntry();
+            f2.Name = new FilePath("Images", "0012.png");
+
+            // Second Asset file
+            doc._assetFiles.Add(new FilePath("Images", "0012.png"), f2);
+
+            doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2 } };
+
+            var errorContainer = new ErrorContainer();
+            doc.StabilizeAssetFilePaths(errorContainer);
+
+            // The collision caused first assetFile to be removed
+            // The assetfile size is no more 2, its just 1
+            Assert.AreNotSame(doc._assetFiles.Count(), 2);
+        }
     }
 }
