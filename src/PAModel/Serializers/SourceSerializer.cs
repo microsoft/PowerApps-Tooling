@@ -548,7 +548,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._customPageInputsMetadata != null)
             {
-                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
+                dir.WriteAllText(PackagesDir, FileEntry.GetFilenameForKind(FileKind.CustomPageInputs), app._customPageInputsMetadata);
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)

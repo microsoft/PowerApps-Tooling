@@ -298,7 +298,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             _header = other._header.JsonClone();
             _properties = other._properties.JsonClone();
             _parameterSchema = other._parameterSchema.JsonClone();
-            _customPageInputsMetadata = other._customPageInputsMetadata.JsonClone();
+            _customPageInputsMetadata = other._customPageInputsMetadata;
             _publishInfo = other._publishInfo.JsonClone();
             _templates = other._templates.JsonClone();
             _themes = other._themes.JsonClone();

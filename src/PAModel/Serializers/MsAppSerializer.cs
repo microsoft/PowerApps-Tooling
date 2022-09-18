@@ -628,7 +628,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._customPageInputsMetadata != null)
             {
-                yield return ToFile(FileKind.CustomPageInputs, app._customPageInputsMetadata);
+                yield return new FileEntry
+                {
+                    Name = FileEntry.GetFilenameForKind(FileKind.CustomPageInputs),
+                    RawBytes = Encoding.UTF8.GetBytes(app._customPageInputsMetadata)
+                };
             }
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
