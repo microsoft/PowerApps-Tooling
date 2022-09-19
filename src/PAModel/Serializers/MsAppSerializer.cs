@@ -623,7 +623,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._parameterSchema != null)
             {
-                yield return ToFile(FileKind.Schema, app._parameterSchema);
+                yield return new FileEntry
+                {
+                    Name = FileEntry.GetFilenameForKind(FileKind.Schema),
+                    RawBytes = Encoding.UTF8.GetBytes(app._parameterSchema)
+                };
             }
 
             if (app._customPageInputsMetadata != null)

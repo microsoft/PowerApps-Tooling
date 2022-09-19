@@ -644,7 +644,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._parameterSchema != null)
             {
-                dir.WriteAllJson("", FileKind.Schema, app._parameterSchema);
+                dir.WriteAllText("", FileEntry.GetFilenameForKind(FileKind.Schema), app._parameterSchema);
             }
 
             var manifest = new CanvasManifestJson
