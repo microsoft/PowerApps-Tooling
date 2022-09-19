@@ -268,7 +268,8 @@ namespace PAModelTests
 
             // The collision caused first assetFile to be removed
             // The assetfile size is no more 2, its just 1
-            Assert.AreNotSame(doc._assetFiles.Count(), 2);
+            // This test fails now
+            Assert.AreSame(doc._assetFiles.Count(), 2);
         }
     }
 }
