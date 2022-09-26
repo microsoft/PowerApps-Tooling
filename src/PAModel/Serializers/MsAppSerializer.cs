@@ -132,7 +132,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             dcsources = ToObject<DataComponentSourcesJson>(entry);
                             break;
 
-                        case FileKind.Schema:
+                        case FileKind.Defines:
                             // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
                             // Validation is done in Canvas
                             app._parameterSchema = AsString(entry);
@@ -625,7 +625,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 yield return new FileEntry
                 {
-                    Name = FileEntry.GetFilenameForKind(FileKind.Schema),
+                    Name = FileEntry.GetFilenameForKind(FileKind.Defines),
                     RawBytes = Encoding.UTF8.GetBytes(app._parameterSchema)
                 };
             }

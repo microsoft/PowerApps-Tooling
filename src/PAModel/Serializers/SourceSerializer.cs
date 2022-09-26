@@ -138,7 +138,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 switch (file.Kind)
                 {
-                    case FileKind.Schema:
+                    case FileKind.Defines:
                         // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
                         // Validation is done in Canvas
                         app._parameterSchema = file.GetContents();
@@ -165,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             LoadPcfControlTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir, PcfControlTemplatesDir));
 
             // Load used custom pages schema metadata
-            LoadCustomPagesSchemaMetadata(errors, app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
+            LoadCustomPagesSchemaMetadata(app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
 
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
@@ -346,7 +346,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadCustomPagesSchemaMetadata(ErrorContainer errors, CanvasDocument app, string custompagesMetadataPath)
+        private static void LoadCustomPagesSchemaMetadata(CanvasDocument app, string custompagesMetadataPath)
         {
             if (File.Exists(custompagesMetadataPath))
             {
@@ -644,7 +644,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._parameterSchema != null)
             {
-                dir.WriteAllText("", FileEntry.GetFilenameForKind(FileKind.Schema), app._parameterSchema);
+                dir.WriteAllText("", FileEntry.GetFilenameForKind(FileKind.Defines), app._parameterSchema);
             }
 
             var manifest = new CanvasManifestJson
