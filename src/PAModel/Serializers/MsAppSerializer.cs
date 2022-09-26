@@ -38,6 +38,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
+
+        private static string AsString(ZipArchiveEntry entry)
+        {
+            using var stream = entry.Open();
+            using var textReader = new StreamReader(stream);
+            return textReader.ReadToEnd();
+        }
+
         public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
         {
             if (streamToMsapp == null)
@@ -124,11 +132,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             dcsources = ToObject<DataComponentSourcesJson>(entry);
                             break;
 
-                        case FileKind.Schema:
-                            app._parameterSchema = ToObject<ParameterSchema>(entry);
+                        case FileKind.Defines:
+                            // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
+                            // Validation is done in Canvas
+                            app._parameterSchema = AsString(entry);
                             break;
                         case FileKind.CustomPageInputs:
-                            app._customPageInputsMetadata = ToObject<Dictionary<string, ParameterSchema>>(entry);
+                            // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
+                            // Validation is done in Canvas
+                            app._customPageInputsMetadata = AsString(entry);
                             break;
 
                         case FileKind.Properties:
@@ -611,12 +623,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._parameterSchema != null)
             {
-                yield return ToFile(FileKind.Schema, app._parameterSchema);
+                yield return new FileEntry
+                {
+                    Name = FileEntry.GetFilenameForKind(FileKind.Defines),
+                    RawBytes = Encoding.UTF8.GetBytes(app._parameterSchema)
+                };
             }
 
             if (app._customPageInputsMetadata != null)
             {
-                yield return ToFile(FileKind.CustomPageInputs, app._customPageInputsMetadata);
+                yield return new FileEntry
+                {
+                    Name = FileEntry.GetFilenameForKind(FileKind.CustomPageInputs),
+                    RawBytes = Encoding.UTF8.GetBytes(app._customPageInputsMetadata)
+                };
             }
 
             var (publishInfo, logoFile) = app.TransformLogoOnSave();
