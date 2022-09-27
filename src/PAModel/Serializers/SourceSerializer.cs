@@ -138,8 +138,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 switch (file.Kind)
                 {
-                    case FileKind.Schema:
-                        app._parameterSchema = file.ToObject<ParameterSchema>();
+                    case FileKind.Defines:
+                        // We do not interact with this .yaml file from the .msapp, it can be passed straight through as text
+                        // Validation is done in Canvas
+                        app._parameterSchema = file.GetContents();
                         break;
                 }
             }
@@ -163,7 +165,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             LoadPcfControlTemplateFiles(errors, app, Path.Combine(directory2, PackagesDir, PcfControlTemplatesDir));
 
             // Load used custom pages schema metadata
-            LoadCustomPagesSchemaMetadata(errors, app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
+            LoadCustomPagesSchemaMetadata(app, Path.Combine(directory2, PackagesDir, FileEntry.CustomPagesMetadataFileName));
 
             foreach (var file in dir.EnumerateFiles(EntropyDir))
             {
@@ -287,8 +289,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             app._properties = DocumentPropertiesJson.CreateDefault(appName);
             app._header = HeaderJson.CreateDefault();
-            app._parameterSchema = new ParameterSchema();
-            app._customPageInputsMetadata = new Dictionary<string, ParameterSchema>();
 
             LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
             app._entropy = new Entropy();
@@ -346,12 +346,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
         }
 
-        private static void LoadCustomPagesSchemaMetadata(ErrorContainer errors, CanvasDocument app, string custompagesMetadataPath)
+        private static void LoadCustomPagesSchemaMetadata(CanvasDocument app, string custompagesMetadataPath)
         {
             if (File.Exists(custompagesMetadataPath))
             {
                 DirectoryReader.Entry file = new DirectoryReader.Entry(custompagesMetadataPath);
-                app._customPageInputsMetadata = file.ToObject<Dictionary<string, ParameterSchema>>();
+                app._customPageInputsMetadata = file.GetContents();
             }
         }
 
@@ -548,7 +548,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._customPageInputsMetadata != null)
             {
-                dir.WriteAllJson(PackagesDir, FileKind.CustomPageInputs, app._customPageInputsMetadata);
+                dir.WriteAllText(PackagesDir, FileEntry.GetFilenameForKind(FileKind.CustomPageInputs), app._customPageInputsMetadata);
             }
 
             // Also add Screen and App templates (not xml, constructed in code on the server)
@@ -644,7 +644,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (app._parameterSchema != null)
             {
-                dir.WriteAllJson("", FileKind.Schema, app._parameterSchema);
+                dir.WriteAllText("", FileEntry.GetFilenameForKind(FileKind.Defines), app._parameterSchema);
             }
 
             var manifest = new CanvasManifestJson
