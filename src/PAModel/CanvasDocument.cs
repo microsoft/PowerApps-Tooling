@@ -542,6 +542,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            // Keeps track of all resources paths stabilized 
             var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
 
             // Update AssetFile paths
