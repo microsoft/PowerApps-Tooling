@@ -265,10 +265,7 @@ namespace PAModelTests
 
             var errorContainer = new ErrorContainer();
             doc.StabilizeAssetFilePaths(errorContainer);
-
-            // The collision caused first assetFile to be removed
-            // The assetfile size is no more 2, its just 1
-            // This test fails now
+                      
             Assert.AreEqual(doc._assetFiles.Count(), 2);
         }
     }
