@@ -11,7 +11,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -556,8 +555,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var pathToStabilize = resource.Path;
 
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
-                    continue;
-                
+                    continue;                
                 if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
                 {
                     int i = 1;
@@ -584,7 +582,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
                 resource.Path = updatedPath.ToMsAppPath();
-                resource.FileName = newFileName;                
+                resource.FileName = newFileName;  
 
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 var updatedPathToStabilize = resource.Path;               
