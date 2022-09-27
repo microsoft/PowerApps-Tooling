@@ -582,7 +582,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
                 resource.Path = updatedPath.ToMsAppPath();
-                resource.FileName = newFileName;  
+                resource.FileName = newFileName;
 
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                 var updatedPathToStabilize = resource.Path;               
