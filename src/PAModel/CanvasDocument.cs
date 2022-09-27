@@ -11,6 +11,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -542,6 +543,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
 
             // Update AssetFile paths
             foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
@@ -551,9 +553,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var originalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
+                var resourceToStabilize1 = resource.Path;
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
-
+                
                 if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
                 {
                     int i = 1;
@@ -580,21 +583,30 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
                 resource.Path = updatedPath.ToMsAppPath();
-                resource.FileName = newFileName;
+                resource.FileName = newFileName;                
 
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
-                fileEntry.Name = withoutPrefix;
-                _assetFiles.Remove(assetFilePath);
 
-                // Add or Update the assetFile path entry
-                if (_assetFiles.ContainsKey(withoutPrefix))
+                var resourceToStabilize2 = resource.Path;                
+
+                if (resourceStabilizer.Contains(resourceToStabilize1) || resourceStabilizer.Contains(resourceToStabilize2))
                 {
-                    _assetFiles.Remove(withoutPrefix);
-                    _assetFiles.Add(withoutPrefix, fileEntry);
+                    fileEntry.Name = withoutPrefix;
+                    _assetFiles.Remove(assetFilePath);
+                    _assetFiles[withoutPrefix] = fileEntry;
                 }
                 else
                 {
-                    _assetFiles.Add(withoutPrefix, fileEntry);
+                    resourceStabilizer.Add(resourceToStabilize1);
+                    resourceStabilizer.Add(resourceToStabilize2);
+
+                    fileEntry.Name = withoutPrefix;
+
+                    if (!_assetFiles.ContainsKey(withoutPrefix))
+                    {
+                        _assetFiles.Remove(assetFilePath);
+                        _assetFiles[withoutPrefix] = fileEntry;
+                    }                                    
                 }
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
