@@ -600,7 +600,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // This makes sure that the fileentry is updated to the updated path without prefix
                     fileEntry.Name = withoutPrefix;
 
-                    // If the updated prefix key(withoutPrefix) already exists in assetFiles do not overwrite that file entry (avoid discarding the fileentry of the key that already exists)
+                    // If the updated path key(withoutPrefix) already exists in assetFiles do not overwrite that file entry (avoid discarding the fileentry of the key that already exists)
                     // Else remove the old filepath and update the assetFiles with the new entry
                     if (!_assetFiles.ContainsKey(withoutPrefix))
                     {
