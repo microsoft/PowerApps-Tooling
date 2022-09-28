@@ -543,6 +543,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
+            // Keeps track of all resource paths stabilized 
+            var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
 
             // Update AssetFile paths
             foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
@@ -552,9 +554,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 var originalName = resource.Name;
                 var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
-                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
-                    continue;
+                var pathToStabilize = resource.Path;
 
+                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
+                    continue;                
                 if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
                 {
                     int i = 1;
@@ -584,18 +587,30 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resource.FileName = newFileName;
 
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
-                fileEntry.Name = withoutPrefix;
-                _assetFiles.Remove(assetFilePath);
+                var updatedPathToStabilize = resource.Path;               
 
-                // Add or Update the assetFile path entry
-                if (_assetFiles.ContainsKey(withoutPrefix))
+                if (resourceStabilizer.Contains(pathToStabilize) || resourceStabilizer.Contains(updatedPathToStabilize))
                 {
-                    _assetFiles.Remove(withoutPrefix);
-                    _assetFiles.Add(withoutPrefix, fileEntry);
+                    fileEntry.Name = withoutPrefix;
+                    _assetFiles.Remove(assetFilePath);
+                    _assetFiles[withoutPrefix] = fileEntry;
                 }
                 else
                 {
-                    _assetFiles.Add(withoutPrefix, fileEntry);
+                    // This makes sure that the fileentry is updated to the updated path without prefix
+                    fileEntry.Name = withoutPrefix;
+
+                    // If the updated path key(withoutPrefix) already exists in assetFiles do not overwrite that file entry (avoid discarding the fileentry of the key that already exists)
+                    // Else remove the old filepath and update the assetFiles with the new entry
+                    if (!_assetFiles.ContainsKey(withoutPrefix))
+                    {
+                        _assetFiles.Remove(assetFilePath);
+                        _assetFiles[withoutPrefix] = fileEntry;
+                    }
+
+                    // resourceStabilizer is updated with the old and new paths
+                    resourceStabilizer.Add(pathToStabilize);
+                    resourceStabilizer.Add(updatedPathToStabilize);
                 }
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
