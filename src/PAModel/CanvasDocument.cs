@@ -531,7 +531,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // If a name matches caseinsensitive but not casesensitive, it is a candidate for rename
             var caseInsensitiveNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var caseSensitiveNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind != ResourceKind.LocalFile)
+            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
                                                              .OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 if (caseInsensitiveNames.Add(resource.Name))
@@ -544,7 +544,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
 
             // Update AssetFile paths
-            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind != ResourceKind.LocalFile)
+            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
                                                              .OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 var originalName = resource.Name;
