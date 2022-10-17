@@ -528,11 +528,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             _entropy.LocalResourceFileNames.Clear();
 
-
             // If a name matches caseinsensitive but not casesensitive, it is a candidate for rename
             var caseInsensitiveNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var caseSensitiveNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
+            foreach (var resource in _resourcesJson.Resources.Where(resource => resource != null).OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
@@ -547,7 +546,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
 
             // Update AssetFile paths
-            foreach (var resource in _resourcesJson.Resources.OrderBy(resource => resource.Name, StringComparer.Ordinal))
+            foreach (var resource in _resourcesJson.Resources.Where(resource => resource != null).OrderBy(resource => resource.Name, StringComparer.Ordinal))
             {
                 if (resource.ResourceKind != ResourceKind.LocalFile)
                     continue;
