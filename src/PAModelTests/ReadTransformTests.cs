@@ -32,13 +32,14 @@ namespace PAModelTests
         }
 
         [TestMethod]
-        public void TestAssetFileCollision()
+        public void TestNullResource()
         {
             var doc = new CanvasDocument();
 
+            // resource name null case
             var resource1 = new ResourceJson()
             {
-                Name = "Image",
+                Name = null,
                 Path = "Assets\\Images\\Image.png",
                 FileName = "Image.png",
                 ResourceKind = ResourceKind.LocalFile,
@@ -50,7 +51,9 @@ namespace PAModelTests
             doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, null } };
 
             var errorContainer = new ErrorContainer();
-            Assert.ThrowsException<NullReferenceException>(() => doc.StabilizeAssetFilePaths(errorContainer));
+            doc.StabilizeAssetFilePaths(errorContainer);
+
+            Assert.AreEqual(errorContainer.HasErrors, false);
         }
     }
 }
