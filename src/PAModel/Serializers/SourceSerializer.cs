@@ -822,10 +822,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app._dataSourceReferences = new Dictionary<string, LocalDatabaseReferenceJson>();
             foreach (var dataSourceReferenceEntry in dataSourceReferences)
             {
-                if (dataSourceReferenceEntry.Value.dataSources.Count > 0 || dataSourceReferenceEntry.Value.ExtensionData.Count > 0)
-                {
+                // if (dataSourceReferenceEntry.Value.dataSources.Count > 0 || dataSourceReferenceEntry.Value.ExtensionData.Count > 0)
+                // {
                     app._dataSourceReferences.Add(dataSourceReferenceEntry);
-                }
+                // }
             }
 
             // key is filename, value is stringified xml
