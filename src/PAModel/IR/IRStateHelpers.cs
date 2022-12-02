@@ -294,7 +294,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
             }
             else
-            {     
+            {
                 template = templateState.ToControlInfoTemplate();
             }
 
