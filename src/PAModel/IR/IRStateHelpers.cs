@@ -184,13 +184,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Eg:Control Instance 1 -> template1 -> PCFDynamicSchemaForIRRetrieval1/OverridableProperties1
             // Control Instance 2 -> template1 -> PCFDynamicSchemaForIRRetrieval2/OverridableProperties2
 
-            if (control.Template.ExtensionData.TryGetValue("PCFDynamicSchemaForIRRetrieval", out object val))
+            if (control.Template.ExtensionData.TryGetValue("PCFDynamicSchemaForIRRetrieval", out object PCFVal))
             {
-                entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, val);
+                entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, PCFVal);
             }
-            if (control.Template.ExtensionData.TryGetValue("OverridableProperties", out object val1))
+            if (control.Template.ExtensionData.TryGetValue("OverridableProperties", out object OverridablePropVal))
             {
-                entropy.OverridablePropertiesEntry.Add(control.Name, val1);
+                entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
             }
 
             if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
@@ -441,13 +441,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Using the stored PCFDynamicSchemaForIRRetrieval/OverridableProperties value for each control instance,
             // instead of the default value from the control template.
-            if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out object val))
+            if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out object OverridablePropVal))
             {
-                resultControlInfo.Template.ExtensionData["OverridableProperties"] = val;
+                resultControlInfo.Template.ExtensionData["OverridableProperties"] = OverridablePropVal;
             }
-            if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object pcfVal))
+            if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object PCFVal))
             {
-                resultControlInfo.Template.ExtensionData["PCFDynamicSchemaForIRRetrieval"] = pcfVal;
+                resultControlInfo.Template.ExtensionData["PCFDynamicSchemaForIRRetrieval"] = PCFVal;
             }
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
