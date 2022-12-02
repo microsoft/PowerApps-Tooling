@@ -207,7 +207,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
                 templateStore.AddTemplate(templateName, templateState);
-            }            
+            }
 
             SplitCustomTemplates(entropy, control.Template, control.Name);
 
@@ -294,12 +294,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
             }
             else
-            {                
-                template = templateState.ToControlInfoTemplate();                
+            {             
+                template = templateState.ToControlInfoTemplate();
             }
 
             RecombineCustomTemplates(entropy, template, controlName);
-            
+
             var uniqueId = uniqueIdRestorer.GetControlId(controlName);
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
@@ -435,7 +435,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
                 resultControlInfo.HasDynamicProperties = hasDynamicProperties;
                 resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
-            }            
+            }
             resultControlInfo.Template = template.JsonClone();
             resultControlInfo.Children = orderedChildren;
 

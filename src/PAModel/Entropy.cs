@@ -7,8 +7,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
