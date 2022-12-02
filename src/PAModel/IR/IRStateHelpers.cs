@@ -450,7 +450,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.Template.ExtensionData["PCFDynamicSchemaForIRRetrieval"] = pcfVal;
             }
 
-
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
 
