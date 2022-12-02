@@ -186,7 +186,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (control.Template.ExtensionData.TryGetValue("PCFDynamicSchemaForIRRetrieval", out object val))
             {
-                entropy.PCFPropertiesEntry.Add(control.Name, val);
+                entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, val);
             }
             if (control.Template.ExtensionData.TryGetValue("OverridableProperties", out object val1))
             {
@@ -445,7 +445,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 resultControlInfo.Template.ExtensionData["OverridableProperties"] = val;
             }
-            if (entropy.PCFPropertiesEntry.TryGetValue(controlName, out object pcfVal))
+            if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object pcfVal))
             {
                 resultControlInfo.Template.ExtensionData["PCFDynamicSchemaForIRRetrieval"] = pcfVal;
             }
