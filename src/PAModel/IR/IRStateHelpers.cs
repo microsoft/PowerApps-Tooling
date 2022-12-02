@@ -179,6 +179,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Functions = functions,
             };
 
+            // Storing Template PCFDynamicSchemaForIRRetrieval/OverridableProperties field values for each control instance.
+            // Since this value could be different for each control instance though it follows same control template.
+            // Eg:Control Instance 1 -> template1 -> PCFDynamicSchemaForIRRetrieval1/OverridableProperties1
+            // Control Instance 2 -> template1 -> PCFDynamicSchemaForIRRetrieval2/OverridableProperties2
+
+            if (control.Template.ExtensionData.TryGetValue("PCFDynamicSchemaForIRRetrieval", out object val))
+            {
+                entropy.PCFPropertiesEntry.Add(control.Name, val);
+            }
+            if (control.Template.ExtensionData.TryGetValue("OverridableProperties", out object val1))
+            {
+                entropy.OverridablePropertiesEntry.Add(control.Name, val1);
+            }
 
             if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
@@ -194,7 +207,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
                 templateStore.AddTemplate(templateName, templateState);
-            }
+            }            
 
             SplitCustomTemplates(entropy, control.Template, control.Name);
 
@@ -281,12 +294,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
             }
             else
-            {
-                template = templateState.ToControlInfoTemplate();
+            {                
+                template = templateState.ToControlInfoTemplate();                
             }
 
             RecombineCustomTemplates(entropy, template, controlName);
-
+            
             var uniqueId = uniqueIdRestorer.GetControlId(controlName);
             ControlInfoJson.Item resultControlInfo;
             if (stateStore.TryGetControlState(controlName, out var state))
@@ -422,9 +435,21 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
                 resultControlInfo.HasDynamicProperties = hasDynamicProperties;
                 resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
-            }
-            resultControlInfo.Template = template;
+            }            
+            resultControlInfo.Template = template.JsonClone();
             resultControlInfo.Children = orderedChildren;
+
+            // Using the stored PCFDynamicSchemaForIRRetrieval/OverridableProperties value for each control instance,
+            // instead of the default value from the control template.
+            if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out object val))
+            {
+                resultControlInfo.Template.ExtensionData["OverridableProperties"] = val;
+            }
+            if (entropy.PCFPropertiesEntry.TryGetValue(controlName, out object pcfVal))
+            {
+                resultControlInfo.Template.ExtensionData["PCFDynamicSchemaForIRRetrieval"] = pcfVal;
+            }
+
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }

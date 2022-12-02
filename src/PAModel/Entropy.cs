@@ -7,6 +7,8 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -100,6 +102,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         // Key is test rule, value is test screen id without Screen name
         public Dictionary<string, string> RuleScreenIdWithoutScreen { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        // Key is control name, value is OverridableProperties
+        public Dictionary<string, object> OverridablePropertiesEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
+
+        // Key is control name, value is PCFProperties
+        public Dictionary<string, object> PCFPropertiesEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
 
         public int GetOrder(DataSourceEntry dataSource)
         {
