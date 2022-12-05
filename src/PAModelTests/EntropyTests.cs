@@ -66,5 +66,21 @@ namespace PAModelTests
             Assert.IsTrue(msapp._entropy.ControlUniqueIds.Count > 0);
             Assert.AreEqual(msapp._entropy.ControlUniqueGuids.Count, 0);
         }
+
+        // Validate that the control template fields OverridaleProperties and PCFDynamicSchemaForIRRetrieval are stored in entropy while unpacking
+        // The test app contains control instances with same template but different fields
+        [DataTestMethod]
+        [DataRow("ControlInstancesWithDifferentTemplateFields.msapp")]
+        public void TestControlInstancesWithSameTemplateDifferentFields(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsNotNull(msapp._entropy.OverridablePropertiesEntry);
+            Assert.IsNotNull(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry);
+        }
     }
 }

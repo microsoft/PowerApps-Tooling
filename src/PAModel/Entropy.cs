@@ -101,6 +101,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is test rule, value is test screen id without Screen name
         public Dictionary<string, string> RuleScreenIdWithoutScreen { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        // Key is control name, value is OverridableProperties
+        public Dictionary<string, object> OverridablePropertiesEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
+
+        // Key is control name, value is PCFDynamicSchemaForIRRetrieval
+        public Dictionary<string, object> PCFDynamicSchemaForIRRetrievalEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.

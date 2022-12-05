@@ -15,6 +15,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 {
     internal static class IRStateHelpers
     {
+        public const string ControlTemplateOverridableProperties = "OverridableProperties";
+        public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
+
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
             var topParentJson = file.Value.TopParent;
@@ -179,6 +182,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 Functions = functions,
             };
 
+            // Storing Template PCFDynamicSchemaForIRRetrieval/OverridableProperties field values for each control instance.
+            // Since this value could be different for each control instance though it follows same control template.
+            // Eg:Control Instance 1 -> template1 -> PCFDynamicSchemaForIRRetrieval1/OverridableProperties1
+            // Control Instance 2 -> template1 -> PCFDynamicSchemaForIRRetrieval2/OverridableProperties2
+
+            if (control.Template.ExtensionData.TryGetValue(ControlTemplatePCFDynamicSchemaForIRRetrieval, out object PCFVal))
+            {
+                entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, PCFVal);
+            }
+            if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
+            {
+                entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
+            }
 
             if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
@@ -423,8 +439,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resultControlInfo.HasDynamicProperties = hasDynamicProperties;
                 resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
             }
-            resultControlInfo.Template = template;
+            resultControlInfo.Template = template.JsonClone();
             resultControlInfo.Children = orderedChildren;
+
+            // Using the stored PCFDynamicSchemaForIRRetrieval/OverridableProperties value for each control instance,
+            // instead of the default value from the control template.
+            if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out object OverridablePropVal))
+            {
+                resultControlInfo.Template.ExtensionData[ControlTemplateOverridableProperties] = OverridablePropVal;
+            }
+            if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object PCFVal))
+            {
+                resultControlInfo.Template.ExtensionData[ControlTemplatePCFDynamicSchemaForIRRetrieval] = PCFVal;
+            }
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
         }
