@@ -536,7 +536,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 if (caseInsensitiveNames.Add(resource.Name))
                 {
+                    Console.WriteLine("Added to caseInsensitive & caseSensitive " + resource.Name);
                     caseSensitiveNames.Add(resource.Name);
+                }
+                else
+                {
+                    Console.WriteLine("Already in caseInsensitive, not added to caseSensitive " + resource.Name);
                 }
             }
 
@@ -599,8 +604,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // Else remove the old filepath and update the assetFiles with the new entry
                     if (!_assetFiles.ContainsKey(withoutPrefix))
                     {
+                        Console.WriteLine("Does not contain key: " + withoutPrefix.GetFileName());
                         _assetFiles.Remove(assetFilePath);
                         _assetFiles[withoutPrefix] = fileEntry;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Contains key: " + withoutPrefix.GetFileName());
                     }
 
                     // resourceStabilizer is updated with the old and new paths
@@ -678,6 +688,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     fileEntry.Name = withoutPrefix;
                     _assetFiles.Remove(assetFilePath);
                     _assetFiles[withoutPrefix] = fileEntry;
+
+                    Console.WriteLine("Adding File: " + withoutPrefix.GetFileName() + "\n");
                 }
             }
             catch (NullReferenceException nullReferenceException)
