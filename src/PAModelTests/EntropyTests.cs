@@ -95,18 +95,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-            var resource1 = new ResourceJson()
-            {
-                Name = "Image1",
-                Path = "Assets\\Images\\Image.png",
-                FileName = "Image.png",
-                ResourceKind = ResourceKind.LocalFile,
-                Content = ContentKind.Image,
-            };
-            msapp._assetFiles.Add(new FilePath("Images", "Image.png"), new FileEntry());
-
             // passing null resource in resourcesJson
-            msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, null } };
+            msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
                         
             TranformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
         }
