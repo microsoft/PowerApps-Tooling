@@ -170,7 +170,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         {
             if (resource == null)
             {
-                return;
+               return;
             }
 
             var key = GetResourcesJsonIndicesKey(resource);
