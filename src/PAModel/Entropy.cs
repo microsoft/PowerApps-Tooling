@@ -168,6 +168,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void Add(ResourceJson resource, int order)
         {
+            if (resource != null)
+            {
+                return;
+            }
+
             var key = GetResourcesJsonIndicesKey(resource);
             if (!this.ResourcesJsonIndices.ContainsKey(key))
             {
