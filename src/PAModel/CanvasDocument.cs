@@ -540,8 +540,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
             }
 
-            // Keeps track of all resource paths stabilized 
-            var resourceStabilizer = new HashSet<string>(StringComparer.Ordinal);
+            // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
+            // due to collisions between the resource and file names.
+            Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
 
             // Update AssetFile paths
             foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
@@ -552,7 +553,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var pathToStabilize = resource.Path;
 
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
-                    continue;                
+                    continue;
                 if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
                 {
                     int i = 1;
@@ -582,31 +583,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 resource.FileName = newFileName;
 
                 var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
-                var updatedPathToStabilize = resource.Path;               
+                var updatedPathToStabilize = resource.Path;
 
-                if (resourceStabilizer.Contains(pathToStabilize) || resourceStabilizer.Contains(updatedPathToStabilize))
-                {
-                    fileEntry.Name = withoutPrefix;
-                    _assetFiles.Remove(assetFilePath);
-                    _assetFiles[withoutPrefix] = fileEntry;
-                }
-                else
-                {
-                    // This makes sure that the fileentry is updated to the updated path without prefix
-                    fileEntry.Name = withoutPrefix;
-
-                    // If the updated path key(withoutPrefix) already exists in assetFiles do not overwrite that file entry (avoid discarding the fileentry of the key that already exists)
-                    // Else remove the old filepath and update the assetFiles with the new entry
-                    if (!_assetFiles.ContainsKey(withoutPrefix))
-                    {
-                        _assetFiles.Remove(assetFilePath);
-                        _assetFiles[withoutPrefix] = fileEntry;
-                    }
-
-                    // resourceStabilizer is updated with the old and new paths
-                    resourceStabilizer.Add(pathToStabilize);
-                    resourceStabilizer.Add(updatedPathToStabilize);
-                }
+                fileEntry.Name = withoutPrefix;
+                _assetFiles.Remove(assetFilePath);
+                newAssetFiles[withoutPrefix] = fileEntry;
 
                 // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
                 if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
@@ -614,6 +595,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
                     _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
                 }
+            }
+
+            // Once we have all the new asset files, add them to the existing
+            foreach (FilePath newAssetKey in newAssetFiles.Keys)
+            {
+                _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
             }
         }
 
@@ -643,6 +630,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     return;
 
                 var maxFileNumber = FindMaxEntropyFileName();
+
+                // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
+                // due to collisions between the resource and file names.
+                Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
 
                 foreach (var resource in _resourcesJson.Resources)
                 {
@@ -677,12 +668,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
                     fileEntry.Name = withoutPrefix;
                     _assetFiles.Remove(assetFilePath);
-                    _assetFiles[withoutPrefix] = fileEntry;
+                    newAssetFiles[withoutPrefix] = fileEntry;
+                }
+
+                // Once we have all the new asset files, add them to the existing
+                foreach (FilePath newAssetKey in newAssetFiles.Keys)
+                {
+                    _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
                 }
             }
             catch (NullReferenceException nullReferenceException)
             {
-                errors.InternalError(nullReferenceException); 
+                errors.InternalError(nullReferenceException);
                 return;
             }
         }
