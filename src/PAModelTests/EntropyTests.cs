@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -81,6 +83,22 @@ namespace PAModelTests
 
             Assert.IsNotNull(msapp._entropy.OverridablePropertiesEntry);
             Assert.IsNotNull(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry);
+        }
+
+        [DataTestMethod]
+        [DataRow("AnimationControlIdIsGuid.msapp")]
+        public void TestGetResourcesJSONIndicesKeyNullException(string filename)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            // passing null resource in resourcesJson
+            msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
+                        
+            TranformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
         }
     }
 }
