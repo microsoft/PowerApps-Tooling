@@ -57,7 +57,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
             errors.ThrowOnErrors();
 
-            var docClone = new CanvasDocument(doc1); 
+            var docClone = new CanvasDocument(doc1);
 
             return HasNoDeltas(doc1, docClone, strict: true);
         }
@@ -154,7 +154,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     string outFile = temp1.FullPath;
 
                     var log = TextWriter.Null;
-                    
+
                     // MsApp --> Model
                     CanvasDocument msapp;
                     ErrorContainer errors = new ErrorContainer();
@@ -188,8 +188,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     using (var tempDir = new TempDir())
                     {
                         string outSrcDir = tempDir.Dir;
-                        errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath : pathToMsApp);
-                        errors.ThrowOnErrors();                 
+                        errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath: pathToMsApp);
+                        errors.ThrowOnErrors();
                     }
                 } // end using
 
@@ -245,10 +245,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void CompareChecksums(string pathToZip, TextWriter log, Dictionary<string, byte[]> comp, bool first, ErrorContainer errorContainer)
         {
             // Path to the directory where we are creating the normalized form
-             string normFormDir = ".\\diffFiles";
+            string normFormDir = ".\\diffFiles";
 
             // Create directory if doesn't exist
-            if (!Directory.Exists(normFormDir)) {
+            if (!Directory.Exists(normFormDir))
+            {
                 Directory.CreateDirectory(normFormDir);
             }
 
@@ -261,7 +262,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     {
                         continue;
                     }
-                    
+
                     // Do easy diffs
                     {
                         if (first)
@@ -276,18 +277,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 bool same = newContents.SequenceEqual(originalContents);
 
                                 if (!same)
-                                { 
-                                    var jsonDictionary1 = FlattenJson(originalContents);
-                                    var jsonDictionary2 = FlattenJson(newContents);
+                                {
 
-                                    // Add JSONMismatch error if JSON property was changed or removed
-                                    CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+                                    bool mismatch = false;
 
-                                    // Add JSONMismatch error if JSON property was added
-                                    CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+                                    // Catch in case of originalContents/newContents not being JSON
+                                    try
+                                    {
+                                        JsonDocument.Parse(originalContents);
+                                        JsonDocument.Parse(newContents);
+                                    }
+                                    catch
+                                    {
+                                        mismatch = true;
+                                    }
+
+                                    if (!mismatch)
+                                    {
+                                        var jsonDictionary1 = FlattenJson(originalContents);
+                                        var jsonDictionary2 = FlattenJson(newContents);
+
+                                        // Add JSONMismatch error if JSON property was changed or removed
+                                        CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
+
+                                        // Add JSONMismatch error if JSON property was added
+                                        CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
 #if DEBUG
-                                    DebugMismatch(entry, originalContents, newContents, normFormDir);
+                                        DebugMismatch(entry, originalContents, newContents, normFormDir);
 #endif
+                                    }
                                 }
 
                                 comp.Remove(entry.FullName);
@@ -310,7 +328,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 var jsonObject = document.RootElement.EnumerateObject().SelectMany(property => GetLeaves(null, property));
                 return jsonObject.ToDictionary(key => key.Path, value => value.Property.Value.Clone());
             }
-                
+
         }
 
         public static IEnumerable<(string Path, JsonProperty Property)> GetLeaves(string path, JsonProperty property)
@@ -357,7 +375,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonElement array)
         {
             List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
-            
+
             int index = 0;
 
             foreach (var member in array.EnumerateArray())
