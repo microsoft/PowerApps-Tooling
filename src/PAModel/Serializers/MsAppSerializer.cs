@@ -238,31 +238,27 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 } // foreach zip entry
 
-                // If no templates exist
-                if (app._templates != null)
+                foreach (var template in app._templates.UsedTemplates)
                 {
-                    foreach (var template in app._templates.UsedTemplates)
+                    if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
                     {
-                        if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
-                        {
-                            templateState.IsWidgetTemplate = true;
-                        }
+                        templateState.IsWidgetTemplate = true;
                     }
+                }
 
-                    foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                {
+                    if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
+                        continue;
+                    template.TemplateOriginalName = componentTemplate.OriginalName;
+                    template.IsComponentLocked = componentTemplate.IsComponentLocked;
+                    template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
+                    template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+                    template.ComponentExtraMetadata = componentTemplate.ExtensionData;
+
+                    if (template.Version != componentTemplate.Version)
                     {
-                        if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
-                            continue;
-                        template.TemplateOriginalName = componentTemplate.OriginalName;
-                        template.IsComponentLocked = componentTemplate.IsComponentLocked;
-                        template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
-                        template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
-                        template.ComponentExtraMetadata = componentTemplate.ExtensionData;
-
-                        if (template.Version != componentTemplate.Version)
-                        {
-                            app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
-                        }
+                        app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
                     }
                 }
 
@@ -306,17 +302,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
-                if (app._properties != null) {
-                    if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
-                    {
-                        var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
-                        app._libraryReferences = refs;
-                        app._properties.LibraryDependencies = null;
-                    }
-                
+                if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
+                {
+                    var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                    app._libraryReferences = refs;
+                    app._properties.LibraryDependencies = null;
+                }
 
-                    if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
-                    {
+                if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
+                {
                     var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
 
                     foreach (var connectionJson in cxs)
@@ -336,36 +330,35 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                             }
                         }
                     }
-                        app._connections = cxs;
-                        app._properties.LocalConnectionReferences = null;
 
-                    }
-
-
-                    app._entropy.WasLocalDatabaseReferencesEmpty = true;
-                    if (string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
-                    {
-                        app._entropy.LocalDatabaseReferencesAsEmpty = true;
-                    }
-                    else
-                    {
-                        var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
-                        app._entropy.LocalDatabaseReferencesAsEmpty = false;
-                        if (dsrs.Count > 0)
-                        {
-                            app._entropy.WasLocalDatabaseReferencesEmpty = false;
-                            app._dataSourceReferences = dsrs;
-                            app._properties.LocalDatabaseReferences = null;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
-                    {
-                        app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
-                        app._properties.InstrumentationKey = null;
-                    }
-
+                    app._connections = cxs;
+                    app._properties.LocalConnectionReferences = null;
                 }
+
+                app._entropy.WasLocalDatabaseReferencesEmpty = true;
+                if (string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
+                {
+                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
+                }
+                else
+                {
+                    var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                    if (dsrs.Count > 0)
+                    {
+                        app._entropy.WasLocalDatabaseReferencesEmpty = false;
+                        app._dataSourceReferences = dsrs;
+                        app._properties.LocalDatabaseReferences = null;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
+                {
+                    app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
+                    app._properties.InstrumentationKey = null;
+                }
+
+
                 if (componentsMetadata?.Components != null)
                 {
                     int order = 0;
