@@ -31,7 +31,7 @@ namespace targets
             bool gitExists = true;
             try 
             {
-                RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim(); 
+                RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
                 gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();               
             }
             catch
@@ -59,27 +59,27 @@ namespace targets
                 });
 
             Target("clean",
-                () => RunDotnet("clean", $"{solution} --configuration {options.Configuration}", gitExists, LogDir));
+                () => RunDotnet("clean", $"{EscapePath(solution)} --configuration {options.Configuration}", gitExists, $"{EscapePath(LogDir)}"));
 
             Target("restore",
                 DependsOn("clean"),
-                () => RunDotnet("restore", $"{solution}", gitExists, LogDir));
+                () => RunDotnet("restore", $"{EscapePath(solution)}", gitExists, $"{EscapePath(LogDir)}"));
 
             Target("build",
                 () => {
                     if (gitExists)
                         CreateBuildHashFile(ObjDir, gitHash);
-                    RunDotnet("build", $"{solution} --configuration {options.Configuration} --no-restore", gitExists, LogDir);
+                    RunDotnet("build", $"{EscapePath(solution)} --configuration {options.Configuration} --no-restore", gitExists, $"{EscapePath(LogDir)}");
                 });
 
             Target("test",
-                () => RunDotnet("test", $"{solution} --configuration {options.Configuration} --no-build --logger trx --results-directory {TestLogDir}", gitExists, LogDir));
+                () => RunDotnet("test", $"{EscapePath(solution)} --configuration {options.Configuration} --no-build --logger trx --results-directory {EscapePath(TestLogDir)}", gitExists, $"{EscapePath(LogDir)}"));
 
             Target("rebuild",
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $" {project} --configuration {options.Configuration} --output {Path.Combine(PkgDir, "PackResult")} --no-build -p:Packing=true", gitExists, LogDir));
+                () => RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, $"{EscapePath(LogDir)}"));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
@@ -134,6 +134,11 @@ namespace targets
                 }
             }
             catch (AccessViolationException) { /* swallow */ }
+        }
+
+        static string EscapePath(string path)
+        {
+            return $"\"{path}\"";
         }
     }
 }
