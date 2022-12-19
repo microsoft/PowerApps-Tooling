@@ -44,11 +44,15 @@ namespace targets
             string BinDir = Path.Combine(RootDir, "bin");
             string ObjDir = Path.Combine(RootDir, "obj");
             string PkgDir = Path.Combine(RootDir, "pkg");
+            string SrcDir = Path.Combine(RootDir, "src");
+
             string LogDir = Path.Combine(ObjDir, "logs");
             string TestLogDir = Path.Combine(ObjDir, "testLogs");
 
-            var solution = Path.Combine(RootDir, "src/PASopa.sln");
-            var project = Path.Combine(RootDir, "src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj");
+            string PAModelDir = Path.Combine(SrcDir, "PAModel");
+            var solution = Path.Combine(SrcDir, "PASopa.sln");
+            
+            var project = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
             Target("squeaky-clean",
                 () =>
@@ -59,27 +63,27 @@ namespace targets
                 });
 
             Target("clean",
-                () => RunDotnet("clean", $"{EscapePath(solution)} --configuration {options.Configuration}", gitExists, $"{EscapePath(LogDir)}"));
+                () => RunDotnet("clean", $"{EscapePath(solution)} --configuration {options.Configuration}", gitExists, LogDir));
 
             Target("restore",
                 DependsOn("clean"),
-                () => RunDotnet("restore", $"{EscapePath(solution)}", gitExists, $"{EscapePath(LogDir)}"));
+                () => RunDotnet("restore", $"{EscapePath(solution)}", gitExists, LogDir));
 
             Target("build",
                 () => {
                     if (gitExists)
                         CreateBuildHashFile(ObjDir, gitHash);
-                    RunDotnet("build", $"{EscapePath(solution)} --configuration {options.Configuration} --no-restore", gitExists, $"{EscapePath(LogDir)}");
+                    RunDotnet("build", $"{EscapePath(solution)} --configuration {options.Configuration} --no-restore", gitExists, LogDir);
                 });
 
             Target("test",
-                () => RunDotnet("test", $"{EscapePath(solution)} --configuration {options.Configuration} --no-build --logger trx --results-directory {EscapePath(TestLogDir)}", gitExists, $"{EscapePath(LogDir)}"));
+                () => RunDotnet("test", $"{EscapePath(solution)} --configuration {options.Configuration} --no-build --logger trx --results-directory {EscapePath(TestLogDir)}", gitExists, LogDir));
 
             Target("rebuild",
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, $"{EscapePath(LogDir)}"));
+                () => RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
@@ -103,7 +107,8 @@ namespace targets
             var gitDef = "";
             if (gitExists) 
                 gitDef = "-p:GitExists=true";
-            var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={LogDir}/{verb}-{options.Configuration}.log /flp3:PerformanceSummary;Verbosity=diag;LogFile={LogDir}/{verb}-{options.Configuration}.diagnostics.log";
+            var optionsLogPath = Path.Combine(LogDir, $"{verb}-{options.Configuration}");
+            var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={EscapePath(optionsLogPath + ".log")} /flp3:PerformanceSummary;Verbosity=diag;LogFile={EscapePath(optionsLogPath + ".diagnostics.log")}";
             Run("dotnet", $"{verb} {verbArgs} {logSettings} {gitDef} /nologo");
         }
 
