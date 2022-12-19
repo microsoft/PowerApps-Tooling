@@ -18,7 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public static void TranformLogoOnLoad(this CanvasDocument app)
         {
-            if (app._publishInfo != null) {
+
                 // May be null or "" 
                 var oldLogoName = app._publishInfo.LogoFileName;
                 if (!string.IsNullOrEmpty(oldLogoName))
@@ -39,7 +39,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         app._publishInfo.LogoFileName = newLogoName;
                     }
                 }
-            }
+            
         }
                 
 
