@@ -18,24 +18,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public static void TranformLogoOnLoad(this CanvasDocument app)
         {
-            // May be null or "" 
-            var oldLogoName = app._publishInfo.LogoFileName;
-            if (!string.IsNullOrEmpty(oldLogoName))
-            {
-                string newLogoName = "logo" + Path.GetExtension(oldLogoName);
-
-                FileEntry logoFile;
-                var oldKey = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(oldLogoName));
-                if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
+            if (app._publishInfo != null) {
+                // May be null or "" 
+                var oldLogoName = app._publishInfo.LogoFileName;
+                if (!string.IsNullOrEmpty(oldLogoName))
                 {
-                    app._unknownFiles.Remove(oldKey);
+                    string newLogoName = "logo" + Path.GetExtension(oldLogoName);
 
-                    logoFile.Name = new FilePath(newLogoName);
-                    app._logoFile = logoFile;
+                    FileEntry logoFile;
+                    var oldKey = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(oldLogoName));
+                    if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
+                    {
+                        app._unknownFiles.Remove(oldKey);
+
+                        logoFile.Name = new FilePath(newLogoName);
+                        app._logoFile = logoFile;
 
 
-                    app._entropy.SetLogoFileName(oldLogoName);
-                    app._publishInfo.LogoFileName = newLogoName;
+                        app._entropy.SetLogoFileName(oldLogoName);
+                        app._publishInfo.LogoFileName = newLogoName;
+                    }
                 }
             }
         }
