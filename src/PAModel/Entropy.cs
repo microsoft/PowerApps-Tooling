@@ -225,18 +225,20 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         public void SetProperties(DocumentPropertiesJson documentProperties)
         {
-            VolatileProperties = new PropertyEntropy()
-            {
-                AnalysisLoadTime = documentProperties.AnalysisLoadTime,
-                DeserializationLoadTime = documentProperties.DeserializationLoadTime,
-                ControlCount = documentProperties.ControlCount,
-                ErrorCount = documentProperties.ErrorCount
-            };
+            if (documentProperties != null) {
+                VolatileProperties = new PropertyEntropy()
+                {
+                    AnalysisLoadTime = documentProperties.AnalysisLoadTime,
+                    DeserializationLoadTime = documentProperties.DeserializationLoadTime,
+                    ControlCount = documentProperties.ControlCount,
+                    ErrorCount = documentProperties.ErrorCount
+                };
 
-            documentProperties.AnalysisLoadTime = null;
-            documentProperties.DeserializationLoadTime = null;
-            documentProperties.ControlCount = null;
-            documentProperties.ErrorCount = null;
+                documentProperties.AnalysisLoadTime = null;
+                documentProperties.DeserializationLoadTime = null;
+                documentProperties.ControlCount = null;
+                documentProperties.ErrorCount = null;
+            }
         }
 
         public void GetProperties(DocumentPropertiesJson documentProperties)

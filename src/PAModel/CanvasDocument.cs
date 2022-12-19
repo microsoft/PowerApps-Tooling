@@ -351,17 +351,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             // Shard templates, parse for default values
             var templateDefaults = new Dictionary<string, ControlTemplate>();
-            foreach (var template in _templates.UsedTemplates)
+
+            if (_templates != null)
             {
-                if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                foreach (var template in _templates.UsedTemplates)
                 {
-                    errors.GenericError($"Unable to parse template file {template.Name}");
-                    throw new DocumentException();
+                    if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+                    {
+                        errors.GenericError($"Unable to parse template file {template.Name}");
+                        throw new DocumentException();
+                    }
                 }
             }
 
-            // Also add Screen and App templates (not xml, constructed in code on the server)
-            GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
+            if (_properties != null) {
+                // Also add Screen and App templates (not xml, constructed in code on the server)
+                GlobalTemplates.AddCodeOnlyTemplates(_templateStore, templateDefaults, _properties.DocumentAppType);
+            }
 
             // PCF templates
             if (_pcfControls.Count == 0)
@@ -531,76 +537,80 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // If a name matches caseinsensitive but not casesensitive, it is a candidate for rename
             var caseInsensitiveNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var caseSensitiveNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
-                                                             .OrderBy(resource => resource.Name, StringComparer.Ordinal))
+
+            if (_resourcesJson != null)
             {
-                if (caseInsensitiveNames.Add(resource.Name))
+                foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
+                                                                 .OrderBy(resource => resource.Name, StringComparer.Ordinal))
                 {
-                    caseSensitiveNames.Add(resource.Name);
-                }
-            }
-
-            // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
-            // due to collisions between the resource and file names.
-            Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
-
-            // Update AssetFile paths
-            foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
-                                                             .OrderBy(resource => resource.Name, StringComparer.Ordinal))
-            {
-                var originalName = resource.Name;
-                var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
-                var pathToStabilize = resource.Path;
-
-                if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
-                    continue;
-                if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
-                {
-                    int i = 1;
-                    var newResourceName = resource.Name + '_' + i;
-                    while (caseInsensitiveNames.Contains(newResourceName))
+                    if (caseInsensitiveNames.Add(resource.Name))
                     {
-                        ++i;
-                        newResourceName = resource.Name + '_' + i;
+                        caseSensitiveNames.Add(resource.Name);
+                    }
+                }
+
+                // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
+                // due to collisions between the resource and file names.
+                Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
+
+                // Update AssetFile paths
+                foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
+                                                                 .OrderBy(resource => resource.Name, StringComparer.Ordinal))
+                {
+                    var originalName = resource.Name;
+                    var assetFilePath = GetAssetFilePathWithoutPrefix(resource.Path);
+                    var pathToStabilize = resource.Path;
+
+                    if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
+                        continue;
+                    if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
+                    {
+                        int i = 1;
+                        var newResourceName = resource.Name + '_' + i;
+                        while (caseInsensitiveNames.Contains(newResourceName))
+                        {
+                            ++i;
+                            newResourceName = resource.Name + '_' + i;
+                        }
+
+                        resource.Name = newResourceName;
+
+                        caseInsensitiveNames.Add(resource.Name);
+                        caseSensitiveNames.Add(resource.Name);
+
+                        var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, originalName, StringComparison.OrdinalIgnoreCase));
+                        errors.GenericWarning($"Asset named {originalName} collides with {colliding}, unpacking as {resource.Name}");
                     }
 
-                    resource.Name = newResourceName;
+                    var extension = assetFilePath.GetExtension();
+                    var newFileName = resource.Name + extension;
 
-                    caseInsensitiveNames.Add(resource.Name);
-                    caseSensitiveNames.Add(resource.Name);
+                    _entropy.LocalResourceFileNames.Add(resource.Name, resource.FileName);
 
-                    var colliding = _entropy.LocalResourceFileNames.Keys.First(key => string.Equals(key, originalName, StringComparison.OrdinalIgnoreCase));
-                    errors.GenericWarning($"Asset named {originalName} collides with {colliding}, unpacking as {resource.Name}");
+                    var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
+                    resource.Path = updatedPath.ToMsAppPath();
+                    resource.FileName = newFileName;
+
+                    var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
+                    var updatedPathToStabilize = resource.Path;
+
+                    fileEntry.Name = withoutPrefix;
+                    _assetFiles.Remove(assetFilePath);
+                    newAssetFiles[withoutPrefix] = fileEntry;
+
+                    // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
+                    if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
+                    {
+                        var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
+                        _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
+                    }
                 }
 
-                var extension = assetFilePath.GetExtension();
-                var newFileName = resource.Name + extension;
-
-                _entropy.LocalResourceFileNames.Add(resource.Name, resource.FileName);
-
-                var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
-                resource.Path = updatedPath.ToMsAppPath();
-                resource.FileName = newFileName;
-
-                var withoutPrefix = GetAssetFilePathWithoutPrefix(resource.Path);
-                var updatedPathToStabilize = resource.Path;
-
-                fileEntry.Name = withoutPrefix;
-                _assetFiles.Remove(assetFilePath);
-                newAssetFiles[withoutPrefix] = fileEntry;
-
-                // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
-                if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
+                // Once we have all the new asset files, add them to the existing
+                foreach (FilePath newAssetKey in newAssetFiles.Keys)
                 {
-                    var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
-                    _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
+                    _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
                 }
-            }
-
-            // Once we have all the new asset files, add them to the existing
-            foreach (FilePath newAssetKey in newAssetFiles.Keys)
-            {
-                _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
             }
         }
 

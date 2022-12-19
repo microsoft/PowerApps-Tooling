@@ -238,30 +238,32 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 } // foreach zip entry
 
-                foreach (var template in app._templates.UsedTemplates)
+                if (app._templates != null)
                 {
-                    if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
+                    foreach (var template in app._templates.UsedTemplates)
                     {
-                        templateState.IsWidgetTemplate = true;
+                        if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
+                        {
+                            templateState.IsWidgetTemplate = true;
+                        }
+                    }
+
+                    foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                    {
+                        if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
+                            continue;
+                        template.TemplateOriginalName = componentTemplate.OriginalName;
+                        template.IsComponentLocked = componentTemplate.IsComponentLocked;
+                        template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
+                        template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
+                        template.ComponentExtraMetadata = componentTemplate.ExtensionData;
+
+                        if (template.Version != componentTemplate.Version)
+                        {
+                            app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
+                        }
                     }
                 }
-
-                foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
-                {
-                    if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
-                        continue;
-                    template.TemplateOriginalName = componentTemplate.OriginalName;
-                    template.IsComponentLocked = componentTemplate.IsComponentLocked;
-                    template.ComponentChangedSinceFileImport = componentTemplate.ComponentChangedSinceFileImport;
-                    template.ComponentAllowCustomization = componentTemplate.ComponentAllowCustomization;
-                    template.ComponentExtraMetadata = componentTemplate.ExtensionData;
-
-                    if (template.Version != componentTemplate.Version)
-                    {
-                        app._entropy.SetTemplateVersion(template.Name, componentTemplate.Version);
-                    }
-                }
-
                 app._screenOrder = screenOrder.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
                 // Checksums?
@@ -302,62 +304,64 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 // Normalize logo filename. 
                 app.TranformLogoOnLoad();
 
-                if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
+                if (app._properties != null)
                 {
-                    var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
-                    app._libraryReferences = refs;
-                    app._properties.LibraryDependencies = null;
-                }
-
-                if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
-                {
-                    var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
-
-                    foreach (var connectionJson in cxs)
+                    if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
                     {
-                        var extensionData = connectionJson.Value.ExtensionData;
-                        if (extensionData != null)
+                        var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                        app._libraryReferences = refs;
+                        app._properties.LibraryDependencies = null;
+                    }
+
+                    if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
+                    {
+                        var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+
+                        foreach (var connectionJson in cxs)
                         {
-                            if (extensionData.TryGetValue(ConnectionInstanceIDPropertyName, out JsonElement connectionInstanceID))
+                            var extensionData = connectionJson.Value.ExtensionData;
+                            if (extensionData != null)
                             {
-                                var serializedID = JsonSerializer.Serialize(connectionInstanceID);
+                                if (extensionData.TryGetValue(ConnectionInstanceIDPropertyName, out JsonElement connectionInstanceID))
+                                {
+                                    var serializedID = JsonSerializer.Serialize(connectionInstanceID);
 
-                                // Mapping the connection key to the serializedID and adding it to _entropy                                
-                                app._entropy.LocalConnectionIDReferences.Add(connectionJson.Key, serializedID);
+                                    // Mapping the connection key to the serializedID and adding it to _entropy                                
+                                    app._entropy.LocalConnectionIDReferences.Add(connectionJson.Key, serializedID);
 
-                                // Basically making sure conn instance id is not added to app._connections
-                                extensionData.Remove(ConnectionInstanceIDPropertyName);
+                                    // Basically making sure conn instance id is not added to app._connections
+                                    extensionData.Remove(ConnectionInstanceIDPropertyName);
+                                }
                             }
+                        }
+
+                        app._connections = cxs;
+                        app._properties.LocalConnectionReferences = null;
+                    }
+
+                    app._entropy.WasLocalDatabaseReferencesEmpty = true;
+                    if (string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
+                    {
+                        app._entropy.LocalDatabaseReferencesAsEmpty = true;
+                    }
+                    else
+                    {
+                        var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                        app._entropy.LocalDatabaseReferencesAsEmpty = false;
+                        if (dsrs.Count > 0)
+                        {
+                            app._entropy.WasLocalDatabaseReferencesEmpty = false;
+                            app._dataSourceReferences = dsrs;
+                            app._properties.LocalDatabaseReferences = null;
                         }
                     }
 
-                    app._connections = cxs;
-                    app._properties.LocalConnectionReferences = null;
-                }
-
-                app._entropy.WasLocalDatabaseReferencesEmpty = true;
-                if (string.IsNullOrEmpty(app._properties.LocalDatabaseReferences))
-                {
-                    app._entropy.LocalDatabaseReferencesAsEmpty = true;
-                }
-                else
-                {
-                    var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
-                    app._entropy.LocalDatabaseReferencesAsEmpty = false;
-                    if (dsrs.Count > 0)
+                    if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
                     {
-                        app._entropy.WasLocalDatabaseReferencesEmpty = false;
-                        app._dataSourceReferences = dsrs;
-                        app._properties.LocalDatabaseReferences = null;
+                        app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
+                        app._properties.InstrumentationKey = null;
                     }
                 }
-
-                if (!string.IsNullOrEmpty(app._properties.InstrumentationKey))
-                {
-                    app._appInsights = new AppInsightsKeyJson() { InstrumentationKey = app._properties.InstrumentationKey };
-                    app._properties.InstrumentationKey = null;
-                }
-
 
                 if (componentsMetadata?.Components != null)
                 {
