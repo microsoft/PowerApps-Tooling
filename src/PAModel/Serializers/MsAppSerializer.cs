@@ -239,7 +239,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 } // foreach zip entry
 
                 // If no templates exist
-                if (app._templates == null)
+                if (app._templates != null)
                 {
                     foreach (var template in app._templates.UsedTemplates)
                     {
