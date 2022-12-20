@@ -32,9 +32,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <param name="app">The app.</param>
         public static void PersistOrderingOfResourcesJsonEntries(this CanvasDocument app)
         {
-            for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
-            {
-                app._entropy.Add(app._resourcesJson.Resources[i], i);
+            if (app._resourcesJson != null) {
+                for (var i = 0; i < app._resourcesJson.Resources.Length; i++)
+                {
+                    app._entropy.Add(app._resourcesJson.Resources[i], i);
+                }
             }
         }
 
