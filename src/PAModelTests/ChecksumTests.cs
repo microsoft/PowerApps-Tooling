@@ -18,11 +18,12 @@ namespace PAModelTests
 
         [DataTestMethod]
         [DataRow("ImageApp.msapp", "ImageApp_RemovedImage.msapp")]
-        public void CompareChecksumJSONCheck(string app1, string app2)
+        public void CompareChecksum_ImageNotReadAsJSONTest(string app1, string app2)
         {
             var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
             var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
 
+            // Should not throw an exception when images diff
             MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out);
         }
 
