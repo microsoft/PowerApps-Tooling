@@ -9,11 +9,23 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
+
 namespace PAModelTests
 {
     [TestClass]
     public class ChecksumTests
     {
+
+        [DataTestMethod]
+        [DataRow("ImageApp.msapp", "ImageApp_RemovedImage.msapp")]
+        public void CompareChecksumJSONCheck(string app1, string app2)
+        {
+            var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
+            var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
+
+            MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out);
+        }
+
         [DataTestMethod]
         [DataRow("MyWeather.msapp", "C8_ZXZwZAG3P0lmCkNAGjsIjYb503akWCyudsk8DEi2aX0=", 11, "References\\DataSources.json", "C8_2dpVudcymwNaHoHtQugF1MSpzsY1I6syuPiB0B+jTYc=")]
         public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
