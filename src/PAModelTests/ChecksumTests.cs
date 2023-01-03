@@ -23,7 +23,7 @@ namespace PAModelTests
             var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
             var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
 
-            // Should not throw an exception when images diff
+            // Should throw specific exception when images diff
             MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out);
         }
 

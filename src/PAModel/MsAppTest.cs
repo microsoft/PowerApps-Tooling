@@ -279,7 +279,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                 if (!same)
                                 {
 
-                                    bool mismatch = false;
+                                    bool isJson = true;
 
                                     // Catch in case of originalContents/newContents not being JSON
                                     try
@@ -289,10 +289,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                                     }
                                     catch
                                     {
-                                        mismatch = true;
+                                        isJson = false;
                                     }
 
-                                    if (!mismatch)
+                                    if (isJson)
                                     {
                                         var jsonDictionary1 = FlattenJson(originalContents);
                                         var jsonDictionary2 = FlattenJson(newContents);
@@ -302,9 +302,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                         // Add JSONMismatch error if JSON property was added
                                         CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+                                    }
+
 #if DEBUG
-                                        DebugMismatch(entry, originalContents, newContents, normFormDir);
+                                    DebugMismatch(entry, originalContents, newContents, normFormDir);
 #endif
+
+                                    if (!isJson)
+                                    {
+                                        throw new Exception($"Mismatch detected in non-Json properties: " + entry.FullName);
                                     }
                                 }
 
