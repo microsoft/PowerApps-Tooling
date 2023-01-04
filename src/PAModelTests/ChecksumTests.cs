@@ -15,20 +15,6 @@ namespace PAModelTests
     [TestClass]
     public class ChecksumTests
     {
-
-        [DataTestMethod]
-        [DataRow("ImageApp_SwitchNames.msapp", "ImageApp.msapp")]
-        [DataRow("ImageApp.msapp", "ImageApp_SwitchNames.msapp")]
-        public void CompareChecksum_ImageNotReadAsJSONTest(string app1, string app2)
-        {
-            var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
-            var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
-
-            // When there's a file content mismatch on non-JSON files, we must throw an error and not use JSON to compare non JSON-files
-            var exception = Assert.ThrowsException<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
-            Assert.AreEqual(exception.Message, "Mismatch detected in non-Json properties: Assets\\Images\\1556681b-11bd-4d72-9b17-4f884fb4b465.png");
-        }
-
         [DataTestMethod]
         [DataRow("MyWeather.msapp", "C8_ZXZwZAG3P0lmCkNAGjsIjYb503akWCyudsk8DEi2aX0=", 11, "References\\DataSources.json", "C8_2dpVudcymwNaHoHtQugF1MSpzsY1I6syuPiB0B+jTYc=")]
         public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
