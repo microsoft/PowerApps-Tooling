@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
 
@@ -17,14 +18,16 @@ namespace PAModelTests
     {
 
         [DataTestMethod]
-        [DataRow("ImageApp.msapp", "ImageApp_RemovedImage.msapp")]
+        [DataRow("ImageApp_SwitchNames.msapp", "ImageApp.msapp")]
+        [DataRow("ImageApp.msapp", "ImageApp_SwitchNames.msapp")]
         public void CompareChecksum_ImageNotReadAsJSONTest(string app1, string app2)
         {
             var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
             var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
 
-            // Should throw specific exception when images diff
-            MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out);
+            // When there's a file content mismatch on non-JSON files, we must throw an error and not use JSON to compare non JSON-files
+            var exception = Assert.ThrowsException<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
+            Assert.AreEqual(exception.Message, "Mismatch detected in non-Json properties: Assets\\Images\\1556681b-11bd-4d72-9b17-4f884fb4b465.png");
         }
 
         [DataTestMethod]

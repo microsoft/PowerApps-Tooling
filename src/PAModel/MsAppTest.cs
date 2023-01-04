@@ -310,7 +310,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                                     if (!isJson)
                                     {
-                                        throw new Exception($"Mismatch detected in non-Json properties: " + entry.FullName);
+                                        throw new ArgumentException($"Mismatch detected in non-Json properties: " + entry.FullName);
                                     }
                                 }
 
