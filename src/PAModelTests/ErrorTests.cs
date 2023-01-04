@@ -103,7 +103,8 @@ namespace PAModelTests
             var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
             var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);
 
-            // When there's a file content mismatch on non-JSON files, we must throw an error and not use JSON to compare non JSON-files
+            // When there's a file content mismatch on non-JSON files,
+            // we must throw an error and not use JSON to compare non JSON-files
             var exception = Assert.Throws<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
             Assert.Equal("Mismatch detected in non-Json properties: Assets\\Images\\1556681b-11bd-4d72-9b17-4f884fb4b465.png", exception.Message);
         }
