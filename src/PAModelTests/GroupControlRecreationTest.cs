@@ -40,7 +40,7 @@ namespace PAModelTests
         }
         [DataTestMethod]
         [DataRow("GroupControlTest.msapp")]
-        public void TestGroupControlsKey_Empty(string filename)
+        public void TestGroupControlsState_Empty(string filename)
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
             Assert.IsTrue(File.Exists(path));
