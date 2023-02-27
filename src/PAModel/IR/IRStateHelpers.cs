@@ -203,7 +203,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Control Instance 2 -> pcftemplate1 -> DynamicControlDefinitionJson2
             if (IsPCFControl(control.Template))
             {
-                entropy.PCFTemplateDetailsEntry.Add(control.Name, control.Template);
+                entropy.PCFTemplateEntry.Add(control.Name, control.Template);
             }
 
             if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
@@ -313,7 +313,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
             else
             {
-                if (templateState.IsPcfControl && entropy.PCFTemplateDetailsEntry.TryGetValue(controlName, out var PCFTemplate))
+                if (templateState.IsPcfControl && entropy.PCFTemplateEntry.TryGetValue(controlName, out var PCFTemplate))
                 {
                     template = PCFTemplate;
                 }

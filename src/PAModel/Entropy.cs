@@ -108,7 +108,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, object> PCFDynamicSchemaForIRRetrievalEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
 
         // Key is control name, value is PCFTemplateDetails
-        public Dictionary<string, ControlInfoJson.Template> PCFTemplateDetailsEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
+        public Dictionary<string, ControlInfoJson.Template> PCFTemplateEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
 
         public int GetOrder(DataSourceEntry dataSource)
         {

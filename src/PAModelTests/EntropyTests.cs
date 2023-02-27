@@ -113,7 +113,7 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-            Assert.IsNotNull(msapp._entropy.PCFTemplateDetailsEntry.Count > 0);
+            Assert.IsNotNull(msapp._entropy.PCFTemplateEntry.Count > 0);
         }
     }
 }
