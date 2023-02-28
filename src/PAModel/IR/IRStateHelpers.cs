@@ -205,8 +205,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 entropy.PCFTemplateEntry.Add(control.Name, control.Template);
             }
-
-            if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
+            else if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
                 if (isComponentDef)
                 {
@@ -307,20 +306,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
             ControlInfoJson.Template template;
-            if (!templateStore.TryGetTemplate(templateName, out var templateState))
+            CombinedTemplateState templateState;
+            if (entropy.PCFTemplateEntry.TryGetValue(controlName, out var PCFTemplate))
+            {
+                template = PCFTemplate;
+                templateState = new CombinedTemplateState(PCFTemplate);
+            }
+            else if (!templateStore.TryGetTemplate(templateName, out templateState))
             {
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
             }
             else
             {
-                if (templateState.IsPcfControl && entropy.PCFTemplateEntry.TryGetValue(controlName, out var PCFTemplate))
-                {
-                    template = PCFTemplate;
-                }
-                else
-                {
-                    template = templateState.ToControlInfoTemplate();
-                }                
+                template = templateState.ToControlInfoTemplate();
             }
 
             RecombineCustomTemplates(entropy, template, controlName);
