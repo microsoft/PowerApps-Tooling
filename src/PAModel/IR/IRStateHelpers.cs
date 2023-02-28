@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
+using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -196,7 +197,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
             }
 
-            if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
+            // Storing pcf controls template data in entropy
+            // Since this could be different for different controls, even if that appear to follow the same template
+            // Eg:Control Instance 1 -> pcftemplate1 -> DynamicControlDefinitionJson1
+            // Control Instance 2 -> pcftemplate1 -> DynamicControlDefinitionJson2
+            if (IsPCFControl(control.Template))
+            {
+                entropy.PCFTemplateEntry.Add(control.Name, control.Template);
+            }
+            else if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
                 if (isComponentDef)
                 {
@@ -240,6 +249,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             };
 
             stateStore.TryAddControl(controlState);
+        }
+
+        private static bool IsPCFControl(ControlInfoJson.Template template)
+        {
+            return template.Id.StartsWith(Template.PcfControl);
         }
 
         private static Tuple<string, bool> ParseControlId(string controlId)
@@ -292,7 +306,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
             ControlInfoJson.Template template;
-            if (!templateStore.TryGetTemplate(templateName, out var templateState))
+            CombinedTemplateState templateState;
+            if (entropy.PCFTemplateEntry.TryGetValue(controlName, out var PCFTemplate))
+            {
+                template = PCFTemplate;
+                templateState = new CombinedTemplateState(PCFTemplate);
+            }
+            else if (!templateStore.TryGetTemplate(templateName, out templateState))
             {
                 template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
             }

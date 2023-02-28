@@ -81,8 +81,8 @@ namespace PAModelTests
             (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
             errors.ThrowOnErrors();
 
-            Assert.IsNotNull(msapp._entropy.OverridablePropertiesEntry);
-            Assert.IsNotNull(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry);
+            Assert.IsTrue(msapp._entropy.OverridablePropertiesEntry.Count > 0);
+            Assert.IsTrue(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry.Count > 0);
         }
 
         [DataTestMethod]
@@ -99,6 +99,34 @@ namespace PAModelTests
             msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
                         
             TranformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
+        }
+
+        // Validate that the pcf control template is stored in entropy while unpacking
+        // The test app contains control instances with same template but different fields
+        [DataTestMethod]
+        [DataRow("PcfTemplates.msapp")]
+        public void TestPCFControlInstancesWithSameTemplateDifferentFields(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+        }
+
+        [DataTestMethod]
+        [DataRow("AnimationControlIdIsGuid.msapp")]
+        public void TestAppWithNoPCFControlInstances(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
         }
     }
 }

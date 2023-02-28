@@ -107,6 +107,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is control name, value is PCFDynamicSchemaForIRRetrieval
         public Dictionary<string, object> PCFDynamicSchemaForIRRetrievalEntry { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
 
+        // Key is control name, value is PCFTemplateDetails
+        public Dictionary<string, ControlInfoJson.Template> PCFTemplateEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.
