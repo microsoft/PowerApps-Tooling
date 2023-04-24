@@ -97,7 +97,7 @@ namespace PAModelTests
 
             // passing null resource in resourcesJson
             msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
-                        
+
             TranformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
         }
 
@@ -127,6 +127,32 @@ namespace PAModelTests
             errors.ThrowOnErrors();
 
             Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+        }
+
+        // Validate that a PCF control will still resolve its template by falling back to
+        // the template store if the control's specific template isn't in Entropy.
+        [DataTestMethod]
+        [DataRow("PcfTemplates.msapp")]
+        public void TestPCFControlWillFallBackToControlTemplate(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+
+            // Clear out the PCF templates in entropy
+            msapp._entropy.PCFTemplateEntry.Clear();
+            Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+
+            // Repack the app and validate it matches the initial msapp
+            using (var tempFile = new TempFile())
+            {
+                MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
+                Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+            }
         }
     }
 }
