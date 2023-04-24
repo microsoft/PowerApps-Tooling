@@ -197,15 +197,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
             }
 
-            // Storing pcf controls template data in entropy
+            // Store PCF control template data in entropy, per control.
             // Since this could be different for different controls, even if that appear to follow the same template
             // Eg:Control Instance 1 -> pcftemplate1 -> DynamicControlDefinitionJson1
             // Control Instance 2 -> pcftemplate1 -> DynamicControlDefinitionJson2
+            // A copy of the template will also be kept in the template store, in case entropy data is lost.
             if (IsPCFControl(control.Template))
             {
                 entropy.PCFTemplateEntry.Add(control.Name, control.Template);
             }
-            else if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
+
+            if (templateStore.TryGetTemplate(control.Template.Name, out var templateState))
             {
                 if (isComponentDef)
                 {
@@ -307,6 +309,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             ControlInfoJson.Template template;
             CombinedTemplateState templateState;
+
+            // Prefer the specific PCF template for the control, if available. Otherwise, try to fall back to the template store.
             if (entropy.PCFTemplateEntry.TryGetValue(controlName, out var PCFTemplate))
             {
                 template = PCFTemplate;
