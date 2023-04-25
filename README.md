@@ -1,4 +1,4 @@
-![image](https://img.shields.io/github/workflow/status/microsoft/PowerApps-Language-Tooling/CI/master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools)
+![image](https://img.shields.io/github/actions/workflow/status/microsoft/PowerApps-Language-Tooling/CI/master/CI.yml?branch=master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools)
 
 # Power Apps Source File Pack and Unpack Utility
 
