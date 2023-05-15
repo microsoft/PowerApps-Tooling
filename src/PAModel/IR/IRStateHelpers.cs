@@ -18,6 +18,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const string ControlTemplateOverridableProperties = "OverridableProperties";
         public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
+        public const string ControlTemplateHostTypePropertyName = "HostType";
+        public const string ControlTemplateHostServicePropertyName = "HostService";
 
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
@@ -197,6 +199,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
             }
 
+            // Storing Template HostType and HostService details.
+            if (IsHostControl(control.Template))
+            {
+                if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostTypePropertyName, out object HostTypeVal))
+                {
+                    entropy.HostTypeEntry.Add(control.Name, HostTypeVal.ToString());
+                }
+                if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostServicePropertyName, out object HostServiceVal))
+                {
+                    entropy.HostServiceEntry.Add(control.Name, HostServiceVal);
+                }
+            }
+
             // Store PCF control template data in entropy, per control.
             // Since this could be different for different controls, even if that appear to follow the same template
             // Eg:Control Instance 1 -> pcftemplate1 -> DynamicControlDefinitionJson1
@@ -256,6 +271,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static bool IsPCFControl(ControlInfoJson.Template template)
         {
             return template.Id.StartsWith(Template.PcfControl);
+        }
+
+        private static bool IsHostControl(ControlInfoJson.Template template)
+        {
+            return template.Id.StartsWith(Template.HostControl);
         }
 
         private static Tuple<string, bool> ParseControlId(string controlId)
@@ -475,6 +495,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object PCFVal))
             {
                 resultControlInfo.Template.ExtensionData[ControlTemplatePCFDynamicSchemaForIRRetrieval] = PCFVal;
+            }
+
+            if (entropy.HostTypeEntry.TryGetValue(controlName, out var HostTypeEntryVal))
+            {
+                resultControlInfo.Template.ExtensionData[ControlTemplateHostTypePropertyName] = HostTypeEntryVal;
+            }
+
+            if (entropy.HostServiceEntry.TryGetValue(controlName, out var HostServiceEntryVal))
+            {
+                resultControlInfo.Template.ExtensionData[ControlTemplateHostServicePropertyName] = HostServiceEntryVal;
             }
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
