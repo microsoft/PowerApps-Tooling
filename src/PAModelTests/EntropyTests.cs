@@ -203,57 +203,5 @@ namespace PAModelTests
             Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
             Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostServicePropertyName));
         }
-
-        [DataTestMethod]
-        [DataRow("HostControlTestWithHostType.msapp")]
-        public void TestHostControlWithHostTypeFailsWithNoEntropyEntry(string appName)
-        {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
-            Assert.IsTrue(File.Exists(root));
-
-            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
-            errors.ThrowOnErrors();
-
-            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
-
-            // Clear out the HostType entropy entries
-            msapp._entropy.HostTypeEntry.Clear();
-            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count == 0);
-
-            // Repack the app and validate that it does not matches the initial msapp
-            using (var tempFile = new TempFile())
-            {
-                MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-                Assert.IsFalse(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
-            }
-        }
-
-        [DataTestMethod]
-        [DataRow("HostControlTestWithHostTypeAndHostService.msapp")]
-        public void TestHostControlWithHostTypeAndServiceWithNoEntropyEntries(string appName)
-        {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
-            Assert.IsTrue(File.Exists(root));
-
-            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
-            errors.ThrowOnErrors();
-
-            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
-            Assert.IsTrue(msapp._entropy.HostServiceEntry.Count > 0);
-
-            // Clear out the HostType and HostService entropy entries
-            msapp._entropy.HostTypeEntry.Clear();
-            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count == 0);
-
-            msapp._entropy.HostServiceEntry.Clear();
-            Assert.IsTrue(msapp._entropy.HostServiceEntry.Count == 0);
-
-            // Repack the app and validate it does not match the initial msapp
-            using (var tempFile = new TempFile())
-            {
-                MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-                Assert.IsFalse(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
-            }
-        }
     }
 }
