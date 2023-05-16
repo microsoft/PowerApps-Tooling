@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -146,6 +147,102 @@ namespace PAModelTests
             // Clear out the PCF templates in entropy
             msapp._entropy.PCFTemplateEntry.Clear();
             Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+
+            // Repack the app and validate it matches the initial msapp
+            using (var tempFile = new TempFile())
+            {
+                MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
+                Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+            }
+        }
+
+        // Validate that the host control template hostType value is stored in entropy while unpacking
+        [DataTestMethod]
+        [DataRow("HostControlTestApp.msapp")]
+        public void TestHostControlWithHostType(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
+
+            Assert.IsTrue(msapp._screens.TryGetValue("App", out var app));
+            var sourceFile = IRStateHelpers.CombineIRAndState(app, errors, msapp._editorStateStore, msapp._templateStore, new UniqueIdRestorer(msapp._entropy), msapp._entropy);
+
+            Assert.AreEqual("Host", sourceFile.Value.TopParent.Children.Last().Name);
+            // Checking if the HostType Entry is added
+            Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
+            Assert.IsFalse(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostServicePropertyName));
+        }
+
+        [DataTestMethod]
+        [DataRow("HostControlTestWithHostTypeAndHostService.msapp")]
+        public void TestHostControlWithHostTypeAndService(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
+            Assert.IsTrue(msapp._entropy.HostServiceEntry.Count > 0);
+
+            Assert.IsTrue(msapp._screens.TryGetValue("App", out var app));
+            var sourceFile = IRStateHelpers.CombineIRAndState(app, errors, msapp._editorStateStore, msapp._templateStore, new UniqueIdRestorer(msapp._entropy), msapp._entropy);
+
+            Assert.AreEqual("Host", sourceFile.Value.TopParent.Children.Last().Name);
+            // Checking if the HostType and HostService Entries were added
+            Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
+            Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostServicePropertyName));
+        }
+
+        [DataTestMethod]
+        [DataRow("HostControlTestWithHostType.msapp")]
+        public void TestHostControlWithHostTypeFallBackToTemplate(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
+
+            // Clear out the HostType entropy entries
+            msapp._entropy.HostTypeEntry.Clear();
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count == 0);
+
+            // Repack the app and validate it matches the initial msapp
+            using (var tempFile = new TempFile())
+            {
+                MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
+                Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("HostControlTestWithHostTypeAndHostService.msapp")]
+        public void TestHostControlWithHostTypeAndServiceFallBackToTemplate(string appName)
+        {
+            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+            Assert.IsTrue(File.Exists(root));
+
+            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+            errors.ThrowOnErrors();
+
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count > 0);
+            Assert.IsTrue(msapp._entropy.HostServiceEntry.Count > 0);
+
+            // Clear out the HostType and HostService entropy entries
+            msapp._entropy.HostTypeEntry.Clear();
+            Assert.IsTrue(msapp._entropy.HostTypeEntry.Count == 0);
+
+            msapp._entropy.HostServiceEntry.Clear();
+            Assert.IsTrue(msapp._entropy.HostServiceEntry.Count == 0);
 
             // Repack the app and validate it matches the initial msapp
             using (var tempFile = new TempFile())
