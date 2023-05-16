@@ -158,7 +158,7 @@ namespace PAModelTests
 
         // Validate that the host control template hostType value is stored in entropy while unpacking
         [DataTestMethod]
-        [DataRow("HostControlTestApp.msapp")]
+        [DataRow("HostControlTestWithHostType.msapp")]
         public void TestHostControlWithHostType(string appName)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
