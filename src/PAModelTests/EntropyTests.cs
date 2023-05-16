@@ -4,7 +4,6 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;

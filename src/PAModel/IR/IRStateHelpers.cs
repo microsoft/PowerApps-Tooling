@@ -11,8 +11,6 @@ using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
-using System.Drawing;
-using YamlDotNet.Core.Tokens;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
