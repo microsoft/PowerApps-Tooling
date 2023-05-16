@@ -172,7 +172,9 @@ namespace PAModelTests
             Assert.IsTrue(msapp._screens.TryGetValue("App", out var app));
             var sourceFile = IRStateHelpers.CombineIRAndState(app, errors, msapp._editorStateStore, msapp._templateStore, new UniqueIdRestorer(msapp._entropy), msapp._entropy);
 
-            Assert.AreEqual("Host", sourceFile.Value.TopParent.Children.Last().Name);
+            Assert.AreEqual("Host1", sourceFile.Value.TopParent.Children.First().Name);
+            Assert.AreEqual("Host2", sourceFile.Value.TopParent.Children.Last().Name);
+
             // Checking if the HostType Entry is added
             Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
             Assert.IsFalse(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostServicePropertyName));
@@ -194,7 +196,9 @@ namespace PAModelTests
             Assert.IsTrue(msapp._screens.TryGetValue("App", out var app));
             var sourceFile = IRStateHelpers.CombineIRAndState(app, errors, msapp._editorStateStore, msapp._templateStore, new UniqueIdRestorer(msapp._entropy), msapp._entropy);
 
-            Assert.AreEqual("Host", sourceFile.Value.TopParent.Children.Last().Name);
+            Assert.AreEqual("Host1", sourceFile.Value.TopParent.Children.First().Name);
+            Assert.AreEqual("Host2", sourceFile.Value.TopParent.Children.Last().Name);
+
             // Checking if the HostType and HostService Entries were added
             Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
             Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostServicePropertyName));
@@ -202,7 +206,7 @@ namespace PAModelTests
 
         [DataTestMethod]
         [DataRow("HostControlTestWithHostType.msapp")]
-        public void TestHostControlWithHostTypeFallBackToTemplate(string appName)
+        public void TestHostControlWithHostTypeFailsWithNoEntropyEntry(string appName)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(root));
@@ -216,17 +220,17 @@ namespace PAModelTests
             msapp._entropy.HostTypeEntry.Clear();
             Assert.IsTrue(msapp._entropy.HostTypeEntry.Count == 0);
 
-            // Repack the app and validate it matches the initial msapp
+            // Repack the app and validate that it does not matches the initial msapp
             using (var tempFile = new TempFile())
             {
                 MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-                Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+                Assert.IsFalse(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
             }
         }
 
         [DataTestMethod]
         [DataRow("HostControlTestWithHostTypeAndHostService.msapp")]
-        public void TestHostControlWithHostTypeAndServiceFallBackToTemplate(string appName)
+        public void TestHostControlWithHostTypeAndServiceWithNoEntropyEntries(string appName)
         {
             var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(root));
@@ -244,11 +248,11 @@ namespace PAModelTests
             msapp._entropy.HostServiceEntry.Clear();
             Assert.IsTrue(msapp._entropy.HostServiceEntry.Count == 0);
 
-            // Repack the app and validate it matches the initial msapp
+            // Repack the app and validate it does not match the initial msapp
             using (var tempFile = new TempFile())
             {
                 MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-                Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+                Assert.IsFalse(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
             }
         }
     }

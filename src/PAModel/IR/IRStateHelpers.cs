@@ -11,6 +11,8 @@ using Microsoft.AppMagic.Authoring.Persistence;
 using System;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
+using System.Drawing;
+using YamlDotNet.Core.Tokens;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -200,11 +202,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             }
 
             // Storing Template HostType and HostService details.
+            // Since this value could be different for each host control instance though it follows same host control template.
+            // Eg:Host Control Instance 1 -> template1 -> HostType1
+            // Host Control Instance 2 -> template1 -> HostType2
+            // OR
+            // Host Control Instance 1 -> template1 -> HostService1
+            // Host Control Instance 2 -> template1 -> HostService2
             if (IsHostControl(control.Template))
             {
                 if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostTypePropertyName, out object HostTypeVal))
                 {
-                    entropy.HostTypeEntry.Add(control.Name, HostTypeVal.ToString());
+                   entropy.HostTypeEntry.Add(control.Name, HostTypeVal.ToString());
                 }
                 if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostServicePropertyName, out object HostServiceVal))
                 {
@@ -499,12 +507,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (entropy.HostTypeEntry.TryGetValue(controlName, out var HostTypeEntryVal))
             {
-                resultControlInfo.Template.ExtensionData[ControlTemplateHostTypePropertyName] = HostTypeEntryVal;
+               resultControlInfo.Template.ExtensionData[ControlTemplateHostTypePropertyName] = HostTypeEntryVal;
             }
 
             if (entropy.HostServiceEntry.TryGetValue(controlName, out var HostServiceEntryVal))
             {
-                resultControlInfo.Template.ExtensionData[ControlTemplateHostServicePropertyName] = HostServiceEntryVal;
+               resultControlInfo.Template.ExtensionData[ControlTemplateHostServicePropertyName] = HostServiceEntryVal;
             }
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
