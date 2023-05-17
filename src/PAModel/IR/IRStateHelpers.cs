@@ -197,7 +197,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
             {
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
-            }                      
+            }
 
             // Store PCF control template data in entropy, per control.
             // Since this could be different for different controls, even if that appear to follow the same template
