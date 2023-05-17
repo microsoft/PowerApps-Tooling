@@ -19,7 +19,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ControlTemplateOverridableProperties = "OverridableProperties";
         public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
         public const string ControlTemplateHostTypePropertyName = "HostType";
-        public const string ControlTemplateHostServicePropertyName = "HostService";
 
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
@@ -197,26 +196,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
             {
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
-            }
-
-            // Storing Template HostType and HostService details.
-            // Since this value could be different for each host control instance though it follows same host control template.
-            // Eg:Host Control Instance 1 -> template1 -> HostType1
-            // Host Control Instance 2 -> template1 -> HostType2
-            // OR
-            // Host Control Instance 1 -> template1 -> HostService1
-            // Host Control Instance 2 -> template1 -> HostService2
-            if (IsHostControl(control.Template))
-            {
-                if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostTypePropertyName, out object HostTypeVal))
-                {
-                   entropy.HostTypeEntry.Add(control.Name, HostTypeVal.ToString());
-                }
-                if (control.Template.ExtensionData.TryGetValue(ControlTemplateHostServicePropertyName, out object HostServiceVal))
-                {
-                    entropy.HostServiceEntry.Add(control.Name, HostServiceVal);
-                }
-            }
+            }                      
 
             // Store PCF control template data in entropy, per control.
             // Since this could be different for different controls, even if that appear to follow the same template
@@ -241,7 +221,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState = new CombinedTemplateState(control.Template);
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
-                templateStore.AddTemplate(templateName, templateState);
+                // If the template of a control is hostcontrol, it could be different for each control instances.
+                // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
+                // This enables Storing Template HostType and HostService details for each host control instances.
+                // Example Scenarios:
+                // Host Control Instance 1 -> template1 -> HostType1
+                // Host Control Instance 2 -> template1 -> HostType2
+                // OR
+                // Host Control Instance 1 -> template1 -> HostService1
+                // Host Control Instance 2 -> template1 -> HostService2
+                if (IsHostControl(control.Template))
+                {
+                    templateStore.AddTemplate(control.Name, templateState);
+                }
+                else
+                {
+                    templateStore.AddTemplate(templateName, templateState);
+                }                    
             }
 
             SplitCustomTemplates(entropy, control.Template, control.Name);
@@ -341,6 +337,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 template = PCFTemplate;
                 templateState = new CombinedTemplateState(PCFTemplate);
+            }
+            else if (templateName == "hostControl" &&  templateStore.TryGetTemplate(controlName, out templateState))
+            {
+                template = templateState.ToControlInfoTemplate();
             }
             else if (!templateStore.TryGetTemplate(templateName, out templateState))
             {
@@ -501,16 +501,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object PCFVal))
             {
                 resultControlInfo.Template.ExtensionData[ControlTemplatePCFDynamicSchemaForIRRetrieval] = PCFVal;
-            }
-
-            if (entropy.HostTypeEntry.TryGetValue(controlName, out var HostTypeEntryVal))
-            {
-               resultControlInfo.Template.ExtensionData[ControlTemplateHostTypePropertyName] = HostTypeEntryVal;
-            }
-
-            if (entropy.HostServiceEntry.TryGetValue(controlName, out var HostServiceEntryVal))
-            {
-               resultControlInfo.Template.ExtensionData[ControlTemplateHostServicePropertyName] = HostServiceEntryVal;
             }
 
             return (resultControlInfo, state?.ParentIndex ?? -1);
