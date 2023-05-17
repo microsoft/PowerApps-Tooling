@@ -18,6 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const string ControlTemplateOverridableProperties = "OverridableProperties";
         public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
+        public const string HostControlTemplateName = "hostControl";
 
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
@@ -220,7 +221,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState = new CombinedTemplateState(control.Template);
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
-                templateStore.AddTemplate(templateName, templateState);
+                // Template values could be different for each host control instances.
+                // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
+                // This enables Storing Template HostType and HostService details for each host control instances.
+                // Example Scenarios:
+                // Host Control Instance 1 -> template1 -> HostType1
+                // Host Control Instance 2 -> template1 -> HostType2
+                // OR
+                // Host Control Instance 1 -> template1 -> HostService1
+                // Host Control Instance 2 -> template1 -> HostService2
+                if (IsHostControl(control.Template))
+                {
+                    templateStore.AddTemplate(control.Name, templateState);
+                }
+                else
+                {
+                    templateStore.AddTemplate(templateName, templateState);
+                }                    
             }
 
             SplitCustomTemplates(entropy, control.Template, control.Name);
@@ -256,6 +273,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static bool IsPCFControl(ControlInfoJson.Template template)
         {
             return template.Id.StartsWith(Template.PcfControl);
+        }
+
+        private static bool IsHostControl(ControlInfoJson.Template template)
+        {
+            return template.Id.StartsWith(Template.HostControl);
         }
 
         private static Tuple<string, bool> ParseControlId(string controlId)
@@ -315,6 +337,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             {
                 template = PCFTemplate;
                 templateState = new CombinedTemplateState(PCFTemplate);
+            }
+            else if (templateName == HostControlTemplateName &&  templateStore.TryGetTemplate(controlName, out templateState))
+            {
+                template = templateState.ToControlInfoTemplate();
             }
             else if (!templateStore.TryGetTemplate(templateName, out templateState))
             {

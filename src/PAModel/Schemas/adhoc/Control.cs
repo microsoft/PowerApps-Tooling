@@ -36,6 +36,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             public const string UxComponentId = "http://microsoft.com/appmagic/Component";
             public const string CommandComponentId = "http://microsoft.com/appmagic/CommandComponent";
             public const string PcfControl = "http://microsoft.com/appmagic/powercontrol";
+            public const string HostControl = "http://microsoft.com/appmagic/hostcontrol";
+
             public string Id { get; set; }
 
             // Very important for data components.
