@@ -222,7 +222,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState = new CombinedTemplateState(control.Template);
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
-                // If a control is hostcontrol, template values could be different for each control instances.
+                // Template values could be different for each host control instances.
                 // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
                 // This enables Storing Template HostType and HostService details for each host control instances.
                 // Example Scenarios:
