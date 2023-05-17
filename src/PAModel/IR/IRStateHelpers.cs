@@ -19,6 +19,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public const string ControlTemplateOverridableProperties = "OverridableProperties";
         public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
         public const string ControlTemplateHostTypePropertyName = "HostType";
+        public const string HostControlTemplateName = "hostControl";
 
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)
         {
@@ -221,7 +222,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 templateState = new CombinedTemplateState(control.Template);
                 templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
                 var templateName = templateState.TemplateDisplayName ?? templateState.Name;
-                // If the template of a control is hostcontrol, it could be different for each control instances.
+                // If a control is hostcontrol, template values could be different for each control instances.
                 // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
                 // This enables Storing Template HostType and HostService details for each host control instances.
                 // Example Scenarios:
@@ -338,7 +339,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 template = PCFTemplate;
                 templateState = new CombinedTemplateState(PCFTemplate);
             }
-            else if (templateName == "hostControl" &&  templateStore.TryGetTemplate(controlName, out templateState))
+            else if (templateName == HostControlTemplateName &&  templateStore.TryGetTemplate(controlName, out templateState))
             {
                 template = templateState.ToControlInfoTemplate();
             }
