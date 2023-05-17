@@ -18,7 +18,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     {
         public const string ControlTemplateOverridableProperties = "OverridableProperties";
         public const string ControlTemplatePCFDynamicSchemaForIRRetrieval = "PCFDynamicSchemaForIRRetrieval";
-        public const string ControlTemplateHostTypePropertyName = "HostType";
         public const string HostControlTemplateName = "hostControl";
 
         internal static void SplitIRAndState(SourceFile file, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode topParentIR)

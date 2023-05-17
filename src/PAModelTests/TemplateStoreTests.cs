@@ -36,7 +36,7 @@ namespace PAModelTests
             Assert.AreEqual("SharePointIntegration", sourceFile.Value.TopParent.Children.Last().Name);
 
             // Checking if the HostType entry added
-            Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey(IRStateHelpers.ControlTemplateHostTypePropertyName));
+            Assert.IsTrue(sourceFile.Value.TopParent.Children.Last().Template.ExtensionData.ContainsKey("HostType"));
 
             // Repack the app and validate it matches the initial msapp
             using (var tempFile = new TempFile())
