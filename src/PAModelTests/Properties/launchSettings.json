@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "PAModelTests": {
-      "commandName": "Project",
-      "commandLineArgs": "-unpack C:\\Projects\\YAML_ISSUES\\Exception\\bug.msapp C:\\Projects\\YAML_ISSUES\\Exception\\test"
-    }
-  }
-}
