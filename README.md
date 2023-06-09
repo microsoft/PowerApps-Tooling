@@ -20,10 +20,21 @@ This is similar to the [Solution Packager](https://docs.microsoft.com/en-us/powe
 
 To get started, download and install the [Microsoft Power Platform CLI](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/powerapps-cli).
 
-Easiest way to get pac cli is to use dotnet tool install: `dotnet tool install -g Microsoft.PowerPlatform.Cli`
+Easiest way to get pac cli is to use [dotnet tool install](https://www.nuget.org/packages/Microsoft.PowerApps.CLI.Tool):
 
-To unpack a .msapp file: `pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder`
-To pack a .msapp file: `pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder`
+```
+dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+```
+
+To unpack a .msapp file:
+```
+pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder
+```
+
+To pack a .msapp file:
+```
+pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder
+```
 
 ### Versioning
 
