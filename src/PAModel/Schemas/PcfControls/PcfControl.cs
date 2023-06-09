@@ -33,7 +33,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
         public Dictionary<string, object> ExtensionData { get; set; }
 
 
-        private static IEnumerable<IDictionary<string, AuthConfigProperty>> GetAutConfigProperties(string authConfigPropertiesJson)
+        private static IEnumerable<IDictionary<string, AuthConfigProperty>> GetAuthConfigProperties(string authConfigPropertiesJson)
         {
             var authConfigPropertiesGroup = new List<IDictionary<string, AuthConfigProperty>>();
             using (var doc = JsonDocument.Parse(authConfigPropertiesJson))
@@ -62,7 +62,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl
             pcfControl.ControlConstructor = dynamicControlDefinition.ControlConstructor;
             pcfControl.Resources = dynamicControlDefinition.Resources != null ? Utilities.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
             pcfControl.Properties = dynamicControlDefinition.Properties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
-            pcfControl.AuthConfigProperties = dynamicControlDefinition.AuthConfigProperties != null ? GetAutConfigProperties(dynamicControlDefinition.AuthConfigProperties) : null;
+            pcfControl.AuthConfigProperties = dynamicControlDefinition.AuthConfigProperties != null ? GetAuthConfigProperties(dynamicControlDefinition.AuthConfigProperties) : null;
             pcfControl.DataConnectors = dynamicControlDefinition.DataConnectors != null ? Utilities.JsonParse<IEnumerable<DataConnectorMetadata>>(dynamicControlDefinition.DataConnectors) : null;
             pcfControl.SubscribedFunctionalities = dynamicControlDefinition.SubscribedFunctionalities != null ? Utilities.JsonParse<Dictionary<string, string>>(dynamicControlDefinition.SubscribedFunctionalities) : null;
             pcfControl.IncludedProperties = dynamicControlDefinition.IncludedProperties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.IncludedProperties) : null;
