@@ -20,8 +20,21 @@ This is similar to the [Solution Packager](https://docs.microsoft.com/en-us/powe
 
 To get started, download and install the [Microsoft Power Platform CLI](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/powerapps-cli).
 
-To unpack a .msapp file: `pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder`
-To pack a .msapp file: `pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder`
+Easiest way to get pac cli is to use [dotnet tool install](https://www.nuget.org/packages/Microsoft.PowerApps.CLI.Tool):
+
+```
+dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+```
+
+To unpack a .msapp file:
+```
+pac canvas unpack --msapp FromApp.msapp --sources ToSourceFolder
+```
+
+To pack a .msapp file:
+```
+pac canvas pack --msapp ToApp.msapp --sources FromSourceFolder
+```
 
 ### Versioning
 
@@ -41,7 +54,7 @@ Latest Yaml version is: https://github.com/microsoft/PowerApps-Language-Tooling/
 
 You can also use this functionality stand alone, using our test console app.
 
-Download and install the [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1) in order to build.
+Download and install the [.NET Core SDK v6.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) in order to build.
 Build the test console app by running: `\build.cmd`
 This will create: `\bin\Debug\PASopa\PASopa.exe`
 
@@ -111,9 +124,9 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 For a developer machine (Windows 10, WSL, Linux, macOS), install:
 
 - [git](https://git-scm.com/downloads)
-- [.NET Core SDK v3.1.x (x64)](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+- [.NET Core SDK v6.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 - [VS Code](https://code.visualstudio.com/Download)
-- if on Windows: [VS2019 (Community edition will do)](https://visualstudio.microsoft.com/downloads/).  Select at least the following workload: .NET Core cross-plat
+- if on Windows: [VS2019 or VS2022 (Community edition will do)](https://visualstudio.microsoft.com/downloads/).  Select at least the following workload: .NET Core cross-plat
 - recommended VSCode extensions:
   - [GitLens (eamodio.gitlens)](https://github.com/eamodio/vscode-gitlens)
   - [C# (ms-vscode.csharp)](https://github.com/OmniSharp/omnisharp-vscode)
