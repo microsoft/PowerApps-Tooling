@@ -30,7 +30,6 @@ jobs:
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
   - task: UseDotNet@2
-  - task: UseDotNet@2
     displayName: 'Use dotnet sdk 3.1'
     inputs:
       version: 3.1.x
