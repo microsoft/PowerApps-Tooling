@@ -19,7 +19,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public static void TranformLogoOnLoad(this CanvasDocument app)
         {
             // May be null or "" 
-            var oldLogoName = app._publishInfo.LogoFileName;
+            var oldLogoName = app._publishInfo?.LogoFileName;
             if (!string.IsNullOrEmpty(oldLogoName))
             {
                 string newLogoName = "logo" + Path.GetExtension(oldLogoName);
