@@ -189,13 +189,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             // Eg:Control Instance 1 -> template1 -> PCFDynamicSchemaForIRRetrieval1/OverridableProperties1
             // Control Instance 2 -> template1 -> PCFDynamicSchemaForIRRetrieval2/OverridableProperties2
 
-            if (control.Template.ExtensionData.TryGetValue(ControlTemplatePCFDynamicSchemaForIRRetrieval, out object PCFVal))
+            if (control.Template.ExtensionData != null)
             {
-                entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, PCFVal);
-            }
-            if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
-            {
-                entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
+                if (control.Template.ExtensionData.TryGetValue(ControlTemplatePCFDynamicSchemaForIRRetrieval, out object PCFVal))
+                {
+                    entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, PCFVal);
+                }
+                if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
+                {
+                    entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
+                }
             }
 
             // Store PCF control template data in entropy, per control.
@@ -272,11 +275,17 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
         private static bool IsPCFControl(ControlInfoJson.Template template)
         {
+            if (template.Id == null)
+                return false;
+
             return template.Id.StartsWith(Template.PcfControl);
         }
 
         private static bool IsHostControl(ControlInfoJson.Template template)
         {
+            if (template.Id == null)
+                return false;
+
             return template.Id.StartsWith(Template.HostControl);
         }
 

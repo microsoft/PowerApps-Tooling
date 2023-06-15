@@ -73,7 +73,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState
             FirstParty = template.FirstParty;
             CustomControlDefinitionJson = template.CustomControlDefinitionJson;
             DynamicControlDefinitionJson = template.DynamicControlDefinitionJson;
-            IsPcfControl = template.Id.StartsWith(Template.PcfControl);
+            if (template.Id != null)
+                IsPcfControl = template.Id.StartsWith(Template.PcfControl);
         }
 
         public ControlInfoJson.Template ToControlInfoTemplate()
