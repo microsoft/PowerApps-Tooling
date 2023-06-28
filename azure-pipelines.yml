@@ -7,7 +7,7 @@ pr: none
 
 pool:
   vmImage: 'windows-latest'
-  
+
 variables:
 - group: 'Nuget And PSGallery Publishing Data'
 
@@ -57,7 +57,7 @@ jobs:
       mergeTestResults: true
       failTaskOnFailedTests: true
 
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1  
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
     displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
     inputs:
       ConnectedServiceName: 'ESRPCodeSigningConnection'
@@ -106,7 +106,7 @@ jobs:
                 "toolVersion": "1.0"
             }
         ]
-      ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'    
+      ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
 
   - task: DotNetCoreCLI@2
     displayName: 'Pack'
@@ -114,7 +114,7 @@ jobs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
       arguments: '-- pack -c $(BuildConfiguration)'
-      
+
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
     displayName: 'ESRP sign nuget packages'
     inputs:
@@ -144,7 +144,7 @@ jobs:
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'Generation Task'
     inputs:
-       BuildDropPath: '$(System.ArtifactsDirectory)/buildOutput'
+       BuildDropPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
 
   - task: PublishBuildArtifacts@1
     inputs:
@@ -152,7 +152,7 @@ jobs:
       ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
       publishLocation: 'Container'
     condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-    
+
   - task: tagBuildOrRelease@0
     inputs:
       type: 'Build'
