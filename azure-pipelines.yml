@@ -6,162 +6,162 @@ trigger:
 pr: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "windows-latest"
 
 variables:
-- group: 'Nuget And PSGallery Publishing Data'
+  - group: "Nuget And PSGallery Publishing Data"
 
 jobs:
-- job: 'Build_PowerPlatform_Formulas_Tools'
-  displayName: 'Build PowerPlatform.Formulas.Tools Solution'
+  - job: "Build_PowerPlatform_Formulas_Tools"
+    displayName: "Build PowerPlatform.Formulas.Tools Solution"
 
-  strategy:
-    matrix:
-      Debug:
-        BuildConfiguration: 'Debug'
-      Release:
-        BuildConfiguration: 'Release'
+    strategy:
+      matrix:
+        Debug:
+          BuildConfiguration: "Debug"
+        Release:
+          BuildConfiguration: "Release"
 
-  steps:
-  - task: UseDotNet@2
-    displayName: 'Use dotnet SDK 6.0'
-    inputs:
-      version: 6.0.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
+    steps:
+      - task: UseDotNet@2
+        displayName: "Use dotnet SDK 6.0"
+        inputs:
+          version: 6.0.x
+          installationPath: "$(Agent.ToolsDirectory)/dotnet"
 
-  - task: UseDotNet@2
-    displayName: 'Use dotnet sdk 3.1'
-    inputs:
-      version: 3.1.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
+      - task: UseDotNet@2
+        displayName: "Use dotnet sdk 3.1"
+        inputs:
+          version: 3.1.x
+          installationPath: "$(Agent.ToolsDirectory)/dotnet"
 
-  # Dotnet 2.1 appears to be required for ESRP signing
-  - task: UseDotNet@2
-    displayName: 'Use dotnet sdk 2.1'
-    inputs:
-      version: 2.1.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
+      # Dotnet 2.1 appears to be required for ESRP signing
+      - task: UseDotNet@2
+        displayName: "Use dotnet sdk 2.1"
+        inputs:
+          version: 2.1.x
+          installationPath: "$(Agent.ToolsDirectory)/dotnet"
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build and test '
-    inputs:
-      command: 'run'
-      projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-      arguments: '-- ci -c $(BuildConfiguration)'
+      - task: DotNetCoreCLI@2
+        displayName: "Build and test "
+        inputs:
+          command: "run"
+          projects: "$(Build.SourcesDirectory)/targets/targets.csproj"
+          arguments: "-- ci -c $(BuildConfiguration)"
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFormat: 'VSTest'
-      testResultsFiles: '**/*-*.trx'
-      searchFolder: '$(Build.SourcesDirectory)/obj/'
-      mergeTestResults: true
-      failTaskOnFailedTests: true
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: "VSTest"
+          testResultsFiles: "**/*-*.trx"
+          searchFolder: "$(Build.SourcesDirectory)/obj/"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
 
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-    displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
-    inputs:
-      ConnectedServiceName: 'ESRPCodeSigningConnection'
-      FolderPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
-      Pattern: '*.dll'
-      signConfigType: inlineSignParams
-      inlineOperation: |
-        [
-            {
-                  "keyCode": "CP-233863-SN",
-                  "operationSetCode": "StrongNameSign",
-                  "parameters": [ ],
-                  "toolName": "sign",
-                  "toolVersion": "1.0"
-            },
-            {
-                "keyCode": "CP-230012",
-                "operationSetCode": "SigntoolSign",
-                "parameters": [
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll"
+        inputs:
+          ConnectedServiceName: "ESRPCodeSigningConnection"
+          FolderPath: "$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/"
+          Pattern: "*.dll"
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
                 {
-                    "parameterName": "OpusName",
-                    "parameterValue": "Microsoft"
+                      "keyCode": "CP-233863-SN",
+                      "operationSetCode": "StrongNameSign",
+                      "parameters": [ ],
+                      "toolName": "sign",
+                      "toolVersion": "1.0"
                 },
                 {
-                    "parameterName": "OpusInfo",
-                    "parameterValue": "http://www.microsoft.com"
-                },
-                {
-                    "parameterName": "Append",
-                    "parameterValue": "/as"
-                },
-                {
-                    "parameterName": "FileDigest",
-                    "parameterValue": "/fd \"SHA256\""
-                },
-                {
-                    "parameterName": "PageHash",
-                    "parameterValue": "/NPH"
-                },
-                {
-                    "parameterName": "TimeStamp",
-                    "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                    "keyCode": "CP-230012",
+                    "operationSetCode": "SigntoolSign",
+                    "parameters": [
+                    {
+                        "parameterName": "OpusName",
+                        "parameterValue": "Microsoft"
+                    },
+                    {
+                        "parameterName": "OpusInfo",
+                        "parameterValue": "http://www.microsoft.com"
+                    },
+                    {
+                        "parameterName": "Append",
+                        "parameterValue": "/as"
+                    },
+                    {
+                        "parameterName": "FileDigest",
+                        "parameterValue": "/fd \"SHA256\""
+                    },
+                    {
+                        "parameterName": "PageHash",
+                        "parameterValue": "/NPH"
+                    },
+                    {
+                        "parameterName": "TimeStamp",
+                        "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                    }
+                    ],
+                    "toolName": "sign",
+                    "toolVersion": "1.0"
                 }
-                ],
+            ]
+          ServiceEndpointUrl: "https://api.esrp.microsoft.com/api/v1"
+
+      - task: DotNetCoreCLI@2
+        displayName: "Pack"
+        inputs:
+          command: "run"
+          projects: "$(Build.SourcesDirectory)/targets/targets.csproj"
+          arguments: "-- pack -c $(BuildConfiguration)"
+
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP sign nuget packages"
+        inputs:
+          ConnectedServiceName: ESRPCodeSigningConnection
+          FolderPath: "$(Build.SourcesDirectory)/pkg/PackResult"
+          Pattern: "*.nupkg"
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
+              {
+                "keyCode": "CP-401405",
+                "operationSetCode": "NuGetSign",
+                "parameters": [],
                 "toolName": "sign",
                 "toolVersion": "1.0"
-            }
-        ]
-      ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
+              },
+              {
+                "keyCode": "CP-401405",
+                "operationSetCode": "NuGetVerify",
+                "parameters": [],
+                "toolName": "sign",
+                "toolVersion": "1.0"
+              }
+            ]
+          ServiceEndpointUrl: "https://api.esrp.microsoft.com/api/v1"
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Pack'
-    inputs:
-      command: 'run'
-      projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-      arguments: '-- pack -c $(BuildConfiguration)'
+      - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+        displayName: "Generation Task"
+        inputs:
+          BuildDropPath: "$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/"
 
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-    displayName: 'ESRP sign nuget packages'
-    inputs:
-      ConnectedServiceName: ESRPCodeSigningConnection
-      FolderPath: '$(Build.SourcesDirectory)/pkg/PackResult'
-      Pattern: '*.nupkg'
-      signConfigType: inlineSignParams
-      inlineOperation: |
-        [
-          {
-            "keyCode": "CP-401405",
-            "operationSetCode": "NuGetSign",
-            "parameters": [],
-            "toolName": "sign",
-            "toolVersion": "1.0"
-          },
-          {
-            "keyCode": "CP-401405",
-            "operationSetCode": "NuGetVerify",
-            "parameters": [],
-            "toolName": "sign",
-            "toolVersion": "1.0"
-          }
-        ]
-      ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/"
+          ArtifactName: "Generation Task"
+          publishLocation: "Container"
+        condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
 
-  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-    displayName: 'Generation Task'
-    inputs:
-       BuildDropPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/pkg/PackResult"
+          ArtifactName: "PowerPlatform.Formulas.Tools ($(BuildConfiguration))"
+          publishLocation: "Container"
+        condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
 
-  - task: PublishManifest@1
-    inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
-      ArtifactName: 'Generation Task'
-      publishLocation: 'Container'
-    condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/pkg/PackResult'
-      ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
-      publishLocation: 'Container'
-    condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-
-  - task: tagBuildOrRelease@0
-    inputs:
-      type: 'Build'
-      tags: 'deployable'
-    condition: eq(variables['PublicRelease'], 'true')
+      - task: tagBuildOrRelease@0
+        inputs:
+          type: "Build"
+          tags: "deployable"
+        condition: eq(variables['PublicRelease'], 'true')
