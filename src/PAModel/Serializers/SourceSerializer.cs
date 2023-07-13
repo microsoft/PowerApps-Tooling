@@ -677,6 +677,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
             var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
+            app._entropy.InitializeWasDataSourcesOfLocalDBReferenceNull();
+
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
             foreach (var kvp in app.GetDataSources())
@@ -759,8 +761,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
                     untrackedLdr.Remove(dataSourceDef.DatasetName);
+                    app._entropy.MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(dataSourceDef.DatasetName, referenceJson?.dataSources == null);
+
                     // copy over the localconnectionreference
-                    if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
+                    if (referenceJson.dataSources?.TryGetValue(dataSourceDef.EntityName, out var dsRef) ?? false)
                     {
                         dataSourceDef.LocalReferenceDSJson = dsRef;
                     }
@@ -796,7 +800,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
                     {
-                        dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>(),
+                                      // for older unpacked msapp, entropy would not have information about
+                                      // whether dataSources was null or not
+                                      // in that case, assume it to be null
+                                      // this assumption would be corrected below when we find first non null
+                                      // tableDef.LocalReferenceDSJson. This is because all tableDef.LocalReferenceDSJsons
+                                      // would be null if dataSources for the dataset to which tableDefs belong to was null
+                        dataSources = !app._entropy.WasDataSourcesOfLocalDBReferenceNullPresentInEntropy() ?
+                                      null :
+                                      // if entropy has information about whether dataSources was null or not
+                                      // then use that information
+                                      app._entropy.IsDataSourcesOfLocalDatabaseReferenceNull(tableDef.DatasetName) ?
+                                      null :
+                                      new Dictionary<string, LocalDatabaseReferenceDataSource>(),
                         ExtensionData = tableDef.ExtensionData,
                         instanceUrl = tableDef.InstanceUrl
                     };
@@ -815,7 +831,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (tableDef.LocalReferenceDSJson != null)
                 {
-                    localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+                    // now that we have seen first non null LocalReferenceDSJson
+                    // we know for sure that dataSources for the localDatabaseReferenceJson was not null
+                    // in that case, no longer assume dataSource to be null
+                    if (!app._entropy.WasDataSourcesOfLocalDBReferenceNullPresentInEntropy() && localDatabaseReferenceJson.dataSources == null)
+                    {
+                        localDatabaseReferenceJson.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
+                    }
+                    localDatabaseReferenceJson.dataSources?.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
                 }
             }
 

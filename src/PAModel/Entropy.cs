@@ -110,6 +110,13 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is control name, value is PCFTemplateDetails
         public Dictionary<string, ControlInfoJson.Template> PCFTemplateEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
 
+        /// <summary>
+        /// For each LocalDatabaseReferenceJson instance, tracks whether LocalDatabaseReferenceJson.dataSources was null or not
+        /// By default the value of WasDataSourcesOfLocalDBReferenceNull is null which is used to indicate it was not present in entropy
+        /// This allows handling backwards compatability when it comes to scenarios where users would try to pack sources created before this field
+        /// </summary>
+        public Dictionary<string, bool> WasDataSourcesOfLocalDBReferenceNull { get; set; } = null;
+
         public int GetOrder(DataSourceEntry dataSource)
         {
             // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.
@@ -325,6 +332,41 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public bool IsLocalDatabaseReferencesEmpty()
         {
             return WasLocalDatabaseReferencesEmpty ?? LocalDatabaseReferencesAsEmpty;
+        }
+
+        public void InitializeWasDataSourcesOfLocalDBReferenceNull()
+        {
+            WasDataSourcesOfLocalDBReferenceNull = new Dictionary<string, bool>();
+        }
+
+        /// <summary>
+        /// Records whether dataSources for the given dataset was null or not
+        /// </summary>
+        /// <param name="dataSetName">Name of the dataset</param>
+        /// <param name="isNull">Indicates whether dataSources was null or not</param>
+        public void MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(string dataSetName, bool isNull)
+        {
+            WasDataSourcesOfLocalDBReferenceNull[dataSetName] = isNull;
+        }
+
+        /// <summary>
+        /// Checks if WasDataSourcesOfLocalDBReferenceNull is present in entropy or not
+        /// </summary>
+        /// <returns>True if WasDataSourcesOfLocalDBReferenceNull was present in entropy or false otherwise</returns>
+        public bool WasDataSourcesOfLocalDBReferenceNullPresentInEntropy()
+        {
+            // null value indiciates that WasDataSourcesOfLocalDBReferenceNull was not present in entropy
+            return WasDataSourcesOfLocalDBReferenceNull != null;
+        }
+
+        /// <summary>
+        /// Checks if the dataSources for given dataset was null or not
+        /// </summary>
+        /// <param name="dataSetName">Name of the dataset</param>
+        /// <returns>True if the dataSources for given dataset was null or false otherwise</returns>
+        public bool IsDataSourcesOfLocalDatabaseReferenceNull(string dataSetName)
+        {
+            return WasDataSourcesOfLocalDBReferenceNull.TryGetValue(dataSetName, out var value) && value;
         }
     }
 }
