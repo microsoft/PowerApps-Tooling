@@ -111,11 +111,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public Dictionary<string, ControlInfoJson.Template> PCFTemplateEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
 
         /// <summary>
-        /// For each LocalDatabaseReferenceJson instance, tracks whether LocalDatabaseReferenceJson.dataSources was null or not
-        /// By default the value of WasDataSourcesOfLocalDBReferenceNull is null which is used to indicate it was not present in entropy
-        /// This allows handling backwards compatability when it comes to scenarios where users would try to pack sources created before this field
+        /// For each LocalDatabaseReferenceJson instance, tracks unused dataSources
+        /// By default, the value of UnusedDataSourcesForLocalDbRefs is null which is used to indicate that it is missing from entropy
         /// </summary>
-        public Dictionary<string, bool> WasDataSourcesOfLocalDBReferenceNull { get; set; } = null;
+        public Dictionary<string, Dictionary<string, LocalDatabaseReferenceDataSource>> UnusedDataSourcesForLocalDbRefs { get; set; } = null;
 
         public int GetOrder(DataSourceEntry dataSource)
         {
@@ -335,37 +334,48 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         }
 
         /// <summary>
-        /// Records whether dataSources for the given dataset was null or not
+        /// Tracks the unused data sources for the given dataset name
         /// </summary>
         /// <param name="dataSetName">Name of the dataset</param>
-        /// <param name="isNull">Indicates whether dataSources was null or not</param>
-        public void MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(string dataSetName, bool isNull)
+        /// <param name="unusedDataSources">Unused datasources</param>
+        public void AddUnusedDataSourcesForLocalDbRef(string dataSetName, Dictionary<string, LocalDatabaseReferenceDataSource> unusedDataSources)
         {
-            if (WasDataSourcesOfLocalDBReferenceNull == null)
+            if (UnusedDataSourcesForLocalDbRefs == null)
             {
-                WasDataSourcesOfLocalDBReferenceNull = new Dictionary<string, bool>();
+                UnusedDataSourcesForLocalDbRefs = new Dictionary<string, Dictionary<string, LocalDatabaseReferenceDataSource>>();
             }
-            WasDataSourcesOfLocalDBReferenceNull[dataSetName] = isNull;
+
+            UnusedDataSourcesForLocalDbRefs[dataSetName] = unusedDataSources;
         }
 
         /// <summary>
-        /// Checks if WasDataSourcesOfLocalDBReferenceNull is present in entropy or not
-        /// </summary>
-        /// <returns>True if WasDataSourcesOfLocalDBReferenceNull was present in entropy or false otherwise</returns>
-        public bool WasDataSourcesOfLocalDBReferenceNullPresentInEntropy()
-        {
-            // null value indiciates that WasDataSourcesOfLocalDBReferenceNull was not present in entropy
-            return WasDataSourcesOfLocalDBReferenceNull != null;
-        }
-
-        /// <summary>
-        /// Checks if the dataSources for given dataset was null or not
+        /// Extracts the unused data srouces for the given local database reference represented by the dataset name
+        /// If entropy wasn't tracking the ununsed data sources, it would assume that data sources was null
+        /// An attempt should be made to correct this assumption when loading sources into canvas document
+        /// This allows us to make the solution somewhat backward compatible when it comes to whether data sources was null or not
+        /// Note that it is hard to make this solution backward compatible if an msapp with unused data sources was unpacked before entropy started tracking them
         /// </summary>
         /// <param name="dataSetName">Name of the dataset</param>
-        /// <returns>True if the dataSources for given dataset was null or false otherwise</returns>
-        public bool IsDataSourcesOfLocalDatabaseReferenceNull(string dataSetName)
+        /// <returns>Assumed or correct data sources for the given dataset</returns>
+        public Dictionary<string, LocalDatabaseReferenceDataSource> GetUnusedDataSourcesForLocalDbRef(string dataSetName)
         {
-            return WasDataSourcesOfLocalDBReferenceNull.TryGetValue(dataSetName, out var value) && value;
+            if (WasUnusedDataSourcesForLocalDbRefsAbsent() || !UnusedDataSourcesForLocalDbRefs.TryGetValue(dataSetName, out var dataSources))
+            {
+                // if UnusedDataSourcesForLocalDbRefs is null, then it indicates that it wasn't present in entropy
+                // assume the dataset name to be the null, so backward compat logic can attempt to correct it later
+                return null;
+            }
+
+            return dataSources;
+        }
+
+        /// <summary>
+        /// Checks if entropy is tracking unused data sources or not
+        /// </summary>
+        /// <returns>True if entropy is not tracking unused data sources or false otherwise</returns>
+        public bool WasUnusedDataSourcesForLocalDbRefsAbsent()
+        {
+            return UnusedDataSourcesForLocalDbRefs == null;
         }
     }
 }

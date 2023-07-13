@@ -267,7 +267,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                     default:
                         var ldr = file.ToObject<LocalDatabaseReferenceJson>();
-                        app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
+                        if (app._dataSourceReferences.ContainsKey(Path.GetFileNameWithoutExtension(file._relativeName)))
+                        {
+                            app._dataSourceReferences[Path.GetFileNameWithoutExtension(file._relativeName)] = ldr;
+                        }
+                        else
+                        {
+                            app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
+                        }
                         break;
                 }
             }
@@ -678,13 +685,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
             var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
-            foreach (var localDbRef in app._dataSourceReferences)
-            {
-                app._entropy.MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(localDbRef.Key, localDbRef.Value.dataSources == null);
-            }
          
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
+            var dataSourceDefinitions = new Dictionary<string, List<DataSourceDefinition>>();
 
             foreach (var kvp in app.GetDataSources())
             {
@@ -777,10 +781,30 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 if (dataSourceDef != null)
+                {
+                    dataSourceDefinitions.GetOrCreate(dataSourceDef.DatasetName).Add(dataSourceDef);
                     dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
+                }
 
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
             }
+
+            // fill up entropy with unused data sources
+            foreach (var kvp in dataSourceDefinitions)
+            {
+                var dataSetName = kvp.Key;
+                var dataSourceDefs = kvp.Value;  
+                var localDbRefJson = app._dataSourceReferences[dataSetName];
+                Dictionary<string, LocalDatabaseReferenceDataSource> dataSourcesToWrite = null;
+                if (localDbRefJson.dataSources != null)
+                {
+                    var trackedDataSources = new HashSet<string>(dataSourceDefs.Select(def => def.EntityName));
+                    dataSourcesToWrite = localDbRefJson.dataSources.Where(kvp => !trackedDataSources.Contains(kvp.Key))
+                                                                   .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }
+
+                app._entropy.AddUnusedDataSourcesForLocalDbRef(dataSetName, dataSourcesToWrite);
+            } 
 
             foreach (var dsName in untrackedLdr)
             {
@@ -804,19 +828,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
                     {
-                                      // for older unpacked msapp, entropy would not have information about
-                                      // whether dataSources was null or not
-                                      // in that case, assume it to be null
-                                      // this assumption would be corrected below when we find first non null
-                                      // tableDef.LocalReferenceDSJson. This is because all tableDef.LocalReferenceDSJsons
-                                      // would be null if dataSources for the dataset to which tableDefs belong to was null
-                        dataSources = !app._entropy.WasDataSourcesOfLocalDBReferenceNullPresentInEntropy() ?
-                                      null :
-                                      // if entropy has information about whether dataSources was null or not
-                                      // then use that information
-                                      app._entropy.IsDataSourcesOfLocalDatabaseReferenceNull(tableDef.DatasetName) ?
-                                      null :
-                                      new Dictionary<string, LocalDatabaseReferenceDataSource>(),
+                                     
+                        dataSources = app._entropy.GetUnusedDataSourcesForLocalDbRef(tableDef.DatasetName),
                         ExtensionData = tableDef.ExtensionData,
                         instanceUrl = tableDef.InstanceUrl
                     };
@@ -838,7 +851,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     // now that we have seen first non null LocalReferenceDSJson
                     // we know for sure that dataSources for the localDatabaseReferenceJson was not null
                     // in that case, no longer assume dataSource to be null
-                    if (!app._entropy.WasDataSourcesOfLocalDBReferenceNullPresentInEntropy() && localDatabaseReferenceJson.dataSources == null)
+                    if (app._entropy.WasUnusedDataSourcesForLocalDbRefsAbsent() && localDatabaseReferenceJson.dataSources == null)
                     {
                         localDatabaseReferenceJson.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
                     }
