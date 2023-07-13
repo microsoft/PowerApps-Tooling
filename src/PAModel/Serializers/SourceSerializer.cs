@@ -266,14 +266,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                         break;
                     default:
                         var ldr = file.ToObject<LocalDatabaseReferenceJson>();
-                        if (app._dataSourceReferences.ContainsKey(Path.GetFileNameWithoutExtension(file._relativeName)))
-                        {
-                            app._dataSourceReferences[Path.GetFileNameWithoutExtension(file._relativeName)] = ldr;
-                        }
-                        else
-                        {
-                            app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
-                        }
+                        app._dataSourceReferences.Add(Path.GetFileNameWithoutExtension(file._relativeName), ldr);
                         break;
                 }
             }
@@ -788,22 +781,25 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
             }
 
-            // fill up entropy with unused data sources
-            foreach (var kvp in dataSourceDefinitions)
+            if (app._dataSourceReferences != null)
             {
-                var dataSetName = kvp.Key;
-                var dataSourceDefs = kvp.Value;  
-                var localDbRefJson = app._dataSourceReferences[dataSetName];
-                Dictionary<string, LocalDatabaseReferenceDataSource> dataSourcesToWrite = null;
-                if (localDbRefJson.dataSources != null)
+                // fill up entropy with unused data sources
+                foreach (var kvp in dataSourceDefinitions)
                 {
-                    var trackedDataSources = new HashSet<string>(dataSourceDefs.Select(def => def.EntityName));
-                    dataSourcesToWrite = localDbRefJson.dataSources.Where(kvp => !trackedDataSources.Contains(kvp.Key))
-                                                                   .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-                }
+                    var dataSetName = kvp.Key;
+                    var dataSourceDefs = kvp.Value;
+                    var localDbRefJson = app._dataSourceReferences[dataSetName];
+                    Dictionary<string, LocalDatabaseReferenceDataSource> dataSourcesToWrite = null;
+                    if (localDbRefJson.dataSources != null)
+                    {
+                        var trackedDataSources = new HashSet<string>(dataSourceDefs.Select(def => def.EntityName));
+                        dataSourcesToWrite = localDbRefJson.dataSources.Where(kvp => !trackedDataSources.Contains(kvp.Key))
+                                                                       .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    }
 
-                app._entropy.AddUnusedDataSourcesForLocalDbRef(dataSetName, dataSourcesToWrite);
-            } 
+                    app._entropy.AddUnusedDataSourcesForLocalDbRef(dataSetName, dataSourcesToWrite);
+                }
+            }
 
             foreach (var dsName in untrackedLdr)
             {
