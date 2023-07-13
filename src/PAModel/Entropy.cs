@@ -334,11 +334,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             return WasLocalDatabaseReferencesEmpty ?? LocalDatabaseReferencesAsEmpty;
         }
 
-        public void InitializeWasDataSourcesOfLocalDBReferenceNull()
-        {
-            WasDataSourcesOfLocalDBReferenceNull = new Dictionary<string, bool>();
-        }
-
         /// <summary>
         /// Records whether dataSources for the given dataset was null or not
         /// </summary>
@@ -346,6 +341,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <param name="isNull">Indicates whether dataSources was null or not</param>
         public void MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(string dataSetName, bool isNull)
         {
+            if (WasDataSourcesOfLocalDBReferenceNull == null)
+            {
+                WasDataSourcesOfLocalDBReferenceNull = new Dictionary<string, bool>();
+            }
             WasDataSourcesOfLocalDBReferenceNull[dataSetName] = isNull;
         }
 

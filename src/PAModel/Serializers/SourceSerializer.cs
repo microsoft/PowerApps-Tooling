@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools
 {
@@ -677,10 +678,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
             var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
-            app._entropy.InitializeWasDataSourcesOfLocalDBReferenceNull();
-
+            foreach (var localDbRef in app._dataSourceReferences)
+            {
+                app._entropy.MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(localDbRef.Key, localDbRef.Value.dataSources == null);
+            }
+         
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
+
             foreach (var kvp in app.GetDataSources())
             {
                 // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
@@ -761,7 +766,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
                 {
                     untrackedLdr.Remove(dataSourceDef.DatasetName);
-                    app._entropy.MarkDataSourcesOfLocalDatabaseReferenceAsNullOrNot(dataSourceDef.DatasetName, referenceJson?.dataSources == null);
 
                     // copy over the localconnectionreference
                     if (referenceJson.dataSources?.TryGetValue(dataSourceDef.EntityName, out var dsRef) ?? false)
