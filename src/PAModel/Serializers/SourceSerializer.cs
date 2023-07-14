@@ -774,8 +774,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (dataSourceDef != null)
                 {
-                    dataSourceDefinitions.GetOrCreate(dataSourceDef.DatasetName).Add(dataSourceDef);
                     dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
+                }
+
+                if (dataSourceDef?.DatasetName != null)
+                {
+                    dataSourceDefinitions.GetOrCreate(dataSourceDef.DatasetName).Add(dataSourceDef);    
                 }
 
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
