@@ -677,8 +677,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
         {
             var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
+         
             // Data Sources  - write out each individual source. 
             HashSet<string> filenames = new HashSet<string>();
+            var dataSourceDefinitions = new Dictionary<string, List<(FilePath filePath, DataSourceDefinition dataSourceDef)>>();
+
             foreach (var kvp in app.GetDataSources())
             {
                 // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
@@ -756,11 +759,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     TrimViewNames(dataSourceStateToWrite, dataSourceDef.DatasetName);
                 }
 
-                if (dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.TryGetValue(dataSourceDef.DatasetName, out var referenceJson))
+                var trackedLdr = dataSourceDef?.DatasetName != null && app._dataSourceReferences != null && app._dataSourceReferences.ContainsKey(dataSourceDef.DatasetName);
+                if (trackedLdr)
                 {
+                    var referenceJson = app._dataSourceReferences[dataSourceDef.DatasetName];
                     untrackedLdr.Remove(dataSourceDef.DatasetName);
+
                     // copy over the localconnectionreference
-                    if (referenceJson.dataSources.TryGetValue(dataSourceDef.EntityName, out var dsRef))
+                    if (referenceJson.dataSources?.TryGetValue(dataSourceDef.EntityName, out var dsRef) ?? false)
                     {
                         dataSourceDef.LocalReferenceDSJson = dsRef;
                     }
@@ -769,9 +775,48 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 }
 
                 if (dataSourceDef != null)
-                    dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
+                {
+                    if (trackedLdr)
+                    {
+                        // if there's a valid data set name, defer writing the data source definition to file
+                        dataSourceDefinitions.GetOrCreate(dataSourceDef.DatasetName).Add((new FilePath(filename), dataSourceDef));
+                    }
+                    else
+                    {
+                        dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
+                    } 
+                }
 
                 dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
+            }
+
+            if (app._dataSourceReferences != null)
+            {
+                foreach (var kvp in dataSourceDefinitions)
+                {
+                    var dataSetName = kvp.Key;
+                    var dataSourceDefs = kvp.Value;
+                    var localDbRefJson = app._dataSourceReferences[dataSetName];
+                    // unused data sources that we would be tracking
+                    // 1) it is null when original dataSources is null
+                    // 2) it is empty dictionary when original dataSources is null
+                    // 3) it is deeply equal to original dataSources when all of the entries in original dataSources are unused
+                    // 4) it is a subset of original dataSources containing only unused entries
+                    IReadOnlyDictionary<string, LocalDatabaseReferenceDataSource> dataSourcesToWrite = null;
+                    if (localDbRefJson.dataSources != null)
+                    {
+                        var trackedDataSources = new HashSet<string>(dataSourceDefs.Select(def => def.dataSourceDef.EntityName));
+                        dataSourcesToWrite = localDbRefJson.dataSources.Where(kvp => !trackedDataSources.Contains(kvp.Key))
+                                                                       .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    }
+
+                    foreach (var dataSourceDef in dataSourceDefs)
+                    {
+                        dataSourceDef.dataSourceDef.UnusedDataSources = dataSourcesToWrite;
+                        // Now that we finally have computed unused data sources, write the data source definitions file in pkgs/TableDefinitions
+                        dir.WriteAllJson(DataSourcePackageDir, dataSourceDef.filePath, dataSourceDef.dataSourceDef);
+                    }
+                }
             }
 
             foreach (var dsName in untrackedLdr)
@@ -796,7 +841,22 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 {
                     localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
                     {
-                        dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>(),
+                                      // Use the unused data sources of the first table definition of a particular data set
+                        dataSources = tableDef.UnusedDataSources == null ?
+                                      // Set it to null when unused data sources of the first table definition is null
+                                      // This could occur if dataSources were not present in original msapp, hence no unused data sources
+                                      // or we are reading in older table definitions
+                                      // if we are reading older table definition, this would be null and we cannot say for sure
+                                      // that whether data sources was present or absent (== null). In this case, assume it to be nulll
+                                      // and an attempt is later made to correct this assumption
+                                      null :
+                                      // UnusedDataSources is read only dictionary to avoid mutations
+                                      // If it is already of concrete type Dictionary
+                                      // then type cast it and do not attempt to create a new dictionary
+                                      tableDef.UnusedDataSources is Dictionary<string, LocalDatabaseReferenceDataSource> writeableDataSources ?
+                                      writeableDataSources :
+                                      // create a new one in case UnusedDataSources is not of type Dictionary 
+                                      tableDef.UnusedDataSources.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
                         ExtensionData = tableDef.ExtensionData,
                         instanceUrl = tableDef.InstanceUrl
                     };
@@ -815,7 +875,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 if (tableDef.LocalReferenceDSJson != null)
                 {
-                    localDatabaseReferenceJson.dataSources.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
+                    // now that we have seen first non null LocalReferenceDSJson
+                    // we know for sure that dataSources for the localDatabaseReferenceJson was not null
+                    // in that case, no longer assume dataSource to be null
+                    if (localDatabaseReferenceJson.dataSources == null)
+                    {
+                        localDatabaseReferenceJson.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
+                    }
+                    localDatabaseReferenceJson.dataSources?.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
                 }
             }
 

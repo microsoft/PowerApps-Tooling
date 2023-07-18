@@ -238,15 +238,18 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     }
                 } // foreach zip entry
 
-                foreach (var template in app._templates.UsedTemplates)
+                if (app._templates != null)
                 {
-                    if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
+                    foreach (var template in app._templates.UsedTemplates)
                     {
-                        templateState.IsWidgetTemplate = true;
+                        if (app._templateStore.TryGetTemplate(template.Name, out var templateState))
+                        {
+                            templateState.IsWidgetTemplate = true;
+                        }
                     }
                 }
 
-                foreach (var componentTemplate in app._templates.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
+                foreach (var componentTemplate in app._templates?.ComponentTemplates ?? Enumerable.Empty<TemplateMetadataJson>())
                 {
                     if (!app._templateStore.TryGetTemplate(componentTemplate.Name, out var template))
                         continue;
