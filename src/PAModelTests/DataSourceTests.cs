@@ -121,7 +121,7 @@ namespace PAModelTests
         }
 
         [DataTestMethod]
-        [DataRow("UnusedDataSourcesHashMismatch.msapp")]
+        [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
         public void TestUnusedDataSourcesArePreserved(string appName)
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
@@ -135,33 +135,63 @@ namespace PAModelTests
             errors = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
             errors.ThrowOnErrors();
 
-            Assert.IsFalse(msApp._entropy.WasUnusedDataSourcesForLocalDbRefsAbsent());
-            Assert.IsTrue(msApp._entropy.GetUnusedDataSourcesForLocalDbRef("default.cds").Count > 0);
+            var (msApp1, errors1) = CanvasDocument.LoadFromSources(sourcesTempDirPath);
+
+            Assert.AreEqual(msApp._dataSourceReferences.First().Key, msApp._dataSourceReferences.First().Key);
+            var actualDataSources = msApp1._dataSourceReferences.First().Value.dataSources;
+            var expectedDataSources = msApp._dataSourceReferences.First().Value.dataSources;
+            Assert.AreEqual(expectedDataSources.Count, actualDataSources.Count);
+            Assert.IsTrue(actualDataSources.ContainsKey("environment_39a902ba"));
+            foreach (var kvp in actualDataSources)
+            {
+                Assert.IsTrue(expectedDataSources.ContainsKey(kvp.Key));
+                var expectedDataSource = expectedDataSources[kvp.Key];
+                var actualDataSource = kvp.Value;
+                Assert.AreEqual(expectedDataSource.ExtensionData.Count, actualDataSource.ExtensionData.Count);
+                foreach (var kvpExtension in actualDataSource.ExtensionData)
+                {
+                    Assert.IsTrue(expectedDataSource.ExtensionData.ContainsKey(kvpExtension.Key));
+                }
+            }
         }
 
         [DataTestMethod]
-        [DataRow("UnusedDataSourcesHashMismatch.msapp")]
-        public void TestUnusedDataSourcesAreNotPreservedWhenEntropyDoesNotTrackThemBackwardCompat(string appName)
+        [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
+        public void TestUnusedDataSourcesAreNotPreservedWhenNotTracked(string appName)
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(pathToMsApp));
 
             var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+            var expectedDataSources = msApp._dataSourceReferences.First().Value.dataSources.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            msApp._dataSourceReferences.First().Value.dataSources.Remove("environment_39a902ba");
             errors.ThrowOnErrors();
 
             using var sourcesTempDir = new TempDir();
             var sourcesTempDirPath = sourcesTempDir.Dir;
             errors = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
-            errors.ThrowOnErrors();
-            msApp._dataSourceReferences["default.cds"].dataSources.Remove(msApp._entropy.GetUnusedDataSourcesForLocalDbRef("default.cds").Keys.First());
-            using var sourcesTempDir2 = new TempDir();
-            errors = msApp.SaveToSources(sourcesTempDir2.Dir, pathToMsApp);
+            Assert.IsTrue(errors.HasErrors);
 
-            Assert.IsTrue(errors.HasErrors || errors.HasWarnings);
+            var (msApp1, errors1) = CanvasDocument.LoadFromSources(sourcesTempDirPath);
+            errors1.ThrowOnErrors();
+
+            var actualDataSources = msApp1._dataSourceReferences.First().Value.dataSources;
+            Assert.AreEqual(expectedDataSources.Count - actualDataSources.Count, 1);
+            foreach (var key in expectedDataSources.Keys)
+            {
+                if (key == "environment_39a902ba")
+                {
+                    Assert.IsFalse(actualDataSources.ContainsKey(key));
+                }
+                else
+                {
+                    Assert.IsTrue(actualDataSources.ContainsKey(key));
+                }
+            }
         }
 
         [DataTestMethod]
-        [DataRow("UnusedDataSourcesHashMismatch.msapp")]
+        [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
         public void TestWhenDataSourcesAreNotPresent(string appName)
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
@@ -182,14 +212,13 @@ namespace PAModelTests
             errors = msApp.SaveToSources(sources2.Dir, msAppTemp.FullPath);
             errors.ThrowOnErrors();
 
-            Assert.IsFalse(msApp._entropy.WasUnusedDataSourcesForLocalDbRefsAbsent());
-            Assert.IsNull(msApp._entropy.GetUnusedDataSourcesForLocalDbRef("default.cds"));
-            Assert.IsTrue(msApp._entropy.UnusedDataSourcesForLocalDbRefs.ContainsKey("default.cds"));
+            Assert.IsTrue(msApp._dataSourceReferences.ContainsKey("default.cds"));
+            Assert.IsNull(msApp._dataSourceReferences.First().Value.dataSources);
         }
 
         [DataTestMethod]
-        [DataRow("UnusedDataSourcesHashMismatch.msapp")]
-        public void TestWhenDataSourcesIsSetEmptyDictionary(string appName)
+        [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
+        public void TestWhenDataSourcesIsSetToEmptyDictionary(string appName)
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(pathToMsApp));
@@ -209,51 +238,31 @@ namespace PAModelTests
             errors = msApp.SaveToSources(sources2.Dir, msAppTemp.FullPath);
             errors.ThrowOnErrors();
 
-            Assert.IsFalse(msApp._entropy.WasUnusedDataSourcesForLocalDbRefsAbsent());
-            Assert.IsTrue(msApp._entropy.GetUnusedDataSourcesForLocalDbRef("default.cds").Count == 0);
+            Assert.AreEqual(msApp._dataSourceReferences.First().Value.dataSources.Count, 0);
         }
 
         [DataTestMethod]
-        [DataRow("UnusedDataSourcesHashMismatch.msapp")]
-        public void TestWhenDataSourcesAreNotPresentBackwardCompat(string appName)
+        [DataRow("NoUnusedDataSources.msapp")]
+        public void TestAllUsedDataSourcesArePreserved(string appName)
         {
             var pathToMsApp = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
             Assert.IsTrue(File.Exists(pathToMsApp));
 
             var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
-            msApp._dataSourceReferences["default.cds"].dataSources = null;
             errors.ThrowOnErrors();
 
-            using var sourcesTempDir = new TempDir();
-            var sourcesTempDirPath = sourcesTempDir.Dir;
-            errors = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
-            (msApp, errors) = CanvasDocument.LoadFromSources(sourcesTempDirPath);
-            using var msAppTemp = new TempFile();
-            using var sources2 = new TempDir();
-            var errors2 = new ErrorContainer();
-            MsAppSerializer.SaveAsMsApp(msApp, msAppTemp.FullPath, errors2);
-            errors = msApp.SaveToSources(sources2.Dir, msAppTemp.FullPath);
-            errors.ThrowOnErrors();
-            var entropy = ReadEntropy(sources2.Dir);
-            entropy.UnusedDataSourcesForLocalDbRefs = null;
-            WriteEntropy(sources2.Dir, entropy);
-            (msApp, errors) = CanvasDocument.LoadFromSources(sources2.Dir);
+            using var sourcesDir = new TempDir();
+            errors = msApp.SaveToSources(sourcesDir.Dir);
             errors.ThrowOnErrors();
 
-            Assert.IsTrue(msApp._entropy.WasUnusedDataSourcesForLocalDbRefsAbsent());
-            Assert.IsNull(msApp._entropy.GetUnusedDataSourcesForLocalDbRef("default.cds"));
-        }
+            var (msApp1, errors1) = CanvasDocument.LoadFromSources(sourcesDir.Dir);
+            errors1.ThrowOnErrors();
 
-        private static Entropy ReadEntropy(string sources)
-        {
-            var pathToEntropy = Path.Combine(sources, "Entropy", "Entropy.Json");
-            return JsonSerializer.Deserialize<Entropy>(File.ReadAllText(pathToEntropy), Utilities._jsonOpts); 
-        }
-
-        private static void WriteEntropy(string sources, Entropy entropy)
-        {
-            var pathToEntropy = Path.Combine(sources, "Entropy", "Entropy.Json");
-            File.WriteAllText(pathToEntropy, JsonSerializer.Serialize(entropy, Utilities._jsonOpts));
+            Assert.AreEqual(msApp._dataSourceReferences["default.cds"].dataSources.Count, msApp._dataSourceReferences["default.cds"].dataSources.Count);
+            foreach (var entry in msApp._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key).Zip(msApp1._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key)))
+            {
+                Assert.AreEqual(entry.First, entry.Second);
+            }
         }
 
         [DataTestMethod]

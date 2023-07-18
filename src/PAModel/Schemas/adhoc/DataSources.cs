@@ -87,6 +87,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public IDictionary<string, string> DataEntityMetadataJson { get; set; }
         public LocalDatabaseReferenceDataSource LocalReferenceDSJson { get; set; }
 
+        /// <summary>
+        /// Tracks the unused data sources for the dataset this data source definition belongs too
+        /// It is IReadOnlyDictionary to avoid mutations as all definitions with same DatasetName share the same instance
+        /// This is done to avoid copying which could be expensive.
+        /// Read Only makes the shared instance virtually immutable.
+        /// </summary>
+        public IReadOnlyDictionary<string, LocalDatabaseReferenceDataSource> UnusedDataSources { get; set; } = null;
+
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }

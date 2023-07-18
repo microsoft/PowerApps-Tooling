@@ -110,12 +110,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         // Key is control name, value is PCFTemplateDetails
         public Dictionary<string, ControlInfoJson.Template> PCFTemplateEntry { get; set; } = new Dictionary<string, ControlInfoJson.Template>(StringComparer.Ordinal);
 
-        /// <summary>
-        /// For each LocalDatabaseReferenceJson instance, tracks unused dataSources
-        /// By default, the value of UnusedDataSourcesForLocalDbRefs is null which is used to indicate that it is missing from entropy
-        /// </summary>
-        public Dictionary<string, Dictionary<string, LocalDatabaseReferenceDataSource>> UnusedDataSourcesForLocalDbRefs { get; set; } = null;
-
         public int GetOrder(DataSourceEntry dataSource)
         {
             // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.
@@ -331,51 +325,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         public bool IsLocalDatabaseReferencesEmpty()
         {
             return WasLocalDatabaseReferencesEmpty ?? LocalDatabaseReferencesAsEmpty;
-        }
-
-        /// <summary>
-        /// Tracks the unused data sources for the given dataset name
-        /// </summary>
-        /// <param name="dataSetName">Name of the dataset</param>
-        /// <param name="unusedDataSources">Unused datasources</param>
-        public void AddUnusedDataSourcesForLocalDbRef(string dataSetName, Dictionary<string, LocalDatabaseReferenceDataSource> unusedDataSources)
-        {
-            if (UnusedDataSourcesForLocalDbRefs == null)
-            {
-                UnusedDataSourcesForLocalDbRefs = new Dictionary<string, Dictionary<string, LocalDatabaseReferenceDataSource>>();
-            }
-
-            UnusedDataSourcesForLocalDbRefs[dataSetName] = unusedDataSources;
-        }
-
-        /// <summary>
-        /// Extracts the unused data srouces for the given local database reference represented by the dataset name
-        /// If entropy wasn't tracking the ununsed data sources, it would assume that data sources was null
-        /// An attempt should be made to correct this assumption when loading sources into canvas document
-        /// This allows us to make the solution somewhat backward compatible when it comes to whether data sources was null or not
-        /// Note that it is hard to make this solution backward compatible if an msapp with unused data sources was unpacked before entropy started tracking them
-        /// </summary>
-        /// <param name="dataSetName">Name of the dataset</param>
-        /// <returns>Assumed or correct data sources for the given dataset</returns>
-        public Dictionary<string, LocalDatabaseReferenceDataSource> GetUnusedDataSourcesForLocalDbRef(string dataSetName)
-        {
-            if (WasUnusedDataSourcesForLocalDbRefsAbsent() || !UnusedDataSourcesForLocalDbRefs.TryGetValue(dataSetName, out var dataSources))
-            {
-                // if UnusedDataSourcesForLocalDbRefs is null, then it indicates that it wasn't present in entropy
-                // assume the dataset name to be the null, so backward compat logic can attempt to correct it later
-                return null;
-            }
-
-            return dataSources;
-        }
-
-        /// <summary>
-        /// Checks if entropy is tracking unused data sources or not
-        /// </summary>
-        /// <returns>True if entropy is not tracking unused data sources or false otherwise</returns>
-        public bool WasUnusedDataSourcesForLocalDbRefsAbsent()
-        {
-            return UnusedDataSourcesForLocalDbRefs == null;
         }
     }
 }
