@@ -11,7 +11,6 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text.Json;
 
 namespace PAModelTests
 {
