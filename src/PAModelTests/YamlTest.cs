@@ -516,7 +516,7 @@ P2: = ""hello"" & ""world""
         static void AssertLex(string expected, YamlLexer y)
         {
             var p = y.ReadNext();
-            Assert.AreEqual(expected, p.ToString());
+            Assert.AreEqual(NormNewlines(expected), p.ToString());
         }
 
         static void AssertLex(string expected, YamlLexer y, string sourceSpan)
