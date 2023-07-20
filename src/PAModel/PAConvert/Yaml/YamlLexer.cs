@@ -119,7 +119,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml
     /// </summary>
     internal class YamlLexer
     {
-        private static string NewLine = "\r\n";
+        private static string NewLine = "\n";
 
         // The actual contents to read. 
         private readonly TextReader _reader;
