@@ -146,8 +146,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 do
                 {
-                    bytesRead += s.ReadExactly(buffer);
+                    bytesRead += s.ReadExactly(buffer, bytesRead, (int)e.Length - bytesRead);
                 } while (bytesRead < e.Length);
+
 
                 return buffer;
             }
