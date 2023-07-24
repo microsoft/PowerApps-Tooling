@@ -146,9 +146,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
                 do
                 {
-                    bytesRead += s.Read(buffer, bytesRead, (int)e.Length - bytesRead);
+                    bytesRead += s.ReadExactly(buffer);
                 } while (bytesRead < e.Length);
-
 
                 return buffer;
             }
@@ -178,7 +177,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="relativeTo"/> or <paramref name="path"/> is <c>null</c> or an empty string.</exception>
         /// <remarks>
         /// Want to use Path.GetRelativePath() from Net 2.1. But since we target netstandard 2.0, we need to shim it.
-        /// Convert to URIs and make the relative path. 
+        /// Convert to URIs and make the relative path.
         /// see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
         /// For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
         /// </remarks>
