@@ -48,7 +48,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             FileEntry logoFile = null;
             var publishInfo = app._publishInfo.JsonClone();
 
-            if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
+            if (!string.IsNullOrEmpty(publishInfo?.LogoFileName) && app._logoFile?.Name != null)
             {
                 app._assetFiles.Remove(app._logoFile.Name);
                 publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());

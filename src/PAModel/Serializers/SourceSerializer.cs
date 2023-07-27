@@ -368,10 +368,6 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                     app._unknownFiles.Remove(key);
                     app._logoFile = logoFile;
                 }
-                else
-                {
-                    throw new InvalidOperationException($"Missing logo file {key}");
-                }
             }
         }
 
