@@ -50,13 +50,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
 
             if (!string.IsNullOrEmpty(publishInfo?.LogoFileName) && app._logoFile?.Name != null)
             {
-                app._assetFiles.Remove(app._logoFile.Name);
-                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());
-                logoFile = new FileEntry
+                if (app._assetFiles.Remove(app._logoFile.Name))
                 {
-                    Name = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(publishInfo.LogoFileName)),
-                    RawBytes = app._logoFile.RawBytes
-                };
+                    publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());
+                    logoFile = new FileEntry
+                    {
+                        Name = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(publishInfo.LogoFileName)),
+                        RawBytes = app._logoFile.RawBytes
+                    };
+                }
             }
 
             return (publishInfo, logoFile);
