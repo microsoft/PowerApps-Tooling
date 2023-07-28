@@ -48,15 +48,23 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             FileEntry logoFile = null;
             var publishInfo = app._publishInfo.JsonClone();
 
-            if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
-            {
-                app._assetFiles.Remove(app._logoFile.Name);
-                publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());
-                logoFile = new FileEntry
+            if (app._logoFile != null) {
+                if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
                 {
-                    Name = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(publishInfo.LogoFileName)),
-                    RawBytes = app._logoFile.RawBytes
-                };
+                    app._assetFiles.Remove(app._logoFile.Name);
+                    publishInfo.LogoFileName = app._entropy.OldLogoFileName ?? Path.GetFileName(app._logoFile.Name.ToPlatformPath());
+                    logoFile = new FileEntry
+                    {
+                        Name = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(publishInfo.LogoFileName)),
+                        RawBytes = app._logoFile.RawBytes
+                    };
+                }
+            }
+            else {
+                if (app._entropy.OldLogoFileName != null)
+                {
+                    publishInfo.LogoFileName = app._entropy.OldLogoFileName;
+                }
             }
 
             return (publishInfo, logoFile);
