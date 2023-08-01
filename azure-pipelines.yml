@@ -9,7 +9,8 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-- group: 'Nuget And PSGallery Publishing Data'
+  Codeql.Enabled: true
+# - group: 'Nuget And PSGallery Publishing Data'
 
 jobs:
 - job: 'Build_PowerPlatform_Formulas_Tools'
@@ -42,12 +43,16 @@ jobs:
       version: 2.1.x
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
+  - task: CodeQL3000Init@0
+
   - task: DotNetCoreCLI@2
     displayName: 'Build and test '
     inputs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
       arguments: '-- ci -c $(BuildConfiguration)'
+
+  - task: CodeQL3000Finalize@0
 
   - task: PublishTestResults@2
     inputs:
