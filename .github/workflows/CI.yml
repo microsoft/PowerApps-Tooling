@@ -23,18 +23,26 @@ jobs:
 
     - uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: | 
+        dotnet-version: |
           3.1.x
           6.0.x
 
     - run: dotnet --info
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: csharp, javascript
+
     - name: Build and test (win)
       run: ./build ci
       shell: cmd
-      if: ${{ runner.os == 'Windows' }} 
-      
+      if: ${{ runner.os == 'Windows' }}
+
       ## Only difference here is not forcing cmd
     - name: Build and test (!win)
       run: ./build ci
       if: ${{ runner.os != 'Windows' }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
