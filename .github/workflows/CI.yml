@@ -32,7 +32,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: csharp, javascript
+        languages: csharp
 
     - name: Build and test (win)
       run: ./build ci
