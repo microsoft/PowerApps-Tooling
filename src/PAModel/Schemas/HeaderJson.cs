@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AppMagic.Authoring.Persistence
 {
@@ -11,6 +14,9 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public Version MinVersionToLoad { get; set; }
         public Version MSAppStructureVersion { get; set; }
         public DateTime? LastSavedDateTimeUTC { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
         public static HeaderJson CreateDefault()
         {
