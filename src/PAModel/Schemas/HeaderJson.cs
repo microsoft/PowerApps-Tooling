@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,6 +15,8 @@ namespace Microsoft.AppMagic.Authoring.Persistence
         public Version MinVersionToLoad { get; set; }
         public Version MSAppStructureVersion { get; set; }
         public DateTime? LastSavedDateTimeUTC { get; set; }
+
+        public AnalysisOptionsJson AnalysisOptions { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
