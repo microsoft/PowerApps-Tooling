@@ -460,7 +460,7 @@ P2: = ""hello"" & ""world""
         {
             var reader = new StringReader(expectedYaml);
 
-            var props = Microsoft.PowerPlatform.YamlConverter.Read(reader);
+            var props = YamlConverter.Read(reader);
             Assert.AreEqual(props.Count, 2);
             Assert.AreEqual(props["P1"], "123");
             Assert.AreEqual(props["P2"], " \"hello\" & \"world\"");
@@ -475,7 +475,7 @@ P2: = ""hello"" & ""world""
     sub1: 123"); // error, not supported objects 
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => Microsoft.PowerPlatform.YamlConverter.Read(reader));
+                () => YamlConverter.Read(reader));
         }
 
         [TestMethod]
@@ -489,7 +489,7 @@ P2: = ""hello"" & ""world""
                 {"P1", "123" }
             };
 
-            Microsoft.PowerPlatform.YamlConverter.Write(writer, d);
+            YamlConverter.Write(writer, d);
             
             // order should be alphabetical
             Assert.AreEqual(expectedYaml, writer.ToString());
