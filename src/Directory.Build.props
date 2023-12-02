@@ -4,6 +4,11 @@
         <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup Label="Global usings">
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+    </ItemGroup>
+    
     <PropertyGroup Condition="'$(Packing)' == ''">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
