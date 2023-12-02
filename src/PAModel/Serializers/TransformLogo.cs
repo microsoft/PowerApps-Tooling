@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
     // Save the old name in Entropy so that we can still roundtrip. 
     internal static class TransformLogo
     {
-        public static void TranformLogoOnLoad(this CanvasDocument app)
+        public static void TransformLogoOnLoad(this CanvasDocument app)
         {
             // May be null or "" 
             var oldLogoName = app._publishInfo?.LogoFileName;

@@ -97,7 +97,7 @@ namespace PAModelTests
             // passing null resource in resourcesJson
             msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
 
-            TranformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
+            TransformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
         }
 
         // Validate that the pcf control template is stored in entropy while unpacking

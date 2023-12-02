@@ -233,7 +233,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             app.GetLogoFile();
 
             // Add the entries for local assets back to resrouces.json
-            TranformResourceJson.AddLocalAssetEntriesToResourceJson(app);
+            TransformResourceJson.AddLocalAssetEntriesToResourceJson(app);
 
             foreach (var file in dir.EnumerateFiles(OtherDir))
             {

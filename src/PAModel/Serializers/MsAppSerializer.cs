@@ -303,7 +303,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
                 app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
                 app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
                 // Normalize logo filename. 
-                app.TranformLogoOnLoad();
+                app.TransformLogoOnLoad();
 
                 if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
                 {
