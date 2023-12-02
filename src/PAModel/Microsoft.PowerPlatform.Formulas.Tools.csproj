@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.PowerPlatform.Formulas.Tools</AssemblyName>
     <RootNamespace>Microsoft.PowerPlatform.Formulas.Tools</RootNamespace>
   </PropertyGroup>

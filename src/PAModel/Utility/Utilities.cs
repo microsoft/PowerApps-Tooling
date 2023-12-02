@@ -99,7 +99,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools
             opts.Converters.Add(new JsonVersionConverter());
 
             opts.WriteIndented = true;
-            opts.IgnoreNullValues = true;
+            opts.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 
             return opts;
         }

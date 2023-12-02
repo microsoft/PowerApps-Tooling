@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <TargetFramework>net6.0</TargetFramework>
         <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
@@ -8,7 +9,7 @@
         <Using Include="System" />
         <Using Include="System.Collections.Generic" />
     </ItemGroup>
-    
+
     <PropertyGroup Condition="'$(Packing)' == ''">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
@@ -25,19 +26,19 @@
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
 
+    <!-- Settings for the Release configuration. -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="all" />
     </ItemGroup>
     <PropertyGroup>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)PowerAppsLanguageTooling.ruleset</CodeAnalysisRuleSet>
-    </PropertyGroup>
-
-    <!-- Settings for the Release confi guration. -->
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <DefineConstants>TRACE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup>
