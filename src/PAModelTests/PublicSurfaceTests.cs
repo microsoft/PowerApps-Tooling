@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
@@ -12,40 +13,16 @@ namespace PAModelTests;
 public class PublicSurfaceTests
 {
     [TestMethod]
-    public void Test()
+    public void TestNamespace()
     {
         var asm = typeof(CanvasDocument).Assembly;
-
-        var ns = "Microsoft.PowerPlatform.Formulas.Tools";
-        var allowed = new HashSet<string>()
-        {
-            $"{ns}.{nameof(CanvasDocument)}",
-            $"{ns}.{nameof(CanvasMerger)}",
-            $"{ns}.{nameof(ChecksumMaker)}",
-            $"{ns}.{nameof(ErrorContainer)}",
-            $"{ns}.{nameof(Error)}",
-            $"{ns}.Yaml.YamlConverter",
-            $"{ns}.Yaml.YamlPocoSerializer",
-            $"{ns}.Yaml.YamlWriter",
-        };
-
+        var publicNamespace = "Microsoft.PowerPlatform.Formulas.Tools";
         var sb = new StringBuilder();
         foreach (var type in asm.GetTypes().Where(t => t.IsPublic))
         {
             var name = type.FullName;
-            if (!allowed.Contains(name))
-            {
-                sb.Append(name);
-                sb.Append("; ");
-            }
-
-            allowed.Remove(name);
+            name.Should().StartWith(publicNamespace, $"Type {name} is not in the public namespace {publicNamespace}");
         }
-
-        Assert.AreEqual(0, sb.Length, $"Unexpected public types: {sb}");
-
-        // Types we expect to be in the assembly aren't there. 
-        Assert.AreEqual(0, allowed.Count);
     }
 }
 

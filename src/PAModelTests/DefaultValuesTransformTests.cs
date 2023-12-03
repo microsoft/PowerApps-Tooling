@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using Microsoft.AppMagic.Authoring.Persistence;
 
 namespace PAModelTests
 {
@@ -19,7 +17,7 @@ namespace PAModelTests
     {
         public static readonly List<String> dynamicPropertiesList = new List<String>{ "LayoutX", "LayoutY", "LayoutWidth", "LayoutHeight" };
 
-        // Testing the DefaultValuesTransform:beforeWrite() behaviour on control node with null dynamic properties
+        // Testing the DefaultValuesTransform:beforeWrite() behavior on control node with null dynamic properties
         // Specifically cases where property null but propertynames not null
         [TestMethod]
         public void TestCaseWithNullDynamicProperties()

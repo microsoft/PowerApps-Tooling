@@ -2,92 +2,87 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 
-namespace PAModelTests
+namespace PAModelTests;
+
+// DataSources Tests
+[TestClass]
+public class AppTestsTest
 {
-    // DataSources Tests
-    [TestClass]
-    public class AppTestsTest
+    // Validates that the App can be repacked after deleting the EditorState files, when the app contains app tests which refer to screens.
+    [DataTestMethod]
+    [DataRow("TestStudio_Test.msapp")]
+    public void TestPackWhenEditorStateIsDeleted(string appName)
     {
-        // Validates that the App can be repacked after deleting the EditorState files, when the app contains app tests which refer to screens.
-        [DataTestMethod]
-        [DataRow("TestStudio_Test.msapp")]
-        public void TestPackWhenEditorStateIsDeleted(string appName)
+        var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+        Assert.IsTrue(File.Exists(root));
+
+        (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+        errors.ThrowOnErrors();
+
+        using (var tempDir = new TempDir())
         {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
-            Assert.IsTrue(File.Exists(root));
+            string outSrcDir = tempDir.Dir;
 
-            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
-            errors.ThrowOnErrors();
+            // Save to sources
+            msapp.SaveToSources(outSrcDir);
 
-            using (var tempDir = new TempDir())
+            // Delete Entropy directory
+            var editorStatePath = Path.Combine(outSrcDir, "Src", "EditorState");
+            if (Directory.Exists(editorStatePath))
             {
-                string outSrcDir = tempDir.Dir;
+                Directory.Delete(editorStatePath, true);
+            }
 
-                // Save to sources
-                msapp.SaveToSources(outSrcDir);
+            // Load app from the sources after deleting the entropy
+            var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
 
-                // Delete Entropy directory
-                var editorStatePath = Path.Combine(outSrcDir, "Src", "EditorState");
-                if (Directory.Exists(editorStatePath))
-                {
-                    Directory.Delete(editorStatePath, true);
-                }
-
-                // Load app from the sources after deleting the entropy
-                var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
-
-                using (var tempFile = new TempFile())
-                {
-                    // Repack the app
-                    MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
-                }
+            using (var tempFile = new TempFile())
+            {
+                // Repack the app
+                MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
             }
         }
+    }
 
-        // Validates that the App can be repacked after deleting the Entropy files, when the app contains app tests which refer to screens.
-        [DataTestMethod]
-        [DataRow("TestStudio_Test.msapp")]
-        public void TestPackWhenEntropyIsDeleted(string appName)
+    // Validates that the App can be repacked after deleting the Entropy files, when the app contains app tests which refer to screens.
+    [DataTestMethod]
+    [DataRow("TestStudio_Test.msapp")]
+    public void TestPackWhenEntropyIsDeleted(string appName)
+    {
+        var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+        Assert.IsTrue(File.Exists(root));
+
+        (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+        errors.ThrowOnErrors();
+
+        using (var tempDir = new TempDir())
         {
-            var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
-            Assert.IsTrue(File.Exists(root));
+            string outSrcDir = tempDir.Dir;
 
-            (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
-            errors.ThrowOnErrors();
+            // Save to sources
+            msapp.SaveToSources(outSrcDir);
 
-            using (var tempDir = new TempDir())
+            // Delete Entropy directory
+            var entropyPath = Path.Combine(outSrcDir, "Entropy");
+            if (Directory.Exists(entropyPath))
             {
-                string outSrcDir = tempDir.Dir;
+                Directory.Delete(entropyPath, true);
+            }
 
-                // Save to sources
-                msapp.SaveToSources(outSrcDir);
+            // Load app from the sources after deleting the entropy
+            var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
 
-                // Delete Entropy directory
-                var entropyPath = Path.Combine(outSrcDir, "Entropy");
-                if (Directory.Exists(entropyPath))
-                {
-                    Directory.Delete(entropyPath, true);
-                }
+            using (var tempFile = new TempFile())
+            {
+                // Repack the app
+                MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
 
-                // Load app from the sources after deleting the entropy
-                var app = SourceSerializer.LoadFromSource(outSrcDir, new ErrorContainer());
-
-                using (var tempFile = new TempFile())
-                {
-                    // Repack the app
-                    MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
-
-                    // re-unpack should succeed
-                    (var msapp1, var errors1) = CanvasDocument.LoadFromMsapp(tempFile.FullPath);                    
-                    msapp1.SaveToSources(new TempDir().Dir);
-                }
+                // re-unpack should succeed
+                (var msapp1, var errors1) = CanvasDocument.LoadFromMsapp(tempFile.FullPath);                    
+                msapp1.SaveToSources(new TempDir().Dir);
             }
         }
     }
