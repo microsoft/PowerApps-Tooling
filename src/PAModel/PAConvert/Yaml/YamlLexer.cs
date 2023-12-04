@@ -129,7 +129,6 @@ internal class YamlLexer : IDisposable
 
     // for error handling
     private readonly string _currentFileName;
-    private int _currentLine; // 1-based line number
     
     private string _currentLineContents = null;
 
@@ -158,6 +157,14 @@ internal class YamlLexer : IDisposable
             }
         };
     }
+
+    private int _currentLine;
+    /// <summary>
+    /// Current line number. 1-based.
+    /// </summary>
+    public int CurrentLine => _currentLine;
+
+    public YamlLexerOptions Options { get; set; } = YamlLexerOptions.EnforceLeadingEquals;
 
     private LineParser PeekLine()
     {
@@ -374,9 +381,10 @@ internal class YamlLexer : IDisposable
             iSpaces++; // skip optional spaces
         }
 
+        YamlToken error;
         if (line.Current == 0) // EOL
         {
-            var error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+            error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
             if (error != null)
             {
                 error.Span = Loc(line);
@@ -487,19 +495,23 @@ internal class YamlLexer : IDisposable
 
             value = value.Substring(1); // move past '='
         }
-        else
+        else if (Options.HasFlag(YamlLexerOptions.EnforceLeadingEquals))
         {
             // Warn on legal yaml escapes (>) that we don't support in our subset here. 
             return Error(line, "Expected either '=' for a single line expression or '|' to begin a multiline expression");
         }
-
+        else
         {
-            var error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
-            if (error != null)
-            {
-                error.Span = Loc(line);
-                return error;
-            }
+            // Single line. Property doesn't include \n at end.
+            value = line.RestOfLine;
+            MoveNextLine();
+        }
+
+        error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+        if (error != null)
+        {
+            error.Span = Loc(line);
+            return error;
         }
 
         int endIndex = line._line.Length + 1;
@@ -697,7 +709,7 @@ internal class YamlLexer : IDisposable
         private string DebuggerToString()
         {
             var idx = Math.Min(_line.Length, this._idx);
-            return _line.Substring(0, idx) + "|" + _line.Substring(idx);
+            return _line.Substring(0, idx) + "¤" + _line.Substring(idx);
         }
     }
 

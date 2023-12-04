@@ -12,8 +12,26 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// <summary>
 /// Serializer for Writing POCOs as canonical yaml. 
 /// </summary>
-public static class YamlPocoSerializer
+public class YamlPocoSerializer : IDisposable
 {
+    YamlWriter _yamlWriter;
+    private bool _isDisposed;
+
+    public YamlPocoSerializer()
+    {
+    }
+
+    public YamlPocoSerializer(YamlWriter yamlWriter)
+    {
+        _yamlWriter = yamlWriter ?? throw new ArgumentNullException(nameof(yamlWriter));
+    }
+
+    public YamlPocoSerializer(Stream stream)
+    {
+        _ = stream ?? throw new ArgumentNullException(nameof(stream));
+        _yamlWriter = new YamlWriter(stream);
+    }
+
     public static T Read<T>(TextReader reader)
     {
         var deserializer = new DeserializerBuilder().Build();
@@ -23,21 +41,73 @@ public static class YamlPocoSerializer
         return obj;
     }
 
-    // Write the object out to the stream in a canonical way. Such as:
-    // - object ordering
-    // - encodings
-    // - multi-line
-    // - newlines
+    /// <summary>
+    /// Write the object out to the stream in a canonical way. Such as:
+    /// - object ordering
+    /// - encodings
+    /// - multi-line
+    /// - newlines
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="obj"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public static void CanonicalWrite(TextWriter writer, object obj)
     {
-        if (obj == null)
-        {
-            throw new ArgumentNullException(nameof(obj));
-        }
+        _ = writer ?? throw new ArgumentNullException(nameof(writer));
+        _ = obj ?? throw new ArgumentNullException(nameof(obj));
 
         var yaml = new YamlWriter(writer);
 
         WriteObject(yaml, obj);
+    }
+
+    /// <summary>
+    /// Serialize the object to the stream.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="name">Object name in Yaml</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void Serialize(object obj, string name = null)
+    {
+        _ = obj ?? throw new ArgumentNullException(nameof(obj));
+        _ = _yamlWriter ?? throw new InvalidOperationException("Writer is not set");
+
+        // Write the object name.
+        var objType = obj.GetType();
+        var yamlObject = objType.GetCustomAttribute<YamlObjectAttribute>() ?? new YamlObjectAttribute() { Name = objType.Name };
+        if (string.IsNullOrWhiteSpace(yamlObject.Name))
+            yamlObject.Name = objType.Name;
+        _yamlWriter.WriteStartObject(string.IsNullOrWhiteSpace(name) ? yamlObject.Name : name);
+
+        // Get only the properties that have the YamlProperty attribute and non-default values.
+        var yamlProps = new List<(PropertyInfo info, YamlPropertyAttribute attr)>();
+        foreach (var prop in objType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(prop => Attribute.IsDefined(prop, typeof(YamlPropertyAttribute))))
+        {
+            var yamlProperty = prop.GetCustomAttribute<YamlPropertyAttribute>();
+            var yamlPropertyValue = prop.GetValue(obj);
+            if (yamlProperty.DefaultValue == null && yamlPropertyValue == null)
+                continue;
+            else if (yamlProperty.DefaultValue != null && yamlProperty.DefaultValue.Equals(yamlPropertyValue))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(yamlProperty.Name))
+                yamlProperty.Name = prop.Name;
+            yamlProps.Add((prop, yamlProperty));
+        }
+
+        // Sort the properties by order, then by name.
+        yamlProps.Sort((prop1, prop2) =>
+        {
+            return prop1.attr.CompareTo(prop2.attr);
+        });
+
+        // Write non-default sorted properties.
+        var propsValues = new List<KeyValuePair<string, object>>();
+        foreach (var prop in yamlProps)
+        {
+            WriteAnything(_yamlWriter, prop.attr.Name, prop.info.GetValue(obj));
+        }
     }
 
     private static void WriteAnything(YamlWriter yaml, string propName, object obj)
@@ -118,7 +188,11 @@ public static class YamlPocoSerializer
         WriteCanonicalList(yaml, list);
     }
 
-    // Write a list of properties (such as an object or dictionary) in an ordered way.
+    /// <summary>
+    /// Write a list of properties (such as an object or dictionary) in an ordered way.
+    /// </summary>
+    /// <param name="yaml"></param>
+    /// <param name="list"></param>
     private static void WriteCanonicalList(YamlWriter yaml, List<KeyValuePair<string, object>> list)
     {
         // Critical to sort to preserve a canonical order.
@@ -129,4 +203,29 @@ public static class YamlPocoSerializer
             WriteAnything(yaml, kv.Key, kv.Value);
         }
     }
+
+    #region IDisposable
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                _yamlWriter?.Dispose();
+                _yamlWriter = null;
+            }
+
+            _isDisposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion
 }
