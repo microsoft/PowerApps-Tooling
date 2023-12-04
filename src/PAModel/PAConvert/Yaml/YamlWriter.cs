@@ -22,6 +22,12 @@ public class YamlWriter : IDisposable
         _textWriter = text ?? throw new ArgumentNullException(nameof(text));
     }
 
+    public YamlWriter(Stream stream)
+    {
+        _ = stream ?? throw new ArgumentNullException(nameof(stream));
+        _textWriter = new StreamWriter(stream);
+    }
+
     public void WriteStartObject(string propertyName)
     {
         WriteIndent();
