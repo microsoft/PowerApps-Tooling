@@ -1,102 +1,98 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools
+namespace Microsoft.PowerPlatform.Formulas.Tools;
+
+internal enum SourceKind
 {
-    internal enum SourceKind
+    Control,
+    UxComponent,
+    DataComponent,
+    Test,
+    CommandComponent
+}
+
+internal class SourceFile
+{
+    // the source of truth.
+    public ControlInfoJson Value { get; set; }
+
+    public SourceKind Kind { get; set; }
+
+    // Convenience accessors.
+    public string ControlName => this.Value.TopParent.Name;
+    public string ControlId => this.Value.TopParent.ControlUniqueId;
+
+    // For a data component, this is a guid. Very important.
+    public string TemplateName => this.Value.TopParent.Template.Name;
+
+    internal string GetMsAppFilename()
     {
-        Control,
-        UxComponent,
-        DataComponent,
-        Test,
-        CommandComponent
+        if (this.Kind == SourceKind.Control)
+        {
+            return $"Controls\\{ControlId}.json";
+        }
+        else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent || this.Kind == SourceKind.CommandComponent)
+        {
+            return $"Components\\{ControlId}.json";
+        }
+        else if (this.Kind == SourceKind.Test)
+        {
+            return $"AppTests\\{ControlId}.json";
+        }
+        throw new NotImplementedException($"Unrecognized source kind:" + this.Kind);
     }
 
-    internal class SourceFile
+    private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
     {
-        // the source of truth.
-        public ControlInfoJson Value { get; set; }
+        return control.Children?.Concat(control.Children.SelectMany(child => Flatten(child))) ?? Enumerable.Empty<ControlInfoJson.Item>();
+    }
 
-        public SourceKind Kind { get; set; }
+    public IEnumerable<ControlInfoJson.Item> Flatten()
+    {
+        return (new ControlInfoJson.Item[]{ Value.TopParent }).Concat(Flatten(Value.TopParent));
+    }
 
-        // Convenience accessors.
-        public string ControlName => this.Value.TopParent.Name;
-        public string ControlId => this.Value.TopParent.ControlUniqueId;
+    public FileEntry ToMsAppFile()
+    {
+        var file = MsAppSerializer.ToFile(FileKind.Unknown, this.Value);
+        file.Name = FilePath.FromMsAppPath(this.GetMsAppFilename());
 
-        // For a data component, this is a guid. Very important.
-        public string TemplateName => this.Value.TopParent.Template.Name;
+        return file;
+    }
 
-        internal string GetMsAppFilename()
+    public static SourceFile New(ControlInfoJson json)
+    {
+        SourceFile sf = new SourceFile();
+
+        sf.Value = json;
+
+        var x = sf.Value.TopParent;
+        if (x.Template.Id == ControlInfoJson.Template.DataComponentId)
         {
-            if (this.Kind == SourceKind.Control)
-            {
-                return $"Controls\\{ControlId}.json";
-            }
-            else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent || this.Kind == SourceKind.CommandComponent)
-            {
-                return $"Components\\{ControlId}.json";
-            }
-            else if (this.Kind == SourceKind.Test)
-            {
-                return $"AppTests\\{ControlId}.json";
-            }
-            throw new NotImplementedException($"Unrecognized source kind:" + this.Kind);
+            sf.Kind = SourceKind.DataComponent;
+        }
+        else if (x.Template.Id == ControlInfoJson.Template.UxComponentId)
+        {
+            sf.Kind = SourceKind.UxComponent;
+        }
+        else if (x.Name == SourceSerializer.AppTestControlName)
+        {
+            sf.Kind = SourceKind.Test;
+        }
+        else if (x.Template.Id == ControlInfoJson.Template.CommandComponentId)
+        {
+            sf.Kind = SourceKind.CommandComponent;
+        }
+        else
+        {
+            // UX Control has many different Template ids.
+            sf.Kind = SourceKind.Control;
         }
 
-        private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
-        {
-            return control.Children?.Concat(control.Children.SelectMany(child => Flatten(child))) ?? Enumerable.Empty<ControlInfoJson.Item>();
-        }
-
-        public IEnumerable<ControlInfoJson.Item> Flatten()
-        {
-            return (new ControlInfoJson.Item[]{ Value.TopParent }).Concat(Flatten(Value.TopParent));
-        }
-
-        public FileEntry ToMsAppFile()
-        {
-            var file = MsAppSerializer.ToFile(FileKind.Unknown, this.Value);
-            file.Name = FilePath.FromMsAppPath(this.GetMsAppFilename());
-
-            return file;
-        }
-
-        public static SourceFile New(ControlInfoJson json)
-        {
-            SourceFile sf = new SourceFile();
-
-            sf.Value = json;
-
-            var x = sf.Value.TopParent;
-            if (x.Template.Id == ControlInfoJson.Template.DataComponentId)
-            {
-                sf.Kind = SourceKind.DataComponent;
-            }
-            else if (x.Template.Id == ControlInfoJson.Template.UxComponentId)
-            {
-                sf.Kind = SourceKind.UxComponent;
-            }
-            else if (x.Name == SourceSerializer.AppTestControlName)
-            {
-                sf.Kind = SourceKind.Test;
-            }
-            else if (x.Template.Id == ControlInfoJson.Template.CommandComponentId)
-            {
-                sf.Kind = SourceKind.CommandComponent;
-            }
-            else
-            {
-                // UX Control has many different Template ids.
-                sf.Kind = SourceKind.Control;
-            }
-
-            return sf;
-        }
+        return sf;
     }
 }
