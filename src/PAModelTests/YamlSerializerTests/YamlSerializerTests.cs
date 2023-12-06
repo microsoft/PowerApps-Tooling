@@ -65,6 +65,8 @@ public class YamlSerializerTests
     [DataRow(@"Simple Object: some garbage", 1)]
     [DataRow(@"Simple Object:
     X: abc", 2)]
+    [DataRow(@"Simple Object:
+    X:abc", 2)]
     public void InvalidYaml(string invalidYaml, int errorLine)
     {
         // Arrange

@@ -96,6 +96,8 @@ public class YamlPocoDeserializer : IDisposable
                     }
                 }
             }
+            else if (token.Kind == YamlTokenKind.Error)
+                throw new YamlParseException(token.Value, _yamlLexer.CurrentLine);
         }
 
         return result;
