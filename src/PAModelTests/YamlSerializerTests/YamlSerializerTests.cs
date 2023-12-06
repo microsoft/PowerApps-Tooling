@@ -12,10 +12,10 @@ namespace PAModelTests.YamlSerializerTests;
 public class YamlSerializerTests
 {
     [TestMethod]
-    [DataRow("John", "Doe")]
-    [DataRow("Jörg/Jürgen", "Müller de Schäfer")]
-    [DataRow("なまえ", "名前")]
-    public void RoundtripSimpleObject(string firstName, string lastName)
+    [DataRow(null, "John", "Doe")]
+    [DataRow("New Object Name", "Jörg/Jürgen", "Müller de Schäfer")]
+    [DataRow("Simple Object", "なまえ", "名前")]
+    public void RoundtripSimpleObject(string objectNameOverride, string firstName, string lastName)
     {
         // Arrange
         var simpleObjectIn = new SimpleObject
@@ -31,11 +31,11 @@ public class YamlSerializerTests
         var serializer = new YamlPocoSerializer(new YamlWriter(writer));
 
         // Act
-        serializer.Serialize(simpleObjectIn);
+        serializer.Serialize(simpleObjectIn, objectNameOverride);
 
         // Assert
         var expectedYaml =
-@$"Simple Object:
+@$"{(string.IsNullOrWhiteSpace(objectNameOverride) ? "Simple Object" : objectNameOverride)}:
     First Name: {firstName}
     LastName: {lastName}
     Description: A simple object
@@ -51,7 +51,7 @@ public class YamlSerializerTests
         };
 
         // Act
-        var simpleObjectOut = deserializer.Deserialize<SimpleObject>();
+        var simpleObjectOut = deserializer.Deserialize<SimpleObject>(objectNameOverride);
 
         // Assert
         simpleObjectOut.Should().BeEquivalentTo(simpleObjectIn);

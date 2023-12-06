@@ -47,7 +47,9 @@ public class YamlPocoDeserializer : IDisposable
         var objType = typeof(T);
         var yamlObject = objType.GetCustomAttribute<YamlObjectAttribute>() ?? new YamlObjectAttribute() { Name = objType.Name };
         if (string.IsNullOrWhiteSpace(yamlObject.Name))
-            yamlObject.Name = string.IsNullOrWhiteSpace(name) ? objType.Name : name;
+            yamlObject.Name = objType.Name;
+        if (!string.IsNullOrWhiteSpace(name))
+            yamlObject.Name = name;
 
         // Build dictionary of expected properties that have the YamlProperty attribute.
         var yamlProps = new Dictionary<string, (PropertyInfo info, YamlPropertyAttribute attr)>();
