@@ -81,6 +81,9 @@ public class YamlPocoDeserializer : IDisposable
         // Parse the stream.
         while ((token = _yamlLexer.ReadNext()) != YamlToken.EndObj)
         {
+            if (token.Kind == YamlTokenKind.Error)
+                throw new YamlParseException(token.Value, _yamlLexer.CurrentLine);
+
             if (token.Kind == YamlTokenKind.Property)
             {
                 if (yamlProps.TryGetValue(token.Property, out var propInfo))
@@ -96,8 +99,6 @@ public class YamlPocoDeserializer : IDisposable
                     }
                 }
             }
-            else if (token.Kind == YamlTokenKind.Error)
-                throw new YamlParseException(token.Value, _yamlLexer.CurrentLine);
         }
 
         return result;
