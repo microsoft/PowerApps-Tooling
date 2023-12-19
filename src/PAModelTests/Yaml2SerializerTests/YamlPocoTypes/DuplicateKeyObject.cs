@@ -4,7 +4,7 @@ namespace PAModelTests.Yaml2SerializerTests.YamlPocoTypes;
 
 public class DuplicateKeyObject
 {
-    [YamlMember(Alias = "collision", Description = "asdf")]
+    [YamlMember(Alias = "collision")]
     public string Arg1 { get; set; }
 
     [YamlMember(Alias = "collision")]
