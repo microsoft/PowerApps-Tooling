@@ -163,4 +163,28 @@ arg3: 5
         actual.Bar.Should().Be("bar");
         actual.Baz.Should().BeNull();
     }
+
+    [TestMethod]
+    public void YamlIgnorePreventsSerialization()
+    {
+        var obj = new IgnoreSomePropertiesObject
+        {
+            IncludeMe = "foo",
+            IgnoreMe = "bar"
+        };
+        var expected = $"includeMe: foo{Environment.NewLine}";
+
+        var actual = new YamlPocoConverter().Serializer.Serialize(obj);
+        actual.Should().Be(expected);
+    }
+
+    [TestMethod]
+    public void YamlIgnorePreventsDeserialization()
+    {
+        var yaml = @"includeMe: foo
+ignoreMe: bar
+";
+        Action deserialize = () => new YamlPocoConverter().Deserializer.Deserialize<IgnoreSomePropertiesObject>(yaml);
+        deserialize.Should().Throw<YamlException>().WithMessage("Property 'ignoreMe' not found on type *");
+    }
 }
