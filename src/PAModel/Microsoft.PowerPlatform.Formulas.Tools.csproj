@@ -35,7 +35,7 @@
       <AssemblyVersion>$(MinVer)</AssemblyVersion>
     </PropertyGroup>
   </Target>
-    
+
   <ItemGroup>
     <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
     <EmbeddedResource Include="Themes/DefaultTheme.json" />
@@ -52,7 +52,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Text.Json" Version="6.0.9" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
-    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(GitExists)' == true">
     <PackageReference Include="MinVer" Version="2.3.0">
