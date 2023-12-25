@@ -33,6 +33,7 @@ dotnet_diagnostic.IDE0028.severity = none   # Use collection initializers or exp
 dotnet_diagnostic.IDE0042.severity = none   # Deconstruct variable declaration
 dotnet_diagnostic.IDE0045.severity = none   # Use conditional expression for assignment
 dotnet_diagnostic.IDE0046.severity = none   # Use conditional expression for return
+dotnet_diagnostic.IDE0055.severity = error  # Formatting rule
 dotnet_diagnostic.IDE0057.severity = none   # Use range operator
 dotnet_diagnostic.IDE0058.severity = none   # Remove unnecessary expression value
 dotnet_diagnostic.IDE0060.severity = none   # Remove unused parameter

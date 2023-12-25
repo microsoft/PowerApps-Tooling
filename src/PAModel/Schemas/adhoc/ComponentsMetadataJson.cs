@@ -15,7 +15,6 @@ internal class ComponentManifest
 {
     public string Name { get; set; } // a name, "Component1"
     public string TemplateGuid { get; set; } // a guid 
-                                             // public string Description { get; set; }
 
     public bool? AllowAccessToGlobals { get; set; }
 
