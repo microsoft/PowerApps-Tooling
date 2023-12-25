@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
 namespace PAModelTests.YamlSerializerTests;

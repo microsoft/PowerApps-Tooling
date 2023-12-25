@@ -2,17 +2,15 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>10.0</LangVersion>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
     <ItemGroup Label="Global usings">
         <Using Include="System" />
         <Using Include="System.Collections.Generic" />
     </ItemGroup>
-
-    <PropertyGroup Condition="'$(Packing)' == ''">
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    </PropertyGroup>
 
     <!-- If not otherwise specified, the project is building for Debug -->
     <PropertyGroup Condition=" '$(Configuration)' == '' ">
@@ -31,14 +29,6 @@
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <DefineConstants>TRACE</DefineConstants>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="all" />
-    </ItemGroup>
-    <PropertyGroup>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)PowerAppsLanguageTooling.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <PropertyGroup>
