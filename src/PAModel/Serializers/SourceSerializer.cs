@@ -39,7 +39,7 @@ internal static partial class SourceSerializer
     // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
     // 19 - Switch extension to .fx.yaml  
     // 20 - Only load themes that match the specified theme name
-    // 21 - Resourcesjson is sharded into individual json files for non-local resources.
+    // 21 - Resources.json is sharded into individual json files for non-local resources.
     // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
     // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
     // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
@@ -187,9 +187,9 @@ internal static partial class SourceSerializer
         }
 
         // The resource entries for sample data is sharded into individual json files.
-        // Add each of these entries back into Resrouces.json
+        // Add each of these entries back into Resources.json
         var resources = new List<ResourceJson>();
-        app._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[0] };
+        app._resourcesJson = new ResourcesJson() { Resources = Array.Empty<ResourceJson>() };
         foreach (var file in dir.EnumerateFiles(AssetsDir, "*", false))
         {
             var fileEntry = file.ToFileEntry();
@@ -837,27 +837,36 @@ internal static partial class SourceSerializer
 
             if (!dataSourceReferences.TryGetValue(tableDef.DatasetName, out var localDatabaseReferenceJson))
             {
-                localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
+                localDatabaseReferenceJson = new LocalDatabaseReferenceJson
                 {
-                    // Use the unused data sources of the first table definition of a particular data set
-                    dataSources = tableDef.UnusedDataSources == null ?
-                                  // Set it to null when unused data sources of the first table definition is null
-                                  // This could occur if dataSources were not present in original msapp, hence no unused data sources
-                                  // or we are reading in older table definitions
-                                  // if we are reading older table definition, this would be null and we cannot say for sure
-                                  // that whether data sources was present or absent (== null). In this case, assume it to be nulll
-                                  // and an attempt is later made to correct this assumption
-                                  null :
-                                  // UnusedDataSources is read only dictionary to avoid mutations
-                                  // If it is already of concrete type Dictionary
-                                  // then type cast it and do not attempt to create a new dictionary
-                                  tableDef.UnusedDataSources is Dictionary<string, LocalDatabaseReferenceDataSource> writeableDataSources ?
-                                  writeableDataSources :
-                                  // create a new one in case UnusedDataSources is not of type Dictionary 
-                                  tableDef.UnusedDataSources.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
                     ExtensionData = tableDef.ExtensionData,
                     instanceUrl = tableDef.InstanceUrl
                 };
+
+                // Use the unused data sources of the first table definition of a particular data set
+                if (tableDef.UnusedDataSources == null)
+                {
+                    // Set it to null when unused data sources of the first table definition is null
+                    // This could occur if dataSources were not present in original msapp, hence no unused data sources
+                    // or we are reading in older table definitions
+                    // if we are reading older table definition, this would be null and we cannot say for sure
+                    // that whether data sources was present or absent (== null). In this case, assume it to be null
+                    // and an attempt is later made to correct this assumption
+                    localDatabaseReferenceJson.dataSources = null;
+                }
+                else if (tableDef.UnusedDataSources is Dictionary<string, LocalDatabaseReferenceDataSource> writeableDataSources)
+                {
+                    // UnusedDataSources is read only dictionary to avoid mutations
+                    // If it is already of concrete type Dictionary
+                    // then type cast it and do not attempt to create a new dictionary
+                    localDatabaseReferenceJson.dataSources = writeableDataSources;
+                }
+                else
+                {
+                    // create a new one in case UnusedDataSources is not of type Dictionary 
+                    localDatabaseReferenceJson.dataSources = tableDef.UnusedDataSources.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }
+
                 if (!app._entropy.IsLocalDatabaseReferencesEmpty())
                 {
                     dataSourceReferences.Add(tableDef.DatasetName, localDatabaseReferenceJson);
