@@ -524,25 +524,6 @@ P2: = ""hello"" & ""world""
         Assert.AreEqual(sourceSpan, p.Span.ToString());
     }
 
-    private static YamlToken[] ReadAllTokens(string text)
-    {
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
-
-        var tokens = new List<YamlToken>();
-        YamlToken token;
-        do
-        {
-            token = y.ReadNext();
-            tokens.Add(token);
-            Assert.AreNotEqual(YamlTokenKind.Error, token.Kind);
-
-            // Fragments are small. If we don't terminate, there's a parser bug. 
-            Assert.IsTrue(tokens.Count < 100, "fragment failed to parse to EOF");
-        } while (token.Kind != YamlTokenKind.EndOfFile);
-        return tokens.ToArray();
-    }
-
     // Parse a single property "Foo" expression with YamlDotNet. 
     private static string ParseSinglePropertyViaYamlDotNot(string text)
     {

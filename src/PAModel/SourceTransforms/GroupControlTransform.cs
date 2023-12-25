@@ -18,7 +18,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 /// </summary>
 internal class GroupControlTransform
 {
-    private static readonly string GroupControlTemplateName = "group";
+    private const string GroupControlTemplateName = "group";
 
     private readonly EditorStateStore _editorStateStore;
     private readonly ErrorContainer _errors;

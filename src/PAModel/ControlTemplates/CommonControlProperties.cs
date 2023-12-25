@@ -12,7 +12,7 @@ internal class CommonControlProperties
     // Key is property name
     private readonly Dictionary<string, ControlProperty> _properties = new();
 
-    private static readonly string _fileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
+    private const string FileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
     private static CommonControlProperties _instance;
 
     public static CommonControlProperties Instance
@@ -32,7 +32,7 @@ internal class CommonControlProperties
     private void Load()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream(_fileName);
+        using var stream = assembly.GetManifestResourceStream(FileName);
         var commonProps = XDocument.Load(stream);
         if (commonProps == null)
             return;

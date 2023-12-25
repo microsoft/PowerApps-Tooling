@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 internal class YamlLexer : IDisposable
 {
-    private static readonly string NewLine = "\n";
+    private const string NewLine = "\n";
 
     // The actual contents to read. 
     private readonly TextReader _reader;

@@ -96,7 +96,7 @@ public class ErrorTests
     [Theory]
     [InlineData("ImageApp_SwitchNames.msapp", "ImageApp.msapp")]
     [InlineData("ImageApp.msapp", "ImageApp_SwitchNames.msapp")]
-    public void CompareChecksum_ImageNotReadAsJSONTest(string app1, string app2)
+    public void CompareChecksumImageNotReadAsJSONTest(string app1, string app2)
     {
         var pathToZip1 = Path.Combine(Environment.CurrentDirectory, "Apps", app1);
         var pathToZip2 = Path.Combine(Environment.CurrentDirectory, "Apps", app2);

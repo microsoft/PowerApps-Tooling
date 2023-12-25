@@ -287,16 +287,6 @@ internal static class IRStateHelpers
         return template.Id.StartsWith(Template.HostControl);
     }
 
-    private static Tuple<string, bool> ParseControlId(string controlId)
-    {
-        Guid? guidId = null;
-        if (!int.TryParse(controlId, out var id))
-        {
-            guidId = Guid.Parse(controlId);
-        }
-        return guidId == null ? new Tuple<string, bool>(guidId.ToString(), true) : new Tuple<string, bool>(id.ToString(), false);
-    }
-
     private static (PropertyNode prop, PropertyState state) SplitProperty(RuleEntry rule)
     {
         var script = rule.InvariantScript;
@@ -664,7 +654,7 @@ internal static class IRStateHelpers
 
 
 
-    private static readonly string CustomControlTemplateId = "Microsoft.PowerApps.CustomControlTemplate";
+    private const string CustomControlTemplateId = "Microsoft.PowerApps.CustomControlTemplate";
     // These two functions (split and recombine CustomTemplates) are responsible for handling the legacy DataTable control's
     // CustomControlDefinitionJson. This JSON contains a stamp of which version it was created in, but that is the only difference
     // As such, they were safe to move to Entropy. If entropy is removed, the one in the TemplateStore works fine for all instances

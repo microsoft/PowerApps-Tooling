@@ -11,18 +11,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
 internal class Parser
 {
-    private readonly string _fileName;
     public readonly ErrorContainer _errorContainer;
 
     private readonly YamlLexer _yaml;
 
     public Parser(string fileName, string contents, ErrorContainer errors)
     {
-        _fileName = fileName;
         _errorContainer = errors;
 
         _yaml = new YamlLexer(new StringReader(contents), fileName);
-
     }
 
     // Parse the control definition line. Something like:

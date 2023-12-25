@@ -67,10 +67,10 @@ internal static partial class SourceSerializer
     public const string DataSourcesDir = "DataSources";
     public const string ComponentReferencesDir = "ComponentReferences";
 
-    internal static readonly string AppTestControlName = "Test_7F478737223C4B69";
-    internal static readonly string AppTestControlType = "AppTest";
-    private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
-    private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
+    internal const string AppTestControlName = "Test_7F478737223C4B69";
+    internal const string AppTestControlType = "AppTest";
+    private const string DefaultThemeFileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
+    private const string BuildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
     private static readonly BuildVerJson _buildVerJson = GetBuildDetails();
 
     // Full fidelity read-write
@@ -1049,7 +1049,7 @@ internal static partial class SourceSerializer
     private static void AddDefaultTheme(CanvasDocument app)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream(_defaultThemefileName);
+        using var stream = assembly.GetManifestResourceStream(DefaultThemeFileName);
         using var reader = new StreamReader(stream);
 
         var jsonString = reader.ReadToEnd();
@@ -1062,7 +1062,7 @@ internal static partial class SourceSerializer
         try
         {
             var assembly = Assembly.GetExecutingAssembly();
-            using var stream = assembly.GetManifestResourceStream(_buildVerFileName);
+            using var stream = assembly.GetManifestResourceStream(BuildVerFileName);
             if (stream == null)
             {
                 return null;

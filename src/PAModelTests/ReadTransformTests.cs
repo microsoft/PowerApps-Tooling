@@ -16,7 +16,7 @@ public class ReadTransformTests
     [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
     [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
     [DataRow("GroupControlStateEmpty.msapp", false, true)]
-    public void ApplyAfterMsAppLoadTransforms_Test(string filename, bool hasErrors, bool hasWarnings)
+    public void ApplyAfterMsAppLoadTransformsTest(string filename, bool hasErrors, bool hasWarnings)
     {
         var path = Path.Combine(Environment.CurrentDirectory, "Apps", filename);
         Assert.IsTrue(File.Exists(path));

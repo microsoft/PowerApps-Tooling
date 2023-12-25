@@ -320,7 +320,7 @@ public class SmartMergeTests
     }
 
     [TestMethod]
-    public void ScreenAddWithChildCollisionTest_InLocal()
+    public void ScreenAddWithChildCollisionTestInLocal()
     {
         var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
@@ -378,7 +378,7 @@ public class SmartMergeTests
     }
 
     [TestMethod]
-    public void ScreenAddWithChildCollisionTest_InRemote()
+    public void ScreenAddWithChildCollisionTestInRemote()
     {
         var root = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
