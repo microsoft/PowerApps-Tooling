@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
+internal interface IDelta
 {
-    internal interface IDelta
-    {
-        void Apply(CanvasDocument document);
-    }
+    void Apply(CanvasDocument document);
 }

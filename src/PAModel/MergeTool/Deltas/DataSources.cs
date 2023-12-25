@@ -1,35 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
+internal class AddDataSource : IDelta
 {
-    internal class AddDataSource : IDelta
+    public string Name;
+    public List<DataSourceEntry> Contents;
+
+    public void Apply(CanvasDocument document)
     {
-        public string Name;
-        public List<DataSourceEntry> Contents;
+        if (document._dataSources.ContainsKey(Name))
+            return;
 
-        public void Apply(CanvasDocument document)
-        {
-            if (document._dataSources.ContainsKey(Name))
-                return;
-
-            document._dataSources.Add(Name, Contents);
-        }
+        document._dataSources.Add(Name, Contents);
     }
-    internal class RemoveDataSource : IDelta
+}
+internal class RemoveDataSource : IDelta
+{
+    public string Name;
+
+    public void Apply(CanvasDocument document)
     {
-        public string Name;
+        if (!document._dataSources.ContainsKey(Name))
+            return;
 
-        public void Apply(CanvasDocument document)
-        {
-            if (!document._dataSources.ContainsKey(Name))
-                return;
-
-            document._dataSources.Remove(Name);
-        }
+        document._dataSources.Remove(Name);
     }
 }

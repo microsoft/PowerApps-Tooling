@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 

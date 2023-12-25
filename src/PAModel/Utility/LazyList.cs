@@ -1,80 +1,76 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools
+namespace Microsoft.PowerPlatform.Formulas.Tools;
+
+/// <summary>
+/// Allows the accumulation of a large number of individual elements,
+/// which can then be combined into a single collection at the end of
+/// the operation without the creation of many intermediate large
+/// memory blocks.
+/// </summary>
+internal class LazyList<T> : IEnumerable<T>
 {
-    /// <summary>
-    /// Allows the accumulation of a large number of individual elements,
-    /// which can then be combined into a single collection at the end of
-    /// the operation without the creation of many intermediate large
-    /// memory blocks.
-    /// </summary>
-    internal class LazyList<T> : IEnumerable<T>
+    private readonly IEnumerable<T> values;
+
+    public static readonly LazyList<T> Empty = new LazyList<T>(Enumerable.Empty<T>());
+
+    public LazyList(IEnumerable<T> values)
     {
-        private readonly IEnumerable<T> values;
+        this.values = values;
+    }
 
-        public static readonly LazyList<T> Empty = new LazyList<T>(Enumerable.Empty<T>());
+    public LazyList(T value)
+    {
+        values = new[] { value };
+    }
 
-        public LazyList(IEnumerable<T> values)
-        {
-            this.values = values;
-        }
+    /// <summary>
+    /// Gives a new list with the given elements after the elements in this list.
+    /// </summary>
+    public LazyList<T> With(IEnumerable<T> values)
+    {
+        if (!values.Any())
+            return this;
+        return new LazyList<T>(this.values.Concat(values));
+    }
 
-        public LazyList(T value)
-        {
-            values = new[] { value };
-        }
+    /// <summary>
+    /// Gives a new list with the given elements after the elements in this list.
+    /// </summary>
+    public LazyList<T> With(params T[] values)
+    {
+        if (!values.Any())
+            return this;
+        return new LazyList<T>(this.values.Concat(values));
+    }
 
-        /// <summary>
-        /// Gives a new list with the given elements after the elements in this list.
-        /// </summary>
-        public LazyList<T> With(IEnumerable<T> values)
-        {
-            if (!values.Any())
-                return this;
-            return new LazyList<T>(this.values.Concat(values));
-        }
+    public IEnumerator<T> GetEnumerator()
+    {
+        return values.GetEnumerator();
+    }
 
-        /// <summary>
-        /// Gives a new list with the given elements after the elements in this list.
-        /// </summary>
-        public LazyList<T> With(params T[] values)
-        {
-            if (!values.Any())
-                return this;
-            return new LazyList<T>(this.values.Concat(values));
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return values.GetEnumerator();
+    }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return values.GetEnumerator();
-        }
+    /// <summary>
+    /// Create a new LazyList with the given starting set of values.
+    /// </summary>
+    public static LazyList<T> Of(params T[] values)
+    {
+        return new LazyList<T>(values);
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return values.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Create a new LazyList with the given starting set of values.
-        /// </summary>
-        public static LazyList<T> Of(params T[] values)
-        {
-            return new LazyList<T>(values);
-        }
-
-        /// <summary>
-        /// Create a new LazyList with the given starting set of values.
-        /// </summary>
-        public static LazyList<T> Of(IEnumerable<T> values)
-        {
-            return new LazyList<T>(values);
-        }
+    /// <summary>
+    /// Create a new LazyList with the given starting set of values.
+    /// </summary>
+    public static LazyList<T> Of(IEnumerable<T> values)
+    {
+        return new LazyList<T>(values);
     }
 }

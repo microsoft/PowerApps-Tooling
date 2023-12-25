@@ -4,50 +4,46 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas
+namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
+
+internal class AddTemplate : IDelta
 {
-    internal class AddTemplate : IDelta
+    private string _name;
+    private CombinedTemplateState _template;
+    private TemplatesJson.TemplateJson _jsonTemplate;
+    private PcfControl _pcfTemplate;
+
+    private bool _isPcf;
+
+    public AddTemplate(string name, CombinedTemplateState templateState, TemplatesJson.TemplateJson jsonTemplate)
     {
-        private string _name;
-        private CombinedTemplateState _template;
-        private TemplatesJson.TemplateJson _jsonTemplate;
-        private PcfControl _pcfTemplate;
+        _name = name;
+        _template = templateState;
+        _jsonTemplate = jsonTemplate;
+        _isPcf = false;
+    }
 
-        private bool _isPcf;
+    public AddTemplate(string name, CombinedTemplateState templateState, PcfControl pcfTemplate)
+    {
+        _name = name;
+        _template = templateState;
+        _pcfTemplate = pcfTemplate;
+        _isPcf = true;
+    }
 
-        public AddTemplate(string name, CombinedTemplateState templateState, TemplatesJson.TemplateJson jsonTemplate)
+    public void Apply(CanvasDocument document)
+    {
+        if (document._templateStore.AddTemplate(_name, _template))
         {
-            _name = name;
-            _template = templateState;
-            _jsonTemplate = jsonTemplate;
-            _isPcf = false;
-        }
-
-        public AddTemplate(string name, CombinedTemplateState templateState, PcfControl pcfTemplate)
-        {
-            _name = name;
-            _template = templateState;
-            _pcfTemplate = pcfTemplate;
-            _isPcf = true;
-        }
-
-        public void Apply(CanvasDocument document)
-        {
-            if (document._templateStore.AddTemplate(_name, _template))
+            if (_isPcf && _pcfTemplate != null)
             {
-                if (_isPcf && _pcfTemplate != null)
-                {
-                    document._pcfControls.Add(_name, _pcfTemplate);
-                }
-                else if (_jsonTemplate != null)
-                {
-                    document._templates.UsedTemplates = document._templates.UsedTemplates.Concat(new[] { _jsonTemplate }).ToArray();
-                }
+                document._pcfControls.Add(_name, _pcfTemplate);
+            }
+            else if (_jsonTemplate != null)
+            {
+                document._templates.UsedTemplates = document._templates.UsedTemplates.Concat(new[] { _jsonTemplate }).ToArray();
             }
         }
     }

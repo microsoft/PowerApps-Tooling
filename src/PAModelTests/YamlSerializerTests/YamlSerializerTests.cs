@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;

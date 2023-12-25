@@ -185,7 +185,7 @@ public class ChecksumMaker
     }
 
     /// <summary>
-    /// Checksum version is of the format: C<int version><hash>. Eg. C6_S88Ujgp7HEnrT7m55yNtgjimcgSoY70Krf8k2HecWYA=
+    /// Checksum version is of the format: C int version hash. Eg. C6_S88Ujgp7HEnrT7m55yNtgjimcgSoY70Krf8k2HecWYA=
     /// This method extracts the int version of the checksum.
     /// </summary>
     /// <param name="checksum">The checksum.</param>

@@ -1,26 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Microsoft.PowerPlatform.Formulas.Tools;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools
+internal static class PAConstants
 {
-    internal static class PAConstants
-    {
-        public const char IdentifierDelimiter = '\'';
+    public const char IdentifierDelimiter = '\'';
 
-        public const string PropertyDelimiterToken = "=";
-        public const string ControlTemplateSeparator = ":";
-        public const string ControlVariantSeparator = ",";
-        public const string ControlKeyword = "control";
+    public const string PropertyDelimiterToken = "=";
+    public const string ControlTemplateSeparator = ":";
+    public const string ControlVariantSeparator = ",";
+    public const string ControlKeyword = "control";
 
-        public const string ThisPropertyIdentifier = "ThisProperty";
+    public const string ThisPropertyIdentifier = "ThisProperty";
 
-        public const string Header = "//! PAFile:0.1";
+    public const string Header = "//! PAFile:0.1";
 
-        // this is used by the dynamically imported controls like PCF.
-        public const string DynamicControlDefinitionJson = "DynamicControlDefinitionJson";
-    }
+    // this is used by the dynamically imported controls like PCF.
+    public const string DynamicControlDefinitionJson = "DynamicControlDefinitionJson";
 }

@@ -93,6 +93,7 @@ public class YamlWriter : IDisposable
     /// </summary>
     /// <param name="propertyName"></param>
     /// <param name="value"></param>
+    /// <param name="includeEquals"></param>
     public void WriteProperty(string propertyName, string value, bool includeEquals = true)
     {
         if (value == null)
