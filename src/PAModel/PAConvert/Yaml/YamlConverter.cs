@@ -15,7 +15,7 @@ public static class YamlConverter
     {
         var properties = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        var yaml = new YamlLexer(reader, filenameHint);
+        using var yaml = new YamlLexer(reader, filenameHint);
 
         while (true)
         {
@@ -44,7 +44,7 @@ public static class YamlConverter
 
     public static void Write(TextWriter writer, IDictionary<string, string> properties)
     {
-        var yaml = new YamlWriter(writer);
+        using var yaml = new YamlWriter(writer);
 
         // Sort by keys to enforce canonical format. 
         foreach (var kv in properties.OrderBy(x => x.Key))

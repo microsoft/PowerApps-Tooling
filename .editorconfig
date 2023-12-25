@@ -522,6 +522,14 @@ dotnet_diagnostic.CA1708.severity = error
 dotnet_diagnostic.CA1712.severity = error
 dotnet_diagnostic.CA1710.severity = error
 dotnet_diagnostic.CA1720.severity = error
+dotnet_diagnostic.CA1810.severity = error
+dotnet_diagnostic.CA1821.severity = error
+dotnet_diagnostic.CA1822.severity = error
+dotnet_diagnostic.CA1823.severity = error
+dotnet_diagnostic.CA1827.severity = error
+dotnet_diagnostic.CA1826.severity = error
+dotnet_diagnostic.CA1849.severity = error
+dotnet_diagnostic.CA2000.severity = error
 
 [*.cs]
 csharp_indent_labels = one_less_than_current
@@ -578,3 +586,4 @@ csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 dotnet_diagnostic.CA1802.severity = error
+dotnet_diagnostic.CA1805.severity = error

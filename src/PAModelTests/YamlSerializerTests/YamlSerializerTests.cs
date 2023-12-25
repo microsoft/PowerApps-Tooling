@@ -30,7 +30,8 @@ public class YamlSerializerTests
         };
 
         var writer = new StringWriter();
-        var serializer = new YamlPocoSerializer(new YamlWriter(writer));
+        using var yamlWriter = new YamlWriter(writer);
+        using var serializer = new YamlPocoSerializer(yamlWriter);
 
         // Act
         serializer.Serialize(simpleObjectIn, objectNameOverride);
@@ -47,7 +48,7 @@ public class YamlSerializerTests
         writer.ToString().Should().Be(expectedYaml);
 
         // Arrange
-        var deserializer = new YamlPocoDeserializer(new StringReader(expectedYaml))
+        using var deserializer = new YamlPocoDeserializer(new StringReader(expectedYaml))
         {
             Options = YamlLexerOptions.None
         };
@@ -72,7 +73,7 @@ public class YamlSerializerTests
     public void InvalidYaml(string invalidYaml, int errorLine)
     {
         // Arrange
-        var deserializer = new YamlPocoDeserializer(new StringReader(invalidYaml))
+        using var deserializer = new YamlPocoDeserializer(new StringReader(invalidYaml))
         {
             Options = YamlLexerOptions.None
         };
@@ -92,7 +93,7 @@ public class YamlSerializerTests
     public void InvalidObjectWithDuplicateNames(string invalidYaml, int errorLine)
     {
         // Arrange
-        var deserializer = new YamlPocoDeserializer(new StringReader(invalidYaml))
+        using var deserializer = new YamlPocoDeserializer(new StringReader(invalidYaml))
         {
             Options = YamlLexerOptions.None
         };

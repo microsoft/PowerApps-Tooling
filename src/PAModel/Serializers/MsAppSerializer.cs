@@ -72,7 +72,9 @@ internal static class MsAppSerializer
         ZipArchive zipOpen;
         try
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             zipOpen = new ZipArchive(streamToMsapp, ZipArchiveMode.Read);
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
         catch (Exception e)
         {

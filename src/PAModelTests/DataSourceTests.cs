@@ -53,7 +53,7 @@ public class DataSourceTests
                 using (var stream = new FileStream(tempFile.FullPath, FileMode.Open))
                 {
                     // Read the msapp file
-                    var zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);
+                    using var zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);
 
                     foreach (var entry in zipOpen.Entries)
                     {

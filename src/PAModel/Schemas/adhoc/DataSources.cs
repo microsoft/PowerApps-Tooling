@@ -54,7 +54,7 @@ internal class DataSourceModel
 
     // Was the environment guid removed from the view name?
     // This allows for switching environments to just switch the pkg folder
-    public bool? TrimmedViewName { get; set; } = null;
+    public bool? TrimmedViewName { get; set; }
 
     // Key is guid, value is Json-encoded metadata. 
     public IDictionary<string, string> DataEntityMetadataJson { get; set; }
@@ -90,7 +90,7 @@ internal class DataSourceDefinition
     /// This is done to avoid copying which could be expensive.
     /// Read Only makes the shared instance virtually immutable.
     /// </summary>
-    public IReadOnlyDictionary<string, LocalDatabaseReferenceDataSource> UnusedDataSources { get; set; } = null;
+    public IReadOnlyDictionary<string, LocalDatabaseReferenceDataSource> UnusedDataSources { get; set; }
 
     [JsonExtensionData]
     public Dictionary<string, JsonElement> ExtensionData { get; set; }

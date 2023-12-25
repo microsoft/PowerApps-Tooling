@@ -74,7 +74,7 @@ internal class ChangeComponentFunction : IDelta
         private readonly string _property;
         private readonly FunctionNode _func;
         private readonly bool _wasRemoved;
-        private bool _success = false;
+        private bool _success;
 
         public static bool ApplyChange(BlockNode block, ControlPath path, string property, FunctionNode func, bool wasRemoved)
         {

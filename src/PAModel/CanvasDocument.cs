@@ -515,7 +515,7 @@ public class CanvasDocument
         return set;
     }
 
-    private FilePath GetAssetFilePathWithoutPrefix(string path)
+    private static FilePath GetAssetFilePathWithoutPrefix(string path)
     {
         return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
     }

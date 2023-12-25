@@ -66,7 +66,7 @@ public class ErrorContainer : IEnumerable<Error>
 
     public override string ToString()
     {
-        var s = new StringWriter();
+        using var s = new StringWriter();
         Write(s);
         return s.ToString();
     }

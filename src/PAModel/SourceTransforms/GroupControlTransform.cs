@@ -107,7 +107,7 @@ internal class GroupControlTransform
         }
     }
 
-    public List<BlockNode> GetGroupControlChildren(BlockNode parent)
+    public static List<BlockNode> GetGroupControlChildren(BlockNode parent)
     {
         var gcChildren = new List<BlockNode>();
         foreach (var child in parent.Children)

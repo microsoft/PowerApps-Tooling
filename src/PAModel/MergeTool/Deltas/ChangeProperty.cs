@@ -74,7 +74,7 @@ internal class ChangeProperty : IDelta
         private readonly string _property;
         private readonly string _expression;
         private readonly bool _wasRemoved;
-        private bool _success = false;
+        private bool _success;
 
         public static bool ApplyChange(BlockNode block, ControlPath path, string property, string expression, bool wasRemoved)
         {

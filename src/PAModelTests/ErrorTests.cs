@@ -13,13 +13,13 @@ public class ErrorTests
     public static string PathToValidMsapp = Path.Combine(Environment.CurrentDirectory, "Apps", "MyWeather.msapp");
     public static string PathMissingMsapp = Path.Combine(Environment.CurrentDirectory, "Missing", "Missing.msapp");
     public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
-    public static int counter = 0;
+    public static int counter;
 
     [Fact]
     public void OpenCorruptedMsApp()
     {
         // Empty stream is invalid document, should generate a Read error.
-        var ms = new MemoryStream();
+        using var ms = new MemoryStream();
 
         (var doc, var errors) = CanvasDocument.LoadFromMsapp(ms);
         Assert.True(errors.HasErrors);

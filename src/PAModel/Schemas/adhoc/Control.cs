@@ -49,15 +49,15 @@ internal class ControlInfoJson
 
         // Present for component templates with functions
         public CustomPropertyJson[] CustomProperties { get; set; }
-        public ComponentType? ComponentType { get; set; } = null;
+        public ComponentType? ComponentType { get; set; }
 
         // Present on PCF
-        public string TemplateDisplayName { get; set; } = null;
+        public string TemplateDisplayName { get; set; }
         public bool? FirstParty { get; set; }
         public string DynamicControlDefinitionJson { get; set; }
 
         // Present on Legacy DataTable columns
-        public string CustomControlDefinitionJson { get; set; } = null;
+        public string CustomControlDefinitionJson { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
@@ -120,16 +120,16 @@ internal class ControlInfoJson
         public Template Template { get; set; }
         public RuleEntry[] Rules { get; set; }
         public Item[] Children { get; set; }
-        public double Index { get; set; } = 0.0;
+        public double Index { get; set; }
 
         // For matching up within a Theme.
         public string StyleName { get; set; }
 
         public List<string> GroupedControlsKey { get; set; }
-        public bool IsGroupControl { get; set; } = false;
+        public bool IsGroupControl { get; set; }
 
         // Present on children of AutoLayout controls
-        public DynamicPropertyJson[] DynamicProperties { get; set; } = null;
+        public DynamicPropertyJson[] DynamicProperties { get; set; }
 
         // Present on children of AutoLayout controls
         public bool? HasDynamicProperties { get; set; }

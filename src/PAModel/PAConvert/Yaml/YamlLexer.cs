@@ -31,11 +31,11 @@ internal class YamlLexer : IDisposable
     // for error handling
     private readonly string _currentFileName;
 
-    private string _currentLineContents = null;
+    private string _currentLineContents;
 
     // Per https://github.com/microsoft/PowerApps-Language-Tooling/issues/115,
     // We allow comments, but don't round-trip them. Issue a warning. 
-    public SourceLocation? _commentStrippedWarning = null;
+    public SourceLocation? _commentStrippedWarning;
     private bool _isDisposed;
     public const string MissingSingleQuoteFunctionNode = "Missing closing \' in Function Node";
     public const string MissingSingleQuoteComponent = "Missing closing \' in Component";

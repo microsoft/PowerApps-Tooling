@@ -12,7 +12,7 @@ internal class DocumentPropertiesChange : IDelta
     private readonly object _propertyValue;
     private readonly JsonElement _extensionDataValue;
     private readonly bool _isExtensionData;
-    private readonly bool _wasRemoved = false;
+    private readonly bool _wasRemoved;
 
     public DocumentPropertiesChange(string name, object value)
     {

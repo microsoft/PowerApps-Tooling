@@ -17,7 +17,7 @@ public class SmartMergeTests
     private delegate void BranchChange(CanvasDocument canvasDoc);
     private delegate void ResultValidator(CanvasDocument canvasDoc);
 
-    private void MergeTester(CanvasDocument baseDoc, BranchChange branchAChange, BranchChange branchBChange, ResultValidator resultValidator)
+    private static void MergeTester(CanvasDocument baseDoc, BranchChange branchAChange, BranchChange branchBChange, ResultValidator resultValidator)
     {
         var branchADoc = new CanvasDocument(baseDoc);
         var branchBDoc = new CanvasDocument(baseDoc);

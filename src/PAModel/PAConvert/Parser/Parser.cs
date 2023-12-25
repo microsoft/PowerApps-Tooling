@@ -338,7 +338,7 @@ internal class Parser
         }
     }
 
-    private bool IsControlStart(string line)
+    private static bool IsControlStart(string line)
     {
         if (!TryParseIdent(line, out _, out var length))
             return false;

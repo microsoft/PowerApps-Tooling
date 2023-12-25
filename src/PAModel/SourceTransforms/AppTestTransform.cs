@@ -14,7 +14,7 @@ internal class AppTestTransform : IControlTemplateTransform
     {
         public string Description { get; set; }
         public string Rule { get; set; }
-        public string ScreenId { get; set; } = null;
+        public string ScreenId { get; set; }
     }
 
     private static readonly IEnumerable<string> _targets = new List<string>() { "TestCase" };

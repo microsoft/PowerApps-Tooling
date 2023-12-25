@@ -22,25 +22,25 @@ internal class CombinedTemplateState
     // Used with templates. 
     public bool? IsComponentTemplate { get; set; }
     public bool? FirstParty { get; set; }
-    public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; } = null;
+    public ComponentDefinitionInfoJson ComponentDefinitionInfo { get; set; }
 
     // Present for component templates with functions
     public CustomPropertyJson[] CustomProperties { get; set; }
 
-    public bool? IsComponentLocked { get; set; } = null;
-    public bool? ComponentChangedSinceFileImport { get; set; } = null;
-    public bool? ComponentAllowCustomization { get; set; } = null;
-    public string TemplateOriginalName { get; set; } = null;
-    public ComponentType? ComponentType { get; set; } = null;
+    public bool? IsComponentLocked { get; set; }
+    public bool? ComponentChangedSinceFileImport { get; set; }
+    public bool? ComponentAllowCustomization { get; set; }
+    public string TemplateOriginalName { get; set; }
+    public ComponentType? ComponentType { get; set; }
 
     // Present on PCF
-    public string TemplateDisplayName { get; set; } = null;
+    public string TemplateDisplayName { get; set; }
     public string DynamicControlDefinitionJson { get; set; }
 
-    public ComponentManifest ComponentManifest { get; set; } = null;
+    public ComponentManifest ComponentManifest { get; set; }
 
     // Present on Legacy DataTable columns
-    public string CustomControlDefinitionJson { get; set; } = null;
+    public string CustomControlDefinitionJson { get; set; }
 
     [JsonExtensionData]
     public Dictionary<string, object> ExtensionData { get; set; }

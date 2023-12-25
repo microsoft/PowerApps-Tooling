@@ -56,7 +56,7 @@ public class YamlPocoSerializer : IDisposable
         _ = writer ?? throw new ArgumentNullException(nameof(writer));
         _ = obj ?? throw new ArgumentNullException(nameof(obj));
 
-        var yaml = new YamlWriter(writer);
+        using var yaml = new YamlWriter(writer);
 
         WriteObject(yaml, obj);
     }

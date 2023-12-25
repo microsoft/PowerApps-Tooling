@@ -44,7 +44,7 @@ internal class ControlState
     // For galleries, we need to persist the galleryTemplate control name as a child of this
     // to properly pair up the studio state for roundtripping
     // This isn't needed otherwise, if we weren't worried about exact round-tripping we could recreate the control with a different name
-    public string GalleryTemplateChildName { get; set; } = null;
+    public string GalleryTemplateChildName { get; set; }
 
     public bool? IsComponentDefinition { get; set; }
 

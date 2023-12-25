@@ -15,7 +15,7 @@ public class YamlTest
     public void Write1()
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
         yw.WriteProperty("P0", "abc");
         yw.WriteStartObject("Obj1");
         yw.WriteProperty("P1a", "A#B"); // induced multiline, |- since no trailing \n
@@ -47,7 +47,7 @@ Obj1:
     public void WriteEscapes(string value)
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
 
         yw.WriteProperty("Foo", value);
 
@@ -86,7 +86,7 @@ Obj1:
     public void NewLinesRoundtrip(string value)
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
         yw.WriteProperty("Foo", value);
 
         var text = sw.ToString();
@@ -98,8 +98,8 @@ Obj1:
         Assert.AreEqual(normalizedValue, NormNewlines(valueFromYaml));
 
         // Validate it passes our subset. 
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
         var p = y.ReadNext();
         Assert.AreEqual(YamlTokenKind.Property, p.Kind);
         Assert.AreEqual("Foo", p.Property);
@@ -114,7 +114,7 @@ Obj1:
     public void WriteBool(bool value)
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
         yw.WriteProperty("P0", value);
 
         var t = sw.ToString();
@@ -127,7 +127,7 @@ Obj1:
     public void WriteInt()
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
         yw.WriteProperty("P0", 12);
 
         var t = sw.ToString();
@@ -140,7 +140,7 @@ Obj1:
     public void WriteDouble()
     {
         var sw = new StringWriter();
-        var yw = new YamlWriter(sw);
+        using var yw = new YamlWriter(sw);
         yw.WriteProperty("P0", 1.2);
 
         var t = sw.ToString();
@@ -167,8 +167,8 @@ Obj1:
     [DataRow("---")] // multi docs not supported
     public void ExpectedError(string expr)
     {
-        var sr = new StringReader(expr);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(expr);
+        using var y = new YamlLexer(sr);
 
         AssertLexError(y);
     }
@@ -178,8 +178,8 @@ Obj1:
     [DataRow("Foo:\r\n  val\r\n")] // Must have escape if there's a newline
     public void ExpectedError2(string expr)
     {
-        var sr = new StringReader(expr);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(expr);
+        using var y = new YamlLexer(sr);
 
         var tokenOk = y.ReadNext();
         Assert.AreNotEqual(YamlTokenKind.Error, tokenOk.Kind);
@@ -200,8 +200,8 @@ p1: =Casing Different, not duplicate
 P2: =456
 P1: =duplicate!
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P1=123", y);
         AssertLex("Obj1:", y);
@@ -220,8 +220,8 @@ P1: =duplicate!
 @"P1: =123
 P2: =456
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P1=123", y);
         AssertLex("P2=456", y);
@@ -238,8 +238,8 @@ P2: =456
 
 Obj2:
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr, "test.yaml");
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr, "test.yaml");
 
         AssertLex("Obj1:", y, "test.yaml:1,1-1,6");
         AssertLex("P1=456", y, "test.yaml:2,4-2,12");
@@ -260,8 +260,8 @@ Obj2:
     def
 P1: =123
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("M1=abc\r\ndef\r\n", y);
         AssertLex("P1=123", y);
@@ -279,8 +279,8 @@ P1: =123
       def
 P1: =123
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("M1=abc\r\n  def\r\n", y);
         AssertLex("P1=123", y);
@@ -300,8 +300,8 @@ Obj1:
     P2: =2
 P3: =3
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
@@ -325,8 +325,8 @@ Obj1:
   Obj1b:
 Obj2:
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
@@ -352,8 +352,8 @@ Obj1:
         Obj3:
 Obj4:
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
@@ -377,8 +377,8 @@ Obj1:
     Obj2:
  ErrorObj3:
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
@@ -403,8 +403,8 @@ Obj1:
     P4a: =X
   P1b: =DEF
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("P0=123", y);
         AssertLex("Obj1:", y);
@@ -434,8 +434,8 @@ Obj1:
   P1: =123
 # comment2
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLex("Obj1:", y);
         AssertLex("P1=123", y);
@@ -456,7 +456,7 @@ P2: = ""hello"" & ""world""
     [TestMethod]
     public void ReadDict()
     {
-        var reader = new StringReader(expectedYaml);
+        using var reader = new StringReader(expectedYaml);
 
         var props = YamlConverter.Read(reader);
         Assert.AreEqual(props.Count, 2);
@@ -479,7 +479,7 @@ P2: = ""hello"" & ""world""
     [TestMethod]
     public void WriteDict()
     {
-        var writer = new StringWriter();
+        using var writer = new StringWriter();
 
         var d = new Dictionary<string, string>
         {
@@ -551,8 +551,8 @@ P2: = ""hello"" & ""world""
     Y: =0
     ZIndex: =1
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr)
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr)
         {
             IsComponent = true
         };
@@ -578,8 +578,8 @@ P2: = ""hello"" & ""world""
     Y: =0
     ZIndex: =1
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr)
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr)
         {
             IsComponent = true
         };
@@ -600,8 +600,8 @@ P2: = ""hello"" & ""world""
     Y: =0
     ZIndex: =1
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteTypeNode);
     }
@@ -619,8 +619,8 @@ P2: = ""hello"" & ""world""
     Y: =0
     ZIndex: =1
 ";
-        var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
+        using var sr = new StringReader(text);
+        using var y = new YamlLexer(sr);
 
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteProperty);
     }

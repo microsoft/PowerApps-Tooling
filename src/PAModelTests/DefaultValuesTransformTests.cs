@@ -51,7 +51,7 @@ public class DefaultValuesTransformTests
         Assert.IsTrue(nodeProperties.Count == 1);
     }
 
-    private EditorStateStore getEditorStateStore()
+    private static EditorStateStore getEditorStateStore()
     {
         // creating dynamic properties with Property value null, but with PropertyName
         var dynPropStates = new List<DynamicPropertyState>();
@@ -77,7 +77,7 @@ public class DefaultValuesTransformTests
         return editorStateStore;
     }
 
-    private Theme getTheme()
+    private static Theme getTheme()
     {
         var CustomTheme = new CustomThemeJson() { name = "SomeCustomTheme" };
         var themeJson = new ThemesJson() { CurrentTheme = "SomeTheme", CustomThemes = new[] { CustomTheme } };
@@ -86,7 +86,7 @@ public class DefaultValuesTransformTests
     }
 
     // To Load the fluidGrid template defaults
-    private Dictionary<string, ControlTemplate> getTemplateStore()
+    private static Dictionary<string, ControlTemplate> getTemplateStore()
     {
         var parsedTemplates = new Dictionary<string, ControlTemplate>();
         var fluidGridTemplatePath = Path.Combine(Environment.CurrentDirectory, "Templates", "fluidGrid_2.2.0.xml");

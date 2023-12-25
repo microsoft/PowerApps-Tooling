@@ -149,7 +149,7 @@ internal class FilePath
         return path;
     }
 
-    private string GetCustomExtension(string fileName)
+    private static string GetCustomExtension(string fileName)
     {
         var extension = fileName.EndsWith(yamlExtension, StringComparison.OrdinalIgnoreCase)
                 ? yamlExtension

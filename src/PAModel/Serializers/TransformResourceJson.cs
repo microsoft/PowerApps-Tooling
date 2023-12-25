@@ -63,13 +63,13 @@ internal static class TransformResourceJson
             var orderedIndices = app._entropy.ResourcesJsonIndices.OrderBy(x => x.Value);
             foreach (var kvp in orderedIndices)
             {
-                var resourceName = app._entropy.GetResourceNameFromKey(kvp.Key);
+                var resourceName = Entropy.GetResourceNameFromKey(kvp.Key);
                 var resource = app._resourcesJson.Resources.Where(x => x.Name == resourceName);
                 orderedResourcesList.Add(resource.SingleOrDefault());
             }
 
             // Handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
-            orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourcesJsonIndices.ContainsKey(app._entropy.GetResourcesJsonIndicesKey(x))));
+            orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourcesJsonIndices.ContainsKey(Entropy.GetResourcesJsonIndicesKey(x))));
             app._resourcesJson.Resources = orderedResourcesList.ToArray();
         }
     }

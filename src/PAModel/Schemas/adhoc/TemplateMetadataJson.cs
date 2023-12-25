@@ -15,7 +15,7 @@ internal class TemplateMetadataJson
     // Ok to be null. 
     //  Will default to: DateTime.Now.ToUniversalTime().Ticks.ToString();
     public string Version { get; set; }
-    public ComponentType? ComponentType { get; set; } = null;
+    public ComponentType? ComponentType { get; set; }
 
     public bool? IsComponentLocked { get; set; }
     public bool? ComponentChangedSinceFileImport { get; set; }
@@ -23,7 +23,7 @@ internal class TemplateMetadataJson
 
     public CustomPropertyJson[] CustomProperties { get; set; }
 
-    public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; } = null;
+    public DataComponentDefinitionJson DataComponentDefinitionKey { get; set; }
 
     [JsonExtensionData]
     public Dictionary<string, object> ExtensionData { get; set; }

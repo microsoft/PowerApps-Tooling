@@ -82,7 +82,8 @@ public class AppTestsTest
 
                 // re-unpack should succeed
                 (var msapp1, var errors1) = CanvasDocument.LoadFromMsapp(tempFile.FullPath);
-                msapp1.SaveToSources(new TempDir().Dir);
+                using var tempSaveDir = new TempDir();
+                msapp1.SaveToSources(tempSaveDir.Dir);
             }
         }
     }

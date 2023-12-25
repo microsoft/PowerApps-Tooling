@@ -182,14 +182,14 @@ internal class Entropy
     }
 
     // Using the name of the resource combined with the content kind as a key to avoid collisions across different resource types.
-    public string GetResourcesJsonIndicesKey(ResourceJson resource)
+    public static string GetResourcesJsonIndicesKey(ResourceJson resource)
     {
         return resource.Content + "-" + resource.Name;
     }
 
     // The key is of the format ContentKind-ResourceName. eg. Image-close.
     // Removing the 'ContentKind-' gives the resource name
-    public string GetResourceNameFromKey(string key)
+    public static string GetResourceNameFromKey(string key)
     {
         var prefix = key.Split(new char[] { '-' }).First();
         return key.Substring(prefix.Length + 1);

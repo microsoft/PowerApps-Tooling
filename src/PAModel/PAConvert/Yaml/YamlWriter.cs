@@ -191,7 +191,7 @@ public class YamlWriter : IDisposable
         }
     }
 
-    private string NormalizeNewlines(string x)
+    private static string NormalizeNewlines(string x)
     {
         return x.Replace("\r\n", "\n").Replace("\r", "\n");
     }
