@@ -10,12 +10,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class AddTemplate : IDelta
 {
-    private string _name;
-    private CombinedTemplateState _template;
-    private TemplatesJson.TemplateJson _jsonTemplate;
-    private PcfControl _pcfTemplate;
+    private readonly string _name;
+    private readonly CombinedTemplateState _template;
+    private readonly TemplatesJson.TemplateJson _jsonTemplate;
+    private readonly PcfControl _pcfTemplate;
 
-    private bool _isPcf;
+    private readonly bool _isPcf;
 
     public AddTemplate(string name, CombinedTemplateState templateState, TemplatesJson.TemplateJson jsonTemplate)
     {

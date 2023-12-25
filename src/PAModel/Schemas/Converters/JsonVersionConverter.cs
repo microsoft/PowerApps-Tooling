@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -13,12 +13,16 @@ internal class JsonVersionConverter : System.Text.Json.Serialization.JsonConvert
     public override Version Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
-        JsonSerializerOptions options) =>
-        Version.Parse(reader.GetString());
+        JsonSerializerOptions options)
+    {
+        return Version.Parse(reader.GetString());
+    }
 
     public override void Write(
         Utf8JsonWriter writer,
         Version version,
-        JsonSerializerOptions options) =>
+        JsonSerializerOptions options)
+    {
         writer.WriteStringValue(version.ToString());
+    }
 }

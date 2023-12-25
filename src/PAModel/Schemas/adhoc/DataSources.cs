@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AppMagic.Authoring.Persistence;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
@@ -14,30 +14,30 @@ internal class DataSourceModel
     // Name is what shows up in formulas. 
     public string Name { get; set; } // "MSNWeather",
 
-    // Uniquely identfies connector type. 
-    public string Type { get; set; } 
+    // Uniquely identifies connector type. 
+    public string Type { get; set; }
     public string ApiId { get; set; } // "/providers/microsoft.powerapps/apis/shared_msnweather"
 
-    // For Sharepoint:
+    // For SharePoint:
     public string DatasetName { get; set; } // "https://microsoft.sharepoint.com/teams/Test85a"
     public string TableName { get; set; } // a guid 
-    
+
     public string RelatedEntityName { get; set; }
 
     // Get a unique filename. Can include \ directory character to place in subdirs. 
     public string GetUniqueName()
     {
-        if (this.IsDataComponent)
+        if (IsDataComponent)
         {
-            return $@"datacomponent\{this.Name}";
+            return $@"datacomponent\{Name}";
         }
 
-        if (this.RelatedEntityName != null)
+        if (RelatedEntityName != null)
         {
-            return $@"{this.RelatedEntityName}\{Name}";
+            return $@"{RelatedEntityName}\{Name}";
         }
-        
-        return this.Name;
+
+        return Name;
     }
 
     // DataEntityMetadataJson -- The big one!!!!
@@ -50,7 +50,7 @@ internal class DataSourceModel
     public DataComponentSourcesJson.Entry DataComponentDetails { get; set; }
 
     // Don't serialize. 
-    internal bool IsDataComponent => this.DataComponentDetails != null;
+    internal bool IsDataComponent => DataComponentDetails != null;
 
     // Was the environment guid removed from the view name?
     // This allows for switching environments to just switch the pkg folder
@@ -110,7 +110,7 @@ internal class SwaggerDefinition
 
 internal class DataSourceEntry : DataSourceModel
 {
-    
+
 }
 
 internal class DataSourcesJson

@@ -30,7 +30,7 @@ internal class Parser
     //   Label1 As Label.Variant
     private TypedNameNode ParseControlDef(YamlToken token)
     {
-        string line = token.Property;
+        var line = token.Property;
 
         if (!TryParseControlDefCore(line, out var controlName, out var templateName, out var variantName))
         {
@@ -89,7 +89,7 @@ internal class Parser
         return false;
     }
 
-    internal static  bool TryParseIdent(string source, out string parsed, out int length)
+    internal static bool TryParseIdent(string source, out string parsed, out int length)
     {
         length = 0;
         parsed = null;
@@ -118,7 +118,7 @@ internal class Parser
         ++i;
 
         // Accept any characters up to the next unescaped identifier delimiter.
-        for (; ;)
+        for (; ; )
         {
             if (i >= source.Length)
                 break;
@@ -163,7 +163,7 @@ internal class Parser
 
         if (_yaml._commentStrippedWarning.HasValue)
         {
-            this._errorContainer.YamlWontRoundTrip(_yaml._commentStrippedWarning.Value, "Yaml comments don't roundtrip.");
+            _errorContainer.YamlWontRoundTrip(_yaml._commentStrippedWarning.Value, "Yaml comments don't roundtrip.");
         }
 
         return control;
@@ -265,8 +265,8 @@ internal class Parser
         m = paramRegex.Match(line);
         while (m.Success)
         {
-            string argName = CharacterUtils.UnEscapeName(m.Groups[1].Value, _errorContainer);
-            string kindName = CharacterUtils.UnEscapeName(m.Groups[2].Value, _errorContainer);
+            var argName = CharacterUtils.UnEscapeName(m.Groups[1].Value, _errorContainer);
+            var kindName = CharacterUtils.UnEscapeName(m.Groups[2].Value, _errorContainer);
 
             functionNode.Args.Add(new TypedNameNode
             {
@@ -343,7 +343,7 @@ internal class Parser
 
     private bool IsControlStart(string line)
     {
-        if (!TryParseIdent(line, out var parsed, out var length))
+        if (!TryParseIdent(line, out _, out var length))
             return false;
         line = line.Substring(length).TrimStart();
         return line.StartsWith("As");

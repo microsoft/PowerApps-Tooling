@@ -32,7 +32,7 @@ public class YamlWriter : IDisposable
     {
         WriteIndent();
 
-        bool needsEscape = propertyName.IndexOfAny(new char[] { '\"', '\'' }) != -1;
+        var needsEscape = propertyName.IndexOfAny(new char[] { '\"', '\'' }) != -1;
         if (needsEscape)
             propertyName = $"\"{propertyName.Replace("\"", "\\\"")}\"";
 
@@ -106,7 +106,7 @@ public class YamlWriter : IDisposable
 
         value = NormalizeNewlines(value);
 
-        bool isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
+        var isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
 
         // For consistency, both single and multiline PA properties prefix with '='.
         // Only single-line actually needs this - to avoid yaml's regular expression escaping.
@@ -128,8 +128,8 @@ public class YamlWriter : IDisposable
             _textWriter.Write(propertyName);
             _textWriter.Write(": ");
 
-            int numNewlines = 0;
-            for (int i = value.Length - 1; i > 0; i--)
+            var numNewlines = 0;
+            for (var i = value.Length - 1; i > 0; i--)
             {
                 if (value[i] == '\n')
                 {
@@ -149,7 +149,7 @@ public class YamlWriter : IDisposable
 
             _currentIndent++;
 
-            bool needIndent = true;
+            var needIndent = true;
             foreach (var ch in value)
             {
                 if (needIndent)
@@ -185,7 +185,7 @@ public class YamlWriter : IDisposable
 
     private void WriteIndent()
     {
-        for (int i = 0; i < _currentIndent; i++)
+        for (var i = 0; i < _currentIndent; i++)
         {
             _textWriter.Write(Indent);
         }

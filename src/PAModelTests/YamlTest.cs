@@ -18,13 +18,13 @@ public class YamlTest
         var yw = new YamlWriter(sw);
         yw.WriteProperty("P0", "abc");
         yw.WriteStartObject("Obj1");
-            yw.WriteProperty("P1a", "A#B"); // induced multiline, |- since no trailing \n
-            yw.WriteProperty("P1b", "B");
-            yw.WriteStartObject("Obj2");
-                yw.WriteProperty("P2a", "A");
-                yw.WriteEndObject();
-            yw.WriteProperty("P1c", "C");
-            yw.WriteEndObject();
+        yw.WriteProperty("P1a", "A#B"); // induced multiline, |- since no trailing \n
+        yw.WriteProperty("P1b", "B");
+        yw.WriteStartObject("Obj2");
+        yw.WriteProperty("P2a", "A");
+        yw.WriteEndObject();
+        yw.WriteProperty("P1c", "C");
+        yw.WriteEndObject();
 
         var t = sw.ToString();
         var expected = @"P0: =abc
@@ -77,7 +77,7 @@ Obj1:
     [DataRow("1\n\r2")] // 2 lines mixed
     [DataRow("1\n2\n")] // multiline, trailing newline
     [DataRow("1\n2\r3\r\n")] // Mixed multiline
-    [DataRow("1 \n2 \n")] 
+    [DataRow("1 \n2 \n")]
     [DataRow("1\n 2 \n ")]
     [DataRow("1\n2 \n ")]
     [DataRow("Hi #There")] // Yaml comments are dangerous
@@ -95,7 +95,7 @@ Obj1:
 
         // Validate it passes YamlDotNet
         var valueFromYaml = ParseSinglePropertyViaYamlDotNot(text);
-        Assert.AreEqual(normalizedValue, NormNewlines(valueFromYaml));            
+        Assert.AreEqual(normalizedValue, NormNewlines(valueFromYaml));
 
         // Validate it passes our subset. 
         var sr = new StringReader(text);
@@ -150,7 +150,7 @@ Obj1:
     }
 
     // Normalize newlines across OSes. 
-    static string NormNewlines(string x)
+    private static string NormNewlines(string x)
     {
         return x.Replace("\r\n", "\n").Replace("\r", "\n");
     }
@@ -205,12 +205,12 @@ P1: =duplicate!
 
         AssertLex("P1=123", y);
         AssertLex("Obj1:", y);
-            AssertLex("P1=Nested object, not duplicate", y);
+        AssertLex("P1=Nested object, not duplicate", y);
         AssertLexEndObj(y);
         AssertLex("p1=Casing Different, not duplicate", y);
         AssertLex("P2=456", y);
 
-        AssertLexError(y);            
+        AssertLexError(y);
     }
 
     [TestMethod]
@@ -240,13 +240,13 @@ Obj2:
 ";
         var sr = new StringReader(text);
         var y = new YamlLexer(sr, "test.yaml");
-      
+
         AssertLex("Obj1:", y, "test.yaml:1,1-1,6");
         AssertLex("P1=456", y, "test.yaml:2,4-2,12");
         AssertLexEndObj(y);
         AssertLex("Obj2:", y, "test.yaml:4,1-4,6");
         AssertLexEndObj(y);
-        AssertLexEndFile(y);            
+        AssertLexEndFile(y);
     }
 
 
@@ -254,7 +254,7 @@ Obj2:
     [TestMethod]
     public void ReadBasicMultiline()
     {
-        var text = 
+        var text =
 @"M1: |
     =abc
     def
@@ -262,7 +262,7 @@ P1: =123
 ";
         var sr = new StringReader(text);
         var y = new YamlLexer(sr);
-    
+
         AssertLex("M1=abc\r\ndef\r\n", y);
         AssertLex("P1=123", y);
         AssertLexEndFile(y);
@@ -291,7 +291,7 @@ P1: =123
     [TestMethod]
     public void ReadClosing()
     {
-        var text = 
+        var text =
 @"P0: =1
 Obj1:
   Obj2:
@@ -334,7 +334,7 @@ Obj2:
         AssertLexEndObj(y);
         AssertLex("Obj1b:", y);
         AssertLexEndObj(y); // Obj1b
-        
+
         AssertLexEndObj(y); // Obj1
         AssertLex("Obj2:", y);
         AssertLexEndObj(y); // Obj4
@@ -382,7 +382,7 @@ Obj1:
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
-        AssertLex("Obj2:", y);                        
+        AssertLex("Obj2:", y);
         AssertLexError(y); // Obj3 is at a bad indent. 
     }
 
@@ -408,18 +408,18 @@ Obj1:
 
         AssertLex("P0=123", y);
         AssertLex("Obj1:", y);
-            AssertLex("P1a=ABC", y);
-            AssertLex("Obj2:", y);
-                AssertLex("P2a=X", y);
-                AssertLex("P2b=Y", y);
-                AssertLex("P2c=Z", y);
-                AssertLexEndObj(y); // Obj2
-            AssertLex("'Obj3:':", y);
-                AssertLex("P3a=X", y);
-                AssertLexEndObj(y); // Obj3
-            AssertLex("'Ob\"j4':", y);
-                AssertLex("P4a=X", y);
-                AssertLexEndObj(y); // Obj4
+        AssertLex("P1a=ABC", y);
+        AssertLex("Obj2:", y);
+        AssertLex("P2a=X", y);
+        AssertLex("P2b=Y", y);
+        AssertLex("P2c=Z", y);
+        AssertLexEndObj(y); // Obj2
+        AssertLex("'Obj3:':", y);
+        AssertLex("P3a=X", y);
+        AssertLexEndObj(y); // Obj3
+        AssertLex("'Ob\"j4':", y);
+        AssertLex("P4a=X", y);
+        AssertLexEndObj(y); // Obj4
         AssertLex("P1b=DEF", y);
         AssertLexEndObj(y); // Obj1
         AssertLexEndFile(y);
@@ -449,7 +449,7 @@ Obj1:
         Assert.AreEqual(4, loc.StartChar);
     }
 
-    const string expectedYaml = @"P1: =123
+    private const string expectedYaml = @"P1: =123
 P2: = ""hello"" & ""world""
 ";
 
@@ -488,36 +488,36 @@ P2: = ""hello"" & ""world""
         };
 
         YamlConverter.Write(writer, d);
-        
+
         // order should be alphabetical
         Assert.AreEqual(expectedYaml, writer.ToString());
     }
 
 
     #region Helpers
-    static void AssertLexEndFile(YamlLexer y)
+    private static void AssertLexEndFile(YamlLexer y)
     {
         AssertLex("<EndOfFile>", y);
     }
 
-    static void AssertLexEndObj(YamlLexer y)
+    private static void AssertLexEndObj(YamlLexer y)
     {
         AssertLex("<EndObj>", y);
     }
 
-    static void AssertLexError(YamlLexer y)
+    private static void AssertLexError(YamlLexer y)
     {
         var p = y.ReadNext();
         Assert.AreEqual(YamlTokenKind.Error, p.Kind);
     }
 
-    static void AssertLex(string expected, YamlLexer y)
+    private static void AssertLex(string expected, YamlLexer y)
     {
         var p = y.ReadNext();
         Assert.AreEqual(NormNewlines(expected), p.ToString());
     }
 
-    static void AssertLex(string expected, YamlLexer y, string sourceSpan)
+    private static void AssertLex(string expected, YamlLexer y, string sourceSpan)
     {
         var p = y.ReadNext();
         Assert.AreEqual(expected, p.ToString());
@@ -529,7 +529,7 @@ P2: = ""hello"" & ""world""
         var sr = new StringReader(text);
         var y = new YamlLexer(sr);
 
-        List<YamlToken> tokens = new List<YamlToken>();
+        var tokens = new List<YamlToken>();
         YamlToken token;
         do
         {
@@ -571,8 +571,10 @@ P2: = ""hello"" & ""world""
     ZIndex: =1
 ";
         var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
-        y.IsComponent = true;
+        var y = new YamlLexer(sr)
+        {
+            IsComponent = true
+        };
 
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteComponent);
     }
@@ -596,8 +598,10 @@ P2: = ""hello"" & ""world""
     ZIndex: =1
 ";
         var sr = new StringReader(text);
-        var y = new YamlLexer(sr);
-        y.IsComponent = true;
+        var y = new YamlLexer(sr)
+        {
+            IsComponent = true
+        };
 
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteFunctionNode);
     }
@@ -640,7 +644,7 @@ P2: = ""hello"" & ""world""
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteProperty);
     }
 
-    static void AssertLexErrorMessage(YamlLexer y, string expectedErrorMessage)
+    private static void AssertLexErrorMessage(YamlLexer y, string expectedErrorMessage)
     {
         var p = y.ReadNext();
         while (p.Kind != YamlTokenKind.EndOfFile)
@@ -649,7 +653,7 @@ P2: = ""hello"" & ""world""
             {
                 Assert.AreEqual(p.Value, expectedErrorMessage);
                 return;
-            }               
+            }
             p = y.ReadNext();
         }
         Assert.Fail();

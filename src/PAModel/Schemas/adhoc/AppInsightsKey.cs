@@ -4,7 +4,7 @@
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 // Abstract out the InstrumentationKey (From AppInsights) of an app in a seprate json file (AppInsightsKey.json)
-class AppInsightsKeyJson
+internal class AppInsightsKeyJson
 {
     public string InstrumentationKey { get; set; } // a guid
 }

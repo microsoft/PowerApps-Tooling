@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 // connections are environment specific. 
 // Connections are the credentials. 
-class ConnectionJson
+internal class ConnectionJson
 {
     public string id { get; set; } // a guid
 

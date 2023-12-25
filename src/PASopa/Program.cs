@@ -8,9 +8,9 @@ using System.IO;
 namespace PASopa;
 
 // Mode: Extract
-class Program
+internal class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         Console.WriteLine($"MsApp/Source converter. Version: {SourceSerializer.CurrentSourceVersion}");
 
@@ -25,7 +25,7 @@ class Program
                 return;
             }
 
-            string msAppPath = args[1];
+            var msAppPath = args[1];
             Console.WriteLine("Test roundtripping: " + msAppPath);
 
             // Test round-tripping
@@ -42,19 +42,19 @@ class Program
                 return;
             }
             // Roundtrip all .msapps in a folder.
-            string msAppPathDir = args[1];
-            int countTotal = 0;
-            int countPass = 0;
+            var msAppPathDir = args[1];
+            var countTotal = 0;
+            var countPass = 0;
             Console.WriteLine("Test smart-merge all .msapps in : " + msAppPathDir);
-            string msAppCommon = Path.Combine(msAppPathDir, "empty.msapp");
+            var msAppCommon = Path.Combine(msAppPathDir, "empty.msapp");
             foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
             {
                 // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item. 
                 msAppCommon ??= msAppPath;
 
-                Stopwatch sw = Stopwatch.StartNew();
-                bool ok = MsAppTest.MergeStressTest(msAppCommon, msAppPath);
-                
+                var sw = Stopwatch.StartNew();
+                var ok = MsAppTest.MergeStressTest(msAppCommon, msAppPath);
+
                 var str = ok ? "Pass" : "FAIL";
                 countTotal++;
                 if (ok) { countPass++; }
@@ -78,14 +78,14 @@ class Program
                 return;
             }
             // Roundtrip all .msapps in a folder.
-            string msAppPathDir = args[1];
-            int countTotal = 0;
-            int countPass = 0;
+            var msAppPathDir = args[1];
+            var countTotal = 0;
+            var countPass = 0;
             Console.WriteLine("Test roundtripping all .msapps in : " + msAppPathDir);
             foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
             {
-                Stopwatch sw = Stopwatch.StartNew();
-                bool ok = MsAppTest.StressTest(msAppPath);
+                var sw = Stopwatch.StartNew();
+                var ok = MsAppTest.StressTest(msAppPath);
                 var str = ok ? "Pass" : "FAIL";
                 countTotal++;
                 if (ok) { countPass++; }
@@ -107,7 +107,7 @@ class Program
                 return;
             }
 
-            string msAppPath = args[1];
+            var msAppPath = args[1];
             msAppPath = Path.GetFullPath(msAppPath);
 
             Console.WriteLine(warningText, "unpack");
@@ -129,7 +129,7 @@ class Program
 
             Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
-            (CanvasDocument msApp, ErrorContainer errors) = TryOperation(() => CanvasDocument.LoadFromMsapp(msAppPath));
+            (var msApp, var errors) = TryOperation(() => CanvasDocument.LoadFromMsapp(msAppPath));
             errors.Write(Console.Error);
 
             if (errors.HasErrors)
@@ -137,12 +137,12 @@ class Program
                 return;
             }
 
-            errors = TryOperation(() => msApp.SaveToSources(outDir, verifyOriginalPath : msAppPath));
+            errors = TryOperation(() => msApp.SaveToSources(outDir, verifyOriginalPath: msAppPath));
             errors.Write(Console.Error);
             if (errors.HasErrors)
             {
                 return;
-            }                
+            }
         }
         else if (mode == "-pack")
         {
@@ -152,14 +152,14 @@ class Program
                 return;
             }
 
-            string msAppPath = Path.GetFullPath(args[1]);
-            string inputDir = Path.GetFullPath(args[2]);
+            var msAppPath = Path.GetFullPath(args[1]);
+            var inputDir = Path.GetFullPath(args[2]);
 
             Console.WriteLine(warningText, "pack");
 
             Console.WriteLine($"Pack: {inputDir} --> {msAppPath} ");
 
-            (CanvasDocument msApp, ErrorContainer errors) = TryOperation(() => CanvasDocument.LoadFromSources(inputDir));
+            (var msApp, var errors) = TryOperation(() => CanvasDocument.LoadFromSources(inputDir));
             errors.Write(Console.Error);
             if (errors.HasErrors)
             {
@@ -180,9 +180,9 @@ class Program
                 return;
             }
 
-            string msAppPath = Path.GetFullPath(args[1]);
-            string pkgsPath = Path.GetFullPath(args[2]);
-            string inputPA = Path.GetFullPath(args[3]);
+            var msAppPath = Path.GetFullPath(args[1]);
+            var pkgsPath = Path.GetFullPath(args[2]);
+            var inputPA = Path.GetFullPath(args[3]);
 
             Console.WriteLine($"Make: {inputPA} --> {msAppPath} ");
 
@@ -209,10 +209,10 @@ class Program
                 return;
             }
 
-            string path1 = args[1];
-            string path2 = args[2];
-            string parent = args[3];
-            string pathresult = args[4];
+            var path1 = args[1];
+            var path2 = args[2];
+            var parent = args[3];
+            var pathresult = args[4];
 
             Console.WriteLine($"Merge is very experimental right now, do not rely on this behavior");
             Console.WriteLine($"Merge: {path1}, {path2} --> {pathresult} ");
@@ -271,7 +271,7 @@ class Program
     private static (CanvasDocument, ErrorContainer) TryOperation(Func<(CanvasDocument, ErrorContainer)> operation)
     {
         CanvasDocument app = null;
-        ErrorContainer errors = new ErrorContainer();
+        var errors = new ErrorContainer();
         try
         {
             (app, errors) = operation();
@@ -286,7 +286,7 @@ class Program
 
     private static ErrorContainer TryOperation(Func<ErrorContainer> operation)
     {
-        ErrorContainer errors = new ErrorContainer();
+        var errors = new ErrorContainer();
         try
         {
             errors = operation();

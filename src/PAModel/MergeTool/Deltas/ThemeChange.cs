@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class ThemeChange : IDelta
 {
-    private ThemesJson _theme;
+    private readonly ThemesJson _theme;
 
     public ThemeChange(ThemesJson theme)
     {

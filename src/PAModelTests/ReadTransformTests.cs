@@ -11,7 +11,7 @@ namespace PAModelTests;
 
 [TestClass]
 public class ReadTransformTests
-{  
+{
     [DataTestMethod]
     [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
     [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
@@ -22,7 +22,7 @@ public class ReadTransformTests
         Assert.IsTrue(File.Exists(path));
 
         // ApplyAfterMsAppLoadTransforms is called in LoadFromMsapp
-        (var msapp, var errorContainer) = CanvasDocument.LoadFromMsapp(path);
+        (_, var errorContainer) = CanvasDocument.LoadFromMsapp(path);
         errorContainer.ThrowOnErrors();
 
         Assert.AreEqual(errorContainer.HasErrors, hasErrors);

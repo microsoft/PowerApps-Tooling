@@ -19,7 +19,7 @@ public class ErrorTests
     public void OpenCorruptedMsApp()
     {
         // Empty stream is invalid document, should generate a Read error.
-        MemoryStream ms = new MemoryStream();
+        var ms = new MemoryStream();
 
         (var doc, var errors) = CanvasDocument.LoadFromMsapp(ms);
         Assert.True(errors.HasErrors);
@@ -42,7 +42,7 @@ public class ErrorTests
 
         (var doc, var errors) = CanvasDocument.LoadFromSources(PathToValidMsapp);
         Assert.True(errors.HasErrors);
-        Assert.Null(doc);            
+        Assert.Null(doc);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class ErrorTests
     public void BadWriteDir()
     {
         string path = null;
-        Assert.Throws<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));   
+        Assert.Throws<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));
     }
 
     [Theory]
@@ -73,14 +73,14 @@ public class ErrorTests
     public void TestJSONValueChanged(string file1, string file2, string file3)
     {
 
-        string path1 = Path.Combine(Environment.CurrentDirectory, "TestData", file1);
-        string path2 = Path.Combine(Environment.CurrentDirectory, "TestData", file2);
-        string path3 = Path.Combine(Environment.CurrentDirectory, "TestData", file3);
+        var path1 = Path.Combine(Environment.CurrentDirectory, "TestData", file1);
+        var path2 = Path.Combine(Environment.CurrentDirectory, "TestData", file2);
+        var path3 = Path.Combine(Environment.CurrentDirectory, "TestData", file3);
 
-        ErrorContainer errorContainer = new ErrorContainer();
+        var errorContainer = new ErrorContainer();
 
-        byte[] jsonString1 = File.ReadAllBytes(path1);
-        byte[] jsonString2 = File.ReadAllBytes(path2);
+        var jsonString1 = File.ReadAllBytes(path1);
+        var jsonString2 = File.ReadAllBytes(path2);
 
         var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
         var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);

@@ -23,7 +23,7 @@ internal static class IRStateHelpers
         SplitIRAndState(topParentJson, topParentJson.Name, 0, stateStore, templateStore, entropy, out topParentIR);
     }
 
-    private static void SplitIRAndState(ControlInfoJson.Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
+    private static void SplitIRAndState(Item control, string topParentName, int index, EditorStateStore stateStore, TemplateStore templateStore, Entropy entropy, out BlockNode controlIR)
     {
         // Bottom up, recursively process children
         var children = new List<BlockNode>();
@@ -152,7 +152,7 @@ internal static class IRStateHelpers
             properties.Add(prop);
         }
 
-        foreach (var property in control.DynamicProperties ?? Enumerable.Empty<ControlInfoJson.DynamicPropertyJson>())
+        foreach (var property in control.DynamicProperties ?? Enumerable.Empty<DynamicPropertyJson>())
         {
             if (property.Rule == null)
             {
@@ -188,11 +188,11 @@ internal static class IRStateHelpers
 
         if (control.Template.ExtensionData != null)
         {
-            if (control.Template.ExtensionData.TryGetValue(ControlTemplatePCFDynamicSchemaForIRRetrieval, out object PCFVal))
+            if (control.Template.ExtensionData.TryGetValue(ControlTemplatePCFDynamicSchemaForIRRetrieval, out var PCFVal))
             {
                 entropy.PCFDynamicSchemaForIRRetrievalEntry.Add(control.Name, PCFVal);
             }
-            if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out object OverridablePropVal))
+            if (control.Template.ExtensionData.TryGetValue(ControlTemplateOverridableProperties, out var OverridablePropVal))
             {
                 entropy.OverridablePropertiesEntry.Add(control.Name, OverridablePropVal);
             }
@@ -218,8 +218,10 @@ internal static class IRStateHelpers
         }
         else
         {
-            templateState = new CombinedTemplateState(control.Template);
-            templateState.ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo;
+            templateState = new CombinedTemplateState(control.Template)
+            {
+                ComponentDefinitionInfo = control.Template.ComponentDefinitionInfo
+            };
             var templateName = templateState.TemplateDisplayName ?? templateState.Name;
             // Template values could be different for each host control instances.
             // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
@@ -237,13 +239,12 @@ internal static class IRStateHelpers
             else
             {
                 templateStore.AddTemplate(templateName, templateState);
-            }                    
+            }
         }
 
         SplitCustomTemplates(entropy, control.Template, control.Name);
 
-        int controlId;
-        if (int.TryParse(control.ControlUniqueId, out controlId))
+        if (int.TryParse(control.ControlUniqueId, out var controlId))
         {
             entropy.ControlUniqueIds.Add(control.Name, controlId);
         }
@@ -270,7 +271,7 @@ internal static class IRStateHelpers
         stateStore.TryAddControl(controlState);
     }
 
-    private static bool IsPCFControl(ControlInfoJson.Template template)
+    private static bool IsPCFControl(Template template)
     {
         if (template.Id == null)
             return false;
@@ -278,7 +279,7 @@ internal static class IRStateHelpers
         return template.Id.StartsWith(Template.PcfControl);
     }
 
-    private static bool IsHostControl(ControlInfoJson.Template template)
+    private static bool IsHostControl(Template template)
     {
         if (template.Id == null)
             return false;
@@ -288,16 +289,15 @@ internal static class IRStateHelpers
 
     private static Tuple<string, bool> ParseControlId(string controlId)
     {
-        int id;
         Guid? guidId = null;
-        if (!int.TryParse(controlId, out id))
+        if (!int.TryParse(controlId, out var id))
         {
             guidId = Guid.Parse(controlId);
         }
         return guidId == null ? new Tuple<string, bool>(guidId.ToString(), true) : new Tuple<string, bool>(id.ToString(), false);
     }
 
-    private static (PropertyNode prop, PropertyState state) SplitProperty(ControlInfoJson.RuleEntry rule)
+    private static (PropertyNode prop, PropertyState state) SplitProperty(RuleEntry rule)
     {
         var script = rule.InvariantScript;
         var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
@@ -305,7 +305,7 @@ internal static class IRStateHelpers
         return (prop, state);
     }
 
-    private static (PropertyNode prop, DynamicPropertyState state) SplitDynamicProperty(ControlInfoJson.DynamicPropertyJson dynamicProperty)
+    private static (PropertyNode prop, DynamicPropertyState state) SplitDynamicProperty(DynamicPropertyJson dynamicProperty)
     {
         var (prop, propertyState) = SplitProperty(dynamicProperty.Rule);
         var state = new DynamicPropertyState() { PropertyName = propertyState.PropertyName, Property = propertyState, ExtensionData = dynamicProperty.ExtensionData };
@@ -319,7 +319,7 @@ internal static class IRStateHelpers
     }
 
     // Returns pair of item and index (with respect to parent order)
-    private static (ControlInfoJson.Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, bool isInResponsiveLayout, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
+    private static (Item item, int index) CombineIRAndState(BlockNode blockNode, ErrorContainer errors, string parent, bool isInResponsiveLayout, EditorStateStore stateStore, TemplateStore templateStore, UniqueIdRestorer uniqueIdRestorer, Entropy entropy)
     {
         var controlName = blockNode.Name.Identifier;
         var templateIR = blockNode.Name.Kind;
@@ -327,7 +327,7 @@ internal static class IRStateHelpers
         var variantName = templateIR.OptionalVariant;
 
         // Bottom up, merge children first
-        var children = new List<(ControlInfoJson.Item item, int index)>();
+        var children = new List<(Item item, int index)>();
         foreach (var childBlock in blockNode.Children)
         {
             children.Add(CombineIRAndState(childBlock, errors, controlName, DynamicProperties.AddsChildDynamicProperties(templateName, variantName), stateStore, templateStore, uniqueIdRestorer, entropy));
@@ -335,7 +335,7 @@ internal static class IRStateHelpers
 
         var orderedChildren = children.OrderBy(childPair => childPair.index).Select(pair => pair.item).ToArray();
 
-        ControlInfoJson.Template template;
+        Template template;
         CombinedTemplateState templateState;
 
         // Prefer the specific PCF template for the control, if available. Otherwise, try to fall back to the template store.
@@ -344,13 +344,13 @@ internal static class IRStateHelpers
             template = PCFTemplate;
             templateState = new CombinedTemplateState(PCFTemplate);
         }
-        else if (templateName == HostControlTemplateName &&  templateStore.TryGetTemplate(controlName, out templateState))
+        else if (templateName == HostControlTemplateName && templateStore.TryGetTemplate(controlName, out templateState))
         {
             template = templateState.ToControlInfoTemplate();
         }
         else if (!templateStore.TryGetTemplate(templateName, out templateState))
         {
-            template = ControlInfoJson.Template.CreateDefaultTemplate(templateName, null);
+            template = Template.CreateDefaultTemplate(templateName, null);
         }
         else
         {
@@ -360,11 +360,11 @@ internal static class IRStateHelpers
         RecombineCustomTemplates(entropy, template, controlName);
 
         var uniqueId = uniqueIdRestorer.GetControlId(controlName);
-        ControlInfoJson.Item resultControlInfo;
+        Item resultControlInfo;
         if (stateStore.TryGetControlState(controlName, out var state))
         {
-            var properties = new List<ControlInfoJson.RuleEntry>();
-            var dynamicProperties = new List<ControlInfoJson.DynamicPropertyJson>();
+            var properties = new List<RuleEntry>();
+            var dynamicProperties = new List<DynamicPropertyJson>();
             foreach (var propIR in blockNode.Properties)
             {
                 // Dynamic properties could be null for the galleryTemplateTemplate
@@ -383,7 +383,7 @@ internal static class IRStateHelpers
                 // Add dummy dynamic output props in the state at the end
                 foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
                 {
-                    dynamicProperties.Add(new ControlInfoJson.DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });
+                    dynamicProperties.Add(new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });
                 }
 
                 // Reorder to preserve roundtripping
@@ -433,7 +433,7 @@ internal static class IRStateHelpers
             // Preserve ordering from serialized IR
             // Required for roundtrip checks
             properties = properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1).ToList();
-            resultControlInfo = new ControlInfoJson.Item()
+            resultControlInfo = new Item()
             {
                 Parent = parent,
                 Name = controlName,
@@ -470,14 +470,14 @@ internal static class IRStateHelpers
         else
         {
             state = null;
-            resultControlInfo = ControlInfoJson.Item.CreateDefaultControl();
+            resultControlInfo = Item.CreateDefaultControl();
             resultControlInfo.Name = controlName;
             resultControlInfo.ControlUniqueId = uniqueId.ToString();
             resultControlInfo.Parent = parent;
             resultControlInfo.VariantName = variantName ?? string.Empty;
             resultControlInfo.StyleName = $"default{templateName.FirstCharToUpper()}Style";
-            var properties = new List<ControlInfoJson.RuleEntry>();
-            var dynamicProperties = new List<ControlInfoJson.DynamicPropertyJson>();
+            var properties = new List<RuleEntry>();
+            var dynamicProperties = new List<DynamicPropertyJson>();
             foreach (var propIR in blockNode.Properties)
             {
                 if (isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier))
@@ -490,7 +490,7 @@ internal static class IRStateHelpers
                 }
             }
             resultControlInfo.Rules = properties.ToArray();
-            bool hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
+            var hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
             resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
             resultControlInfo.HasDynamicProperties = hasDynamicProperties;
             resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
@@ -500,11 +500,11 @@ internal static class IRStateHelpers
 
         // Using the stored PCFDynamicSchemaForIRRetrieval/OverridableProperties value for each control instance,
         // instead of the default value from the control template.
-        if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out object OverridablePropVal))
+        if (entropy.OverridablePropertiesEntry.TryGetValue(controlName, out var OverridablePropVal))
         {
             resultControlInfo.Template.ExtensionData[ControlTemplateOverridableProperties] = OverridablePropVal;
         }
-        if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out object PCFVal))
+        if (entropy.PCFDynamicSchemaForIRRetrievalEntry.TryGetValue(controlName, out var PCFVal))
         {
             resultControlInfo.Template.ExtensionData[ControlTemplatePCFDynamicSchemaForIRRetrieval] = PCFVal;
         }
@@ -525,7 +525,7 @@ internal static class IRStateHelpers
         var scopeArgs = customProp.PropertyScopeKey.PropertyScopeRulesKey.ToDictionary(scope => scope.Name);
         var argTypes = func.Args.ToDictionary(arg => arg.Identifier, arg => arg.Kind.TypeName);
 
-        int i = 1;
+        var i = 1;
         foreach (var arg in func.Metadata)
         {
             if (arg.Identifier == PAConstants.ThisPropertyIdentifier)
@@ -555,17 +555,19 @@ internal static class IRStateHelpers
         }
     }
 
-    private static ControlInfoJson.RuleEntry CombinePropertyIRAndState(PropertyNode node, ErrorContainer errors, ControlState state = null)
+    private static RuleEntry CombinePropertyIRAndState(PropertyNode node, ErrorContainer errors, ControlState state = null)
     {
         var propName = node.Identifier;
         var expression = node.Expression.Expression;
 
         if (state == null)
         {
-            var property = new ControlInfoJson.RuleEntry();
-            property.Property = propName;
-            property.InvariantScript = expression;
-            property.RuleProviderType = "Unknown";
+            var property = new RuleEntry
+            {
+                Property = propName,
+                InvariantScript = expression,
+                RuleProviderType = "Unknown"
+            };
             return property;
         }
         else
@@ -575,18 +577,20 @@ internal static class IRStateHelpers
         }
     }
 
-    private static ControlInfoJson.DynamicPropertyJson CombineDynamicPropertyIRAndState(PropertyNode node, ControlState state = null)
+    private static DynamicPropertyJson CombineDynamicPropertyIRAndState(PropertyNode node, ControlState state = null)
     {
         var propName = node.Identifier;
         var expression = node.Expression.Expression;
 
         if (state == null)
         {
-            var property = new ControlInfoJson.RuleEntry();
-            property.Property = propName;
-            property.InvariantScript = expression;
-            property.RuleProviderType = "Unknown";
-            return new ControlInfoJson.DynamicPropertyJson() { PropertyName = propName, Rule = property };
+            var property = new RuleEntry
+            {
+                Property = propName,
+                InvariantScript = expression,
+                RuleProviderType = "Unknown"
+            };
+            return new DynamicPropertyJson() { PropertyName = propName, Rule = property };
         }
         else
         {
@@ -595,14 +599,15 @@ internal static class IRStateHelpers
         }
     }
 
-    private static ControlInfoJson.RuleEntry GetPropertyEntry(ControlState state, ErrorContainer errors, string propName, string expression)
+    private static RuleEntry GetPropertyEntry(ControlState state, ErrorContainer errors, string propName, string expression)
     {
-        var property = new ControlInfoJson.RuleEntry();
-        property.Property = propName;
-        property.InvariantScript = expression;
+        var property = new RuleEntry
+        {
+            Property = propName,
+            InvariantScript = expression
+        };
 
-        PropertyState propState = null;
-        if (state.Properties != null && state.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
+        if (state.Properties != null && state.Properties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out var propState))
         {
             property.ExtensionData = propState.ExtensionData;
             property.NameMap = propState.NameMap;
@@ -622,18 +627,19 @@ internal static class IRStateHelpers
         return property;
     }
 
-    private static ControlInfoJson.DynamicPropertyJson GetDynamicPropertyEntry(ControlState state, string propName, string expression)
+    private static DynamicPropertyJson GetDynamicPropertyEntry(ControlState state, string propName, string expression)
     {
-        var property = new ControlInfoJson.DynamicPropertyJson();
-        property.PropertyName = propName;
+        var property = new DynamicPropertyJson
+        {
+            PropertyName = propName
+        };
 
-        DynamicPropertyState propState = null;
-        if (state.DynamicProperties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out propState))
+        if (state.DynamicProperties.ToDictionary(prop => prop.PropertyName).TryGetValue(propName, out var propState))
         {
             // The DynamicProperties may contain items without an existing corresponding property leading to empty property variables
             if (propState.Property != null)
             {
-                property.Rule = new ControlInfoJson.RuleEntry()
+                property.Rule = new RuleEntry()
                 {
                     InvariantScript = expression,
                     Property = propName,
@@ -646,7 +652,7 @@ internal static class IRStateHelpers
         }
         else
         {
-            property.Rule = new ControlInfoJson.RuleEntry()
+            property.Rule = new RuleEntry()
             {
                 InvariantScript = expression,
                 RuleProviderType = "Unknown"
@@ -663,7 +669,7 @@ internal static class IRStateHelpers
     // CustomControlDefinitionJson. This JSON contains a stamp of which version it was created in, but that is the only difference
     // As such, they were safe to move to Entropy. If entropy is removed, the one in the TemplateStore works fine for all instances
     // of the control.
-    private static void SplitCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+    private static void SplitCustomTemplates(Entropy entropy, Template controlTemplate, string controlName)
     {
         if (controlTemplate.Id != CustomControlTemplateId)
             return;
@@ -671,7 +677,7 @@ internal static class IRStateHelpers
         entropy.AddDataTableControlJson(controlName, controlTemplate.CustomControlDefinitionJson);
     }
 
-    private static void RecombineCustomTemplates(Entropy entropy, ControlInfoJson.Template controlTemplate, string controlName)
+    private static void RecombineCustomTemplates(Entropy entropy, Template controlTemplate, string controlName)
     {
         if (controlTemplate.Id != CustomControlTemplateId)
             return;

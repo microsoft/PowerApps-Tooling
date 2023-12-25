@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 internal class CommonControlProperties
 {
     // Key is property name
-    private readonly Dictionary<string, ControlProperty> _properties = new Dictionary<string, ControlProperty>();
+    private readonly Dictionary<string, ControlProperty> _properties = new();
 
     private static readonly string _fileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
     private static CommonControlProperties _instance;
@@ -19,8 +19,7 @@ internal class CommonControlProperties
     {
         get
         {
-            if (_instance == null)
-                _instance = new CommonControlProperties();
+            _instance ??= new CommonControlProperties();
             return _instance;
         }
     }
@@ -40,7 +39,7 @@ internal class CommonControlProperties
 
         foreach (var property in commonProps.Root.Elements(ControlMetadataXNames.PropertyTag))
         {
-            ControlProperty controlProperty = ControlTemplateParser.ParseProperty(property);
+            var controlProperty = ControlTemplateParser.ParseProperty(property);
             if (controlProperty == null)
                 continue;
             _properties.Add(controlProperty.Name, controlProperty);

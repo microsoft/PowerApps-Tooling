@@ -23,7 +23,7 @@ internal class CustomPropertyJson
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
     }
-    
+
     internal class PropertyScopeRules
     {
         public string Name { get; set; }

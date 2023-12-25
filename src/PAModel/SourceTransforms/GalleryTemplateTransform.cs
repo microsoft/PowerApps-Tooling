@@ -16,7 +16,7 @@ internal class GalleryTemplateTransform : IControlTemplateTransform
     private const string _childTemplateName = "galleryTemplate";
 
     private readonly ControlTemplate _galleryTemplate;
-    private EditorStateStore _controlStore;
+    private readonly EditorStateStore _controlStore;
 
     public GalleryTemplateTransform(Dictionary<string, ControlTemplate> defaultValueTemplates, EditorStateStore stateStore)
     {

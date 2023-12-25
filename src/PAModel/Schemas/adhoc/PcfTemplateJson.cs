@@ -10,9 +10,9 @@ internal class PcfTemplateJson
 
     public PcfTemplateJson(PcfTemplateJson template)
     {
-        this.Name = template.Name;
-        this.Version = template.Version;
-        this.PcfConversions = template.PcfConversions;
+        Name = template.Name;
+        Version = template.Version;
+        PcfConversions = template.PcfConversions;
     }
 
     /// <summary>

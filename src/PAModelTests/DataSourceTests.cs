@@ -30,7 +30,7 @@ public class DataSourceTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
@@ -53,7 +53,7 @@ public class DataSourceTests
                 using (var stream = new FileStream(tempFile.FullPath, FileMode.Open))
                 {
                     // Read the msapp file
-                    ZipArchive zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);
+                    var zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);
 
                     foreach (var entry in zipOpen.Entries)
                     {
@@ -113,7 +113,7 @@ public class DataSourceTests
 
         using var sourcesTempDir = new TempDir();
         var sourcesTempDirPath = sourcesTempDir.Dir;
-        ErrorContainer errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
+        var errorsCaptured = msApp.SaveToSources(sourcesTempDirPath, pathToMsApp);
         errorsCaptured.ThrowOnErrors();
     }
 
@@ -263,12 +263,12 @@ public class DataSourceTests
     }
 
     [DataTestMethod]
-    [DataRow(new string[] {"FileNameOne.txt" }, ".txt")]
-    [DataRow(new string[] {"FileNameTwo.tx<t" }, ".tx%3ct")]
+    [DataRow(new string[] { "FileNameOne.txt" }, ".txt")]
+    [DataRow(new string[] { "FileNameTwo.tx<t" }, ".tx%3ct")]
     [DataRow(new string[] { "FileNameThr<ee.txt" }, ".txt")]
     public void TestGetExtensionEncoded(string[] fileExtension, string encodedExtension)
     {
-        FilePath filePath = new FilePath(fileExtension);
+        var filePath = new FilePath(fileExtension);
         Assert.AreEqual(filePath.GetExtension(), encodedExtension);
     }
 

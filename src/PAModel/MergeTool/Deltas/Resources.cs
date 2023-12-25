@@ -10,9 +10,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class AddResource : IDelta
 {
-    private FileEntry _file;
-    private ResourceJson _resource;
-    private string _name;
+    private readonly FileEntry _file;
+    private readonly ResourceJson _resource;
+    private readonly string _name;
 
     public AddResource(string name, ResourceJson resource, FileEntry file)
     {
@@ -46,8 +46,8 @@ internal class AddResource : IDelta
 
 internal class RemoveResource : IDelta
 {
-    private string _name;
-    private FilePath _assetKey;
+    private readonly string _name;
+    private readonly FilePath _assetKey;
 
     public RemoveResource(string name, FilePath assetKey)
     {
@@ -74,15 +74,15 @@ internal class RemoveResource : IDelta
 
 internal class UpdateResource : IDelta
 {
-    private string _name;
-    private FileEntry _file; // null if no contents. 
-    private ResourceJson _resource;
-    private FilePath _assetKey; // needed for deletion (in case file is missing)
+    private readonly string _name;
+    private readonly FileEntry _file; // null if no contents. 
+    private readonly ResourceJson _resource;
+    private readonly FilePath _assetKey; // needed for deletion (in case file is missing)
 
     public UpdateResource(FilePath assetKey, ResourceJson resource, FileEntry file)
     {
         _name = resource.Name;
-        _file = file; 
+        _file = file;
         _assetKey = assetKey;
         _resource = resource;
 

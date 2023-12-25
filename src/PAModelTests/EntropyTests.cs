@@ -29,11 +29,11 @@ public class EntropyTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             // Also tests repacking, errors captured if any
-            ErrorContainer errorSources = msapp.SaveToSources(outSrcDir);
+            var errorSources = msapp.SaveToSources(outSrcDir);
             errorSources.ThrowOnErrors();
         }
     }

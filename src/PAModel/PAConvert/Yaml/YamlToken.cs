@@ -10,8 +10,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 internal class YamlToken
 {
-    internal static YamlToken EndObj = new YamlToken { Kind = YamlTokenKind.EndObj };
-    internal static YamlToken EndOfFile = new YamlToken { Kind = YamlTokenKind.EndOfFile };
+    internal static YamlToken EndObj = new() { Kind = YamlTokenKind.EndObj };
+    internal static YamlToken EndOfFile = new() { Kind = YamlTokenKind.EndOfFile };
 
     public YamlTokenKind Kind { get; set; }
 

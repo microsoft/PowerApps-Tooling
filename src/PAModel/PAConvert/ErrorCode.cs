@@ -56,7 +56,7 @@ internal enum ErrorCode
     UnpackValidationFailed = 3011,
 
     // Bad parameter (such as a missing file)
-    BadParameter = 3012, 
+    BadParameter = 3012,
 
     // JSON Property's Value was Changed, Doesn't Match
     JSONValueChanged = 3013,
@@ -85,22 +85,22 @@ internal static class ErrorCodeExtensions
 
     public static void ChecksumMismatch(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.ChecksumMismatch, default(SourceLocation), $"Checksum mismatch. {message}");
+        errors.AddError(ErrorCode.ChecksumMismatch, default, $"Checksum mismatch. {message}");
     }
 
     public static void ValidationWarning(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.ValidationWarning, default(SourceLocation), $"Validation issue: {message}");
+        errors.AddError(ErrorCode.ValidationWarning, default, $"Validation issue: {message}");
     }
 
     public static void ValidationWarning(this ErrorContainer errors, SourceLocation span, string message)
     {
         errors.AddError(ErrorCode.ValidationWarning, span, $"Validation issue {message}");
-    }    
+    }
 
     public static void PostUnpackValidationFailed(this ErrorContainer errors)
     {
-        errors.AddError(ErrorCode.UnpackValidationFailed, default(SourceLocation), "Roundtrip validation on unpack failed. \nYou have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered.\nPlease open an issue and log the entirety of this error log at https://github.com/microsoft/PowerApps-Language-Tooling\n");
+        errors.AddError(ErrorCode.UnpackValidationFailed, default, "Roundtrip validation on unpack failed. \nYou have found a bug; this is not a specific bug, rather an indicator that some bug has been encountered.\nPlease open an issue and log the entirety of this error log at https://github.com/microsoft/PowerApps-Language-Tooling\n");
     }
 
     public static void YamlWontRoundTrip(this ErrorContainer errors, SourceLocation loc, string message)
@@ -110,27 +110,27 @@ internal static class ErrorCodeExtensions
 
     public static void GenericWarning(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.GenericWarning, default(SourceLocation), message);
+        errors.AddError(ErrorCode.GenericWarning, default, message);
     }
 
     public static void FormatNotSupported(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.FormatNotSupported, default(SourceLocation), $"Format is not supported. {message}");
+        errors.AddError(ErrorCode.FormatNotSupported, default, $"Format is not supported. {message}");
     }
 
     public static void GenericError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.Generic, default(SourceLocation), message);
+        errors.AddError(ErrorCode.Generic, default, message);
     }
 
     public static void InternalError(this ErrorContainer errors, Exception e)
     {
-        errors.AddError(ErrorCode.InternalError, default(SourceLocation), $"Internal error. {e.Message}\r\nStack Trace:\r\n{e.StackTrace}");
+        errors.AddError(ErrorCode.InternalError, default, $"Internal error. {e.Message}\r\nStack Trace:\r\n{e.StackTrace}");
     }
 
     public static void UnsupportedOperationError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.UnsupportedUseStudio, default(SourceLocation), $"Unsupported operation error. {message}");
+        errors.AddError(ErrorCode.UnsupportedUseStudio, default, $"Unsupported operation error. {message}");
     }
 
     public static void EditorStateError(this ErrorContainer errors, SourceLocation loc, string message)
@@ -140,7 +140,7 @@ internal static class ErrorCodeExtensions
 
     public static void GenericMsAppError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.MsAppError, default(SourceLocation), $"MsApp is corrupted. {message}");
+        errors.AddError(ErrorCode.MsAppError, default, $"MsApp is corrupted. {message}");
     }
 
     public static void DuplicateSymbolError(this ErrorContainer errors, SourceLocation loc, string message, SourceLocation loc2)
@@ -155,7 +155,7 @@ internal static class ErrorCodeExtensions
 
     public static void ValidationError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.ValidationError, default(SourceLocation), $"Validation error: {message}");
+        errors.AddError(ErrorCode.ValidationError, default, $"Validation error: {message}");
     }
 
     public static void ValidationError(this ErrorContainer errors, SourceLocation span, string message)
@@ -165,30 +165,30 @@ internal static class ErrorCodeExtensions
 
     public static void MsAppFormatError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.CantReadMsApp, default(SourceLocation), $"MsApp is corrupted: {message}");
+        errors.AddError(ErrorCode.CantReadMsApp, default, $"MsApp is corrupted: {message}");
     }
 
     public static void JSONValueChanged(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.JSONValueChanged, default(SourceLocation), $"Property Value Changed: {message}");
+        errors.AddError(ErrorCode.JSONValueChanged, default, $"Property Value Changed: {message}");
     }
 
     public static void JSONPropertyAdded(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.JSONPropertyAdded, default(SourceLocation), $"Property Added: {message}");
+        errors.AddError(ErrorCode.JSONPropertyAdded, default, $"Property Added: {message}");
     }
 
     public static void JSONPropertyRemoved(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.JSONPropertyRemoved, default(SourceLocation), $"Property Removed: {message}");
+        errors.AddError(ErrorCode.JSONPropertyRemoved, default, $"Property Removed: {message}");
     }
     public static void UnsupportedError(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.UnsupportedError, default(SourceLocation), $"Not Supported: {message}");
+        errors.AddError(ErrorCode.UnsupportedError, default, $"Not Supported: {message}");
     }
 
     public static void BadParameter(this ErrorContainer errors, string message)
     {
-        errors.AddError(ErrorCode.BadParameter, default(SourceLocation), $"Bad parameter: {message}");
+        errors.AddError(ErrorCode.BadParameter, default, $"Bad parameter: {message}");
     }
 }

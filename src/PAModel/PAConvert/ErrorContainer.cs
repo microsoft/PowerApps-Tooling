@@ -14,12 +14,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 /// </summary>
 public class ErrorContainer : IEnumerable<Error>
 {
-    private List<Error> _errors = new List<Error>();
-            
+    private readonly List<Error> _errors = new();
+
     internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
     {
         _errors.Add(new Error(code, span, errorMessage));
-    }        
+    }
 
     public bool HasErrors => _errors.Any(error => error.IsError);
 
@@ -29,7 +29,7 @@ public class ErrorContainer : IEnumerable<Error>
     // Ignores warnings. 
     internal void ThrowOnErrors()
     {
-        if (this.HasErrors)
+        if (HasErrors)
         {
             throw new DocumentException();
         }
@@ -37,24 +37,24 @@ public class ErrorContainer : IEnumerable<Error>
 
     public IEnumerator<Error> GetEnumerator()
     {
-        return this._errors.GetEnumerator();
+        return _errors.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        IEnumerable inner = this._errors;
+        IEnumerable inner = _errors;
         return inner.GetEnumerator();
     }
 
     // Helper for writing out errors.
     public void Write(TextWriter output)
     {
-        int countWarnings = 0;
-        int countErrors = 0;
+        var countWarnings = 0;
+        var countErrors = 0;
 
         foreach (var error in this)
         {
-            if (error.IsError) { countErrors++; } else { countWarnings++;  }
+            if (error.IsError) { countErrors++; } else { countWarnings++; }
             output.WriteLine(error);
         }
 
@@ -66,7 +66,7 @@ public class ErrorContainer : IEnumerable<Error>
 
     public override string ToString()
     {
-        StringWriter s = new StringWriter();
+        var s = new StringWriter();
         Write(s);
         return s.ToString();
     }

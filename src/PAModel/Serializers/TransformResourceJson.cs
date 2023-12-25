@@ -14,16 +14,16 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 // The information for the LocalFile resources can be emitted since this information can be dynamically generated, based on the files present in Assets directory.
 internal static class TransformResourceJson
 {
-    public static Regex ImageExtensionRegEx = new Regex(".*\\.(?i)(gif|jpg|png|bmp|jpeg|tiff|tif|svg)$", RegexOptions.IgnoreCase);
+    public static Regex ImageExtensionRegEx = new(".*\\.(?i)(gif|jpg|png|bmp|jpeg|tiff|tif|svg)$", RegexOptions.IgnoreCase);
 
     // Media Extension is a union of audio and video extensions we support.
-    public static Regex MediaExtensionRegEx = new Regex(".*\\.(?i)(mp3|wav|wma|mp4|wmv)$", RegexOptions.IgnoreCase);
+    public static Regex MediaExtensionRegEx = new(".*\\.(?i)(mp3|wav|wma|mp4|wmv)$", RegexOptions.IgnoreCase);
 
-    public static Regex AudioExtensionRegEx = new Regex(".*\\.(?i)(mp3|wav|wma)$", RegexOptions.IgnoreCase);
+    public static Regex AudioExtensionRegEx = new(".*\\.(?i)(mp3|wav|wma)$", RegexOptions.IgnoreCase);
 
-    public static Regex VideoExtensionRegEx = new Regex(".*\\.(?i)(mp4|wmv)$", RegexOptions.IgnoreCase);
+    public static Regex VideoExtensionRegEx = new(".*\\.(?i)(mp4|wmv)$", RegexOptions.IgnoreCase);
 
-    public static Regex PdfExtensionRegEx = new Regex(".*\\.(?i)(pdf)$", RegexOptions.IgnoreCase);
+    public static Regex PdfExtensionRegEx = new(".*\\.(?i)(pdf)$", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Persists the original order of resources in Resources.json in Entropy.
@@ -136,6 +136,6 @@ internal static class TransformResourceJson
     private static bool IsLogoFile(FilePath path, CanvasDocument app)
     {
         var logoFileName = app._logoFile?.Name?.GetFileName();
-        return string.IsNullOrEmpty(logoFileName) ? false : path.Equals(new FilePath(logoFileName));
+        return !string.IsNullOrEmpty(logoFileName) && path.Equals(new FilePath(logoFileName));
     }
 }

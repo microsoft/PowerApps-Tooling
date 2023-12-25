@@ -10,8 +10,8 @@ internal class ComponentInstanceTransform : IControlTemplateTransform
     // Key is name in source, value is name in target
     // For AfterRead, that's ComponentID => ComponentName
     // For BeforeWrite, that's ComponentName => ComponentID
-    internal Dictionary<string, string> ComponentRenames = new Dictionary<string, string>();
-    private ErrorContainer _errors;
+    internal Dictionary<string, string> ComponentRenames = new();
+    private readonly ErrorContainer _errors;
 
     public ComponentInstanceTransform(ErrorContainer errors)
     {

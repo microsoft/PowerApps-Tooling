@@ -76,19 +76,19 @@ public class NameCollisionTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Create a list of screens expected to be seen in the output
-            List<string> expectedScreens = msapp._screens.Keys.ToList();
+            var expectedScreens = msapp._screens.Keys.ToList();
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
 
             // Look for the expected screens in the YAML files
-            string srcPath = Path.Combine(outSrcDir, "Src");
-            foreach (string yamlFile in Directory.GetFiles(srcPath, "*.fx.yaml", SearchOption.TopDirectoryOnly))
+            var srcPath = Path.Combine(outSrcDir, "Src");
+            foreach (var yamlFile in Directory.GetFiles(srcPath, "*.fx.yaml", SearchOption.TopDirectoryOnly))
             {
-                string fileName = Path.GetFileName(yamlFile).Replace(".fx.yaml", string.Empty);
+                var fileName = Path.GetFileName(yamlFile).Replace(".fx.yaml", string.Empty);
 
                 // Check for an exact match between the screen name and the file.
                 if (expectedScreens.Contains(fileName))
@@ -112,7 +112,7 @@ public class NameCollisionTests
             }
 
             // There should be no expected files that were not found
-            Assert.AreEqual<int>(expectedScreens.Count, 0, $"{expectedScreens.Count} screens not found in Src directory.");
+            Assert.AreEqual(expectedScreens.Count, 0, $"{expectedScreens.Count} screens not found in Src directory.");
         }
     }
 
@@ -130,10 +130,10 @@ public class NameCollisionTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Create a list of expected controles with an EditorState file
-            List<string> expectedControlsWithEditorState = new List<string>();
+            var expectedControlsWithEditorState = new List<string>();
             expectedControlsWithEditorState.AddRange(msapp._screens.Keys);
             expectedControlsWithEditorState.AddRange(msapp._components.Keys);
 
@@ -141,10 +141,10 @@ public class NameCollisionTests
             msapp.SaveToSources(outSrcDir);
 
             // Look for the expected controls in the EditorState files
-            string srcPath = Path.Combine(outSrcDir, "Src", "EditorState");
-            foreach (string editorStateFile in Directory.GetFiles(srcPath, "*.editorstate.json", SearchOption.TopDirectoryOnly))
+            var srcPath = Path.Combine(outSrcDir, "Src", "EditorState");
+            foreach (var editorStateFile in Directory.GetFiles(srcPath, "*.editorstate.json", SearchOption.TopDirectoryOnly))
             {
-                string fileName = Path.GetFileName(editorStateFile).Replace(".editorstate.json", string.Empty);
+                var fileName = Path.GetFileName(editorStateFile).Replace(".editorstate.json", string.Empty);
 
                 // Check for an exact match between the control and the file.
                 if (expectedControlsWithEditorState.Contains(fileName))
@@ -168,7 +168,7 @@ public class NameCollisionTests
             }
 
             // There should be no expected files that were not found
-            Assert.AreEqual<int>(expectedControlsWithEditorState.Count, 0, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
+            Assert.AreEqual(expectedControlsWithEditorState.Count, 0, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
         }
     }
 
@@ -179,7 +179,7 @@ public class NameCollisionTests
 
         var resource1 = new ResourceJson()
         {
-            Name = "Image", 
+            Name = "Image",
             Path = "Assets\\Images\\Image.png",
             FileName = "Image.png",
             ResourceKind = ResourceKind.LocalFile,
@@ -190,7 +190,7 @@ public class NameCollisionTests
         // Adding another resource pointing to the same path
         var resource2 = new ResourceJson()
         {
-            Name = "Image2", 
+            Name = "Image2",
             Path = "Assets\\Images\\Image.png",
             FileName = "Image.png",
             ResourceKind = ResourceKind.LocalFile,
@@ -218,7 +218,7 @@ public class NameCollisionTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
             msapp.SaveToSources(outSrcDir);
         }
 
@@ -231,15 +231,17 @@ public class NameCollisionTests
         var doc = new CanvasDocument();
         var resource1 = new ResourceJson()
         {
-            Name = "0012", 
+            Name = "0012",
             Path = "Assets\\Images\\0002.png",
             FileName = "0002.png",
             ResourceKind = ResourceKind.LocalFile,
             Content = ContentKind.Image,
         };
 
-        FileEntry f1 = new FileEntry();
-        f1.Name = new FilePath("Images", "0002.png");
+        var f1 = new FileEntry
+        {
+            Name = new FilePath("Images", "0002.png")
+        };
 
         // First Asset file
         doc._assetFiles.Add(new FilePath("Images", "0002.png"), f1);
@@ -253,8 +255,10 @@ public class NameCollisionTests
             Content = ContentKind.Image,
         };
 
-        FileEntry f2 = new FileEntry();
-        f2.Name = new FilePath("Images", "0012.png");
+        var f2 = new FileEntry
+        {
+            Name = new FilePath("Images", "0012.png")
+        };
 
         // Second Asset file
         doc._assetFiles.Add(new FilePath("Images", "0012.png"), f2);
@@ -263,7 +267,7 @@ public class NameCollisionTests
 
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
-                  
+
         Assert.AreEqual(doc._assetFiles.Count(), 2);
     }
 }

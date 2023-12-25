@@ -19,7 +19,7 @@ internal class ComponentDefinitionTransform
 {
     private readonly TemplateStore _templateStore;
     private readonly ComponentInstanceTransform _componentInstanceTransform;
-    private ErrorContainer _errors;
+    private readonly ErrorContainer _errors;
 
     public ComponentDefinitionTransform(ErrorContainer errors, TemplateStore templateStore, ComponentInstanceTransform componentInstanceTransform)
     {
@@ -57,7 +57,7 @@ internal class ComponentDefinitionTransform
 
         _componentInstanceTransform.ComponentRenames.Add(templateName, controlName);
         control.Name.Kind.TypeName = kindName;
-    }                  
+    }
 
 
     public void BeforeWrite(BlockNode control)
@@ -65,7 +65,7 @@ internal class ComponentDefinitionTransform
         var controlName = control.Name.Identifier;
         var templateName = control.Name?.Kind?.TypeName ?? string.Empty;
 
-        if (!Enum.TryParse<ComponentType>(templateName, out _)) 
+        if (!Enum.TryParse<ComponentType>(templateName, out _))
         {
             return;
         }

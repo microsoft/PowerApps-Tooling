@@ -15,14 +15,14 @@ internal class JsonNormalizer
 {
     public static string Normalize(string jsonStr)
     {
-        JsonElement je = JsonDocument.Parse(jsonStr).RootElement;
+        var je = JsonDocument.Parse(jsonStr).RootElement;
         return Normalize(je);
     }
 
     public static string Normalize(JsonElement je)
     {
         var ms = new MemoryStream();
-        JsonWriterOptions opts = new JsonWriterOptions
+        var opts = new JsonWriterOptions
         {
             Indented = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
@@ -44,7 +44,7 @@ internal class JsonNormalizer
             case JsonValueKind.Object:
                 writer.WriteStartObject();
 
-                foreach (JsonProperty x in je.EnumerateObject().OrderBy(prop => prop.Name))
+                foreach (var x in je.EnumerateObject().OrderBy(prop => prop.Name))
                 {
                     writer.WritePropertyName(x.Name);
                     Write(x.Value, writer);
@@ -53,10 +53,10 @@ internal class JsonNormalizer
                 writer.WriteEndObject();
                 break;
 
-                // When normalizing... original msapp arrays can be in any order...
+            // When normalizing... original msapp arrays can be in any order...
             case JsonValueKind.Array:
                 writer.WriteStartArray();
-                foreach (JsonElement x in je.EnumerateArray())
+                foreach (var x in je.EnumerateArray())
                 {
                     Write(x, writer);
                 }
@@ -75,18 +75,18 @@ internal class JsonNormalizer
             case JsonValueKind.Null:
                 writer.WriteNullValue();
                 break;
-                
+
             case JsonValueKind.True:
                 writer.WriteBooleanValue(true);
                 break;
 
             case JsonValueKind.False:
                 writer.WriteBooleanValue(false);
-                break;                
+                break;
 
             default:
                 throw new NotImplementedException($"Kind: {je.ValueKind}");
 
         }
     }
-}    
+}

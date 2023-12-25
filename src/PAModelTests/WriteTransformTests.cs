@@ -78,7 +78,7 @@ public class WriteTransformTests
 
         msapp.ApplyBeforeMsAppWriteTransforms(errors);
         Assert.IsTrue(errors.HasErrors);
-        Assert.IsNotNull(errors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
+        Assert.IsNotNull(errors.FirstOrDefault(error => error.Code == ErrorCode.InternalError));
     }
 
     [DataTestMethod]
@@ -105,6 +105,6 @@ public class WriteTransformTests
         var saveToMsAppErrors = loadedMsApp.SaveToMsApp(tempFile.FullPath);
 
         Assert.IsTrue(saveToMsAppErrors.HasErrors);
-        Assert.IsNotNull(saveToMsAppErrors.Where(error => error.Code == ErrorCode.InternalError).FirstOrDefault());
+        Assert.IsNotNull(saveToMsAppErrors.FirstOrDefault(error => error.Code == ErrorCode.InternalError));
     }
 }

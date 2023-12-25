@@ -12,7 +12,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 public class YamlPocoDeserializer : IDisposable
 {
-    YamlLexer _yamlLexer;
+    private YamlLexer _yamlLexer;
     private bool _isDisposed;
 
     public YamlPocoDeserializer()

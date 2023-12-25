@@ -11,7 +11,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 
 internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 {
-    private List<IDelta> _deltas;
+    private readonly List<IDelta> _deltas;
     private readonly EditorStateStore _childStateStore;
     private readonly TemplateStore _parentTemplateStore;
     private readonly TemplateStore _childTemplateStore;
@@ -49,7 +49,7 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 
     public override void Visit(BlockNode node, ControlDiffContext context)
     {
-        if (!(context.Theirs is BlockNode theirs))
+        if (context.Theirs is not BlockNode theirs)
             return;
 
         if (node.Name.Kind.TypeName != theirs.Name.Kind.TypeName)
@@ -149,7 +149,7 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 
     public override void Visit(PropertyNode node, ControlDiffContext context)
     {
-        if (!(context.Theirs is PropertyNode theirs))
+        if (context.Theirs is not PropertyNode theirs)
             return;
 
         var currentControlKind = context.Path.Current;
@@ -165,7 +165,7 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 
     public override void Visit(FunctionNode node, ControlDiffContext context)
     {
-        if (!(context.Theirs is FunctionNode theirs))
+        if (context.Theirs is not FunctionNode theirs)
             return;
 
         var currentControlKind = context.Path.Current;

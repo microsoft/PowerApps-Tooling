@@ -23,19 +23,22 @@ public class Error
         Code = code;
     }
 
-    public bool IsError => this.Code.IsError();
+    public bool IsError => Code.IsError();
     public bool IsWarning => !IsError;
 
     public override string ToString()
     {
-        StringBuilder sb = new StringBuilder();
-        if (this.IsError) {
+        var sb = new StringBuilder();
+        if (IsError)
+        {
             sb.Append("Error   ");
-        } else {
+        }
+        else
+        {
             sb.Append("Warning ");
         }
         sb.Append($"PA{(int)Code}: ");
-        sb.Append(this.Message);
+        sb.Append(Message);
 
         return sb.ToString();
     }

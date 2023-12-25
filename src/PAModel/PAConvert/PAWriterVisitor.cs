@@ -16,16 +16,16 @@ internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
     internal class Context
     {
         public YamlWriter _yaml;
-        public StringBuilder _sb = new StringBuilder();
+        public StringBuilder _sb = new();
     }
 
     public PAWriterVisitor() { }
 
     public static string PrettyPrint(IRNode node)
     {
-        StringWriter sw = new StringWriter();
+        var sw = new StringWriter();
         var yaml = new YamlWriter(sw);
-        PAWriterVisitor pretty = new PAWriterVisitor();
+        var pretty = new PAWriterVisitor();
 
         var context = new Context
         {
@@ -62,7 +62,7 @@ internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
             child.Accept(this, context);
         }
 
-        context._yaml.WriteEndObject();            
+        context._yaml.WriteEndObject();
     }
 
     // Use the ZIndex property of each control to order it with respect to it's parent
@@ -94,7 +94,7 @@ internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
         {
             context._sb.Append(".");
             context._sb.Append(CharacterUtils.EscapeName(node.OptionalVariant));
-        }            
+        }
     }
 
     public override void Visit(PropertyNode node, Context context)

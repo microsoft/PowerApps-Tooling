@@ -55,7 +55,7 @@ internal class CombinedTemplateState
 
     public CombinedTemplateState() { }
 
-    public CombinedTemplateState(ControlInfoJson.Template template)
+    public CombinedTemplateState(Template template)
     {
         Id = template.Id;
         Name = template.Name;
@@ -74,9 +74,9 @@ internal class CombinedTemplateState
             IsPcfControl = template.Id.StartsWith(Template.PcfControl);
     }
 
-    public ControlInfoJson.Template ToControlInfoTemplate()
+    public Template ToControlInfoTemplate()
     {
-        return new ControlInfoJson.Template()
+        return new Template()
         {
             Id = Id,
             Name = Name,

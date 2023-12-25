@@ -10,10 +10,7 @@ internal class AddConnection : IDelta
 
     public void Apply(CanvasDocument document)
     {
-        if (document._connections == null)
-        {
-            document._connections = new Dictionary<string, ConnectionJson>(StringComparer.Ordinal);
-        }
+        document._connections ??= new Dictionary<string, ConnectionJson>(StringComparer.Ordinal);
 
         if (document._connections.ContainsKey(Name))
             return;

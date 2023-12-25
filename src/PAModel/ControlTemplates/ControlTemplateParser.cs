@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 
 internal class ControlTemplateParser
 {
-    internal static Regex _reservedIdentifierRegex = new Regex(@"%([a-zA-Z]*)\.RESERVED%");
+    internal static Regex _reservedIdentifierRegex = new(@"%([a-zA-Z]*)\.RESERVED%");
 
     internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
     {
@@ -161,7 +161,7 @@ internal class ControlTemplateParser
         if (formatAttribute != null)
             format = formatAttribute.Value;
 
-        bool isExpr = false;
+        var isExpr = false;
         var exprAttrib = property.Attribute(ControlMetadataXNames.IsExprAttribute);
         if (exprAttrib != null)
             bool.TryParse(exprAttrib.Value, out isExpr);
@@ -209,7 +209,7 @@ internal class ControlTemplateParser
     // Some default rules like Label.Text are references into localization files
     // Studio replaces them at design-time with the text from the author's current locale.
     // We can't do that here, so we ignore localizationkey default rules when processing defaults
-    private static readonly Regex _localizationRegex = new Regex("##(\\w+?)##");
+    private static readonly Regex _localizationRegex = new("##(\\w+?)##");
     internal static bool IsLocalizationKey(string rule)
     {
         return _localizationRegex.IsMatch(rule);

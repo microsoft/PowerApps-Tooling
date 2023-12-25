@@ -29,19 +29,19 @@ public class EditorStateTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
 
             // Go find the source file for the editor state
-            string filename = $"{topParentName}{EditorStateFileExtension}";
-            string fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
+            var filename = $"{topParentName}{EditorStateFileExtension}";
+            var fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
             if (File.Exists(fullFilePath))
             {
                 // Get the file for the specific control we're looking for
-                DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                ControlTreeState editorState = file.ToObject<ControlTreeState>();
+                var file = new DirectoryReader.Entry(fullFilePath);
+                var editorState = file.ToObject<ControlTreeState>();
 
                 // Check that the IsTopParent was set correctly
                 Assert.AreEqual(topParentName, editorState.TopParentName);
@@ -70,24 +70,24 @@ public class EditorStateTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
 
             // Go find the source file for the editor state
-            string filename = $"{topParentName}.editorstate.json";
-            string fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
+            var filename = $"{topParentName}.editorstate.json";
+            var fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
             if (File.Exists(fullFilePath))
             {
                 // Get the file for the specific control we're looking for
-                DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                ControlTreeState editorState = file.ToObject<ControlTreeState>();
+                var file = new DirectoryReader.Entry(fullFilePath);
+                var editorState = file.ToObject<ControlTreeState>();
 
                 // Rename the file so we know that the file name itself wasn't
                 // used but rather than correct control name.
-                string newFileName = Guid.NewGuid().ToString();
-                string newFilePath = Path.Combine(outSrcDir, "Src", "EditorState", $"{newFileName}{EditorStateFileExtension}");
+                var newFileName = Guid.NewGuid().ToString();
+                var newFilePath = Path.Combine(outSrcDir, "Src", "EditorState", $"{newFileName}{EditorStateFileExtension}");
 
                 File.Move(fullFilePath, newFilePath);
 
@@ -97,7 +97,7 @@ public class EditorStateTests
                 // Find the relevant controls and check their top parent name
                 foreach (var control in editorState.ControlStates)
                 {
-                    app._editorStateStore.TryGetControlState(control.Value.Name, out ControlState state);
+                    app._editorStateStore.TryGetControlState(control.Value.Name, out var state);
                     Assert.AreEqual(topParentName, state.TopParentName);
                 }
             }
@@ -131,26 +131,26 @@ public class EditorStateTests
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
 
             // Go find the source file for the editor state
-            string filename = $"{topParentName}.editorstate.json";
-            string fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
+            var filename = $"{topParentName}.editorstate.json";
+            var fullFilePath = Path.Combine(outSrcDir, "Src", "EditorState", filename);
             if (File.Exists(fullFilePath))
             {
                 // Get the file for the specific control we're looking for
-                DirectoryReader.Entry file = new DirectoryReader.Entry(fullFilePath);
-                ControlTreeState editorState = file.ToObject<ControlTreeState>();
+                var file = new DirectoryReader.Entry(fullFilePath);
+                var editorState = file.ToObject<ControlTreeState>();
 
                 // Rename the file so we know that the file name itself is used.
-                string newFileName = Guid.NewGuid().ToString();
-                string newFilePath = Path.Combine(outSrcDir, "Src", "EditorState");
+                var newFileName = Guid.NewGuid().ToString();
+                var newFilePath = Path.Combine(outSrcDir, "Src", "EditorState");
 
                 // Write out only the dictionary to the file, which is the older format.
-                DirectoryWriter dir = new DirectoryWriter(newFilePath);
+                var dir = new DirectoryWriter(newFilePath);
                 dir.WriteAllJson(newFilePath, $"{newFileName}{EditorStateFileExtension}", editorState.ControlStates);
 
                 // Remove the old file, we only want the re-written and re-named file
@@ -162,7 +162,7 @@ public class EditorStateTests
                 // Find the relevant controls and check their top parent name
                 foreach (var control in editorState.ControlStates)
                 {
-                    app._editorStateStore.TryGetControlState(control.Value.Name, out ControlState state);
+                    app._editorStateStore.TryGetControlState(control.Value.Name, out var state);
                     Assert.AreEqual(newFileName, state.TopParentName);
                 }
             }

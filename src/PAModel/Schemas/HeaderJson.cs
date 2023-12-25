@@ -18,12 +18,14 @@ internal class HeaderJson
 
     public static HeaderJson CreateDefault()
     {
-        var defaultHeader = new HeaderJson();
-        // combine doc/min versions, they aren't used separately anymore
-        defaultHeader.DocVersion = new Version("1.294");
-        defaultHeader.MinVersionToLoad = new Version("1.294");
+        var defaultHeader = new HeaderJson
+        {
+            // combine doc/min versions, they aren't used separately anymore
+            DocVersion = new Version("1.294"),
+            MinVersionToLoad = new Version("1.294"),
 
-        defaultHeader.MSAppStructureVersion = new Version("2.0");
+            MSAppStructureVersion = new Version("2.0")
+        };
 
         return defaultHeader;
     }

@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.Contracts;
+using System.Linq;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 using Microsoft.PowerPlatform.Formulas.Tools.Utility;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Reflection;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 
@@ -67,13 +66,13 @@ internal static class Diff
             }
         }
     }
-      
+
     // Look for change from res1 (before) to res2 (after).
     // Return null if same. Else return an update object if different. 
     private static UpdateResource TryGetResourceUpdateDelta(Schemas.ResourceJson res1, Schemas.ResourceJson res2, CanvasDocument doc1, CanvasDocument doc2)
     {
         // check the many individual flags. 
-        bool diffFlags = Schemas.ResourceJson.ResourcesMayBeDifferent(res1, res2);
+        var diffFlags = Schemas.ResourceJson.ResourcesMayBeDifferent(res1, res2);
 
         // Check actual contents. Ie, in case an image has been replaced.
         var path = res1.GetPath();
@@ -98,7 +97,7 @@ internal static class Diff
         }
 
         if (diffFlags || diffContent)
-        {                
+        {
             return new UpdateResource(path, res2, file2);
         }
 
@@ -118,9 +117,9 @@ internal static class Diff
                 {
                     deltas.Add(changed);
                 }
-                
+
                 // Same resource in parent and child - no change. 
-                childResourcesDict.Remove(resource.Name);                    
+                childResourcesDict.Remove(resource.Name);
             }
             else
             {
@@ -170,14 +169,14 @@ internal static class Diff
 
     private static void AddConnectionDeltas(CanvasDocument parent, CanvasDocument child, List<IDelta> deltas)
     {
-        foreach (var connection in (child._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>()))
+        foreach (var connection in child._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>())
         {
             if (!parent._connections.ContainsKey(connection.Key))
                 deltas.Add(new AddConnection() { Name = connection.Key, Contents = connection.Value });
         }
 
 
-        foreach (var connection in (parent._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>()))
+        foreach (var connection in parent._connections ?? Enumerable.Empty<KeyValuePair<string, ConnectionJson>>())
         {
             if (!child._connections.ContainsKey(connection.Key))
                 deltas.Add(new RemoveConnection() { Name = connection.Key });
@@ -191,7 +190,7 @@ internal static class Diff
         var childProps = child._properties;
 
         var properties = typeof(DocumentPropertiesJson).GetProperties();
-        foreach (PropertyInfo pi in properties)
+        foreach (var pi in properties)
         {
             var propName = pi.Name;
             // Diff ExtensionData separately
@@ -212,7 +211,7 @@ internal static class Diff
             {
                 areEqual = parentValue != null &&
                             childValue != null &&
-                            Enumerable.SequenceEqual<object>(parentValue as object[], childValue as object[]);
+                            Enumerable.SequenceEqual(parentValue as object[], childValue as object[]);
             }
             else
             {

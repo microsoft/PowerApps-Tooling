@@ -49,5 +49,5 @@ internal class EditorStateStore
         return _controls.Values.Where(ctrl => ctrl.TopParentName == topParent);
     }
 
-    public IEnumerable<ControlState> Contents { get { return _controls.Values; } }
+    public IEnumerable<ControlState> Contents => _controls.Values;
 }

@@ -9,10 +9,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class AddControl : IDelta
 {
-    private bool _isInComponent;
-    private ControlPath _parentControlPath;
-    private BlockNode _control;
-    private Dictionary<string, ControlState> _controlStates;
+    private readonly bool _isInComponent;
+    private readonly ControlPath _parentControlPath;
+    private readonly BlockNode _control;
+    private readonly Dictionary<string, ControlState> _controlStates;
 
     public string ControlName => _control.Name.Identifier;
 

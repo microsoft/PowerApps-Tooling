@@ -66,7 +66,7 @@ internal class ResourceJson
 
     public FilePath GetPath()
     {
-        var resourceName = this.Path.Substring("Assets\\".Length);
+        var resourceName = Path.Substring("Assets\\".Length);
         var path = FilePath.FromMsAppPath(resourceName);
         return path;
     }
@@ -94,7 +94,6 @@ internal class ResourceJson
             return true;
 
         // Ignore volatile fields like RootPath
-        
         return false;
     }
 }

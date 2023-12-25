@@ -14,16 +14,16 @@ internal class TempFile : IDisposable
 
     public TempFile()
     {
-        this.FullPath = Path.GetTempFileName() + ".msapp";
+        FullPath = Path.GetTempFileName() + ".msapp";
     }
 
     public void Dispose()
     {
-        if (this.FullPath != null && File.Exists(this.FullPath))
+        if (FullPath != null && File.Exists(FullPath))
         {
-            File.Delete(this.FullPath);
+            File.Delete(FullPath);
         }
-        this.FullPath = null;
+        FullPath = null;
     }
 }
 
@@ -36,15 +36,15 @@ internal class TempDir : IDisposable
 
     public TempDir()
     {
-        this.Dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
     }
 
     public void Dispose()
     {
-        if (this.Dir != null && Directory.Exists(this.Dir))
+        if (Dir != null && Directory.Exists(Dir))
         {
-            Directory.Delete(this.Dir, recursive: true);
+            Directory.Delete(Dir, recursive: true);
         }
-        this.Dir = null;
+        Dir = null;
     }
 }

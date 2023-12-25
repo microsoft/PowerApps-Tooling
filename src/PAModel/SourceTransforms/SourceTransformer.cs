@@ -36,7 +36,7 @@ internal class SourceTransformer
 
         _groupControlTransform = new GroupControlTransform(errors, stateStore, entropy);
 
-        _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);            
+        _defaultValTransform = new DefaultValuesTransform(defaultValueTemplates, theme, stateStore);
     }
 
     public void ApplyAfterRead(BlockNode control, bool inResponsiveContext = false)

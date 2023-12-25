@@ -12,12 +12,12 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers;
 // read and write so that we roundtrip. 
 internal class DefaultRuleHelper
 {
-    private ControlTemplate _template;
-    private string _templateName;
-    private string _variantName;
-    private Theme _theme;
-    private string _styleName;
-    private bool _inResponsiveContext;
+    private readonly ControlTemplate _template;
+    private readonly string _templateName;
+    private readonly string _variantName;
+    private readonly Theme _theme;
+    private readonly string _styleName;
+    private readonly bool _inResponsiveContext;
 
     public DefaultRuleHelper(
         string styleName,
@@ -68,7 +68,7 @@ internal class DefaultRuleHelper
         }
 
         defaultScript = null;
-        return false;            
+        return false;
     }
 
     // Used on reading from source. Get full list of rules for this control. 

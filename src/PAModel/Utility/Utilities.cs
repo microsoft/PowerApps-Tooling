@@ -63,8 +63,7 @@ internal static class Utilities
     public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
         where TValue : new()
     {
-        TValue value;
-        if (dict.TryGetValue(key, out value))
+        if (dict.TryGetValue(key, out var value))
         {
             return value;
         }
@@ -74,8 +73,7 @@ internal static class Utilities
     public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
         where TValue : new()
     {
-        TValue value;
-        if (dict.TryGetValue(key, out value))
+        if (dict.TryGetValue(key, out var value))
         {
             return value;
         }
@@ -84,12 +82,13 @@ internal static class Utilities
         return value;
     }
 
-    static JsonSerializerOptions GetJsonOptions()
+    private static JsonSerializerOptions GetJsonOptions()
     {
-        var opts = new JsonSerializerOptions();
-
-        // encodes quote as \" rather than unicode.
-        opts.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        var opts = new JsonSerializerOptions
+        {
+            // encodes quote as \" rather than unicode.
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
 
         opts.Converters.Add(new JsonStringEnumConverter());
 
@@ -108,7 +107,7 @@ internal static class Utilities
 
     public static string JsonSerialize<T>(T obj)
     {
-        return JsonSerializer.Serialize<T>(obj, _jsonOpts);
+        return JsonSerializer.Serialize(obj, _jsonOpts);
     }
 
     public static T JsonParse<T>(string json)
@@ -140,7 +139,7 @@ internal static class Utilities
         {
             // Non-seekable stream.
             var buffer = new byte[e.Length];
-            int bytesRead = 0;
+            var bytesRead = 0;
 
             do
             {
@@ -184,15 +183,15 @@ internal static class Utilities
     {
         // First arg is always a path name, 2nd arg is always a directory.
         // directory is always a prefix.
-        Uri fromUri = new Uri(AppendDirectorySeparatorChar(relativeTo));
-        Uri toUri = new Uri(fullPathFile);
+        var fromUri = new Uri(AppendDirectorySeparatorChar(relativeTo));
+        var toUri = new Uri(fullPathFile);
 
         // path can't be made relative.
         if (fromUri.Scheme != toUri.Scheme)
             return fullPathFile;
 
-        Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-        string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+        var relativeUri = fromUri.MakeRelativeUri(toUri);
+        var relativePath = Uri.UnescapeDataString(relativeUri.ToString());
 
         if (toUri.Scheme.Equals(Uri.UriSchemeFile, StringComparison.InvariantCultureIgnoreCase))
         {
@@ -253,7 +252,7 @@ internal static class Utilities
             (ch >= '0' && ch <= '9') ||
             (ch >= 'a' && ch <= 'z') ||
             (ch >= 'A' && ch <= 'Z') ||
-            (ch == '[' || ch == ']') || // common in SQL connection names
+            ch == '[' || ch == ']' || // common in SQL connection names
             (ch == '_') ||
             (ch == '-') ||
             (ch == '~') ||
@@ -264,7 +263,7 @@ internal static class Utilities
     // For writing out to a director.
     public static string EscapeFilename(string path)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         foreach (var ch in path)
         {
             var x = (int)ch;
@@ -288,15 +287,15 @@ internal static class Utilities
     {
         if (ch >= '0' && ch <= '9')
         {
-            return ((int)ch) - '0';
+            return ch - '0';
         }
         if (ch >= 'a' && ch <= 'f')
         {
-            return (((int)ch) - 'a') + 10;
+            return ch - 'a' + 10;
         }
         if (ch >= 'A' && ch <= 'F')
         {
-            return (((int)ch) - 'A') + 10;
+            return ch - 'A' + 10;
         }
         throw new InvalidOperationException($"Unrecognized hex char {ch}");
     }
@@ -304,8 +303,8 @@ internal static class Utilities
     // Unescaped is backwards compat.
     public static string UnEscapeFilename(string path)
     {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < path.Length; i++)
+        var sb = new StringBuilder();
+        for (var i = 0; i < path.Length; i++)
         {
             var ch = path[i];
             if (ch == EscapeChar)
@@ -315,16 +314,16 @@ internal static class Utilities
                 if (path[i + 1] == EscapeChar)
                 {
                     i++;
-                    x = ToHex(path[i + 1]) * 16 * 16 * 16 +
-                        ToHex(path[i + 2]) * 16 * 16 +
-                        ToHex(path[i + 3]) * 16 +
+                    x = (ToHex(path[i + 1]) * 16 * 16 * 16) +
+                        (ToHex(path[i + 2]) * 16 * 16) +
+                        (ToHex(path[i + 3]) * 16) +
                         ToHex(path[i + 4]);
                     i += 4;
                 }
                 else
                 {
                     // 2 digit
-                    x = ToHex(path[i + 1]) * 16 +
+                    x = (ToHex(path[i + 1]) * 16) +
                         ToHex(path[i + 2]);
                     i += 2;
                 }
@@ -349,13 +348,15 @@ internal static class Utilities
         return "\"" + text.Replace("\"", "\"\"") + "\"";
     }
 
-    public static string FirstCharToUpper(this string input) =>
-    input switch
+    public static string FirstCharToUpper(this string input)
     {
-        null => throw new ArgumentNullException(nameof(input)),
-        "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
-        _ => input.First().ToString().ToUpper() + input.Substring(1)
-    };
+        return input switch
+        {
+            null => throw new ArgumentNullException(nameof(input)),
+            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+            _ => input.First().ToString().ToUpper() + input.Substring(1)
+        };
+    }
 
     public static void EnsurePathRooted(string path)
     {
@@ -413,7 +414,7 @@ internal static class Utilities
     /// <returns>Truncated string.</returns>
     private static string TruncateName(string name, int length)
     {
-        int removeTrailingCharsLength = name[length - 1] == EscapeChar ? 1 : (name[length - 2] == EscapeChar ? 2 : 0);
+        var removeTrailingCharsLength = name[length - 1] == EscapeChar ? 1 : (name[length - 2] == EscapeChar ? 2 : 0);
         return name.Substring(0, length - removeTrailingCharsLength);
     }
 
@@ -426,9 +427,9 @@ internal static class Utilities
     public static ulong GetHash(string str)
     {
         ulong hash = 5381;
-        foreach (char c in str)
+        foreach (var c in str)
         {
-            hash = ((hash << 5) + hash) + c;
+            hash = (hash << 5) + hash + c;
         }
 
         return hash;

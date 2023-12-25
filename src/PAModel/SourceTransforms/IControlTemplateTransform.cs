@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 /// AfterParse must be symmetric with BeforeWrite
 /// They are applied bottom-up, so any child controls will have been already transformed by the time these are called
 /// </summary>
-interface IControlTemplateTransform
+internal interface IControlTemplateTransform
 {
     IEnumerable<string> TargetTemplates { get; }
     void BeforeWrite(BlockNode control);

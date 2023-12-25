@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 // plus the addition of Screen, which is available in the component property type picker.
 internal enum PropertyDataType
 {
-        Invalid,
+    Invalid,
     _Min,
     Record,
     Table,

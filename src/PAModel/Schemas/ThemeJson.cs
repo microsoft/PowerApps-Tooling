@@ -25,7 +25,7 @@ internal class StylesJson
     public string name { get; set; }
     public string controlTemplateName { get; set; }
     // public string CStyle { get; set; }
-    public PropertyStyleJson[] propertyValuesMap { get; set; }        
+    public PropertyStyleJson[] propertyValuesMap { get; set; }
 }
 
 

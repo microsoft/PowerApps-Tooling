@@ -78,10 +78,12 @@ internal class PcfControl
     {
         // PowerApps controls require dynamic control definition added to control's template.
         // When generating DynamicControlDefinitionJson don't add Name and Version as those aren't part of it.
-        PcfControlDoublyEncoded _dynamicControlDefinition = new PcfControlDoublyEncoded();
-        _dynamicControlDefinition.ControlNamespace = control.ControlNamespace;
-        _dynamicControlDefinition.DisplayNameKey = control.DisplayNameKey;
-        _dynamicControlDefinition.ControlConstructor = control.ControlConstructor;
+        var _dynamicControlDefinition = new PcfControlDoublyEncoded
+        {
+            ControlNamespace = control.ControlNamespace,
+            DisplayNameKey = control.DisplayNameKey,
+            ControlConstructor = control.ControlConstructor
+        };
         var jsonOptions = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
         _dynamicControlDefinition.Resources = control.Resources != null ? JsonSerializer.Serialize(control.Resources, jsonOptions) : null;
         _dynamicControlDefinition.Properties = control.Properties != null ? JsonSerializer.Serialize(control.Properties, jsonOptions) : null;

@@ -19,7 +19,7 @@ internal class DirectoryWriter
 
     public DirectoryWriter(string directory)
     {
-        this._directory = directory;
+        _directory = directory;
     }
 
     // Remove all subdirectories. This is important to avoid have previous
@@ -66,7 +66,7 @@ internal class DirectoryWriter
         }
         else
         {
-            var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
+            var text = JsonSerializer.Serialize(obj, Utilities._jsonOpts);
             text = JsonNormalizer.Normalize(text);
             WriteAllText(subdir, filename, text);
         }
@@ -75,7 +75,7 @@ internal class DirectoryWriter
     // Use this if the filename is already escaped.
     public void WriteAllJson<T>(string subdir, string filename, T obj)
     {
-        var text = JsonSerializer.Serialize<T>(obj, Utilities._jsonOpts);
+        var text = JsonSerializer.Serialize(obj, Utilities._jsonOpts);
         text = JsonNormalizer.Normalize(text);
         WriteAllText(subdir, filename, text);
     }
@@ -98,7 +98,7 @@ internal class DirectoryWriter
 
     public void WriteAllText(string subdir, FilePath filename, string text)
     {
-        string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+        var path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
         EnsureFileDirExists(path);
         File.WriteAllText(path, text);
     }
@@ -106,7 +106,7 @@ internal class DirectoryWriter
     // Use this if the filename is already escaped.
     public void WriteAllText(string subdir, string filename, string text)
     {
-        string path = Path.Combine(_directory, subdir, filename);
+        var path = Path.Combine(_directory, subdir, filename);
 
         // Check for collision so that we don't overwrite an existing file.
         if (File.Exists(path))
@@ -120,7 +120,7 @@ internal class DirectoryWriter
 
     public void WriteAllBytes(string subdir, FilePath filename, byte[] bytes)
     {
-        string path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+        var path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
         EnsureFileDirExists(path);
         File.WriteAllBytes(path, bytes);
     }
@@ -137,7 +137,7 @@ internal class DirectoryWriter
             throw new DocumentException();
         }
 
-        System.IO.FileInfo file = new System.IO.FileInfo(path);
+        var file = new FileInfo(path);
         file.Directory.Create(); // If the directory already exists, this method does nothing.
     }
 
@@ -149,7 +149,7 @@ internal class DirectoryWriter
     /// <returns>True if the file exists.</returns>
     public bool FileExists(string subdir, string filename)
     {
-        string path = Path.Combine(_directory, subdir, filename);
+        var path = Path.Combine(_directory, subdir, filename);
         return File.Exists(path);
     }
 
@@ -176,28 +176,22 @@ internal class DirectoryReader
 
     public DirectoryReader(string directory)
     {
-        this._directory = directory;
+        _directory = directory;
     }
 
     // A file that can be read. 
     public class Entry
     {
-        private string _fullpath;
+        private readonly string _fullpath;
         public FileKind Kind;
         internal string _relativeName;
 
         public Entry(string fullPath)
         {
-            this._fullpath = fullPath;
+            _fullpath = fullPath;
         }
 
-        public SourceLocation SourceSpan
-        {
-            get
-            {
-                return SourceLocation.FromFile(this._fullpath);
-            }
-        }
+        public SourceLocation SourceSpan => SourceLocation.FromFile(_fullpath);
 
         // FileEntry is the same structure we get back from a Zip file. 
         public FileEntry ToFileEntry()
@@ -209,7 +203,7 @@ internal class DirectoryReader
             return new FileEntry
             {
                 Name = FilePath.FromPlatformPath(_relativeName),
-                RawBytes = File.ReadAllBytes(this._fullpath)
+                RawBytes = File.ReadAllBytes(_fullpath)
             };
         }
 

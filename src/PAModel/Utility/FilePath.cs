@@ -110,7 +110,7 @@ internal class FilePath
 
     public override bool Equals(object obj)
     {
-        if (!(obj is FilePath other))
+        if (obj is not FilePath other)
             return false;
 
         if (other._pathSegments.Length != _pathSegments.Length)
@@ -137,7 +137,7 @@ internal class FilePath
     public string HandleFileNameCollisions(string path)
     {
         var suffixCounter = 0;
-        var fileName = this.GetFileName();
+        var fileName = GetFileName();
         var extension = GetCustomExtension(fileName);
         var fileNameWithoutExtension = fileName.Substring(0, fileName.Length - extension.Length);
         var pathWithoutFileName = path.Substring(0, path.Length - fileName.Length);

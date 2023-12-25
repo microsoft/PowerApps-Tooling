@@ -27,7 +27,7 @@ internal class MsAppTest
     {
         try
         {
-            (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp1);
+            (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp1);
             errors.ThrowOnErrors();
 
             (var doc2, var errors2) = CanvasDocument.LoadFromMsapp(pathToMsApp2);
@@ -50,7 +50,7 @@ internal class MsAppTest
 
     public static bool TestClone(string pathToMsApp)
     {
-        (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+        (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
         errors.ThrowOnErrors();
 
         var docClone = new CanvasDocument(doc1);
@@ -60,7 +60,7 @@ internal class MsAppTest
 
     public static bool DiffStressTest(string pathToMsApp)
     {
-        (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+        (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
         errors.ThrowOnErrors();
 
         return HasNoDeltas(doc1, doc1);
@@ -120,7 +120,7 @@ internal class MsAppTest
     {
         using (var temp1 = new TempDir())
         {
-            (CanvasDocument doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
+            (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
             errors.ThrowOnErrors();
 
             doc1.SaveToSources(temp1.Dir);
@@ -132,8 +132,7 @@ internal class MsAppTest
             }
 
             Directory.Delete(entropyDir, recursive: true);
-
-            (var doc2, var errors2) = CanvasDocument.LoadFromSources(temp1.Dir);
+            (var doc2, _) = CanvasDocument.LoadFromSources(temp1.Dir);
             errors.ThrowOnErrors();
 
             return doc2;
@@ -147,13 +146,13 @@ internal class MsAppTest
         {
             using (var temp1 = new TempFile())
             {
-                string outFile = temp1.FullPath;
+                var outFile = temp1.FullPath;
 
                 var log = TextWriter.Null;
 
                 // MsApp --> Model
                 CanvasDocument msapp;
-                ErrorContainer errors = new ErrorContainer();
+                var errors = new ErrorContainer();
                 try
                 {
                     using (var stream = new FileStream(pathToMsApp, FileMode.Open))
@@ -176,25 +175,25 @@ internal class MsAppTest
                 // Model --> MsApp
                 errors = msapp.SaveToMsApp(outFile);
                 errors.ThrowOnErrors();
-                var ok = MsAppTest.Compare(pathToMsApp, outFile, log);
+                var ok = Compare(pathToMsApp, outFile, log);
                 if (!ok) { return false; }
 
 
                 // Model --> Source
                 using (var tempDir = new TempDir())
                 {
-                    string outSrcDir = tempDir.Dir;
+                    var outSrcDir = tempDir.Dir;
                     errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath: pathToMsApp);
                     errors.ThrowOnErrors();
                 }
             } // end using
 
-            if (!MsAppTest.TestClone(pathToMsApp))
+            if (!TestClone(pathToMsApp))
             {
                 return false;
             }
 
-            if (!MsAppTest.DiffStressTest(pathToMsApp))
+            if (!DiffStressTest(pathToMsApp))
             {
                 return false;
             }
@@ -210,7 +209,7 @@ internal class MsAppTest
 
     public static bool Compare(string pathToZip1, string pathToZip2, TextWriter log)
     {
-        ErrorContainer errorContainer = new ErrorContainer();
+        var errorContainer = new ErrorContainer();
         return Compare(pathToZip1, pathToZip2, log, errorContainer);
     }
 
@@ -241,7 +240,7 @@ internal class MsAppTest
     public static void CompareChecksums(string pathToZip, TextWriter log, Dictionary<string, byte[]> comp, bool first, ErrorContainer errorContainer)
     {
         // Path to the directory where we are creating the normalized form
-        string normFormDir = ".\\diffFiles";
+        var normFormDir = ".\\diffFiles";
 
         // Create directory if doesn't exist
         if (!Directory.Exists(normFormDir))
@@ -251,7 +250,7 @@ internal class MsAppTest
 
         using (var zip = ZipFile.OpenRead(pathToZip))
         {
-            foreach (ZipArchiveEntry entry in zip.Entries.OrderBy(x => x.FullName))
+            foreach (var entry in zip.Entries.OrderBy(x => x.FullName))
             {
                 var newContents = ChecksumMaker.ChecksumFile<DebugTextHashMaker>(entry.FullName, entry.ToBytes());
                 if (newContents == null)
@@ -267,15 +266,14 @@ internal class MsAppTest
                     }
                     else
                     {
-                        byte[] originalContents;
-                        if (comp.TryGetValue(entry.FullName, out originalContents))
+                        if (comp.TryGetValue(entry.FullName, out var originalContents))
                         {
-                            bool same = newContents.SequenceEqual(originalContents);
+                            var same = newContents.SequenceEqual(originalContents);
 
                             if (!same)
                             {
 
-                                bool isJson = true;
+                                var isJson = true;
 
                                 // Catch in case of originalContents/newContents not being JSON
                                 try
@@ -325,7 +323,7 @@ internal class MsAppTest
 
     public static Dictionary<string, JsonElement> FlattenJson(byte[] json)
     {
-        using (JsonDocument document = JsonDocument.Parse(json))
+        using (var document = JsonDocument.Parse(json))
         {
             var jsonObject = document.RootElement.EnumerateObject().SelectMany(property => GetLeaves(null, property));
             return jsonObject.ToDictionary(key => key.Path, value => value.Property.Value.Clone());
@@ -376,13 +374,13 @@ internal class MsAppTest
     }
     public static IEnumerable<(string Path, JsonProperty Property)> FlattenArray(string path, JsonElement array)
     {
-        List<(string arrayPath, JsonProperty arrayProperty)> enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
+        var enumeratedObjects = new List<(string arrayPath, JsonProperty arrayProperty)>();
 
-        int index = 0;
+        var index = 0;
 
         foreach (var member in array.EnumerateArray())
         {
-            string arraySubPath = $"{path}[{index}]";
+            var arraySubPath = $"{path}[{index}]";
 
             if (member.ValueKind == JsonValueKind.Object)
             {
@@ -400,7 +398,7 @@ internal class MsAppTest
         foreach (var currentPair1 in dictionary1)
         {
             // Check if the second dictionary contains the same key as in Dictionary 1
-            if (dictionary2.TryGetValue(currentPair1.Key, out JsonElement json2))
+            if (dictionary2.TryGetValue(currentPair1.Key, out var json2))
             {
                 // Check if the value in Dictionary 2's property is equal to the value in Dictionary1's property
                 if (!currentPair1.Value.GetRawText().Equals(json2.GetRawText()))
@@ -437,8 +435,8 @@ internal class MsAppTest
         Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
 
         // Paths to current diff files
-        string aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
-        string bPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-B.json";
+        var aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
+        var bPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-B.json";
 
         File.WriteAllBytes(aPath, originalContents);
         File.WriteAllBytes(bPath, newContents);

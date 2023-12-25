@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 internal class YamlLexer : IDisposable
 {
-    private static string NewLine = "\n";
+    private static readonly string NewLine = "\n";
 
     // The actual contents to read. 
     private readonly TextReader _reader;
@@ -26,11 +26,11 @@ internal class YamlLexer : IDisposable
 
     private YamlToken _lastPair;
 
-    public bool IsComponent { get; set; } 
+    public bool IsComponent { get; set; }
 
     // for error handling
     private readonly string _currentFileName;
-    
+
     private string _currentLineContents = null;
 
     // Per https://github.com/microsoft/PowerApps-Language-Tooling/issues/115,
@@ -48,7 +48,7 @@ internal class YamlLexer : IDisposable
         _currentFileName = filenameHint; // For error reporting
 
         // We pretend the file is wrapped in a "object:" tag.
-        _lastPair = YamlToken.NewStartObj(default(SourceLocation), null);        
+        _lastPair = YamlToken.NewStartObj(default, null);
         _currentIndent = new Stack<Indent>()
         {
             new Indent
@@ -59,11 +59,10 @@ internal class YamlLexer : IDisposable
         };
     }
 
-    private int _currentLine;
     /// <summary>
     /// Current line number. 1-based.
     /// </summary>
-    public int CurrentLine => _currentLine;
+    public int CurrentLine { get; private set; }
 
     public YamlLexerOptions Options { get; set; } = YamlLexerOptions.EnforceLeadingEquals;
 
@@ -76,7 +75,7 @@ internal class YamlLexer : IDisposable
             {
                 return null;
             }
-            _currentLine++;
+            CurrentLine++;
         }
         return new LineParser(_currentLineContents);
     }
@@ -156,7 +155,7 @@ internal class YamlLexer : IDisposable
             }
 
             // Eat the newline and go to the next line. 
-            MoveNextLine();                                    
+            MoveNextLine();
         }
 
         if (line.Current == '-')
@@ -226,17 +225,17 @@ internal class YamlLexer : IDisposable
                 {
                     return Error(line, "Property indent must align exactly with a previous indent level.");
                 }
-                
+
                 // Close current objects one at a time.                     
                 _currentIndent.Pop();
-                return YamlToken.EndObj;                    
+                return YamlToken.EndObj;
             }
         }
 
         // Get identifier
         // toggle isEscaped on every ' appearance
-        bool isEscaped = false;
-        bool requiresClosingDoubleQuote = line.MaybeEat('"');
+        var isEscaped = false;
+        var requiresClosingDoubleQuote = line.MaybeEat('"');
 
         while (line.Current != ':' || isEscaped || requiresClosingDoubleQuote)
         {
@@ -276,7 +275,7 @@ internal class YamlLexer : IDisposable
         // If it's a property, must have at least 1 space.
         // If it's start object, then ignore all spaces. 
 
-        int iSpaces = 0;
+        var iSpaces = 0;
         while (line.MaybeEat(' '))
         {
             iSpaces++; // skip optional spaces
@@ -285,7 +284,7 @@ internal class YamlLexer : IDisposable
         YamlToken error;
         if (line.Current == 0) // EOL
         {
-            error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+            error = _currentIndent.Peek().CheckDuplicate(propName, CurrentLine);
             if (error != null)
             {
                 error.Span = Loc(line);
@@ -294,10 +293,11 @@ internal class YamlLexer : IDisposable
 
             // New Object.
             // Next line must begin an indent.
-            _currentIndent.Push(new Indent {
-                    _lineStart = _currentLine,
-                     _oldIndentLevel = indentLen
-                     // newIndentLevel will be set at next line
+            _currentIndent.Push(new Indent
+            {
+                _lineStart = CurrentLine,
+                _oldIndentLevel = indentLen
+                // newIndentLevel will be set at next line
             });
 
             MoveNextLine();
@@ -313,11 +313,11 @@ internal class YamlLexer : IDisposable
         {
             return Error(line, "Must have at least 1 space after colon.");
         }
-                    
+
 
         // Escape must be
 
-        string value = null;
+        string value;
         if (line.MaybeEat('='))
         {
             // Single line. Property doesn't include \n at end.
@@ -408,14 +408,14 @@ internal class YamlLexer : IDisposable
             MoveNextLine();
         }
 
-        error = _currentIndent.Peek().CheckDuplicate(propName, _currentLine);
+        error = _currentIndent.Peek().CheckDuplicate(propName, CurrentLine);
         if (error != null)
         {
             error.Span = Loc(line);
             return error;
         }
 
-        int endIndex = line._line.Length + 1;
+        var endIndex = line._line.Length + 1;
         return YamlToken.NewProperty(LocWorker(startColumn, endIndex), propName, value);
     }
 
@@ -428,7 +428,7 @@ internal class YamlLexer : IDisposable
 
     private YamlToken UnsupportedSingleQuote(LineParser line, bool isComponent)
     {
-        string[] lineSplit = line._line.ToString().ToLower().Split(new string[] { " as " }, StringSplitOptions.None);
+        var lineSplit = line._line.ToString().ToLower().Split(new string[] { " as " }, StringSplitOptions.None);
 
         if (lineSplit.Length > 2)
         {
@@ -436,7 +436,7 @@ internal class YamlLexer : IDisposable
         }
         if (lineSplit.Length > 1)
         {
-            return isComponent ? Error(line, MissingSingleQuoteComponent) : Error(line, MissingSingleQuoteTypeNode);                
+            return isComponent ? Error(line, MissingSingleQuoteComponent) : Error(line, MissingSingleQuoteTypeNode);
         }
         return Error(line, MissingSingleQuoteProperty);
     }
@@ -448,7 +448,7 @@ internal class YamlLexer : IDisposable
 
     private YamlToken Error(LineParser line, string message)
     {
-        return YamlToken.NewError(this.Loc(line), message);
+        return YamlToken.NewError(Loc(line), message);
     }
 
 
@@ -469,29 +469,29 @@ internal class YamlLexer : IDisposable
     // 1-based indexes. 
     private SourceLocation LocWorker(int startIndex1, int endIndex1)
     {
-        return new SourceLocation(_currentLine, startIndex1, _currentLine, endIndex1, _currentFileName);
+        return new SourceLocation(CurrentLine, startIndex1, CurrentLine, endIndex1, _currentFileName);
     }
 
     // https://yaml-multiline.info/
 
     private string ReadMultiline(int multilineMode)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         // First line establishes indent level.
         // Yaml allows empty Multilines, we require it must have at least 1 line in it. (no empty values) 
 
-        int parentIndent = _currentIndent.Peek()._newIndentLevel;
-        int thisIndent = -1;
+        var parentIndent = _currentIndent.Peek()._newIndentLevel;
+        var thisIndent = -1;
 
         while (true)
         {
-            LineParser line = PeekLine();
+            var line = PeekLine();
             if (line == null)
             {
                 break; // end of file. 
             }
-            int indentLen = line.EatIndent();
+            var indentLen = line.EatIndent();
             if (thisIndent == -1)
             {
                 // First line, sets the indent 
@@ -506,36 +506,40 @@ internal class YamlLexer : IDisposable
             line._idx = thisIndent;
             sb.Append(line.RestOfLine);
             sb.Append(NewLine);
-            this.MoveNextLine();
+            MoveNextLine();
         }
 
-        var val = sb.ToString(); 
+        var val = sb.ToString();
         if (multilineMode == 0)
         {
             while (true)
             {
-                if (sb.Length > 0 && sb[sb.Length - 1] == '\n')
+                if (sb.Length > 0 && sb[^1] == '\n')
                 {
                     sb.Length--;
-                } else
+                }
+                else
                 {
                     break;
                 }
-                if (sb.Length > 0 && sb[sb.Length - 1] == '\r')
+                if (sb.Length > 0 && sb[^1] == '\r')
                 {
                     sb.Length--;
-                } else
+                }
+                else
                 {
                     break;
                 }
             }
             // Trim any newlines.
             val = sb.ToString();
-            
-        } else if (multilineMode == 1)
+
+        }
+        else if (multilineMode == 1)
         {
             // Just one. This is already the case. 
-        } else if (multilineMode > 1)
+        }
+        else if (multilineMode > 1)
         {
             // Allows multiple. 
         }
@@ -547,7 +551,7 @@ internal class YamlLexer : IDisposable
     // Helper for reading through a single line.
     // This treats EOL as (char) 0.
     [DebuggerDisplay("{DebuggerToString()}")]
-    class LineParser
+    private class LineParser
     {
         // 0-based character index into line 
         public int _idx;
@@ -583,14 +587,14 @@ internal class YamlLexer : IDisposable
             get
             {
                 if (_idx >= _line.Length) return string.Empty;
-                return this._line.Substring(_idx);
+                return _line.Substring(_idx);
             }
         }
 
 
         public bool MaybeEat(char ch)
         {
-            if (this.Current == ch)
+            if (Current == ch)
             {
                 _idx++;
                 return true;
@@ -602,14 +606,14 @@ internal class YamlLexer : IDisposable
         // We require spaces and don't allow tabs. 
         public int EatIndent()
         {
-            while (this.MaybeEat(' '));
-            return this._idx;
+            while (MaybeEat(' ')) ;
+            return _idx;
         }
 
         // Show '|' at _idx position
         private string DebuggerToString()
         {
-            var idx = Math.Min(_line.Length, this._idx);
+            var idx = Math.Min(_line.Length, _idx);
             return _line.Substring(0, idx) + "¤" + _line.Substring(idx);
         }
     }
@@ -626,15 +630,14 @@ internal class YamlLexer : IDisposable
         // For detecting collisions in previous properties.
         // Collisions must be *case-sensitive*
         // Map property name to line that it was declared on. 
-        public Dictionary<string, int> _previousProperties = new Dictionary<string, int>(StringComparer.Ordinal);
+        public Dictionary<string, int> _previousProperties = new(StringComparer.Ordinal);
 
         internal YamlToken CheckDuplicate(string propName, int currentLine)
         {
-            int oldLine;
-            if (_previousProperties.TryGetValue(propName, out oldLine))
+            if (_previousProperties.TryGetValue(propName, out var oldLine))
             {
                 // Key is already present.
-                return YamlToken.NewError(default(SourceLocation), $"Property was already defined on line {oldLine} and now on line {currentLine}.");
+                return YamlToken.NewError(default, $"Property was already defined on line {oldLine} and now on line {currentLine}.");
             }
             _previousProperties.Add(propName, currentLine);
             return null;

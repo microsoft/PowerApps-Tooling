@@ -20,9 +20,9 @@ internal class GroupControlTransform
 {
     private static readonly string GroupControlTemplateName = "group";
 
-    private EditorStateStore _editorStateStore;
-    private ErrorContainer _errors;
-    private Entropy _entropy;
+    private readonly EditorStateStore _editorStateStore;
+    private readonly ErrorContainer _errors;
+    private readonly Entropy _entropy;
 
     public GroupControlTransform(ErrorContainer errors, EditorStateStore editorStateStore, Entropy entropy)
     {

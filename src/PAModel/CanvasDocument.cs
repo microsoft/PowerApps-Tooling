@@ -32,11 +32,11 @@ public class CanvasDocument
 
     // Track all unknown "files". Ensures round-tripping isn't lossy.         
     // Only contains files of FileKind.Unknown
-    internal Dictionary<FilePath, FileEntry> _unknownFiles = new Dictionary<FilePath, FileEntry>();
+    internal Dictionary<FilePath, FileEntry> _unknownFiles = new();
 
     // Key is Top Parent Control Name for both _screens and _components
-    internal Dictionary<string, BlockNode> _screens = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
-    internal Dictionary<string, BlockNode> _components = new Dictionary<string, BlockNode>(StringComparer.Ordinal);
+    internal Dictionary<string, BlockNode> _screens = new(StringComparer.Ordinal);
+    internal Dictionary<string, BlockNode> _components = new(StringComparer.Ordinal);
 
     internal EditorStateStore _editorStateStore;
     internal TemplateStore _templateStore;
@@ -45,8 +45,8 @@ public class CanvasDocument
     // This is references\dataSources.json
     // Also includes entries for DataSources made from a DataComponent
     // Key is parent entity name (datasource name for non cds data sources)
-    internal Dictionary<string, List<DataSourceEntry>> _dataSources = new Dictionary<string, List<DataSourceEntry>>(StringComparer.Ordinal);
-    internal List<string> _screenOrder = new List<string>();
+    internal Dictionary<string, List<DataSourceEntry>> _dataSources = new(StringComparer.Ordinal);
+    internal List<string> _screenOrder = new();
 
     internal HeaderJson _header;
     internal DocumentPropertiesJson _properties;
@@ -60,7 +60,7 @@ public class CanvasDocument
     internal string _customPageInputsMetadata;
 
     internal AppCheckerResultJson _appCheckerResultJson;
-    internal Dictionary<string, PcfControl> _pcfControls = new Dictionary<string, PcfControl>(StringComparer.OrdinalIgnoreCase);
+    internal Dictionary<string, PcfControl> _pcfControls = new(StringComparer.OrdinalIgnoreCase);
 
     // Environment-specific information
     // Extracted from _properties.LocalConnectionReferences
@@ -81,13 +81,13 @@ public class CanvasDocument
     internal FileEntry _logoFile;
 
     // Save for roundtripping.
-    internal Entropy _entropy = new Entropy();
+    internal Entropy _entropy = new();
 
     // Checksum from existing msapp. 
     internal ChecksumJson _checksum;
 
     // Track all asset files, key is file name
-    internal Dictionary<FilePath, FileEntry> _assetFiles = new Dictionary<FilePath, FileEntry>();
+    internal Dictionary<FilePath, FileEntry> _assetFiles = new();
 
     internal UniqueIdRestorer _idRestorer;
 
@@ -95,7 +95,7 @@ public class CanvasDocument
     // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
     // Key is a (case-insesitive) new fileName of the resource.
     // Reason for using FileName of the resource as the key is to avoid name collision across different types eg. Images/close.png, Videos/close.mp4.
-    internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new Dictionary<string, LocalAssetInfoJson>();
+    internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new();
     internal static string AssetFilePathPrefix = @"Assets\";
 
     #region Save/Load
@@ -181,7 +181,7 @@ public class CanvasDocument
         // Test that we can repack
         if (!errors.HasErrors && verifyOriginalPath != null)
         {
-            (CanvasDocument msApp2, ErrorContainer errors2) = CanvasDocument.LoadFromSources(pathToSourceDirectory);
+            (var msApp2, var errors2) = LoadFromSources(pathToSourceDirectory);
             if (errors2.HasErrors)
             {
                 errors2.PostUnpackValidationFailed();
@@ -197,7 +197,7 @@ public class CanvasDocument
                     return errors2;
                 }
 
-                bool ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null, errors2);
+                var ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null, errors2);
                 if (!ok)
                 {
                     errors2.PostUnpackValidationFailed();
@@ -220,10 +220,9 @@ public class CanvasDocument
     // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors. 
     private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors)
     {
-        CanvasDocument document = null;
         try
         {
-            document = worker();
+            var document = worker();
             if (errors.HasErrors)
             {
                 return null;
@@ -315,7 +314,7 @@ public class CanvasDocument
         _entropy = other._entropy.JsonClone();
         _checksum = other._checksum.JsonClone();
 
-        this._idRestorer = new UniqueIdRestorer(this._entropy);
+        _idRestorer = new UniqueIdRestorer(_entropy);
 
         _localAssetInfoJson = other._localAssetInfoJson.JsonClone();
     }
@@ -325,8 +324,7 @@ public class CanvasDocument
     {
         // Key is parent entity name
         var key = ds.RelatedEntityName ?? ds.Name;
-        List<DataSourceEntry> list;
-        if (!_dataSources.TryGetValue(key, out list))
+        if (!_dataSources.TryGetValue(key, out var list))
         {
             list = new List<DataSourceEntry>();
             _dataSources.Add(key, list);
@@ -507,9 +505,9 @@ public class CanvasDocument
     internal HashSet<string> GetImportedComponents()
     {
         var set = new HashSet<string>();
-        if (this._libraryReferences != null)
+        if (_libraryReferences != null)
         {
-            foreach (var item in this._libraryReferences)
+            foreach (var item in _libraryReferences)
             {
                 set.Add(item.OriginalComponentDefinitionTemplateId);
             }
@@ -540,7 +538,7 @@ public class CanvasDocument
 
         // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
         // due to collisions between the resource and file names.
-        Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
+        var newAssetFiles = new Dictionary<FilePath, FileEntry>();
 
         // Update AssetFile paths
         foreach (var resource in _resourcesJson.Resources.Where(resource => resource?.Name != null && resource.ResourceKind == ResourceKind.LocalFile)
@@ -554,7 +552,7 @@ public class CanvasDocument
                 continue;
             if (!caseSensitiveNames.Contains(resource.Name) && caseInsensitiveNames.Contains(resource.Name))
             {
-                int i = 1;
+                var i = 1;
                 var newResourceName = resource.Name + '_' + i;
                 while (caseInsensitiveNames.Contains(newResourceName))
                 {
@@ -596,7 +594,7 @@ public class CanvasDocument
         }
 
         // Once we have all the new asset files, add them to the existing
-        foreach (FilePath newAssetKey in newAssetFiles.Keys)
+        foreach (var newAssetKey in newAssetFiles.Keys)
         {
             _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
         }
@@ -631,7 +629,7 @@ public class CanvasDocument
 
             // Keep the newly renamed asset files separate so they do not overwrite any existing asset files
             // due to collisions between the resource and file names.
-            Dictionary<FilePath, FileEntry> newAssetFiles = new Dictionary<FilePath, FileEntry>();
+            var newAssetFiles = new Dictionary<FilePath, FileEntry>();
 
             foreach (var resource in _resourcesJson.Resources)
             {
@@ -645,16 +643,14 @@ public class CanvasDocument
                 if (!_assetFiles.TryGetValue(assetFilePath, out var fileEntry))
                     continue;
 
-                string msappFileName;
-                if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out msappFileName))
+                if (!_entropy.LocalResourceFileNames.TryGetValue(resource.Name, out var msappFileName))
                 {
                     maxFileNumber++;
                     msappFileName = maxFileNumber.ToString("D4") + assetFilePath.GetExtension();
                 }
 
                 // Restore the original names of the duplicate asset files.
-                LocalAssetInfoJson localAssetInfoJson = null;
-                if (_localAssetInfoJson?.TryGetValue(resource.FileName, out localAssetInfoJson) == true)
+                if (_localAssetInfoJson?.TryGetValue(resource.FileName, out var localAssetInfoJson) == true)
                 {
                     resource.Name = localAssetInfoJson.OriginalName;
                 }
@@ -670,7 +666,7 @@ public class CanvasDocument
             }
 
             // Once we have all the new asset files, add them to the existing
-            foreach (FilePath newAssetKey in newAssetFiles.Keys)
+            foreach (var newAssetKey in newAssetFiles.Keys)
             {
                 _assetFiles[newAssetKey] = newAssetFiles[newAssetKey];
             }
@@ -686,7 +682,7 @@ public class CanvasDocument
     internal class UniqueControlNameVisitor
     {
         // Control names are case sensitive. 
-        private readonly Dictionary<string, SourceLocation?> _names = new Dictionary<string, SourceLocation?>(StringComparer.Ordinal);
+        private readonly Dictionary<string, SourceLocation?> _names = new(StringComparer.Ordinal);
         private readonly ErrorContainer _errors;
 
         public UniqueControlNameVisitor(ErrorContainer errors)
@@ -704,17 +700,16 @@ public class CanvasDocument
                 return;
             }
 
-            this.Visit(node.Name);
+            Visit(node.Name);
             foreach (var child in node.Children)
             {
-                this.Visit(child);
+                Visit(child);
             }
         }
 
         public void Visit(TypedNameNode node)
         {
-            SourceLocation? existing;
-            if (_names.TryGetValue(node.Identifier, out existing))
+            if (_names.TryGetValue(node.Identifier, out var existing))
             {
                 _errors.DuplicateSymbolError(node.SourceSpan.GetValueOrDefault(), node.Identifier, existing.GetValueOrDefault());
             }

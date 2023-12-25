@@ -23,27 +23,27 @@ internal class SourceFile
     public SourceKind Kind { get; set; }
 
     // Convenience accessors.
-    public string ControlName => this.Value.TopParent.Name;
-    public string ControlId => this.Value.TopParent.ControlUniqueId;
+    public string ControlName => Value.TopParent.Name;
+    public string ControlId => Value.TopParent.ControlUniqueId;
 
     // For a data component, this is a guid. Very important.
-    public string TemplateName => this.Value.TopParent.Template.Name;
+    public string TemplateName => Value.TopParent.Template.Name;
 
     internal string GetMsAppFilename()
     {
-        if (this.Kind == SourceKind.Control)
+        if (Kind == SourceKind.Control)
         {
             return $"Controls\\{ControlId}.json";
         }
-        else if (this.Kind == SourceKind.DataComponent || this.Kind == SourceKind.UxComponent || this.Kind == SourceKind.CommandComponent)
+        else if (Kind == SourceKind.DataComponent || Kind == SourceKind.UxComponent || Kind == SourceKind.CommandComponent)
         {
             return $"Components\\{ControlId}.json";
         }
-        else if (this.Kind == SourceKind.Test)
+        else if (Kind == SourceKind.Test)
         {
             return $"AppTests\\{ControlId}.json";
         }
-        throw new NotImplementedException($"Unrecognized source kind:" + this.Kind);
+        throw new NotImplementedException($"Unrecognized source kind:" + Kind);
     }
 
     private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
@@ -53,22 +53,23 @@ internal class SourceFile
 
     public IEnumerable<ControlInfoJson.Item> Flatten()
     {
-        return (new ControlInfoJson.Item[]{ Value.TopParent }).Concat(Flatten(Value.TopParent));
+        return (new ControlInfoJson.Item[] { Value.TopParent }).Concat(Flatten(Value.TopParent));
     }
 
     public FileEntry ToMsAppFile()
     {
-        var file = MsAppSerializer.ToFile(FileKind.Unknown, this.Value);
-        file.Name = FilePath.FromMsAppPath(this.GetMsAppFilename());
+        var file = MsAppSerializer.ToFile(FileKind.Unknown, Value);
+        file.Name = FilePath.FromMsAppPath(GetMsAppFilename());
 
         return file;
     }
 
     public static SourceFile New(ControlInfoJson json)
     {
-        SourceFile sf = new SourceFile();
-
-        sf.Value = json;
+        var sf = new SourceFile
+        {
+            Value = json
+        };
 
         var x = sf.Value.TopParent;
         if (x.Template.Id == ControlInfoJson.Template.DataComponentId)

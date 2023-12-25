@@ -14,14 +14,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Utility;
 internal class ControlPath
 {
     // switch this to be a queue?
-    private List<string> _segments;
+    private readonly List<string> _segments;
     public string Current => _segments.Any() ? _segments[0] : null;
-    public static ControlPath Empty => new ControlPath(new List<string>());
+    public static ControlPath Empty => new(new List<string>());
 
     public ControlPath Next()
     {
         var newSegments = new List<string>();
-        for (int i = 1; i < _segments.Count; ++i)
+        for (var i = 1; i < _segments.Count; ++i)
         {
             newSegments.Add(_segments[i]);
         }
@@ -30,8 +30,10 @@ internal class ControlPath
 
     public ControlPath Append(string controlName)
     {
-        var newpath = new List<string>(_segments);
-        newpath.Add(controlName);
+        var newpath = new List<string>(_segments)
+        {
+            controlName
+        };
         return new ControlPath(newpath);
     }
 
@@ -40,9 +42,15 @@ internal class ControlPath
         _segments = segments;
     }
 
-    public static bool operator ==(ControlPath left, ControlPath right) => left?.Equals(right) ?? Object.ReferenceEquals(right, null);
+    public static bool operator ==(ControlPath left, ControlPath right)
+    {
+        return left?.Equals(right) ?? right is null;
+    }
 
-    public static bool operator !=(ControlPath left, ControlPath right) => !(left == right);
+    public static bool operator !=(ControlPath left, ControlPath right)
+    {
+        return !(left == right);
+    }
 
     public override bool Equals(object obj)
     {

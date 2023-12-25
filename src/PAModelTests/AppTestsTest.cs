@@ -24,7 +24,7 @@ public class AppTestsTest
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
@@ -60,7 +60,7 @@ public class AppTestsTest
 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
 
             // Save to sources
             msapp.SaveToSources(outSrcDir);
@@ -81,7 +81,7 @@ public class AppTestsTest
                 MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
 
                 // re-unpack should succeed
-                (var msapp1, var errors1) = CanvasDocument.LoadFromMsapp(tempFile.FullPath);                    
+                (var msapp1, var errors1) = CanvasDocument.LoadFromMsapp(tempFile.FullPath);
                 msapp1.SaveToSources(new TempDir().Dir);
             }
         }

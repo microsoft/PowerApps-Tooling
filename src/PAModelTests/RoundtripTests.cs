@@ -16,12 +16,12 @@ public class RoundtripTests
     public void StressTestApps()
     {
         var directory = Path.Combine(Environment.CurrentDirectory, "Apps");
-        
+
         foreach (var root in Directory.GetFiles(directory))
         {
             try
             {
-                bool ok = MsAppTest.StressTest(root);
+                var ok = MsAppTest.StressTest(root);
                 Assert.IsTrue(ok);
 
                 var cloneOk = MsAppTest.TestClone(root);
@@ -32,6 +32,6 @@ public class RoundtripTests
             {
                 Assert.Fail(ex.ToString());
             }
-        }            
+        }
     }
 }

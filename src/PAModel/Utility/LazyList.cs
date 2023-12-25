@@ -16,7 +16,7 @@ internal class LazyList<T> : IEnumerable<T>
 {
     private readonly IEnumerable<T> values;
 
-    public static readonly LazyList<T> Empty = new LazyList<T>(Enumerable.Empty<T>());
+    public static readonly LazyList<T> Empty = new(Enumerable.Empty<T>());
 
     public LazyList(IEnumerable<T> values)
     {

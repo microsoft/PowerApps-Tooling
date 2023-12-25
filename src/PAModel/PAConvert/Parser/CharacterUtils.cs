@@ -55,14 +55,14 @@ internal static class CharacterUtils
 
     public static UniCatFlags GetUniCatFlags(char ch)
     {
-        return ((UniCatFlags)(1u << (int)CharUnicodeInfo.GetUnicodeCategory(ch)));
+        return (UniCatFlags)(1u << (int)CharUnicodeInfo.GetUnicodeCategory(ch));
     }
 
     // Returns true if the specified character is a valid simple identifier character.
     public static bool IsSimpleIdentCh(char ch)
     {
         if (ch >= 128)
-            return (CharacterUtils.GetUniCatFlags(ch) & CharacterUtils.UniCatFlags.IdentPartChar) != 0;
+            return (GetUniCatFlags(ch) & UniCatFlags.IdentPartChar) != 0;
         return ((uint)(ch - 'a') < 26) || ((uint)(ch - 'A') < 26) || ((uint)(ch - '0') <= 9) || (ch == '_');
     }
 
@@ -71,11 +71,14 @@ internal static class CharacterUtils
     public static bool IsIdentStart(char ch)
     {
         if (ch >= 128)
-            return (CharacterUtils.GetUniCatFlags(ch) & CharacterUtils.UniCatFlags.IdentStartChar) != 0;
+            return (GetUniCatFlags(ch) & UniCatFlags.IdentStartChar) != 0;
         return ((uint)(ch - 'a') < 26) || ((uint)(ch - 'A') < 26) || (ch == '_') || (ch == PAConstants.IdentifierDelimiter);
     }
 
-    public static bool IsIdentDelimiter(char ch) => ch == PAConstants.IdentifierDelimiter;
+    public static bool IsIdentDelimiter(char ch)
+    {
+        return ch == PAConstants.IdentifierDelimiter;
+    }
 
     public static bool IsSpace(char ch)
     {
@@ -120,20 +123,20 @@ internal static class CharacterUtils
     {
         if (IsIdentDelimiter(name[0]))
         {
-            if (!IsIdentDelimiter(name[name.Length - 1]))
+            if (!IsIdentDelimiter(name[^1]))
             {
                 // Must match
                 errors.ParseError(default, $"Unmatched escape delimeter in {name}");
                 throw new DocumentException();
             }
-            StringBuilder sb = new StringBuilder();
-            int i = 1;
+            var sb = new StringBuilder();
+            var i = 1;
             while (i <= name.Length - 2)
             {
-                char ch = name[i];
+                var ch = name[i];
                 if (ch == PAConstants.IdentifierDelimiter)
-                {                        
-                    i++;                        
+                {
+                    i++;
                 }
                 sb.Append(ch);
                 i++;
@@ -149,15 +152,15 @@ internal static class CharacterUtils
 
     public static string EscapeName(string name)
     {
-        int nameLen = name.Length;
+        var nameLen = name.Length;
 
-        bool fEscaping = !IsIdentStart(name[0]) || IsIdentDelimiter(name[0]);
-        bool fFirst = true;
+        var fEscaping = !IsIdentStart(name[0]) || IsIdentDelimiter(name[0]);
+        var fFirst = true;
 
-        StringBuilder sb = new StringBuilder(name.Length);
-        for (int i = fEscaping ? 0 : 1; i < nameLen; i++)
+        var sb = new StringBuilder(name.Length);
+        for (var i = fEscaping ? 0 : 1; i < nameLen; i++)
         {
-            char ch = name[i];
+            var ch = name[i];
             fEscaping = fEscaping || !IsSimpleIdentCh(ch);
 
             if (!fEscaping)

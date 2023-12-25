@@ -21,14 +21,14 @@ internal class AppTestTransform : IControlTemplateTransform
     public IEnumerable<string> TargetTemplates => _targets;
 
     private const string _metadataPropName = "TestStepsMetadata";
-    private string _testStepTemplateName;
+    private readonly string _testStepTemplateName;
 
     // Key is UniqueId, Value is ScreenName
-    private IList<KeyValuePair<string, string>> _screenIdToScreenName;
-    private ErrorContainer _errors;
+    private readonly IList<KeyValuePair<string, string>> _screenIdToScreenName;
+    private readonly ErrorContainer _errors;
 
     // To hold entropy passed in by constructor
-    private Entropy _entropy;
+    private readonly Entropy _entropy;
 
     public static bool IsTestSuite(string templateName)
     {
@@ -39,7 +39,7 @@ internal class AppTestTransform : IControlTemplateTransform
     {
         _testStepTemplateName = "TestStep";
 
-        int i = 1;
+        var i = 1;
         while (templateStore.TryGetTemplate(_testStepTemplateName, out _))
             _testStepTemplateName = "TestStep" + i;
 
@@ -147,7 +147,7 @@ internal class AppTestTransform : IControlTemplateTransform
     public void BeforeWrite(BlockNode control)
     {
         var testStepsMetadata = new List<TestStepsMetadataJson>();
-        bool doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? true;
+        var doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? true;
 
         foreach (var child in control.Children)
         {

@@ -26,7 +26,7 @@ internal class DocumentPropertiesJson
     public string Name { get; set; }
     public string Id { get; set; }
     public string FileID { get; set; }
-    
+
     // Stores the connections 
     // Dictionary-->Connection object 
     public string LocalConnectionReferences { get; set; }
@@ -61,33 +61,35 @@ internal class DocumentPropertiesJson
 
     public static DocumentPropertiesJson CreateDefault(string name)
     {
-        var defaultProps = new DocumentPropertiesJson();
-        defaultProps.Name = name;
-        defaultProps.AppPreviewFlagsKey = GetAppPreviewFlagDefault();
-        // This should get it's own app creation source probably, so we can tell from telemetry that it's made from our tool
-        defaultProps.AppCreationSource = "AppFromScratch";
-        defaultProps.AppDescription = "";
-        defaultProps.Author = "";
-        defaultProps.FileID = Guid.NewGuid().ToString();
-        defaultProps.Id = Guid.NewGuid().ToString();
-        defaultProps.ControlCount = new Dictionary<SomeEnum, int>();
-        defaultProps.DefaultConnectedDataSourceMaxGetRowsCount = 500;
-        defaultProps.DocumentAppType = AppType.DesktopOrTablet;
+        var defaultProps = new DocumentPropertiesJson
+        {
+            Name = name,
+            AppPreviewFlagsKey = GetAppPreviewFlagDefault(),
+            // This should get it's own app creation source probably, so we can tell from telemetry that it's made from our tool
+            AppCreationSource = "AppFromScratch",
+            AppDescription = "",
+            Author = "",
+            FileID = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid().ToString(),
+            ControlCount = new Dictionary<SomeEnum, int>(),
+            DefaultConnectedDataSourceMaxGetRowsCount = 500,
+            DocumentAppType = AppType.DesktopOrTablet,
 
-        // These might need cleaning up for responsive apps?
-        defaultProps.DocumentLayoutLockOrientation = true;
-        defaultProps.DocumentLayoutMaintainAspectRatio = true;
-        defaultProps.DocumentLayoutOrientation = "landscape";
-        defaultProps.DocumentLayoutScaleToFit = true;
-        defaultProps.DocumentLayoutHeight = 768;
-        defaultProps.DocumentLayoutWidth = 1366;
+            // These might need cleaning up for responsive apps?
+            DocumentLayoutLockOrientation = true,
+            DocumentLayoutMaintainAspectRatio = true,
+            DocumentLayoutOrientation = "landscape",
+            DocumentLayoutScaleToFit = true,
+            DocumentLayoutHeight = 768,
+            DocumentLayoutWidth = 1366,
 
-        defaultProps.DocumentType = "App";
-        defaultProps.InstrumentationKey = "";
-        defaultProps.LibraryDependencies = "[]";
-        defaultProps.LocalDatabaseReferences = "[]";
+            DocumentType = "App",
+            InstrumentationKey = "",
+            LibraryDependencies = "[]",
+            LocalDatabaseReferences = "[]",
 
-        defaultProps.OriginatingVersion = "1.294";
+            OriginatingVersion = "1.294"
+        };
 
         return defaultProps;
     }

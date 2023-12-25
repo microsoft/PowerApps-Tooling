@@ -21,7 +21,7 @@ internal static class DynamicProperties
     }
 
 
-    private static HashSet<string> _supportsNestedControls = new HashSet<string>()
+    private static readonly HashSet<string> _supportsNestedControls = new()
     {
         "dataCard",
         "dataGrid",
@@ -73,7 +73,7 @@ internal static class DynamicProperties
     internal static bool TryGetDefaultValue(string propertyName, string template, DefaultRuleHelper defaultRuleHelper, out string defaultValue)
     {
         defaultValue = null;
-        if (!PropertyDefaultScriptGetters.TryGetValue(propertyName, out  var defaultFunc))
+        if (!PropertyDefaultScriptGetters.TryGetValue(propertyName, out var defaultFunc))
         {
             return false;
         }

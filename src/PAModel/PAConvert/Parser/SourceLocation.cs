@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
-internal struct SourceLocation
+internal readonly struct SourceLocation
 {
     public readonly int StartLine;
     public readonly int StartChar;

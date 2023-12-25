@@ -34,7 +34,7 @@ public class SourceDecoderTests
         // validate the source 
         using (var tempDir = new TempDir())
         {
-            string outSrcDir = tempDir.Dir;
+            var outSrcDir = tempDir.Dir;
             msapp.SaveToSources(outSrcDir);
 
             var pathActual = Path.Combine(outSrcDir, "Src", basePath, sourceFileName);
@@ -46,7 +46,7 @@ public class SourceDecoderTests
         }
     }
 
-    static void AssertFilesEqual(string pathExpected, string pathActual)
+    private static void AssertFilesEqual(string pathExpected, string pathActual)
     {
         var expected = File.ReadAllText(pathExpected).Replace("\r\n", "\n").Trim();
         var actual = File.ReadAllText(pathActual).Replace("\r\n", "\n").Trim();

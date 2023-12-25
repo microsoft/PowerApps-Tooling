@@ -15,7 +15,7 @@ namespace PAModelTests;
 [TestClass]
 public class DefaultValuesTransformTests
 {
-    public static readonly List<String> dynamicPropertiesList = new List<String>{ "LayoutX", "LayoutY", "LayoutWidth", "LayoutHeight" };
+    public static readonly List<string> dynamicPropertiesList = new() { "LayoutX", "LayoutY", "LayoutWidth", "LayoutHeight" };
 
     // Testing the DefaultValuesTransform:beforeWrite() behavior on control node with null dynamic properties
     // Specifically cases where property null but propertynames not null
@@ -37,8 +37,8 @@ public class DefaultValuesTransformTests
 
         defaultValTransform.BeforeWrite(newNode, false);
 
-        IList<PropertyNode> nodeProperties = newNode.Properties;
-        foreach (PropertyNode property in nodeProperties)
+        var nodeProperties = newNode.Properties;
+        foreach (var property in nodeProperties)
         {
             // check if dynamic property with null values are added, if so fail the test
             if (dynamicPropertiesList.Contains(property.Identifier))

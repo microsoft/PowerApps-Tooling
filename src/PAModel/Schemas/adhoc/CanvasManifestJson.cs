@@ -6,7 +6,7 @@ using Microsoft.AppMagic.Authoring.Persistence;
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 // Manifest combines the various property/header/publish files into one. 
-class CanvasManifestJson
+internal class CanvasManifestJson
 {
     // Format version. 
     // this is most critical for versioning. 

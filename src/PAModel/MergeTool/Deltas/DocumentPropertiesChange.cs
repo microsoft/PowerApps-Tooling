@@ -9,10 +9,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 internal class DocumentPropertiesChange : IDelta
 {
     public readonly string Name;
-    private object _propertyValue;
-    private JsonElement _extensionDataValue;
-    private bool _isExtensionData;
-    private bool _wasRemoved = false;
+    private readonly object _propertyValue;
+    private readonly JsonElement _extensionDataValue;
+    private readonly bool _isExtensionData;
+    private readonly bool _wasRemoved = false;
 
     public DocumentPropertiesChange(string name, object value)
     {
@@ -42,13 +42,13 @@ internal class DocumentPropertiesChange : IDelta
         {
             if (_wasRemoved)
                 document._properties.ExtensionData.Remove(Name);
-            else 
+            else
                 document._properties.ExtensionData[Name] = _extensionDataValue;
 
             return;
         }
 
         var field = typeof(DocumentPropertiesJson).GetProperty(Name);
-        field.SetValue(document._properties, _propertyValue);            
+        field.SetValue(document._properties, _propertyValue);
     }
 }

@@ -11,9 +11,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 
 internal class DefaultValuesTransform
 {
-    private EditorStateStore _controlStore;
-    private Theme _theme;
-    private Dictionary<string, ControlTemplate> _templateStore;
+    private readonly EditorStateStore _controlStore;
+    private readonly Theme _theme;
+    private readonly Dictionary<string, ControlTemplate> _templateStore;
 
     public DefaultValuesTransform(Dictionary<string, ControlTemplate> templateStore, Theme theme, EditorStateStore stateStore)
     {
@@ -33,8 +33,7 @@ internal class DefaultValuesTransform
         if (_controlStore.TryGetControlState(controlName, out var controlState))
             styleName = controlState.StyleName;
 
-        ControlTemplate template;
-        if (!_templateStore.TryGetValue(templateName, out template))
+        if (!_templateStore.TryGetValue(templateName, out var template))
             template = null;
 
         var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext);
@@ -62,14 +61,13 @@ internal class DefaultValuesTransform
                 .Concat(controlState.DynamicProperties?.Where(state => state.Property != null).Select(state => state.PropertyName) ?? Enumerable.Empty<string>()));
         }
 
-        ControlTemplate template;
-        if (!_templateStore.TryGetValue(templateName, out template))
+        if (!_templateStore.TryGetValue(templateName, out var template))
             template = null;
 
         var defaults = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext).GetDefaultRules();
         foreach (var property in node.Properties)
         {
-            defaults.Remove(property.Identifier);               
+            defaults.Remove(property.Identifier);
         }
 
         foreach (var defaultkvp in defaults)

@@ -19,11 +19,10 @@ internal static class TransformLogo
         var oldLogoName = app._publishInfo?.LogoFileName;
         if (!string.IsNullOrEmpty(oldLogoName))
         {
-            string newLogoName = "logo" + Path.GetExtension(oldLogoName);
+            var newLogoName = "logo" + Path.GetExtension(oldLogoName);
 
-            FileEntry logoFile;
             var oldKey = FilePath.RootedAt("Resources", FilePath.FromMsAppPath(oldLogoName));
-            if (app._unknownFiles.TryGetValue(oldKey, out logoFile))
+            if (app._unknownFiles.TryGetValue(oldKey, out var logoFile))
             {
                 app._unknownFiles.Remove(oldKey);
 
@@ -36,7 +35,7 @@ internal static class TransformLogo
             }
         }
     }
-            
+
 
     // Get the original logo file (using entropy to get the old name) 
     // And return a touched publishInfo pointing to it.
@@ -45,7 +44,8 @@ internal static class TransformLogo
         FileEntry logoFile = null;
         var publishInfo = app._publishInfo.JsonClone();
 
-        if (app._logoFile != null) {
+        if (app._logoFile != null)
+        {
             if (!string.IsNullOrEmpty(publishInfo?.LogoFileName))
             {
                 app._assetFiles.Remove(app._logoFile.Name);
@@ -57,7 +57,8 @@ internal static class TransformLogo
                 };
             }
         }
-        else {
+        else
+        {
             if (app._entropy.OldLogoFileName != null)
             {
                 publishInfo.LogoFileName = app._entropy.OldLogoFileName;

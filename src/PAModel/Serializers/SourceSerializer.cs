@@ -43,7 +43,7 @@ internal static partial class SourceSerializer
     // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
     // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
     // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
-    public static Version CurrentSourceVersion = new Version(0, 24);
+    public static Version CurrentSourceVersion = new(0, 24);
 
     // Layout is:
     //  src\
@@ -71,7 +71,7 @@ internal static partial class SourceSerializer
     internal static readonly string AppTestControlType = "AppTest";
     private static readonly string _defaultThemefileName = "Microsoft.PowerPlatform.Formulas.Tools.Themes.DefaultTheme.json";
     private static readonly string _buildVerFileName = "Microsoft.PowerPlatform.Formulas.Tools.Build.BuildVer.json";
-    private static BuildVerJson _buildVerJson = GetBuildDetails();
+    private static readonly BuildVerJson _buildVerJson = GetBuildDetails();
 
     // Full fidelity read-write
 
@@ -283,10 +283,11 @@ internal static partial class SourceSerializer
 
     public static CanvasDocument Create(string appName, string packagesPath, IList<string> paFiles, ErrorContainer errors)
     {
-        var app = new CanvasDocument();
-
-        app._properties = DocumentPropertiesJson.CreateDefault(appName);
-        app._header = HeaderJson.CreateDefault();
+        var app = new CanvasDocument
+        {
+            _properties = DocumentPropertiesJson.CreateDefault(appName),
+            _header = HeaderJson.CreateDefault()
+        };
 
         LoadTemplateFiles(errors, app, packagesPath, out var loadedTemplates);
         app._entropy = new Entropy();
@@ -323,7 +324,7 @@ internal static partial class SourceSerializer
             templateList.Add(new TemplatesJson.TemplateJson() { Name = templateName, Template = xmlContents, Version = parsedTemplate.Version });
         }
 
-        List<PcfTemplateJson> pcfTemplateConversions = new List<PcfTemplateJson>();
+        var pcfTemplateConversions = new List<PcfTemplateJson>();
         foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(PcfConversionDir, "*.json", searchSubdirectories: false))
         {
             pcfTemplateConversions.Add(file.ToObject<PcfTemplateJson>());
@@ -348,7 +349,7 @@ internal static partial class SourceSerializer
     {
         if (File.Exists(custompagesMetadataPath))
         {
-            DirectoryReader.Entry file = new DirectoryReader.Entry(custompagesMetadataPath);
+            var file = new DirectoryReader.Entry(custompagesMetadataPath);
             app._customPageInputsMetadata = file.GetContents();
         }
     }
@@ -359,9 +360,8 @@ internal static partial class SourceSerializer
         // Logo file. 
         if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
         {
-            FilePath key = FilePath.FromMsAppPath(app._publishInfo.LogoFileName);
-            FileEntry logoFile;
-            if (app._assetFiles.TryGetValue(key, out logoFile))
+            var key = FilePath.FromMsAppPath(app._publishInfo.LogoFileName);
+            if (app._assetFiles.TryGetValue(key, out var logoFile))
             {
                 app._unknownFiles.Remove(key);
                 app._logoFile = logoFile;
@@ -380,7 +380,7 @@ internal static partial class SourceSerializer
             }
 
             // Json peer to a .pa file.
-            ControlTreeState editorState = file.ToObject<ControlTreeState>();
+            var editorState = file.ToObject<ControlTreeState>();
             if (editorState.ControlStates == null)
                 ApplyV24BackCompat(editorState, file);
 
@@ -474,7 +474,7 @@ internal static partial class SourceSerializer
 
     private static void AddControl(CanvasDocument app, string filePath, bool isComponent, string fileContents, ErrorContainer errors)
     {
-        var filename = Path.GetFileName(filePath);
+        _ = Path.GetFileName(filePath);
         try
         {
             var parser = new Parser.Parser(filePath, fileContents, errors);
@@ -494,7 +494,7 @@ internal static partial class SourceSerializer
             }
             else
             {
-                var collection = (isComponent) ? app._components : app._screens;
+                var collection = isComponent ? app._components : app._screens;
                 collection.Add(controlIR.Name.Identifier, controlIR);
             }
         }
@@ -552,7 +552,7 @@ internal static partial class SourceSerializer
 
         foreach (var control in app._screens)
         {
-            string controlName = control.Key;
+            var controlName = control.Key;
             var isTest = controlName == AppTestControlName;
             var subDir = isTest ? TestDir : CodeDir;
 
@@ -561,11 +561,11 @@ internal static partial class SourceSerializer
 
         foreach (var control in app._components)
         {
-            string controlName = control.Key;
+            var controlName = control.Key;
             app._templateStore.TryGetTemplate(controlName, out var templateState);
 
-            bool isImported = importedComponents.Contains(templateState.TemplateOriginalName);
-            var subDir = (isImported) ? ComponentPackageDir : ComponentCodeDir;
+            var isImported = importedComponents.Contains(templateState.TemplateOriginalName);
+            var subDir = isImported ? ComponentPackageDir : ComponentCodeDir;
             WriteTopParent(dir, app, control.Key, control.Value, subDir);
         }
 
@@ -620,7 +620,7 @@ internal static partial class SourceSerializer
         WriteDataSources(dir, app, errors);
 
         // Loose files. 
-        foreach (FileEntry file in app._unknownFiles.Values)
+        foreach (var file in app._unknownFiles.Values)
         {
             // Standardize the .json files so they're determinsitc and comparable
             if (file.Name.HasExtension(".json"))
@@ -671,20 +671,20 @@ internal static partial class SourceSerializer
     private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
     {
         var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
-     
+
         // Data Sources  - write out each individual source. 
-        HashSet<string> filenames = new HashSet<string>();
+        var filenames = new HashSet<string>();
         var dataSourceDefinitions = new Dictionary<string, List<(FilePath filePath, DataSourceDefinition dataSourceDef)>>();
 
         foreach (var kvp in app.GetDataSources())
         {
             // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
             // Also be determinstic. 
-            string filename = kvp.Key + ".json";
+            var filename = kvp.Key + ".json";
 
             if (!filenames.Add(filename.ToLower()))
             {
-                int index = 1;
+                var index = 1;
                 var altFileName = kvp.Key + "_" + index + ".json";
                 while (!filenames.Add(altFileName.ToLower()))
                 {
@@ -704,10 +704,12 @@ internal static partial class SourceSerializer
                 // CDS DataSource
                 if (ds.TableDefinition != null)
                 {
-                    dataSourceDef = new DataSourceDefinition();
-                    dataSourceDef.TableDefinition = Utilities.JsonParse<DataSourceTableDefinition>(ds.TableDefinition);
-                    dataSourceDef.DatasetName = ds.DatasetName;
-                    dataSourceDef.EntityName = ds.RelatedEntityName ?? ds.Name;
+                    dataSourceDef = new DataSourceDefinition
+                    {
+                        TableDefinition = Utilities.JsonParse<DataSourceTableDefinition>(ds.TableDefinition),
+                        DatasetName = ds.DatasetName,
+                        EntityName = ds.RelatedEntityName ?? ds.Name
+                    };
                     ds.DatasetName = null;
                     ds.TableDefinition = null;
                 }
@@ -720,10 +722,12 @@ internal static partial class SourceSerializer
                         errors.UnsupportedError($"Connection {ds.Name} is using the old CDS connector which is incompatible with this tool");
                         throw new DocumentException();
                     }
-                    dataSourceDef = new DataSourceDefinition();
-                    dataSourceDef.DataEntityMetadataJson = ds.DataEntityMetadataJson;
-                    dataSourceDef.EntityName = ds.Name;
-                    dataSourceDef.TableName = ds.TableName;
+                    dataSourceDef = new DataSourceDefinition
+                    {
+                        DataEntityMetadataJson = ds.DataEntityMetadataJson,
+                        EntityName = ds.Name,
+                        TableName = ds.TableName
+                    };
                     ds.TableName = null;
                     ds.DataEntityMetadataJson = null;
                 }
@@ -778,7 +782,7 @@ internal static partial class SourceSerializer
                 else
                 {
                     dir.WriteAllJson(DataSourcePackageDir, new FilePath(filename), dataSourceDef);
-                } 
+                }
             }
 
             dir.WriteAllJson(DataSourcesDir, new FilePath(filename), dataSourceStateToWrite);
@@ -835,7 +839,7 @@ internal static partial class SourceSerializer
             {
                 localDatabaseReferenceJson = new LocalDatabaseReferenceJson()
                 {
-                                  // Use the unused data sources of the first table definition of a particular data set
+                    // Use the unused data sources of the first table definition of a particular data set
                     dataSources = tableDef.UnusedDataSources == null ?
                                   // Set it to null when unused data sources of the first table definition is null
                                   // This could occur if dataSources were not present in original msapp, hence no unused data sources
@@ -872,10 +876,7 @@ internal static partial class SourceSerializer
                 // now that we have seen first non null LocalReferenceDSJson
                 // we know for sure that dataSources for the localDatabaseReferenceJson was not null
                 // in that case, no longer assume dataSource to be null
-                if (localDatabaseReferenceJson.dataSources == null)
-                {
-                    localDatabaseReferenceJson.dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
-                }
+                localDatabaseReferenceJson.dataSources ??= new Dictionary<string, LocalDatabaseReferenceDataSource>();
                 localDatabaseReferenceJson.dataSources?.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
             }
         }
@@ -933,8 +934,8 @@ internal static partial class SourceSerializer
                 }
                 else if (ds.Type == "ServiceInfo")
                 {
-                    var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string xmlDef);
-                    var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out string swaggerDef);
+                    var foundXML = xmlDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out var xmlDef);
+                    var foundJson = swaggerDefs.TryGetValue(Path.GetFileNameWithoutExtension(file._relativeName), out var swaggerDef);
 
                     if (foundXML || foundJson)
                     {
@@ -990,7 +991,7 @@ internal static partial class SourceSerializer
         var controlName = name;
         var newControlName = Utilities.TruncateNameIfTooLong(controlName);
 
-        string filename = newControlName + ".fx.yaml";
+        var filename = newControlName + ".fx.yaml";
 
         // For AppTest control shard each test suite into individual files.
         if (controlName == AppTestControlName)
@@ -1011,7 +1012,7 @@ internal static partial class SourceSerializer
         // For other control types, create an editor state.
         if (string.IsNullOrEmpty(topParentName))
         {
-            string editorStateFilename = $"{newControlName}.editorstate.json";
+            var editorStateFilename = $"{newControlName}.editorstate.json";
 
             var controlStates = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
@@ -1019,7 +1020,7 @@ internal static partial class SourceSerializer
                 controlStates.Add(item.Name, item);
             }
 
-            ControlTreeState editorState = new ControlTreeState
+            var editorState = new ControlTreeState
             {
                 ControlStates = controlStates,
                 TopParentName = controlName
@@ -1084,8 +1085,7 @@ internal static partial class SourceSerializer
                 }
             }
 
-            CombinedTemplateState templateState;
-            app._templateStore.TryGetTemplate(child.Name.Kind.TypeName, out templateState);
+            app._templateStore.TryGetTemplate(child.Name.Kind.TypeName, out var templateState);
 
             // Some of the child components don't have a template eg. TestStep, so we can safely continue if we can't find an entry in the templateStore.
             if (templateState == null)

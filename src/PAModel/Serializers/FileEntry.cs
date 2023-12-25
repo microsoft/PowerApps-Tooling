@@ -11,7 +11,7 @@ using System.Linq;
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 // Raw kinds of files we recognize in the .msapp 
-enum FileKind
+internal enum FileKind
 {
     Unknown,
 
@@ -114,7 +114,7 @@ internal class FileEntry
     public const char FilenameLeadingUnderscore = '_';
 
     // Map from path in .msapp to type. 
-    internal static Dictionary<string, FileKind> _fileKinds = new Dictionary<string, FileKind>(StringComparer.OrdinalIgnoreCase)
+    internal static Dictionary<string, FileKind> _fileKinds = new(StringComparer.OrdinalIgnoreCase)
     {
         {"Entities.json", FileKind.OldEntityJSon },
         {"Properties.json", FileKind.Properties },
@@ -145,7 +145,7 @@ internal class FileEntry
 
     internal static FilePath GetFilenameForKind(FileKind kind)
     {
-        string filename =
+        var filename =
             (from kv in _fileKinds
              where kv.Value == kind
              select kv.Key).FirstOrDefault();
@@ -155,8 +155,7 @@ internal class FileEntry
 
     internal static FileKind TriageKind(FilePath fullname)
     {
-        FileKind kind;
-        if (_fileKinds.TryGetValue(fullname.ToMsAppPath(), out kind))
+        if (_fileKinds.TryGetValue(fullname.ToMsAppPath(), out var kind))
         {
             return kind;
         }

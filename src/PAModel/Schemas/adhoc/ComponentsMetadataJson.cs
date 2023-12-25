@@ -28,7 +28,7 @@ internal class ComponentManifest
     // For analysis.
     internal ControlInfoJson _sources;
 
-    internal bool IsDataComponent => this.DataComponentDefinitionKey != null;
+    internal bool IsDataComponent => DataComponentDefinitionKey != null;
 
     // Only data components have this. 
     internal void Apply(TemplateMetadataJson x)
@@ -38,10 +38,10 @@ internal class ComponentManifest
         // $$$ Consistency checks? Or we can just catch this on round-tripping? 
         SetGuid(x.Name);
 
-        this.DataComponentDefinitionKey = x.DataComponentDefinitionKey;
-        
+        DataComponentDefinitionKey = x.DataComponentDefinitionKey;
+
         // Clear out volatile state. Will repopulate on write. 
-        this.DataComponentDefinitionKey.ControlUniqueId = null; 
+        DataComponentDefinitionKey.ControlUniqueId = null;
     }
 
     // A component will always have this. 
@@ -59,12 +59,12 @@ internal class ComponentManifest
 
     private void SetGuid(string guid)
     {
-        if (this.TemplateGuid == null)
+        if (TemplateGuid == null)
         {
-            this.TemplateGuid = guid;
+            TemplateGuid = guid;
             return;
         }
-        if (this.TemplateGuid != guid)
+        if (TemplateGuid != guid)
         {
             throw new InvalidOperationException(); // Mismatch
         }
@@ -83,11 +83,11 @@ internal class DataComponentSourcesJson
     public class Entry
     {
         // The template guid
-        public string AssociatedDataComponentTemplate { get; set; } 
+        public string AssociatedDataComponentTemplate { get; set; }
 
         public string Name { get; set; } // Name of data source, eg, Component1_Table
         public string Type { get; set; } // NativeCDSDataSourceInfo
-                 
+
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
     }
@@ -116,7 +116,7 @@ internal class ComponentsMetadataJson
 {
     public class Entry
     {
-        public string Name { get; set;  } // "Component1";
+        public string Name { get; set; } // "Component1";
         public string TemplateName { get; set; } // "a70e51d571ae4649a16b8bf1622ffdac";
         public bool? AllowAccessToGlobals { get; set; }
 

@@ -8,9 +8,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class RemoveControl : IDelta
 {
-    private ControlPath _parentControlPath;
-    private string _controlName;
-    private bool _isInComponent;
+    private readonly ControlPath _parentControlPath;
+    private readonly string _controlName;
+    private readonly bool _isInComponent;
 
     public RemoveControl(ControlPath parentControlPath, string controlName, bool isInComponent)
     {

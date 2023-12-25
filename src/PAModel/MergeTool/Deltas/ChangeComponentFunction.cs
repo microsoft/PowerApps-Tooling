@@ -12,8 +12,8 @@ internal class ChangeComponentFunction : IDelta
 {
     public readonly ControlPath ControlPath;
     public readonly string PropertyName;
-    private FunctionNode _func;
-    private bool _wasRemoved;
+    private readonly FunctionNode _func;
+    private readonly bool _wasRemoved;
     private readonly CustomPropertyJson _customProperty;
 
     private ChangeComponentFunction(ControlPath path, string propertyName, FunctionNode func, CustomPropertyJson customProperty, bool wasRemoved)
@@ -71,9 +71,9 @@ internal class ChangeComponentFunction : IDelta
 
     private class ChangeComponentFunctionVisitor : DefaultVisitor<ControlPath>
     {
-        private string _property;
-        private FunctionNode _func;
-        private bool _wasRemoved;
+        private readonly string _property;
+        private readonly FunctionNode _func;
+        private readonly bool _wasRemoved;
         private bool _success = false;
 
         public static bool ApplyChange(BlockNode block, ControlPath path, string property, FunctionNode func, bool wasRemoved)

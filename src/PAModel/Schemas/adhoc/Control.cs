@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
@@ -80,8 +80,10 @@ internal class ControlInfoJson
 
         public static Template CreateDefaultTemplate(string name, ControlTemplate controlTemplate)
         {
-            var template = new Template();
-            template.Name = name;
+            var template = new Template
+            {
+                Name = name
+            };
             // Try recreating template using template defaults
             if (controlTemplate != null)
             {
@@ -139,13 +141,13 @@ internal class ControlInfoJson
 
         /// These properties should be part of the IR and studio state stuff, but not part of the json
         /// Split these out when refactoring
-        [JsonIgnore]    
+        [JsonIgnore]
         public bool SkipWriteToSource { get; set; } = false;
 
         public Dictionary<string, RuleEntry> GetRules()
         {
-            var rules = new Dictionary<string, ControlInfoJson.RuleEntry>();
-            foreach (var rule in this.Rules)
+            var rules = new Dictionary<string, RuleEntry>();
+            foreach (var rule in Rules)
             {
                 rules[rule.Property] = rule;
             }

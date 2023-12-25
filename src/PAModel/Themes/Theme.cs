@@ -13,8 +13,8 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 internal class Theme
 {
     // Outer key is stylename, inner key is property name, inner value is expression
-    private readonly Dictionary<string, Dictionary<string, string>> _styles = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-    
+    private readonly Dictionary<string, Dictionary<string, string>> _styles = new(StringComparer.OrdinalIgnoreCase);
+
     public Theme(ThemesJson themeJson)
     {
         Contract.Assert(themeJson != null);
@@ -25,13 +25,13 @@ internal class Theme
         {
             LoadTheme(foundTheme);
         }
-        
+
     }
 
 
     private void LoadTheme(CustomThemeJson theme)
     {
-        Dictionary<string, string> palleteRules = new Dictionary<string, string>();
+        var palleteRules = new Dictionary<string, string>();
         foreach (var item in theme.palette)
         {
             palleteRules[item.name] = item.value;
@@ -53,11 +53,8 @@ internal class Theme
                     {
                         var group = match.Groups[1];
 
-
-
-                        string resourceValue;
                         // Template may refer to a missing rule. 
-                        if (palleteRules.TryGetValue(group.ToString(), out resourceValue))
+                        if (palleteRules.TryGetValue(group.ToString(), out var resourceValue))
                         {
                             ruleValue = ruleValue.Replace(match.Value, resourceValue);
                         }

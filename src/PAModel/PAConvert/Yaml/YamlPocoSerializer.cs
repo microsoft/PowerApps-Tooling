@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 public class YamlPocoSerializer : IDisposable
 {
-    YamlWriter _yamlWriter;
+    private YamlWriter _yamlWriter;
     private bool _isDisposed;
 
     public YamlPocoSerializer()

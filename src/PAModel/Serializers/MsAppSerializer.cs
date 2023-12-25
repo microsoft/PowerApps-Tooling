@@ -54,17 +54,18 @@ internal static class MsAppSerializer
 
         // Read raw files. 
         // Apply transforms. 
-        var app = new CanvasDocument();
-
-        app._checksum = new ChecksumJson(); // default empty. Will get overwritten if the file is present.
-        app._templateStore = new EditorState.TemplateStore();
-        app._editorStateStore = new EditorState.EditorStateStore();
+        var app = new CanvasDocument
+        {
+            _checksum = new ChecksumJson(), // default empty. Will get overwritten if the file is present.
+            _templateStore = new EditorState.TemplateStore(),
+            _editorStateStore = new EditorState.EditorStateStore()
+        };
 
         ComponentsMetadataJson componentsMetadata = null;
         DataComponentTemplatesJson dctemplate = null;
         DataComponentSourcesJson dcsources = null;
 
-        ChecksumMaker checksumMaker = new ChecksumMaker();
+        var checksumMaker = new ChecksumMaker();
         // key = screen, value = index
         var screenOrder = new Dictionary<string, double>();
 
@@ -203,7 +204,7 @@ internal static class MsAppSerializer
                             var dataSources = ToObject<DataSourcesJson>(entry);
                             Utilities.EnsureNoExtraData(dataSources.ExtensionData);
 
-                            int iOrder = 0;
+                            var iOrder = 0;
                             foreach (var ds in dataSources.DataSources)
                             {
                                 app.AddDataSourceForLoad(ds, iOrder);
@@ -214,7 +215,7 @@ internal static class MsAppSerializer
                     case FileKind.Templates:
                         {
                             app._templates = ToObject<TemplatesJson>(entry);
-                            int iOrder = 0;
+                            var iOrder = 0;
                             foreach (var template in app._templates.UsedTemplates)
                             {
                                 app._entropy.Add(template, iOrder);
@@ -313,14 +314,14 @@ internal static class MsAppSerializer
 
             if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
             {
-                var cxs = Utilities.JsonParse<IDictionary<String, ConnectionJson>>(app._properties.LocalConnectionReferences);
+                var cxs = Utilities.JsonParse<IDictionary<string, ConnectionJson>>(app._properties.LocalConnectionReferences);
 
                 foreach (var connectionJson in cxs)
                 {
                     var extensionData = connectionJson.Value.ExtensionData;
                     if (extensionData != null)
                     {
-                        if (extensionData.TryGetValue(ConnectionInstanceIDPropertyName, out JsonElement connectionInstanceID))
+                        if (extensionData.TryGetValue(ConnectionInstanceIDPropertyName, out var connectionInstanceID))
                         {
                             var serializedID = JsonSerializer.Serialize(connectionInstanceID);
 
@@ -363,7 +364,7 @@ internal static class MsAppSerializer
 
             if (componentsMetadata?.Components != null)
             {
-                int order = 0;
+                var order = 0;
                 foreach (var x in componentsMetadata.Components)
                 {
                     var manifest = ComponentManifest.Create(x);
@@ -382,7 +383,7 @@ internal static class MsAppSerializer
             // Only for data-compoents.
             if (dctemplate?.ComponentTemplates != null)
             {
-                int order = 0;
+                var order = 0;
                 foreach (var x in dctemplate.ComponentTemplates)
                 {
                     if (x.ComponentType == null)
@@ -397,7 +398,7 @@ internal static class MsAppSerializer
                         throw new DocumentException();
                     }
 
-                    ComponentManifest manifest = templateState.ComponentManifest; // Should already exist
+                    var manifest = templateState.ComponentManifest; // Should already exist
                     app._entropy.SetTemplateVersion(x.Name, x.Version);
                     app._entropy.Add(x, order);
                     manifest.Apply(x);
@@ -475,7 +476,7 @@ internal static class MsAppSerializer
             DirectoryWriter.EnsureFileDirExists(fullpathToMsApp);
             using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
             {
-                foreach (FileEntry entry in app.GetMsAppFiles(errors))
+                foreach (var entry in app.GetMsAppFiles(errors))
                 {
                     if (entry != null)
                     {
@@ -574,10 +575,10 @@ internal static class MsAppSerializer
             {
                 foreach (var connection in app._connections)
                 {
-                    if (connectionIDReferences.TryGetValue(connection.Key, out string instanceID))
+                    if (connectionIDReferences.TryGetValue(connection.Key, out var instanceID))
                     {
                         var extensionData = connection.Value.ExtensionData;
-                        JsonElement connectionInstanceID = JsonSerializer.Deserialize<JsonElement>(instanceID);
+                        var connectionInstanceID = JsonSerializer.Deserialize<JsonElement>(instanceID);
 
                         // Deserialized conn instance id is added to the extension data to eventually add it back to properties.json while packing
                         extensionData.Add(ConnectionInstanceIDPropertyName, connectionInstanceID);
@@ -692,7 +693,7 @@ internal static class MsAppSerializer
         if (sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).Count() == app._screenOrder.Count &&
            sourceFiles.Where(file => !ExcludeControlFromScreenOrdering(file)).All(file => app._screenOrder.Contains(file.ControlName)))
         {
-            double i = 0.0;
+            var i = 0.0;
             foreach (var screen in app._screenOrder)
             {
                 sourceFiles.First(file => file.ControlName == screen).Value.TopParent.Index = i;
@@ -702,7 +703,7 @@ internal static class MsAppSerializer
         else
         {
             // Make up an order, it doesn't really matter.
-            double i = 0.0;
+            var i = 0.0;
             foreach (var sourceFile in sourceFiles)
             {
                 if (ExcludeControlFromScreenOrdering(sourceFile))
@@ -803,7 +804,7 @@ internal static class MsAppSerializer
 
         // Rehydrate the DataComponent DataSource file. 
         {
-            IEnumerable<DataComponentSourcesJson.Entry> ds =
+            var ds =
                from item in app.GetDataSources().SelectMany(x => x.Value).Where(x => x.IsDataComponent)
                select item.DataComponentDetails;
 
@@ -903,7 +904,7 @@ internal static class MsAppSerializer
         string output;
         if (Utilities.IsYamlFile(filename))
         {
-            StringWriter tw = new StringWriter();
+            var tw = new StringWriter();
             YamlPocoSerializer.CanonicalWrite(tw, value);
             output = tw.ToString();
         }

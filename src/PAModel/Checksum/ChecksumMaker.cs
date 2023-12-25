@@ -24,7 +24,7 @@ public class ChecksumMaker
     public const string ChecksumName = "checksum.json";
 
     // Track a checksum per file and then merge into a single one at the end.
-    private readonly Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
+    private readonly Dictionary<string, byte[]> _files = new();
 
     public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(string fullpathToMsApp)
     {
@@ -36,7 +36,7 @@ public class ChecksumMaker
 
     public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(ZipArchive zip)
     {
-        ChecksumMaker checksumMaker = new ChecksumMaker();
+        var checksumMaker = new ChecksumMaker();
 
         foreach (var entry in zip.Entries)
         {
@@ -80,7 +80,7 @@ public class ChecksumMaker
     }
 
     // These paths are json double-encoded and need a different comparer.
-    private static HashSet<string> _jsonDouble = new HashSet<string>
+    private static readonly HashSet<string> _jsonDouble = new()
     {
         "LocalConnectionReferences",
         "LocalDatabaseReferences",
@@ -98,7 +98,7 @@ public class ChecksumMaker
     };
 
     // These paths are xml double-encoded and need a different comparer.
-    private static HashSet<string> _xmlDouble = new HashSet<string>
+    private static readonly HashSet<string> _xmlDouble = new()
     {
         "UsedTemplates\\Template",
         "DataSources\\WadlMetadata\\WadlXml",
@@ -109,7 +109,7 @@ public class ChecksumMaker
     private class Context
     {
         public string Filename;
-        public Stack<string> s = new Stack<string>();
+        public Stack<string> s = new();
 
         public void Push(string path)
         {
@@ -124,14 +124,14 @@ public class ChecksumMaker
         {
             get
             {
-                if (this.s.Count == 1)
+                if (s.Count == 1)
                 {
-                    if (_jsonDouble.Contains(this.s.Peek()))
+                    if (_jsonDouble.Contains(s.Peek()))
                     {
                         return true;
                     }
                 }
-                if (this.s.Count >= 2)
+                if (s.Count >= 2)
                 {
                     var path = string.Join("\\", s.Reverse());
                     if (_jsonDouble.Any(x => path.EndsWith(x)))
@@ -146,7 +146,7 @@ public class ChecksumMaker
         {
             get
             {
-                if (this.s.Count >= 2)
+                if (s.Count >= 2)
                 {
                     if (_xmlDouble.Contains(string.Join("\\", s.Reverse())))
                     {
@@ -165,7 +165,7 @@ public class ChecksumMaker
         var s = new ReadOnlyMemory<byte>(bytes);
         using (var doc = JsonDocument.Parse(s))
         {
-            JsonElement je = doc.RootElement;
+            var je = doc.RootElement;
 
             var ctx = new Context { Filename = filename };
 
@@ -226,11 +226,11 @@ public class ChecksumMaker
     // platform independent
     internal static string NormFormulaWhitespace(string s)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         var lastCharIsWhitespace = true;
         foreach (var ch in s)
         {
-            bool isWhitespace = (ch == '\t') || (ch == ' ') || (ch == '\r') || (ch == '\n');
+            var isWhitespace = (ch == '\t') || (ch == ' ') || (ch == '\r') || (ch == '\n');
             if (isWhitespace)
             {
                 if (!lastCharIsWhitespace)
@@ -246,7 +246,7 @@ public class ChecksumMaker
             }
         }
         // Don't include trailing whitespace
-        while ((sb.Length > 1) && sb[sb.Length - 1] == ' ') { sb.Length--; }
+        while ((sb.Length > 1) && sb[^1] == ' ') { sb.Length--; }
 
         return sb.ToString();
     }
@@ -269,7 +269,7 @@ public class ChecksumMaker
                 hash.AppendStartObj();
                 // Server has bug where it double emits the same property!
                 // Only use once in checksum.
-                HashSet<string> propertyNames = new HashSet<string>();
+                var propertyNames = new HashSet<string>();
 
                 // Need to determinsitically order the properties.
                 foreach (var prop in je.EnumerateObject().OrderBy(x => x.Name))

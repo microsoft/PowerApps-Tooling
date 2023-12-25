@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Globalization;
@@ -15,23 +15,34 @@ internal class JsonDateTimeConverter : System.Text.Json.Serialization.JsonConver
     /// </summary>
     /// <param name="dateString"></param>
     /// <returns></returns>
-    public static DateTime ParseDate(string dateString) => DateTime.Parse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+    public static DateTime ParseDate(string dateString)
+    {
+        return DateTime.Parse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+    }
 
     /// <summary>
     /// Converts date to utc and returns it a string formatted according to
     /// <see cref="CultureInfo.InvariantCulture"/>.
     /// </summary>
     /// <returns>Date as string</returns>
-    public static string WriteDate(DateTime date) => date.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+    public static string WriteDate(DateTime date)
+    {
+        return date.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+    }
 
     public override DateTime Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
-        JsonSerializerOptions options) => ParseDate(reader.GetString());
+        JsonSerializerOptions options)
+    {
+        return ParseDate(reader.GetString());
+    }
 
     public override void Write(
         Utf8JsonWriter writer,
         DateTime dateTimeValue,
-        JsonSerializerOptions options) =>
+        JsonSerializerOptions options)
+    {
         writer.WriteStringValue(WriteDate(dateTimeValue));
+    }
 }

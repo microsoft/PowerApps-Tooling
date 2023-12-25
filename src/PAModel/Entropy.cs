@@ -112,72 +112,72 @@ internal class Entropy
     {
         // To ensure that that TableDefinitions are put at the end in DataSources.json when the order information is not available.
         var defaultValue = dataSource.TableDefinition != null ? int.MaxValue : -1;
-        return this.OrderDataSource.GetOrDefault<string, int>(dataSource.GetUniqueName(), defaultValue);
+        return OrderDataSource.GetOrDefault(dataSource.GetUniqueName(), defaultValue);
     }
     public void Add(DataSourceEntry entry, int? order)
     {
         if (order.HasValue)
         {
-            this.OrderDataSource[entry.GetUniqueName()] = order.Value;
+            OrderDataSource[entry.GetUniqueName()] = order.Value;
         }
     }
 
     public int GetOrder(ComponentsMetadataJson.Entry entry)
     {
-        return this.OrderComponentMetadata.GetOrDefault<string, int>(entry.TemplateName, -1);
+        return OrderComponentMetadata.GetOrDefault(entry.TemplateName, -1);
     }
     public void Add(ComponentsMetadataJson.Entry entry, int order)
     {
-        this.OrderComponentMetadata[entry.TemplateName] = order;
+        OrderComponentMetadata[entry.TemplateName] = order;
     }
 
     public int GetOrder(TemplateMetadataJson entry)
     {
-        return this.OrderTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        return OrderTemplate.GetOrDefault(entry.Name, -1);
     }
     public void Add(TemplateMetadataJson entry, int order)
     {
-        this.OrderTemplate[entry.Name] = order;
+        OrderTemplate[entry.Name] = order;
     }
 
     public int GetOrder(TemplatesJson.TemplateJson entry)
     {
-        return this.OrderXMLTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        return OrderXMLTemplate.GetOrDefault(entry.Name, -1);
     }
     public void Add(TemplatesJson.TemplateJson entry, int order)
     {
-        this.OrderXMLTemplate[entry.Name] = order;
+        OrderXMLTemplate[entry.Name] = order;
     }
 
     public int GetComponentOrder(TemplateMetadataJson entry)
     {
-        return this.OrderComponentTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        return OrderComponentTemplate.GetOrDefault(entry.Name, -1);
     }
     public void AddComponent(TemplateMetadataJson entry, int order)
     {
-        this.OrderComponentTemplate[entry.Name] = order;
+        OrderComponentTemplate[entry.Name] = order;
     }
 
     public int GetPcfVersioning(PcfTemplateJson entry)
     {
-        return this.OrderPcfTemplate.GetOrDefault<string, int>(entry.Name, -1);
+        return OrderPcfTemplate.GetOrDefault(entry.Name, -1);
     }
     public void AddPcfVersioning(PcfTemplateJson entry, int order)
     {
-        this.OrderPcfTemplate[entry.Name] = order;
+        OrderPcfTemplate[entry.Name] = order;
     }
 
     public void Add(ResourceJson resource, int order)
     {
         if (resource == null)
         {
-           return;
+            return;
         }
 
         var key = GetResourcesJsonIndicesKey(resource);
-        if (!this.ResourcesJsonIndices.ContainsKey(key))
+        if (!ResourcesJsonIndices.ContainsKey(key))
         {
-            this.ResourcesJsonIndices.Add(key, order);
+            ResourcesJsonIndices.Add(key, order);
         }
     }
 
@@ -197,11 +197,11 @@ internal class Entropy
 
     public void SetHeaderLastSaved(DateTime? x)
     {
-        this.HeaderLastSavedDateTimeUTC = x;
+        HeaderLastSavedDateTimeUTC = x;
     }
     public DateTime? GetHeaderLastSaved()
     {
-        return this.HeaderLastSavedDateTimeUTC;
+        return HeaderLastSavedDateTimeUTC;
     }
 
     public void SetTemplateVersion(string dataComponentGuid, string version)
@@ -211,8 +211,7 @@ internal class Entropy
 
     public string GetTemplateVersion(string dataComponentGuid)
     {
-        string version;
-        TemplateVersions.TryGetValue(dataComponentGuid, out version);
+        TemplateVersions.TryGetValue(dataComponentGuid, out var version);
 
         // Version string is ok to be null.
         // DateTime.Now.ToUniversalTime().Ticks.ToString();
@@ -221,7 +220,7 @@ internal class Entropy
 
     public void SetLogoFileName(string oldLogoName)
     {
-        this.OldLogoFileName = oldLogoName;
+        OldLogoFileName = oldLogoName;
     }
 
     public void SetProperties(DocumentPropertiesJson documentProperties)
@@ -242,7 +241,7 @@ internal class Entropy
 
     public void GetProperties(DocumentPropertiesJson documentProperties)
     {
-        if (this.VolatileProperties != null)
+        if (VolatileProperties != null)
         {
             documentProperties.AnalysisLoadTime = VolatileProperties.AnalysisLoadTime;
             documentProperties.DeserializationLoadTime = VolatileProperties.DeserializationLoadTime;
@@ -255,7 +254,7 @@ internal class Entropy
     {
         var name = groupControl.Name;
         var groupOrder = new Dictionary<string, int>(StringComparer.Ordinal);
-        this.OrderGroupControls[name] = groupOrder;
+        OrderGroupControls[name] = groupOrder;
         var order = 0;
         foreach (var child in groupControl.GroupedControlsKey)
         {
@@ -274,10 +273,7 @@ internal class Entropy
 
     public void AddDataTableControlJson(string controlName, string json)
     {
-        if (DataTableCustomControlTemplateJsons == null)
-        {
-            DataTableCustomControlTemplateJsons = new Dictionary<string, string>();
-        }
+        DataTableCustomControlTemplateJsons ??= new Dictionary<string, string>();
 
         DataTableCustomControlTemplateJsons.Add(controlName, json);
     }
@@ -295,7 +291,7 @@ internal class Entropy
 
     public string GetDefaultScript(string propName, string defaultValue)
     {
-        if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
+        if (FunctionParamsInvariantScripts.TryGetValue(propName, out var value) && value?.Length == 2)
         {
             return value[0];
         }
@@ -304,7 +300,7 @@ internal class Entropy
 
     public string GetInvariantScript(string propName, string defaultValue)
     {
-        if (FunctionParamsInvariantScripts.TryGetValue(propName, out string[] value) && value?.Length == 2)
+        if (FunctionParamsInvariantScripts.TryGetValue(propName, out var value) && value?.Length == 2)
         {
             return value[1];
         }
@@ -313,7 +309,7 @@ internal class Entropy
 
     public string GetInvariantScriptOnInstances(string propName, string defaultValue)
     {
-        if (FunctionParamsInvariantScriptsOnInstances.TryGetValue(propName, out string[] value) && value?.Length == 2)
+        if (FunctionParamsInvariantScriptsOnInstances.TryGetValue(propName, out var value) && value?.Length == 2)
         {
             return value[1];
         }
