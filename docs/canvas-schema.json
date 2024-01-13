@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/microsoft/PowerApps-Language-Tooling/blob/master/docs/canvas-schema.json",
+  "title": "Microsoft Power Apps canvas screen schema",
+  "description": "A schema for describing the structure of a Microsoft Power Apps canvas app screen.",
+  "type": "object",
+  "properties": {
+    "Screen" : {
+      "$ref": "#/$defs/ControlInfo"
+    }
+  },
+  "required": [
+    "Screen"
+  ],
+  "$defs": {
+    "ControlInfo": {
+      "type": "object",
+      "required": [ "Name" ],
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ControlInfo"
+          }
+        }
+      }
+    }
+  }
+}
