@@ -18,7 +18,6 @@ internal class ComponentInstanceTransform : IControlTemplateTransform
         _errors = errors;
     }
 
-
     public IEnumerable<string> TargetTemplates => ComponentRenames.Keys;
 
     public void AfterRead(BlockNode control)

@@ -94,7 +94,7 @@ internal static partial class SourceSerializer
 
         var dir = new DirectoryReader(directory2);
         var app = new CanvasDocument();
-        string appInsightsInstumentationKey = null;
+        string appInsightsInstrumentationKey = null;
 
         // Do the manifest check (and version check) first. 
         // MAnifest lives in top-level directory. 
@@ -128,7 +128,7 @@ internal static partial class SourceSerializer
                     break;
                 case FileKind.AppInsightsKey:
                     var appInsights = file.ToObject<AppInsightsKeyJson>();
-                    appInsightsInstumentationKey = appInsights.InstrumentationKey;
+                    appInsightsInstrumentationKey = appInsights.InstrumentationKey;
                     break;
             }
         }
@@ -145,9 +145,9 @@ internal static partial class SourceSerializer
         }
 
 
-        if (appInsightsInstumentationKey != null)
+        if (appInsightsInstrumentationKey != null)
         {
-            app._properties.InstrumentationKey = appInsightsInstumentationKey;
+            app._properties.InstrumentationKey = appInsightsInstrumentationKey;
         }
         if (app._header == null)
         {
@@ -206,7 +206,7 @@ internal static partial class SourceSerializer
             app._resourcesJson.Resources = resources.ToArray();
         }
 
-        // We have processed all the json files in Assets directory, now interate through all the files to add the asset files.
+        // We have processed all the json files in Assets directory, now iterate through all the files to add the asset files.
         foreach (var file in dir.EnumerateFiles(AssetsDir))
         {
             // Skip adding the json files which were created to contain the information for duplicate asset files.
@@ -230,7 +230,7 @@ internal static partial class SourceSerializer
 
         app.GetLogoFile();
 
-        // Add the entries for local assets back to resrouces.json
+        // Add the entries for local assets back to resources.json
         TransformResourceJson.AddLocalAssetEntriesToResourceJson(app);
 
         foreach (var file in dir.EnumerateFiles(OtherDir))
@@ -345,11 +345,11 @@ internal static partial class SourceSerializer
         }
     }
 
-    private static void LoadCustomPagesSchemaMetadata(CanvasDocument app, string custompagesMetadataPath)
+    private static void LoadCustomPagesSchemaMetadata(CanvasDocument app, string customPagesMetadataPath)
     {
-        if (File.Exists(custompagesMetadataPath))
+        if (File.Exists(customPagesMetadataPath))
         {
-            var file = new DirectoryReader.Entry(custompagesMetadataPath);
+            var file = new DirectoryReader.Entry(customPagesMetadataPath);
             app._customPageInputsMetadata = file.GetContents();
         }
     }
@@ -484,7 +484,7 @@ internal static partial class SourceSerializer
                 return; // error condition
             }
 
-            // validate that all the packages refferred are not accidentally deleted from pkgs dierectory
+            // validate that all the packages referred are not accidentally deleted from pkgs directory
             ValidateIfTemplateExists(app, controlIR, controlIR, errors);
 
             // Since the TestSuites are sharded into individual files make sure to add them as children of AppTest control
@@ -622,7 +622,7 @@ internal static partial class SourceSerializer
         // Loose files. 
         foreach (var file in app._unknownFiles.Values)
         {
-            // Standardize the .json files so they're determinsitc and comparable
+            // Standardize the .json files so they're deterministic and comparable
             if (file.Name.HasExtension(".json"))
             {
                 ReadOnlyMemory<byte> span = file.RawBytes;
@@ -679,7 +679,7 @@ internal static partial class SourceSerializer
         foreach (var kvp in app.GetDataSources())
         {
             // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
-            // Also be determinstic. 
+            // Also be deterministic. 
             var filename = kvp.Key + ".json";
 
             if (!filenames.Add(filename.ToLower()))
@@ -718,7 +718,7 @@ internal static partial class SourceSerializer
                 {
                     if (ds.ApiId == "/providers/microsoft.powerapps/apis/shared_commondataservice")
                     {
-                        // This is the old CDS connector, we can't support it since it's optionset format is incompatable with the newer one
+                        // This is the old CDS connector, we can't support it since it's optionset format is incompatible with the newer one
                         errors.UnsupportedError($"Connection {ds.Name} is using the old CDS connector which is incompatible with this tool");
                         throw new DocumentException();
                     }
@@ -763,7 +763,7 @@ internal static partial class SourceSerializer
                 var referenceJson = app._dataSourceReferences[dataSourceDef.DatasetName];
                 untrackedLdr.Remove(dataSourceDef.DatasetName);
 
-                // copy over the localconnectionreference
+                // copy over the local connection reference
                 if (referenceJson.dataSources?.TryGetValue(dataSourceDef.EntityName, out var dsRef) ?? false)
                 {
                     dataSourceDef.LocalReferenceDSJson = dsRef;
@@ -876,7 +876,7 @@ internal static partial class SourceSerializer
             {
                 // Generate an error, dataset defs have diverged in a way that shouldn't be possible
                 // Each dataset has one instanceurl
-                errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instanceurls");
+                errors.ValidationError($"For file {file._relativeName}, the dataset {tableDef.DatasetName} has multiple instance URLs");
                 throw new DocumentException();
             }
 

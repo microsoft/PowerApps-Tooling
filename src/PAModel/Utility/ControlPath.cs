@@ -30,11 +30,11 @@ internal class ControlPath
 
     public ControlPath Append(string controlName)
     {
-        var newpath = new List<string>(_segments)
+        var newPath = new List<string>(_segments)
         {
             controlName
         };
-        return new ControlPath(newpath);
+        return new ControlPath(newPath);
     }
 
     public ControlPath(List<string> segments)
