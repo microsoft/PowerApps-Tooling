@@ -20,11 +20,14 @@
         "Name": {
           "type": "string"
         },
-        "controls": {
+        "Controls": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/ControlInfo"
           }
+        },
+        "Properties": {
+          "type": "object"
         }
       }
     }
