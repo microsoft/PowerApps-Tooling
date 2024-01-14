@@ -122,7 +122,7 @@ public class CanvasDocument
             return (null, errors);
         }
 
-        using (var stream = new FileStream(fullPathToMsApp, FileMode.Open))
+        using (var stream = new FileStream(fullPathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
             var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors);
             return (doc, errors);

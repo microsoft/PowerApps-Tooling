@@ -155,7 +155,7 @@ internal class MsAppTest
                 var errors = new ErrorContainer();
                 try
                 {
-                    using (var stream = new FileStream(pathToMsApp, FileMode.Open))
+                    using (var stream = new FileStream(pathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         msapp = MsAppSerializer.Load(stream, errors);
                     }
@@ -299,7 +299,7 @@ internal class MsAppTest
                                 }
 
 #if DEBUG
-                                DebugMismatch(entry, originalContents, newContents, normFormDir);
+                                //DebugMismatch(entry, originalContents, newContents, normFormDir);
 #endif
 
                                 if (!isJson)

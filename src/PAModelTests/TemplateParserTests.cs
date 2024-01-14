@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
@@ -18,7 +19,7 @@ public class TemplateParserTests
     public void TestGalleryNestedTemplateParse()
     {
         var galleryTemplatePath = Path.Combine(Environment.CurrentDirectory, "Templates", "gallery_2.10.0.xml");
-        Assert.IsTrue(File.Exists(galleryTemplatePath));
+        File.Exists(galleryTemplatePath).Should().BeTrue();
 
         using var galleryTemplateStream = File.OpenRead(galleryTemplatePath);
         using var galleryTemplateReader = new StreamReader(galleryTemplateStream);

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
@@ -90,7 +91,7 @@ public class DefaultValuesTransformTests
     {
         var parsedTemplates = new Dictionary<string, ControlTemplate>();
         var fluidGridTemplatePath = Path.Combine(Environment.CurrentDirectory, "Templates", "fluidGrid_2.2.0.xml");
-        Assert.IsTrue(File.Exists(fluidGridTemplatePath));
+        File.Exists(fluidGridTemplatePath).Should().BeTrue();
 
         using var fluidGridTemplateStream = File.OpenRead(fluidGridTemplatePath);
         using var fluidGridTemplateReader = new StreamReader(fluidGridTemplateStream);

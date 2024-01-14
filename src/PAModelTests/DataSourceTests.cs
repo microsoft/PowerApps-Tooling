@@ -50,7 +50,7 @@ public class DataSourceTests
                 // Repack the app
                 MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
 
-                using (var stream = new FileStream(tempFile.FullPath, FileMode.Open))
+                using (var stream = new FileStream(tempFile.FullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Read the msapp file
                     using var zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);

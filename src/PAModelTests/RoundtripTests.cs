@@ -4,6 +4,7 @@
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace PAModelTests;
 
@@ -17,7 +18,7 @@ public class RoundtripTests
     {
         var directory = Path.Combine(Environment.CurrentDirectory, "Apps");
 
-        foreach (var root in Directory.GetFiles(directory))
+        Parallel.ForEach(Directory.GetFiles(directory), root =>
         {
             try
             {
@@ -32,6 +33,6 @@ public class RoundtripTests
             {
                 Assert.Fail(ex.ToString());
             }
-        }
+        });
     }
 }
