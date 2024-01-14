@@ -152,7 +152,7 @@ internal static class Utilities
     }
 
     // JsonElement is loss-less, handles unknown fields without dropping them.
-    // Convertering to a Poco drops fields we don't recognize.
+    // Converting to a Poco drops fields we don't recognize.
     public static JsonElement ToJson(this ZipArchiveEntry e)
     {
         using (var s = e.Open())
@@ -198,9 +198,9 @@ internal static class Utilities
             relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
-        // If there was any replacement chracter (black diamond with a white heart) in the original string, it gets encoded to %EF%BF%BD
+        // If there was any replacement character (black diamond with a white heart) in the original string, it gets encoded to %EF%BF%BD
         // see details here: http://www.cogsci.ed.ac.uk/~richard/utf-8.cgi?input=%EF%BF%BD&mode=char
-        // spcial handling to add replacement character back to the original string
+        // special handling to add replacement character back to the original string
         relativePath = relativePath.Replace("%EF%BF%BD", "�");
 
         return relativePath;
@@ -420,7 +420,7 @@ internal static class Utilities
 
     /// <summary>
     /// djb2 algorithm to compute the hash of a string
-    /// This must be determinstic and stable since it's used in file names
+    /// This must be deterministic and stable since it's used in file names
     /// </summary>
     /// <param name="str">The string for which we need to compute the hash.</param>
     /// <returns></returns>

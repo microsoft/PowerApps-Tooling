@@ -93,7 +93,7 @@ public class CanvasDocument
 
     // Tracks duplicate asset file information. When a name collision happens we generate a new name for the duplicate asset file.
     // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
-    // Key is a (case-insesitive) new fileName of the resource.
+    // Key is a (case-insensitive) new fileName of the resource.
     // Reason for using FileName of the resource as the key is to avoid name collision across different types eg. Images/close.png, Videos/close.mp4.
     internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new();
     internal static string AssetFilePathPrefix = @"Assets\";

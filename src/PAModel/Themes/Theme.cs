@@ -12,7 +12,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 // Encapsulate the ThemeJson.
 internal class Theme
 {
-    // Outer key is stylename, inner key is property name, inner value is expression
+    // Outer key is style name, inner key is property name, inner value is expression
     private readonly Dictionary<string, Dictionary<string, string>> _styles = new(StringComparer.OrdinalIgnoreCase);
 
     public Theme(ThemesJson themeJson)

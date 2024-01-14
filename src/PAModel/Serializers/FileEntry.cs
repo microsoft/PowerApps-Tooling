@@ -29,7 +29,7 @@ internal enum FileKind
     // If this file is present, it's an older format. 
     OldEntityJSon,
 
-    // Resourcs 
+    // Resources 
     PublishInfo,
 
     // References 

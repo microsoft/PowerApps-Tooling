@@ -382,7 +382,7 @@ internal static class MsAppSerializer
                 }
             }
 
-            // Only for data-compoents.
+            // Only for data-components.
             if (dctemplate?.ComponentTemplates != null)
             {
                 var order = 0;
