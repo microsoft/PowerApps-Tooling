@@ -13,7 +13,6 @@
     <Title>PowerPlatform Canvas App Tools</Title>
     <PackageProjectUrl>https://github.com/microsoft/PowerApps-Language-Tooling</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>Preview Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
     <PackageReleaseNotes>
@@ -38,7 +37,6 @@
   </Target>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE.txt" Pack="true" PackagePath=""/>
     <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
     <EmbeddedResource Include="Themes/DefaultTheme.json" />
   </ItemGroup>
@@ -51,10 +49,10 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Text.Json" Version="6.0.9" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
-    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(GitExists)' == true">
     <PackageReference Include="MinVer" Version="2.3.0">
