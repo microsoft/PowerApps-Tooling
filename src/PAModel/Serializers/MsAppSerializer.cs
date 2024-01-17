@@ -62,8 +62,8 @@ internal static class MsAppSerializer
         };
 
         ComponentsMetadataJson componentsMetadata = null;
-        DataComponentTemplatesJson dctemplate = null;
-        DataComponentSourcesJson dcsources = null;
+        DataComponentTemplatesJson dcTemplate = null;
+        DataComponentSourcesJson dcSources = null;
 
         var checksumMaker = new ChecksumMaker();
         // key = screen, value = index
@@ -125,13 +125,13 @@ internal static class MsAppSerializer
                         throw new DocumentException();
 
                     case FileKind.DataComponentTemplates:
-                        dctemplate = ToObject<DataComponentTemplatesJson>(entry);
+                        dcTemplate = ToObject<DataComponentTemplatesJson>(entry);
                         break;
                     case FileKind.ComponentsMetadata:
                         componentsMetadata = ToObject<ComponentsMetadataJson>(entry);
                         break;
                     case FileKind.DataComponentSources:
-                        dcsources = ToObject<DataComponentSourcesJson>(entry);
+                        dcSources = ToObject<DataComponentSourcesJson>(entry);
                         break;
 
                     case FileKind.Defines:
@@ -347,12 +347,12 @@ internal static class MsAppSerializer
             }
             else
             {
-                var dsrs = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                var dsReferences = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                 app._entropy.LocalDatabaseReferencesAsEmpty = false;
-                if (dsrs.Count > 0)
+                if (dsReferences.Count > 0)
                 {
                     app._entropy.WasLocalDatabaseReferencesEmpty = false;
-                    app._dataSourceReferences = dsrs;
+                    app._dataSourceReferences = dsReferences;
                     app._properties.LocalDatabaseReferences = null;
                 }
             }
@@ -383,10 +383,10 @@ internal static class MsAppSerializer
             }
 
             // Only for data-components.
-            if (dctemplate?.ComponentTemplates != null)
+            if (dcTemplate?.ComponentTemplates != null)
             {
                 var order = 0;
-                foreach (var x in dctemplate.ComponentTemplates)
+                foreach (var x in dcTemplate.ComponentTemplates)
                 {
                     if (x.ComponentType == null)
                     {
@@ -408,11 +408,11 @@ internal static class MsAppSerializer
                 }
             }
 
-            if (dcsources?.DataSources != null)
+            if (dcSources?.DataSources != null)
             {
                 // Component Data sources only appear if the data component is actually 
                 // used as a data source in this app. 
-                foreach (var x in dcsources.DataSources)
+                foreach (var x in dcSources.DataSources)
                 {
                     if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
                     {
@@ -450,42 +450,42 @@ internal static class MsAppSerializer
     }
 
     // Write back out to a msapp file. 
-    public static void SaveAsMsApp(CanvasDocument app, string fullpathToMsApp, ErrorContainer errors, bool isValidation = false)
+    public static void SaveAsMsApp(CanvasDocument app, string fullPathToMsApp, ErrorContainer errors, bool isValidation = false)
     {
         try
         {
             app.ApplyBeforeMsAppWriteTransforms(errors);
 
-            if (string.IsNullOrEmpty(fullpathToMsApp))
+            if (string.IsNullOrEmpty(fullPathToMsApp))
             {
                 errors.BadParameter("Path to msapp cannot be null or empty.");
                 return;
             }
-            else if (!fullpathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
-                fullpathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            else if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase) &&
+                fullPathToMsApp.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 errors.BadParameter("Only works for .msapp files");
                 return;
             }
 
-            if (File.Exists(fullpathToMsApp)) // Overwrite!
+            if (File.Exists(fullPathToMsApp)) // Overwrite!
             {
-                File.Delete(fullpathToMsApp);
+                File.Delete(fullPathToMsApp);
             }
 
             var checksum = new ChecksumMaker();
 
-            DirectoryWriter.EnsureFileDirExists(fullpathToMsApp);
-            using (var z = ZipFile.Open(fullpathToMsApp, ZipArchiveMode.Create))
+            DirectoryWriter.EnsureFileDirExists(fullPathToMsApp);
+            using (var z = ZipFile.Open(fullPathToMsApp, ZipArchiveMode.Create))
             {
                 foreach (var entry in app.GetMsAppFiles(errors))
                 {
                     if (entry != null)
                     {
                         var e = z.CreateEntry(entry.Name.ToMsAppPath());
-                        using (var dest = e.Open())
+                        using (var destination = e.Open())
                         {
-                            dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+                            destination.Write(entry.RawBytes, 0, entry.RawBytes.Length);
                             checksum.AddFile(entry.Name.ToMsAppPath(), entry.RawBytes);
                         }
                     }
@@ -548,9 +548,9 @@ internal static class MsAppSerializer
 
         var entry = ToFile(FileKind.Checksum, checksumJson);
         var e = z.CreateEntry(entry.Name.ToMsAppPath());
-        using (var dest = e.Open())
+        using (var destination = e.Open())
         {
-            dest.Write(entry.RawBytes, 0, entry.RawBytes.Length);
+            destination.Write(entry.RawBytes, 0, entry.RawBytes.Length);
         }
     }
 
@@ -667,7 +667,7 @@ internal static class MsAppSerializer
 
         var idRestorer = new UniqueIdRestorer(app._entropy);
         var maxPublishOrderIndex = app._entropy.PublishOrderIndices.Any() ? app._entropy.PublishOrderIndices.Values.Max() : 0;
-        // Rehydrate sources before yielding any to be written, processing component defs first
+        // Rehydrate sources before yielding any to be written, processing component definitions first
         foreach (var controlData in app._screens.Concat(app._components)
             .OrderBy(source =>
                 (app._editorStateStore.TryGetControlState(source.Value.Name.Identifier, out var control) &&
@@ -745,7 +745,7 @@ internal static class MsAppSerializer
         yield return ToFile(FileKind.Templates, app._templates);
 
         var componentsMetadata = new List<ComponentsMetadataJson.Entry>();
-        var dctemplate = new List<TemplateMetadataJson>();
+        var dcTemplate = new List<TemplateMetadataJson>();
 
 
         foreach (var componentTemplate in app._templateStore.Contents.Values.Where(state => state.ComponentManifest != null))
@@ -778,7 +778,7 @@ internal static class MsAppSerializer
                 // Rehydrate fields. 
                 template.DataComponentDefinitionKey.ControlUniqueId = controlId;
 
-                dctemplate.Add(template);
+                dcTemplate.Add(template);
             }
         }
 
@@ -793,11 +793,11 @@ internal static class MsAppSerializer
             });
         }
 
-        if (dctemplate.Count > 0)
+        if (dcTemplate.Count > 0)
         {
             yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
             {
-                ComponentTemplates = dctemplate
+                ComponentTemplates = dcTemplate
                     .OrderBy(x => app._entropy.GetOrder(x))
                     .ToArray()
             });
@@ -812,9 +812,9 @@ internal static class MsAppSerializer
 
             var dsArray = ds.ToArray();
 
-            // backcompat-nit: if we have any DC, then always emit the DC Sources file, even if empty.
-            // if (dcmetadataList.Count > 0)
-            if (dctemplate.Count > 0 || dsArray.Length > 0)
+            // back compat-nit: if we have any DC, then always emit the DC Sources file, even if empty.
+            // if (dcMetadataList.Count > 0)
+            if (dcTemplate.Count > 0 || dsArray.Length > 0)
             {
                 yield return ToFile(FileKind.DataComponentSources, new DataComponentSourcesJson
                 {
