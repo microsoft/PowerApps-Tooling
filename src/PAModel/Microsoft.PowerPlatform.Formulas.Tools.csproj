@@ -28,6 +28,9 @@
     <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <PublicSign>true</PublicSign>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <NoWarn>$(NoWarn);NU1601</NoWarn>
   </PropertyGroup>
 
   <Target Name="PALT" AfterTargets="MinVer">
@@ -49,8 +52,8 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Text.Json" Version="6.0.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,)" />
+    <PackageReference Include="System.Text.Json" Version="[6.0,)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
     <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
