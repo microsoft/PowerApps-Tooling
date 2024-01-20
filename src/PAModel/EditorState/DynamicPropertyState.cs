@@ -9,7 +9,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 /// Contains property state for AutoLayout properties not written to .pa
 /// <see cref="ControlInfoJson.DynamicPropertyJson"/>
 /// </summary>
-internal class DynamicPropertyState
+public class DynamicPropertyState
 {
     public string PropertyName { get; set; }
 

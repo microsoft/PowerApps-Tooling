@@ -11,7 +11,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 /// <see cref="ControlInfoJson.RuleEntry"/>
 /// After ControlPropertyState is cleaned up by studio, that should get merged into this
 /// </summary>
-internal class PropertyState
+public class PropertyState
 {
     public string PropertyName { get; set; }
     public string NameMap { get; set; }

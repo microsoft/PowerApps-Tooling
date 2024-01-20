@@ -250,7 +250,7 @@ internal class Entropy
         }
     }
 
-    public void AddGroupControl(ControlState groupControl)
+    public void AddGroupControl(ControlEditorState groupControl)
     {
         var name = groupControl.Name;
         var groupOrder = new Dictionary<string, int>(StringComparer.Ordinal);

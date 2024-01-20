@@ -350,8 +350,8 @@ public class SmartMergeTests
             });
 
             branchADoc._screens.Add("Screen32", newScreen);
-            branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Screen32", TopParentName = "Screen32" });
-            branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen32" });
+            branchADoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Screen32", TopParentName = "Screen32" });
+            branchADoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Foo", TopParentName = "Screen32" });
         },
         (branchBDoc) =>
         {
@@ -365,7 +365,7 @@ public class SmartMergeTests
                 },
                 Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
             });
-            branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
+            branchBDoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Foo", TopParentName = "Screen1" });
         },
         (resultDoc) =>
         {
@@ -397,7 +397,7 @@ public class SmartMergeTests
                 },
                 Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
             });
-            branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
+            branchADoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Foo", TopParentName = "Screen1" });
         },
         (branchBDoc) =>
         {
@@ -422,8 +422,8 @@ public class SmartMergeTests
             });
 
             branchBDoc._screens.Add("Screen32", newScreen);
-            branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Screen32", TopParentName = "Screen32" });
-            branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen32" });
+            branchBDoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Screen32", TopParentName = "Screen32" });
+            branchBDoc._editorStateStore.TryAddControl(new ControlEditorState() { Name = "Foo", TopParentName = "Screen32" });
         },
         (resultDoc) =>
         {
