@@ -17,6 +17,11 @@
     <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
 
+  <ItemGroup Label="Global usings">
+    <Using Include="FluentAssertions" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="Apps\*.msapp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

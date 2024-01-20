@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
+using System.IO;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 
 namespace PAModelTests;
 

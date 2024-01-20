@@ -134,7 +134,7 @@ public class ChecksumMaker
                 if (s.Count >= 2)
                 {
                     var path = string.Join("\\", s.Reverse());
-                    if (_jsonDouble.Any(x => path.EndsWith(x)))
+                    if (_jsonDouble.Any(path.EndsWith))
                     {
                         return true;
                     }

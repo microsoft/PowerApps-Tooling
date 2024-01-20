@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PAModelTests;
 
@@ -15,8 +14,8 @@ public class JsonNormalizerTests
         // - Property ordering             
         // - Canonical whitespace
         // - number encoding 
-        var str1 = JsonNormalizer.Normalize("{ \"A\"     : 12.0, \"B\" \r\n: 34} ");
-        var str2 = JsonNormalizer.Normalize("{ \"B\" : 34, \"A\" : 12} ");
+        var str1 = JsonNormalizer.Normalize(/*lang=json*/ "{ \"A\"     : 12.0, \"B\" \r\n: 34} ");
+        var str2 = JsonNormalizer.Normalize(/*lang=json,strict*/ "{ \"B\" : 34, \"A\" : 12} ");
 
         Assert.AreEqual(str1, str2);
     }

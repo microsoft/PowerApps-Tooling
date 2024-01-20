@@ -39,7 +39,7 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 
     private IEnumerable<ControlState> GetSubtreeStatesImpl(BlockNode node)
     {
-        var childstates = node.Children?.SelectMany(child => GetSubtreeStatesImpl(child)) ?? Enumerable.Empty<ControlState>();
+        var childstates = node.Children?.SelectMany(GetSubtreeStatesImpl) ?? Enumerable.Empty<ControlState>();
 
         if (!_childStateStore.TryGetControlState(node.Name.Identifier, out var state))
             return childstates;
