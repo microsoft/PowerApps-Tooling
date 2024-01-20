@@ -42,13 +42,6 @@ jobs:
       version: 3.1.x
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
-  # Dotnet 2.1 appears to be required for ESRP signing
-  - task: UseDotNet@2
-    displayName: 'Use dotnet sdk 2.1'
-    inputs:
-      version: 2.1.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
-
   - task: CodeQL3000Init@0
 
   - task: DotNetCoreCLI@2
@@ -68,7 +61,7 @@ jobs:
       mergeTestResults: true
       failTaskOnFailedTests: true
 
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@3
     displayName: 'ESRP sign Microsoft.PowerPlatform.Formulas.Tools.dll'
     inputs:
       ConnectedServiceName: 'ESRPCodeSigningConnection'
@@ -126,7 +119,7 @@ jobs:
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
       arguments: '-- pack -c $(BuildConfiguration)'
 
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@3
     displayName: 'ESRP sign nuget packages'
     inputs:
       ConnectedServiceName: ESRPCodeSigningConnection
