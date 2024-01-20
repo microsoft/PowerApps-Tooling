@@ -16,8 +16,8 @@ internal class ControlTreeState
     public string TopParentName { get; set; }
 
     /// <summary>
-    /// Collection of <seealso cref="ControlState"/> objects for
+    /// Collection of <seealso cref="ControlEditorState"/> objects for
     /// this editor state.
     /// </summary>
-    public Dictionary<string, ControlState> ControlStates { get; set; }
+    public Dictionary<string, ControlEditorState> ControlStates { get; set; }
 }

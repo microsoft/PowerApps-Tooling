@@ -8,11 +8,11 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 internal class EditorStateStore
 {
     // Key is control name, case-sensitive
-    private readonly Dictionary<string, ControlState> _controls;
+    private readonly Dictionary<string, ControlEditorState> _controls;
 
     public EditorStateStore()
     {
-        _controls = new Dictionary<string, ControlState>(StringComparer.Ordinal);
+        _controls = new Dictionary<string, ControlEditorState>(StringComparer.Ordinal);
     }
 
     public EditorStateStore(EditorStateStore other)
@@ -25,7 +25,7 @@ internal class EditorStateStore
         return _controls.ContainsKey(name);
     }
 
-    public bool TryAddControl(ControlState control)
+    public bool TryAddControl(ControlEditorState control)
     {
         if (_controls.ContainsKey(control.Name))
             return false;
@@ -34,7 +34,7 @@ internal class EditorStateStore
         return true;
     }
 
-    public bool TryGetControlState(string controlName, out ControlState state)
+    public bool TryGetControlState(string controlName, out ControlEditorState state)
     {
         return _controls.TryGetValue(controlName, out state);
     }
@@ -44,10 +44,10 @@ internal class EditorStateStore
         _controls.Remove(controlName);
     }
 
-    public IEnumerable<ControlState> GetControlsWithTopParent(string topParent)
+    public IEnumerable<ControlEditorState> GetControlsWithTopParent(string topParent)
     {
         return _controls.Values.Where(ctrl => ctrl.TopParentName == topParent);
     }
 
-    public IEnumerable<ControlState> Contents => _controls.Values;
+    public IEnumerable<ControlEditorState> Contents => _controls.Values;
 }
