@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AppMagic.Authoring.Persistence;
-using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.MsApp;
+using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 
 namespace PAModelTests;
 
@@ -50,21 +50,18 @@ public class DataSourceTests
                 // Repack the app
                 MsAppSerializer.SaveAsMsApp(app, tempFile.FullPath, new ErrorContainer());
 
-                using (var stream = new FileStream(tempFile.FullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var msappArchive = new MsappArchive(tempFile.FullPath))
                 {
-                    // Read the msapp file
-                    using var zipOpen = new ZipArchive(stream, ZipArchiveMode.Read);
-
-                    foreach (var entry in zipOpen.Entries)
+                    foreach (var entry in msappArchive.CanonicalEntries)
                     {
-                        var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(entry.FullName));
+                        var kind = FileEntry.TriageKind(FilePath.FromMsAppPath(entry.Value.FullName));
 
                         switch (kind)
                         {
                             // Validate that the last entry in the DataSources.json is TableDefinition entry.
                             case FileKind.DataSources:
                                 {
-                                    var dataSourcesFromMsapp = ToObject<DataSourcesJson>(entry);
+                                    var dataSourcesFromMsapp = ToObject<DataSourcesJson>(entry.Value);
                                     var last = dataSourcesFromMsapp.DataSources.LastOrDefault();
                                     Assert.AreEqual(last.TableDefinition != null, true);
                                     return;

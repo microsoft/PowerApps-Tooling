@@ -33,10 +33,10 @@ internal class Sha256HashMaker : IHashMaker, IDisposable
 {
     private readonly IncrementalHash _hash;
 
-    private static readonly byte[] _startObj = new byte[] { (byte)'{' };
-    private static readonly byte[] _endObj = new byte[] { (byte)'}' };
-    private static readonly byte[] _startArray = new byte[] { (byte)'[' };
-    private static readonly byte[] _endArray = new byte[] { (byte)']' };
+    private static readonly byte[] _startObj = "{"u8.ToArray();
+    private static readonly byte[] _endObj = "}"u8.ToArray();
+    private static readonly byte[] _startArray = "["u8.ToArray();
+    private static readonly byte[] _endArray = "]"u8.ToArray();
     private static readonly byte[] _null = new byte[] { 254 };
     private static readonly byte[] _true = new byte[] { 1 };
     private static readonly byte[] _false = new byte[] { 0 };

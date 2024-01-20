@@ -656,7 +656,7 @@ internal static class MsAppSerializer
             DataSources = app.GetDataSources()
                 .SelectMany(x => x.Value)
                 .Where(x => !x.IsDataComponent)
-                .OrderBy(x => app._entropy.GetOrder(x))
+                .OrderBy(app._entropy.GetOrder)
                 .ToArray()
         };
         yield return ToFile(FileKind.DataSources, dataSources);
@@ -737,9 +737,9 @@ internal static class MsAppSerializer
         var pcfTemplates = app._templates.PcfTemplates ?? Array.Empty<PcfTemplateJson>();
         app._templates = new TemplatesJson()
         {
-            ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(x => app._entropy.GetComponentOrder(x)).ToArray() : null,
-            UsedTemplates = app._templates.UsedTemplates.OrderBy(x => app._entropy.GetOrder(x)).ToArray(),
-            PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(x => app._entropy.GetPcfVersioning(x)).ToArray() : null
+            ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(app._entropy.GetComponentOrder).ToArray() : null,
+            UsedTemplates = app._templates.UsedTemplates.OrderBy(app._entropy.GetOrder).ToArray(),
+            PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(app._entropy.GetPcfVersioning).ToArray() : null
         };
 
         yield return ToFile(FileKind.Templates, app._templates);
@@ -788,7 +788,7 @@ internal static class MsAppSerializer
             yield return ToFile(FileKind.ComponentsMetadata, new ComponentsMetadataJson
             {
                 Components = componentsMetadata
-                        .OrderBy(x => app._entropy.GetOrder(x))
+                        .OrderBy(app._entropy.GetOrder)
                         .ToArray()
             });
         }
@@ -798,7 +798,7 @@ internal static class MsAppSerializer
             yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
             {
                 ComponentTemplates = dcTemplate
-                    .OrderBy(x => app._entropy.GetOrder(x))
+                    .OrderBy(app._entropy.GetOrder)
                     .ToArray()
             });
         }

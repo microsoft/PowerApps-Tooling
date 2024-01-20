@@ -57,7 +57,7 @@ internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
 
         context._yaml.WriteNewline();
 
-        foreach (var child in node.Children.OrderBy(child => GetZIndex(child)))
+        foreach (var child in node.Children.OrderBy(GetZIndex))
         {
             child.Accept(this, context);
         }

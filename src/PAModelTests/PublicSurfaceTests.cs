@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
-using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Text;
+using Microsoft.PowerPlatform.Formulas.Tools;
 
 namespace PAModelTests;
 

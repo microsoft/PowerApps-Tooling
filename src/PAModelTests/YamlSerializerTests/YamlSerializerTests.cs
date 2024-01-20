@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
-using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
 namespace PAModelTests.YamlSerializerTests;
 

@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 namespace PAModelTests;
 

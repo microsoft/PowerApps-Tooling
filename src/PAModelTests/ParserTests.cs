@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PAModelTests;
 
