@@ -3,7 +3,7 @@
 
 using System.Text.Json;
 
-namespace Microsoft.AppMagic.Persistence.Converters;
+namespace Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 
 /// <summary>
 /// Used to serialize and deserialize <see cref="Version"/>
