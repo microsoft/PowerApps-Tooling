@@ -252,7 +252,7 @@ internal static class IRStateHelpers
         {
             entropy.ControlUniqueGuids.Add(control.Name, Guid.Parse(control.ControlUniqueId));
         }
-        var controlState = new ControlEditorState()
+        var controlState = new ControlState()
         {
             Name = control.Name,
             TopParentName = topParentName,
@@ -545,7 +545,7 @@ internal static class IRStateHelpers
         }
     }
 
-    private static RuleEntry CombinePropertyIRAndState(PropertyNode node, ErrorContainer errors, ControlEditorState state = null)
+    private static RuleEntry CombinePropertyIRAndState(PropertyNode node, ErrorContainer errors, ControlState state = null)
     {
         var propName = node.Identifier;
         var expression = node.Expression.Expression;
@@ -567,7 +567,7 @@ internal static class IRStateHelpers
         }
     }
 
-    private static DynamicPropertyJson CombineDynamicPropertyIRAndState(PropertyNode node, ControlEditorState state = null)
+    private static DynamicPropertyJson CombineDynamicPropertyIRAndState(PropertyNode node, ControlState state = null)
     {
         var propName = node.Identifier;
         var expression = node.Expression.Expression;
@@ -589,7 +589,7 @@ internal static class IRStateHelpers
         }
     }
 
-    private static RuleEntry GetPropertyEntry(ControlEditorState state, ErrorContainer errors, string propName, string expression)
+    private static RuleEntry GetPropertyEntry(ControlState state, ErrorContainer errors, string propName, string expression)
     {
         var property = new RuleEntry
         {
@@ -617,7 +617,7 @@ internal static class IRStateHelpers
         return property;
     }
 
-    private static DynamicPropertyJson GetDynamicPropertyEntry(ControlEditorState state, string propName, string expression)
+    private static DynamicPropertyJson GetDynamicPropertyEntry(ControlState state, string propName, string expression)
     {
         var property = new DynamicPropertyJson
         {

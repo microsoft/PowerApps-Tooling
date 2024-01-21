@@ -5,7 +5,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.PowerPlatform.Formulas.Tools.Model;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MsApp;
 
@@ -14,22 +18,44 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.MsApp;
 /// </summary>
 public class MsappArchive : IMsappArchive, IDisposable
 {
-    #region Fields
-
-    private Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
-    private bool _isDisposed;
-    private readonly ILogger<MsappArchive> _logger;
-    private FileStream _fileStream;
-
-    #endregion
-
     #region Constants
 
+    public const string SrcDirectory = "Src";
     public const string ControlsDirectory = "Controls";
     public const string ComponentsDirectory = "Components";
     public const string AppTestDirectory = "AppTests";
     public const string ReferencesDirectory = "References";
     public const string ResourcesDirectory = "Resources";
+
+    public const string YamlFileExtension = ".yaml";
+    public const string YamlFxFileExtension = ".fx.yaml";
+    public const string JsonFileExtension = ".json";
+
+    #endregion
+
+    #region Fields
+
+    private Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
+    private Lazy<List<Control>> _topLevelControls;
+    private bool _isDisposed;
+    private readonly ILogger<MsappArchive> _logger;
+    private FileStream _fileStream;
+    private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
+            .IgnoreUnmatchedProperties()
+            .WithNamingConvention(PascalCaseNamingConvention.Instance)
+            .Build();
+
+    #endregion
+
+    #region Internal classes
+
+    /// <summary>
+    /// Helper class for deserializing the top level control editor state.
+    /// </summary>
+    private class TopParentJson
+    {
+        public ControlEditorState TopParent { get; set; }
+    }
 
     #endregion
 
@@ -91,6 +117,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
             return canonicalEntries;
         });
+        _topLevelControls = new Lazy<List<Control>>(LoadTopLevelControls);
     }
 
     #endregion
@@ -115,6 +142,8 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
+    public IReadOnlyList<Control> TopLevelControls => _topLevelControls.Value.AsReadOnly();
+
     #endregion
 
     #region Methods
@@ -123,30 +152,23 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
     /// <param name="directoryName"></param>
+    /// <param name="extension"></param>
     /// <returns></returns>
-    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName)
+    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string extension = null)
     {
         _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
 
         directoryName = NormalizePath(directoryName);
 
-#if FEATUREGATE_DOCUMENTPREVIEWFLAGS_CANVASYAMLPERSISTENCE
-        var yamlDirectoryName = FileUtils.NormalizePath(Path.Combine("src", directoryName));
-#endif
-
         foreach (var entry in CanonicalEntries)
         {
-            if (entry.Key.StartsWith(directoryName + '/'))
-            {
-                yield return entry.Value;
-            }
+            if (!entry.Key.StartsWith(directoryName + '/'))
+                continue;
 
-#if FEATUREGATE_DOCUMENTPREVIEWFLAGS_CANVASYAMLPERSISTENCE
-            if (entry.Key.StartsWith(yamlDirectoryName + '/'))
-            {
-                yield return entry.Value;
-            }
-#endif
+            if (extension != null && !entry.Key.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            yield return entry.Value;
         }
     }
 
@@ -197,6 +219,81 @@ public class MsappArchive : IMsappArchive, IDisposable
     public static string NormalizePath(string path)
     {
         return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private List<Control> LoadTopLevelControls()
+    {
+        _logger?.LogInformation("Loading top level controls from Yaml.");
+
+        var controls = new Dictionary<string, Control>();
+        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(SrcDirectory, ControlsDirectory), YamlFileExtension))
+        {
+            using var textReader = new StreamReader(yamlEntry.Open());
+            try
+            {
+                var control = YamlDeserializer.Deserialize<Control>(textReader);
+                controls.Add(control.Name, control);
+            }
+            catch (Exception ex)
+            {
+                throw new SerializationException("Failed to deserialize control yaml file.", yamlEntry.FullName, ex);
+            }
+        }
+
+        _logger?.LogInformation("Loading top level controls editor state.");
+        var controlEditorStates = new Dictionary<string, ControlEditorState>();
+        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(ControlsDirectory), JsonFileExtension))
+        {
+            try
+            {
+                var topParentJson = JsonSerializer.Deserialize<TopParentJson>(editorStateEntry.Open());
+                controlEditorStates.Add(topParentJson.TopParent.Name, topParentJson.TopParent);
+            }
+            catch (Exception ex)
+            {
+                throw new SerializationException("Failed to deserialize control editor state file.", editorStateEntry.FullName, ex);
+            }
+        }
+
+        // Merge the editor state into the controls
+        foreach (var control in controls.Values)
+        {
+            if (controlEditorStates.TryGetValue(control.Name, out var editorState))
+            {
+                MergeControlEditorState(control, editorState);
+                controlEditorStates.Remove(control.Name);
+            }
+        }
+
+        // For backwards compatibility, add any editor states that don't have a matching control
+        foreach (var editorState in controlEditorStates.Values)
+        {
+            controls.Add(editorState.Name, new Control(editorState));
+        }
+
+        return controls.Values.ToList();
+    }
+
+    private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)
+    {
+        control.EditorState = controlEditorState;
+        if (control.Controls == null)
+            return;
+
+        foreach (var child in control.Controls)
+        {
+            // Find the editor state for the child by name
+            var childEditorState = controlEditorState.Children.Where(c => c.Name == child.Name).FirstOrDefault();
+            if (childEditorState == null)
+                continue;
+
+            MergeControlEditorState(child, childEditorState);
+        }
+        controlEditorState.Children = null;
     }
 
     #endregion
