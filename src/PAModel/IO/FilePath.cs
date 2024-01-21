@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.Utility;
+namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 [DebuggerDisplay("{ToPlatformPath()}")]
-internal class FilePath
+public class FilePath
 {
     public const int MaxFileNameLength = 60;
     private const string yamlExtension = ".fx.yaml";

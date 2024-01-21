@@ -4,8 +4,8 @@
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
 

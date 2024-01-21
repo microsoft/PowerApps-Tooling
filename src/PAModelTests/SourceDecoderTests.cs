@@ -3,6 +3,7 @@
 
 using System.IO;
 using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 namespace PAModelTests;
 

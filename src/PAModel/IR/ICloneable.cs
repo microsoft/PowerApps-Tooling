@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.Utility;
+namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 internal interface ICloneable<T>
 {

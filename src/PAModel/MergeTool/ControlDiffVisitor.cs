@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool;
