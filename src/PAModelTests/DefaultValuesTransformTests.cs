@@ -63,7 +63,7 @@ public class DefaultValuesTransformTests
 
         var editorStateStore = new EditorStateStore();
         var someProperty = new PropertyState() { PropertyName = "SomeProperty" };
-        editorStateStore.TryAddControl(new ControlEditorState()
+        editorStateStore.TryAddControl(new ControlState()
         {
             Name = "Canvas1",
             TopParentName = "Screen1",

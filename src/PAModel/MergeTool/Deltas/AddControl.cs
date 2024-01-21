@@ -12,11 +12,11 @@ internal class AddControl : IDelta
     private readonly bool _isInComponent;
     private readonly ControlPath _parentControlPath;
     private readonly BlockNode _control;
-    private readonly Dictionary<string, ControlEditorState> _controlStates;
+    private readonly Dictionary<string, ControlState> _controlStates;
 
     public string ControlName => _control.Name.Identifier;
 
-    public AddControl(ControlPath parentControlPath, BlockNode control, Dictionary<string, ControlEditorState> controlStates, bool isInComponent)
+    public AddControl(ControlPath parentControlPath, BlockNode control, Dictionary<string, ControlState> controlStates, bool isInComponent)
     {
         _isInComponent = isInComponent;
         _parentControlPath = parentControlPath;
@@ -79,7 +79,7 @@ internal class AddControl : IDelta
         control.Children.Add(repairedControl);
     }
 
-    private static BlockNode MakeControlTreeCollisionFree(BlockNode root, Dictionary<string, ControlEditorState> states, EditorStateStore stateStore)
+    private static BlockNode MakeControlTreeCollisionFree(BlockNode root, Dictionary<string, ControlState> states, EditorStateStore stateStore)
     {
         var name = root.Name.Identifier;
         if (stateStore.ContainsControl(name))
@@ -100,7 +100,7 @@ internal class AddControl : IDelta
         return root;
     }
 
-    private static void RemoveStates(BlockNode root, Dictionary<string, ControlEditorState> states)
+    private static void RemoveStates(BlockNode root, Dictionary<string, ControlState> states)
     {
         var name = root.Name.Identifier;
         states.Remove(name);

@@ -72,4 +72,21 @@ public class MsappArchiveTests
         var action = () => msappArchive.GetRequiredEntry("not-exist");
         action.Invoking(a => a()).Should().Throw<FileNotFoundException>();
     }
+
+    [TestMethod]
+    [DataRow(@"Apps/WithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", 8)]
+    [DataRow(@"Apps/AppWithLabel.msapp", 11, 2, "Screen1", 8)]
+    public void GetTopLevelControlsTests(string testFile, int allEntriesCount, int controlsCount, string topLevelControlName, int topLevelRulesCount)
+    {
+        // Arrange: Create new ZipArchive in memory
+        using var msappArchive = new MsappArchive(testFile);
+
+        // Assert
+        msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
+        msappArchive.TopLevelControls.Count.Should().Be(controlsCount);
+        msappArchive.TopLevelControls.Should().ContainSingle(c => c.Name == "App");
+
+        var topLevelControl = msappArchive.TopLevelControls.Single(c => c.Name == topLevelControlName);
+        topLevelControl.EditorState.Rules.Count.Should().Be(topLevelRulesCount);
+    }
 }

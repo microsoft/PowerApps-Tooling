@@ -83,7 +83,7 @@ internal class GroupControlTransform
             if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
             {
                 // There may not be editorstate present for this. Create a fake state to use
-                groupControlState = new ControlEditorState()
+                groupControlState = new ControlState()
                 {
                     Name = groupControlName,
                     StyleName = "",

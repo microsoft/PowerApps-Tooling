@@ -451,7 +451,7 @@ internal static partial class SourceSerializer
     // When SourceSerializer is updated past v24, this could be removed entirely.
     private static void ApplyV24BackCompat(ControlTreeState editorState, DirectoryReader.Entry file)
     {
-        editorState.ControlStates = file.ToObject<Dictionary<string, ControlEditorState>>();
+        editorState.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
         editorState.TopParentName = Utilities.UnEscapeFilename(file._relativeName.Replace(".editorstate.json", ""));
     }
 
@@ -1023,7 +1023,7 @@ internal static partial class SourceSerializer
         {
             var editorStateFilename = $"{newControlName}.editorstate.json";
 
-            var controlStates = new Dictionary<string, ControlEditorState>();
+            var controlStates = new Dictionary<string, ControlState>();
             foreach (var item in app._editorStateStore.GetControlsWithTopParent(controlName))
             {
                 controlStates.Add(item.Name, item);

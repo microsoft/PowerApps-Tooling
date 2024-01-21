@@ -32,19 +32,19 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
         _childTemplateStore = childTemplateStore;
     }
 
-    private Dictionary<string, ControlEditorState> GetSubtreeStates(BlockNode node)
+    private Dictionary<string, ControlState> GetSubtreeStates(BlockNode node)
     {
         return GetSubtreeStatesImpl(node).ToDictionary(state => state.Name);
     }
 
-    private IEnumerable<ControlEditorState> GetSubtreeStatesImpl(BlockNode node)
+    private IEnumerable<ControlState> GetSubtreeStatesImpl(BlockNode node)
     {
-        var childstates = node.Children?.SelectMany(GetSubtreeStatesImpl) ?? Enumerable.Empty<ControlEditorState>();
+        var childstates = node.Children?.SelectMany(GetSubtreeStatesImpl) ?? Enumerable.Empty<ControlState>();
 
         if (!_childStateStore.TryGetControlState(node.Name.Identifier, out var state))
             return childstates;
 
-        return childstates.Concat(new List<ControlEditorState>() { state });
+        return childstates.Concat(new List<ControlState>() { state });
     }
 
     public override void Visit(BlockNode node, ControlDiffContext context)
