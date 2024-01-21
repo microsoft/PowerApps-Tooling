@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 

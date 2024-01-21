@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using System.IO;
@@ -18,6 +20,14 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 internal static class MsAppSerializer
 {
     public const string ConnectionInstanceIDPropertyName = "connectionInstanceId";
+
+    public static void EnsureNoExtraData(Dictionary<string, JsonElement> extra)
+    {
+        if (extra != null && extra.Count > 0)
+        {
+            throw new NotSupportedException("There are fields in json we don't recognize");
+        }
+    }
 
     private static T ToObject<T>(ZipArchiveEntry entry)
     {
@@ -204,7 +214,7 @@ internal static class MsAppSerializer
                     case FileKind.DataSources:
                         {
                             var dataSources = ToObject<DataSourcesJson>(entry);
-                            Utilities.EnsureNoExtraData(dataSources.ExtensionData);
+                            EnsureNoExtraData(dataSources.ExtensionData);
 
                             var iOrder = 0;
                             foreach (var ds in dataSources.DataSources)
@@ -309,14 +319,14 @@ internal static class MsAppSerializer
 
             if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
             {
-                var refs = Utilities.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
+                var refs = JsonExtensions.JsonParse<ComponentDependencyInfo[]>(app._properties.LibraryDependencies);
                 app._libraryReferences = refs;
                 app._properties.LibraryDependencies = null;
             }
 
             if (!string.IsNullOrEmpty(app._properties.LocalConnectionReferences))
             {
-                var cxs = Utilities.JsonParse<IDictionary<string, ConnectionJson>>(app._properties.LocalConnectionReferences);
+                var cxs = JsonExtensions.JsonParse<IDictionary<string, ConnectionJson>>(app._properties.LocalConnectionReferences);
 
                 foreach (var connectionJson in cxs)
                 {
@@ -347,7 +357,7 @@ internal static class MsAppSerializer
             }
             else
             {
-                var dsReferences = Utilities.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
+                var dsReferences = JsonExtensions.JsonParse<IDictionary<string, LocalDatabaseReferenceJson>>(app._properties.LocalDatabaseReferences);
                 app._entropy.LocalDatabaseReferencesAsEmpty = false;
                 if (dsReferences.Count > 0)
                 {
@@ -591,7 +601,7 @@ internal static class MsAppSerializer
                 }
             }
 
-            var json = Utilities.JsonSerialize(app._connections);
+            var json = JsonExtensions.JsonSerialize(app._connections);
             props.LocalConnectionReferences = json;
         }
         if (app._appInsights != null)
@@ -600,7 +610,7 @@ internal static class MsAppSerializer
         }
         if (app._dataSourceReferences != null)
         {
-            var json = Utilities.JsonSerialize(app._dataSourceReferences);
+            var json = JsonExtensions.JsonSerialize(app._dataSourceReferences);
 
             // Some formats serialize empty as "", some serialize as "{}"
             if (app._dataSourceReferences.Count == 0)
@@ -620,7 +630,7 @@ internal static class MsAppSerializer
 
         if (app._libraryReferences != null)
         {
-            var json = Utilities.JsonSerialize(app._libraryReferences);
+            var json = JsonExtensions.JsonSerialize(app._libraryReferences);
             props.LibraryDependencies = json;
         }
 
@@ -904,7 +914,7 @@ internal static class MsAppSerializer
         var filename = FileEntry.GetFilenameForKind(kind);
 
         string output;
-        if (Utilities.IsYamlFile(filename))
+        if (FilePath.IsYamlFile(filename))
         {
             var tw = new StringWriter();
             YamlPocoSerializer.CanonicalWrite(tw, value);
@@ -912,7 +922,7 @@ internal static class MsAppSerializer
         }
         else
         {
-            var jsonStr = JsonSerializer.Serialize(value, Utilities._jsonOpts);
+            var jsonStr = JsonSerializer.Serialize(value, JsonExtensions._jsonOpts);
 
             output = JsonNormalizer.Normalize(jsonStr);
         }

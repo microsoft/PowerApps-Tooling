@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using Microsoft.PowerPlatform.Formulas.Tools;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 namespace PAModelTests;
 
@@ -15,8 +15,8 @@ public class UtilityTests
     [DataRow("İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg", "İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg")]
     public void TestEscaping(string unescaped, string escaped)
     {
-        Assert.AreEqual(Utilities.EscapeFilename(unescaped), escaped);
-        Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
+        Assert.AreEqual(FilePath.EscapeFilename(unescaped), escaped);
+        Assert.AreEqual(FilePath.UnEscapeFilename(escaped), unescaped);
     }
 
     [DataTestMethod]
@@ -25,7 +25,7 @@ public class UtilityTests
     [DataRow("İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg", "İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg")]
     public void TestUnescape(string escaped, string unescaped)
     {
-        Assert.AreEqual(Utilities.UnEscapeFilename(escaped), unescaped);
+        Assert.AreEqual(FilePath.UnEscapeFilename(escaped), unescaped);
     }
 
     [TestMethod]
@@ -33,7 +33,7 @@ public class UtilityTests
     {
         // Not escaped.
         var a = "0123456789AZaz[]_. ";
-        Assert.AreEqual(Utilities.EscapeFilename(a), a);
+        Assert.AreEqual(FilePath.EscapeFilename(a), a);
     }
 
     [DataTestMethod]
@@ -56,7 +56,7 @@ public class UtilityTests
             basePath = basePath.Replace('\\', '/');
             expectedRelativePath = expectedRelativePath.Replace('\\', '/');
         }
-        Assert.AreEqual(expectedRelativePath, Utilities.GetRelativePath(basePath, fullPath));
+        Assert.AreEqual(expectedRelativePath, FilePath.GetRelativePath(basePath, fullPath));
     }
 
 
@@ -67,9 +67,9 @@ public class UtilityTests
     {
         // Not escaped.
         var path = @"DataSources\JourneyPlanner|Sendforapproval.json";
-        var escape = Utilities.EscapeFilename(path);
+        var escape = FilePath.EscapeFilename(path);
 
-        var original = Utilities.UnEscapeFilename(escape);
+        var original = FilePath.UnEscapeFilename(escape);
 
         Assert.AreEqual(path, original);
     }
@@ -80,7 +80,7 @@ public class UtilityTests
     [DataRow("TestControlName", "TestControlName")]
     public void TestControlNameTruncation(string originalName, string expectedName)
     {
-        var truncatedName = Utilities.TruncateNameIfTooLong(originalName);
+        var truncatedName = FilePath.TruncateNameIfTooLong(originalName);
         Assert.AreEqual(truncatedName, expectedName);
     }
 }

@@ -4,8 +4,10 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
+using Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
@@ -85,7 +87,7 @@ internal static partial class SourceSerializer
             }
         }
 
-        Utilities.VerifyDirectoryExists(errors, directory2);
+        FilePath.VerifyDirectoryExists(errors, directory2);
 
         if (errors.HasErrors)
         {
@@ -452,7 +454,7 @@ internal static partial class SourceSerializer
     private static void ApplyV24BackCompat(ControlTreeState editorState, DirectoryReader.Entry file)
     {
         editorState.ControlStates = file.ToObject<Dictionary<string, ControlState>>();
-        editorState.TopParentName = Utilities.UnEscapeFilename(file._relativeName.Replace(".editorstate.json", ""));
+        editorState.TopParentName = FilePath.UnEscapeFilename(file._relativeName.Replace(".editorstate.json", ""));
     }
 
     private static IEnumerable<DirectoryReader.Entry> EnumerateComponentDirs(
@@ -706,7 +708,7 @@ internal static partial class SourceSerializer
                 {
                     dataSourceDef = new DataSourceDefinition
                     {
-                        TableDefinition = Utilities.JsonParse<DataSourceTableDefinition>(ds.TableDefinition),
+                        TableDefinition = JsonExtensions.JsonParse<DataSourceTableDefinition>(ds.TableDefinition),
                         DatasetName = ds.DatasetName,
                         EntityName = ds.RelatedEntityName ?? ds.Name
                     };
@@ -746,7 +748,7 @@ internal static partial class SourceSerializer
                     }
                     if (ds.WadlMetadata.SwaggerJson != null)
                     {
-                        dir.WriteAllJson(SwaggerPackageDir, new FilePath(filename), JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, Utilities._jsonOpts));
+                        dir.WriteAllJson(SwaggerPackageDir, new FilePath(filename), JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, JsonExtensions._jsonOpts));
                     }
                     ds.WadlMetadata = null;
                 }
@@ -921,7 +923,7 @@ internal static partial class SourceSerializer
                     {
                         case "NativeCDSDataSourceInfo":
                             ds.DatasetName = definition.DatasetName;
-                            ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, Utilities._jsonOpts);
+                            ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, JsonExtensions._jsonOpts);
                             break;
                         case "ConnectedDataSourceInfo":
                             ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
@@ -998,7 +1000,7 @@ internal static partial class SourceSerializer
         string topParentName = null)
     {
         var controlName = name;
-        var newControlName = Utilities.TruncateNameIfTooLong(controlName);
+        var newControlName = FilePath.TruncateNameIfTooLong(controlName);
 
         var filename = newControlName + ".fx.yaml";
 
@@ -1054,7 +1056,7 @@ internal static partial class SourceSerializer
 
         var jsonString = reader.ReadToEnd();
 
-        app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, Utilities._jsonOpts);
+        app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, JsonExtensions._jsonOpts);
     }
 
     private static BuildVerJson GetBuildDetails()
@@ -1070,7 +1072,7 @@ internal static partial class SourceSerializer
             using var reader = new StreamReader(stream);
             var jsonString = reader.ReadToEnd();
 
-            return JsonSerializer.Deserialize<BuildVerJson>(jsonString, Utilities._jsonOpts);
+            return JsonSerializer.Deserialize<BuildVerJson>(jsonString, JsonExtensions._jsonOpts);
         }
         catch (Exception)
         {

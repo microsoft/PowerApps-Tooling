@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 
@@ -56,7 +57,7 @@ public class ControlState
 
     public ControlState Clone()
     {
-        var newState = Utilities.JsonClone(this);
+        var newState = JsonExtensions.JsonClone(this);
         newState.TopParentName = TopParentName;
         return newState;
     }

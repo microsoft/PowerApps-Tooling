@@ -3,6 +3,7 @@
 
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text.RegularExpressions;
