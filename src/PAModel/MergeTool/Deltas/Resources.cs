@@ -3,8 +3,8 @@
 
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using System.Linq;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System.Diagnostics.Contracts;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 

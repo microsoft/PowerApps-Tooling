@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.IO;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools;
+namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 /// <summary>
 /// Return a full path for a temporary file, and delete it at Dispose.

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

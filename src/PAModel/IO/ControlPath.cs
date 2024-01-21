@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.Utility;
+namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 /// <summary>
 /// This represents a path to a control in a control tree

@@ -4,11 +4,11 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas.PcfControl;
 using Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;

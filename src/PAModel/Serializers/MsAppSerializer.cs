@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 using System.IO;
 using System.IO.Compression;

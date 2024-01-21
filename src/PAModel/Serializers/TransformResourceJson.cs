@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text.RegularExpressions;

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools.Utility;
+using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -11,7 +11,7 @@ using System.Linq;
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 // Raw kinds of files we recognize in the .msapp 
-internal enum FileKind
+public enum FileKind
 {
     Unknown,
 
