@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Text.Json;
 
-namespace Microsoft.AppMagic.Persistence.Converters;
+namespace Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 
 internal class JsonNullableDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime?>
 {
