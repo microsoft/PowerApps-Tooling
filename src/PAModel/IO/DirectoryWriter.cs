@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
+using Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
@@ -56,7 +58,7 @@ public class DirectoryWriter
 
     public void WriteAllJson<T>(string subdir, FilePath filename, T obj)
     {
-        if (Utilities.IsYamlFile(filename))
+        if (FilePath.IsYamlFile(filename))
         {
             using (var tw = new StringWriter())
             {
@@ -66,7 +68,7 @@ public class DirectoryWriter
         }
         else
         {
-            var text = JsonSerializer.Serialize(obj, Utilities._jsonOpts);
+            var text = JsonSerializer.Serialize(obj, JsonExtensions._jsonOpts);
             text = JsonNormalizer.Normalize(text);
             WriteAllText(subdir, filename, text);
         }
@@ -75,7 +77,7 @@ public class DirectoryWriter
     // Use this if the filename is already escaped.
     public void WriteAllJson<T>(string subdir, string filename, T obj)
     {
-        var text = JsonSerializer.Serialize(obj, Utilities._jsonOpts);
+        var text = JsonSerializer.Serialize(obj, JsonExtensions._jsonOpts);
         text = JsonNormalizer.Normalize(text);
         WriteAllText(subdir, filename, text);
     }

@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Linq;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools;
+namespace Microsoft.PowerPlatform.Formulas.Tools.Collections;
 
 /// <summary>
 /// Allows the accumulation of a large number of individual elements,

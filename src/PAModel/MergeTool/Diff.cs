@@ -93,7 +93,7 @@ internal static class Diff
         }
         else
         {
-            diffContent = !Utilities.ByteArrayCompare(file1.RawBytes, file2.RawBytes);
+            diffContent = !ByteArrayCompare(file1.RawBytes, file2.RawBytes);
         }
 
         if (diffFlags || diffContent)
@@ -256,5 +256,12 @@ internal static class Diff
         if (parent._screenOrder.SequenceEqual(child._screenOrder))
             return;
         deltas.Add(new ScreenOrderChange(child._screenOrder));
+    }
+
+    // https://stackoverflow.com/a/48599119/534514
+    public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
+    {
+        // Be sure this calls ReadOnlySpan<T>.SequenceEqual, which is more optimized than IEnumerable.SequenceEqual
+        return a1.SequenceEqual(a2);
     }
 }

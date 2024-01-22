@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AppMagic.Authoring.Persistence;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using System.IO;
 

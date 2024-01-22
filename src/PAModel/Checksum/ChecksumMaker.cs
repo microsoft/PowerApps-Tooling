@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 

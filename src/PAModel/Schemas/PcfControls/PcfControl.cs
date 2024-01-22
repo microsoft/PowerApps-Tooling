@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -56,19 +57,19 @@ internal class PcfControl
     {
         var pcfControl = new PcfControl() { Name = template.TemplateDisplayName, Version = template.Version };
 
-        var dynamicControlDefinition = Utilities.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
+        var dynamicControlDefinition = JsonExtensions.JsonParse<PcfControlDoublyEncoded>(template.DynamicControlDefinitionJson);
         pcfControl.ControlNamespace = dynamicControlDefinition.ControlNamespace;
         pcfControl.DisplayNameKey = dynamicControlDefinition.DisplayNameKey;
         pcfControl.ControlConstructor = dynamicControlDefinition.ControlConstructor;
-        pcfControl.Resources = dynamicControlDefinition.Resources != null ? Utilities.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
-        pcfControl.Properties = dynamicControlDefinition.Properties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
+        pcfControl.Resources = dynamicControlDefinition.Resources != null ? JsonExtensions.JsonParse<Resource[]>(dynamicControlDefinition.Resources) : null;
+        pcfControl.Properties = dynamicControlDefinition.Properties != null ? JsonExtensions.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.Properties) : null;
         pcfControl.AuthConfigProperties = dynamicControlDefinition.AuthConfigProperties != null ? GetAuthConfigProperties(dynamicControlDefinition.AuthConfigProperties) : null;
-        pcfControl.DataConnectors = dynamicControlDefinition.DataConnectors != null ? Utilities.JsonParse<IEnumerable<DataConnectorMetadata>>(dynamicControlDefinition.DataConnectors) : null;
-        pcfControl.SubscribedFunctionalities = dynamicControlDefinition.SubscribedFunctionalities != null ? Utilities.JsonParse<Dictionary<string, string>>(dynamicControlDefinition.SubscribedFunctionalities) : null;
-        pcfControl.IncludedProperties = dynamicControlDefinition.IncludedProperties != null ? Utilities.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.IncludedProperties) : null;
-        pcfControl.Events = dynamicControlDefinition.Events != null ? Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.Events) : null;
-        pcfControl.CommonEvents = dynamicControlDefinition.CommonEvents != null ? Utilities.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.CommonEvents) : null;
-        pcfControl.PropertyDependencies = dynamicControlDefinition.PropertyDependencies != null ? Utilities.JsonParse<IEnumerable<PropertyDependency>>(dynamicControlDefinition.PropertyDependencies) : null;
+        pcfControl.DataConnectors = dynamicControlDefinition.DataConnectors != null ? JsonExtensions.JsonParse<IEnumerable<DataConnectorMetadata>>(dynamicControlDefinition.DataConnectors) : null;
+        pcfControl.SubscribedFunctionalities = dynamicControlDefinition.SubscribedFunctionalities != null ? JsonExtensions.JsonParse<Dictionary<string, string>>(dynamicControlDefinition.SubscribedFunctionalities) : null;
+        pcfControl.IncludedProperties = dynamicControlDefinition.IncludedProperties != null ? JsonExtensions.JsonParse<IEnumerable<Property>>(dynamicControlDefinition.IncludedProperties) : null;
+        pcfControl.Events = dynamicControlDefinition.Events != null ? JsonExtensions.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.Events) : null;
+        pcfControl.CommonEvents = dynamicControlDefinition.CommonEvents != null ? JsonExtensions.JsonParse<IEnumerable<Event>>(dynamicControlDefinition.CommonEvents) : null;
+        pcfControl.PropertyDependencies = dynamicControlDefinition.PropertyDependencies != null ? JsonExtensions.JsonParse<IEnumerable<PropertyDependency>>(dynamicControlDefinition.PropertyDependencies) : null;
         pcfControl.ExtensionData = dynamicControlDefinition.ExtensionData;
 
         return pcfControl;
@@ -96,6 +97,6 @@ internal class PcfControl
         _dynamicControlDefinition.DataConnectors = control.DataConnectors != null ? JsonSerializer.Serialize(control.DataConnectors, jsonOptions) : null;
         _dynamicControlDefinition.ExtensionData = control.ExtensionData ?? new Dictionary<string, object>();
 
-        return Utilities.JsonSerialize(_dynamicControlDefinition);
+        return JsonExtensions.JsonSerialize(_dynamicControlDefinition);
     }
 }

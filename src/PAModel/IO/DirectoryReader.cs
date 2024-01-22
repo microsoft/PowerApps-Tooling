@@ -4,6 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
@@ -52,7 +53,7 @@ internal class DirectoryReader
 
         public T ToObject<T>()
         {
-            if (Utilities.IsYamlFile(_fullpath))
+            if (FilePath.IsYamlFile(_fullpath))
             {
                 using (var textReader = new StreamReader(_fullpath))
                 {
@@ -63,7 +64,7 @@ internal class DirectoryReader
             else
             {
                 var str = File.ReadAllText(_fullpath);
-                return JsonSerializer.Deserialize<T>(str, Utilities._jsonOpts);
+                return JsonSerializer.Deserialize<T>(str, JsonExtensions._jsonOpts);
             }
         }
 
@@ -86,7 +87,7 @@ internal class DirectoryReader
         var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
         var entries = from fullPath in fullPaths
-                      let relativePath = Utilities.GetRelativePath(root, fullPath)
+                      let relativePath = FilePath.GetRelativePath(root, fullPath)
                       select new Entry(fullPath)
                       {
                           _relativeName = relativePath,
@@ -109,7 +110,7 @@ internal class DirectoryReader
         var fullPaths = Directory.EnumerateDirectories(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
         var entries = from fullPath in fullPaths
-                      let relativePath = Utilities.GetRelativePath(root, fullPath)
+                      let relativePath = FilePath.GetRelativePath(root, fullPath)
                       select new DirectoryReader(fullPath);
 
         return entries.ToArray();

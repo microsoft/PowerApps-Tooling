@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using System.Diagnostics;
 using System.IO;
@@ -84,7 +85,7 @@ internal class FileEntry
 
     public static FileEntry FromFile(string fullPath, string root)
     {
-        var relativePath = Utilities.GetRelativePath(root, fullPath);
+        var relativePath = FilePath.GetRelativePath(root, fullPath);
         var bytes = File.ReadAllBytes(fullPath);
         var entry = new FileEntry
         {

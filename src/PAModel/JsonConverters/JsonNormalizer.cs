@@ -7,10 +7,12 @@ using System.Linq;
 using System.IO;
 using System.Text.Encodings.Web;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools;
+namespace Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
 
-// Write out Json in a normalized sorted order. 
-// Orders properties, whitespace/indenting, etc. 
+/// <summary>
+/// Write out Json in a normalized sorted order. 
+/// Orders properties, whitespace/indenting, etc.
+/// </summary>
 internal class JsonNormalizer
 {
     public static string Normalize(string jsonStr)

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Newtonsoft.Json;
 using System.Linq;
@@ -71,7 +72,7 @@ internal class AppTestTransform : IControlTemplateTransform
             _entropy.DoesTestStepsMetadataExist = true;
         }
         properties.Remove(_metadataPropName);
-        var metadataJsonString = Utilities.UnEscapePAString(metadataProperty.Expression.Expression);
+        var metadataJsonString = metadataProperty.Expression.Expression.UnEscapePAString();
         var testStepsMetadata = JsonConvert.DeserializeObject<List<TestStepsMetadataJson>>(metadataJsonString);
         var newChildren = new List<BlockNode>();
 
@@ -90,7 +91,7 @@ internal class AppTestTransform : IControlTemplateTransform
                         Identifier = "Description",
                         Expression = new ExpressionNode()
                         {
-                            Expression = Utilities.EscapePAString(testStep.Description)
+                            Expression = testStep.Description.EscapePAString()
                         }
                     },
                     new PropertyNode()
@@ -212,7 +213,7 @@ internal class AppTestTransform : IControlTemplateTransform
             {
                 testStepsMetadata.Add(new TestStepsMetadataJson()
                 {
-                    Description = Utilities.UnEscapePAString(descriptionProp.Expression.Expression),
+                    Description = descriptionProp.Expression.Expression.UnEscapePAString(),
                     Rule = propName,
                     ScreenId = screenId
                 });
@@ -239,7 +240,7 @@ internal class AppTestTransform : IControlTemplateTransform
             var testStepMetadataStr = JsonConvert.SerializeObject(testStepsMetadata, Formatting.None);
             control.Properties.Add(new PropertyNode()
             {
-                Expression = new ExpressionNode() { Expression = Utilities.EscapePAString(testStepMetadataStr) },
+                Expression = new ExpressionNode() { Expression = testStepMetadataStr.EscapePAString() },
                 Identifier = _metadataPropName
             });
         }

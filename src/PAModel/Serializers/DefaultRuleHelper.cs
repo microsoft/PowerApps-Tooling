@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Serializers;

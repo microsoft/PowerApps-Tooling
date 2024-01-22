@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 

@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 
-internal enum ContentKind
+public enum ContentKind
 {
     Unknown,
     Image,

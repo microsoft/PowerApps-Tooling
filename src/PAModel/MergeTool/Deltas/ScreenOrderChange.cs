@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
+
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
 internal class ScreenOrderChange : IDelta

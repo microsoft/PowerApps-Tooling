@@ -3,7 +3,7 @@
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
-internal interface ICloneable<T>
+public interface ICloneable<T>
 {
     T Clone();
 }

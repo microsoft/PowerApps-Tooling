@@ -4,6 +4,7 @@
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
 using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
@@ -109,14 +110,14 @@ public class CanvasDocument
     {
         var errors = new ErrorContainer();
 
-        Utilities.EnsurePathRooted(fullPathToMsApp);
+        FilePath.EnsurePathRooted(fullPathToMsApp);
 
         if (!fullPathToMsApp.EndsWith(".msapp", StringComparison.OrdinalIgnoreCase))
         {
             errors.BadParameter("Only works for .msapp files");
         }
 
-        Utilities.VerifyFileExists(errors, fullPathToMsApp);
+        FilePath.VerifyFileExists(errors, fullPathToMsApp);
         if (errors.HasErrors)
         {
             return (null, errors);
@@ -138,7 +139,7 @@ public class CanvasDocument
 
     public static (CanvasDocument, ErrorContainer) LoadFromSources(string pathToSourceDirectory)
     {
-        Utilities.EnsurePathRooted(pathToSourceDirectory);
+        FilePath.EnsurePathRooted(pathToSourceDirectory);
 
         var errors = new ErrorContainer();
         var doc = Wrapper(() => SourceSerializer.LoadFromSource(pathToSourceDirectory, errors), errors);
@@ -147,7 +148,7 @@ public class CanvasDocument
 
     public ErrorContainer SaveToMsApp(string fullPathToMsApp)
     {
-        Utilities.EnsurePathRooted(fullPathToMsApp);
+        FilePath.EnsurePathRooted(fullPathToMsApp);
 
         var errors = new ErrorContainer();
         Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors), errors);
@@ -157,7 +158,7 @@ public class CanvasDocument
     // Used to validate roundtrip after unpack
     internal ErrorContainer SaveToMsAppValidation(string fullPathToMsApp)
     {
-        Utilities.EnsurePathRooted(fullPathToMsApp);
+        FilePath.EnsurePathRooted(fullPathToMsApp);
 
         var errors = new ErrorContainer();
         Wrapper(() => MsAppSerializer.SaveAsMsApp(this, fullPathToMsApp, errors, isValidation: true), errors);
@@ -172,7 +173,7 @@ public class CanvasDocument
     /// <returns></returns>
     public ErrorContainer SaveToSources(string pathToSourceDirectory, string verifyOriginalPath = null)
     {
-        Utilities.EnsurePathRooted(pathToSourceDirectory);
+        FilePath.EnsurePathRooted(pathToSourceDirectory);
 
         var errors = new ErrorContainer();
         Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
@@ -574,7 +575,7 @@ public class CanvasDocument
 
             _entropy.LocalResourceFileNames.Add(resource.Name, resource.FileName);
 
-            var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(newFileName);
+            var updatedPath = FilePath.FromMsAppPath(FilePath.GetResourceRelativePath(resource.Content)).Append(newFileName);
             resource.Path = updatedPath.ToMsAppPath();
             resource.FileName = newFileName;
 
@@ -588,7 +589,7 @@ public class CanvasDocument
             // For every duplicate asset file an additional <filename>.json file is created which contains information like - originalName, newFileName.
             if (resource.Name != originalName && !_localAssetInfoJson.ContainsKey(newFileName))
             {
-                var assetFileInfoPath = GetAssetFilePathWithoutPrefix(Utilities.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
+                var assetFileInfoPath = GetAssetFilePathWithoutPrefix(FilePath.GetResourceRelativePath(resource.Content)).Append(resource.FileName + ".json");
                 _localAssetInfoJson.Add(resource.FileName, new LocalAssetInfoJson() { OriginalName = originalName, NewFileName = resource.FileName, Path = assetFileInfoPath.ToPlatformPath() });
             }
         }
@@ -655,7 +656,7 @@ public class CanvasDocument
                     resource.Name = localAssetInfoJson.OriginalName;
                 }
 
-                var updatedPath = FilePath.FromMsAppPath(Utilities.GetResourceRelativePath(resource.Content)).Append(msappFileName);
+                var updatedPath = FilePath.FromMsAppPath(FilePath.GetResourceRelativePath(resource.Content)).Append(msappFileName);
                 resource.Path = updatedPath.ToMsAppPath();
                 resource.FileName = msappFileName;
 
