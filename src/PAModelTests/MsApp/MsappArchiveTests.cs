@@ -74,9 +74,11 @@ public class MsappArchiveTests
     }
 
     [TestMethod]
-    [DataRow(@"Apps/WithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", 8)]
-    [DataRow(@"Apps/AppWithLabel.msapp", 11, 2, "Screen1", 8)]
-    public void GetTopLevelControlsTests(string testFile, int allEntriesCount, int controlsCount, string topLevelControlName, int topLevelRulesCount)
+    [DataRow(@"Apps/WithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", "screen", 8)]
+    [DataRow(@"Apps/AppWithLabel.msapp", 11, 2, "Screen1", "ControlInfo", 8)]
+    public void GetTopLevelControlsTests(string testFile, int allEntriesCount, int controlsCount,
+        string topLevelControlName, string topLevelControlType,
+        int topLevelRulesCount)
     {
         // Arrange: Create new ZipArchive in memory
         using var msappArchive = new MsappArchive(testFile);
@@ -88,5 +90,6 @@ public class MsappArchiveTests
 
         var topLevelControl = msappArchive.TopLevelControls.Single(c => c.Name == topLevelControlName);
         topLevelControl.EditorState.Rules.Count.Should().Be(topLevelRulesCount);
+        topLevelControl.Type.Should().Be(topLevelControlType);
     }
 }
