@@ -17,7 +17,6 @@ internal static class SerializerBuilderExtensions
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeConverter(new ControlPropertyConverter())
             .WithTypeConverter(new ControlPropertiesCollectionConverter())
-            .WithNewLine("\n")
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
 
         return builder;

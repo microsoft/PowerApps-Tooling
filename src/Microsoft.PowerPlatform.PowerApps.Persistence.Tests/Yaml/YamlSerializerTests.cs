@@ -24,7 +24,7 @@ public class YamlSerializerTests
         var serializer = YamlSerializationFactory.CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be("Screen: \nName: Screen1\nProperties:\n  Text: I am a screen\n");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class YamlSerializerTests
         var serializer = YamlSerializationFactory.CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be("Screen: \nName: Screen1\nProperties:\n  Text: I am a screen\nControls:\n- Label: \n  Name: Label1\n  Properties:\n    Text: lorem ipsum\n- Button: \n  Name: Button1\n  Properties:\n    Text: click me\n    X: 100\n    Y: 200\n");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Controls:{Environment.NewLine}- Label: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -82,6 +82,6 @@ public class YamlSerializerTests
         var serializer = YamlSerializationFactory.CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be("Control: http://localhost/#customcontrol\nName: CustomControl1\nProperties:\n  Text: I am a custom control\n");
+        sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
     }
 }
