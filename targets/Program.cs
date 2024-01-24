@@ -26,13 +26,13 @@ namespace targets
 
         static void Main(string[] args)
         {
-            
+
             string RootDir = "", gitHash = "";
             bool gitExists = true;
-            try 
+            try
             {
                 RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
-                gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();               
+                gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();
             }
             catch
             {
@@ -51,7 +51,7 @@ namespace targets
 
             string PAModelDir = Path.Combine(SrcDir, "PAModel");
             var solution = Path.Combine(SrcDir, "PASopa.sln");
-            
+
             var project = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
             Target("squeaky-clean",
@@ -83,7 +83,7 @@ namespace targets
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
+                () => RunDotnet("pack", $"{EscapePath(solution)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
@@ -105,7 +105,7 @@ namespace targets
         static void RunDotnet(string verb, string verbArgs, bool gitExists, string LogDir)
         {
             var gitDef = "";
-            if (gitExists) 
+            if (gitExists)
                 gitDef = "-p:GitExists=true";
             var optionsLogPath = Path.Combine(LogDir, $"{verb}-{options.Configuration}");
             var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={EscapePath(optionsLogPath + ".log")} /flp3:PerformanceSummary;Verbosity=diag;LogFile={EscapePath(optionsLogPath + ".diagnostics.log")}";
