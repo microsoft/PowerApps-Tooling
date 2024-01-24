@@ -21,9 +21,10 @@ public class YamlSerializerTests
             },
         };
 
-        var sut = YamlSerializerFactory.Create();
-        var yaml = sut.Serialize(graph);
-        yaml.Should().Be("Screen: \r\nName: Screen1\r\nProperties:\r\n  Text: I am a screen\r\n");
+        var serializer = YamlSerializationFactory.CreateSerializer();
+
+        var sut = serializer.Serialize(graph);
+        sut.Should().Be("Screen: \r\nName: Screen1\r\nProperties:\r\n  Text: I am a screen\r\n");
     }
 
     [TestMethod]
@@ -59,9 +60,10 @@ public class YamlSerializerTests
             }
         };
 
-        var sut = YamlSerializerFactory.Create();
-        var yaml = sut.Serialize(graph);
-        yaml.Should().Be("Screen: \r\nName: Screen1\r\nProperties:\r\n  Text: I am a screen\r\nControls:\r\n- Label: \r\n  Name: Label1\r\n  Properties:\r\n    Text: lorem ipsum\r\n- Button: \r\n  Name: Button1\r\n  Properties:\r\n    Text: click me\r\n    X: 100\r\n    Y: 200\r\n");
+        var serializer = YamlSerializationFactory.CreateSerializer();
+
+        var sut = serializer.Serialize(graph);
+        sut.Should().Be("Screen: \r\nName: Screen1\r\nProperties:\r\n  Text: I am a screen\r\nControls:\r\n- Label: \r\n  Name: Label1\r\n  Properties:\r\n    Text: lorem ipsum\r\n- Button: \r\n  Name: Button1\r\n  Properties:\r\n    Text: click me\r\n    X: 100\r\n    Y: 200\r\n");
     }
 
     [TestMethod]
@@ -77,8 +79,9 @@ public class YamlSerializerTests
             },
         };
 
-        var sut = YamlSerializerFactory.Create();
-        var yaml = sut.Serialize(graph);
-        yaml.Should().Be("Control: http://localhost/#customcontrol\r\nName: CustomControl1\r\nProperties:\r\n  Text: I am a custom control\r\n");
+        var serializer = YamlSerializationFactory.CreateSerializer();
+
+        var sut = serializer.Serialize(graph);
+        sut.Should().Be("Control: http://localhost/#customcontrol\r\nName: CustomControl1\r\nProperties:\r\n  Text: I am a custom control\r\n");
     }
 }

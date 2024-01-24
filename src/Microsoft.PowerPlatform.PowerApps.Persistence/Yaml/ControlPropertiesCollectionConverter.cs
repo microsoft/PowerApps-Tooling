@@ -17,7 +17,21 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
     public object ReadYaml(IParser parser, Type type)
     {
-        throw new NotImplementedException();
+        var tmpDict = new Dictionary<string, ControlPropertyValue>();
+
+        parser.MoveNext();
+
+        while (!parser.Accept<MappingEnd>(out _))
+        {
+            var key = parser.Consume<Scalar>();
+            var value = parser.Consume<Scalar>();
+
+            tmpDict.Add(key.Value, new ControlPropertyValue() { Value = value.Value });
+        }
+
+        parser.MoveNext();
+
+        return new ControlPropertiesCollection(tmpDict);
     }
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)
