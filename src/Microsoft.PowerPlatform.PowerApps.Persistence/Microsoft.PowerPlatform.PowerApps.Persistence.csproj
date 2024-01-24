@@ -24,7 +24,7 @@
 
             See https://github.com/microsoft/PowerApps-Tooling/releases for the latest release notes.
         </PackageReleaseNotes>
-        <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>       
+        <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
