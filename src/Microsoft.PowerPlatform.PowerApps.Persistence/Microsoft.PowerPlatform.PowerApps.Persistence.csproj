@@ -1,9 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!-- Nuget Properties -->
+  <PropertyGroup>
+    <PackageId>Microsoft.PowerPlatform.PowerApps.Persistence</PackageId>
+    <Authors>Microsoft</Authors>
+    <Company>crmsdk,Microsoft</Company>
+    <Title>Microsoft Power Platform Canvas App Persistence Library</Title>
+    <PackageProjectUrl>https://github.com/microsoft/PowerApps-Tooling</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Description>Preview Release</Description>
+    <PackageReleaseNotes>
+      Notice:
+      This package is a preview release - use at your own risk.
+
+      We have not stabilized on Namespace or Class names with this package as of yet and things will
+      change as we move though the preview.
+
+      See https://github.com/microsoft/PowerApps-Tooling/releases for the latest release notes.
+    </PackageReleaseNotes>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <NoWarn>$(NoWarn);NU1601</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.PowerPlatform.PowerApps.Persistence.Tests" />
+  </ItemGroup>
 
 </Project>

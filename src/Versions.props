@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup>
+        <TargetFrameworkVersion>net7.0</TargetFrameworkVersion>
+        <YamlDotNetVersion>15.1.0</YamlDotNetVersion>
+        <MicrosoftNETTestSdkVersion>17.7.1</MicrosoftNETTestSdkVersion>
+        <MSTestTestAdapterVersion>2.2.10</MSTestTestAdapterVersion>
+        <MSTestTestFrameworkVersion>2.2.10</MSTestTestFrameworkVersion>
+        <CoverletCollectorVersion>3.2.0</CoverletCollectorVersion>
+        <FluentAssertionsVersion>6.12.0</FluentAssertionsVersion>
+    </PropertyGroup>
+</Project>

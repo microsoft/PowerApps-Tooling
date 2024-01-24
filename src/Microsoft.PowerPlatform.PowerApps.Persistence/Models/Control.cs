@@ -3,15 +3,12 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-//TODO: abstract?
-internal record Control
+public abstract record Control
 {
-    // TODO: rename to "Control" in yaml
-    // TODO: make this a string and handle parsing/matchin later
     /// <summary>
     /// template uri of the control.
     /// </summary>
-    public Uri? ControlUri { get; init; }
+    public string? ControlUri { get; init; }
 
     /// <summary>
     /// the control's name.
@@ -21,10 +18,10 @@ internal record Control
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    public IReadOnlyDictionary<string, string>? Properties { get; init; }
+    public ControlPropertiesCollection Properties { get; init; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// </summary>
-    public Control[]? Controls { get; init; }
+    public Control[]? Controls { get; init; } = Array.Empty<Control>();
 }

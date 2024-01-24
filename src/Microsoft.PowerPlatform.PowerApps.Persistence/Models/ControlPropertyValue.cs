@@ -3,11 +3,9 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(nameof(Label))]
-public record Label : Control
+public sealed record ControlPropertyValue
 {
-    public Label()
-    {
-        ControlUri = BuiltInTemplatesUris.Label;
-    }
+    public string? Value { get; init; }
+
+    public bool IsFormula { get; init; }
 }
