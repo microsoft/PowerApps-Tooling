@@ -3,10 +3,9 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(Template)]
-internal record Label : Control
+[FirstClass(nameof(Label))]
+public record Label : Control
 {
-    internal const string Template = "Label";
     public Label()
     {
         ControlUri = BuiltInTemplatesUris.Label;

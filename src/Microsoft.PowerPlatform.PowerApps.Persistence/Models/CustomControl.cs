@@ -1,6 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-internal record CustomControl : Control;
+public record CustomControl : Control;

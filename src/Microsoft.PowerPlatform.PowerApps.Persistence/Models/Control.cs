@@ -3,15 +3,12 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-//TODO: abstract?
-internal record Control
+public abstract record Control
 {
-    // TODO: rename to "Control" in yaml
-    // TODO: make this a string and handle parsing/matchin later
     /// <summary>
     /// template uri of the control.
     /// </summary>
-    public Uri? ControlUri { get; init; }
+    public string? ControlUri { get; init; }
 
     /// <summary>
     /// the control's name.
