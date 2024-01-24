@@ -18,7 +18,7 @@ public abstract record Control
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    public ControlPropertiesCollection Properties { get; init; } = new();
+    public ControlPropertiesCollection Properties { get; init; } = ControlPropertiesCollection.Empty;
 
     /// <summary>
     /// list of child controls nested under this control.
