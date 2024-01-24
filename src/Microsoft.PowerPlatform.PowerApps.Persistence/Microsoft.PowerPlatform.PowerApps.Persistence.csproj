@@ -26,6 +26,9 @@
       See https://github.com/microsoft/PowerApps-Tooling/releases for the latest release notes.
     </PackageReleaseNotes>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
@@ -36,8 +39,17 @@
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="Microsoft.PowerPlatform.PowerApps.Persistence.Tests" />
+  <ItemGroup Condition="'$(GitExists)' == true">
+    <PackageReference Include="MinVer" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
+
+  <Target Name="PALT" AfterTargets="MinVer">
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVer)</AssemblyVersion>
+    </PropertyGroup>
+  </Target>
 
 </Project>
