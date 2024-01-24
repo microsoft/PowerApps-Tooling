@@ -52,7 +52,7 @@ namespace targets
             string PAModelDir = Path.Combine(SrcDir, "PAModel");
             var solution = Path.Combine(SrcDir, "PASopa.sln");
 
-            var project = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
+            var packSolution = Path.Combine(SrcDir, "PASopa_pack.sln");
 
             Target("squeaky-clean",
                 () =>
@@ -83,7 +83,7 @@ namespace targets
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $"{EscapePath(solution)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
+                () => RunDotnet("pack", $"{EscapePath(packSolution)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
