@@ -11,7 +11,7 @@
     <PackageId>Microsoft.PowerPlatform.PowerApps.Persistence</PackageId>
     <Authors>Microsoft</Authors>
     <Company>crmsdk,Microsoft</Company>
-    <Title>PowerPlatform Canvas App Persistence Tools</Title>
+    <Title>Microsoft Power Platform Canvas App Persistence Library</Title>
     <PackageProjectUrl>https://github.com/microsoft/PowerApps-Tooling</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -19,8 +19,7 @@
     <PackageReleaseNotes>
       Notice:
       This package is a preview release - use at your own risk.
-      This package is a .NET Standard 2.0 project, intended to work with .NET Framework 4.7.2 or
-      later, and .NET 6.0 or later
+      
       We have not stabilized on Namespace or Class names with this package as of yet and things will
       change as we move though the preview.
 
