@@ -36,6 +36,7 @@ internal static class SerializerBuilderExtensions
             .WithEventEmitter(next => new FirstClassControlsEmitter(next))
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeConverter(new ControlPropertyConverter())
+            .WithTypeConverter(new ControlPropertiesCollectionConverter())
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
 
         return builder;

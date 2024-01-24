@@ -18,10 +18,10 @@ public abstract record Control
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    public IReadOnlyDictionary<string, string>? Properties { get; init; }
+    public ControlPropertiesCollection Properties { get; init; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// </summary>
-    public Control[]? Controls { get; init; }
+    public Control[]? Controls { get; init; } = Array.Empty<Control>();
 }

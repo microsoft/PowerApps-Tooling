@@ -15,9 +15,9 @@ public class YamlSerializerTests
         var graph = new Screen()
         {
             Name = "Screen1",
-            Properties = new Dictionary<string, string>()
+            Properties = new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", "I am a screen" },
+                { "Text", new() { Value = "I am a screen" } },
             },
         };
 
@@ -32,28 +32,28 @@ public class YamlSerializerTests
         var graph = new Screen()
         {
             Name = "Screen1",
-            Properties = new Dictionary<string, string>()
+            Properties = new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", "I am a screen" },
+                { "Text", new() { Value = "I am a screen" }  },
             },
             Controls = new Control[]
             {
                 new Label()
                 {
                     Name = "Label1",
-                    Properties = new Dictionary<string, string>()
+                    Properties = new Dictionary<string, ControlPropertyValue>()
                     {
-                        { "Text", "lorem ipsum" },
+                        { "Text", new() { Value = "lorem ipsum" }  },
                     },
                 },
                 new Button()
                 {
                     Name = "Button1",
-                    Properties = new Dictionary<string, string>()
+                    Properties = new Dictionary<string, ControlPropertyValue>()
                     {
-                        { "Text", "click me" },
-                        { "X", "100" },
-                        { "Y", "200"}
+                        { "Text", new() { Value = "click me" }  },
+                        { "X", new() { Value = "100" } },
+                        { "Y", new() { Value = "200" } }
                     },
                 }
             }
@@ -71,9 +71,9 @@ public class YamlSerializerTests
         {
             ControlUri = "http://localhost/#customcontrol",
             Name = "CustomControl1",
-            Properties = new Dictionary<string, string>()
+            Properties = new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", "I am a custom control" },
+                { "Text", new() { Value = "I am a custom control" } },
             },
         };
 
