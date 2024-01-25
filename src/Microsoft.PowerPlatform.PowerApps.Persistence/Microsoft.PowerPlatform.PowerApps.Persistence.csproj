@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(GitExists)' == true">
-    <PackageReference Include="MinVer" Version="4.3.0">
+    <PackageReference Include="MinVer" Version="$(MinVerVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
