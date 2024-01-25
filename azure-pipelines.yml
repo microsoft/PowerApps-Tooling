@@ -144,33 +144,23 @@ jobs:
       ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
 
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-    displayName: 'PAModel Generation Task'
+    displayName: 'SBOM Task'
     inputs:
-       BuildDropPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
-
-  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-    displayName: 'Persistence Generation Task'
-    inputs:
-       BuildDropPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/Microsoft.PowerPlatform.PowerApps.Persistence/'
+       BuildDropPath: '$(Build.SourcesDirectory)/bin'
 
   - task: PublishBuildArtifacts@1
+    displayName: 'Publish Binaries'
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModel/'
-      ArtifactName: 'Generation Task'
+      PathtoPublish: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)'
+      ArtifactName: 'Binaries'
       publishLocation: 'Container'
     condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
 
   - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/Microsoft.PowerPlatform.PowerApps.Persistence/'
-      ArtifactName: 'Persistence Generation Task'
-      publishLocation: 'Container'
-    condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-
-  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Packages'
     inputs:
       PathtoPublish: '$(Build.SourcesDirectory)/pkg/PackResult'
-      ArtifactName: 'PowerPlatform.Formulas.Tools ($(BuildConfiguration))'
+      ArtifactName: 'Packages'
       publishLocation: 'Container'
     condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
 
