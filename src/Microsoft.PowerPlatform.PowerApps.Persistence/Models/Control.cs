@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public abstract record Control

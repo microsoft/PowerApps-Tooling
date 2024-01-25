@@ -3,8 +3,9 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPropertyValue>
 {
