@@ -24,7 +24,7 @@
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build targets",
-        "program": "${workspaceFolder}/targets/bin/Debug/netcoreapp3.1/targets.dll",
+        "program": "${workspaceFolder}/targets/bin/Debug/net7.0/targets.dll",
         "args": [
           "build",
           "-c", "release"
