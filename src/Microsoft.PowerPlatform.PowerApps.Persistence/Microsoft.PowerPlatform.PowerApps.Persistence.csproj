@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(GitExists)' == true">
-    <PackageReference Include="MinVer" Version="2.3.0">
+    <PackageReference Include="MinVer" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -49,6 +49,10 @@
   <Target Name="PALT" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVer)</AssemblyVersion>
+      <FileVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</FileVersion>
+      <InformationalVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)-$(MinVerPreRelease)$(MinVerBuildMetadata)</InformationalVersion>
+      <PackageVersion>$(MinVerVersion)</PackageVersion>
+      <PackageVersion Condition=" '$(Configuration)' == 'Debug' ">$(PackageVersion)-Debug</PackageVersion>
     </PropertyGroup>
   </Target>
 
