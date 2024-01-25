@@ -115,7 +115,7 @@ jobs:
     inputs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-      arguments: '-- pack -c $(BuildConfiguration)'
+      arguments: '-- pack -c $(BuildConfiguration) -p .\src\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj .\src\Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj'
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@3
     displayName: 'ESRP sign nuget packages'
