@@ -3,13 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34407.89
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PASopa", "PASopa\PASopa.csproj", "{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.Formulas.Tools", "PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj", "{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAModelTests", "PAModelTests\PAModelTests.csproj", "{8AD94CC0-7330-4880-A8E0-177B37CDB27B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4993E606-484B-46D9-892E-7AE9CE8D4423}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{794D8C68-BF6F-49C8-BCA5-AA52D8F45EF4}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,41 +12,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.PowerApps.Persistence", "Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj", "{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.PowerPlatform.PowerApps.Persistence.Tests", "Microsoft.PowerPlatform.PowerApps.Persistence.Tests\Microsoft.PowerPlatform.PowerApps.Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48316D0E-4A8A-461C-9C56-9CAE8F2E208F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8AD94CC0-7330-4880-A8E0-177B37CDB27B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AD94CC0-7330-4880-A8E0-177B37CDB27B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AD94CC0-7330-4880-A8E0-177B37CDB27B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AD94CC0-7330-4880-A8E0-177B37CDB27B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{8AD94CC0-7330-4880-A8E0-177B37CDB27B} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
-		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C936F8B1-DE7A-4401-95D5-5E199210F960}

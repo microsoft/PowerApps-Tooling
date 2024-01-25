@@ -32,12 +32,6 @@ jobs:
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
   - task: UseDotNet@2
-    displayName: 'Use dotnet SDK 6.0'
-    inputs:
-      version: 6.0.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
-
-  - task: UseDotNet@2
     displayName: 'Use dotnet sdk 3.1'
     inputs:
       version: 3.1.x
@@ -165,14 +159,7 @@ jobs:
       ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Pack Persistence'
-    inputs:
-      command: 'run'
-      projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-      arguments: '-- pack -c $(BuildConfiguration) -p .\src\Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj'
-
-  - task: DotNetCoreCLI@2
-    displayName: 'Pack Tools'
+    displayName: 'Pack'
     inputs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'

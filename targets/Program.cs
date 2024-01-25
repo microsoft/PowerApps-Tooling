@@ -18,9 +18,6 @@ namespace targets
 
         [Option('c', "configuration", Required = false, Default = "Debug")]
         public string Configuration { get; set; }
-
-        [Option('p', "project", Required = false, Default = "")]
-        public string Project { get; set; }
     }
 
     class Program
@@ -55,7 +52,7 @@ namespace targets
             string PAModelDir = Path.Combine(SrcDir, "PAModel");
             var solution = Path.Combine(SrcDir, "PASopa.sln");
 
-            var defaultProject = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
+            var packSolution =  Path.Combine(SrcDir, "PASopa_pack.sln");
 
             Target("squeaky-clean",
                 () =>
@@ -86,10 +83,7 @@ namespace targets
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () =>{
-                    var project = string.IsNullOrEmpty(options.Project) ? defaultProject : options.Project;
-                    RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir);
-                });
+                () => RunDotnet("pack", $"{EscapePath(packSolution)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
