@@ -4,7 +4,7 @@
 using YamlDotNet.Serialization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Serialization.NamingConventions;
-using Label = Microsoft.PowerPlatform.PowerApps.Persistence.Models.Label;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 

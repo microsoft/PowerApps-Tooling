@@ -5,6 +5,7 @@ using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Core.Events;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
