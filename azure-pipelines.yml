@@ -32,6 +32,12 @@ jobs:
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
   - task: UseDotNet@2
+    displayName: 'Use dotnet SDK 6.0'
+    inputs:
+      version: 6.0.x
+      installationPath: '$(Agent.ToolsDirectory)/dotnet'
+
+  - task: UseDotNet@2
     displayName: 'Use dotnet sdk 3.1'
     inputs:
       version: 3.1.x
