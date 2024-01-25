@@ -37,12 +37,6 @@ jobs:
       version: 6.0.x
       installationPath: '$(Agent.ToolsDirectory)/dotnet'
 
-  - task: UseDotNet@2
-    displayName: 'Use dotnet sdk 3.1'
-    inputs:
-      version: 3.1.x
-      installationPath: '$(Agent.ToolsDirectory)/dotnet'
-
   - task: CodeQL3000Init@0
 
   - task: DotNetCoreCLI@2
@@ -63,11 +57,14 @@ jobs:
       failTaskOnFailedTests: true
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@3
-    displayName: 'ESRP sign'
+    displayName: 'Sign assemblies'
     inputs:
       ConnectedServiceName: 'ESRPCodeSigningConnection'
-      FolderPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/'
-      Pattern: 'PAModel/*.dll,Microsoft.PowerPlatform.PowerApps.Persistence/*.dll'
+      FolderPath: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)'
+      Pattern: |
+        /PAModel/Microsoft.PowerPlatform.Formulas.Tools.dll
+        /Microsoft.PowerPlatform.PowerApps.Persistence/Microsoft.PowerPlatform.PowerApps.Persistence.dll
+      UseMinimatch: true
       signConfigType: inlineSignParams
       inlineOperation: |
         [
