@@ -21,7 +21,7 @@
       This package is a preview release - use at your own risk.
 
       We have not stabilized on Namespace or Class names with this package as of yet and things will
-      change as we move though the preview.
+      change as we move through the preview.
 
       See https://github.com/microsoft/PowerApps-Tooling/releases for the latest release notes.
     </PackageReleaseNotes>
@@ -46,7 +46,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="PALT" AfterTargets="MinVer">
+  <Target Name="SetAssemblyVersion" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVer)</AssemblyVersion>
     </PropertyGroup>
