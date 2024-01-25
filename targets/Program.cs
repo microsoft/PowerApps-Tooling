@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using CommandLine;
 using SimpleExec;
@@ -18,6 +20,9 @@ namespace targets
 
         [Option('c', "configuration", Required = false, Default = "Debug")]
         public string Configuration { get; set; }
+
+        [Option('p', "projects", Required = false)]
+        public IEnumerable<string> Projects { get; set; }
     }
 
     class Program
@@ -26,10 +31,10 @@ namespace targets
 
         static void Main(string[] args)
         {
-            
+
             string RootDir = "", gitHash = "";
             bool gitExists = true;
-            try 
+            try
             {
                 RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
                 gitHash = Read("git", "rev-parse HEAD", noEcho: true).Trim();
@@ -51,8 +56,8 @@ namespace targets
 
             string PAModelDir = Path.Combine(SrcDir, "PAModel");
             var solution = Path.Combine(SrcDir, "PASopa.sln");
-            
-            var project = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
+
+            var defaultPackProject = Path.Combine(PAModelDir, "Microsoft.PowerPlatform.Formulas.Tools.csproj");
 
             Target("squeaky-clean",
                 () =>
@@ -70,7 +75,8 @@ namespace targets
                 () => RunDotnet("restore", $"{EscapePath(solution)}", gitExists, LogDir));
 
             Target("build",
-                () => {
+                () =>
+                {
                     if (gitExists)
                         CreateBuildHashFile(ObjDir, gitHash);
                     RunDotnet("build", $"{EscapePath(solution)} --configuration {options.Configuration} --no-restore", gitExists, LogDir);
@@ -83,7 +89,13 @@ namespace targets
                 DependsOn("restore", "build"));
 
             Target("pack",
-                () => RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir));
+                () =>
+                {
+                    var projects = (options.Projects.Any()) ? options.Projects : new[]{ defaultPackProject };
+
+                    foreach (var project in projects)
+                        RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir);
+                });
 
             Target("ci",
                 DependsOn("squeaky-clean", "rebuild", "test"));
@@ -92,7 +104,7 @@ namespace targets
             .WithParsed<Options>(o =>
                 {
                     options = o;
-                    RunTargetsAndExit(new[] {options.Target},
+                    RunTargetsAndExit(new[] { options.Target },
                         logPrefix: options.Target,
                         messageOnly: ex => ex is NonZeroExitCodeException);
                 })
@@ -105,7 +117,7 @@ namespace targets
         static void RunDotnet(string verb, string verbArgs, bool gitExists, string LogDir)
         {
             var gitDef = "";
-            if (gitExists) 
+            if (gitExists)
                 gitDef = "-p:GitExists=true";
             var optionsLogPath = Path.Combine(LogDir, $"{verb}-{options.Configuration}");
             var logSettings = $"/clp:verbosity=minimal /flp:Verbosity=normal;LogFile={EscapePath(optionsLogPath + ".log")} /flp3:PerformanceSummary;Verbosity=diag;LogFile={EscapePath(optionsLogPath + ".diagnostics.log")}";
@@ -118,7 +130,8 @@ namespace targets
             var file = new System.IO.FileInfo(filePath);
             file.Directory.Create();
 
-            var jsonContents = new {
+            var jsonContents = new
+            {
                 CommitHash = gitHash,
 #if !ADOBuild
                 IsLocalBuild = true
@@ -132,7 +145,8 @@ namespace targets
         {
             directoryPath = Path.GetFullPath(directoryPath);
             Console.WriteLine($"Cleaning directory: {directoryPath}");
-            try {
+            try
+            {
                 if (Directory.Exists(directoryPath))
                 {
                     Directory.Delete(directoryPath, recursive: true);
