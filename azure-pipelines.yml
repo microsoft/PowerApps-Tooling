@@ -165,7 +165,14 @@ jobs:
       ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v1'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Pack'
+    displayName: 'Pack Persistence'
+    inputs:
+      command: 'run'
+      projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
+      arguments: '-- pack -c $(BuildConfiguration) -p .\src\Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Pack Tools'
     inputs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
