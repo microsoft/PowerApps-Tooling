@@ -1,4 +1,4 @@
-![image](https://img.shields.io/github/actions/workflow/status/microsoft/PowerApps-Language-Tooling/CI.yml?branch=master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools)
+![image](https://img.shields.io/github/actions/workflow/status/microsoft/PowerApps-Language-Tooling/CI.yml?branch=master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools) [![Build Status](https://dev.azure.com/dynamicscrm/OneCRM/_apis/build/status%2FPowerPlatform.PowerApps.Tools%2Fmicrosoft.PowerApps-Tooling?branchName=master)](https://dev.azure.com/dynamicscrm/OneCRM/_build/latest?definitionId=21051&branchName=master)
 
 # Power Apps Source File Pack and Unpack Utility
 
