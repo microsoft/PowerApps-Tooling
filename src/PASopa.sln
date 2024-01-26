@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.PowerApps.Persistence", "Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj", "{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.PowerApps.Persistence", "Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj", "{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.PowerPlatform.PowerApps.Persistence.Tests", "Microsoft.PowerPlatform.PowerApps.Persistence.Tests\Microsoft.PowerPlatform.PowerApps.Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.PowerPlatform.PowerApps.Persistence.Tests", "Persistence.Tests\Microsoft.PowerPlatform.PowerApps.Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

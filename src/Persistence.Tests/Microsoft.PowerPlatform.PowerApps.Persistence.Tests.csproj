@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <ProjectReference
-      Include="..\Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+      Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
