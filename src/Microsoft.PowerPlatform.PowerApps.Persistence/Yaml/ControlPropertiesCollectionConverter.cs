@@ -41,7 +41,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
         emitter.Emit(new MappingStart());
 
-        var sortedKeys = collection.Keys.OrderBy(x => x);
+        var sortedKeys = collection.Keys.OrderBy(x => x, StringComparer.Ordinal);
 
         foreach (var key in sortedKeys)
         {
