@@ -53,7 +53,7 @@ public class YamlDeserializerTests
             },
             Controls = new Control[]
             {
-                new Label()
+                new Text()
                 {
                     Name = "Label1",
                     Properties = new Dictionary<string, ControlPropertyValue>()
@@ -89,9 +89,9 @@ public class YamlDeserializerTests
         sut.Properties["Text"].Value.Should().Be("I am a screen");
 
         sut.Controls.Should().NotBeNull().And.HaveCount(2);
-        sut.Controls![0].Should().BeOfType<Label>();
+        sut.Controls![0].Should().BeOfType<Text>();
         sut.Controls![0].Name.Should().Be("Label1");
-        sut.Controls![0].ControlUri.Should().Be(BuiltInTemplatesUris.Label);
+        sut.Controls![0].ControlUri.Should().Be(BuiltInTemplatesUris.Text);
         sut.Controls![0].Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
@@ -135,5 +135,23 @@ public class YamlDeserializerTests
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
         sut.Properties["Text"].Value.Should().Be("I am a custom control");
+    }
+
+    [TestMethod]
+    public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl()
+    {
+        var graph = new CustomControl()
+        {
+            ControlUri = BuiltInTemplatesUris.Button,
+            Name = "MyCustomButton",
+        };
+
+        var serializer = YamlSerializationFactory.CreateSerializer();
+        var yaml = serializer.Serialize(graph);
+
+        var deserializer = YamlSerializationFactory.CreateDeserializer();
+
+        var sut = deserializer.Deserialize<Control>(yaml);
+        sut.Should().NotBeNull().And.BeOfType<Button>();
     }
 }

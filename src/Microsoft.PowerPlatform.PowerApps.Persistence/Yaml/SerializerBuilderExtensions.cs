@@ -10,6 +10,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 internal static class SerializerBuilderExtensions
 {
+    private const string ControlPropertyName = "Control";
+
     public static SerializerBuilder WithFirstClassModels(this SerializerBuilder builder)
     {
         builder = AddAttributeOverrides(builder)
@@ -38,10 +40,10 @@ internal static class SerializerBuilderExtensions
                     { nameof(Button), typeof(Button) },
                     { BuiltInTemplatesUris.Button, typeof(Button) },
 
-                    { nameof(Label), typeof(Label) },
-                    { BuiltInTemplatesUris.Label, typeof(Label) },
+                    { nameof(Text), typeof(Text) },
+                    { BuiltInTemplatesUris.Text, typeof(Text) },
                 };
-               options.AddKeyValueTypeDiscriminator<Control>(nameof(Control.ControlUri), map);
+               options.AddKeyValueTypeDiscriminator<Control>(ControlPropertyName, map);
                options.AddUniqueKeyTypeDiscriminator<Control>(map);
            })
            .WithTypeConverter(new ControlPropertiesCollectionConverter());
@@ -61,7 +63,7 @@ internal static class SerializerBuilderExtensions
             else
                 newAttrib = new YamlMemberAttribute(typeof(string))
                 {
-                    Alias = "Control",
+                    Alias = ControlPropertyName,
                     Order = 0,
                 };
 

@@ -41,12 +41,15 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
         emitter.Emit(new MappingStart());
 
-        foreach (var kv in collection)
+        var sortedKeys = collection.Keys.OrderBy(x => x, StringComparer.Ordinal);
+
+        foreach (var key in sortedKeys)
         {
-            emitter.Emit(new Scalar(kv.Key));
+            emitter.Emit(new Scalar(key));
 
 #pragma warning disable CS8604 // Possible null reference argument, but valid in YAML.
-            emitter.Emit(new Scalar(kv.Value.Value));
+            var property = collection[key];
+            emitter.Emit(new Scalar(property.Value));
 #pragma warning restore CS8604 // Possible null reference argument.
         }
 

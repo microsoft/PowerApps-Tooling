@@ -5,11 +5,11 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(nameof(Label))]
-public record Label : Control
+[FirstClass(nameof(Text))]
+public record Text : Control
 {
-    public Label()
+    public Text()
     {
-        ControlUri = BuiltInTemplatesUris.Label;
+        ControlUri = BuiltInTemplatesUris.Text;
     }
 }
