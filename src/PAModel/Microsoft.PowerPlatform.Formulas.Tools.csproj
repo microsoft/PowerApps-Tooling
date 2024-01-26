@@ -68,4 +68,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.PowerPlatform.PowerApps.Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+  </ItemGroup>
 </Project>

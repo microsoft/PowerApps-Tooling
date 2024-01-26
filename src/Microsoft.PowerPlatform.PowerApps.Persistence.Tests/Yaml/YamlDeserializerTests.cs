@@ -10,15 +10,22 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Tests.Yaml;
 public class YamlDeserializerTests
 {
     [TestMethod]
-    public void Deserialize_ShouldParseSimpleStructure()
+    [DataRow("I am a screen with spaces", "42")]
+    [DataRow("NoSpaces", "-50")]
+    [DataRow("Yaml : | > ", "")]
+    [DataRow("Text`~!@#$%^&*()_-+=", ":")]
+    [DataRow("Text[]{};':\",.<>?/\\|", "@")]
+    [DataRow("こんにちは", "#")]
+    [DataRow("Cos'è questo?", "---")]
+    public void Deserialize_ShouldParseSimpleStructure(string textValue, string xValue)
     {
         var graph = new Screen()
         {
             Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", new() { Value = "I am a screen" } },
-                { "X", new() { Value = "42" } },
+                { "Text", new() { Value = textValue } },
+                { "X", new() { Value = xValue } },
                 { "Y", new() { Value = "71" } },
             },
         };
@@ -36,8 +43,8 @@ public class YamlDeserializerTests
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
-        sut.Properties["Text"].Value.Should().Be("I am a screen");
-        sut.Properties["X"].Value.Should().Be("42");
+        sut.Properties["Text"].Value.Should().Be(textValue);
+        sut.Properties["X"].Value.Should().Be(xValue);
         sut.Properties["Y"].Value.Should().Be("71");
     }
 
