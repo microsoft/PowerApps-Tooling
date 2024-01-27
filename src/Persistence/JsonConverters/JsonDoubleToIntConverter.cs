@@ -4,7 +4,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.JsonConverters;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.JsonConverters;
 
 public class JsonDoubleToIntConverter : JsonConverter<int>
 {

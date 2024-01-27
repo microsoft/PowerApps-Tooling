@@ -7,7 +7,7 @@ insert_final_newline = true
 charset = utf-8
 trim_trailing_whitespace = true
 
-[*.{json,js}]
+[*.{json,js,yaml,yml}]
 indent_size = 2
 tab_width = 2
 

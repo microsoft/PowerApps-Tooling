@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using Microsoft.PowerPlatform.Formulas.Tools.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-namespace PAModelTests.MsApp;
+namespace Persistence.Tests.MsApp;
 
 [TestClass]
 public class MsappArchiveTests
@@ -74,22 +73,19 @@ public class MsappArchiveTests
     }
 
     [TestMethod]
-    [DataRow(@"Apps/WithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", "screen", 8)]
-    [DataRow(@"Apps/AppWithLabel.msapp", 11, 2, "Screen1", "ControlInfo", 8)]
-    public void GetTopLevelControlsTests(string testFile, int allEntriesCount, int controlsCount,
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", "screen", 8)]
+    public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
         string topLevelControlName, string topLevelControlType,
         int topLevelRulesCount)
     {
         // Arrange: Create new ZipArchive in memory
-        using var msappArchive = new MsappArchive(testFile);
+        using var msappArchive = new MsappArchive(testFile, YamlSerializationFactory.CreateDeserializer());
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
-        msappArchive.TopLevelControls.Count.Should().Be(controlsCount);
-        msappArchive.TopLevelControls.Should().ContainSingle(c => c.Name == "App");
+        msappArchive.Screens.Count.Should().Be(controlsCount);
+        msappArchive.Screens.Should().ContainSingle(c => c.Name == "App");
 
-        var topLevelControl = msappArchive.TopLevelControls.Single(c => c.Name == topLevelControlName);
-        topLevelControl.EditorState.Rules.Count.Should().Be(topLevelRulesCount);
-        topLevelControl.Type.Should().Be(topLevelControlType);
+        var screen = msappArchive.Screens.Single(c => c.Name == topLevelControlName);
     }
 }

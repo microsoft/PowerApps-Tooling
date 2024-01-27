@@ -10,5 +10,8 @@ public class FirstClassAttribute : Attribute
     {
         NodeName = nodeName ?? string.Empty;
     }
+
     public string NodeName { get; }
+
+    public required string TemplateUri { get; init; }
 }

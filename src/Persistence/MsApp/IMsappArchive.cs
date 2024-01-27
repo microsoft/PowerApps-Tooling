@@ -3,7 +3,7 @@
 
 using System.IO.Compression;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MsApp;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 /// <summary>
 /// base interface for MsappArchive
@@ -24,7 +24,7 @@ public interface IMsappArchive
     /// </summary>
     /// <param name="entryName"></param>
     /// <returns>the entry or null when not found.</returns>
-    ZipArchiveEntry GetEntry(string entryName);
+    ZipArchiveEntry? GetEntry(string entryName);
 
     /// <summary>
     /// Provides access to the underlying zip archive.

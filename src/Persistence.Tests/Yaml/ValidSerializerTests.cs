@@ -4,17 +4,16 @@
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.Tests.Yaml;
+namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class YamlSerializerTests
+public class ValidSerializerTests
 {
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForSimpleStructure()
     {
-        var graph = new Screen()
+        var graph = new Screen("Screen1")
         {
-            Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" } },
@@ -30,9 +29,8 @@ public class YamlSerializerTests
     [TestMethod]
     public void Serialize_ShouldSortControlPropertiesAlphabetically()
     {
-        var graph = new Screen()
+        var graph = new Screen("Screen1")
         {
-            Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "PropertyB", new() { Value = "B" } },
@@ -50,26 +48,23 @@ public class YamlSerializerTests
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlWithChildNodes()
     {
-        var graph = new Screen()
+        var graph = new Screen("Screen1")
         {
-            Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
             Controls = new Control[]
             {
-                new Text()
+                new Text("Label1")
                 {
-                    Name = "Label1",
                     Properties = new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "lorem ipsum" }  },
                     },
                 },
-                new Button()
+                new Button("Button1")
                 {
-                    Name = "Button1",
                     Properties = new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "click me" }  },
@@ -89,10 +84,9 @@ public class YamlSerializerTests
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForCustomControl()
     {
-        var graph = new CustomControl()
+        var graph = new CustomControl("CustomControl1")
         {
             ControlUri = "http://localhost/#customcontrol",
-            Name = "CustomControl1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a custom control" } },
