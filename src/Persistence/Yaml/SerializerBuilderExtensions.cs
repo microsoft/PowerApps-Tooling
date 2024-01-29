@@ -44,8 +44,7 @@ internal static class SerializerBuilderExtensions
                 .WithAttributeOverride(type, nameof(Control.ControlUri), new YamlMemberAttribute() { Order = 0, Alias = YamlFields.Control })
                 .WithAttributeOverride(type, nameof(Control.Name), new YamlMemberAttribute() { Order = 1 })
                 .WithAttributeOverride(type, nameof(Control.Properties), new YamlMemberAttribute() { Order = 2 })
-                .WithAttributeOverride(type, nameof(Control.Controls), new YamlMemberAttribute() { Order = 3 })
-                .WithAttributeOverride(type, nameof(Control.EditorState), new YamlIgnoreAttribute());
+                .WithAttributeOverride(type, nameof(Control.Controls), new YamlMemberAttribute() { Order = 3 });
         }
 
         return builder;

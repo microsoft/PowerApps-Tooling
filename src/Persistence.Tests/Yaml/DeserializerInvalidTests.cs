@@ -14,7 +14,7 @@ public class DeserializerInvalidTests
         // Arrange
         var deserializer = YamlSerializationFactory.CreateDeserializer();
 
-        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*{YamlUtils.YamlFxFileExtension}", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.fx.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file
         // var files = new string[] { @"_TestData/InvalidYaml/InvalidName.fx.yaml" };
 

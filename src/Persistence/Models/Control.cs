@@ -51,6 +51,4 @@ public abstract record Control
     /// list of child controls nested under this control.
     /// </summary>    
     public Control[] Controls { get; init; } = Array.Empty<Control>();
-
-    public ControlEditorState? EditorState { get; set; }
 }

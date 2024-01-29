@@ -5,7 +5,6 @@ using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Utils;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.MsApp;
 
@@ -72,22 +71,5 @@ public class MsappArchiveTests
         // Get the required entry should throw if it doesn't exist
         var action = () => msappArchive.GetRequiredEntry("not-exist");
         action.Invoking(a => a()).Should().Throw<FileNotFoundException>();
-    }
-
-    [TestMethod]
-    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", "screen", 8)]
-    public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
-        string topLevelControlName, string topLevelControlType,
-        int topLevelRulesCount)
-    {
-        // Arrange: Create new ZipArchive in memory
-        using var msappArchive = new MsappArchive(testFile, YamlSerializationFactory.CreateDeserializer());
-
-        // Assert
-        msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
-        msappArchive.Screens.Count.Should().Be(controlsCount);
-        msappArchive.Screens.Should().ContainSingle(c => c.Name == "App");
-
-        var screen = msappArchive.Screens.Single(c => c.Name == topLevelControlName);
     }
 }

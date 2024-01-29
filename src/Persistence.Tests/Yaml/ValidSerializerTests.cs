@@ -98,22 +98,4 @@ public class ValidSerializerTests
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
     }
-
-    [TestMethod]
-    public void Serialize_ShouldNotIncludeEnditorState()
-    {
-        var graph = new CustomControl("CustomControl1")
-        {
-            ControlUri = "http://localhost/#customcontrol",
-            EditorState = new()
-            {
-                Name = "CustomControl1",
-            },
-        };
-
-        var serializer = YamlSerializationFactory.CreateSerializer();
-
-        var sut = serializer.Serialize(graph);
-        sut.Should().NotContain(nameof(Control.EditorState));
-    }
 }
