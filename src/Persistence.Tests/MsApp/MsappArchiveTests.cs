@@ -12,21 +12,21 @@ namespace Persistence.Tests.MsApp;
 [TestClass]
 public class MsappArchiveTests
 {
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.ResourcesDirectory, 0)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, MsappArchive.Directories.ResourcesDirectory, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, $@" \{MsappArchive.Directories.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.Directories.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.Directories.ResourcesDirectory}\", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, "NotFound", 0)]
+    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, 0)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, $@" \{MsappArchive.Directories.Resources}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}\", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, "NotFound", 0)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt",
-        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.ResourcesDirectory, 2)]
+        @$"{MsappArchive.Directories.Resources}\abc.txt",
+        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.Resources, 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt",
-        @$"{MsappArchive.Directories.ResourcesDirectory}/efg.txt"}, "RESOURCES", 2)]
+        @$"{MsappArchive.Directories.Resources}\abc.txt",
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, "RESOURCES", 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.ResourcesDirectory}New\abc.txt",
-        @$"{MsappArchive.Directories.ResourcesDirectory}/efg.txt"}, MsappArchive.Directories.ResourcesDirectory, 1)]
+        @$"{MsappArchive.Directories.Resources}New\abc.txt",
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, MsappArchive.Directories.Resources, 1)]
     [TestMethod]
     public void GetDirectoryEntriesTests(string[] entries, string directoryName, int expectedDirectoryCount)
     {
@@ -48,9 +48,9 @@ public class MsappArchiveTests
     }
 
     [DataRow(new string[] { "abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\DEF.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\DEF.txt", @"\start-with-slash\test.json" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" })]
     [TestMethod]
     public void AddEntryTests(string[] entries)
     {

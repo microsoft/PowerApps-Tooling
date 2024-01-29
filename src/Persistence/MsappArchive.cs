@@ -194,7 +194,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         _logger?.LogInformation("Loading top level screens from Yaml.");
 
         var screens = new Dictionary<string, Screen>();
-        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(Directories.SrcDirectory, Directories.ControlsDirectory), YamlUtils.YamlFileExtension))
+        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(Directories.Src, Directories.Controls), YamlUtils.YamlFileExtension))
         {
             using var textReader = new StreamReader(yamlEntry.Open());
             try
@@ -210,7 +210,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
         _logger?.LogInformation("Loading top level controls editor state.");
         var controlEditorStates = new Dictionary<string, ControlEditorState>();
-        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.ControlsDirectory), JsonFileExtension))
+        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
         {
             try
             {
@@ -289,12 +289,12 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     public static class Directories
     {
-        public const string SrcDirectory = "Src";
-        public const string ControlsDirectory = "Controls";
-        public const string ComponentsDirectory = "Components";
-        public const string AppTestDirectory = "AppTests";
-        public const string ReferencesDirectory = "References";
-        public const string ResourcesDirectory = "Resources";
+        public const string Src = "Src";
+        public const string Controls = "Controls";
+        public const string Components = "Components";
+        public const string AppTests = "AppTests";
+        public const string References = "References";
+        public const string Resources = "Resources";
     }
 }
 
