@@ -1,29 +1,64 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
+[DebuggerDisplay("{Name}")]
 public abstract record Control
 {
+    public const string YamlName = "Control";
+
+    public Control()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public Control(string name)
+    {
+        Name = name;
+        ControlUri = BuiltInTemplates.HostControl;
+    }
+
     /// <summary>
     /// template uri of the control.
     /// </summary>
-    public string? ControlUri { get; init; }
+    [YamlMember(Alias = YamlName, Order = 0)]
+    public required string ControlUri { get; init; }
 
+    private readonly string _name = string.Empty;
     /// <summary>
     /// the control's name.
     /// </summary>
-    public string? Name { get; init; }
+    [YamlMember(Order = 1)]
+    public required string Name
+    {
+        get => _name;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException(nameof(Name));
+
+            _name = value;
+        }
+    }
 
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
+    [YamlMember(Order = 2)]
     public ControlPropertiesCollection Properties { get; init; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// </summary>
-    public Control[]? Controls { get; init; } = Array.Empty<Control>();
+    [YamlMember(Order = 3)]
+    public IList<Control> Controls { get; init; } = new List<Control>();
+
+    [YamlIgnore]
+    public ControlEditorState? EditorState { get; set; }
 }

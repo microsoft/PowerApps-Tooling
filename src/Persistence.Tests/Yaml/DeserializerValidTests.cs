@@ -4,10 +4,10 @@
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.Tests.Yaml;
+namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class YamlDeserializerTests
+public class DeserializerValidTests
 {
     [TestMethod]
     [DataRow("I am a screen with spaces", "42")]
@@ -19,9 +19,8 @@ public class YamlDeserializerTests
     [DataRow("Cos'è questo?", "---")]
     public void Deserialize_ShouldParseSimpleStructure(string textValue, string xValue)
     {
-        var graph = new Screen()
+        var graph = new Screen("Screen1")
         {
-            Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = textValue } },
@@ -38,7 +37,7 @@ public class YamlDeserializerTests
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
-        sut.ControlUri.Should().Be(BuiltInTemplatesUris.Screen);
+        sut.ControlUri.Should().Be(BuiltInTemplates.Screen);
         sut.Controls.Should().NotBeNull().And.BeEmpty();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(3)
@@ -51,26 +50,23 @@ public class YamlDeserializerTests
     [TestMethod]
     public void Deserialize_ShouldParseYamlWithChildNodes()
     {
-        var graph = new Screen()
+        var graph = new Screen("Screen1")
         {
-            Name = "Screen1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
             Controls = new Control[]
             {
-                new Text()
+                new Text("Label1")
                 {
-                    Name = "Label1",
                     Properties = new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "lorem ipsum" }  },
                     },
                 },
-                new Button()
+                new Button("Button1")
                 {
-                    Name = "Button1",
                     Properties = new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "click me" }  },
@@ -89,7 +85,7 @@ public class YamlDeserializerTests
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
-        sut.ControlUri.Should().Be(BuiltInTemplatesUris.Screen);
+        sut.ControlUri.Should().Be(BuiltInTemplates.Screen);
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
@@ -98,7 +94,7 @@ public class YamlDeserializerTests
         sut.Controls.Should().NotBeNull().And.HaveCount(2);
         sut.Controls![0].Should().BeOfType<Text>();
         sut.Controls![0].Name.Should().Be("Label1");
-        sut.Controls![0].ControlUri.Should().Be(BuiltInTemplatesUris.Text);
+        sut.Controls![0].ControlUri.Should().Be(BuiltInTemplates.Text);
         sut.Controls![0].Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
@@ -106,7 +102,7 @@ public class YamlDeserializerTests
 
         sut.Controls![1].Should().BeOfType<Button>();
         sut.Controls![1].Name.Should().Be("Button1");
-        sut.Controls![1].ControlUri.Should().Be(BuiltInTemplatesUris.Button);
+        sut.Controls![1].ControlUri.Should().Be(BuiltInTemplates.Button);
         sut.Controls![1].Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
@@ -118,10 +114,9 @@ public class YamlDeserializerTests
     [TestMethod]
     public void Deserialize_ShouldParseYamlForCustomControl()
     {
-        var graph = new CustomControl()
+        var graph = new CustomControl("CustomControl1")
         {
             ControlUri = "http://localhost/#customcontrol",
-            Name = "CustomControl1",
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a custom control" } },
@@ -147,10 +142,9 @@ public class YamlDeserializerTests
     [TestMethod]
     public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl()
     {
-        var graph = new CustomControl()
+        var graph = new CustomControl("MyCustomButton")
         {
-            ControlUri = BuiltInTemplatesUris.Button,
-            Name = "MyCustomButton",
+            ControlUri = BuiltInTemplates.Button,
         };
 
         var serializer = YamlSerializationFactory.CreateSerializer();
@@ -160,5 +154,25 @@ public class YamlDeserializerTests
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Button>();
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", "My Power Apps Custom Control", 0, 9)]
+    public void Deserialize_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
+    {
+        // Arrange
+        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var controlObj = deserializer.Deserialize(yamlReader);
+        controlObj.Should().BeAssignableTo<Control>();
+        var control = controlObj as Control;
+        control!.Name.Should().NotBeNull().And.Be(expectedName);
+        control.Controls.Should().NotBeNull().And.HaveCount(controlCount);
+        control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 }

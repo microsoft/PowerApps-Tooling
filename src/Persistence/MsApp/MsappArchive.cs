@@ -1,17 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Microsoft.PowerPlatform.Formulas.Tools.Model;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
-namespace Microsoft.PowerPlatform.Formulas.Tools.MsApp;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 /// <summary>
 /// Represents a .msapp file.
@@ -35,15 +32,13 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     #region Fields
 
-    private Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
-    private Lazy<List<Control>> _topLevelControls;
+    private readonly Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
+    private readonly Lazy<List<Screen>> _screens;
     private bool _isDisposed;
-    private readonly ILogger<MsappArchive> _logger;
-    private FileStream _fileStream;
-    private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
-            .IgnoreUnmatchedProperties()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
+    private readonly ILogger<MsappArchive>? _logger;
+    private readonly Stream _stream;
+    private readonly bool _leaveOpen;
+    private readonly IDeserializer? _deserializer;
 
     #endregion
 
@@ -54,28 +49,27 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     private class TopParentJson
     {
-        public ControlEditorState TopParent { get; set; }
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+        public ControlEditorState? TopParent { get; set; }
+#pragma warning restore CS0649
     }
 
     #endregion
 
     #region Constructors
 
-    public MsappArchive(string fileName, ILogger<MsappArchive> logger = null)
-    {
-        _logger = logger;
-        _fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        Initialize(_fileStream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null);
-
-    }
-
-    public MsappArchive(Stream stream, ILogger<MsappArchive> logger = null)
-        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, logger)
+    public MsappArchive(string path, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, deserializer, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, ILogger<MsappArchive> logger = null)
-        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, logger)
+    public MsappArchive(Stream stream, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
+    {
+    }
+
+    public MsappArchive(Stream stream, ZipArchiveMode mode, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
     {
     }
 
@@ -84,21 +78,22 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="mode"></param>
-    /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
+    /// <param name="leaveOpen">
+    ///     true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false
+    /// </param>
+    /// <param name="deserializer"></param>
     /// <param name="logger"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, ILogger<MsappArchive> logger = null)
-        : this(stream, mode, leaveOpen, null, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen, null, deserializer, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding entryNameEncoding, ILogger<MsappArchive> logger = null)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
     {
+        _stream = stream;
+        _leaveOpen = leaveOpen;
+        _deserializer = deserializer;
         _logger = logger;
-        Initialize(stream, mode, leaveOpen, entryNameEncoding);
-    }
-
-    private void Initialize(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding entryNameEncoding)
-    {
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
         _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
         (() =>
@@ -117,7 +112,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
             return canonicalEntries;
         });
-        _topLevelControls = new Lazy<List<Control>>(LoadTopLevelControls);
+        _screens = new Lazy<List<Screen>>(LoadScreens);
     }
 
     #endregion
@@ -142,7 +137,7 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
-    public IReadOnlyList<Control> TopLevelControls => _topLevelControls.Value.AsReadOnly();
+    public IReadOnlyList<Screen> Screens => _screens.Value.AsReadOnly();
 
     #endregion
 
@@ -154,7 +149,7 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// <param name="directoryName"></param>
     /// <param name="extension"></param>
     /// <returns></returns>
-    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string extension = null)
+    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null)
     {
         _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
 
@@ -173,7 +168,7 @@ public class MsappArchive : IMsappArchive, IDisposable
     }
 
     /// <inheritdoc/>
-    public ZipArchiveEntry GetEntry(string entryName)
+    public ZipArchiveEntry? GetEntry(string entryName)
     {
         if (string.IsNullOrWhiteSpace(entryName))
             return null;
@@ -225,22 +220,22 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     #region Private Methods
 
-    private List<Control> LoadTopLevelControls()
+    private List<Screen> LoadScreens()
     {
-        _logger?.LogInformation("Loading top level controls from Yaml.");
+        _logger?.LogInformation("Loading top level screens from Yaml.");
 
-        var controls = new Dictionary<string, Control>();
+        var screens = new Dictionary<string, Screen>();
         foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(SrcDirectory, ControlsDirectory), YamlFileExtension))
         {
             using var textReader = new StreamReader(yamlEntry.Open());
             try
             {
-                var control = YamlDeserializer.Deserialize<Control>(textReader);
-                controls.Add(control.Name, control);
+                var screen = _deserializer!.Deserialize(textReader) as Screen;
+                screens.Add(screen!.Name, screen);
             }
             catch (Exception ex)
             {
-                throw new SerializationException("Failed to deserialize control yaml file.", yamlEntry.FullName, ex);
+                throw new PersistenceException("Failed to deserialize control yaml file.", ex) { FileName = yamlEntry.FullName };
             }
         }
 
@@ -251,16 +246,16 @@ public class MsappArchive : IMsappArchive, IDisposable
             try
             {
                 var topParentJson = JsonSerializer.Deserialize<TopParentJson>(editorStateEntry.Open());
-                controlEditorStates.Add(topParentJson.TopParent.Name, topParentJson.TopParent);
+                controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
             }
             catch (Exception ex)
             {
-                throw new SerializationException("Failed to deserialize control editor state file.", editorStateEntry.FullName, ex);
+                throw new PersistenceException("Failed to deserialize control editor state file.", ex) { FileName = editorStateEntry.FullName };
             }
         }
 
         // Merge the editor state into the controls
-        foreach (var control in controls.Values)
+        foreach (var control in screens.Values)
         {
             if (controlEditorStates.TryGetValue(control.Name, out var editorState))
             {
@@ -269,13 +264,7 @@ public class MsappArchive : IMsappArchive, IDisposable
             }
         }
 
-        // For backwards compatibility, add any editor states that don't have a matching control
-        foreach (var editorState in controlEditorStates.Values)
-        {
-            controls.Add(editorState.Name, new Control(editorState));
-        }
-
-        return controls.Values.ToList();
+        return screens.Values.ToList();
     }
 
     private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)
@@ -286,14 +275,17 @@ public class MsappArchive : IMsappArchive, IDisposable
 
         foreach (var child in control.Controls)
         {
+            if (controlEditorState.Controls == null)
+                continue;
+
             // Find the editor state for the child by name
-            var childEditorState = controlEditorState.Children.Where(c => c.Name == child.Name).FirstOrDefault();
+            var childEditorState = controlEditorState.Controls.FirstOrDefault(c => c.Name == child.Name);
             if (childEditorState == null)
                 continue;
 
             MergeControlEditorState(child, childEditorState);
         }
-        controlEditorState.Children = null;
+        controlEditorState.Controls = null;
     }
 
     #endregion
@@ -306,13 +298,13 @@ public class MsappArchive : IMsappArchive, IDisposable
         {
             if (disposing)
             {
-                ZipArchive?.Dispose();
-                _fileStream?.Dispose();
+                if (!_leaveOpen)
+                {
+                    ZipArchive.Dispose();
+                    _stream.Dispose();
+                }
             }
 
-            ZipArchive = null;
-            _fileStream = null;
-            _canonicalEntries = null;
             _isDisposed = true;
         }
     }
