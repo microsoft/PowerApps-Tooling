@@ -4,7 +4,6 @@
 using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Utils;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
@@ -71,7 +70,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
             foreach (var entry in ZipArchive.Entries)
             {
-                if (!canonicalEntries.TryAdd(FileUtils.NormalizePath(entry.FullName), entry))
+                if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
                     _logger?.LogInformation($"Duplicate entry found in archive: {entry.FullName}");
             }
 
@@ -110,7 +109,7 @@ public class MsappArchive : IMsappArchive, IDisposable
     {
         _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
 
-        directoryName = FileUtils.NormalizePath(directoryName);
+        directoryName = NormalizePath(directoryName);
 
         foreach (var entry in CanonicalEntries)
         {
@@ -130,7 +129,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         if (string.IsNullOrWhiteSpace(entryName))
             return null;
 
-        entryName = FileUtils.NormalizePath(entryName);
+        entryName = NormalizePath(entryName);
         if (CanonicalEntries.TryGetValue(entryName, out var entry))
             return entry;
 
@@ -143,7 +142,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         if (string.IsNullOrWhiteSpace(entryName))
             throw new ArgumentException("Entry name cannot be null or whitespace.", nameof(entryName));
 
-        var canonicalEntryName = FileUtils.NormalizePath(entryName);
+        var canonicalEntryName = NormalizePath(entryName);
         if (_canonicalEntries.Value.ContainsKey(canonicalEntryName))
             throw new InvalidOperationException($"Entry {entryName} already exists in the archive.");
 
@@ -154,6 +153,15 @@ public class MsappArchive : IMsappArchive, IDisposable
     }
 
     #endregion
+
+    #region Private methods
+
+    private static string NormalizePath(string path)
+    {
+        return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
+    }
+
+    #endregion Private methods
 
     #region IDisposable
 
