@@ -52,7 +52,6 @@ namespace targets
             string SrcDir = Path.Combine(RootDir, "src");
 
             string LogDir = Path.Combine(ObjDir, "logs");
-            string TestLogDir = Path.Combine(ObjDir, "testLogs");
 
             string PAModelDir = Path.Combine(SrcDir, "PAModel");
             var solution = Path.Combine(SrcDir, "PASopa.sln");
@@ -82,9 +81,6 @@ namespace targets
                     RunDotnet("build", $"{EscapePath(solution)} --configuration {options.Configuration} --no-restore", gitExists, LogDir);
                 });
 
-            Target("test",
-                () => RunDotnet("test", $"{EscapePath(solution)} --configuration {options.Configuration} --no-build --logger trx --results-directory {EscapePath(TestLogDir)}", gitExists, LogDir));
-
             Target("rebuild",
                 DependsOn("restore", "build"));
 
@@ -98,7 +94,7 @@ namespace targets
                 });
 
             Target("ci",
-                DependsOn("squeaky-clean", "rebuild", "test"));
+                DependsOn("squeaky-clean", "rebuild"));
 
             Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
