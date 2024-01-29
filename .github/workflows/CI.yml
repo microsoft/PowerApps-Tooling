@@ -39,9 +39,15 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
 
       ## Only difference here is not forcing cmd
-    - name: Build and test (!win)
+    - name: Build and test (ubuntu & macos)
       run: ./build ci
       if: ${{ runner.os != 'Windows' }}
+
+    - name: Test - Persistence
+      run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
+
+    - name: Test - PAModel
+      run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
