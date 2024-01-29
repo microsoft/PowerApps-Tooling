@@ -19,7 +19,7 @@ internal class ControlTypeInspector : ITypeInspector
     {
         var properties = _innerTypeInspector.GetProperties(type, container);
         if (BuiltInTemplates.TypeToShortName.TryGetValue(type, out var shortName))
-            return properties.Where(p => !p.Name.Equals(nameof(Control)));
+            return properties.Where(p => !p.Name.Equals(YamlFields.Control));
 
         return properties;
     }

@@ -16,11 +16,11 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
     {
         suggestedType = null;
 
-        if (!buffer.TryFindMappingEntry(s => BuiltInTemplates.ShortNameToType.ContainsKey(s.Value) || s.Value == nameof(Control), out var scalar, out var value))
+        if (!buffer.TryFindMappingEntry(s => BuiltInTemplates.ShortNameToType.ContainsKey(s.Value) || s.Value == YamlFields.Control, out var scalar, out var value))
             return false;
 
         // Control is abstract, so we need to return a concrete type.
-        if (scalar!.Value == nameof(Control))
+        if (scalar!.Value == YamlFields.Control)
         {
             var templateUri = ((Scalar)value!).Value.Trim();
             if (BuiltInTemplates.TemplateToType.TryGetValue(templateUri, out suggestedType))
