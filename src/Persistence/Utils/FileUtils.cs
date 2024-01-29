@@ -3,7 +3,7 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Utils;
 
-public static class FileUtils
+internal static class FileUtils
 {
     /// <summary>
     /// Converts backslashes to forward slashes, removes trailing slashes, and converts to lowercase.
