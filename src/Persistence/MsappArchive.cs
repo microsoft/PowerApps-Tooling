@@ -6,9 +6,12 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Utils;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+
 
 /// <summary>
 /// Represents a .msapp file.
@@ -17,15 +20,6 @@ public class MsappArchive : IMsappArchive, IDisposable
 {
     #region Constants
 
-    public const string SrcDirectory = "Src";
-    public const string ControlsDirectory = "Controls";
-    public const string ComponentsDirectory = "Components";
-    public const string AppTestDirectory = "AppTests";
-    public const string ReferencesDirectory = "References";
-    public const string ResourcesDirectory = "Resources";
-
-    public const string YamlFileExtension = ".yaml";
-    public const string YamlFxFileExtension = ".fx.yaml";
     public const string JsonFileExtension = ".json";
 
     #endregion
@@ -106,7 +100,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
             foreach (var entry in ZipArchive.Entries)
             {
-                if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
+                if (!canonicalEntries.TryAdd(FileUtils.NormalizePath(entry.FullName), entry))
                     _logger?.LogInformation($"Duplicate entry found in archive: {entry.FullName}");
             }
 
@@ -143,17 +137,12 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     #region Methods
 
-    /// <summary>
-    /// Returns all entries in the archive that are in the given directory.
-    /// </summary>
-    /// <param name="directoryName"></param>
-    /// <param name="extension"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null)
     {
         _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
 
-        directoryName = NormalizePath(directoryName);
+        directoryName = FileUtils.NormalizePath(directoryName);
 
         foreach (var entry in CanonicalEntries)
         {
@@ -173,26 +162,11 @@ public class MsappArchive : IMsappArchive, IDisposable
         if (string.IsNullOrWhiteSpace(entryName))
             return null;
 
-        entryName = NormalizePath(entryName);
+        entryName = FileUtils.NormalizePath(entryName);
         if (CanonicalEntries.TryGetValue(entryName, out var entry))
             return entry;
 
         return null;
-    }
-
-    /// <summary>
-    /// Returns the entry in the archive with the given name or throws if it does not exist.
-    /// </summary>
-    /// <param name="entryName"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="FileNotFoundException"></exception>
-    public ZipArchiveEntry GetRequiredEntry(string entryName)
-    {
-        var entry = GetEntry(entryName) ??
-            throw new FileNotFoundException($"Entry '{entryName}' not found in msapp archive.");
-
-        return entry;
     }
 
     /// <inheritdoc/>
@@ -201,7 +175,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         if (string.IsNullOrWhiteSpace(entryName))
             throw new ArgumentException("Entry name cannot be null or whitespace.", nameof(entryName));
 
-        var canonicalEntryName = NormalizePath(entryName);
+        var canonicalEntryName = FileUtils.NormalizePath(entryName);
         if (_canonicalEntries.Value.ContainsKey(canonicalEntryName))
             throw new InvalidOperationException($"Entry {entryName} already exists in the archive.");
 
@@ -209,11 +183,6 @@ public class MsappArchive : IMsappArchive, IDisposable
         _canonicalEntries.Value.Add(canonicalEntryName, entry);
 
         return entry;
-    }
-
-    public static string NormalizePath(string path)
-    {
-        return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
     }
 
     #endregion
@@ -225,7 +194,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         _logger?.LogInformation("Loading top level screens from Yaml.");
 
         var screens = new Dictionary<string, Screen>();
-        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(SrcDirectory, ControlsDirectory), YamlFileExtension))
+        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(Directories.SrcDirectory, Directories.ControlsDirectory), YamlUtils.YamlFileExtension))
         {
             using var textReader = new StreamReader(yamlEntry.Open());
             try
@@ -241,7 +210,7 @@ public class MsappArchive : IMsappArchive, IDisposable
 
         _logger?.LogInformation("Loading top level controls editor state.");
         var controlEditorStates = new Dictionary<string, ControlEditorState>();
-        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(ControlsDirectory), JsonFileExtension))
+        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.ControlsDirectory), JsonFileExtension))
         {
             try
             {
@@ -317,4 +286,15 @@ public class MsappArchive : IMsappArchive, IDisposable
     }
 
     #endregion
+
+    public static class Directories
+    {
+        public const string SrcDirectory = "Src";
+        public const string ControlsDirectory = "Controls";
+        public const string ComponentsDirectory = "Components";
+        public const string AppTestDirectory = "AppTests";
+        public const string ReferencesDirectory = "References";
+        public const string ResourcesDirectory = "Resources";
+    }
 }
+

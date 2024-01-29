@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
-using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Utils;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.MsApp;
@@ -10,21 +12,21 @@ namespace Persistence.Tests.MsApp;
 [TestClass]
 public class MsappArchiveTests
 {
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.ResourcesDirectory, 0)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, MsappArchive.ResourcesDirectory, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, $@" \{MsappArchive.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.ResourcesDirectory}\", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, "NotFound", 0)]
+    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.ResourcesDirectory, 0)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, MsappArchive.Directories.ResourcesDirectory, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, $@" \{MsappArchive.Directories.ResourcesDirectory}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.Directories.ResourcesDirectory}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.Directories.ResourcesDirectory}\", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" }, "NotFound", 0)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}\abc.txt",
-        @$"ReSoUrCeS/efg.txt"}, MsappArchive.ResourcesDirectory, 2)]
+        @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt",
+        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.ResourcesDirectory, 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}\abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}/efg.txt"}, "RESOURCES", 2)]
+        @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt",
+        @$"{MsappArchive.Directories.ResourcesDirectory}/efg.txt"}, "RESOURCES", 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}New\abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}/efg.txt"}, MsappArchive.ResourcesDirectory, 1)]
+        @$"{MsappArchive.Directories.ResourcesDirectory}New\abc.txt",
+        @$"{MsappArchive.Directories.ResourcesDirectory}/efg.txt"}, MsappArchive.Directories.ResourcesDirectory, 1)]
     [TestMethod]
     public void GetDirectoryEntriesTests(string[] entries, string directoryName, int expectedDirectoryCount)
     {
@@ -46,9 +48,9 @@ public class MsappArchiveTests
     }
 
     [DataRow(new string[] { "abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\DEF.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\DEF.txt", @"\start-with-slash\test.json" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\abc.txt" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\DEF.txt" })]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.ResourcesDirectory}\DEF.txt", @"\start-with-slash\test.json" })]
     [TestMethod]
     public void AddEntryTests(string[] entries)
     {
@@ -64,7 +66,7 @@ public class MsappArchiveTests
         msappArchive.CanonicalEntries.Count.Should().Be(entries.Length);
         foreach (var entry in entries)
         {
-            msappArchive.CanonicalEntries.ContainsKey(MsappArchive.NormalizePath(entry)).Should().BeTrue();
+            msappArchive.CanonicalEntries.ContainsKey(FileUtils.NormalizePath(entry)).Should().BeTrue();
         }
 
         // Get the required entry should throw if it doesn't exist

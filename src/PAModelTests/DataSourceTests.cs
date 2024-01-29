@@ -9,7 +9,7 @@ using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
-using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence;
 
 namespace PAModelTests;
 
