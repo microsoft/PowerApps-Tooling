@@ -37,7 +37,7 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
             if (!type.IsFirstClass(out var attrib))
                 return string.Empty;
 
-            return !string.IsNullOrWhiteSpace(attrib?.NodeName) ? attrib.NodeName : type.Name;
+            return !string.IsNullOrWhiteSpace(attrib?.ShortName) ? attrib.ShortName : type.Name;
         });
         return !string.IsNullOrWhiteSpace(nodeName);
     }

@@ -6,7 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(nameof(Button), TemplateUri = BuiltInTemplates.Button)]
+[FirstClass(shortName: nameof(Button), templateUri: BuiltInTemplates.Button)]
 public record Button : Control
 {
     public Button()

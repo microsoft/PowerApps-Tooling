@@ -6,7 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(nameof(Text), TemplateUri = BuiltInTemplates.Text)]
+[FirstClass(shortName: nameof(Text), templateUri: BuiltInTemplates.Text)]
 public record Text : Control
 {
     public Text()

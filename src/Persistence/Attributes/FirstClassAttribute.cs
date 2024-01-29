@@ -6,12 +6,18 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
 public class FirstClassAttribute : Attribute
 {
-    public FirstClassAttribute(string? nodeName = null)
+    public FirstClassAttribute(string shortName, string templateUri)
     {
-        NodeName = nodeName ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(shortName))
+            throw new ArgumentException($"'{nameof(shortName)}' cannot be null or whitespace.", nameof(shortName));
+        if (string.IsNullOrWhiteSpace(templateUri))
+            throw new ArgumentException($"'{nameof(templateUri)}' cannot be null or whitespace.", nameof(templateUri));
+
+        ShortName = shortName;
+        TemplateUri = templateUri;
     }
 
-    public string NodeName { get; }
+    public string ShortName { get; }
 
-    public required string TemplateUri { get; init; }
+    public string TemplateUri { get; }
 }

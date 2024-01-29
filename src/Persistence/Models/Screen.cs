@@ -6,7 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(nameof(Screen), TemplateUri = BuiltInTemplates.Screen)]
+[FirstClass(shortName: nameof(Screen), templateUri: BuiltInTemplates.Screen)]
 public record Screen : Control
 {
     public Screen()
