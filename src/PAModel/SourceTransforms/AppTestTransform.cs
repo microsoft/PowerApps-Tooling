@@ -86,7 +86,7 @@ internal class AppTestTransform : IControlTemplateTransform
 
             var childProperties = new List<PropertyNode>()
                 {
-                    new PropertyNode()
+                    new()
                     {
                         Identifier = "Description",
                         Expression = new ExpressionNode()
@@ -94,7 +94,7 @@ internal class AppTestTransform : IControlTemplateTransform
                             Expression = testStep.Description.EscapePAString()
                         }
                     },
-                    new PropertyNode()
+                    new()
                     {
                         Identifier = "Value",
                         Expression = testStepProp.Expression

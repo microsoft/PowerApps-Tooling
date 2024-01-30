@@ -52,8 +52,7 @@ internal class YamlLexer : IDisposable
         _lastPair = YamlToken.NewStartObj(default, null);
         _currentIndent = new Stack<Indent>()
         {
-            new Indent
-            {
+            new() {
                 _oldIndentLevel = -1,
                 _lineStart = 0
             }
