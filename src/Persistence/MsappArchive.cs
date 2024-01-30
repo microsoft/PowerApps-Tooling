@@ -3,7 +3,10 @@
 
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
@@ -12,30 +15,65 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 /// </summary>
 public class MsappArchive : IMsappArchive, IDisposable
 {
+    #region Constants
+
+    public static class Directories
+    {
+        public const string Src = "Src";
+        public const string Controls = "Controls";
+        public const string Components = "Components";
+        public const string AppTests = "AppTests";
+        public const string References = "References";
+        public const string Resources = "Resources";
+    }
+
+    public const string YamlFileExtension = ".yaml";
+    public const string YamlFxFileExtension = ".fx.yaml";
+    public const string JsonFileExtension = ".json";
+    public const string AppFileName = "1.fx.yaml";
+
+    #endregion
+
     #region Fields
 
     private readonly Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
+    private readonly Lazy<App> _app;
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
+    private readonly IDeserializer? _deserializer;
+
+    #endregion
+
+    #region Internal classes
+
+    /// <summary>
+    /// Helper class for deserializing the top level control editor state.
+    /// </summary>
+    private class TopParentJson
+    {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+        public ControlEditorState? TopParent { get; set; }
+#pragma warning restore CS0649
+    }
 
     #endregion
 
     #region Constructors
 
-    public MsappArchive(string path, ILogger<MsappArchive>? logger = null)
-        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, logger)
+    public MsappArchive(string path, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, deserializer, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ILogger<MsappArchive>? logger = null)
-        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, logger)
+    public MsappArchive(Stream stream, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
     {
     }
 
@@ -47,35 +85,35 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// <param name="leaveOpen">
     ///     true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false
     /// </param>
+    /// <param name="deserializer"></param>
     /// <param name="logger"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen, null, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen, null, deserializer, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, ILogger<MsappArchive>? logger = null)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
     {
         _stream = stream;
         _leaveOpen = leaveOpen;
+        _deserializer = deserializer;
         _logger = logger;
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
         _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
         (() =>
         {
             var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
-
             // If we're creating a new archive, there are no entries to canonicalize.
             if (mode == ZipArchiveMode.Create)
                 return canonicalEntries;
-
             foreach (var entry in ZipArchive.Entries)
             {
                 if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
                     _logger?.LogInformation($"Duplicate entry found in archive: {entry.FullName}");
             }
-
             return canonicalEntries;
         });
+        _app = new Lazy<App>(LoadApp);
     }
 
     #endregion
@@ -100,11 +138,18 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
+    public App App => _app.Value;
+
     #endregion
 
     #region Methods
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Returns all entries in the archive that are in the given directory.
+    /// </summary>
+    /// <param name="directoryName"></param>
+    /// <param name="extension"></param>
+    /// <returns></returns>
     public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null)
     {
         _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
@@ -136,6 +181,21 @@ public class MsappArchive : IMsappArchive, IDisposable
         return null;
     }
 
+    /// <summary>
+    /// Returns the entry in the archive with the given name or throws if it does not exist.
+    /// </summary>
+    /// <param name="entryName"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
+    public ZipArchiveEntry GetRequiredEntry(string entryName)
+    {
+        var entry = GetEntry(entryName) ??
+            throw new FileNotFoundException($"Entry '{entryName}' not found in msapp archive.");
+
+        return entry;
+    }
+
     /// <inheritdoc/>
     public ZipArchiveEntry CreateEntry(string entryName)
     {
@@ -152,16 +212,107 @@ public class MsappArchive : IMsappArchive, IDisposable
         return entry;
     }
 
-    #endregion
+    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : class
+    {
+        _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
+        using var textReader = new StreamReader(archiveEntry.Open());
+        try
+        {
+            var result = _deserializer!.Deserialize(textReader) as T;
+            return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
+        }
+        catch (Exception ex)
+        {
+            throw new PersistenceException("Failed to deserialize archive entry.", ex) { FileName = archiveEntry.FullName };
+        }
 
-    #region Private methods
+    }
 
-    private static string NormalizePath(string path)
+    public static string NormalizePath(string path)
     {
         return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
     }
 
-    #endregion Private methods
+    #endregion
+
+    #region Private Methods
+
+    private App LoadApp()
+    {
+        // For app entry name is always "1.fx.yaml"now 
+        var appEntry = GetRequiredEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        var app = Deserialize<App>(appEntry);
+
+        app.Screens = LoadScreens();
+
+        return app;
+    }
+
+    private List<Screen> LoadScreens()
+    {
+        _logger?.LogInformation("Loading top level screens from Yaml.");
+
+        var screens = new Dictionary<string, Screen>();
+        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(Directories.Src, Directories.Controls), YamlFileExtension))
+        {
+            // Skip the app file
+            if (yamlEntry.FullName.EndsWith(AppFileName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var screen = Deserialize<Screen>(yamlEntry);
+            screens.Add(screen.Name, screen);
+        }
+
+        _logger?.LogInformation("Loading top level controls editor state.");
+        var controlEditorStates = new Dictionary<string, ControlEditorState>();
+        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
+        {
+            try
+            {
+                var topParentJson = JsonSerializer.Deserialize<TopParentJson>(editorStateEntry.Open());
+                controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
+            }
+            catch (Exception ex)
+            {
+                throw new PersistenceException("Failed to deserialize control editor state file.", ex) { FileName = editorStateEntry.FullName };
+            }
+        }
+
+        // Merge the editor state into the controls
+        foreach (var control in screens.Values)
+        {
+            if (controlEditorStates.TryGetValue(control.Name, out var editorState))
+            {
+                MergeControlEditorState(control, editorState);
+                controlEditorStates.Remove(control.Name);
+            }
+        }
+
+        return screens.Values.ToList();
+    }
+
+    private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)
+    {
+        control.EditorState = controlEditorState;
+        if (control.Controls == null)
+            return;
+
+        foreach (var child in control.Controls)
+        {
+            if (controlEditorState.Controls == null)
+                continue;
+
+            // Find the editor state for the child by name
+            var childEditorState = controlEditorState.Controls.FirstOrDefault(c => c.Name == child.Name);
+            if (childEditorState == null)
+                continue;
+
+            MergeControlEditorState(child, childEditorState);
+        }
+        controlEditorState.Controls = null;
+    }
+
+    #endregion
 
     #region IDisposable
 
@@ -190,15 +341,4 @@ public class MsappArchive : IMsappArchive, IDisposable
     }
 
     #endregion
-
-    public static class Directories
-    {
-        public const string Src = "Src";
-        public const string Controls = "Controls";
-        public const string Components = "Components";
-        public const string AppTests = "AppTests";
-        public const string References = "References";
-        public const string Resources = "Resources";
-    }
 }
-

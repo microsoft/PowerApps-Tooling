@@ -3,7 +3,7 @@
 
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.MsApp;
 
@@ -91,5 +91,22 @@ public class MsappArchiveTests
                 new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
             }
         };
+    }
+
+
+    [TestMethod]
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 1, "HelloScreen", "screen", 8)]
+    public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
+        string topLevelControlName, string topLevelControlType,
+        int topLevelRulesCount)
+    {
+        // Arrange: Create new ZipArchive in memory
+        using var msappArchive = new MsappArchive(testFile, YamlSerializationFactory.CreateDeserializer());
+
+        // Assert
+        msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
+        msappArchive.App.Screens.Count.Should().Be(controlsCount);
+
+        var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
     }
 }
