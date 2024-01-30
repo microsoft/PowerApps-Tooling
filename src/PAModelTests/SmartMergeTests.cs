@@ -73,7 +73,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
         },
         (branchBDoc) =>
@@ -86,7 +86,7 @@ public class SmartMergeTests
                     Identifier = "Bar",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
 
         },
@@ -117,7 +117,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
         },
         (branchBDoc) =>
@@ -130,7 +130,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
 
         },
@@ -304,7 +304,7 @@ public class SmartMergeTests
                     Identifier = "Screen32",
                     Kind = new TypeNode() { TypeName = "screen" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
         },
         (branchBDoc) =>
@@ -336,7 +336,7 @@ public class SmartMergeTests
                     Identifier = "Screen32",
                     Kind = new TypeNode() { TypeName = "screen" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             };
 
             newScreen.Children.Add(new BlockNode()
@@ -346,7 +346,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
             });
 
             branchADoc._screens.Add("Screen32", newScreen);
@@ -363,7 +363,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
             });
             branchBDoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
         },
@@ -395,7 +395,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromB" } } }
             });
             branchADoc._editorStateStore.TryAddControl(new ControlState() { Name = "Foo", TopParentName = "Screen1" });
         },
@@ -408,7 +408,7 @@ public class SmartMergeTests
                     Identifier = "Screen32",
                     Kind = new TypeNode() { TypeName = "screen" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             };
 
             newScreen.Children.Add(new BlockNode()
@@ -418,7 +418,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "label" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeOtherProp", Expression = new ExpressionNode() { Expression = "FromA" } } }
             });
 
             branchBDoc._screens.Add("Screen32", newScreen);
@@ -453,7 +453,7 @@ public class SmartMergeTests
                     Identifier = "Foo",
                     Kind = new TypeNode() { TypeName = "PCFTemplate" }
                 },
-                Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+                Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
             });
 
             // These are mocks, feel free to improve if needed to make this test more accurate

@@ -29,7 +29,7 @@ public class DefaultValuesTransformTests
                 Identifier = "Canvas1",
                 Kind = new TypeNode() { TypeName = "fluidGrid", OptionalVariant = "fluidGridWithBlankCard" }
             },
-            Properties = new List<PropertyNode>() { new PropertyNode { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
+            Properties = new List<PropertyNode>() { new() { Identifier = "SomeProp", Expression = new ExpressionNode() { Expression = "Expr" } } }
         };
 
         var defaultValTransform = new DefaultValuesTransform(getTemplateStore(), getTheme(), getEditorStateStore());
@@ -55,10 +55,10 @@ public class DefaultValuesTransformTests
         // creating dynamic properties with Property value null, but with PropertyName
         var dynPropStates = new List<DynamicPropertyState>();
         dynPropStates.AddRange(new List<DynamicPropertyState> {
-            new DynamicPropertyState() { PropertyName = "LayoutX" },
-            new DynamicPropertyState() { PropertyName = "LayoutY" },
-            new DynamicPropertyState() { PropertyName = "LayoutWidth" },
-            new DynamicPropertyState() { PropertyName = "LayoutHeight" },
+            new() { PropertyName = "LayoutX" },
+            new() { PropertyName = "LayoutY" },
+            new() { PropertyName = "LayoutWidth" },
+            new() { PropertyName = "LayoutHeight" },
         });
 
         var editorStateStore = new EditorStateStore();
