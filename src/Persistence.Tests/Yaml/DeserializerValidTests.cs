@@ -175,4 +175,20 @@ public class DeserializerValidTests
         control.Controls.Should().NotBeNull().And.HaveCount(controlCount);
         control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-unmatched-field.fx.yaml")]
+    public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)
+    {
+        // Arrange
+        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var controlObj = deserializer.Deserialize(yamlReader);
+
+        // Assert
+        controlObj.Should().NotBeNull();
+    }
 }

@@ -24,6 +24,7 @@ internal static class SerializerBuilderExtensions
     public static DeserializerBuilder WithFirstClassModels(this DeserializerBuilder builder)
     {
         return builder
+            .IgnoreUnmatchedProperties()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeInspector(inner => new ControlTypeInspector(inner))
             .WithTypeDiscriminatingNodeDeserializer(o =>
