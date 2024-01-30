@@ -33,8 +33,8 @@ public static class BuiltInTemplates
 
             if (type.GetCustomAttributes(true).FirstOrDefault(a => a is FirstClassAttribute) is FirstClassAttribute firstClassAttribute)
             {
-                shortNameToType.Add(firstClassAttribute.NodeName, type);
-                typeToShortName.Add(type, firstClassAttribute.NodeName);
+                shortNameToType.Add(firstClassAttribute.ShortName, type);
+                typeToShortName.Add(type, firstClassAttribute.ShortName);
                 templateToType.Add(firstClassAttribute.TemplateUri, type);
             }
         }

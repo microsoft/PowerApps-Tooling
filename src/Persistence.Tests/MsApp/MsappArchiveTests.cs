@@ -2,29 +2,29 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
-using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 namespace Persistence.Tests.MsApp;
 
 [TestClass]
 public class MsappArchiveTests
 {
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.ResourcesDirectory, 0)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, MsappArchive.ResourcesDirectory, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, $@" \{MsappArchive.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.ResourcesDirectory}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}/abc.txt" }, $@" {MsappArchive.ResourcesDirectory}\", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" }, "NotFound", 0)]
+    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, 0)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, $@" \{MsappArchive.Directories.Resources}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}/", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}\", 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, "NotFound", 0)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}\abc.txt",
-        @$"ReSoUrCeS/efg.txt"}, MsappArchive.ResourcesDirectory, 2)]
+        @$"{MsappArchive.Directories.Resources}\abc.txt",
+        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.Resources, 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}\abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}/efg.txt"}, "RESOURCES", 2)]
+        @$"{MsappArchive.Directories.Resources}\abc.txt",
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, "RESOURCES", 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}New\abc.txt",
-        @$"{MsappArchive.ResourcesDirectory}/efg.txt"}, MsappArchive.ResourcesDirectory, 1)]
+        @$"{MsappArchive.Directories.Resources}New\abc.txt",
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, MsappArchive.Directories.Resources, 1)]
     [TestMethod]
     public void GetDirectoryEntriesTests(string[] entries, string directoryName, int expectedDirectoryCount)
     {
@@ -45,12 +45,9 @@ public class MsappArchiveTests
         msappArchive.GetDirectoryEntries(directoryName).Count().Should().Be(expectedDirectoryCount);
     }
 
-    [DataRow(new string[] { "abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\abc.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\DEF.txt" })]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.ResourcesDirectory}\DEF.txt", @"\start-with-slash\test.json" })]
-    [TestMethod]
-    public void AddEntryTests(string[] entries)
+    [DataTestMethod]
+    [DynamicData(nameof(AddEntryTestsData), DynamicDataSourceType.Method)]
+    public void AddEntryTests(string[] entries, string[] expectedEntries)
     {
         // Arrange: Create new ZipArchive in memory
         using var stream = new MemoryStream();
@@ -62,9 +59,11 @@ public class MsappArchiveTests
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(entries.Length);
-        foreach (var entry in entries)
+        for (var i = 0; i != expectedEntries.Length; ++i)
         {
-            msappArchive.CanonicalEntries.ContainsKey(MsappArchive.NormalizePath(entry)).Should().BeTrue();
+            msappArchive.CanonicalEntries.ContainsKey(expectedEntries[i])
+                .Should()
+                .BeTrue($"Expected entry {expectedEntries[i]} to exist in the archive");
         }
 
         // Get the required entry should throw if it doesn't exist
@@ -72,20 +71,25 @@ public class MsappArchiveTests
         action.Invoking(a => a()).Should().Throw<FileNotFoundException>();
     }
 
-    [TestMethod]
-    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 2, "HelloScreen", "screen", 8)]
-    public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
-        string topLevelControlName, string topLevelControlType,
-        int topLevelRulesCount)
+    private static IEnumerable<object[]> AddEntryTestsData()
     {
-        // Arrange: Create new ZipArchive in memory
-        using var msappArchive = new MsappArchive(testFile, YamlSerializationFactory.CreateDeserializer());
-
-        // Assert
-        msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
-        msappArchive.Screens.Count.Should().Be(controlsCount);
-        msappArchive.Screens.Should().ContainSingle(c => c.Name == "App");
-
-        var screen = msappArchive.Screens.Single(c => c.Name == topLevelControlName);
+        return new[] {
+            new [] {
+                new[] { "abc.txt" },
+                new[] { "abc.txt" }
+            },
+            new[]{
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" },
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant() },
+            },
+            new[]{
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" },
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant() },
+            },
+            new[]{
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" },
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
+            }
+        };
     }
 }

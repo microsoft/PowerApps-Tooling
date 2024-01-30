@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
@@ -11,8 +12,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [DebuggerDisplay("{Name}")]
 public abstract record Control
 {
-    public const string YamlName = "Control";
-
     public Control()
     {
     }
@@ -27,7 +26,7 @@ public abstract record Control
     /// <summary>
     /// template uri of the control.
     /// </summary>
-    [YamlMember(Alias = YamlName, Order = 0)]
+    [YamlMember(Alias = YamlFields.Control, Order = 0)]
     public required string ControlUri { get; init; }
 
     private readonly string _name = string.Empty;
@@ -55,10 +54,7 @@ public abstract record Control
 
     /// <summary>
     /// list of child controls nested under this control.
-    /// </summary>
+    /// </summary>    
     [YamlMember(Order = 3)]
-    public IList<Control> Controls { get; init; } = new List<Control>();
-
-    [YamlIgnore]
-    public ControlEditorState? EditorState { get; set; }
+    public Control[] Controls { get; init; } = Array.Empty<Control>();
 }

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.Yaml;
@@ -10,12 +9,12 @@ namespace Persistence.Tests.Yaml;
 public class DeserializerInvalidTests
 {
     [TestMethod]
-    public void Deserialize_ShouldFail()
+    public void Deserialize_ShouldFailWhenYamlIsInvalid()
     {
         // Arrange
         var deserializer = YamlSerializationFactory.CreateDeserializer();
 
-        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*{MsappArchive.YamlFxFileExtension}", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.fx.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file
         // var files = new string[] { @"_TestData/InvalidYaml/InvalidName.fx.yaml" };
 
