@@ -57,4 +57,7 @@ public abstract record Control
     /// </summary>    
     [YamlMember(Order = 3)]
     public Control[] Controls { get; init; } = Array.Empty<Control>();
+
+    [YamlIgnore]
+    public ControlEditorState? EditorState { get; set; }
 }

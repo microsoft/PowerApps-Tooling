@@ -7,6 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public static class BuiltInTemplates
 {
+    public const string AppInfo = "http://microsoft.com/appmagic/appinfo";
     public const string HostControl = "http://microsoft.com/appmagic/hostcontrol";
     public const string Screen = "http://microsoft.com/appmagic/screen";
     public const string Button = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas";
