@@ -2,14 +2,20 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
 /// <summary>
 /// base interface for MsappArchive
 /// </summary>
-public interface IMsappArchive
+public interface IMsappArchive : IDisposable
 {
+    /// <summary>
+    /// The app that is represented by the archive.
+    /// </summary>
+    App? App { get; set; }
+
     /// <summary>
     /// Creates a new entry in the archive with the given name.
     /// </summary>
@@ -38,4 +44,9 @@ public interface IMsappArchive
     /// Provides access to the underlying zip archive.
     /// </summary>
     ZipArchive ZipArchive { get; }
+
+    /// <summary>
+    /// Saves the archive to the given stream or file.
+    /// </summary>
+    void Save();
 }

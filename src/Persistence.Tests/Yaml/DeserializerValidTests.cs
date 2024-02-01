@@ -29,10 +29,10 @@ public class DeserializerValidTests
             },
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -77,10 +77,10 @@ public class DeserializerValidTests
             }
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -123,10 +123,10 @@ public class DeserializerValidTests
             },
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<CustomControl>();
@@ -147,10 +147,10 @@ public class DeserializerValidTests
             ControlUri = BuiltInTemplates.Button,
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Button>();
@@ -163,7 +163,7 @@ public class DeserializerValidTests
     public void Deserialize_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 
@@ -181,7 +181,7 @@ public class DeserializerValidTests
     public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)
     {
         // Arrange
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 

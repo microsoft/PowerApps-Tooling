@@ -16,8 +16,8 @@ public class RoundTripTests
     [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "My Power Apps Custom Control")]
     public void RoundTrip_ValidYaml(string path, Type rootType, string expectedName)
     {
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 

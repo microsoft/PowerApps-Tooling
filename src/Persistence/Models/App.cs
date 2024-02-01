@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -23,5 +24,6 @@ public record App : Control
         ControlUri = BuiltInTemplates.AppInfo;
     }
 
+    [YamlIgnore]
     public IList<Screen> Screens { get; set; } = new List<Screen>();
 }
