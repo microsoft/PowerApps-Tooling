@@ -12,7 +12,7 @@ public class DeserializerInvalidTests
     public void Deserialize_ShouldFailWhenYamlIsInvalid()
     {
         // Arrange
-        var deserializer = YamlSerializationFactory.CreateDeserializer();
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.fx.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file

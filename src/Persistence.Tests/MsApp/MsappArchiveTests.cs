@@ -3,12 +3,13 @@
 
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.MsApp;
 
 [TestClass]
-public class MsappArchiveTests
+public class MsappArchiveTests : TestBase
 {
     [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, 0)]
     [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, 1)]
@@ -39,7 +40,8 @@ public class MsappArchiveTests
 
         // Act: Open the archive as MsappArchive
         stream.Position = 0;
-        using var msappArchive = new MsappArchive(stream);
+        using var msappArchive = new MsappArchive(stream,
+            ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
 
         // Assert
         msappArchive.GetDirectoryEntries(directoryName).Count().Should().Be(expectedDirectoryCount);
@@ -51,7 +53,8 @@ public class MsappArchiveTests
     {
         // Arrange: Create new ZipArchive in memory
         using var stream = new MemoryStream();
-        using var msappArchive = new MsappArchive(stream, ZipArchiveMode.Create);
+        using var msappArchive = new MsappArchive(stream, ZipArchiveMode.Create,
+            ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
         foreach (var entry in entries)
         {
             msappArchive.CreateEntry(entry).Should().NotBeNull();
@@ -93,20 +96,46 @@ public class MsappArchiveTests
         };
     }
 
-
     [TestMethod]
     [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 1, "HelloScreen", "screen", 8)]
     public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
         string topLevelControlName, string topLevelControlType,
         int topLevelRulesCount)
     {
-        // Arrange: Create new ZipArchive in memory
-        using var msappArchive = new MsappArchive(testFile, YamlSerializationFactory.CreateDeserializer());
+        // Arrange & Act
+        using var msappArchive = new MsappArchive(testFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
-        msappArchive.App.Screens.Count.Should().Be(controlsCount);
+        msappArchive.App.Should().NotBeNull();
+        msappArchive.App!.Screens.Count.Should().Be(controlsCount);
 
         var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
+    }
+
+    [TestMethod]
+    [DataRow("HelloWorld", "HelloScreen")]
+    public void Msapp_ShouldSave_Screens(string appName, string screenName)
+    {
+        // Arrange
+        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+        using var msappArchive = MsappArchive.Create(tempFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
+
+        msappArchive.App.Should().BeNull();
+
+        // Act
+        var app = new App(appName);
+        app.Screens.Add(new Screen(screenName));
+        msappArchive.App = app;
+
+        msappArchive.Save();
+        msappArchive.Dispose();
+
+        // Assert
+        using var msappValidation = new MsappArchive(tempFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
+        msappValidation.App.Should().NotBeNull();
+        msappValidation.App!.Screens.Count.Should().Be(1);
+        msappValidation.App.Screens.Single().Name.Should().Be(screenName);
+        msappValidation.App.Name.Should().Be(appName);
     }
 }

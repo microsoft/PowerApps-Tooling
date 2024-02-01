@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
@@ -37,12 +38,13 @@ public class MsappArchive : IMsappArchive, IDisposable
     #region Fields
 
     private readonly Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
-    private readonly Lazy<App> _app;
+    private App? _app;
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
-    private readonly IDeserializer? _deserializer;
+    private readonly ISerializer _serializer;
+    private readonly IDeserializer _deserializer;
 
     #endregion
 
@@ -62,18 +64,18 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     #region Constructors
 
-    public MsappArchive(string path, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
-        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, deserializer, logger)
+    public MsappArchive(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, yamlSerializationFactory, logger)
     {
     }
 
-    public MsappArchive(Stream stream, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
-        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
+    public MsappArchive(Stream stream, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, deserializer, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
     {
     }
 
@@ -85,18 +87,19 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// <param name="leaveOpen">
     ///     true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false
     /// </param>
-    /// <param name="deserializer"></param>
+    /// <param name="yamlSerializationFactory"></param>
     /// <param name="logger"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen, null, deserializer, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen, null, yamlSerializationFactory, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IDeserializer? deserializer = null, ILogger<MsappArchive>? logger = null)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
     {
         _stream = stream;
         _leaveOpen = leaveOpen;
-        _deserializer = deserializer;
+        _serializer = yamlSerializationFactory.CreateSerializer();
+        _deserializer = yamlSerializationFactory.CreateDeserializer();
         _logger = logger;
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
         _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
@@ -113,7 +116,17 @@ public class MsappArchive : IMsappArchive, IDisposable
             }
             return canonicalEntries;
         });
-        _app = new Lazy<App>(LoadApp);
+    }
+
+    #endregion
+
+    #region Factory Methods
+
+    public static IMsappArchive Create(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+    {
+        var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+
+        return new MsappArchive(fileStream, ZipArchiveMode.Create, yamlSerializationFactory, logger);
     }
 
     #endregion
@@ -138,7 +151,16 @@ public class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
-    public App App => _app.Value;
+    public App? App
+    {
+        get
+        {
+            if (_app == null)
+                _app = LoadApp();
+            return _app;
+        }
+        set => _app = value;
+    }
 
     #endregion
 
@@ -233,14 +255,35 @@ public class MsappArchive : IMsappArchive, IDisposable
         return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
     }
 
+    public void Save()
+    {
+        if (_app == null)
+            throw new InvalidOperationException("App is not set.");
+
+        var appEntry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        using (var appWriter = new StreamWriter(appEntry.Open()))
+        {
+            _serializer.Serialize(appWriter, _app);
+        }
+
+        foreach (var screen in _app.Screens)
+        {
+            var screenEntry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, $"{screen.Name}.fx.yaml"));
+            using var screenWriter = new StreamWriter(screenEntry.Open());
+            _serializer.Serialize(screenWriter, screen);
+        }
+    }
+
     #endregion
 
     #region Private Methods
 
-    private App LoadApp()
+    private App? LoadApp()
     {
         // For app entry name is always "1.fx.yaml"now 
-        var appEntry = GetRequiredEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        var appEntry = GetEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        if (appEntry == null)
+            return null;
         var app = Deserialize<App>(appEntry);
 
         app.Screens = LoadScreens();

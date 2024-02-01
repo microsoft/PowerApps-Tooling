@@ -5,9 +5,9 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-public static class YamlSerializationFactory
+public class YamlSerializationFactory : IYamlSerializationFactory
 {
-    public static ISerializer CreateSerializer()
+    public ISerializer CreateSerializer()
     {
         var yamlSerializer = new SerializerBuilder()
            .WithFirstClassModels()
@@ -15,7 +15,7 @@ public static class YamlSerializationFactory
         return yamlSerializer;
     }
 
-    public static IDeserializer CreateDeserializer()
+    public IDeserializer CreateDeserializer()
     {
         var deserializer = new DeserializerBuilder()
            .WithFirstClassModels()

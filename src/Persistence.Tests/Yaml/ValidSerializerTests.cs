@@ -20,7 +20,7 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
@@ -39,7 +39,7 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: A{Environment.NewLine}  PropertyB: B{Environment.NewLine}  PropertyC: C{Environment.NewLine}");
@@ -75,7 +75,7 @@ public class ValidSerializerTests
             }
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Controls:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
@@ -93,7 +93,7 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = YamlSerializationFactory.CreateSerializer();
+        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
