@@ -7,7 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class ValidSerializerTests
+public class ValidSerializerTests : TestBase
 {
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForSimpleStructure()
@@ -20,7 +20,7 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
@@ -39,7 +39,7 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: A{Environment.NewLine}  PropertyB: B{Environment.NewLine}  PropertyC: C{Environment.NewLine}");
@@ -75,7 +75,7 @@ public class ValidSerializerTests
             }
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Controls:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
@@ -93,9 +93,29 @@ public class ValidSerializerTests
             },
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
         sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
+    }
+
+    [TestMethod]
+    public void Serialize_ShouldCreateValidYaml_ForBuiltInControl()
+    {
+        ControlTemplateStore.TryGetControlTemplateByName("ButtonCanvas", out var buttonTemplate);
+
+        var graph = new BuiltInControl("BuiltIn Control1")
+        {
+            ControlUri = buttonTemplate!.Uri,
+            Properties = new Dictionary<string, ControlPropertyValue>()
+            {
+                { "Text", new() { Value = "I am a BuiltIn control" } },
+            },
+        };
+
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.Serialize(graph);
+        sut.Should().Be(@$"ButtonCanvas: {Environment.NewLine}Name: BuiltIn Control1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a BuiltIn control{Environment.NewLine}");
     }
 }

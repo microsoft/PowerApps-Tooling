@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization.BufferedDeserialization.TypeDiscriminators;
@@ -10,6 +11,13 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 internal class ControlTypeDiscriminator : ITypeDiscriminator
 {
+    private readonly IControlTemplateStore _controlTemplateStore;
+
+    public ControlTypeDiscriminator(IControlTemplateStore controlTemplateStore)
+    {
+        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
+    }
+
     public Type BaseType => typeof(object);
 
     public bool TryDiscriminate(IParser buffer, out Type? suggestedType)
@@ -23,6 +31,12 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
         if (scalar!.Value == YamlFields.Control)
         {
             var templateUri = ((Scalar)value!).Value.Trim();
+            if (_controlTemplateStore.TryGetControlTemplateByUri(templateUri, out var controlTemplate))
+            {
+                suggestedType = typeof(BuiltInControl);
+                return true;
+            }
+
             if (BuiltInTemplates.TemplateToType.TryGetValue(templateUri, out suggestedType))
                 return true;
 
