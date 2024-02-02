@@ -30,7 +30,7 @@ jobs:
     - run: dotnet --info
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: csharp
 
@@ -58,4 +58,4 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
