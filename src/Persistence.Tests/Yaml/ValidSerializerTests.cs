@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Persistence.Tests.Extensions;
 
 namespace Persistence.Tests.Yaml;
 
@@ -100,22 +101,24 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    public void Serialize_ShouldCreateValidYaml_ForBuiltInControl()
+    [DataRow("ButtonCanvas", @"$""Interpolated text {User().FullName}""", @"_TestData/ValidYaml/Screen-with-BuiltInControl1.yaml")]
+    [DataRow("ButtonCanvas", @"Normal text", @"_TestData/ValidYaml/Screen-with-BuiltInControl2.yaml")]
+    [DataRow("ButtonCanvas", @"Text`~!@#$%^&*()_-+="", "":", @"_TestData/ValidYaml/Screen-with-BuiltInControl3.yaml")]
+    public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
-        ControlTemplateStore.TryGetControlTemplateByName("ButtonCanvas", out var buttonTemplate);
-
         var graph = new BuiltInControl("BuiltIn Control1")
         {
-            ControlUri = buttonTemplate!.Uri,
+            ControlUri = ControlTemplateStore.GetByName(templateName).Uri,
             Properties = new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", new() { Value = "I am a BuiltIn control" } },
+                { "Text", new() { Value = controlText } },
             },
         };
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
-        sut.Should().Be(@$"ButtonCanvas: {Environment.NewLine}Name: BuiltIn Control1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a BuiltIn control{Environment.NewLine}");
+        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 }

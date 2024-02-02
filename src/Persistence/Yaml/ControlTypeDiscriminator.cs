@@ -31,7 +31,7 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
         if (scalar!.Value == YamlFields.Control)
         {
             var templateUri = ((Scalar)value!).Value.Trim();
-            if (_controlTemplateStore.TryGetControlTemplateByUri(templateUri, out var controlTemplate))
+            if (_controlTemplateStore.TryGetByUri(templateUri, out var controlTemplate))
             {
                 suggestedType = typeof(BuiltInControl);
                 return true;
