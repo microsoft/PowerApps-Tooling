@@ -104,6 +104,8 @@ public class ValidSerializerTests : TestBase
     [DataRow("ButtonCanvas", @"$""Interpolated text {User().FullName}""", @"_TestData/ValidYaml/Screen-with-BuiltInControl1.yaml")]
     [DataRow("ButtonCanvas", @"Normal text", @"_TestData/ValidYaml/Screen-with-BuiltInControl2.yaml")]
     [DataRow("ButtonCanvas", @"Text`~!@#$%^&*()_-+="", "":", @"_TestData/ValidYaml/Screen-with-BuiltInControl3.yaml")]
+    [DataRow("ButtonCanvas", @"Hello : World", @"_TestData/ValidYaml/Screen-with-BuiltInControl4.yaml")]
+    [DataRow("ButtonCanvas", @"Hello # World", @"_TestData/ValidYaml/Screen-with-BuiltInControl5.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = new BuiltInControl("BuiltIn Control1")
