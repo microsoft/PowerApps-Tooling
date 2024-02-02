@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -8,20 +9,19 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 internal static class SerializerBuilderExtensions
 {
-    public static SerializerBuilder WithFirstClassModels(this SerializerBuilder builder)
+    public static SerializerBuilder WithFirstClassModels(this SerializerBuilder builder, IControlTemplateStore controlTemplateStore)
     {
         builder = builder
-            .WithEventEmitter(next => new FirstClassControlsEmitter(next))
+            .WithEventEmitter(next => new FirstClassControlsEmitter(next, controlTemplateStore))
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeInspector(inner => new ControlTypeInspector(inner))
             .WithTypeConverter(new ControlPropertyConverter())
             .WithTypeConverter(new ControlPropertiesCollectionConverter())
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
-
         return builder;
     }
 
-    public static DeserializerBuilder WithFirstClassModels(this DeserializerBuilder builder)
+    public static DeserializerBuilder WithFirstClassModels(this DeserializerBuilder builder, IControlTemplateStore controlTemplateStore)
     {
         return builder
             .IgnoreUnmatchedProperties()
@@ -29,7 +29,7 @@ internal static class SerializerBuilderExtensions
             .WithTypeInspector(inner => new ControlTypeInspector(inner))
             .WithTypeDiscriminatingNodeDeserializer(o =>
             {
-                o.AddTypeDiscriminator(new ControlTypeDiscriminator());
+                o.AddTypeDiscriminator(new ControlTypeDiscriminator(controlTemplateStore));
             })
             .WithTypeConverter(new ControlPropertiesCollectionConverter());
     }

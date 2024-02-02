@@ -7,7 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class DeserializerValidTests
+public class DeserializerValidTests : TestBase
 {
     [TestMethod]
     [DataRow("I am a screen with spaces", "42")]
@@ -29,10 +29,10 @@ public class DeserializerValidTests
             },
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -77,10 +77,10 @@ public class DeserializerValidTests
             }
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -123,10 +123,10 @@ public class DeserializerValidTests
             },
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<CustomControl>();
@@ -142,18 +142,20 @@ public class DeserializerValidTests
     [TestMethod]
     public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl()
     {
+        ControlTemplateStore.TryGetControlTemplateByName("ButtonCanvas", out var buttonTemplate);
+
         var graph = new CustomControl("MyCustomButton")
         {
-            ControlUri = BuiltInTemplates.Button,
+            ControlUri = buttonTemplate!.Uri,
         };
 
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
-        sut.Should().NotBeNull().And.BeOfType<Button>();
+        sut.Should().NotBeNull().And.BeOfType<BuiltInControl>();
     }
 
     [TestMethod]
@@ -163,7 +165,7 @@ public class DeserializerValidTests
     public void Deserialize_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 
@@ -181,7 +183,7 @@ public class DeserializerValidTests
     public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 
