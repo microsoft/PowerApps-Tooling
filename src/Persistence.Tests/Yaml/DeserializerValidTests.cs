@@ -140,13 +140,13 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl()
+    [DataRow("ButtonCanvas", "BuiltIn Button")]
+    [DataRow("TextCanvas", "Text control name")]
+    public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl(string templateName, string controlName)
     {
-        ControlTemplateStore.TryGetControlTemplateByName("ButtonCanvas", out var buttonTemplate);
-
-        var graph = new CustomControl("MyCustomButton")
+        var graph = new CustomControl(controlName)
         {
-            ControlUri = buttonTemplate!.Uri,
+            ControlUri = ControlTemplateStore.GetByName(templateName).Uri
         };
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();

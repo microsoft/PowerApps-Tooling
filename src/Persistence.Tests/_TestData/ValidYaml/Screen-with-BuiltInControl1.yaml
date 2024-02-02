@@ -1,0 +1,4 @@
+ButtonCanvas: 
+Name: BuiltIn Control1
+Properties:
+  Text: $"Interpolated text {User().FullName}"

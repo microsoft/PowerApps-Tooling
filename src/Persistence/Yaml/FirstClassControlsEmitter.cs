@@ -42,7 +42,7 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
         {
             if (type == typeof(BuiltInControl))
             {
-                if (_controlTemplateStore.TryGetControlTemplateByUri(((Control)eventInfo.Source.Value!).ControlUri, out var controlTemplate))
+                if (_controlTemplateStore.TryGetByUri(((Control)eventInfo.Source.Value!).ControlUri, out var controlTemplate))
                     return controlTemplate.Name;
             }
             if (!type.IsFirstClass(out var attrib))
