@@ -6,7 +6,16 @@
   "type": "object",
   "properties": {
     "Screen" : {
-      "$ref": "#/$defs/Control"
+      "type": "null"
+    },
+    "Properties": {
+      "type": "object"
+    },
+    "Controls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Control"
+      }
     }
   },
   "required": [
