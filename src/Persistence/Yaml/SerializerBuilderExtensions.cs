@@ -14,7 +14,7 @@ internal static class SerializerBuilderExtensions
         builder = builder
             .WithEventEmitter(next => new FirstClassControlsEmitter(next, controlTemplateStore))
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .WithTypeInspector(inner => new ControlTypeInspector(inner))
+            .WithTypeInspector(inner => new ControlTypeInspector(inner, controlTemplateStore))
             .WithTypeConverter(new ControlPropertyConverter())
             .WithTypeConverter(new ControlPropertiesCollectionConverter())
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
@@ -26,7 +26,7 @@ internal static class SerializerBuilderExtensions
         return builder
             .IgnoreUnmatchedProperties()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .WithTypeInspector(inner => new ControlTypeInspector(inner))
+            .WithTypeInspector(inner => new ControlTypeInspector(inner, controlTemplateStore))
             .WithTypeDiscriminatingNodeDeserializer(o =>
             {
                 o.AddTypeDiscriminator(new ControlTypeDiscriminator(controlTemplateStore));

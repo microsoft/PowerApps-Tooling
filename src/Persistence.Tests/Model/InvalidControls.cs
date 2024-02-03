@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-
 namespace Persistence.Tests.Model;
 
 [TestClass]
-public class InvalidControls
+public class InvalidControls : TestBase
 {
     [TestMethod]
     [DataRow("")]
@@ -14,7 +12,7 @@ public class InvalidControls
     public void Constructor_InvalidControlName_Throws(string controlName)
     {
         // Act
-        Action act = () => new Screen(controlName);
+        Action act = () => ControlFactory.CreateScreen(controlName);
 
         // Assert
         act.Should().Throw<ArgumentException>();

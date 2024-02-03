@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -10,6 +12,20 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 /// </summary>
 public record ControlEditorState
 {
+    /// <summary>
+    /// Constructor for serialization.
+    /// </summary>
+    public ControlEditorState()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public ControlEditorState(Control control)
+    {
+        Name = control.Name;
+        Template = control.Template;
+    }
+
     /// <summary>
     /// Name.
     /// </summary>
@@ -22,4 +38,9 @@ public record ControlEditorState
     /// </summary>
     [JsonPropertyName("Children")]
     public IList<ControlEditorState>? Controls { get; set; }
+
+    /// <summary>
+    /// Temporary duplicated in the control editor state.
+    /// </summary>
+    public ControlTemplate? Template { get; init; }
 }

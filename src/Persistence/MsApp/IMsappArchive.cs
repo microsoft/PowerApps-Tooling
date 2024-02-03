@@ -4,7 +4,7 @@
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 /// <summary>
 /// base interface for MsappArchive
@@ -15,6 +15,16 @@ public interface IMsappArchive : IDisposable
     /// The app that is represented by the archive.
     /// </summary>
     App? App { get; set; }
+
+    /// <summary>
+    /// Saves screen in the archive.
+    /// </summary>
+    void Save(Screen screen);
+
+    /// <summary>
+    /// Saves the archive to the given stream or file.
+    /// </summary>
+    void Save();
 
     /// <summary>
     /// Creates a new entry in the archive with the given name.
@@ -33,6 +43,11 @@ public interface IMsappArchive : IDisposable
     ZipArchiveEntry? GetEntry(string entryName);
 
     /// <summary>
+    /// Returns the entry in the archive with the given name.
+    /// </summary>
+    ZipArchiveEntry GetRequiredEntry(string entryName);
+
+    /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
     /// <param name="directoryName"></param>
@@ -41,12 +56,13 @@ public interface IMsappArchive : IDisposable
     IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null);
 
     /// <summary>
-    /// Provides access to the underlying zip archive.
+    /// Dictionary of all entries in the archive.
     /// </summary>
-    ZipArchive ZipArchive { get; }
+    IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries { get; }
 
     /// <summary>
-    /// Saves the archive to the given stream or file.
+    /// Provides access to the underlying zip archive.
+    /// Attention: This property might be removed in the future.
     /// </summary>
-    void Save();
+    ZipArchive ZipArchive { get; }
 }

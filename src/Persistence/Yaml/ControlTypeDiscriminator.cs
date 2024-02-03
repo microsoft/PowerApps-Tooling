@@ -24,21 +24,18 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
     {
         suggestedType = null;
 
-        if (!buffer.TryFindMappingEntry(s => BuiltInTemplates.ShortNameToType.ContainsKey(s.Value) || s.Value == YamlFields.Control, out var scalar, out var value))
+        if (!buffer.TryFindMappingEntry(TryFindTemplate, out var scalar, out var value))
             return false;
 
         // Control is abstract, so we need to return a concrete type.
         if (scalar!.Value == YamlFields.Control)
         {
-            var templateUri = ((Scalar)value!).Value.Trim();
-            if (_controlTemplateStore.TryGetByUri(templateUri, out var controlTemplate))
+            var templateId = ((Scalar)value!).Value.Trim();
+            if (_controlTemplateStore.TryGetById(templateId, out var controlTemplate))
             {
                 suggestedType = typeof(BuiltInControl);
                 return true;
             }
-
-            if (BuiltInTemplates.TemplateToType.TryGetValue(templateUri, out suggestedType))
-                return true;
 
             // If we don't have a type for this template, we'll use the custom control type.
             suggestedType = typeof(CustomControl);
@@ -46,7 +43,19 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
             return true;
         }
 
-        suggestedType = BuiltInTemplates.ShortNameToType[scalar!.Value];
+        suggestedType = _controlTemplateStore.GetControlType(scalar!.Value);
+
         return true;
+    }
+
+    private bool TryFindTemplate(Scalar scalar)
+    {
+        if (scalar.Value == YamlFields.Control)
+            return true;
+
+        if (_controlTemplateStore.Contains(scalar.Value))
+            return true;
+
+        return false;
     }
 }

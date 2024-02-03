@@ -1,2 +1,5 @@
 App: 
 Name: Test app 1
+Controls:
+- Host: 
+  Name: Host

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
@@ -10,18 +11,17 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 /// <summary>
 /// Represents an Canvas App.
 /// </summary>
-[FirstClass(shortName: nameof(App), templateUri: BuiltInTemplates.AppInfo)]
+[FirstClass(templateName: BuiltInTemplates.App)]
 public record App : Control
 {
-    public App()
-    {
-        ControlUri = BuiltInTemplates.AppInfo;
-    }
-
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
     [SetsRequiredMembers]
-    public App(string name) : base(name)
+    public App(string name, IControlTemplateStore controlTemplateStore)
     {
-        ControlUri = BuiltInTemplates.AppInfo;
+        Name = name;
+        Template = controlTemplateStore.GetByName(BuiltInTemplates.App);
     }
 
     [YamlIgnore]

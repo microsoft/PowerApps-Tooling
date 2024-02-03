@@ -3,20 +3,20 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(shortName: nameof(Screen), templateUri: BuiltInTemplates.Screen)]
+[FirstClass(templateName: BuiltInTemplates.Screen)]
 public record Screen : Control
 {
-    public Screen()
-    {
-        ControlUri = BuiltInTemplates.Screen;
-    }
-
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
     [SetsRequiredMembers]
-    public Screen(string name) : base(name)
+    public Screen(string name, IControlTemplateStore controlTemplateStore)
     {
-        ControlUri = BuiltInTemplates.Screen;
+        Name = name;
+        Template = controlTemplateStore.GetByName(BuiltInTemplates.Screen);
     }
 }

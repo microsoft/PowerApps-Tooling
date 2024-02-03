@@ -9,10 +9,12 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 public class YamlSerializationFactory : IYamlSerializationFactory
 {
     private readonly IControlTemplateStore _controlTemplateStore;
+    private readonly IControlFactory _controlFactory;
 
-    public YamlSerializationFactory(IControlTemplateStore controlTemplateStore)
+    public YamlSerializationFactory(IControlTemplateStore controlTemplateStore, IControlFactory controlFactory)
     {
         _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
+        _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
     public ISerializer CreateSerializer()
@@ -25,9 +27,10 @@ public class YamlSerializationFactory : IYamlSerializationFactory
 
     public IDeserializer CreateDeserializer()
     {
-        var deserializer = new DeserializerBuilder()
+        var yamlDeserializer = new DeserializerBuilder()
+           .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
            .WithFirstClassModels(_controlTemplateStore)
            .Build();
-        return deserializer;
+        return yamlDeserializer;
     }
 }

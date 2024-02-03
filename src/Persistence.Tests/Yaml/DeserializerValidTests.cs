@@ -19,15 +19,14 @@ public class DeserializerValidTests : TestBase
     [DataRow("Cos'è questo?", "---")]
     public void Deserialize_ShouldParseSimpleStructure(string textValue, string xValue)
     {
-        var graph = new Screen("Screen1")
-        {
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = textValue } },
                 { "X", new() { Value = xValue } },
                 { "Y", new() { Value = "71" } },
-            },
-        };
+            }
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
@@ -37,7 +36,7 @@ public class DeserializerValidTests : TestBase
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
-        sut.ControlUri.Should().Be(BuiltInTemplates.Screen);
+        sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
         sut.Controls.Should().NotBeNull().And.BeEmpty();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(3)
@@ -50,32 +49,27 @@ public class DeserializerValidTests : TestBase
     [TestMethod]
     public void Deserialize_ShouldParseYamlWithChildNodes()
     {
-        var graph = new Screen("Screen1")
-        {
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
-            Controls = new Control[]
+            controls: new Control[]
             {
-                new Text("Label1")
-                {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
+                ControlFactory.Create("Label1", template: "text",
+                    new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "lorem ipsum" }  },
-                    },
-                },
-                new Button("Button1")
-                {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
+                    }),
+                ControlFactory.Create("Button1", template: "button",
+                    new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "click me" }  },
                         { "X", new() { Value = "100" } },
                         { "Y", new() { Value = "200" } }
-                    },
-                }
+                    })
             }
-        };
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
@@ -85,24 +79,24 @@ public class DeserializerValidTests : TestBase
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
-        sut.ControlUri.Should().Be(BuiltInTemplates.Screen);
+        sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
         sut.Properties["Text"].Value.Should().Be("I am a screen");
 
         sut.Controls.Should().NotBeNull().And.HaveCount(2);
-        sut.Controls![0].Should().BeOfType<Text>();
+        sut.Controls![0].Should().BeOfType<BuiltInControl>();
         sut.Controls![0].Name.Should().Be("Label1");
-        sut.Controls![0].ControlUri.Should().Be(BuiltInTemplates.Text);
+        sut.Controls![0].TemplateId.Should().Be("http://microsoft.com/appmagic/text");
         sut.Controls![0].Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
         sut.Controls![0].Properties["Text"].Value.Should().Be("lorem ipsum");
 
-        sut.Controls![1].Should().BeOfType<Button>();
+        sut.Controls![1].Should().BeOfType<BuiltInControl>();
         sut.Controls![1].Name.Should().Be("Button1");
-        sut.Controls![1].ControlUri.Should().Be(BuiltInTemplates.Button);
+        sut.Controls![1].TemplateId.Should().Be("http://microsoft.com/appmagic/button");
         sut.Controls![1].Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
@@ -114,14 +108,12 @@ public class DeserializerValidTests : TestBase
     [TestMethod]
     public void Deserialize_ShouldParseYamlForCustomControl()
     {
-        var graph = new CustomControl("CustomControl1")
-        {
-            ControlUri = "http://localhost/#customcontrol",
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a custom control" } },
-            },
-        };
+            }
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
@@ -131,7 +123,7 @@ public class DeserializerValidTests : TestBase
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<CustomControl>();
         sut.Name.Should().Be("CustomControl1");
-        sut.ControlUri.Should().Be("http://localhost/#customcontrol");
+        sut.TemplateId.Should().Be("http://localhost/#customcontrol");
         sut.Controls.Should().NotBeNull().And.BeEmpty();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
@@ -144,10 +136,7 @@ public class DeserializerValidTests : TestBase
     [DataRow("TextCanvas", "Text control name")]
     public void Deserialize_ShouldParseBuiltInControlFromYamlCustomControl(string templateName, string controlName)
     {
-        var graph = new CustomControl(controlName)
-        {
-            ControlUri = ControlTemplateStore.GetByName(templateName).Uri
-        };
+        var graph = ControlFactory.Create(controlName, templateName);
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         var yaml = serializer.Serialize(graph);
@@ -181,7 +170,7 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App.fx.yaml", "Test app 1", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/App.fx.yaml", "Test app 1", 1, 0)]
     public void Deserialize_App_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange

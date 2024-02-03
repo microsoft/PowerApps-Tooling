@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.ObjectModel;
-using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace MauiMsApp;
 

@@ -13,13 +13,12 @@ public class ValidSerializerTests : TestBase
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForSimpleStructure()
     {
-        var graph = new Screen("Screen1")
-        {
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" } },
-            },
-        };
+            }
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
@@ -31,25 +30,20 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml/App.fx.yaml")]
     public void Serialize_ShouldCreateValidYamlForApp(string expectedPath)
     {
-        var app = new App("Test app 1")
+        var app = ControlFactory.CreateApp("Test app 1");
+
+        app.Screens = new Screen[]
         {
-            Screens = new Screen[]
-            {
-                new("Screen1")
+            ControlFactory.CreateScreen("Screen1",
+                properties: new Dictionary<string, ControlPropertyValue>()
                 {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
-                    {
-                        { "Text", new() { Value = "I am a screen" } },
-                    },
-                },
-                new("Screen2")
+                    { "Text", new() { Value = "I am a screen" } },
+                }),
+            ControlFactory.CreateScreen("Screen2",
+                properties: new Dictionary<string, ControlPropertyValue>()
                 {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
-                    {
-                        { "Text", new() { Value = "I am another screen" } },
-                    },
-                }
-            }
+                    { "Text", new() { Value = "I am another screen" } },
+                }),
         };
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
@@ -62,15 +56,13 @@ public class ValidSerializerTests : TestBase
     [TestMethod]
     public void Serialize_ShouldSortControlPropertiesAlphabetically()
     {
-        var graph = new Screen("Screen1")
-        {
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "PropertyB", new() { Value = "B" } },
                 { "PropertyC", new() { Value = "C" } },
                 { "PropertyA", new() { Value = "A" } },
-            },
-        };
+            });
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
@@ -81,32 +73,29 @@ public class ValidSerializerTests : TestBase
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlWithChildNodes()
     {
-        var graph = new Screen("Screen1")
-        {
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
-            Controls = new Control[]
+            controls: new Control[]
             {
-                new Text("Label1")
-                {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
+                ControlFactory.Create("Label1", template: "text",
+                    properties: new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "lorem ipsum" }  },
-                    },
-                },
-                new Button("Button1")
-                {
-                    Properties = new Dictionary<string, ControlPropertyValue>()
+                    }
+                ),
+                ControlFactory.Create("Button1", template: "button",
+                    properties: new Dictionary<string, ControlPropertyValue>()
                     {
                         { "Text", new() { Value = "click me" }  },
                         { "X", new() { Value = "100" } },
                         { "Y", new() { Value = "200" } }
-                    },
-                }
+                    }
+                )
             }
-        };
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
@@ -117,14 +106,12 @@ public class ValidSerializerTests : TestBase
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForCustomControl()
     {
-        var graph = new CustomControl("CustomControl1")
-        {
-            ControlUri = "http://localhost/#customcontrol",
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", new() { Value = "I am a custom control" } },
-            },
-        };
+                { "Text", new() { Value = "I am a custom control" } }
+            }
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
@@ -141,14 +128,12 @@ public class ValidSerializerTests : TestBase
     [DataRow("ButtonCanvas", @"'Hello single quoted'", @"_TestData/ValidYaml/Screen-with-BuiltInControl6.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
-        var graph = new BuiltInControl("BuiltIn Control1")
-        {
-            ControlUri = ControlTemplateStore.GetByName(templateName).Uri,
-            Properties = new Dictionary<string, ControlPropertyValue>()
+        var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
+            properties: new Dictionary<string, ControlPropertyValue>()
             {
-                { "Text", new() { Value = controlText } },
-            },
-        };
+                { "Text", new() { Value = controlText } }
+            }
+        );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
