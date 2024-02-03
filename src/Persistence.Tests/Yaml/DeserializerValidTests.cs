@@ -171,11 +171,31 @@ public class DeserializerValidTests : TestBase
 
         // Act
         var controlObj = deserializer.Deserialize(yamlReader);
+
+        // Assert
         controlObj.Should().BeAssignableTo<Control>();
         var control = controlObj as Control;
         control!.Name.Should().NotBeNull().And.Be(expectedName);
         control.Controls.Should().NotBeNull().And.HaveCount(controlCount);
         control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/App.fx.yaml", "Test app 1", 0, 0)]
+    public void Deserialize_App_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var controlObj = deserializer.Deserialize(yamlReader);
+        controlObj.Should().BeAssignableTo<App>();
+        var app = controlObj as App;
+        app!.Name.Should().NotBeNull().And.Be(expectedName);
+        app.Controls.Should().NotBeNull().And.HaveCount(controlCount);
+        app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
     [TestMethod]
