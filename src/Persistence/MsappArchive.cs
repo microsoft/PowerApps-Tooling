@@ -28,6 +28,7 @@ public class MsappArchive : IMsappArchive, IDisposable
         public const string Resources = "Resources";
     }
 
+    public const string MsappFileExtension = ".msapp";
     public const string YamlFileExtension = ".yaml";
     public const string YamlFxFileExtension = ".fx.yaml";
     public const string JsonFileExtension = ".json";
@@ -127,6 +128,17 @@ public class MsappArchive : IMsappArchive, IDisposable
         var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
         return new MsappArchive(fileStream, ZipArchiveMode.Create, yamlSerializationFactory, logger);
+    }
+
+    public static IMsappArchive Open(string path, IServiceProvider serviceProvider)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentNullException("Path cannot be null or whitespace.", nameof(path));
+        _ = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+        var yamlSerializationFactory = serviceProvider.GetRequiredService<IYamlSerializationFactory>();
+
+        return new MsappArchive(path, yamlSerializationFactory);
     }
 
     #endregion

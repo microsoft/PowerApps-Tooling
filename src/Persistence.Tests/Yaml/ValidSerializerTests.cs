@@ -28,6 +28,38 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/App.fx.yaml")]
+    public void Serialize_ShouldCreateValidYamlForApp(string expectedPath)
+    {
+        var app = new App("Test app 1")
+        {
+            Screens = new Screen[]
+            {
+                new("Screen1")
+                {
+                    Properties = new Dictionary<string, ControlPropertyValue>()
+                    {
+                        { "Text", new() { Value = "I am a screen" } },
+                    },
+                },
+                new("Screen2")
+                {
+                    Properties = new Dictionary<string, ControlPropertyValue>()
+                    {
+                        { "Text", new() { Value = "I am another screen" } },
+                    },
+                }
+            }
+        };
+
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.Serialize(app).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
     public void Serialize_ShouldSortControlPropertiesAlphabetically()
     {
         var graph = new Screen("Screen1")
