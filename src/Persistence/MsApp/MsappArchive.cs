@@ -4,17 +4,19 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 /// <summary>
 /// Represents a .msapp file.
 /// </summary>
-public class MsappArchive : IMsappArchive, IDisposable
+public partial class MsappArchive : IMsappArchive, IDisposable
 {
     #region Constants
 
@@ -33,6 +35,10 @@ public class MsappArchive : IMsappArchive, IDisposable
     public const string YamlFxFileExtension = ".fx.yaml";
     public const string JsonFileExtension = ".json";
     public const string AppFileName = "1.fx.yaml";
+    public const string HeaderFileName = "Header.json";
+    public const string PropertiesFileName = "Properties.json";
+    public const string TemplatesFileName = $"{Directories.References}/Templates.json";
+    public const string ThemesFileName = $"{Directories.References}/Themes.json";
 
     #endregion
 
@@ -40,12 +46,27 @@ public class MsappArchive : IMsappArchive, IDisposable
 
     private readonly Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
     private App? _app;
+    private Header? _header;
+    private AppProperties? _appProperties;
+    private AppTemplates? _appTemplates;
+    private AppThemes? _appThemes;
+
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
+
+    // Yaml serializer and deserializer
     private readonly ISerializer _serializer;
     private readonly IDeserializer _deserializer;
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        WriteIndented = true
+    };
+    private static readonly JsonWriterOptions JsonWriterOptions = new() { Indented = true };
 
     #endregion
 
@@ -171,7 +192,15 @@ public class MsappArchive : IMsappArchive, IDisposable
                 _app = LoadApp();
             return _app;
         }
-        set => _app = value;
+
+        set
+        {
+            _app = value;
+            _header = _app != null ? new Header() : null;
+            _appProperties = _app != null ? new AppProperties() : null;
+            _appTemplates = _app != null ? new AppTemplates() : null;
+            _appThemes = _app != null ? new AppThemes() : null;
+        }
     }
 
     #endregion
@@ -259,18 +288,32 @@ public class MsappArchive : IMsappArchive, IDisposable
         {
             throw new PersistenceException("Failed to deserialize archive entry.", ex) { FileName = archiveEntry.FullName };
         }
-
     }
 
-    public static string NormalizePath(string path)
+    public void Save(Screen screen)
     {
-        return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
+        _ = screen ?? throw new ArgumentNullException(nameof(screen));
+
+        var safeName = SafeFileNameRegex().Replace(screen.Name, "").Trim();
+        var entry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, $"{safeName}{YamlFxFileExtension}"));
+
+        using (var writer = new StreamWriter(entry.Open()))
+        {
+            _serializer.Serialize(writer, screen);
+        }
+
+        SaveEditorState(safeName, screen);
     }
 
     public void Save()
     {
-        if (_app == null)
-            throw new InvalidOperationException("App is not set.");
+        if (_app == null || _header == null)
+            throw new InvalidOperationException("App or header are not set.");
+
+        SaveHeader();
+        SaveProperties();
+        SaveTemplates();
+        SaveThemes();
 
         var appEntry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
@@ -280,11 +323,17 @@ public class MsappArchive : IMsappArchive, IDisposable
 
         foreach (var screen in _app.Screens)
         {
-            var screenEntry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, $"{screen.Name}.fx.yaml"));
-            using var screenWriter = new StreamWriter(screenEntry.Open());
-            _serializer.Serialize(screenWriter, screen);
+            Save(screen);
         }
     }
+
+    public static string NormalizePath(string path)
+    {
+        return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
+    }
+
+    [GeneratedRegex("[^a-zA-Z0-9_\\- ]")]
+    private static partial Regex SafeFileNameRegex();
 
     #endregion
 
@@ -365,6 +414,61 @@ public class MsappArchive : IMsappArchive, IDisposable
             MergeControlEditorState(child, childEditorState);
         }
         controlEditorState.Controls = null;
+    }
+
+    private void SaveHeader()
+    {
+        var entry = CreateEntry(HeaderFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _header, JsonSerializerOptions);
+    }
+
+    private void SaveProperties()
+    {
+        var entry = CreateEntry(PropertiesFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _appProperties, JsonSerializerOptions);
+    }
+
+    private void SaveTemplates()
+    {
+        var entry = CreateEntry(TemplatesFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _appTemplates, JsonSerializerOptions);
+    }
+
+    private void SaveThemes()
+    {
+        var entry = CreateEntry(ThemesFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _appThemes, JsonSerializerOptions);
+    }
+
+    private void SaveEditorState(string safeName, Control control)
+    {
+        var entry = CreateEntry(Path.Combine(Directories.Controls, $"{safeName}{JsonFileExtension}"));
+        var topParent = new TopParentJson
+        {
+            TopParent = MapEditorState(control)
+        };
+
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, topParent, JsonSerializerOptions);
+    }
+
+    private static ControlEditorState MapEditorState(Control control)
+    {
+        var editorState = control.EditorState ?? new ControlEditorState(control);
+        if (control.Controls == null || control.Controls.Length == 0)
+            return editorState;
+
+        editorState.Controls = control.Controls.Select(MapEditorState).ToList();
+        return editorState;
     }
 
     #endregion

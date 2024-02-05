@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
@@ -17,17 +18,17 @@ public abstract record Control
     }
 
     [SetsRequiredMembers]
-    public Control(string name)
+    public Control(string name, ControlTemplate template)
     {
         Name = name;
-        ControlUri = BuiltInTemplates.HostControl;
+        Template = template;
     }
 
     /// <summary>
     /// template uri of the control.
     /// </summary>
     [YamlMember(Alias = YamlFields.Control, Order = 0)]
-    public required string ControlUri { get; init; }
+    public string TemplateId => Template.Id;
 
     private readonly string _name = string.Empty;
     /// <summary>
@@ -42,7 +43,7 @@ public abstract record Control
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException(nameof(Name));
 
-            _name = value;
+            _name = value.Trim();
         }
     }
 
@@ -60,4 +61,7 @@ public abstract record Control
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }
+
+    [YamlIgnore]
+    public required ControlTemplate Template { get; init; }
 }

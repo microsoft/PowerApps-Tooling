@@ -9,11 +9,23 @@ public interface IControlTemplateStore
 {
     void Add(ControlTemplate controlTemplate);
 
-    bool TryGetByName(string name, [NotNullWhen(true)] out ControlTemplate? controlTemplate);
+    bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
+
+    bool TryGetControlTypeByName(string name, [MaybeNullWhen(false)] out Type controlType);
 
     ControlTemplate GetByName(string name);
 
-    bool TryGetByUri(string uri, [NotNullWhen(true)] out ControlTemplate? controlTemplate);
+    bool TryGetById(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 
-    ControlTemplate GetByUri(string uri);
+    bool TryGetByType(Type type, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
+
+    ControlTemplate GetById(string id);
+
+    bool Contains(Type type);
+
+    bool Contains(string name);
+
+    bool TryGetName(Type type, [MaybeNullWhen(false)] out string name);
+
+    Type GetControlType(string name);
 }

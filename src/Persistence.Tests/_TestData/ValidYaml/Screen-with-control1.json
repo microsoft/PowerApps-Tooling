@@ -1,0 +1,18 @@
+{
+  "TopParent": {
+    "Name": "Hello",
+    "Children": [
+      {
+        "Name": "My control",
+        "Template": {
+          "Name": "ButtonCanvas",
+          "Id": "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas"
+        }
+      }
+    ],
+    "Template": {
+      "Name": "Screen",
+      "Id": "http://microsoft.com/appmagic/screen"
+    }
+  }
+}

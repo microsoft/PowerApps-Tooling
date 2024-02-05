@@ -1,19 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization.EventEmitters;
-using YamlDotNet.Serialization;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.EventEmitters;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 internal class FirstClassControlsEmitter : ChainedEventEmitter
 {
-    private static readonly ConcurrentDictionary<Type, string> _typeToNodeName = new();
     private readonly IControlTemplateStore _controlTemplateStore;
 
     public FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
@@ -36,20 +34,15 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
         }
     }
 
-    private bool CheckIsFirstClass(EventInfo eventInfo, out string nodeName)
+    private bool CheckIsFirstClass(EventInfo eventInfo, [MaybeNullWhen(false)] out string nodeName)
     {
-        nodeName = _typeToNodeName.GetOrAdd(eventInfo.Source.Type, type =>
+        if (_controlTemplateStore.TryGetById(((Control)eventInfo.Source.Value!).TemplateId, out var controlTemplate))
         {
-            if (type == typeof(BuiltInControl))
-            {
-                if (_controlTemplateStore.TryGetByUri(((Control)eventInfo.Source.Value!).ControlUri, out var controlTemplate))
-                    return controlTemplate.Name;
-            }
-            if (!type.IsFirstClass(out var attrib))
-                return string.Empty;
+            nodeName = controlTemplate.Name;
+            return true;
+        }
 
-            return !string.IsNullOrWhiteSpace(attrib?.ShortName) ? attrib.ShortName : type.Name;
-        });
-        return !string.IsNullOrWhiteSpace(nodeName);
+        nodeName = null;
+        return false;
     }
 }

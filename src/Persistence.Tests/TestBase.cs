@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests;
 
@@ -14,6 +15,10 @@ public class TestBase
 
     public IControlTemplateStore ControlTemplateStore { get; private set; }
 
+    public IMsappArchiveFactory MsappArchiveFactory { get; private set; }
+
+    public IControlFactory ControlFactory { get; private set; }
+
     static TestBase()
     {
         ServiceProvider = BuildServiceProvider();
@@ -21,7 +26,10 @@ public class TestBase
 
     public TestBase()
     {
+        // Request commonly used services
         ControlTemplateStore = ServiceProvider.GetRequiredService<IControlTemplateStore>();
+        MsappArchiveFactory = ServiceProvider.GetRequiredService<IMsappArchiveFactory>();
+        ControlFactory = ServiceProvider.GetRequiredService<IControlFactory>();
     }
 
     public static IServiceProvider BuildServiceProvider()
@@ -34,16 +42,7 @@ public class TestBase
 
     private static IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<IYamlSerializationFactory, YamlSerializationFactory>();
-        services.AddSingleton<IControlTemplateStore, ControlTemplateStore>(s =>
-        {
-            var store = new ControlTemplateStore();
-
-            store.Add(new ControlTemplate { Name = "TextCanvas", Uri = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
-            store.Add(new ControlTemplate { Name = "ButtonCanvas", Uri = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
-
-            return store;
-        });
+        services.AddPowerAppsPersistence(useDefaultTemplates: true);
 
         return services.BuildServiceProvider();
     }

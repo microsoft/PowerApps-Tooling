@@ -1,0 +1,5 @@
+Screen: 
+Name: Hello
+Controls:
+- ButtonCanvas: 
+  Name: My control

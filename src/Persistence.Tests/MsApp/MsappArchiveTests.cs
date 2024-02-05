@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
-using Microsoft.PowerPlatform.PowerApps.Persistence;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace Persistence.Tests.MsApp;
 
@@ -40,8 +38,7 @@ public class MsappArchiveTests : TestBase
 
         // Act: Open the archive as MsappArchive
         stream.Position = 0;
-        using var msappArchive = new MsappArchive(stream,
-            ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
+        using var msappArchive = MsappArchiveFactory.Open(stream);
 
         // Assert
         msappArchive.GetDirectoryEntries(directoryName).Count().Should().Be(expectedDirectoryCount);
@@ -53,8 +50,7 @@ public class MsappArchiveTests : TestBase
     {
         // Arrange: Create new ZipArchive in memory
         using var stream = new MemoryStream();
-        using var msappArchive = new MsappArchive(stream, ZipArchiveMode.Create,
-            ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
+        using var msappArchive = MsappArchiveFactory.Create(stream);
         foreach (var entry in entries)
         {
             msappArchive.CreateEntry(entry).Should().NotBeNull();
@@ -103,7 +99,7 @@ public class MsappArchiveTests : TestBase
         int topLevelRulesCount)
     {
         // Arrange & Act
-        using var msappArchive = new MsappArchive(testFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
+        using var msappArchive = MsappArchiveFactory.Open(testFile);
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
@@ -111,31 +107,5 @@ public class MsappArchiveTests : TestBase
         msappArchive.App!.Screens.Count.Should().Be(controlsCount);
 
         var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
-    }
-
-    [TestMethod]
-    [DataRow("HelloWorld", "HelloScreen")]
-    public void Msapp_ShouldSave_Screens(string appName, string screenName)
-    {
-        // Arrange
-        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
-        using var msappArchive = MsappArchive.Create(tempFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
-
-        msappArchive.App.Should().BeNull();
-
-        // Act
-        var app = new App(appName);
-        app.Screens.Add(new Screen(screenName));
-        msappArchive.App = app;
-
-        msappArchive.Save();
-        msappArchive.Dispose();
-
-        // Assert
-        using var msappValidation = new MsappArchive(tempFile, ServiceProvider.GetRequiredService<IYamlSerializationFactory>());
-        msappValidation.App.Should().NotBeNull();
-        msappValidation.App!.Screens.Count.Should().Be(1);
-        msappValidation.App.Screens.Single().Name.Should().Be(screenName);
-        msappValidation.App.Name.Should().Be(appName);
     }
 }
