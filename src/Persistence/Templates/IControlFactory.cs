@@ -8,11 +8,11 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 public interface IControlFactory
 {
-    Control Create(string name, string template, ControlPropertiesCollection? properties = null, Control[]? controls = null);
+    Control Create(string name, string template, ControlPropertiesCollection? properties = null, IEnumerable<Control>? controls = null);
 
     Control Create(string name, ControlTemplate template, ControlPropertiesCollection? properties = null);
 
     App CreateApp(string name, ControlPropertiesCollection? properties = null);
 
-    Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, Control[]? controls = null);
+    Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, IEnumerable<Control>? controls = null);
 }

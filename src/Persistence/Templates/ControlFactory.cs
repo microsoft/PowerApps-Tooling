@@ -15,21 +15,21 @@ public class ControlFactory : IControlFactory
         _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
     }
 
-    public Control Create(string name, string template, ControlPropertiesCollection? properties = null, Control[]? controls = null)
+    public Control Create(string name, string template, ControlPropertiesCollection? properties = null, IEnumerable<Control>? controls = null)
     {
         if (_controlTemplateStore.TryGetTemplateByName(template, out var controlTemplate))
         {
             return new BuiltInControl(name, controlTemplate)
             {
                 Properties = properties ?? new(),
-                Controls = controls ?? Array.Empty<Control>()
+                Controls = (Control[])(controls ?? Array.Empty<Control>())
             };
         }
 
         return new CustomControl(name, new ControlTemplate(template))
         {
             Properties = properties ?? new(),
-            Controls = controls ?? Array.Empty<Control>()
+            Controls = (Control[])(controls ?? Array.Empty<Control>())
         };
     }
 
@@ -55,12 +55,12 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    public Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, Control[]? controls = null)
+    public Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, IEnumerable<Control>? controls = null)
     {
         return new Screen(name, _controlTemplateStore)
         {
             Properties = properties ?? new(),
-            Controls = controls ?? Array.Empty<Control>()
+            Controls = (Control[])(controls ?? Array.Empty<Control>())
         };
     }
 }
