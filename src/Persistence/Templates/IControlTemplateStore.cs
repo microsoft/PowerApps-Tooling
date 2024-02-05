@@ -9,6 +9,8 @@ public interface IControlTemplateStore
 {
     void Add(ControlTemplate controlTemplate);
 
+    void DiscoverBuiltInTemplateTypes();
+
     bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 
     bool TryGetControlTypeByName(string name, [MaybeNullWhen(false)] out Type controlType);
