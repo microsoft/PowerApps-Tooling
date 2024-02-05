@@ -15,14 +15,22 @@ public class ControlFactory : IControlFactory
         _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
     }
 
-    public Control Create(string name, string template, ControlPropertiesCollection? properties = null)
+    public Control Create(string name, string template, ControlPropertiesCollection? properties = null, Control[]? controls = null)
     {
         if (_controlTemplateStore.TryGetTemplateByName(template, out var controlTemplate))
         {
-            return new BuiltInControl(name, controlTemplate) { Properties = properties ?? new() };
+            return new BuiltInControl(name, controlTemplate)
+            {
+                Properties = properties ?? new(),
+                Controls = controls ?? Array.Empty<Control>()
+            };
         }
 
-        return new CustomControl(name, new ControlTemplate(template)) { Properties = properties ?? new() };
+        return new CustomControl(name, new ControlTemplate(template))
+        {
+            Properties = properties ?? new(),
+            Controls = controls ?? Array.Empty<Control>()
+        };
     }
 
     public Control Create(string name, ControlTemplate template, ControlPropertiesCollection? properties = null)
