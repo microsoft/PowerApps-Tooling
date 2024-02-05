@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 public interface IControlFactory
 {
-    Control Create(string name, string template, ControlPropertiesCollection? properties = null);
+    Control Create(string name, string template, ControlPropertiesCollection? properties = null, Control[]? controls = null);
 
     Control Create(string name, ControlTemplate template, ControlPropertiesCollection? properties = null);
 
