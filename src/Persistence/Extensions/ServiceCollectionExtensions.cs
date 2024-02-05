@@ -16,17 +16,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IControlFactory, ControlFactory>();
 
         if (useDefaultTemplates)
-            services.AddSingleton<IControlTemplateStore, ControlTemplateStore>(LoadControlTemplateStore);
+            services.AddSingleton<IControlTemplateStore, ControlTemplateStore>(WithDefaultTemplates);
         else
-            services.AddSingleton<IControlTemplateStore, ControlTemplateStore>();
+            services.AddSingleton<IControlTemplateStore, ControlTemplateStore>(WithMinimalTemplates);
     }
 
     /// <summary>
-    /// Loads default control templates
+    /// Adds default templates to the store.
     /// </summary>
-    /// <param name="serviceProvider"></param>
-    /// <returns></returns>
-    public static ControlTemplateStore LoadControlTemplateStore(IServiceProvider serviceProvider)
+    public static ControlTemplateStore WithDefaultTemplates(IServiceProvider _)
     {
         var store = new ControlTemplateStore();
 
@@ -43,6 +41,16 @@ public static class ServiceCollectionExtensions
         store.Add(new ControlTemplate { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
 
         store.DiscoverBuiltInTemplateTypes();
+
+        return store;
+    }
+
+    public static ControlTemplateStore WithMinimalTemplates(IServiceProvider _)
+    {
+        var store = new ControlTemplateStore();
+
+        store.Add(new ControlTemplate { Name = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
+        store.Add(new ControlTemplate { Name = "app", Id = "http://microsoft.com/appmagic/appinfo" });
 
         return store;
     }
