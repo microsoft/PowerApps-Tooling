@@ -86,6 +86,15 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     #region Constructors
 
+    public MsappArchive(string path, bool create, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(new FileStream(path,
+            create ? FileMode.Create : FileMode.Open,
+            create ? FileAccess.Write : FileAccess.Read,
+            FileShare.Read),
+            create ? ZipArchiveMode.Create : ZipArchiveMode.Read, leaveOpen: false, yamlSerializationFactory, logger)
+    {
+    }
+
     public MsappArchive(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
         : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, yamlSerializationFactory, logger)
     {
