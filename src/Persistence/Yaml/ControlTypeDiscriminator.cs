@@ -25,7 +25,10 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
         suggestedType = null;
 
         if (!buffer.TryFindMappingEntry(TryFindTemplate, out var scalar, out var value))
-            return false;
+        {
+            suggestedType = typeof(CustomControl);
+            return true;
+        }
 
         // Control is abstract, so we need to return a concrete type.
         if (scalar!.Value == YamlFields.Control)
