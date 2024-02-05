@@ -38,9 +38,10 @@ public class TemplatePropertyDescriptor : IPropertyDescriptor
         var templateProperty = target.GetType().GetProperty(nameof(Control.Template)) ?? throw new InvalidOperationException($"Target does not have a {nameof(Control.Template)} property.");
         if (_controlTemplate == null)
         {
-            if (value == null)
-                throw new InvalidOperationException($"Cannot set null to {nameof(Control.Template)} property.");
-            templateProperty.SetValue(target, new ControlTemplate((string)value));
+            if (!string.IsNullOrWhiteSpace((string?)value))
+                templateProperty.SetValue(target, new ControlTemplate((string)value));
+            else
+                templateProperty.SetValue(target, new ControlTemplate(Name));
         }
         else
             templateProperty.SetValue(target, _controlTemplate);

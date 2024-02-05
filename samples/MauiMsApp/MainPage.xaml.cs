@@ -31,9 +31,10 @@ public partial class MainPage : ContentPage
                 return;
 
             var page = Handler!.MauiContext!.Services.GetRequiredService<ScreensPage>();
+            var msappArchiveFactory = Handler!.MauiContext!.Services.GetRequiredService<IMsappArchiveFactory>();
 
             // Open Power Apps msapp file containing canvas app
-            page.MsappArchive = MsappArchive.Open(result.FullPath, Handler!.MauiContext!.Services);
+            page.MsappArchive = msappArchiveFactory.Open(result.FullPath);
 
             await Navigation.PushAsync(page);
         }
