@@ -11,10 +11,11 @@ namespace Persistence.Tests.Yaml;
 public class RoundTripTests
 {
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "My Power Apps Screen")]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", typeof(Screen), "Screen 1")]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "My Power Apps Custom Control")]
-    public void RoundTrip_ValidYaml(string path, Type rootType, string expectedName)
+    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 9, 0)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl1.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas", "BuiltIn Control1", 1, 0)]
+    public void RoundTrip_ValidYaml(string path, Type rootType, string expectedTemplateId, string expectedName, int expectedPropsCount, int expectedControlCount)
     {
         var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
         var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
@@ -23,9 +24,14 @@ public class RoundTripTests
 
         // Deserialize the yaml into an object.
         var controlObj = deserializer.Deserialize(yamlReader);
+
+        // Validate the control.
         controlObj.Should().BeAssignableTo(rootType);
         var control = (Control)controlObj!;
+        control.TemplateId.Should().Be(expectedTemplateId);
         control.Name.Should().Be(expectedName);
+        control.Properties.Should().HaveCount(expectedPropsCount);
+        control.Controls.Should().HaveCount(expectedControlCount);
 
         // Serialize the object back into yaml.
         var actualYaml = serializer.Serialize(controlObj).NormalizeNewlines();

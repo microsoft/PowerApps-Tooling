@@ -120,12 +120,12 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("ButtonCanvas", @"$""Interpolated text {User().FullName}""", @"_TestData/ValidYaml/Screen-with-BuiltInControl1.yaml")]
-    [DataRow("ButtonCanvas", @"Normal text", @"_TestData/ValidYaml/Screen-with-BuiltInControl2.yaml")]
-    [DataRow("ButtonCanvas", @"Text`~!@#$%^&*()_-+="", "":", @"_TestData/ValidYaml/Screen-with-BuiltInControl3.yaml")]
-    [DataRow("ButtonCanvas", @"Hello : World", @"_TestData/ValidYaml/Screen-with-BuiltInControl4.yaml")]
-    [DataRow("ButtonCanvas", @"Hello # World", @"_TestData/ValidYaml/Screen-with-BuiltInControl5.yaml")]
-    [DataRow("ButtonCanvas", @"'Hello single quoted'", @"_TestData/ValidYaml/Screen-with-BuiltInControl6.yaml")]
+    [DataRow("ButtonCanvas", @"$""Interpolated text {User().FullName}""", @"_TestData/ValidYaml/BuiltInControl1.yaml")]
+    [DataRow("ButtonCanvas", @"Normal text", @"_TestData/ValidYaml/BuiltInControl2.yaml")]
+    [DataRow("ButtonCanvas", @"Text`~!@#$%^&*()_-+="", "":", @"_TestData/ValidYaml/BuiltInControl3.yaml")]
+    [DataRow("ButtonCanvas", @"Hello : World", @"_TestData/ValidYaml/BuiltInControl4.yaml")]
+    [DataRow("ButtonCanvas", @"Hello # World", @"_TestData/ValidYaml/BuiltInControl5.yaml")]
+    [DataRow("ButtonCanvas", @"'Hello single quoted'", @"_TestData/ValidYaml/BuiltInControl6.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,

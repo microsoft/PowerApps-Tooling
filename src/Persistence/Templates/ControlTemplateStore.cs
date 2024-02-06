@@ -47,7 +47,11 @@ public class ControlTemplateStore : IControlTemplateStore
     {
         _ = controlTemplate ?? throw new ArgumentNullException(nameof(controlTemplate));
 
-        _controlTemplatesByName.Add(controlTemplate.Name.FirstCharToUpper(), controlTemplate);
+        var templateName = controlTemplate.Name.FirstCharToUpper();
+        if (_controlTemplatesByName.ContainsKey(templateName))
+            return;
+
+        _controlTemplatesByName.Add(templateName, controlTemplate);
 
         // There can be multiple control templates with the same id, so we store them in a list.
         if (!_controlTemplatesById.TryGetValue(controlTemplate.Id, out var controlTemplates))
