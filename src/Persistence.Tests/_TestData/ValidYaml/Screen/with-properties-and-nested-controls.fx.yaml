@@ -1,5 +1,5 @@
 Screen: 
-Name: Screen with two properties and two controls
+Name: Screen with two properties and two nested controls
 Properties:
   Name: NameProperty1
   Type: TypeProperty1
@@ -9,8 +9,14 @@ Controls:
   Properties:
     X: 10
     Y: 20
+  Controls:
+  - Button: 
+    Name: Nested button
 - Text: 
   Name: Text1
   Properties:
     X: 10
     Y: 20
+  Controls:
+  - Button: 
+    Name: Nested button
