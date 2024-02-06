@@ -51,6 +51,9 @@ public static class ServiceCollectionExtensions
 
         store.Add(new ControlTemplate { Name = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
         store.Add(new ControlTemplate { Name = "app", Id = "http://microsoft.com/appmagic/appinfo" });
+        store.Add(new ControlTemplate { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
+
+        store.DiscoverBuiltInTemplateTypes();
 
         return store;
     }
