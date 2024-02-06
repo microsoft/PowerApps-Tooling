@@ -1,58 +1,68 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+//using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 namespace Test.AppWriter;
 
 internal class Program
 {
-    private static App GetExampleApp(string appname, int numscreens = 1)
+    private static ServiceProvider ConfigureServiceProvider()
     {
-        var app = new App(appname);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddPowerAppsPersistence(true);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        return serviceProvider;
+    }
 
+    private static App GetExampleApp(ServiceProvider provider, string appname, int numscreens = 1)
+    {
+        var app = provider.GetRequiredService<IControlFactory>().CreateApp(appname);
         for (var i = 0; i < numscreens; i++)
         {
-            var graph = new Screen("Screen" + numscreens.ToString())
-            {
-                Properties = new Dictionary<string, ControlPropertyValue>()
+            var graph = provider.GetRequiredService<IControlFactory>().CreateScreen("Screen" + i.ToString(),
+                properties: new Dictionary<string, ControlPropertyValue>()
                 {
-                    { "Text", new() { Value = "I am a screen" } },
+                    { "Text", new() { Value = "I am a screen" }  },
                 },
-                Controls = new Control[]
+                controls: new Control[]
                 {
-                    new Text("Label1")
-                    {
-                        Properties = new Dictionary<string, ControlPropertyValue>()
+                    provider.GetRequiredService<IControlFactory>().Create("Label1", template: "text",
+                        properties: new Dictionary<string, ControlPropertyValue>()
                         {
                             { "Text", new() { Value = "lorem ipsum" }  },
-                        },
-                    },
-                    new Button("Button1")
-                    {
-                        Properties = new Dictionary<string, ControlPropertyValue>()
+                        }
+                    ),
+                    provider.GetRequiredService<IControlFactory>().Create("Button1", template: "button",
+                        properties: new Dictionary<string, ControlPropertyValue>()
                         {
                             { "Text", new() { Value = "click me" }  },
                             { "X", new() { Value = "100" } },
                             { "Y", new() { Value = "200" } }
-                        },
-                    }
+                        }
+                    )
                 }
-            };
-
+            );
             app.Screens.Add(graph);
         }
-
         return app;
     }
 
     private static void Main(string[] args)
     {
+        var provider = ConfigureServiceProvider();
+        // var msappArchiveFactory = provider.GetRequiredService<IMsappArchiveFactory>();
+        // var controlFactory = provider.GetRequiredService<IControlFactory>();
+        // var templateStore = provider.GetRequiredService<IControlTemplateStore>();
+
         // Console.WriteLine(Directory.GetCurrentDirectory());
         // GetCommandLineArgs()
         var fullPathToMsApp = args.Length > 0 ? args[0] : null;
+        var appname = "appname";
 
         if (fullPathToMsApp == null)
         {
@@ -63,28 +73,14 @@ internal class Program
 
         if (File.Exists(fullPathToMsApp)) // Overwrite
         {
-            Console.WriteLine("Warning: File already exists");
-            // File.Delete(fullPathToMsApp);
+            Console.WriteLine("Warning: File already exists;  Overwrite? (y / n)");
+            var input = Console.ReadLine();
+            if (input?.ToLower()[0] == 'y') File.Delete(fullPathToMsApp);
         }
 
-        //var writer = new StringWriter();
-        //using var yamlWriter = new YamlWriter(writer);
-        //using var serializer = new YamlPocoSerializer(yamlWriter);
-        //serializer.Serialize(GetExampleApp());
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<IYamlSerializationFactory, YamlSerializationFactory>();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
-        using var msappArchive = new MsappArchive(fullPathToMsApp, true, serviceProvider.GetRequiredService<IYamlSerializationFactory>());
-        // msappArchive.CreateEntry(MsappArchive.Directories.Src + "/");
-        // msappArchive.CreateEntry(MsappArchive.Directories.Controls + "/");
-        // msappArchive.CreateEntry(MsappArchive.Directories.Components + "/");
-        // msappArchive.CreateEntry(MsappArchive.Directories.AppTests + "/");
-        // msappArchive.CreateEntry(MsappArchive.Directories.References + "/");
-        // msappArchive.CreateEntry(MsappArchive.Directories.Resources + "/");
-
-        var app = GetExampleApp("appname");
-        msappArchive.App = app;
-        msappArchive.Save();
+        msapp.App = GetExampleApp(provider, appname, 2);
+        msapp.Save();
     }
 }
