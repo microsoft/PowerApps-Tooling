@@ -29,31 +29,36 @@ internal class ControlTypeInspector : ITypeInspector
 
     public IPropertyDescriptor GetProperty(Type type, object? container, string name, bool ignoreUnmatched)
     {
-        // For any type that isn't a built in, we'll use the default inspector.
-        if (!_controlTemplateStore.TryGetName(type, out var shortName))
+        // For built in controls, we'll use the property name as the template name which will be used to get the template.
+        // for example
+        // Button:
+        // Name: "Button1"
+        if (type == typeof(BuiltInControl))
         {
-            if (type == typeof(BuiltInControl))
-            {
-                if (_controlTemplateStore.TryGetTemplateByName(name, out var controlTemplate))
-                    return new TemplatePropertyDescriptor(name, controlTemplate);
-            }
-            else if (type == typeof(CustomControl))
-            {
-                if (name == YamlFields.Control)
-                    return new TemplatePropertyDescriptor(name);
-                var propertyDescriptor = _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
-                if (propertyDescriptor != null)
-                    return propertyDescriptor;
-
-                return new TemplatePropertyDescriptor(name);
-            }
-
+            if (_controlTemplateStore.TryGetTemplateByName(name, out var controlTemplate))
+                return new TemplatePropertyDescriptor(name, controlTemplate);
             return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
         }
 
-        if (!name.Equals(shortName))
-            return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
+        // For custom controls, we expect value to be template id.
+        // for example
+        // Control: http://localhost/#customcontrol
+        // Name: My Custom Control
+        if (type == typeof(CustomControl) && name == YamlFields.Control)
+        {
+            return new TemplatePropertyDescriptor(name);
+        }
 
-        return new EmptyPropertyDescriptor(name);
+        if (_controlTemplateStore.TryGetName(type, out var templateName))
+        {
+            // For built in types, we don't need template id.
+            // for example
+            // App:
+            // Name: My Custom Control
+            if (name.Equals(templateName))
+                return new EmptyPropertyDescriptor(name);
+        }
+
+        return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
     }
 }

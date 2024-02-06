@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.Yaml;
@@ -16,7 +17,7 @@ public class DeserializerInvalidTests
 
         var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.fx.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file
-        // var files = new string[] { @"_TestData/InvalidYaml/InvalidName.fx.yaml" };
+        // var files = new string[] { @"_TestData/InvalidYaml/Screen-with-host.fx.yaml" };
 
         Parallel.ForEach(files, file =>
         {
@@ -26,10 +27,13 @@ public class DeserializerInvalidTests
             // Act
             try
             {
-                var screen = deserializer.Deserialize(yamlReader);
+                var result = deserializer.Deserialize(yamlReader);
+                if (result is not Control)
+                    throw new InvalidOperationException("Expected a control");
+
                 Assert.Fail($"Expected exception for file {file}");
             }
-            catch (Exception)
+            catch (Exception ex) when (ex is not AssertFailedException)
             {
                 // Assert exceptions are thrown
             }

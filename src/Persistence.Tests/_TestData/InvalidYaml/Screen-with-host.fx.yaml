@@ -1,0 +1,9 @@
+Unknown:
+  Name: App
+  MinScreenHeight: 640
+  MinScreenWidth: 640
+  Theme: PowerAppsTheme
+  SizeBreakpoints: '[1200, 1800, 2400]'
+  Controls:
+  - hostControl:
+      Name: Host

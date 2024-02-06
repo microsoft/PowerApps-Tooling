@@ -25,7 +25,6 @@ internal static class SerializerBuilderExtensions
     {
         return builder
             .IgnoreUnmatchedProperties()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeInspector(inner => new ControlTypeInspector(inner, controlTemplateStore))
             .WithTypeDiscriminatingNodeDeserializer(o =>
             {
