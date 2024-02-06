@@ -1,0 +1,16 @@
+Screen: 
+Name: Hello
+Properties: 
+  Name: NameProperty1
+  Type: TypeProperty1
+Controls:
+- Button:
+  Name: Button1
+  Properties:
+    X: 10
+    Y: 20
+- Text:
+  Name: Text1
+  Properties:
+    X: 10
+    Y: 20

@@ -33,6 +33,12 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
             var templateId = ((Scalar)value!).Value.Trim();
             if (_controlTemplateStore.TryGetById(templateId, out var controlTemplate))
             {
+                // It can be one of the built-in types.
+                if (_controlTemplateStore.TryGetControlTypeByName(controlTemplate.Name, out var controlType))
+                {
+                    suggestedType = controlType;
+                    return true;
+                }
                 suggestedType = typeof(BuiltInControl);
                 return true;
             }

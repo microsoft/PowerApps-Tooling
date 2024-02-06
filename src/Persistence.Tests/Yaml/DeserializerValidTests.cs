@@ -148,10 +148,11 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", "Screen 1", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", "My Power Apps Screen", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", "My Power Apps Custom Control", 0, 9)]
-    public void Deserialize_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
+    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 9)]
+    [DataRow(@"_TestData/ValidYaml/Screen/declared-with-template-id.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    public void Deserialize_ShouldSucceed(string path, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
@@ -162,8 +163,9 @@ public class DeserializerValidTests : TestBase
         var controlObj = deserializer.Deserialize(yamlReader);
 
         // Assert
-        controlObj.Should().BeAssignableTo<Control>();
+        controlObj.Should().BeAssignableTo(expectedType);
         var control = controlObj as Control;
+        control!.TemplateId.Should().NotBeNull().And.Be(expectedTemplateId);
         control!.Name.Should().NotBeNull().And.Be(expectedName);
         control.Controls.Should().NotBeNull().And.HaveCount(controlCount);
         control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);

@@ -8,7 +8,7 @@ using Persistence.Tests.Extensions;
 namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class RoundTripTests
+public class RoundTripTests : TestBase
 {
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
@@ -17,8 +17,8 @@ public class RoundTripTests
     [DataRow(@"_TestData/ValidYaml/BuiltInControl1.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas", "BuiltIn Control1", 1, 0)]
     public void RoundTrip_ValidYaml(string path, Type rootType, string expectedTemplateId, string expectedName, int expectedPropsCount, int expectedControlCount)
     {
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        var serializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
         using var yamlStream = File.OpenRead(path);
         using var yamlReader = new StreamReader(yamlStream);
 
