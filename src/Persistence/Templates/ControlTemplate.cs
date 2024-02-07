@@ -39,9 +39,4 @@ public record ControlTemplate
         }
     }
     public required string Id { get; init; }
-
-    public static implicit operator ControlTemplate(string id)
-    {
-        return new(id);
-    }
 }

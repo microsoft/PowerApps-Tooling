@@ -19,6 +19,8 @@ public interface IControlTemplateStore
 
     bool TryGetById(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 
+    bool TryGetByIdOrName(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
+
     bool TryGetByType(Type type, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 
     ControlTemplate GetById(string id);

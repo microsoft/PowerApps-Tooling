@@ -30,8 +30,8 @@ internal class ControlTypeDiscriminator : ITypeDiscriminator
         // Control is abstract, so we need to return a concrete type.
         if (scalar!.Value == YamlFields.Control)
         {
-            var templateId = ((Scalar)value!).Value.Trim();
-            if (_controlTemplateStore.TryGetById(templateId, out var controlTemplate))
+            var template = ((Scalar)value!).Value.Trim();
+            if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
             {
                 // It can be one of the built-in types.
                 if (_controlTemplateStore.TryGetControlTypeByName(controlTemplate.Name, out var controlType))

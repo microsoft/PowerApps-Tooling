@@ -152,6 +152,10 @@ public class DeserializerValidTests : TestBase
     [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
     [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 9)]
     [DataRow(@"_TestData/ValidYaml/Screen/declared-with-template-id.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Screen/declared-with-template-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-id.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-name.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
     public void Deserialize_ShouldSucceed(string path, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange

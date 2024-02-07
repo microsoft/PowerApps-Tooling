@@ -35,8 +35,14 @@ internal class ControlTypeInspector : ITypeInspector
         // Name: "Button1"
         if (type == typeof(BuiltInControl))
         {
+            // for example
+            // Control: Button
+            // Name: "Button1"
+            if (name == YamlFields.Control)
+                return new TemplatePropertyDescriptor(_controlTemplateStore);
+
             if (_controlTemplateStore.TryGetTemplateByName(name, out var controlTemplate))
-                return new TemplatePropertyDescriptor(name, controlTemplate);
+                return new TemplatePropertyDescriptor(_controlTemplateStore, controlTemplate);
             return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
         }
 
@@ -46,7 +52,7 @@ internal class ControlTypeInspector : ITypeInspector
         // Name: My Custom Control
         if (type == typeof(CustomControl) && name == YamlFields.Control)
         {
-            return new TemplatePropertyDescriptor(name);
+            return new TemplatePropertyDescriptor(_controlTemplateStore);
         }
 
         if (_controlTemplateStore.TryGetName(type, out var templateName))

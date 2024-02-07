@@ -10,15 +10,16 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public class TemplatePropertyDescriptor : IPropertyDescriptor
 {
+    private readonly IControlTemplateStore _controlTemplateStore;
     private readonly ControlTemplate? _controlTemplate;
 
-    public TemplatePropertyDescriptor(string name, ControlTemplate? controlTemplate = null)
+    public TemplatePropertyDescriptor(IControlTemplateStore controlTemplateStore, ControlTemplate? controlTemplate = null)
     {
-        Name = name;
+        _controlTemplateStore = controlTemplateStore;
         _controlTemplate = controlTemplate;
     }
 
-    public string Name { get; }
+    public string Name { get; } = nameof(Control.Template);
 
     public Type Type => typeof(object);
 
@@ -38,10 +39,13 @@ public class TemplatePropertyDescriptor : IPropertyDescriptor
         var templateProperty = target.GetType().GetProperty(nameof(Control.Template)) ?? throw new InvalidOperationException($"Target does not have a {nameof(Control.Template)} property.");
         if (_controlTemplate == null)
         {
-            if (!string.IsNullOrWhiteSpace((string?)value))
-                templateProperty.SetValue(target, new ControlTemplate((string)value));
+            if (value is not string)
+                throw new InvalidOperationException("Value is not a string.");
+
+            if (_controlTemplateStore.TryGetByIdOrName((string)value, out var controlTemplate))
+                templateProperty.SetValue(target, controlTemplate);
             else
-                templateProperty.SetValue(target, new ControlTemplate(Name));
+                templateProperty.SetValue(target, new ControlTemplate((string)value));
         }
         else
             templateProperty.SetValue(target, _controlTemplate);
