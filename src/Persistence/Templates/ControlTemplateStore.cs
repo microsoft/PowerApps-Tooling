@@ -102,6 +102,20 @@ public class ControlTemplateStore : IControlTemplateStore
         return true;
     }
 
+    /// <summary>
+    /// Returns the control template with the given id or name.
+    /// </summary>
+    public bool TryGetByIdOrName(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
+    {
+        if (TryGetById(id, out controlTemplate))
+            return true;
+
+        if (TryGetTemplateByName(id, out controlTemplate))
+            return true;
+
+        return false;
+    }
+
     public bool TryGetByType(Type type, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
     {
         if (_typeToTemplate.TryGetValue(type, out controlTemplate))
