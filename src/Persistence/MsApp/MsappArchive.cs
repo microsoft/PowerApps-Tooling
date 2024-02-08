@@ -481,9 +481,9 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         {
             if (disposing)
             {
+                ZipArchive.Dispose();
                 if (!_leaveOpen)
                 {
-                    ZipArchive.Dispose();
                     _stream.Dispose();
                 }
             }
