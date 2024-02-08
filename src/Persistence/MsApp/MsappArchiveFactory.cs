@@ -49,4 +49,20 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
         return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, _yamlSerializationFactory);
     }
+
+    public IMsappArchive Update(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentNullException(nameof(path));
+
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        return new MsappArchive(fileStream, ZipArchiveMode.Update, leaveOpen: false, _yamlSerializationFactory);
+    }
+
+    public IMsappArchive Update(Stream stream, bool leaveOpen = false)
+    {
+        _ = stream ?? throw new ArgumentNullException(nameof(stream));
+
+        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, _yamlSerializationFactory);
+    }
 }
