@@ -6,12 +6,12 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-//using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Test.AppWriter;
 
 internal class Program
 {
+    // Configures default services for generating the MSApp representation
     private static IServiceProvider ConfigureServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
@@ -20,6 +20,8 @@ internal class Program
         return serviceProvider;
     }
 
+    // This produces a simple example app including the specified number of screens and a few generic controls
+    // This is intended for testing purposes only
     private static App GetExampleApp(IServiceProvider provider, string appname, int numscreens = 1)
     {
         var app = provider.GetRequiredService<IControlFactory>().CreateApp(appname);
@@ -54,13 +56,9 @@ internal class Program
 
     private static void Main(string[] args)
     {
+        // Setup services for creating MSApp representation
         var provider = ConfigureServiceProvider();
-        // var msappArchiveFactory = provider.GetRequiredService<IMsappArchiveFactory>();
-        // var controlFactory = provider.GetRequiredService<IControlFactory>();
-        // var templateStore = provider.GetRequiredService<IControlTemplateStore>();
 
-        // Console.WriteLine(Directory.GetCurrentDirectory());
-        // GetCommandLineArgs()
         var fullPathToMsApp = args.Length > 0 ? args[0] : null;
         var appname = "appname";
 
@@ -78,9 +76,12 @@ internal class Program
             if (input?.ToLower()[0] == 'y') File.Delete(fullPathToMsApp);
         }
 
+        // Create a new empty MSApp
         using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
+        // Add a basic example app (note: this will be replaced with interactive process)
         msapp.App = GetExampleApp(provider, appname, 2);
+        // Output the MSApp to the path provided
         msapp.Save();
     }
 }
