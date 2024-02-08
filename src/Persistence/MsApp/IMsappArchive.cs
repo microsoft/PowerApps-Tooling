@@ -27,6 +27,16 @@ public interface IMsappArchive : IDisposable
     void Save();
 
     /// <summary>
+    /// Total sum of decompressed sizes of all entries in the archive.
+    /// </summary>
+    long DecompressedSize { get; }
+
+    /// <summary>
+    /// Total sum of compressed sizes of all entries in the archive.
+    /// </summary>
+    long CompressedSize { get; }
+
+    /// <summary>
     /// Creates a new entry in the archive with the given name.
     /// </summary>
     /// <param name="entryName"></param>
