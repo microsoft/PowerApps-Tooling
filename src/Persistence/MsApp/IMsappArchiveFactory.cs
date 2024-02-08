@@ -19,12 +19,22 @@ public interface IMsappArchiveFactory
     IMsappArchive Create(Stream stream, bool leaveOpen = false);
 
     /// <summary>
-    /// Opens existing msapp archive.
+    /// Opens existing msapp archive for read.
     /// </summary>
     IMsappArchive Open(string path);
 
     /// <summary>
-    /// Opens existing msapp archive.
+    /// Opens existing msapp archive for read.
     /// </summary>
     IMsappArchive Open(Stream stream, bool leaveOpen = false);
+
+    /// <summary>
+    /// Opens existing msapp archive for update (read/write).
+    /// </summary>
+    IMsappArchive Update(string path);
+
+    /// <summary>
+    /// Opens existing msapp archive for update (read/write).
+    /// </summary>
+    IMsappArchive Update(Stream stream, bool leaveOpen = false);
 }
