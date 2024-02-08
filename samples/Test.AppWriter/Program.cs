@@ -3,15 +3,16 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-//using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Test.AppWriter;
 
 internal class Program
 {
-    private static ServiceProvider ConfigureServiceProvider()
+    private static IServiceProvider ConfigureServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPowerAppsPersistence(true);
@@ -19,7 +20,7 @@ internal class Program
         return serviceProvider;
     }
 
-    private static App GetExampleApp(ServiceProvider provider, string appname, int numscreens = 1)
+    private static App GetExampleApp(IServiceProvider provider, string appname, int numscreens = 1)
     {
         var app = provider.GetRequiredService<IControlFactory>().CreateApp(appname);
         for (var i = 0; i < numscreens; i++)
@@ -29,8 +30,7 @@ internal class Program
                 {
                     { "Text", new() { Value = "I am a screen" }  },
                 },
-                controls: new Control[]
-                {
+                controls: [
                     provider.GetRequiredService<IControlFactory>().Create("Label1", template: "text",
                         properties: new Dictionary<string, ControlPropertyValue>()
                         {
@@ -45,7 +45,7 @@ internal class Program
                             { "Y", new() { Value = "200" } }
                         }
                     )
-                }
+                ]
             );
             app.Screens.Add(graph);
         }
