@@ -10,7 +10,7 @@
             <HorizontalStackLayout HorizontalOptions="Center">
                 <Image
                     Source="power_apps_512.png"
-                    HeightRequest="150"
+                    HeightRequest="105"
                     Aspect="AspectFit"
                     SemanticProperties.Description="dot net bot in a race car number eight" />
                 <Label VerticalTextAlignment="Center"
@@ -21,7 +21,7 @@
                         SemanticProperties.HeadingLevel="Level1" />
                 <Image
                     Source="dotnet_bot.png"
-                    HeightRequest="185"
+                    HeightRequest="125"
                     Aspect="AspectFit"
                     SemanticProperties.Description="dot net bot in a race car number eight" />
             
@@ -30,12 +30,12 @@
             <Label
                 Text="Hello, Power Apps Professional Developers!"
                 Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level3" />
 
             <Label
                 Text="Sample for YAML format of Power Apps Canvas App"
                 Style="{StaticResource SubHeadline}"
-                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.HeadingLevel="Level4"
                 SemanticProperties.Description="Sample for YAML format of Power Apps Canvas App" />
 
             <HorizontalStackLayout HorizontalOptions="Center">
