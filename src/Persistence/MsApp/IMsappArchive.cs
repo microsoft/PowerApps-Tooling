@@ -17,9 +17,9 @@ public interface IMsappArchive : IDisposable
     App? App { get; set; }
 
     /// <summary>
-    /// Saves screen in the archive.
+    /// Saves control in the archive. Control can be App, Screen, or individual control.
     /// </summary>
-    void Save(Screen screen);
+    void Save(Control control);
 
     /// <summary>
     /// Saves the archive to the given stream or file.

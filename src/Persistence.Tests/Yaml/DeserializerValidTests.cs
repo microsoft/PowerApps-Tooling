@@ -37,7 +37,7 @@ public class DeserializerValidTests : TestBase
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
-        sut.Controls.Should().NotBeNull().And.BeEmpty();
+        sut.Children.Should().NotBeNull().And.BeEmpty();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
@@ -54,7 +54,7 @@ public class DeserializerValidTests : TestBase
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
-            controls: new Control[]
+            children: new Control[]
             {
                 ControlFactory.Create("Label1", template: "text",
                     new Dictionary<string, ControlPropertyValue>()
@@ -85,24 +85,24 @@ public class DeserializerValidTests : TestBase
                 .And.ContainKey("Text");
         sut.Properties["Text"].Value.Should().Be("I am a screen");
 
-        sut.Controls.Should().NotBeNull().And.HaveCount(2);
-        sut.Controls![0].Should().BeOfType<BuiltInControl>();
-        sut.Controls![0].Name.Should().Be("Label1");
-        sut.Controls![0].TemplateId.Should().Be("http://microsoft.com/appmagic/text");
-        sut.Controls![0].Properties.Should().NotBeNull()
+        sut.Children.Should().NotBeNull().And.HaveCount(2);
+        sut.Children![0].Should().BeOfType<BuiltInControl>();
+        sut.Children![0].Name.Should().Be("Label1");
+        sut.Children![0].TemplateId.Should().Be("http://microsoft.com/appmagic/text");
+        sut.Children![0].Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
-        sut.Controls![0].Properties["Text"].Value.Should().Be("lorem ipsum");
+        sut.Children![0].Properties["Text"].Value.Should().Be("lorem ipsum");
 
-        sut.Controls![1].Should().BeOfType<BuiltInControl>();
-        sut.Controls![1].Name.Should().Be("Button1");
-        sut.Controls![1].TemplateId.Should().Be("http://microsoft.com/appmagic/button");
-        sut.Controls![1].Properties.Should().NotBeNull()
+        sut.Children![1].Should().BeOfType<BuiltInControl>();
+        sut.Children![1].Name.Should().Be("Button1");
+        sut.Children![1].TemplateId.Should().Be("http://microsoft.com/appmagic/button");
+        sut.Children![1].Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
-        sut.Controls![1].Properties["Text"].Value.Should().Be("click me");
-        sut.Controls![1].Properties["X"].Value.Should().Be("100");
-        sut.Controls![1].Properties["Y"].Value.Should().Be("200");
+        sut.Children![1].Properties["Text"].Value.Should().Be("click me");
+        sut.Children![1].Properties["X"].Value.Should().Be("100");
+        sut.Children![1].Properties["Y"].Value.Should().Be("200");
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class DeserializerValidTests : TestBase
         sut.Should().NotBeNull().And.BeOfType<CustomControl>();
         sut.Name.Should().Be("CustomControl1");
         sut.TemplateId.Should().Be("http://localhost/#customcontrol");
-        sut.Controls.Should().NotBeNull().And.BeEmpty();
+        sut.Children.Should().NotBeNull().And.BeEmpty();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
@@ -171,7 +171,7 @@ public class DeserializerValidTests : TestBase
         var control = controlObj as Control;
         control!.TemplateId.Should().NotBeNull().And.Be(expectedTemplateId);
         control!.Name.Should().NotBeNull().And.Be(expectedName);
-        control.Controls.Should().NotBeNull().And.HaveCount(controlCount);
+        control.Children.Should().NotBeNull().And.HaveCount(controlCount);
         control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
@@ -189,7 +189,7 @@ public class DeserializerValidTests : TestBase
         controlObj.Should().BeAssignableTo<App>();
         var app = controlObj as App;
         app!.Name.Should().NotBeNull().And.Be(expectedName);
-        app.Controls.Should().NotBeNull().And.HaveCount(controlCount);
+        app.Children.Should().NotBeNull().And.HaveCount(controlCount);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 

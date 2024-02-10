@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
@@ -10,7 +9,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[DebuggerDisplay("{Name}")]
+[DebuggerDisplay("{Template?.DisplayName}: {Name}")]
 public abstract record Control
 {
     public Control()
@@ -57,7 +56,7 @@ public abstract record Control
     /// list of child controls nested under this control.
     /// </summary>    
     [YamlMember(Order = 3)]
-    public Control[] Controls { get; init; } = Array.Empty<Control>();
+    public Control[] Children { get; init; } = Array.Empty<Control>();
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }

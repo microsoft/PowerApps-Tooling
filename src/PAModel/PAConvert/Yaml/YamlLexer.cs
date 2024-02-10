@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
-using Microsoft.PowerPlatform.Formulas.Tools.IR;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
+using Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 

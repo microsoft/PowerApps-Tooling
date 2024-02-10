@@ -4,10 +4,12 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 [FirstClass(templateName: BuiltInTemplates.Screen)]
+[YamlSerializable]
 public record Screen : Control
 {
     /// <summary>

@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.Formulas.Tools;
-using System.Diagnostics;
 using System.IO;
+using Microsoft.PowerPlatform.Formulas.Tools;
 
 namespace PASopa;
 

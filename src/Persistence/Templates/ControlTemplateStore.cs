@@ -16,7 +16,6 @@ public class ControlTemplateStore : IControlTemplateStore
     private readonly SortedList<string, ControlTemplate> _controlTemplatesByName = new();
     private readonly SortedList<string, List<ControlTemplate>> _controlTemplatesById = new();
     private readonly SortedList<string, Type> _nameToType = new();
-    private readonly SortedList<string, Type> _idToType = new();
     private readonly Dictionary<Type, string> _typeToName = new();
     private readonly Dictionary<Type, ControlTemplate> _typeToTemplate = new();
 
@@ -35,10 +34,14 @@ public class ControlTemplateStore : IControlTemplateStore
 
             if (type.GetCustomAttributes(true).FirstOrDefault(a => a is FirstClassAttribute) is FirstClassAttribute firstClassAttribute)
             {
-                _nameToType.Add(firstClassAttribute.TemplateName.FirstCharToUpper(), type);
-                _idToType.Add(firstClassAttribute.TemplateName.FirstCharToUpper(), type);
-                _typeToName.Add(type, firstClassAttribute.TemplateName.FirstCharToUpper());
-                _typeToTemplate.Add(type, _controlTemplatesByName[firstClassAttribute.TemplateName.FirstCharToUpper()]);
+                var controlTemplate = _controlTemplatesByName[firstClassAttribute.TemplateName];
+
+                _nameToType.Add(controlTemplate.Name, type);
+                if (controlTemplate.HasDisplayName)
+                    _nameToType.Add(controlTemplate.DisplayName, type);
+
+                _typeToName.Add(type, controlTemplate.Name);
+                _typeToTemplate.Add(type, controlTemplate);
             }
         }
     }
@@ -52,6 +55,8 @@ public class ControlTemplateStore : IControlTemplateStore
             return;
 
         _controlTemplatesByName.Add(templateName, controlTemplate);
+        if (controlTemplate.HasDisplayName)
+            _controlTemplatesByName.Add(controlTemplate.DisplayName, controlTemplate);
 
         // There can be multiple control templates with the same id, so we store them in a list.
         if (!_controlTemplatesById.TryGetValue(controlTemplate.Id, out var controlTemplates))

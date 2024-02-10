@@ -14,6 +14,7 @@
     <ItemGroup Label="Global usings">
         <Using Include="System" />
         <Using Include="System.Collections.Generic" />
+        <Using Include="System.Diagnostics" />
         <Using Include="Microsoft.Extensions.DependencyInjection" />
     </ItemGroup>
 

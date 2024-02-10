@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools.Extensions;
 

@@ -14,9 +14,9 @@ public class ValidSerializerTests : TestBase
     public void Serialize_ShouldCreateValidYamlForSimpleStructure()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a screen" } },
+                { "Text", "I am a screen" },
             }
         );
 
@@ -35,14 +35,14 @@ public class ValidSerializerTests : TestBase
         app.Screens = new Screen[]
         {
             ControlFactory.CreateScreen("Screen1",
-                properties: new Dictionary<string, ControlPropertyValue>()
+                properties: new()
                 {
-                    { "Text", new() { Value = "I am a screen" } },
+                    { "Text", "I am a screen" },
                 }),
             ControlFactory.CreateScreen("Screen2",
-                properties: new Dictionary<string, ControlPropertyValue>()
+                properties: new()
                 {
-                    { "Text", new() { Value = "I am another screen" } },
+                    { "Text", "I am another screen" },
                 }),
         };
 
@@ -78,7 +78,7 @@ public class ValidSerializerTests : TestBase
             {
                 { "Text", new() { Value = "I am a screen" }  },
             },
-            controls: new Control[]
+            children: new Control[]
             {
                 ControlFactory.Create("Label1", template: "text",
                     properties: new Dictionary<string, ControlPropertyValue>()
@@ -100,7 +100,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Controls:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
     }
 
     [TestMethod]

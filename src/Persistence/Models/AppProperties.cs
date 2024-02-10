@@ -22,7 +22,7 @@ public record AppProperties
     public required string LocalConnectionReferences { get; init; } = string.Empty;
     public required string LocalDatabaseReferences { get; init; } = string.Empty;
     public string? LibraryDependencies { get; init; }
-    public string[] AppPreviewFlagsKey { get; init; } = new string[0];
+    public string[] AppPreviewFlagsKey { get; init; } = Array.Empty<string>();
     public required Dictionary<string, bool> AppPreviewFlagsMap { get; init; } = new();
     public double? DocumentLayoutWidth { get; init; }
     public double? DocumentLayoutHeight { get; init; }
