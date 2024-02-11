@@ -1,5 +1,5 @@
 Screen: 
 Name: Hello
-Controls:
+Children:
 - ButtonCanvas: 
   Name: My control

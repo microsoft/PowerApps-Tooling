@@ -3,7 +3,7 @@ Name: Screen 1
 Properties:
   Fill: White
   LoadingSpinnerColor: RGBA(56, 96, 178, 1)
-Controls:
+Children:
 - Text: 
   Name: Built-in Text
   Properties:

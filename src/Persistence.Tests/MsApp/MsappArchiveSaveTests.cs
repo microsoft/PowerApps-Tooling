@@ -10,11 +10,11 @@ namespace Persistence.Tests.MsApp;
 public class MsappArchiveSaveTests : TestBase
 {
     [TestMethod]
-    [DataRow(@"  Hello   ", $"src/{MsappArchive.Directories.Controls}/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello1.fx.yaml")]
-    [DataRow(@"..\..\Hello", $"src/{MsappArchive.Directories.Controls}/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello2.fx.yaml")]
-    [DataRow(@"c:\win\..\..\Hello", $"src/{MsappArchive.Directories.Controls}/cWinHello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello3.fx.yaml")]
-    [DataRow(@"//..?HelloScreen", $"src/{MsappArchive.Directories.Controls}/HelloScreen.fx.yaml", @"_TestData/ValidYaml/Screen-Hello4.fx.yaml")]
-    [DataRow(@"Hello Space", $"src/{MsappArchive.Directories.Controls}/Hello Space.fx.yaml", @"_TestData/ValidYaml/Screen-Hello5.fx.yaml")]
+    [DataRow(@"  Hello   ", $"src/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello1.fx.yaml")]
+    [DataRow(@"..\..\Hello", $"src/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello2.fx.yaml")]
+    [DataRow(@"c:\win\..\..\Hello", $"src/cWinHello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello3.fx.yaml")]
+    [DataRow(@"//..?HelloScreen", $"src/HelloScreen.fx.yaml", @"_TestData/ValidYaml/Screen-Hello4.fx.yaml")]
+    [DataRow(@"Hello Space", $"src/Hello Space.fx.yaml", @"_TestData/ValidYaml/Screen-Hello5.fx.yaml")]
     public void Msapp_ShouldSave_Screen(string screenName, string screenEntryName, string expectedYamlPath)
     {
         // Arrange
@@ -31,7 +31,7 @@ public class MsappArchiveSaveTests : TestBase
         // Assert
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
         msappValidation.App.Should().BeNull();
-        msappValidation.CanonicalEntries.Count.Should().Be(2);
+        msappValidation.CanonicalEntries.Count.Should().Be(1);
         var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
         screenEntry.Should().NotBeNull();
         using var streamReader = new StreamReader(msappValidation.GetRequiredEntry(screenEntryName).Open());
@@ -42,7 +42,7 @@ public class MsappArchiveSaveTests : TestBase
 
     [TestMethod]
     [DataRow(@"  Hello   ", "My control",
-        $"src/{MsappArchive.Directories.Controls}/Hello.fx.yaml",
+        $"src/Hello.fx.yaml",
         $"{MsappArchive.Directories.Controls}/Hello.json",
         @"_TestData/ValidYaml/Screen-with-control1.fx.yaml",
         @"_TestData/ValidYaml/Screen-with-control1.json")]
@@ -57,7 +57,7 @@ public class MsappArchiveSaveTests : TestBase
 
         // Act
         var screen = ControlFactory.CreateScreen(screenName,
-            controls: new[] {
+            children: new[] {
                 ControlFactory.Create(controlName, "ButtonCanvas")
             });
         msappArchive.Save(screen);
@@ -66,7 +66,7 @@ public class MsappArchiveSaveTests : TestBase
         // Assert
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
         msappValidation.App.Should().BeNull();
-        msappValidation.CanonicalEntries.Count.Should().Be(2);
+        msappValidation.CanonicalEntries.Count.Should().Be(1);
 
         // Validate screen
         var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
@@ -77,12 +77,14 @@ public class MsappArchiveSaveTests : TestBase
         yaml.Should().Be(expectedYaml);
 
         // Validate editor state
-        var editorStateEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(editorStateName)];
-        editorStateEntry.Should().NotBeNull();
-        using var editorStateReader = new StreamReader(msappValidation.GetRequiredEntry(editorStateName).Open());
-        var json = editorStateReader.ReadToEnd().ReplaceLineEndings();
-        var expectedJson = File.ReadAllText(expectedJsonPath).ReplaceLineEndings().TrimEnd();
-        json.Should().Be(expectedJson);
+        if (msappValidation.CanonicalEntries.TryGetValue(MsappArchive.NormalizePath(editorStateName), out var editorStateEntry))
+        {
+            editorStateEntry.Should().NotBeNull();
+            using var editorStateReader = new StreamReader(msappValidation.GetRequiredEntry(editorStateName).Open());
+            var json = editorStateReader.ReadToEnd().ReplaceLineEndings();
+            var expectedJson = File.ReadAllText(expectedJsonPath).ReplaceLineEndings().TrimEnd();
+            json.Should().Be(expectedJson);
+        }
     }
 
 
@@ -111,5 +113,28 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.App.Screens.Single().Name.Should().Be(screenName);
         msappValidation.App.Name.Should().Be(appName);
         msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
+    }
+
+    [TestMethod]
+    public void Msapp_ShouldSave_WithUniqueName()
+    {
+        // Arrange
+        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+        using var msappArchive = MsappArchiveFactory.Create(tempFile);
+
+        var sameNames = new string[] { "SameName", "Same..Name", @"..\SameName", "!SameName!", ".SameName", "SameName", "SAMENAME", "SameNAME", "SameName1", "{SameName}" };
+
+        // Act
+        for (var idx = 0; idx < sameNames.Length; idx++)
+        {
+            var screen = ControlFactory.CreateScreen(sameNames[idx]);
+            msappArchive.Save(screen);
+
+            // Assert
+            msappArchive.CanonicalEntries.Count.Should().Be(idx + 1);
+        }
+
+        msappArchive.CanonicalEntries.Count.Should().Be(sameNames.Length);
+        msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlFxFileExtension}")));
     }
 }

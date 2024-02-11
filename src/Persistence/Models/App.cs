@@ -12,6 +12,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 /// Represents an Canvas App.
 /// </summary>
 [FirstClass(templateName: BuiltInTemplates.App)]
+[YamlSerializable]
 public record App : Control
 {
     /// <summary>

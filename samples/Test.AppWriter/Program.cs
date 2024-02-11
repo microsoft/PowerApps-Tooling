@@ -22,35 +22,41 @@ internal class Program
 
     // This produces a simple example app including the specified number of screens and a few generic controls
     // This is intended for testing purposes only
-    private static App GetExampleApp(IServiceProvider provider, string appname, int numscreens = 1)
+    private static App GetExampleApp(IServiceProvider provider, string appName)
     {
-        var app = provider.GetRequiredService<IControlFactory>().CreateApp(appname);
-        for (var i = 0; i < numscreens; i++)
-        {
-            var graph = provider.GetRequiredService<IControlFactory>().CreateScreen("Screen" + i.ToString(),
-                properties: new Dictionary<string, ControlPropertyValue>()
-                {
-                    { "Text", new() { Value = "I am a screen" }  },
-                },
-                controls: [
-                    provider.GetRequiredService<IControlFactory>().Create("Label1", template: "text",
-                        properties: new Dictionary<string, ControlPropertyValue>()
-                        {
-                            { "Text", new() { Value = "lorem ipsum" }  },
-                        }
-                    ),
-                    provider.GetRequiredService<IControlFactory>().Create("Button1", template: "button",
-                        properties: new Dictionary<string, ControlPropertyValue>()
-                        {
-                            { "Text", new() { Value = "click me" }  },
-                            { "X", new() { Value = "100" } },
-                            { "Y", new() { Value = "200" } }
-                        }
-                    )
-                ]
-            );
-            app.Screens.Add(graph);
-        }
+        var controlFactory = provider.GetRequiredService<IControlFactory>();
+
+        var label1 = controlFactory.Create("Label1", template: "Label",
+            properties: new()
+            {
+                { "Text", @"""This app was created in .Net with YAML""" },
+                { "Align", "Align.Center" },
+                { "Width", "Parent.Width" }
+            }
+        );
+        var button1 = controlFactory.Create("Button1", template: "Button",
+            properties: new()
+            {
+                { "Text", @"""Click me!""" },
+                { "Align", "Align.Center" },
+                { "Width", "Parent.Width" }
+            }
+        );
+
+        var groupContainer = controlFactory.Create("GroupContainer", template: "GroupContainer",
+            properties: new Dictionary<string, ControlPropertyValue>()
+            {
+                { "Width", new() { Value = "App.Width" } }
+            },
+            children: [label1, button1]
+        );
+
+        var graph = controlFactory.CreateScreen("Hello from .Net",
+            children: [groupContainer]
+        );
+        var app = controlFactory.CreateApp(appName);
+        app.Screens.Add(graph);
+
         return app;
     }
 
@@ -60,12 +66,10 @@ internal class Program
         var provider = ConfigureServiceProvider();
 
         var fullPathToMsApp = args.Length > 0 ? args[0] : null;
-        var appname = "appname";
-
         if (fullPathToMsApp == null)
         {
             Console.WriteLine("No args provided, using default file path");
-            fullPathToMsApp = Directory.GetCurrentDirectory() + "\\appname.msapp";
+            fullPathToMsApp = Path.Combine(Directory.GetCurrentDirectory(), "CanvasApp.msapp");
             Console.WriteLine(fullPathToMsApp);
         }
 
@@ -80,7 +84,8 @@ internal class Program
         using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
         // Add a basic example app (note: this will be replaced with interactive process)
-        msapp.App = GetExampleApp(provider, appname, 2);
+        msapp.App = GetExampleApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp));
+
         // Output the MSApp to the path provided
         msapp.Save();
     }

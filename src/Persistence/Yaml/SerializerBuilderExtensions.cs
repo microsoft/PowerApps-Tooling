@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
@@ -13,7 +12,6 @@ internal static class SerializerBuilderExtensions
     {
         builder = builder
             .WithEventEmitter(next => new FirstClassControlsEmitter(next, controlTemplateStore))
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .WithTypeInspector(inner => new ControlTypeInspector(inner, controlTemplateStore))
             .WithTypeConverter(new ControlPropertyConverter())
             .WithTypeConverter(new ControlPropertiesCollectionConverter())

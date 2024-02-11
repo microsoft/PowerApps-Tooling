@@ -28,10 +28,8 @@ public static class ServiceCollectionExtensions
     {
         var store = new ControlTemplateStore();
 
-        store.Add(new ControlTemplate { Name = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
-        store.Add(new ControlTemplate { Name = "hostControl", Id = "http://microsoft.com/appmagic/hostcontrol" });
-        store.Add(new ControlTemplate { Name = "app", Id = "http://microsoft.com/appmagic/appinfo" });
-        store.Add(new ControlTemplate { Name = "appInfo", Id = "http://microsoft.com/appmagic/appinfo" });
+        store.Add(new ControlTemplate { Name = "hostControl", DisplayName = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
+        store.Add(new ControlTemplate { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new ControlTemplate { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
 
         store.Add(new ControlTemplate { Name = "text", Id = "http://microsoft.com/appmagic/text" });
@@ -49,8 +47,8 @@ public static class ServiceCollectionExtensions
     {
         var store = new ControlTemplateStore();
 
-        store.Add(new ControlTemplate { Name = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
-        store.Add(new ControlTemplate { Name = "app", Id = "http://microsoft.com/appmagic/appinfo" });
+        store.Add(new ControlTemplate { Name = "hostControl", DisplayName = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
+        store.Add(new ControlTemplate { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new ControlTemplate { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
 
         store.DiscoverBuiltInTemplateTypes();

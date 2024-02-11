@@ -38,7 +38,7 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
     {
         if (_controlTemplateStore.TryGetById(((Control)eventInfo.Source.Value!).TemplateId, out var controlTemplate))
         {
-            nodeName = controlTemplate.Name;
+            nodeName = controlTemplate.DisplayName;
             return true;
         }
 

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
@@ -24,6 +23,7 @@ public record ControlTemplate
         Id = id;
         Name = id;
     }
+    public required string Id { get; init; }
 
     private string _name = string.Empty;
 
@@ -38,5 +38,20 @@ public record ControlTemplate
             _name = value.Trim().FirstCharToUpper();
         }
     }
-    public required string Id { get; init; }
+
+    private string? _displayName;
+
+    public string DisplayName
+    {
+        get => string.IsNullOrWhiteSpace(_displayName) ? _name : _displayName;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                _displayName = null;
+            else
+                _displayName = value.Trim().FirstCharToUpper();
+        }
+    }
+
+    public bool HasDisplayName => !string.IsNullOrWhiteSpace(_displayName);
 }

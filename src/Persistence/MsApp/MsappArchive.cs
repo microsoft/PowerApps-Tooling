@@ -34,7 +34,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public const string YamlFileExtension = ".yaml";
     public const string YamlFxFileExtension = ".fx.yaml";
     public const string JsonFileExtension = ".json";
-    public const string AppFileName = "1.fx.yaml";
+    public const string AppFileName = $"App{YamlFxFileExtension}";
     public const string HeaderFileName = "Header.json";
     public const string PropertiesFileName = "Properties.json";
     public const string TemplatesFileName = $"{Directories.References}/Templates.json";
@@ -290,19 +290,40 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
-    public void Save(Screen screen)
+    public void Save(Control control)
     {
-        _ = screen ?? throw new ArgumentNullException(nameof(screen));
+        _ = control ?? throw new ArgumentNullException(nameof(control));
 
-        var safeName = SafeFileNameRegex().Replace(screen.Name, "").Trim();
-        var entry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, $"{safeName}{YamlFxFileExtension}"));
+        var entry = CreateEntry(GetSafeEntryPath(Directories.Src, control.Name, YamlFxFileExtension));
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.Serialize(writer, screen);
+            _serializer.Serialize(writer, control);
         }
 
-        SaveEditorState(safeName, screen);
+        SaveEditorState(control);
+    }
+
+    private string GetSafeEntryPath(string directory, string name, string extension)
+    {
+        var safeName = SafeFileNameRegex().Replace(name, "").Trim();
+        if (string.IsNullOrWhiteSpace(safeName))
+            throw new ArgumentException("Control name is not valid.", nameof(name));
+
+        var entryPath = Path.Combine(directory, $"{safeName}{extension}");
+        if (!CanonicalEntries.ContainsKey(NormalizePath(entryPath)))
+            return entryPath;
+
+        // If file with the same name already exists, add a number to the end of the name
+        for (var i = 1; i < int.MaxValue; i++)
+        {
+            var nextSafeName = $"{safeName}{i}";
+            entryPath = Path.Combine(directory, $"{nextSafeName}{extension}");
+            if (!CanonicalEntries.ContainsKey(NormalizePath(entryPath)))
+                return entryPath;
+        }
+
+        throw new InvalidOperationException("Failed to find a unique name for the control.");
     }
 
     public void Save()
@@ -315,7 +336,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         SaveTemplates();
         SaveThemes();
 
-        var appEntry = CreateEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
         {
             _serializer.Serialize(appWriter, _app);
@@ -341,8 +362,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        // For app entry name is always "1.fx.yaml"now 
-        var appEntry = GetEntry(Path.Combine(Directories.Src, Directories.Controls, AppFileName));
+        // For app entry name is always "1.fx.yaml" now 
+        var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
         if (appEntry == null)
             return null;
         var app = Deserialize<App>(appEntry);
@@ -357,7 +378,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _logger?.LogInformation("Loading top level screens from Yaml.");
 
         var screens = new Dictionary<string, Screen>();
-        foreach (var yamlEntry in GetDirectoryEntries(Path.Combine(Directories.Src, Directories.Controls), YamlFileExtension))
+        foreach (var yamlEntry in GetDirectoryEntries(Directories.Src, YamlFileExtension))
         {
             // Skip the app file
             if (yamlEntry.FullName.EndsWith(AppFileName, StringComparison.OrdinalIgnoreCase))
@@ -398,10 +419,10 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)
     {
         control.EditorState = controlEditorState;
-        if (control.Controls == null)
+        if (control.Children == null)
             return;
 
-        foreach (var child in control.Controls)
+        foreach (var child in control.Children)
         {
             if (controlEditorState.Controls == null)
                 continue;
@@ -448,9 +469,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         JsonSerializer.Serialize(writer, _appThemes, JsonSerializerOptions);
     }
 
-    private void SaveEditorState(string safeName, Control control)
+    private void SaveEditorState(Control control)
     {
-        var entry = CreateEntry(Path.Combine(Directories.Controls, $"{safeName}{JsonFileExtension}"));
+        if (control.EditorState == null)
+            return;
+        var entry = CreateEntry(GetSafeEntryPath(Directories.Controls, control.Name, JsonFileExtension));
         var topParent = new TopParentJson
         {
             TopParent = MapEditorState(control)
@@ -464,10 +487,10 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private static ControlEditorState MapEditorState(Control control)
     {
         var editorState = control.EditorState ?? new ControlEditorState(control);
-        if (control.Controls == null || control.Controls.Length == 0)
+        if (control.Children == null || control.Children.Length == 0)
             return editorState;
 
-        editorState.Controls = control.Controls.Select(MapEditorState).ToList();
+        editorState.Controls = control.Children.Select(MapEditorState).ToList();
         return editorState;
     }
 
