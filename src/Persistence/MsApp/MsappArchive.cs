@@ -211,7 +211,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = false)
+    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = true)
     {
         directoryName = NormalizePath(directoryName).TrimEnd('/');
 
@@ -359,7 +359,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         if (string.IsNullOrWhiteSpace(path))
             return string.Empty;
 
-        return path.Trim().Replace('\\', '/').ToLowerInvariant();
+        return path.Trim().Replace('\\', '/').TrimStart('/').ToLowerInvariant();
     }
 
     [GeneratedRegex("[^a-zA-Z0-9_\\- ]")]

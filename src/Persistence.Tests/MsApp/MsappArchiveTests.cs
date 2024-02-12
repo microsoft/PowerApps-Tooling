@@ -46,7 +46,7 @@ public class MsappArchiveTests : TestBase
         using var msappArchive = MsappArchiveFactory.Open(stream);
 
         // Assert
-        msappArchive.GetDirectoryEntries(directoryName, extension).Count().Should().Be(expectedCount);
+        msappArchive.GetDirectoryEntries(directoryName, extension, false).Count().Should().Be(expectedCount);
         msappArchive.GetDirectoryEntries(directoryName, extension, true).Count().Should().Be(expectedRecursiveCount);
     }
 
@@ -93,7 +93,7 @@ public class MsappArchiveTests : TestBase
             },
             new[]{
                 new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"/start-with-slash/test.json" },
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
             }
         };
     }
