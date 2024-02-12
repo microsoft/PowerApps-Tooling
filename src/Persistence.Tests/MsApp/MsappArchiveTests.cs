@@ -9,23 +9,28 @@ namespace Persistence.Tests.MsApp;
 [TestClass]
 public class MsappArchiveTests : TestBase
 {
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, 0)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, $@" \{MsappArchive.Directories.Resources}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}/", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}\", 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, "NotFound", 0)]
+    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, null, 0, 0)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, null, 1, 2)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 1, 2)]
+    [DataRow(new string[] { "abc.txt", "def.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 2, 3)]
+    [DataRow(new string[] { "abc.jpg", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 0, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, null, 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, $@"  {MsappArchive.Directories.Resources}/  ", ".txt", 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt", @$"{MsappArchive.Directories.Resources}/qwe.jpg" },
+        $@" {MsappArchive.Directories.Resources}/", ".jpg", 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}\", null, 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, "NotFound", "*.txt", 0, 0)]
     [DataRow(new string[] {"abc.txt",
         @$"{MsappArchive.Directories.Resources}\abc.txt",
-        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.Resources, 2)]
+        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.Resources, null, 2, 2)]
     [DataRow(new string[] {"abc.txt",
         @$"{MsappArchive.Directories.Resources}\abc.txt",
-        @$"{MsappArchive.Directories.Resources}/efg.txt"}, "RESOURCES", 2)]
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, "RESOURCES", null, 2, 2)]
     [DataRow(new string[] {"abc.txt",
         @$"{MsappArchive.Directories.Resources}New\abc.txt",
-        @$"{MsappArchive.Directories.Resources}/efg.txt"}, MsappArchive.Directories.Resources, 1)]
+        @$"{MsappArchive.Directories.Resources}/efg.txt"}, MsappArchive.Directories.Resources, null, 1, 1)]
     [TestMethod]
-    public void GetDirectoryEntriesTests(string[] entries, string directoryName, int expectedDirectoryCount)
+    public void GetDirectoryEntriesTests(string[] entries, string directoryName, string extension, int expectedCount, int expectedRecursiveCount)
     {
         // Arrange: Create new ZipArchive in memory
         using var stream = new MemoryStream();
@@ -41,7 +46,8 @@ public class MsappArchiveTests : TestBase
         using var msappArchive = MsappArchiveFactory.Open(stream);
 
         // Assert
-        msappArchive.GetDirectoryEntries(directoryName).Count().Should().Be(expectedDirectoryCount);
+        msappArchive.GetDirectoryEntries(directoryName, extension).Count().Should().Be(expectedCount);
+        msappArchive.GetDirectoryEntries(directoryName, extension, true).Count().Should().Be(expectedRecursiveCount);
     }
 
     [DataTestMethod]
@@ -87,7 +93,7 @@ public class MsappArchiveTests : TestBase
             },
             new[]{
                 new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
+                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"/start-with-slash/test.json" },
             }
         };
     }

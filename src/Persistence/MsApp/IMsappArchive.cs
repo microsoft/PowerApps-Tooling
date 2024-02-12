@@ -19,7 +19,7 @@ public interface IMsappArchive : IDisposable
     /// <summary>
     /// Saves control in the archive. Control can be App, Screen, or individual control.
     /// </summary>
-    void Save(Control control);
+    void Save(Control control, string? directory = null);
 
     /// <summary>
     /// Saves the archive to the given stream or file.
@@ -60,10 +60,7 @@ public interface IMsappArchive : IDisposable
     /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
-    /// <param name="directoryName"></param>
-    /// <param name="extension"></param>
-    /// <returns></returns>
-    IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null);
+    IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = false);
 
     /// <summary>
     /// Dictionary of all entries in the archive.

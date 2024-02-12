@@ -210,18 +210,22 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
-    /// <param name="directoryName"></param>
-    /// <param name="extension"></param>
     /// <returns></returns>
-    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null)
+    public IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = false)
     {
-        _ = directoryName ?? throw new ArgumentNullException(nameof(directoryName));
-
-        directoryName = NormalizePath(directoryName);
+        directoryName = NormalizePath(directoryName).TrimEnd('/');
 
         foreach (var entry in CanonicalEntries)
         {
-            if (!entry.Key.StartsWith(directoryName + '/'))
+            // Do not return directories which some zip implementations include as entries
+            if (entry.Key.EndsWith('/'))
+                continue;
+
+            if (directoryName != string.Empty && !entry.Key.StartsWith(directoryName + '/'))
+                continue;
+
+            // If not recursive, skip subdirectories
+            if (!recursive && entry.Key.IndexOf('/', directoryName.Length == 0 ? 0 : directoryName.Length + 1) > 0)
                 continue;
 
             if (extension != null && !entry.Key.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
@@ -290,11 +294,13 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
-    public void Save(Control control)
+    /// <inheritdoc/>
+    public void Save(Control control, string? directory = null)
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
-        var entry = CreateEntry(GetSafeEntryPath(Directories.Src, control.Name, YamlFxFileExtension));
+        var controlDirectory = directory == null ? Directories.Src : Path.Combine(Directories.Src, directory);
+        var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlFxFileExtension));
 
         using (var writer = new StreamWriter(entry.Open()))
         {
@@ -350,7 +356,10 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public static string NormalizePath(string path)
     {
-        return path.Trim().Replace('\\', '/').Trim('/').ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(path))
+            return string.Empty;
+
+        return path.Trim().Replace('\\', '/').ToLowerInvariant();
     }
 
     [GeneratedRegex("[^a-zA-Z0-9_\\- ]")]
