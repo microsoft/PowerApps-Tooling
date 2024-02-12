@@ -60,7 +60,7 @@ public interface IMsappArchive : IDisposable
     /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
-    IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = false);
+    IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = true);
 
     /// <summary>
     /// Dictionary of all entries in the archive.
