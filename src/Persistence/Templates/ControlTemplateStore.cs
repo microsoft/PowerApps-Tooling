@@ -13,9 +13,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 /// </summary>
 public class ControlTemplateStore : IControlTemplateStore
 {
-    private readonly SortedList<string, ControlTemplate> _controlTemplatesByName = new();
-    private readonly SortedList<string, List<ControlTemplate>> _controlTemplatesById = new();
-    private readonly SortedList<string, Type> _nameToType = new();
+    private readonly Dictionary<string, ControlTemplate> _controlTemplatesByName = new();
+    private readonly Dictionary<string, List<ControlTemplate>> _controlTemplatesById = new();
+    private readonly Dictionary<string, Type> _nameToType = new();
     private readonly Dictionary<Type, string> _typeToName = new();
     private readonly Dictionary<Type, ControlTemplate> _typeToTemplate = new();
 
