@@ -1,0 +1,7 @@
+App: 
+Name: App
+Properties:
+  Theme: PowerAppsTheme
+Children:
+- Host: 
+  Name: Host

@@ -16,6 +16,8 @@ public interface IMsappArchive : IDisposable
     /// </summary>
     App? App { get; set; }
 
+    T Deserialize<T>(string entryName, bool ensureRoundTrip = true);
+
     /// <summary>
     /// Saves control in the archive. Control can be App, Screen, or individual control.
     /// </summary>

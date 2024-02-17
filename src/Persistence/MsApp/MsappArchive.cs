@@ -208,6 +208,60 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     #region Methods
 
     /// <summary>
+    /// Deserializes the entry with the given name into an object of type T.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="entryName"></param>
+    /// <param name="ensureRoundTrip"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="PersistenceException"></exception>
+    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true)
+    {
+        if (string.IsNullOrWhiteSpace(entryName))
+            throw new ArgumentNullException(nameof(entryName));
+
+        var entry = GetRequiredEntry(entryName);
+        if (!entry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Entry {entryName} is not a yaml file.");
+
+        T result;
+        using (var reader = new StreamReader(entry.Open()))
+        {
+            result = _deserializer.Deserialize<T>(reader);
+            if (!ensureRoundTrip)
+                return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
+        }
+
+#if DEBUG
+        // Expected round trip serialization
+        using var stringWriter = new StringWriter();
+        _serializer.Serialize(stringWriter, result);
+#endif
+        // Ensure round trip serialization
+        using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
+        _serializer.Serialize(roundTripWriter, result);
+
+        return result;
+    }
+
+    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : class
+    {
+        _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
+        using var textReader = new StreamReader(archiveEntry.Open());
+        try
+        {
+            var result = _deserializer!.Deserialize(textReader) as T;
+            return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
+        }
+        catch (Exception ex)
+        {
+            throw new PersistenceException("Failed to deserialize archive entry.", ex) { FileName = archiveEntry.FullName };
+        }
+    }
+
+    /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
     /// <returns></returns>
@@ -277,21 +331,6 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _canonicalEntries.Value.Add(canonicalEntryName, entry);
 
         return entry;
-    }
-
-    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : class
-    {
-        _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
-        using var textReader = new StreamReader(archiveEntry.Open());
-        try
-        {
-            var result = _deserializer!.Deserialize(textReader) as T;
-            return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
-        }
-        catch (Exception ex)
-        {
-            throw new PersistenceException("Failed to deserialize archive entry.", ex) { FileName = archiveEntry.FullName };
-        }
     }
 
     /// <inheritdoc/>
@@ -375,7 +414,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
         if (appEntry == null)
             return null;
-        var app = Deserialize<App>(appEntry);
+        var app = Deserialize<App>(appEntry.FullName);
 
         app.Screens = LoadScreens();
 
@@ -393,7 +432,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             if (yamlEntry.FullName.EndsWith(AppFileName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var screen = Deserialize<Screen>(yamlEntry);
+            var screen = Deserialize<Screen>(yamlEntry.FullName);
             screens.Add(screen.Name, screen);
         }
 
