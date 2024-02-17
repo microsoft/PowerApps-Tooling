@@ -48,6 +48,9 @@ jobs:
     - name: Restore workloads for samples
       run: dotnet workload restore samples/samples.sln
 
+    - name: Install maui-tizen workload
+      run: dotnet workload install maui-tizen
+
     - name: Build samples
       run: dotnet build samples/samples.sln
       if: ${{ runner.os == 'Windows' }}
