@@ -1,0 +1,101 @@
+{
+  "UsedTemplates": [],
+  "PcfTemplates": [
+    {
+      "Name": "PowerApps_CoreControls_TextCanvas",
+      "Version": "0.0.21",
+      "PcfConversions": [
+        {
+          "From": "0.0.9",
+          "To": "0.0.10",
+          "Action": [
+            {
+              "Name": "Size",
+              "Type": "remove"
+            }
+          ]
+        },
+        {
+          "From": "0.0.10",
+          "To": "0.0.11",
+          "Action": [
+            {
+              "Name": "Size",
+              "Type": "add"
+            }
+          ]
+        },
+        {
+          "From": "0.0.13",
+          "To": "0.0.14",
+          "Action": [
+            {
+              "Name": "Alignment",
+              "Type": "rename",
+              "NewName": "Align"
+            },
+            {
+              "Name": "As",
+              "Type": "remove"
+            },
+            {
+              "Name": "Truncate",
+              "Type": "remove"
+            },
+            {
+              "Name": "AutoHeight",
+              "Type": "add"
+            },
+            {
+              "Name": "VerticalAlign",
+              "Type": "add"
+            }
+          ]
+        },
+        {
+          "From": "0.0.14",
+          "To": "0.0.15",
+          "Action": [
+            {
+              "Name": "OnSelect",
+              "Type": "remove"
+            },
+            {
+              "Name": "OnChange",
+              "Type": "remove"
+            }
+          ]
+        },
+        {
+          "From": "0.0.17",
+          "To": "0.0.18",
+          "Action": [
+            {
+              "Name": "Font",
+              "Type": "add"
+            },
+            {
+              "Name": "FontColor",
+              "Type": "add"
+            },
+            {
+              "Name": "Italic",
+              "Type": "rename",
+              "NewName": "FontItalic"
+            },
+            {
+              "Name": "Strikethrough",
+              "Type": "rename",
+              "NewName": "FontStrikethrough"
+            },
+            {
+              "Name": "Underline",
+              "Type": "rename",
+              "NewName": "FontUnderline"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

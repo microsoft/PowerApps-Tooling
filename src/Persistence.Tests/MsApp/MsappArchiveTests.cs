@@ -99,13 +99,24 @@ public class MsappArchiveTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 14, 1, "HelloScreen", "screen", 8)]
-    public void Msapp_ShouldHave_Screens(string testFile, int allEntriesCount, int controlsCount,
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 12, 1, "HelloScreen", "screen", 8)]
+    public void Msapp_ShouldHave_Screens(string testDirectory, int allEntriesCount, int controlsCount,
         string topLevelControlName, string topLevelControlType,
         int topLevelRulesCount)
     {
+        // Zip archive in memory from folder
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            var files = Directory.GetFiles(testDirectory, "*", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                zipArchive.CreateEntryFromFile(file, file.Substring(testDirectory.Length + 1));
+            }
+        }
+
         // Arrange & Act
-        using var msappArchive = MsappArchiveFactory.Open(testFile);
+        using var msappArchive = MsappArchiveFactory.Open(stream);
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
