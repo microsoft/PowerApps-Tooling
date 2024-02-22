@@ -6,9 +6,9 @@ Children:
 - Control: PowerApps_CoreControls_TextCanvas
   Name: TextCanvas1
   Properties:
-    Align: "'TextCanvas.Align'.Center"
+    Align: ='TextCanvas.Align'.Center
     Height: 768
     Size: 100
-    Text: '"Hello Power Apps!"'
+    Text: Hello Power Apps!
     Width: 1366
     ZIndex: 1

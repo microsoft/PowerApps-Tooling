@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public interface IYamlSerializationFactory
 {
-    ISerializer CreateSerializer();
+    ISerializer CreateSerializer(bool? isTextFirst = null);
 
-    IDeserializer CreateDeserializer();
+    IDeserializer CreateDeserializer(bool? isTextFirst = null);
 }

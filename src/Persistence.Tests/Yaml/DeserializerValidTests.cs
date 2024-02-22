@@ -10,28 +10,30 @@ namespace Persistence.Tests.Yaml;
 public class DeserializerValidTests : TestBase
 {
     [TestMethod]
-    [DataRow("I am a screen with spaces", "42")]
-    [DataRow("NoSpaces", "-50")]
-    [DataRow("Yaml : | > ", "")]
-    [DataRow("Text`~!@#$%^&*()_-+=", ":")]
-    [DataRow("Text[]{};':\",.<>?/\\|", "@")]
-    [DataRow("こんにちは", "#")]
-    [DataRow("Cos'è questo?", "---")]
-    public void Deserialize_ShouldParseSimpleStructure(string textValue, string xValue)
+    [DataRow(false, "I am a screen with spaces", "42", "71")]
+    [DataRow(true, "\"I am a screen with spaces\"", "42", "71")]
+    [DataRow(true, "NoSpaces", "-50", "=70")]
+    [DataRow(true, "Yaml : | > ", "", "  ")]
+    [DataRow(true, "Text`~!@#$%^&*()_-+=", ":", null)]
+    [DataRow(true, "Text[]{};':\",.<>?/\\|", "@", "")]
+    [DataRow(false, "こんにちは", "#", "'")]
+    [DataRow(true, "Cos'è questo?", "---", "33")]
+    public void Deserialize_ShouldParseSimpleStructure(bool isTextFirst,
+        string textValue, string xValue, string yValue)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = textValue } },
-                { "X", new() { Value = xValue } },
-                { "Y", new() { Value = "71" } },
+                { "Text", textValue },
+                { "X", xValue },
+                { "Y", yValue },
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer(isTextFirst);
         var yaml = serializer.Serialize(graph);
 
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(isTextFirst);
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -43,7 +45,7 @@ public class DeserializerValidTests : TestBase
                 .And.ContainKeys("Text", "X", "Y");
         sut.Properties["Text"].Value.Should().Be(textValue);
         sut.Properties["X"].Value.Should().Be(xValue);
-        sut.Properties["Y"].Value.Should().Be("71");
+        sut.Properties["Y"].Value.Should().Be(yValue);
     }
 
     [TestMethod]

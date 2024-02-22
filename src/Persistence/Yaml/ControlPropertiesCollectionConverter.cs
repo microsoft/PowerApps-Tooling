@@ -1,16 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using YamlDotNet.Core.Events;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NodeDeserializers;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 {
+    private NullNodeDeserializer _nullNodeDeserializer = new NullNodeDeserializer();
+    private Scalar NullScalar = new Scalar("tag:yaml.org,2002:null", string.Empty);
+
+    public bool IsTextFirst { get; set; } = true;
+
     public bool Accepts(Type type)
     {
         return type == typeof(ControlPropertiesCollection);
@@ -18,21 +24,27 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
     public object ReadYaml(IParser parser, Type type)
     {
-        var tmpDict = new Dictionary<string, ControlPropertyValue>();
+        var collection = new ControlPropertiesCollection();
 
         parser.MoveNext();
 
         while (!parser.Accept<MappingEnd>(out _))
         {
             var key = parser.Consume<Scalar>();
-            var value = parser.Consume<Scalar>();
+            var scalarValue = parser.Consume<Scalar>();
+            var value = scalarValue.Value;
+            if (scalarValue.Value == null || _nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out _))
+                value = null;
 
-            tmpDict.Add(key.Value, new ControlPropertyValue() { Value = value.Value });
+            if (IsTextFirst)
+                collection.Add(key.Value, ControlPropertyValue.FromTextFirstString(value));
+            else
+                collection.Add(key.Value, new ControlPropertyValue() { Value = value });
         }
 
         parser.MoveNext();
 
-        return new ControlPropertiesCollection(tmpDict);
+        return collection;
     }
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)
@@ -47,10 +59,27 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
         {
             emitter.Emit(new Scalar(key));
 
-#pragma warning disable CS8604 // Possible null reference argument, but valid in YAML.
             var property = collection[key];
-            emitter.Emit(new Scalar(property.Value));
-#pragma warning restore CS8604 // Possible null reference argument.
+            var propertyValue = property.Value;
+            if (IsTextFirst)
+            {
+                if (propertyValue == null)
+                {
+                    emitter.Emit(NullScalar);
+                    continue;
+                }
+
+                // String values should be quoted and anything else is formula starting with '='.
+                if (1 < propertyValue.Length && propertyValue.StartsWith('\"') && propertyValue.EndsWith('\"'))
+                    propertyValue = propertyValue[1..(propertyValue.Length - 1)];
+                else
+                    propertyValue = $"={propertyValue!}";
+            }
+
+            if (propertyValue != null && (propertyValue.Contains(" #") || propertyValue.Contains(": ") || propertyValue.Contains('\"')))
+                emitter.Emit(new Scalar(null, null, propertyValue, ScalarStyle.Literal, true, false));
+            else
+                emitter.Emit(new Scalar(propertyValue!));
         }
 
         emitter.Emit(new MappingEnd());

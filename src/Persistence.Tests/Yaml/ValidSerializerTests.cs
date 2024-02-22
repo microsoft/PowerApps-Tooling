@@ -16,7 +16,7 @@ public class ValidSerializerTests : TestBase
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
             {
-                { "Text", "I am a screen" },
+                { "Text", "\"I am a screen\"" },
             }
         );
 
@@ -57,41 +57,41 @@ public class ValidSerializerTests : TestBase
     public void Serialize_ShouldSortControlPropertiesAlphabetically()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "PropertyB", new() { Value = "B" } },
-                { "PropertyC", new() { Value = "C" } },
-                { "PropertyA", new() { Value = "A" } },
+                { "PropertyB", "B" },
+                { "PropertyC", "C" },
+                { "PropertyA", "A" },
             });
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: A{Environment.NewLine}  PropertyB: B{Environment.NewLine}  PropertyC: C{Environment.NewLine}");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: =A{Environment.NewLine}  PropertyB: =B{Environment.NewLine}  PropertyC: =C{Environment.NewLine}");
     }
 
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlWithChildNodes()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a screen" }  },
+                { "Text", "\"I am a screen\"" },
             },
             children: new Control[]
             {
                 ControlFactory.Create("Label1", template: "text",
-                    properties: new Dictionary<string, ControlPropertyValue>()
+                    properties: new()
                     {
-                        { "Text", new() { Value = "lorem ipsum" }  },
+                        { "Text", "\"lorem ipsum\"" },
                     }
                 ),
                 ControlFactory.Create("Button1", template: "button",
-                    properties: new Dictionary<string, ControlPropertyValue>()
+                    properties: new()
                     {
-                        { "Text", new() { Value = "click me" }  },
-                        { "X", new() { Value = "100" } },
-                        { "Y", new() { Value = "200" } }
+                        { "Text", "\"click me\"" },
+                        { "X", "100" },
+                        { "Y", "200" }
                     }
                 )
             }
@@ -100,16 +100,16 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: 100{Environment.NewLine}    Y: 200{Environment.NewLine}");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
     }
 
     [TestMethod]
     public void Serialize_ShouldCreateValidYamlForCustomControl()
     {
         var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a custom control" } }
+                { "Text", "\"I am a custom control\"" }
             }
         );
 
@@ -120,12 +120,12 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("ButtonCanvas", @"$""Interpolated text {User().FullName}""", @"_TestData/ValidYaml/BuiltInControl1.yaml")]
-    [DataRow("ButtonCanvas", @"Normal text", @"_TestData/ValidYaml/BuiltInControl2.yaml")]
-    [DataRow("ButtonCanvas", @"Text`~!@#$%^&*()_-+="", "":", @"_TestData/ValidYaml/BuiltInControl3.yaml")]
-    [DataRow("ButtonCanvas", @"Hello : World", @"_TestData/ValidYaml/BuiltInControl4.yaml")]
-    [DataRow("ButtonCanvas", @"Hello # World", @"_TestData/ValidYaml/BuiltInControl5.yaml")]
-    [DataRow("ButtonCanvas", @"'Hello single quoted'", @"_TestData/ValidYaml/BuiltInControl6.yaml")]
+    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml/BuiltInControl1.yaml")]
+    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml/BuiltInControl2.yaml")]
+    [DataRow("ButtonCanvas", "Text`~!@#$%^&*()_-+=\", \":", @"_TestData/ValidYaml/BuiltInControl3.yaml")]
+    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.yaml")]
+    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.yaml")]
+    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
