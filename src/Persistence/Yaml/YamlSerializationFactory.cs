@@ -17,20 +17,33 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
-    public ISerializer CreateSerializer()
+    public bool IsTextFirst { get; set; } = true;
+
+    public ISerializer CreateSerializer(bool? isTextFirst = null)
     {
         var yamlSerializer = new SerializerBuilder()
-           .WithFirstClassModels(_controlTemplateStore)
+                .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
+                .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
+                .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = (isTextFirst.HasValue ? isTextFirst.Value : IsTextFirst) })
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
            .Build();
+
         return yamlSerializer;
     }
 
-    public IDeserializer CreateDeserializer()
+    public IDeserializer CreateDeserializer(bool? isTextFirst = null)
     {
         var yamlDeserializer = new DeserializerBuilder()
            .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
-           .WithFirstClassModels(_controlTemplateStore)
+            .IgnoreUnmatchedProperties()
+            .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
+            .WithTypeDiscriminatingNodeDeserializer(o =>
+            {
+                o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
+            })
+            .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = (isTextFirst.HasValue ? isTextFirst.Value : IsTextFirst) })
            .Build();
+
         return yamlDeserializer;
     }
 }

@@ -1,4 +1,5 @@
 ButtonCanvas: 
 Name: BuiltIn Control1
 Properties:
-  Text: 'Hello : World'
+  Text: |-
+    Hello : World
