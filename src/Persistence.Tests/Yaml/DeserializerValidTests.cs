@@ -210,4 +210,31 @@ public class DeserializerValidTests : TestBase
         // Assert
         controlObj.Should().NotBeNull();
     }
+
+    [TestMethod]
+    public void Deserialize_Strings()
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/Strings.fx.yaml");
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var controlObj = deserializer.Deserialize<BuiltInControl>(yamlReader);
+
+        // Assert
+        controlObj.Should().NotBeNull();
+        controlObj.Properties.Should().NotBeNull().And.HaveCount(10);
+
+        controlObj.Properties["NormalText"].Value.Should().Be("\"This is a normal text\"");
+        controlObj.Properties["MultiLineString"].Value.Should().Be("\"This is a multi-line\nstring\"");
+        controlObj.Properties["NothingString"].Value.Should().BeNull();
+        controlObj.Properties["NullTilde"].Value.Should().BeNull();
+        controlObj.Properties["NullAsString"].Value.Should().NotBeNull().And.Be("\"null\"");
+        controlObj.Properties["NullString"].Value.Should().BeNull();
+        controlObj.Properties["EmptyString"].Value.Should().NotBeNull().And.Be("\"\"");
+        controlObj.Properties["WhiteSpaceString"].Value.Should().NotBeNull().And.Be("\" \"");
+        controlObj.Properties["NormalTextAgain"].Value.Should().Be("\"This is a normal text\"");
+        controlObj.Properties["Formula"].Value.Should().Be("1+1");
+    }
 }

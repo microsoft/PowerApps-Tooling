@@ -31,10 +31,9 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
         while (!parser.Accept<MappingEnd>(out _))
         {
             var key = parser.Consume<Scalar>();
-            var scalarValue = parser.Consume<Scalar>();
-            var value = scalarValue.Value;
-            if (scalarValue.Value == null || _nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out _))
-                value = null;
+            string? value = null;
+            if (!_nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out var _))
+                value = parser.Consume<Scalar>().Value;
 
             if (IsTextFirst)
                 collection.Add(key.Value, ControlPropertyValue.FromTextFirstString(value));
