@@ -15,13 +15,17 @@ internal class ExampleAppGenerator
 {
     // This produces a simple example app including the specified number of screens and a few generic controls
     // This is intended for testing purposes only
-    public static App GetExampleApp(IServiceProvider provider, string appName)
+    public static App GetExampleApp(IServiceProvider provider, string appName, int numScreens)
     {
         var controlFactory = provider.GetRequiredService<IControlFactory>();
 
-        var label1 = controlFactory.Create("Label1", template: "Label",
-            properties: new()
-            {
+        var app = controlFactory.CreateApp(appName);
+
+        for (var i = 0; i < numScreens; i++)
+        {
+            var label1 = controlFactory.Create("Label1", template: "Label",
+                properties: new()
+                {
                 { "Align", "Align.Center" },
                 { "BorderColor", "RGBA(0, 18, 107, 1)" },
                 { "Color", "RGBA(0, 0, 0, 1)" },
@@ -33,11 +37,11 @@ internal class ExampleAppGenerator
                 { "ZIndex", "1" },
                 { "Text", @"""This app was created in .Net with YAML""" },
                 { "Width", "Parent.Width" }
-            }
-        );
-        var button1 = controlFactory.Create("Button1", template: "Button",
-            properties: new()
-            {
+                }
+            );
+            var button1 = controlFactory.Create("Button1", template: "Button",
+                properties: new()
+                {
                 { "DisabledBorderColor", "RGBA(166, 166, 166, 1)" },
                 { "DisabledColor", "RGBA(166, 166, 166, 1)" },
                 { "DisabledFill", "RGBA(244, 244, 244, 1)" },
@@ -49,12 +53,12 @@ internal class ExampleAppGenerator
                 { "Size", "15" },
                 { "Text", @"""Click me!""" },
                 { "ZIndex", "2" },
-            }
-        );
+                }
+            );
 
-        var groupContainer = controlFactory.Create("GroupContainer", template: "GroupContainer",
-            properties: new()
-            {
+            var groupContainer = controlFactory.Create("GroupContainer", template: "GroupContainer",
+                properties: new()
+                {
                 { "DropShadow", "DropShadow.Light" },
                 { "LayoutAlignItems", "LayoutAlignItems.Center" },
                 { "LayoutDirection", "LayoutDirection.Vertical" },
@@ -66,15 +70,16 @@ internal class ExampleAppGenerator
                 { "RadiusTopRight", "4" },
                 { "Width", "App.Width" },
                 { "ZIndex", "1" },
-            },
-            children: [label1, button1]
-        );
+                },
+                children: [label1, button1]
+            );
 
-        var graph = controlFactory.CreateScreen("Hello from .Net",
-            children: [groupContainer]
-        );
-        var app = controlFactory.CreateApp(appName);
-        app.Screens.Add(graph);
+            var graph = controlFactory.CreateScreen("Hello from .Net",
+                children: [groupContainer]
+            );
+
+            app.Screens.Add(graph);
+        }
 
         return app;
     }
