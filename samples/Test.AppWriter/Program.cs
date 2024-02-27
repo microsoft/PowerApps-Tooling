@@ -18,34 +18,67 @@ internal class Program
         return serviceProvider;
     }
 
-    private static void Main(string fullPathToMsApp)
+    private static void Main(string msAppPath, int numScreens)
     {
+        //var msAppPath = args.Length > 0 ? args[0] : null;
+        //if (msAppPath == null)
+        //{
+        //    Console.WriteLine("No args provided, using default file path");
+        //    msAppPath = Path.Combine(Directory.GetCurrentDirectory(), "CanvasApp.msapp");
+        //    Console.WriteLine(msAppPath);
+        //}
+
+        try
+        {
+            var fileCheck = new FileInfo(msAppPath);
+            if (File.Exists(msAppPath)) // Overwrite
+            {
+                Console.WriteLine("Warning: File already exists");
+                Console.WriteLine("Provided path: " + msAppPath);
+                Console.Write("    Overwrite? (y / n): ");
+                var input = Console.ReadLine();
+                if (input?.ToLower()[0] == 'y') File.Delete(msAppPath);
+                else
+                {
+                    Console.WriteLine("Exiting");
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Creating MSApp at filepath: " + fileCheck.FullName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Filepath invalid: " + ex);
+            return;
+        }
+
         // Setup services for creating MSApp representation
         var provider = ConfigureServiceProvider();
 
-        //var fullPathToMsApp = args.Length > 0 ? args[0] : null;
-        //if (fullPathToMsApp == null)
+        // Create a new empty MSApp
+        using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(msAppPath);
+
+        // do interactive session
+        //var inProgress = true;
+        //while (inProgress)
         //{
-        //    Console.WriteLine("No args provided, using default file path");
-        //    fullPathToMsApp = Path.Combine(Directory.GetCurrentDirectory(), "CanvasApp.msapp");
-        //    Console.WriteLine(fullPathToMsApp);
+        //    Console.Write("Create new Screen? (y/n): ");
+        //    var input = Console.ReadLine();
+        //    if (input?.ToLower()[0] == 'y') { } // do custom controls creation
+        //    else
+        //    {
+        //        Console.Write("Create new Screen? (y/n): ");
+        //    }
         //}
 
-        if (File.Exists(fullPathToMsApp)) // Overwrite
-        {
-            Console.WriteLine("Warning: File already exists;  Overwrite? (y / n)");
-            var input = Console.ReadLine();
-            if (input?.ToLower()[0] == 'y') File.Delete(fullPathToMsApp);
-        }
-
-        // Create a new empty MSApp
-        using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
-
-
         // Add a basic example app (note: this will be replaced with interactive process)
-        msapp.App = ExampleAppGenerator.GetExampleApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp));
+        msapp.App = ExampleAppGenerator.GetExampleApp(provider, Path.GetFileNameWithoutExtension(msAppPath), numScreens);
 
         // Output the MSApp to the path provided
         msapp.Save();
+        Console.WriteLine("Success!  MSApp generated and saved to the provided path");
     }
 }
