@@ -31,8 +31,10 @@ internal class Program
             {
                 { "Align", "Align.Center" },
                 { "BorderColor", "RGBA(0, 18, 107, 1)" },
-                { "Color", "RGBA(0, 0, 0, 1)" },
+                { "Color", "RGBA(255, 255, 255, 1)" },
+                { "Fill", "RGBA(116, 39, 116, 1)" },
                 { "DisabledColor", "RGBA(166, 166, 166, 1)" },
+                { "HoverColor", "RGBA(255, 255, 255, 1)" },
                 { "Height", "100" },
                 { "PaddingBottom", "20" },
                 { "PaddingTop", "20" },
@@ -45,6 +47,7 @@ internal class Program
         var button1 = controlFactory.Create("Button1", template: "Button",
             properties: new()
             {
+                { "Color", "RGBA(255, 255, 255, 1)" },
                 { "DisabledBorderColor", "RGBA(166, 166, 166, 1)" },
                 { "DisabledColor", "RGBA(166, 166, 166, 1)" },
                 { "DisabledFill", "RGBA(244, 244, 244, 1)" },
@@ -63,6 +66,7 @@ internal class Program
             properties: new()
             {
                 { "DropShadow", "DropShadow.Light" },
+                { "Fill", "RGBA(116, 39, 116, 1)" },
                 { "LayoutAlignItems", "LayoutAlignItems.Center" },
                 { "LayoutDirection", "LayoutDirection.Vertical" },
                 { "LayoutJustifyContent", "LayoutJustifyContent.Center" },
@@ -114,5 +118,7 @@ internal class Program
 
         // Output the MSApp to the path provided
         msapp.Save();
+
+        Console.WriteLine($"MsApp file created: {fullPathToMsApp}");
     }
 }

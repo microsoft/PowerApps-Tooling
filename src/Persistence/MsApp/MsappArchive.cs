@@ -48,8 +48,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private App? _app;
     private Header? _header;
     private AppProperties? _appProperties;
-    private AppTemplates? _appTemplates;
-    private AppThemes? _appThemes;
+    // private AppTemplates? _appTemplates;
+    // private AppThemes? _appThemes;
 
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
@@ -198,8 +198,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             _app = value;
             _header = _app != null ? new Header() : null;
             _appProperties = _app != null ? new AppProperties() : null;
-            _appTemplates = _app != null ? new AppTemplates() : null;
-            _appThemes = _app != null ? new AppThemes() : null;
+            // _appTemplates = _app != null ? new AppTemplates() : null;
+            // _appThemes = _app != null ? new AppThemes() : null;
         }
     }
 
@@ -378,8 +378,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         SaveHeader();
         SaveProperties();
-        SaveTemplates();
-        SaveThemes();
+        //SaveTemplates();
+        //SaveThemes();
 
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
@@ -501,6 +501,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         JsonSerializer.Serialize(writer, _appProperties, JsonSerializerOptions);
     }
 
+    /*
     private void SaveTemplates()
     {
         var entry = CreateEntry(TemplatesFileName);
@@ -516,6 +517,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
         JsonSerializer.Serialize(writer, _appThemes, JsonSerializerOptions);
     }
+    */
 
     private void SaveEditorState(Control control)
     {
