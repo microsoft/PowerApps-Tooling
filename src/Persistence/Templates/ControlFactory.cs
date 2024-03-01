@@ -37,10 +37,15 @@ public class ControlFactory : IControlFactory
     {
         if (_controlTemplateStore.TryGetControlTypeByName(template.Name, out var controlType))
         {
-            var controlObj = Activator.CreateInstance(controlType, name, _controlTemplateStore);
-            return controlObj == null
-                ? throw new InvalidOperationException($"Failed to create control of type {controlType.Name}.")
-                : (Control)controlObj;
+            var instance = Activator.CreateInstance(controlType, name, _controlTemplateStore);
+            if (instance is not Control control)
+                throw new InvalidOperationException($"Failed to create control of type {controlType.Name}.");
+
+            if (properties is not null)
+                foreach (var prop in properties)
+                    control.Properties.Add(prop.Key, prop.Value);
+
+            return control;
         }
 
         throw new InvalidOperationException($"Unknown template name '{template.Name}'.");
