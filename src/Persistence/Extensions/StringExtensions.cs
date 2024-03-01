@@ -9,6 +9,8 @@ public static class StringExtensions
         if (string.IsNullOrWhiteSpace(input))
             return input;
 
-        return string.Concat(input[0].ToString().ToUpper(), input.AsSpan(1));
+        var first = char.ToUpper(input[0]);
+        var rest = input.AsSpan(1);
+        return string.Concat(new ReadOnlySpan<char>(first), rest);
     }
 }
