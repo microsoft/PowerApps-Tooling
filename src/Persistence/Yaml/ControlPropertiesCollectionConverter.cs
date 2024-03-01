@@ -12,8 +12,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 {
-    private NullNodeDeserializer _nullNodeDeserializer = new NullNodeDeserializer();
-    private Scalar NullScalar = new Scalar("tag:yaml.org,2002:null", string.Empty);
+    private readonly NullNodeDeserializer _nullNodeDeserializer = new();
+    private readonly Scalar NullScalar = new("tag:yaml.org,2002:null", string.Empty);
 
     public bool IsTextFirst { get; set; } = true;
 

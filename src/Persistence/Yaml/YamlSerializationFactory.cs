@@ -17,14 +17,19 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
-    public bool IsTextFirst { get; set; } = true;
-
     public ISerializer CreateSerializer(bool? isTextFirst = null)
     {
+        return CreateSerializer(new YamlSerializerOptions { IsTextFirst = isTextFirst ?? YamlSerializerOptions.Default.IsTextFirst });
+    }
+
+    public ISerializer CreateSerializer(YamlSerializerOptions? options)
+    {
+        options ??= YamlSerializerOptions.Default;
+
         var yamlSerializer = new SerializerBuilder()
                 .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
                 .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
-                .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = (isTextFirst.HasValue ? isTextFirst.Value : IsTextFirst) })
+                .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
            .Build();
 
@@ -33,6 +38,13 @@ public class YamlSerializationFactory : IYamlSerializationFactory
 
     public IDeserializer CreateDeserializer(bool? isTextFirst = null)
     {
+        return CreateDeserializer(new YamlDeserializerOptions { IsTextFirst = isTextFirst ?? YamlDeserializerOptions.Default.IsTextFirst });
+    }
+
+    public IDeserializer CreateDeserializer(YamlDeserializerOptions? options)
+    {
+        options ??= YamlDeserializerOptions.Default;
+
         var yamlDeserializer = new DeserializerBuilder()
            .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
             .IgnoreUnmatchedProperties()
@@ -41,7 +53,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             {
                 o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
             })
-            .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = (isTextFirst.HasValue ? isTextFirst.Value : IsTextFirst) })
+            .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
            .Build();
 
         return yamlDeserializer;
