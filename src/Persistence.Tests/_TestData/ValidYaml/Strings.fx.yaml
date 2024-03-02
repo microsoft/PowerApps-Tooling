@@ -12,4 +12,8 @@ Properties:
   EmptyString: ''
   WhiteSpaceString: ' '
   NormalTextAgain: This is a normal text
+  StartsWithEquals: ="=This string starts with equals"
+  StartsWithEqualsMultiLine: |-
+    ="=This is a multi-line
+    starts with equals"
   Formula: =1+1

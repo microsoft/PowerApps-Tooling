@@ -14,7 +14,7 @@ public class DeserializerValidTests : TestBase
     [DataRow(true, "\"I am a screen with spaces\"", "42", "71")]
     [DataRow(true, "NoSpaces", "-50", "=70")]
     [DataRow(true, "Yaml : | > ", "", "  ")]
-    [DataRow(true, "Text`~!@#$%^&*()_-+=", ":", null)]
+    [DataRow(true, "Text`~!@#$%^&*()_-+=", ":", "\"\"")]
     [DataRow(true, "Text[]{};':\",.<>?/\\|", "@", "")]
     [DataRow(false, "こんにちは", "#", "'")]
     [DataRow(true, "Cos'è questo?", "---", "33")]
@@ -224,17 +224,19 @@ public class DeserializerValidTests : TestBase
 
         // Assert
         controlObj.Should().NotBeNull();
-        controlObj.Properties.Should().NotBeNull().And.HaveCount(10);
+        controlObj.Properties.Should().NotBeNull().And.HaveCount(12);
 
         controlObj.Properties["NormalText"].Value.Should().Be("\"This is a normal text\"");
         controlObj.Properties["MultiLineString"].Value.Should().Be("\"This is a multi-line\nstring\"");
-        controlObj.Properties["NothingString"].Value.Should().BeNull();
-        controlObj.Properties["NullTilde"].Value.Should().BeNull();
+        controlObj.Properties["NothingString"].Value.Should().NotBeNull().And.Be("\"\"");
+        controlObj.Properties["NullTilde"].Value.Should().NotBeNull().And.Be("\"\"");
         controlObj.Properties["NullAsString"].Value.Should().NotBeNull().And.Be("\"null\"");
-        controlObj.Properties["NullString"].Value.Should().BeNull();
+        controlObj.Properties["NullString"].Value.Should().NotBeNull().And.Be("\"\"");
         controlObj.Properties["EmptyString"].Value.Should().NotBeNull().And.Be("\"\"");
         controlObj.Properties["WhiteSpaceString"].Value.Should().NotBeNull().And.Be("\" \"");
         controlObj.Properties["NormalTextAgain"].Value.Should().Be("\"This is a normal text\"");
+        controlObj.Properties["StartsWithEquals"].Value.Should().Be("\"=This string starts with equals\"");
+        controlObj.Properties["StartsWithEqualsMultiLine"].Value.Should().Be("\"=This is a multi-line\nstarts with equals\"");
         controlObj.Properties["Formula"].Value.Should().Be("1+1");
     }
 }

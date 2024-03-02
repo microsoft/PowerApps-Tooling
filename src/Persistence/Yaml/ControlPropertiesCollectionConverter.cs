@@ -69,8 +69,10 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
                 }
 
                 // String values should be quoted and anything else is formula starting with '='.
-                if (1 < propertyValue.Length && propertyValue.StartsWith('\"') && propertyValue.EndsWith('\"'))
+                if (1 < propertyValue.Length && propertyValue.StartsWith('\"') && propertyValue.EndsWith('\"') && !propertyValue.StartsWith("\"="))
+                {
                     propertyValue = propertyValue[1..(propertyValue.Length - 1)];
+                }
                 else
                     propertyValue = $"={propertyValue!}";
             }

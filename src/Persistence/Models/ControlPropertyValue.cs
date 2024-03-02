@@ -20,7 +20,7 @@ public sealed record ControlPropertyValue
     public static ControlPropertyValue FromTextFirstString(string? value)
     {
         if (value == null)
-            return new ControlPropertyValue();
+            return new ControlPropertyValue($"\"\"");
 
         // If the value starts with the formula prefix, then it is a formula.
         if (value.StartsWith(FormulaPrefix))
