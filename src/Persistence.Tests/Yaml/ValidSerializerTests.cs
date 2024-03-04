@@ -126,6 +126,7 @@ public class ValidSerializerTests : TestBase
     [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.yaml")]
     [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.yaml")]
     [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.yaml")]
+    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml/BuiltInControl7.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
