@@ -117,7 +117,7 @@ internal class Program
         //    );
         var filePathOption = new Option<FileInfo?>(
             name: "--filepath",
-            description: "",
+            description: "(string) The path where the msapp file should be generated, including filename and extension",
             isDefault: true,
             parseArgument: result =>
             {
@@ -156,7 +156,7 @@ internal class Program
             );
         var numScreensOption = new Option<int>(
             name: "--numscreens",
-            description: "",
+            description: "(integer) The number of screens to generate in the App",
             isDefault: true,
             parseArgument: result =>
             {
@@ -182,7 +182,7 @@ internal class Program
             );
         var controlsOptions = new Option<string[]>(
             name: "--controls",
-            description: "")
+            description: "(list of string) A list of control name and template pairs (i.e. mybutton Button labelname Label [controlname Template]...)")
         { AllowMultipleArgumentsPerToken = true };
 
 
