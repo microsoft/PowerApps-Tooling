@@ -13,6 +13,18 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 namespace Test.AppWriter;
 internal class ExampleAppGenerator
 {
+    public static List<(string, string)> ParseControlsInfo(string[] controlsinfo)
+    {
+        var tuples = new List<(string, string)>();
+
+        for (var i = 0; i < controlsinfo.Length; i += 2)
+        {
+            tuples.Add((controlsinfo[i], controlsinfo[i + 1]));
+        }
+
+        return tuples;
+    }
+
     // This produces a simple example app including the specified number of screens and a few generic controls
     // This is intended for testing purposes only
     public static App GetExampleApp(IServiceProvider provider, string appName, int numScreens)
@@ -79,6 +91,29 @@ internal class ExampleAppGenerator
             );
 
             app.Screens.Add(graph);
+        }
+
+        return app;
+    }
+
+    // produce a specified app based on commandline input
+    public static App CreateApp(IServiceProvider provider, string appName, int numScreens, List<(string, string)> controls)
+    {
+        var controlFactory = provider.GetRequiredService<IControlFactory>();
+
+        var app = controlFactory.CreateApp(appName);
+
+        for (var i = 0; i < numScreens; i++)
+        {
+            var childlist = new List<Control>();
+            foreach (var control in controls)
+            {
+                childlist.Add(controlFactory.Create(control.Item1, template: control.Item2,
+                    properties: new()
+                ));
+            }
+
+            app.Screens.Add(controlFactory.CreateScreen("Hello from .Net", children: childlist.ToArray()));
         }
 
         return app;
