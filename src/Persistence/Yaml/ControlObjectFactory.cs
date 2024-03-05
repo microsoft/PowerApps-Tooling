@@ -25,6 +25,7 @@ public class ControlObjectFactory : IObjectFactory
     {
         if (_controlTemplateStore.TryGetByType(type, out var controlTemplate))
         {
+            // all fields will be overwritten by the deserializer
             return _controlFactory.Create(controlTemplate.Name, controlTemplate);
         }
 

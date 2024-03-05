@@ -12,4 +12,5 @@ public static class BuiltInTemplates
     public const string App = "AppInfo";
     public const string Host = "HostControl";
     public const string Screen = "Screen";
+    public const string Component = "Component";
 }

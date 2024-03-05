@@ -239,4 +239,27 @@ public class DeserializerValidTests : TestBase
         controlObj.Properties["StartsWithEqualsMultiLine"].Value.Should().Be("\"=This is a multi-line\nstarts with equals\"");
         controlObj.Properties["Formula"].Value.Should().Be("1+1");
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Component.fx.yaml", "MyCustomComponent")]
+    public void Deserialize_Component_ShouldSucceed(string path, string expectedName)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var result = deserializer.Deserialize(yamlReader);
+        result.Should().BeAssignableTo<Component>();
+
+        // Assert
+        var component = (Component)result!;
+        component.Name.Should().Be(expectedName);
+        component.Template.Should().NotBeNull();
+        component.Template!.Name.Should().Be("Component");
+        component.Template.Id.Should().Be("http://microsoft.com/appmagic/Component");
+    }
+
+
 }
