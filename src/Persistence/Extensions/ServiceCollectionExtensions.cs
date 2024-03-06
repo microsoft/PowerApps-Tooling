@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         store.Add(new ControlTemplate { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new ControlTemplate { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
         store.Add(new ControlTemplate { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
+        store.Add(new ControlTemplate { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
     }
 
     private static void AddDefaultTemplates(ControlTemplateStore store)

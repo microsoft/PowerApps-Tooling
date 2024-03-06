@@ -12,6 +12,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [YamlSerializable]
 public record Component : Control
 {
+    protected Component() { }
+
     /// <summary>
     /// Default constructor.
     /// </summary>
