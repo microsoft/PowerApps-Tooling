@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
