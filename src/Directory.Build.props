@@ -9,6 +9,7 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
+        <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>        
     </PropertyGroup>
 
     <ItemGroup Label="Global usings">
