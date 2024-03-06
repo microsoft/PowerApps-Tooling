@@ -241,8 +241,13 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Component.fx.yaml", "MyCustomComponent")]
-    public void Deserialize_Component_ShouldSucceed(string path, string expectedName)
+    [DataRow(@"_TestData/ValidYaml/Component.fx.yaml", "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
+    [DataRow(@"_TestData/ValidYaml/CommandComponent.fx.yaml", "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    public void Deserialize_Component_ShouldSucceed(
+        string path,
+        string expectedName,
+        string expectedTemplateName,
+        string expectedTemplateId)
     {
         // Arrange
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
@@ -257,8 +262,8 @@ public class DeserializerValidTests : TestBase
         var component = (Component)result!;
         component.Name.Should().Be(expectedName);
         component.Template.Should().NotBeNull();
-        component.Template!.Name.Should().Be("Component");
-        component.Template.Id.Should().Be("http://microsoft.com/appmagic/Component");
+        component.Template!.Name.Should().Be(expectedTemplateName);
+        component.Template.Id.Should().Be(expectedTemplateId);
     }
 
 
