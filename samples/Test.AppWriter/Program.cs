@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
@@ -11,12 +10,6 @@ namespace Test.AppWriter;
 
 internal class Program
 {
-    //    private struct ControlsInfo
-    //    {
-    //        public int numScreens;
-    //        public string[] controls;
-    //    };
-
     // Configures default services for generating the MSApp representation
     private static IServiceProvider ConfigureServiceProvider()
     {
@@ -24,6 +17,36 @@ internal class Program
         serviceCollection.AddPowerAppsPersistence(true);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         return serviceProvider;
+    }
+    private static FileInfo? ValidateFilePath(string filepath)
+    {
+        try
+        {
+            var fileCheck = new FileInfo(filepath);
+            if (File.Exists(filepath)) // Overwrite
+            {
+                Console.WriteLine("Warning: File already exists");
+                Console.WriteLine("Provided path: " + fileCheck.FullName);
+                Console.Write("    Overwrite? (y / n): ");
+                var input = Console.ReadLine();
+                if (input?.ToLower()[0] == 'y') File.Delete(filepath);
+                else
+                {
+                    Console.WriteLine("Exiting");
+                    return null;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Creating MSApp at filepath: " + fileCheck.FullName);
+            }
+            return fileCheck;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Filepath invalid: " + ex);
+            return null;
+        }
     }
 
     private static void CreateMSApp(string fullPathToMsApp, int numScreens)
@@ -57,7 +80,8 @@ internal class Program
         }
         else
         {
-            msapp.App = ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp), numScreens, ExampleAppGenerator.ParseControlsInfo(controlsinfo));
+            msapp.App = ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp),
+                numScreens, ExampleAppGenerator.ParseControlsInfo(controlsinfo));
         }
 
         // Output the MSApp to the path provided
@@ -67,14 +91,10 @@ internal class Program
 
     private static void Main(string[] args)
     {
-        //var = new Option<>(
-        //    name: "",
-        //    description: ""
-        //    );
         var interactiveOption = new Option<bool>(
             name: "--interactive",
             description: "Enables interactive mode for MSApp creation",
-            getDefaultValue: () => true
+            getDefaultValue: () => false // If --interactive is not specified, default to argument based creation
             );
         var filePathOption = new Option<FileInfo?>(
             name: "--filepath",
@@ -82,14 +102,16 @@ internal class Program
             parseArgument: result =>
             {
                 var filepath = result.Tokens.Single().Value;
-                try
+
+                var file = ValidateFilePath(filepath);
+
+                if (file != null)
                 {
-                    var fileinfo = new FileInfo(filepath);
-                    return fileinfo;
+                    return file;
                 }
-                catch (Exception ex)
+                else
                 {
-                    result.ErrorMessage = "Invalid filepath: " + ex.ToString();
+                    result.ErrorMessage = "Filepath validation failed.";
                     return null;
                 }
             }
