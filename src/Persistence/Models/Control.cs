@@ -59,7 +59,7 @@ public abstract record Control
 
     /// <summary>
     /// list of child controls nested under this control.
-    /// </summary>    
+    /// </summary>
     [YamlMember(Order = 3)]
     [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
     public Control[] Children { get => _children; init => _children = value; }
@@ -71,7 +71,7 @@ public abstract record Control
     public required ControlTemplate Template { get; init; }
 
     [OnDeserialized]
-    internal void PostDeserialize()
+    internal void AfterDeserialize()
     {
         // Apply a descending ZIndex value for each child
         if (Children == null)
@@ -88,7 +88,7 @@ public abstract record Control
     }
 
     [OnSerializing]
-    internal void PreSerialize()
+    internal void BeforeSerialize()
     {
         // Children should be sorted by ZIndex (which DocServer doesn't perform), and
         // the ZIndex property should be removed as the user should only "set" this value
