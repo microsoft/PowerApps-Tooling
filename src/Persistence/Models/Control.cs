@@ -83,7 +83,7 @@ public abstract record Control
         for (var i = 0; i < Children.Length; i++)
         {
             var zIndex = Children.Length - i;
-            Children[i].Properties.Set("ZIndex", new(zIndex.ToString(CultureInfo.InvariantCulture)) { IsFormula = false });
+            Children[i].Properties.Set(PropertyNames.ZIndex, new(zIndex.ToString(CultureInfo.InvariantCulture)) { IsFormula = false });
         }
     }
 
@@ -102,13 +102,13 @@ public abstract record Control
             .ToArray();
 
         static int getZIndex(Control child) =>
-            child.Properties.TryGetValue("ZIndex", out var prop) && int.TryParse(prop.Value, out var zIndex)
+            child.Properties.TryGetValue(PropertyNames.ZIndex, out var prop) && int.TryParse(prop.Value, out var zIndex)
                 ? zIndex
                 : int.MaxValue;
 
         static Control removeZIndexProperty(Control child)
         {
-            child.Properties.Remove("ZIndex");
+            child.Properties.Remove(PropertyNames.ZIndex);
             return child;
         }
     }

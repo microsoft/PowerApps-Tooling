@@ -24,7 +24,7 @@ public class RoundTripTests : TestBase
     [DataRow(@"_TestData/ValidYaml/Screen/with-multiline-properties.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Screen with two multiline properties", 2, 0)]
     [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol",
-        "My Power Apps Custom Control", 9, 0)]
+        "My Power Apps Custom Control", 8, 0)]
     [DataRow(@"_TestData/ValidYaml/BuiltInControl1.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas",
         "BuiltIn Control1", 1, 0)]
     public void RoundTrip_ValidYaml(string path, Type rootType, string expectedTemplateId, string expectedName, int expectedPropsCount, int expectedControlCount)

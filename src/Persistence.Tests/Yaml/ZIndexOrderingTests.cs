@@ -58,7 +58,7 @@ public class ZIndexOrderingTests : TestBase
         return ControlFactory.Create($"Label{i}", template: "text",
             new Dictionary<string, ControlPropertyValue>()
             {
-                { "ZIndex", new() {Value = i.ToString()} },
+                { PropertyNames.ZIndex, new() {Value = i.ToString()} },
             });
     }
 }
