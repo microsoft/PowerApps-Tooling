@@ -6,15 +6,16 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Test.AppWriter;
+
 internal class ExampleAppGenerator
 {
-    public static List<(string, string)> ParseControlsInfo(string[] controlsinfo)
+    public static List<(string, string)> ParseControlsInfo(string[] controlInfos)
     {
         var tuples = new List<(string, string)>();
 
-        for (var i = 0; i < controlsinfo.Length; i += 2)
+        for (var i = 0; i < controlInfos.Length; i += 2)
         {
-            tuples.Add((controlsinfo[i], controlsinfo[i + 1]));
+            tuples.Add((controlInfos[i], controlInfos[i + 1]));
         }
 
         return tuples;
@@ -100,15 +101,15 @@ internal class ExampleAppGenerator
 
         for (var i = 0; i < numScreens; i++)
         {
-            var childlist = new List<Control>();
+            var childList = new List<Control>();
             foreach (var control in controls)
             {
-                childlist.Add(controlFactory.Create(control.Item1, template: control.Item2,
+                childList.Add(controlFactory.Create(control.Item1, template: control.Item2,
                     properties: new()
                 ));
             }
 
-            app.Screens.Add(controlFactory.CreateScreen("Hello from .Net", children: childlist.ToArray()));
+            app.Screens.Add(controlFactory.CreateScreen("Hello from .Net", children: childList.ToArray()));
         }
 
         return app;
