@@ -1,6 +1,5 @@
-// <copyright company="Microsoft">
-// Copyright (c) Microsoft. All rights reserved.
-// </copyright>
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 // This is pipeline generated file. Do not modify. This will be replaced with the actual versions in the actual Pipeline.
 using System.Reflection;

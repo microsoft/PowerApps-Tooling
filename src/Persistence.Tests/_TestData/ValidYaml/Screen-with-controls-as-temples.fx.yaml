@@ -15,7 +15,6 @@ Children:
     Width: 560
     X: 30
     Y: 308
-    ZIndex: 2
 - Button:
   Name: Button with no template
   Properties:
@@ -31,4 +30,3 @@ Children:
     Width: 280
     X: 170
     Y: 464
-    ZIndex: 1

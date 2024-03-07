@@ -1,0 +1,15 @@
+Screen: 
+Name: Screen1
+Properties:
+  Text: I am a screen
+Children:
+- Text: 
+  Name: Label5
+- Text: 
+  Name: Label4
+- Text: 
+  Name: Label3
+- Text: 
+  Name: Label2
+- Text: 
+  Name: Label1

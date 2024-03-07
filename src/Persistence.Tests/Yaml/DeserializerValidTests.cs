@@ -92,16 +92,16 @@ public class DeserializerValidTests : TestBase
         sut.Children![0].Name.Should().Be("Label1");
         sut.Children![0].TemplateId.Should().Be("http://microsoft.com/appmagic/text");
         sut.Children![0].Properties.Should().NotBeNull()
-                .And.HaveCount(1)
-                .And.ContainKey("Text");
+                .And.HaveCount(2)
+                .And.ContainKeys("Text", PropertyNames.ZIndex);
         sut.Children![0].Properties["Text"].Value.Should().Be("lorem ipsum");
 
         sut.Children![1].Should().BeOfType<BuiltInControl>();
         sut.Children![1].Name.Should().Be("Button1");
         sut.Children![1].TemplateId.Should().Be("http://microsoft.com/appmagic/button");
         sut.Children![1].Properties.Should().NotBeNull()
-                .And.HaveCount(3)
-                .And.ContainKeys("Text", "X", "Y");
+                .And.HaveCount(4)
+                .And.ContainKeys("Text", "X", "Y", PropertyNames.ZIndex);
         sut.Children![1].Properties["Text"].Value.Should().Be("click me");
         sut.Children![1].Properties["X"].Value.Should().Be("100");
         sut.Children![1].Properties["Y"].Value.Should().Be("200");
@@ -152,7 +152,7 @@ public class DeserializerValidTests : TestBase
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
     [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 9)]
+    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
     [DataRow(@"_TestData/ValidYaml/Screen/with-template-id.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
     [DataRow(@"_TestData/ValidYaml/Screen/with-template-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
     [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
