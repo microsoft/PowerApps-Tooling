@@ -74,15 +74,10 @@ internal class Program
         // Create a new empty MSApp
         using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
-        if (interactive)
-        {
-            msapp.App = InteractiveAppGenerator.GenerateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp));
-        }
-        else
-        {
-            msapp.App = ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp),
+        msapp.App = interactive
+            ? InteractiveAppGenerator.GenerateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp))
+            : ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp),
                 numScreens, ExampleAppGenerator.ParseControlsInfo(controlsinfo));
-        }
 
         // Output the MSApp to the path provided
         msapp.Save();
