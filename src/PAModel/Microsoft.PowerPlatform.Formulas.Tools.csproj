@@ -27,21 +27,10 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <PublicSign>true</PublicSign>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <NoWarn>$(NoWarn);NU1601</NoWarn>
   </PropertyGroup>
-
-  <Target Name="SetAssemblyVersion" AfterTargets="MinVer">
-    <PropertyGroup>
-      <AssemblyVersion>$(MinVer)</AssemblyVersion>
-      <FileVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</FileVersion>
-      <InformationalVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)-$(MinVerPreRelease)$(MinVerBuildMetadata)</InformationalVersion>
-      <PackageVersion>$(MinVerVersion)</PackageVersion>
-      <PackageVersion Condition=" '$(Configuration)' == 'Debug' ">$(PackageVersion)-Debug</PackageVersion>
-    </PropertyGroup>
-  </Target>
 
   <ItemGroup>
     <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
@@ -59,13 +48,6 @@
     <PackageReference Include="System.Text.Json" Version="[6.0,)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
-  </ItemGroup>
-    
-  <ItemGroup Condition="'$(GitExists)' == true">
-    <PackageReference Include="MinVer" Version="$(MinVerVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
     
   <ItemGroup>

@@ -9,8 +9,14 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
-        <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>        
+        <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\.version\PipelineAssemblyInfo.cs">
+            <Link>Properties\PipelineAssemblyInfo.cs</Link>
+        </Compile>
+    </ItemGroup>
 
     <ItemGroup Label="Global usings">
         <Using Include="System" />
