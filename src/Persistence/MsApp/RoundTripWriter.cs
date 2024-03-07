@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// <summary>
 /// Writer which compares the output with the input during serialization.
 /// </summary>
-internal class RoundTripWriter : TextWriter
+public class RoundTripWriter : TextWriter
 {
     private const char NewLineChar = '\n';
     private readonly TextReader _input;
