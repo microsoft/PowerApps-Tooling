@@ -588,3 +588,4 @@ csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 dotnet_diagnostic.CA1802.severity = error
 dotnet_diagnostic.CA1805.severity = error
+dotnet_diagnostic.IDE0061.severity = none

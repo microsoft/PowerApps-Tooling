@@ -79,6 +79,14 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         _properties.Add(keyValue.Item1, new ControlPropertyValue(keyValue.Item2));
     }
 
+    internal void Set(string key, ControlPropertyValue value)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentNullException(nameof(key));
+
+        _properties[key] = value;
+    }
+
     public void Remove(string key)
     {
         _properties.Remove(key);
