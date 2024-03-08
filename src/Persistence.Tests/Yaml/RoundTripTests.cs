@@ -43,7 +43,10 @@ public class RoundTripTests : TestBase
         control.TemplateId.Should().Be(expectedTemplateId);
         control.Name.Should().Be(expectedName);
         control.Properties.Should().HaveCount(expectedPropsCount);
-        control.Children.Should().HaveCount(expectedControlCount);
+        if (expectedControlCount > 0)
+            control.Children.Should().HaveCount(expectedControlCount);
+        else
+            control.Children.Should().BeNull();
 
         // Serialize the object back into yaml.
         var actualYaml = serializer.Serialize(controlObj).NormalizeNewlines();

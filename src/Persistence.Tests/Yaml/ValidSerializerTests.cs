@@ -142,4 +142,47 @@ public class ValidSerializerTests : TestBase
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
+
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.fx.yaml")]
+    public void Serialize_Should_FlattenGalleryTemplate(string expectedPath)
+    {
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new()
+            {
+                { "Text", "\"I am a screen\"" },
+            },
+            children: new Control[]
+            {
+                ControlFactory.Create("Gallery1", template: "gallery",
+                    properties: new()
+                    {
+                        { "Items", "Accounts" },
+                    },
+                    children: new List<Control>()
+                    {
+                        ControlFactory.Create("galleryTemplate1", template: "galleryTemplate",
+                            properties: new()
+                            {
+                                { "TemplateFill", "RGBA(0, 0, 0, 0)" },
+                            }
+                        ),
+                        ControlFactory.Create("button12", template: "button",
+                            properties: new()
+                            {
+                                { "Fill", "RGBA(0, 0, 0, 0)" },
+                            }
+                        )
+                    }
+                )
+            }
+        );
+
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
 }

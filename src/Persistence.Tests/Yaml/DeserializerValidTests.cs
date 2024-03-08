@@ -39,7 +39,7 @@ public class DeserializerValidTests : TestBase
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
-        sut.Children.Should().NotBeNull().And.BeEmpty();
+        sut.Children.Should().BeNull();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(3)
                 .And.ContainKeys("Text", "X", "Y");
@@ -126,7 +126,7 @@ public class DeserializerValidTests : TestBase
         sut.Should().NotBeNull().And.BeOfType<CustomControl>();
         sut.Name.Should().Be("CustomControl1");
         sut.TemplateId.Should().Be("http://localhost/#customcontrol");
-        sut.Children.Should().NotBeNull().And.BeEmpty();
+        sut.Children.Should().BeNull();
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
@@ -173,7 +173,10 @@ public class DeserializerValidTests : TestBase
         var control = controlObj as Control;
         control!.TemplateId.Should().NotBeNull().And.Be(expectedTemplateId);
         control!.Name.Should().NotBeNull().And.Be(expectedName);
-        control.Children.Should().NotBeNull().And.HaveCount(controlCount);
+        if (controlCount > 0)
+            control.Children.Should().NotBeNull().And.HaveCount(controlCount);
+        else
+            control.Children.Should().BeNull();
         control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
@@ -267,4 +270,37 @@ public class DeserializerValidTests : TestBase
     }
 
 
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.fx.yaml")]
+    public void Deserialize_Should_AddGalleryTemplate(string path)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var screen = deserializer.Deserialize<Screen>(yamlReader);
+
+        // Assert
+        screen.Should().NotBeNull();
+        if (screen.Children == null)
+            throw new ArgumentNullException(nameof(screen.Children));
+        screen.Children.Should().NotBeNull().And.HaveCount(1);
+        var gallery = screen.Children[0];
+        gallery.Should().NotBeNull().And.BeOfType<BuiltInControl>();
+        gallery.Template.Name.Should().Be("Gallery");
+        if (gallery.Children == null)
+            throw new ArgumentNullException(nameof(gallery.Children));
+
+        // Check properties got moved to the gallery template
+        gallery.Children.Should().HaveCount(2);
+        gallery.Properties.Should().NotBeNull().And.HaveCount(2);
+        gallery.Properties.Should().NotContainKeys("TemplateFill", "OnSelect");
+        var galleryTemplate = gallery.Children.FirstOrDefault(c => c.Template.Name == "GalleryTemplate");
+        if (galleryTemplate == null)
+            throw new ArgumentNullException(nameof(galleryTemplate));
+        galleryTemplate.Properties.Should().NotBeNull().And.HaveCount(1);
+        galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
+    }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 namespace Persistence.Tests.Templates;
@@ -39,5 +40,17 @@ public class ControlFactoryTests : TestBase
         result.Should().NotBeNull();
         result.Properties.Should().NotBeNull()
             .And.BeEmpty();
+    }
+
+
+    [TestMethod]
+    public void CreateFromTemplateName_Should_CreateFirstClassTypes()
+    {
+        var sut = new ControlFactory(ControlTemplateStore);
+
+        var result = sut.Create("Screen1", "Screen", properties: null);
+        result.Should().NotBeNull().And.BeOfType<Screen>();
+        result.Properties.Should().NotBeNull().And.BeEmpty();
+        result.Children.Should().BeNull();
     }
 }

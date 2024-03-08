@@ -43,7 +43,7 @@ public class ZIndexOrderingTests : TestBase
 
         sut.Children.Should()
             .HaveCount(5)
-            .And.BeEquivalentTo(new[]
+            .And.BeEquivalentTo(new List<Control>
             {
                 MakeLabelWithZIndex(5),
                 MakeLabelWithZIndex(4),
@@ -56,9 +56,10 @@ public class ZIndexOrderingTests : TestBase
     private Control MakeLabelWithZIndex(int i)
     {
         return ControlFactory.Create($"Label{i}", template: "text",
-            new Dictionary<string, ControlPropertyValue>()
+            properties:
+            new()
             {
-                { PropertyNames.ZIndex, new() {Value = i.ToString()} },
+                { PropertyNames.ZIndex, i.ToString() },
             });
     }
 }

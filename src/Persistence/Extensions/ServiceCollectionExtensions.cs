@@ -37,19 +37,41 @@ public static class ServiceCollectionExtensions
 
     private static void AddMinimalTemplates(ControlTemplateStore store)
     {
-        store.Add(new ControlTemplate { Name = "hostControl", DisplayName = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
-        store.Add(new ControlTemplate { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
-        store.Add(new ControlTemplate { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
-        store.Add(new ControlTemplate { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
-        store.Add(new ControlTemplate { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
+        store.Add(new() { Name = "hostControl", DisplayName = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
+        store.Add(new() { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
+        store.Add(new() { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
+        store.Add(new() { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
+
+        // Gallery
+        store.Add(new()
+        {
+            Name = "gallery",
+            Id = "http://microsoft.com/appmagic/gallery",
+            NestedTemplates = new ControlTemplate[]
+            {
+                new()
+                {
+                    Name = "galleryTemplate",
+                    Id = "http://microsoft.com/appmagic/galleryTemplate",
+                    AddPropertiesToParent = true,
+                    InputProperties =
+                    {
+                        { "ItemAccessibleLabel", null },
+                        { "TemplateFill", null },
+                        { "OnSelect", null }
+                    }
+                }
+            }
+        });
+        store.Add(new() { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
     }
 
     private static void AddDefaultTemplates(ControlTemplateStore store)
     {
-        store.Add(new ControlTemplate { Name = "text", Id = "http://microsoft.com/appmagic/text" });
-        store.Add(new ControlTemplate { Name = "button", Id = "http://microsoft.com/appmagic/button" });
+        store.Add(new() { Name = "text", Id = "http://microsoft.com/appmagic/text" });
+        store.Add(new() { Name = "button", Id = "http://microsoft.com/appmagic/button" });
 
-        store.Add(new ControlTemplate { Name = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
-        store.Add(new ControlTemplate { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
+        store.Add(new() { Name = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
+        store.Add(new() { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
     }
 }

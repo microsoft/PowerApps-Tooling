@@ -15,7 +15,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 public abstract record Control
 {
     [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
-    private Control[] _children = Array.Empty<Control>();
+    private IList<Control>? _children;
 
     public Control()
     {
@@ -59,10 +59,10 @@ public abstract record Control
 
     /// <summary>
     /// list of child controls nested under this control.
+    /// This collection can be null in cases where the control does not support children.
     /// </summary>
     [YamlMember(Order = 3)]
-    [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
-    public Control[] Children { get => _children; init => _children = value; }
+    public IList<Control>? Children { get => _children; set => _children = value; }
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }
@@ -80,9 +80,9 @@ public abstract record Control
         if (this is App)
             return; // Apps do not place ZIndex on their Host child
 
-        for (var i = 0; i < Children.Length; i++)
+        for (var i = 0; i < Children.Count; i++)
         {
-            var zIndex = Children.Length - i;
+            var zIndex = Children.Count - i;
             Children[i].Properties.Set(PropertyNames.ZIndex, new(zIndex.ToString(CultureInfo.InvariantCulture)) { IsFormula = false });
         }
     }
@@ -93,13 +93,15 @@ public abstract record Control
         // Children should be sorted by ZIndex (which DocServer doesn't perform), and
         // the ZIndex property should be removed as the user should only "set" this value
         // by reordering the children
-        if (Children == null)
+        if (_children == null)
             return;
 
-        _children = Children
+        HideNestedTemplates();
+
+        _children = _children
             .OrderByDescending(getZIndex)
             .Select(removeZIndexProperty)
-            .ToArray();
+            .ToList();
 
         static int getZIndex(Control child) =>
             child.Properties.TryGetValue(PropertyNames.ZIndex, out var prop) && int.TryParse(prop.Value, out var zIndex)
@@ -110,6 +112,28 @@ public abstract record Control
         {
             child.Properties.Remove(PropertyNames.ZIndex);
             return child;
+        }
+    }
+
+    /// <summary>
+    /// Called before serialization to hide nested templates which add properties to parent from YAML output.
+    /// </summary>
+    internal void HideNestedTemplates()
+    {
+        if (_children == null)
+            return;
+
+        for (var i = 0; i < _children.Count; i++)
+        {
+            if (_children[i].Template.AddPropertiesToParent)
+            {
+                foreach (var childTemplateProperty in _children[i].Properties)
+                {
+                    Properties.Add(childTemplateProperty.Key, childTemplateProperty.Value);
+                }
+                _children.RemoveAt(i);
+                i--;
+            }
         }
     }
 }

@@ -535,7 +535,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private static ControlEditorState MapEditorState(Control control)
     {
         var editorState = control.EditorState ?? new ControlEditorState(control);
-        if (control.Children == null || control.Children.Length == 0)
+        if (control.Children == null || control.Children.Count == 0)
             return editorState;
 
         editorState.Controls = control.Children.Select(MapEditorState).ToList();
