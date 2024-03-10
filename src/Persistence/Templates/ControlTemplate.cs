@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
@@ -54,4 +55,10 @@ public record ControlTemplate
     }
 
     public bool HasDisplayName => !string.IsNullOrWhiteSpace(_displayName);
+
+    public bool AddPropertiesToParent { get; init; }
+
+    public ControlPropertiesCollection InputProperties { get; init; } = new();
+
+    public IList<ControlTemplate>? NestedTemplates { get; init; }
 }

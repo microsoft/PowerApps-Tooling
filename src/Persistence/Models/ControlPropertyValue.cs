@@ -30,6 +30,11 @@ public sealed record ControlPropertyValue
         return new ControlPropertyValue($"\"{value}\"");
     }
 
+    public static implicit operator ControlPropertyValue(string value)
+    {
+        return new ControlPropertyValue(value);
+    }
+
     public string? Value { get; init; }
 
     public bool IsFormula { get; init; }

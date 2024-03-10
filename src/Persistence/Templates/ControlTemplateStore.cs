@@ -65,6 +65,15 @@ public class ControlTemplateStore : IControlTemplateStore
             _controlTemplatesById.Add(controlTemplate.Id, controlTemplates);
         }
         controlTemplates.Add(controlTemplate);
+
+        // Add nested templates.
+        if (controlTemplate.NestedTemplates != null)
+        {
+            foreach (var nestedTemplate in controlTemplate.NestedTemplates)
+            {
+                Add(nestedTemplate);
+            }
+        }
     }
 
     /// <summary>
@@ -80,6 +89,9 @@ public class ControlTemplateStore : IControlTemplateStore
 
     public bool TryGetControlTypeByName(string name, [MaybeNullWhen(false)] out Type controlType)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentNullException(nameof(name));
+
         return _nameToType.TryGetValue(name, out controlType);
     }
 
