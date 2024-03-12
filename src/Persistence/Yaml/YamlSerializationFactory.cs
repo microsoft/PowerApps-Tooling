@@ -27,7 +27,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         options ??= YamlSerializerOptions.Default;
 
         var yamlSerializer = new SerializerBuilder()
-                .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
+                //.WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
                 .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
                 .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
                 .WithTypeConverter(new ControlConverter(_controlTemplateStore))
