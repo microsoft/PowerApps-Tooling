@@ -30,6 +30,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
                 .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
                 .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
                 .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
+                .WithTypeConverter(new ControlConverter(_controlTemplateStore))
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
            .Build();
 
@@ -45,8 +46,10 @@ public class YamlSerializationFactory : IYamlSerializationFactory
     {
         options ??= YamlDeserializerOptions.Default;
 
+        var objectFactory = new ControlObjectFactory(_controlTemplateStore, _controlFactory);
+
         var yamlDeserializer = new DeserializerBuilder()
-            .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
+            .WithObjectFactory(objectFactory)
             .IgnoreUnmatchedProperties()
             .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
             .WithTypeDiscriminatingNodeDeserializer(o =>
@@ -54,6 +57,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
                 o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
             })
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
+            .WithTypeConverter(new ControlConverter(_controlTemplateStore, objectFactory: objectFactory))
             .Build();
 
         return yamlDeserializer;

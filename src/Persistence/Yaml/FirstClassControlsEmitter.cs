@@ -24,14 +24,36 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
     {
         nextEmitter.Emit(eventInfo, emitter);
 
-        if (CheckIsFirstClass(eventInfo, out var nodeName))
+        if (CheckIsFirstClass(eventInfo, out var controlValue))
         {
-            var keySource = new ObjectDescriptor(nodeName, typeof(string), typeof(string));
+            //// Handle printing out the name as a left-side value
+            //var controlName = (eventInfo.Source.Value as Control)!.Name;
+            //var controlNameDescriptor = new ObjectDescriptor(controlName, typeof(string), typeof(string));
+            //var nullValueDescriptor = new ObjectDescriptor(null, typeof(string), typeof(string));
+            //nextEmitter.Emit(new ScalarEventInfo(controlNameDescriptor), emitter);
+            //nextEmitter.Emit(new ScalarEventInfo(nullValueDescriptor), emitter);
+
+            //// start a new mapping layer for the rest of the control
+            //nextEmitter.Emit(new MappingStartEventInfo(eventInfo.Source), emitter);
+
+            // Print out control type
+            var keySource = new ObjectDescriptor(YamlFields.Control, typeof(string), typeof(string));
             nextEmitter.Emit(new ScalarEventInfo(keySource), emitter);
 
-            var valueSource = new ObjectDescriptor(null, typeof(string), typeof(string));
+            var valueSource = new ObjectDescriptor(controlValue, typeof(string), typeof(string));
             nextEmitter.Emit(new ScalarEventInfo(valueSource), emitter);
         }
+    }
+
+    public override void Emit(MappingEndEventInfo eventInfo, IEmitter emitter)
+    {
+        if (CheckIsFirstClass(eventInfo, out var _))
+        {
+            // close our extra layer of nesting for the control's properties
+            //nextEmitter.Emit(new MappingEndEventInfo(eventInfo.Source), emitter);
+        }
+
+        base.Emit(eventInfo, emitter);
     }
 
     private bool CheckIsFirstClass(EventInfo eventInfo, [MaybeNullWhen(false)] out string nodeName)
