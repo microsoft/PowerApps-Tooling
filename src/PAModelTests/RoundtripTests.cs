@@ -26,7 +26,7 @@ public class RoundtripTests
 
                 var cloneOk = MsAppTest.TestClone(root);
                 // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
-                Assert.IsTrue(cloneOk, $"Clone failed: " + root);
+                cloneOk.Should().BeTrue(root);
             }
             catch (Exception ex)
             {

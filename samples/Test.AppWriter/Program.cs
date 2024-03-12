@@ -18,35 +18,34 @@ internal class Program
         var serviceProvider = serviceCollection.BuildServiceProvider();
         return serviceProvider;
     }
-    private static FileInfo? ValidateFilePath(string filepath)
+
+    private static bool ValidateFilePath(string filePath, out string error)
     {
-        try
+        error = string.Empty;
+        if (!File.Exists(filePath))
+            return true;
+
+        Console.WriteLine($"Warning: File '{filePath}' already exists");
+        Console.Write("Overwrite? ([y]/n) - enter for yes: ");
+
+        var input = Console.ReadKey();
+        Console.WriteLine();
+        if (input.Key == ConsoleKey.Enter || input.Key == ConsoleKey.Y)
         {
-            var fileCheck = new FileInfo(filepath);
-            if (File.Exists(filepath)) // Overwrite
+            try
             {
-                Console.WriteLine("Warning: File already exists");
-                Console.WriteLine("Provided path: " + fileCheck.FullName);
-                Console.Write("    Overwrite? (y / n): ");
-                var input = Console.ReadLine();
-                if (input?.ToLower()[0] == 'y') File.Delete(filepath);
-                else
-                {
-                    Console.WriteLine("Exiting");
-                    return null;
-                }
+                File.Delete(filePath);
             }
-            else
+            catch (IOException ex)
             {
-                Console.WriteLine("Creating MSApp at filepath: " + fileCheck.FullName);
+                error = $"Error: {ex.Message}";
+                return false;
             }
-            return fileCheck;
+            return true;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Filepath invalid: " + ex);
-            return null;
-        }
+
+        error = $"Unable to overwrite file";
+        return false;
     }
 
     private static void CreateMSApp(string fullPathToMsApp, int numScreens)
@@ -96,26 +95,20 @@ internal class Program
             description: "(string) The path where the msapp file should be generated, including filename and extension",
             parseArgument: result =>
             {
-                var filepath = result.Tokens.Single().Value;
+                var filePath = result.Tokens.Single().Value;
 
-                var file = ValidateFilePath(filepath);
+                if (ValidateFilePath(filePath, out var error))
+                    return new FileInfo(filePath);
 
-                if (file != null)
-                {
-                    return file;
-                }
-                else
-                {
-                    result.ErrorMessage = "Filepath validation failed.";
-                    return null;
-                }
+                result.ErrorMessage = error;
+                return null;
             }
             )
         { IsRequired = true };
         var numScreensOption = new Option<int>(
             name: "--numscreens",
             description: "(integer) The number of screens to generate in the App",
-            getDefaultValue: () => 0
+            getDefaultValue: () => 1
             );
         numScreensOption.AddValidator(result =>
         {
