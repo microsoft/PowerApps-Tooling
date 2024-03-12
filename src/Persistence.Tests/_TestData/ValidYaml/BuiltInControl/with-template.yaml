@@ -1,4 +1,4 @@
-Button:
-Name: button with template
-Properties:
-  Text: button text
+'button with template':
+  Control: Button
+  Properties:
+    Text: button text

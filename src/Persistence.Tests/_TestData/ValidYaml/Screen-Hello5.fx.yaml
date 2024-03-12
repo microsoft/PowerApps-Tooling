@@ -1,2 +1,2 @@
-Screen: 
-Name: Hello Space
+Hello Space:
+  Control: Screen

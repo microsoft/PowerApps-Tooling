@@ -1,2 +1,2 @@
-Screen: 
-Name: //..?HelloScreen
+//..?HelloScreen:
+  Control: Screen

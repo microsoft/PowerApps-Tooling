@@ -1,5 +1,5 @@
-ButtonCanvas: 
-Name: BuiltIn Control1
-Properties:
-  Text: |-
-    =Text`~!@#$%^&*()_-+=", ":
+BuiltIn Control1:
+  Control: ButtonCanvas
+  Properties:
+    Text: |-
+      =Text`~!@#$%^&*()_-+=", ":

@@ -14,9 +14,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [DebuggerDisplay("{Template?.DisplayName}: {Name}")]
 public abstract record Control
 {
-    [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
-    private IList<Control>? _children;
-
     public Control()
     {
     }
@@ -62,7 +59,7 @@ public abstract record Control
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
     [YamlMember(Order = 3)]
-    public IList<Control>? Children { get => _children; set => _children = value; }
+    public IList<Control>? Children { get; set; }
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }
@@ -93,12 +90,12 @@ public abstract record Control
         // Children should be sorted by ZIndex (which DocServer doesn't perform), and
         // the ZIndex property should be removed as the user should only "set" this value
         // by reordering the children
-        if (_children == null)
+        if (Children == null)
             return;
 
         HideNestedTemplates();
 
-        _children = _children
+        Children = Children
             .OrderByDescending(getZIndex)
             .Select(removeZIndexProperty)
             .ToList();
@@ -120,18 +117,18 @@ public abstract record Control
     /// </summary>
     internal void HideNestedTemplates()
     {
-        if (_children == null)
+        if (Children == null)
             return;
 
-        for (var i = 0; i < _children.Count; i++)
+        for (var i = 0; i < Children.Count; i++)
         {
-            if (_children[i].Template.AddPropertiesToParent)
+            if (Children[i].Template.AddPropertiesToParent)
             {
-                foreach (var childTemplateProperty in _children[i].Properties)
+                foreach (var childTemplateProperty in Children[i].Properties)
                 {
                     Properties.Add(childTemplateProperty.Key, childTemplateProperty.Value);
                 }
-                _children.RemoveAt(i);
+                Children.RemoveAt(i);
                 i--;
             }
         }
