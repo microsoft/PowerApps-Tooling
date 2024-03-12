@@ -1,2 +1,2 @@
-Control: Screen 
-Name: Hello
+'Hello':
+  Control: Screen

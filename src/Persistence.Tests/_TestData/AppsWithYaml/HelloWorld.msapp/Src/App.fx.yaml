@@ -1,7 +1,7 @@
-App: 
-Name: App
-Properties:
-  Theme: PowerAppsTheme
-Children:
-- Host: 
-  Name: Host
+App:
+  Control: App
+  Properties:
+    Theme: PowerAppsTheme
+  Children:
+  - Host:
+      Control: Host

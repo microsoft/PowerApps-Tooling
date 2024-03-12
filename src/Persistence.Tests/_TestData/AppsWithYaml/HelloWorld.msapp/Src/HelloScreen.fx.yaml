@@ -1,13 +1,13 @@
-Screen: 
-Name: HelloScreen
-Properties:
-  LoadingSpinnerColor: RGBA(56, 96, 178, 1)
-Children:
-- Control: PowerApps_CoreControls_TextCanvas
-  Name: TextCanvas1
+HelloScreen:
+  Control: Screen
   Properties:
-    Align: ='TextCanvas.Align'.Center
-    Height: 768
-    Size: 100
-    Text: Hello Power Apps!
-    Width: 1366
+    LoadingSpinnerColor: RGBA(56, 96, 178, 1)
+  Children:
+  - TextCanvas1:
+      Control: PowerApps_CoreControls_TextCanvas
+      Properties:
+        Align: ='TextCanvas.Align'.Center
+        Height: 768
+        Size: 100
+        Text: Hello Power Apps!
+        Width: 1366

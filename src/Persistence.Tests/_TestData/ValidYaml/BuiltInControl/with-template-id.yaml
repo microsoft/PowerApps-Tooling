@@ -1,4 +1,4 @@
-Control: http://microsoft.com/appmagic/button 
-Name: button with template id
-Properties:
-  Text: button text
+'button with template id':
+  Control: http://microsoft.com/appmagic/button
+  Properties:
+    Text: button text

@@ -166,7 +166,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var controlObj = deserializer.Deserialize(yamlReader, expectedType);
 
         // Assert
         controlObj.Should().BeAssignableTo(expectedType);
@@ -190,9 +190,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
-        controlObj.Should().BeAssignableTo<App>();
-        var app = controlObj as App;
+        var app = deserializer.Deserialize<App>(yamlReader);
         app!.Name.Should().NotBeNull().And.Be(expectedName);
         app.Children.Should().NotBeNull().And.HaveCount(controlCount);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);

@@ -1,19 +1,19 @@
-ButtonCanvas: 
-Name: BuiltIn Control1
-Properties:
-  NormalText: This is a normal text
-  MultiLineString: |-
-    This is a multi-line
-    string
-  NothingString:
-  NullTilde: ~
-  NullString: null
-  NullAsString: 'null'
-  EmptyString: ''
-  WhiteSpaceString: ' '
-  NormalTextAgain: This is a normal text
-  StartsWithEquals: ="=This string starts with equals"
-  StartsWithEqualsMultiLine: |-
-    ="=This is a multi-line
-    starts with equals"
-  Formula: =1+1
+'BuiltIn Control1':
+  Control: ButtonCanvas
+  Properties:
+    NormalText: This is a normal text
+    MultiLineString: |-
+      This is a multi-line
+      string
+    NothingString:
+    NullTilde: ~
+    NullString: null
+    NullAsString: 'null'
+    EmptyString: ''
+    WhiteSpaceString: ' '
+    NormalTextAgain: This is a normal text
+    StartsWithEquals: ="=This string starts with equals"
+    StartsWithEqualsMultiLine: |-
+      ="=This is a multi-line
+      starts with equals"
+    Formula: =1+1

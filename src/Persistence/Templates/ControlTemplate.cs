@@ -36,7 +36,10 @@ public record ControlTemplate
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException(nameof(Name));
 
-            _name = value.Trim().FirstCharToUpper();
+            var trimmed = value.Trim();
+            var isUrl = Uri.IsWellFormedUriString(trimmed, UriKind.Absolute);
+
+            _name = isUrl ? trimmed : trimmed.FirstCharToUpper();
         }
     }
 

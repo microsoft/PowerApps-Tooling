@@ -1,5 +1,5 @@
-Screen: 
-Name: Hello
-Properties:
-  Name: NameProperty1
-  Type: TypeProperty1
+Hello:
+  Control: Screen
+  Properties:
+    Name: NameProperty1
+    Type: TypeProperty1

@@ -1,5 +1,5 @@
-ButtonCanvas: 
-Name: BuiltIn Control1
-Properties:
-  Text: |-
-    =$"Interpolated text {User().FullName}"
+BuiltIn Control1:
+  Control: ButtonCanvas
+  Properties:
+    Text: |-
+      =$"Interpolated text {User().FullName}"

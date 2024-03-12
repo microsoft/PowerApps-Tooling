@@ -1,5 +1,5 @@
-App: 
-Name: Test app 1
-Children:
-- Host: 
-  Name: Host
+Test app 1:
+  Control: App
+  Children:
+  - Host:
+      Control: Host

@@ -23,7 +23,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
+        sut.Should().Be($"Screen1:{Environment.NewLine}  Control: Screen{Environment.NewLine}  Properties:{Environment.NewLine}    Text: I am a screen{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -67,7 +67,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: =A{Environment.NewLine}  PropertyB: =B{Environment.NewLine}  PropertyC: =C{Environment.NewLine}");
+        sut.Should().Be($"Screen1:{Environment.NewLine}  Control: Screen{Environment.NewLine}  Properties:{Environment.NewLine}    PropertyA: =A{Environment.NewLine}    PropertyB: =B{Environment.NewLine}    PropertyC: =C{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -100,7 +100,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
+        sut.Should().Be($"Screen1:{Environment.NewLine}  Control: Screen{Environment.NewLine}  Properties:{Environment.NewLine}    Text: I am a screen{Environment.NewLine}  Children:{Environment.NewLine}  - Label1:{Environment.NewLine}      Control: Text{Environment.NewLine}      Properties:{Environment.NewLine}        Text: lorem ipsum{Environment.NewLine}  - Button1:{Environment.NewLine}      Control: Button{Environment.NewLine}      Properties:{Environment.NewLine}        Text: click me{Environment.NewLine}        X: =100{Environment.NewLine}        Y: =200{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -116,7 +116,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph);
-        sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
+        sut.Should().Be($"CustomControl1:{Environment.NewLine}  Control: http://localhost/#customcontrol{Environment.NewLine}  Properties:{Environment.NewLine}    Text: I am a custom control{Environment.NewLine}");
     }
 
     [TestMethod]

@@ -1,5 +1,5 @@
-ButtonCanvas: 
-Name: BuiltIn Control1
-Properties:
-  Text: |-
-    Hello : World
+BuiltIn Control1:
+  Control: ButtonCanvas
+  Properties:
+    Text: |-
+      Hello : World
