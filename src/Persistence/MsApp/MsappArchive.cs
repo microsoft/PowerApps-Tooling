@@ -124,6 +124,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _deserializer = yamlSerializationFactory.CreateDeserializer();
         _logger = logger;
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
+        CreateGitIgnore();
         _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
         (() =>
         {
@@ -202,6 +203,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             _appThemes = _app != null ? new AppThemes() : null;
         }
     }
+
+    public bool AddGitIgnore { get; init; } = true;
 
     #endregion
 
@@ -540,6 +543,21 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         editorState.Controls = control.Children.Select(MapEditorState).ToList();
         return editorState;
+    }
+
+    private void CreateGitIgnore()
+    {
+        if (!AddGitIgnore || ZipArchive.Mode != ZipArchiveMode.Create)
+            return;
+
+        var entry = ZipArchive.CreateEntry(".gitignore");
+        using var entryStream = entry.Open();
+        using var writer = new StreamWriter(entryStream);
+        writer.WriteLine("## MsApp specific overrides");
+        writer.WriteLine("[Cc]ontrols/");
+        writer.WriteLine("/[Cc]hecksum.json");
+        writer.WriteLine("/[Hh]eader.json");
+        writer.WriteLine("/[Aa]pp[Cc]hecker[Rr]esult.sarif");
     }
 
     #endregion

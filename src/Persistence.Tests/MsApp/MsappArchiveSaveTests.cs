@@ -31,7 +31,7 @@ public class MsappArchiveSaveTests : TestBase
         // Assert
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
         msappValidation.App.Should().BeNull();
-        msappValidation.CanonicalEntries.Count.Should().Be(1);
+        msappValidation.CanonicalEntries.Count.Should().Be(2);
         var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
         screenEntry.Should().NotBeNull();
         using var streamReader = new StreamReader(msappValidation.GetRequiredEntry(screenEntryName).Open());
@@ -66,7 +66,7 @@ public class MsappArchiveSaveTests : TestBase
         // Assert
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
         msappValidation.App.Should().BeNull();
-        msappValidation.CanonicalEntries.Count.Should().Be(1);
+        msappValidation.CanonicalEntries.Count.Should().Be(2);
 
         // Validate screen
         var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
