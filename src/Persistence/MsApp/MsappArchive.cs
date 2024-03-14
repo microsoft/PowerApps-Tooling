@@ -554,7 +554,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var entryStream = entry.Open();
         using var writer = new StreamWriter(entryStream);
         writer.WriteLine("## MsApp specific overrides");
-        writer.WriteLine("[Cc]ontrols/");
+        writer.WriteLine("/[Cc]ontrols/");
         writer.WriteLine("/[Cc]hecksum.json");
         writer.WriteLine("/[Hh]eader.json");
         writer.WriteLine("/[Aa]pp[Cc]hecker[Rr]esult.sarif");
