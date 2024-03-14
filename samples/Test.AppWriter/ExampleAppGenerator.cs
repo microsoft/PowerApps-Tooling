@@ -9,18 +9,6 @@ namespace Test.AppWriter;
 
 internal class ExampleAppGenerator
 {
-    public static List<(string, string)> ParseControlsInfo(string[] controlInfos)
-    {
-        var tuples = new List<(string, string)>();
-
-        for (var i = 0; i < controlInfos.Length; i += 2)
-        {
-            tuples.Add((controlInfos[i], controlInfos[i + 1]));
-        }
-
-        return tuples;
-    }
-
     // This produces a simple example app including the specified number of screens and a few generic controls
     // This is intended for testing purposes only
     public static App GetExampleApp(IServiceProvider provider, string appName, int numScreens)
@@ -93,7 +81,7 @@ internal class ExampleAppGenerator
     }
 
     // produce a specified app based on commandline input
-    public static App CreateApp(IServiceProvider provider, string appName, int numScreens, List<(string, string)> controls)
+    public static App CreateApp(IServiceProvider provider, string appName, int numScreens, string[] controls)
     {
         var controlFactory = provider.GetRequiredService<IControlFactory>();
 
@@ -104,7 +92,7 @@ internal class ExampleAppGenerator
             var childList = new List<Control>();
             foreach (var control in controls)
             {
-                childList.Add(controlFactory.Create(control.Item1, template: control.Item2,
+                childList.Add(controlFactory.Create(control + childList.Count.ToString(), template: control,
                     properties: new()
                 ));
             }

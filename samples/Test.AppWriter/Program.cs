@@ -76,7 +76,7 @@ internal class Program
         msapp.App = interactive
             ? InteractiveAppGenerator.GenerateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp))
             : ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp),
-                numScreens, ExampleAppGenerator.ParseControlsInfo(controlsinfo));
+                numScreens, controlsinfo);
 
         // Output the MSApp to the path provided
         msapp.Save();
@@ -117,12 +117,9 @@ internal class Program
                 result.ErrorMessage = "Number of screens must be greater than 0";
             }
         });
-        //var screenNamesOption = new Option<string>(
-        //    name: "--screennames"
-        //    );
         var controlsOptions = new Option<string[]>(
             name: "--controls",
-            description: "(list of string) A list of control name and template pairs (i.e. mybutton Button labelname Label [controlname Template]...)")
+            description: "(list of string) A list of control templates (i.e. Button Label [Template]...)")
         { AllowMultipleArgumentsPerToken = true };
 
         var rootCommand = new RootCommand("Test Writer for MSApp files.");
