@@ -135,6 +135,6 @@ public class MsappArchiveSaveTests : TestBase
         }
 
         msappArchive.CanonicalEntries.Count.Should().Be(sameNames.Length);
-        msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlFxFileExtension}")));
+        msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlPaFileExtension}")));
     }
 }

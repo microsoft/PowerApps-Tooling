@@ -32,9 +32,9 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public const string MsappFileExtension = ".msapp";
     public const string YamlFileExtension = ".yaml";
-    public const string YamlFxFileExtension = ".pa.yaml";
+    public const string YamlPaFileExtension = ".pa.yaml";
     public const string JsonFileExtension = ".json";
-    public const string AppFileName = $"App{YamlFxFileExtension}";
+    public const string AppFileName = $"App{YamlPaFileExtension}";
     public const string HeaderFileName = "Header.json";
     public const string PropertiesFileName = "Properties.json";
     public const string TemplatesFileName = $"{Directories.References}/Templates.json";
@@ -342,7 +342,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
         var controlDirectory = directory == null ? Directories.Src : Path.Combine(Directories.Src, directory);
-        var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlFxFileExtension));
+        var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlPaFileExtension));
 
         using (var writer = new StreamWriter(entry.Open()))
         {
