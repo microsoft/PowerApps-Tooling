@@ -150,14 +150,14 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-template-id.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-template-name.fx.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-id.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-name.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-name.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.pa.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-template-id.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-template-name.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-id.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-name.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
     public void Deserialize_ShouldSucceed(string path, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
@@ -181,7 +181,7 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App.fx.yaml", "Test app 1", 1, 0)]
+    [DataRow(@"_TestData/ValidYaml/App.pa.yaml", "Test app 1", 1, 0)]
     public void Deserialize_App_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
@@ -199,7 +199,7 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-unmatched-field.fx.yaml")]
+    [DataRow(@"_TestData/ValidYaml/Screen-with-unmatched-field.pa.yaml")]
     public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)
     {
         // Arrange
@@ -219,7 +219,7 @@ public class DeserializerValidTests : TestBase
     {
         // Arrange
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/Strings.fx.yaml");
+        using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/Strings.pa.yaml");
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -244,8 +244,8 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Component.fx.yaml", "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
-    [DataRow(@"_TestData/ValidYaml/CommandComponent.fx.yaml", "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    [DataRow(@"_TestData/ValidYaml/Component.pa.yaml", "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
+    [DataRow(@"_TestData/ValidYaml/CommandComponent.pa.yaml", "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
     public void Deserialize_Component_ShouldSucceed(
         string path,
         string expectedName,
@@ -271,7 +271,7 @@ public class DeserializerValidTests : TestBase
 
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.fx.yaml")]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]
     public void Deserialize_Should_AddGalleryTemplate(string path)
     {
         // Arrange

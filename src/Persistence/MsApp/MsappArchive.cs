@@ -32,7 +32,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public const string MsappFileExtension = ".msapp";
     public const string YamlFileExtension = ".yaml";
-    public const string YamlFxFileExtension = ".fx.yaml";
+    public const string YamlFxFileExtension = ".pa.yaml";
     public const string JsonFileExtension = ".json";
     public const string AppFileName = $"App{YamlFxFileExtension}";
     public const string HeaderFileName = "Header.json";
@@ -413,7 +413,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        // For app entry name is always "1.fx.yaml" now 
+        // For app entry name is always "App.pa.yaml" now 
         var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
         if (appEntry == null)
             return null;

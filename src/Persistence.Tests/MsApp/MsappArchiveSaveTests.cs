@@ -10,11 +10,11 @@ namespace Persistence.Tests.MsApp;
 public class MsappArchiveSaveTests : TestBase
 {
     [TestMethod]
-    [DataRow(@"  Hello   ", $"src/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello1.fx.yaml")]
-    [DataRow(@"..\..\Hello", $"src/Hello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello2.fx.yaml")]
-    [DataRow(@"c:\win\..\..\Hello", $"src/cWinHello.fx.yaml", @"_TestData/ValidYaml/Screen-Hello3.fx.yaml")]
-    [DataRow(@"//..?HelloScreen", $"src/HelloScreen.fx.yaml", @"_TestData/ValidYaml/Screen-Hello4.fx.yaml")]
-    [DataRow(@"Hello Space", $"src/Hello Space.fx.yaml", @"_TestData/ValidYaml/Screen-Hello5.fx.yaml")]
+    [DataRow(@"  Hello   ", $"src/Hello.pa.yaml", @"_TestData/ValidYaml/Screen-Hello1.pa.yaml")]
+    [DataRow(@"..\..\Hello", $"src/Hello.pa.yaml", @"_TestData/ValidYaml/Screen-Hello2.pa.yaml")]
+    [DataRow(@"c:\win\..\..\Hello", $"src/cWinHello.pa.yaml", @"_TestData/ValidYaml/Screen-Hello3.pa.yaml")]
+    [DataRow(@"//..?HelloScreen", $"src/HelloScreen.pa.yaml", @"_TestData/ValidYaml/Screen-Hello4.pa.yaml")]
+    [DataRow(@"Hello Space", $"src/Hello Space.pa.yaml", @"_TestData/ValidYaml/Screen-Hello5.pa.yaml")]
     public void Msapp_ShouldSave_Screen(string screenName, string screenEntryName, string expectedYamlPath)
     {
         // Arrange
@@ -42,9 +42,9 @@ public class MsappArchiveSaveTests : TestBase
 
     [TestMethod]
     [DataRow(@"  Hello   ", "My control",
-        $"src/Hello.fx.yaml",
+        $"src/Hello.pa.yaml",
         $"{MsappArchive.Directories.Controls}/Hello.json",
-        @"_TestData/ValidYaml/Screen-with-control1.fx.yaml",
+        @"_TestData/ValidYaml/Screen-with-control1.pa.yaml",
         @"_TestData/ValidYaml/Screen-with-control1.json")]
     public void Msapp_ShouldSave_Screen_With_Control(string screenName, string controlName, string screenEntryName, string editorStateName,
         string expectedYamlPath, string expectedJsonPath)
