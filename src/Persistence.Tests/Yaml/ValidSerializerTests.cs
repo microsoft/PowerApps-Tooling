@@ -27,7 +27,7 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App.fx.yaml")]
+    [DataRow(@"_TestData/ValidYaml/App.pa.yaml")]
     public void Serialize_ShouldCreateValidYamlForApp(string expectedPath)
     {
         var app = ControlFactory.CreateApp("Test app 1");
@@ -120,13 +120,13 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml/BuiltInControl1.yaml")]
-    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml/BuiltInControl2.yaml")]
-    [DataRow("ButtonCanvas", "Text`~!@#$%^&*()_-+=\", \":", @"_TestData/ValidYaml/BuiltInControl3.yaml")]
-    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.yaml")]
-    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.yaml")]
-    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.yaml")]
-    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml/BuiltInControl7.yaml")]
+    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml/BuiltInControl1.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml/BuiltInControl2.pa.yaml")]
+    [DataRow("ButtonCanvas", "Text`~!@#$%^&*()_-+=\", \":", @"_TestData/ValidYaml/BuiltInControl3.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.pa.yaml")]
+    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml/BuiltInControl7.pa.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
@@ -145,7 +145,7 @@ public class ValidSerializerTests : TestBase
 
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.fx.yaml")]
+    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]
     public void Serialize_Should_FlattenGalleryTemplate(string expectedPath)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
