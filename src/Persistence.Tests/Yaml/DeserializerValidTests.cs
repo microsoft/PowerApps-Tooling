@@ -59,16 +59,17 @@ public class DeserializerValidTests : TestBase
             children: new Control[]
             {
                 ControlFactory.Create("Label1", template: "text",
-                    new Dictionary<string, ControlPropertyValue>()
+                    properties:
+                    new ()
                     {
-                        { "Text", new() { Value = "lorem ipsum" }  },
+                        { "Text", "lorem ipsum" },
                     }),
                 ControlFactory.Create("Button1", template: "button",
-                    new Dictionary<string, ControlPropertyValue>()
+                    properties : new ()
                     {
-                        { "Text", new() { Value = "click me" }  },
-                        { "X", new() { Value = "100" } },
-                        { "Y", new() { Value = "200" } }
+                        { "Text", "click me" },
+                        { "X", "100" },
+                        { "Y", "200" }
                     })
             }
         );
@@ -269,6 +270,31 @@ public class DeserializerValidTests : TestBase
         component.Template.Id.Should().Be(expectedTemplateId);
     }
 
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-variant.pa.yaml", "built in", "Button", "SuperButton")]
+    public void Variant_ShouldSucceed(
+        string path,
+        string expectedName,
+        string expectedTemplateName,
+        string expectedVariant)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var result = deserializer.Deserialize(yamlReader);
+        result.Should().BeAssignableTo<Control>();
+
+        // Assert
+        var control = (Control)result!;
+        control.Name.Should().Be(expectedName);
+        control.Template.Should().NotBeNull();
+        control.Template!.Name.Should().Be(expectedTemplateName);
+        control.Variant.Should().Be(expectedVariant);
+    }
 
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]

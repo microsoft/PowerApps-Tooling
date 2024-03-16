@@ -13,7 +13,7 @@ public record BuiltInControl : Control
     }
 
     [SetsRequiredMembers]
-    public BuiltInControl(string name, ControlTemplate controlTemplate) : base(name, controlTemplate)
+    public BuiltInControl(string name, string variant, ControlTemplate controlTemplate) : base(name, variant, controlTemplate)
     {
     }
 }

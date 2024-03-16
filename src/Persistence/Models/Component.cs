@@ -18,9 +18,10 @@ public record Component : Control
     /// Default constructor.
     /// </summary>
     [SetsRequiredMembers]
-    public Component(string name, IControlTemplateStore controlTemplateStore)
+    public Component(string name, string variant, IControlTemplateStore controlTemplateStore)
     {
         Name = name;
+        Variant = variant;
         Template = controlTemplateStore.GetByName(BuiltInTemplates.Component);
     }
 }
