@@ -13,7 +13,7 @@ public record CustomControl : Control
     }
 
     [SetsRequiredMembers]
-    public CustomControl(string name, ControlTemplate controlTemplate) : base(name, controlTemplate)
+    public CustomControl(string name, string variant, ControlTemplate controlTemplate) : base(name, variant, controlTemplate)
     {
     }
 }

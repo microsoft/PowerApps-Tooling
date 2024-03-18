@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
@@ -22,9 +23,10 @@ public abstract record Control
     }
 
     [SetsRequiredMembers]
-    public Control(string name, ControlTemplate template)
+    public Control(string name, string variant, ControlTemplate template)
     {
         Name = name;
+        Variant = variant;
         Template = template;
     }
 
@@ -51,17 +53,23 @@ public abstract record Control
         }
     }
 
+    [YamlMember(Order = 2)]
+    public required string Variant { get; init; } = string.Empty;
+
+    [YamlMember(Order = 3)]
+    public string Layout { get; set; } = string.Empty;
+
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    [YamlMember(Order = 2)]
+    [YamlMember(Order = 4)]
     public ControlPropertiesCollection Properties { get; init; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
-    [YamlMember(Order = 3)]
+    [YamlMember(Order = 5)]
     public IList<Control>? Children { get => _children; set => _children = value; }
 
     [YamlIgnore]
@@ -69,6 +77,19 @@ public abstract record Control
 
     [YamlIgnore]
     public required ControlTemplate Template { get; init; }
+
+    [YamlIgnore]
+    public int ZIndex
+    {
+        get
+        {
+            if (Properties.TryGetValue(PropertyNames.ZIndex, out var prop) && int.TryParse(prop.Value, out var zIndex))
+                return zIndex;
+
+            return int.MaxValue;
+
+        }
+    }
 
     [OnDeserialized]
     internal void AfterDeserialize()
@@ -90,29 +111,12 @@ public abstract record Control
     [OnSerializing]
     internal void BeforeSerialize()
     {
-        // Children should be sorted by ZIndex (which DocServer doesn't perform), and
-        // the ZIndex property should be removed as the user should only "set" this value
-        // by reordering the children
-        if (_children == null)
-            return;
-
         HideNestedTemplates();
 
-        _children = _children
-            .OrderByDescending(getZIndex)
-            .Select(removeZIndexProperty)
-            .ToList();
+        if (_children != null)
+            _children.Sort((c1, c2) => c2.ZIndex.CompareTo(c1.ZIndex));
 
-        static int getZIndex(Control child) =>
-            child.Properties.TryGetValue(PropertyNames.ZIndex, out var prop) && int.TryParse(prop.Value, out var zIndex)
-                ? zIndex
-                : int.MaxValue;
-
-        static Control removeZIndexProperty(Control child)
-        {
-            child.Properties.Remove(PropertyNames.ZIndex);
-            return child;
-        }
+        Properties.Remove(PropertyNames.ZIndex);
     }
 
     /// <summary>

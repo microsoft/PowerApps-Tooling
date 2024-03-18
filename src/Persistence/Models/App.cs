@@ -19,9 +19,10 @@ public record App : Control
     /// Default constructor.
     /// </summary>
     [SetsRequiredMembers]
-    public App(string name, IControlTemplateStore controlTemplateStore)
+    public App(string name, string variant, IControlTemplateStore controlTemplateStore)
     {
         Name = name;
+        Variant = variant;
         Template = controlTemplateStore.GetByName(BuiltInTemplates.App);
     }
 

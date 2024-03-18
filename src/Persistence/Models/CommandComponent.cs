@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
@@ -13,9 +13,10 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 public record CommandComponent : Component
 {
     [SetsRequiredMembers]
-    public CommandComponent(string name, IControlTemplateStore controlTemplateStore)
+    public CommandComponent(string name, string variant, IControlTemplateStore controlTemplateStore)
     {
         Name = name;
+        Variant = variant;
         Template = controlTemplateStore.GetByName(BuiltInTemplates.CommandComponent);
     }
 }

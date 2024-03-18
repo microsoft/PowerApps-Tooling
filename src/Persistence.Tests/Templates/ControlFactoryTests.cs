@@ -23,7 +23,7 @@ public class ControlFactoryTests : TestBase
 
         var sut = new ControlFactory(ControlTemplateStore);
 
-        var result = sut.Create("Screen", template, expectedProps);
+        var result = sut.Create("Screen", template, properties: expectedProps);
         result.Should().NotBeNull();
         result.Properties.Should().NotBeNull()
            .And.BeEquivalentTo(expectedProps);

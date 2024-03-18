@@ -143,7 +143,6 @@ public class ValidSerializerTests : TestBase
         sut.Should().Be(expectedYaml);
     }
 
-
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]
     public void Serialize_Should_FlattenGalleryTemplate(string expectedPath)
@@ -178,6 +177,27 @@ public class ValidSerializerTests : TestBase
                 )
             }
         );
+
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-variant.pa.yaml", "SuperButton", null)]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical")]
+    public void Valid_Variant(string expectedPath, string expectedVariant, string expectedLayout)
+    {
+        var graph = ControlFactory.Create("built in", "Button", variant: expectedVariant,
+            properties: new()
+            {
+                { "Text", "\"button text\"" },
+            }
+        );
+        graph.Layout = expectedLayout;
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 

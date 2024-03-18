@@ -66,6 +66,10 @@ public static class ServiceCollectionExtensions
         store.Add(new() { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
     }
 
+    /// <summary>
+    /// Adds some default templates which are useful for testing
+    /// </summary>
+    /// <param name="store"></param>
     private static void AddDefaultTemplates(ControlTemplateStore store)
     {
         store.Add(new() { Name = "text", Id = "http://microsoft.com/appmagic/text" });
@@ -73,5 +77,8 @@ public static class ServiceCollectionExtensions
 
         store.Add(new() { Name = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
         store.Add(new() { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
+
+        store.Add(new() { Name = "DataCard", Id = "http://microsoft.com/appmagic/card" });
+        store.Add(new() { Name = "TypedDataCard", Id = "http://microsoft.com/appmagic/card" });
     }
 }

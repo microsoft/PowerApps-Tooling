@@ -1,0 +1,6 @@
+Button: 
+Name: built in
+Variant: SuperButton
+Layout: vertical
+Properties:
+  Text: button text

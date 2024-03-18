@@ -36,7 +36,22 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
 
     private bool CheckIsFirstClass(EventInfo eventInfo, [MaybeNullWhen(false)] out string nodeName)
     {
-        if (_controlTemplateStore.TryGetById(((Control)eventInfo.Source.Value!).TemplateId, out var controlTemplate))
+        var control = eventInfo.Source.Value as Control;
+        if (control == null)
+        {
+            nodeName = null;
+            return false;
+        }
+
+        // If the control has a template, use the template name
+        if (control.Template != null && control.Template.HasDisplayName)
+        {
+            nodeName = control.Template.DisplayName;
+            return true;
+        }
+
+        // If template is not found, look for the template by id
+        if (_controlTemplateStore.TryGetById(control.TemplateId, out var controlTemplate))
         {
             nodeName = controlTemplate.DisplayName;
             return true;
