@@ -6,6 +6,9 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace MSAppGenerator;
 
+/// <summary>
+/// Generates an MSApp using input from interactive commandline session
+/// </summary>
 public class InteractiveGenerator : IAppGenerator
 {
     private readonly IControlFactory _controlFactory;
@@ -28,7 +31,6 @@ public class InteractiveGenerator : IAppGenerator
         }
         return input;
     }
-
 
     /// <summary>
     /// Performs interactive commandline session to specify parameters for an app

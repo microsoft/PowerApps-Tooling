@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -9,7 +9,7 @@
   <ItemGroup>
     <!-- This reference will be replaced with Nuget package reference -->
     <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
-      <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
+      <HintPath>..\..\bin\$(Configuration)\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
     </Reference>
   </ItemGroup>
 

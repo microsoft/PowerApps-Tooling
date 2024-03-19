@@ -11,7 +11,9 @@ namespace Test.AppWriter;
 
 internal class Program
 {
-    // Configures default services for generating the MSApp representation
+    /// <summary>
+    /// Configures default services for generating the MSApp representation
+    /// </summary>
     private static IServiceProvider ConfigureServiceProvider()
     {
         var serviceCollection = new ServiceCollection();

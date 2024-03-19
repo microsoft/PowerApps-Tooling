@@ -30,7 +30,7 @@
   <ItemGroup>
     <!-- This reference will be replaced with Nuget package reference -->
     <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
-      <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
+      <HintPath>..\..\bin\$(Configuration)\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -22,6 +22,9 @@ public class AppGeneratorFactory : IAppGeneratorFactory
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(_controlFactory));
     }
 
+    /// <summary>
+    /// Instantiates and returns the requested type of generator
+    /// </summary>
     public IAppGenerator Create(bool interactive)
     {
         return interactive

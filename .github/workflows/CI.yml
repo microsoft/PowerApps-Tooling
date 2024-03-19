@@ -46,7 +46,7 @@ jobs:
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
 
     - name: Restore workloads for samples
-      run: dotnet workload restore samples/samples.sln
+      run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
 
     - name: Install maui-tizen workload
       run: dotnet workload install maui-tizen
