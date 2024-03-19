@@ -24,4 +24,7 @@ public record Component : Control
         Variant = variant;
         Template = controlTemplateStore.GetByName(BuiltInTemplates.Component);
     }
+
+    [YamlMember(Order = 4)]
+    public IList<CustomProperty> CustomProperties { get; init; } = new List<CustomProperty>();
 }
