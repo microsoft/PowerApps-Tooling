@@ -1,25 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-namespace Test.AppWriter;
+namespace MSAppGenerator;
 
-internal class ExampleAppGenerator
+public class ExampleGenerator : IAppGenerator
 {
-    // This produces a simple example app including the specified number of screens and a few generic controls
-    // This is intended for testing purposes only
-    public static App GetExampleApp(IServiceProvider provider, string appName, int numScreens)
-    {
-        var controlFactory = provider.GetRequiredService<IControlFactory>();
+    private readonly IControlFactory _controlFactory;
 
-        var app = controlFactory.CreateApp(appName);
+    public ExampleGenerator(IControlFactory controlFactory)
+    {
+        _controlFactory = controlFactory;
+    }
+
+    /// <summary>
+    /// This produces a simple example app including the specified number of screens and a few generic controls
+    /// This is intended for testing purposes only
+    /// </summary>
+    public App GetExampleApp(string appName, int numScreens)
+    {
+        var app = _controlFactory.CreateApp(appName);
 
         for (var i = 0; i < numScreens; i++)
         {
-            var label1 = controlFactory.Create("Label1", template: "Label",
+            var label1 = _controlFactory.Create("Label1", template: "Label",
                 properties: new()
                 {
                 { "Align", "Align.Center" },
@@ -35,7 +41,7 @@ internal class ExampleAppGenerator
                 { "Width", "Parent.Width" }
                 }
             );
-            var button1 = controlFactory.Create("Button1", template: "Button",
+            var button1 = _controlFactory.Create("Button1", template: "Button",
                 properties: new()
                 {
                 { "DisabledBorderColor", "RGBA(166, 166, 166, 1)" },
@@ -52,7 +58,7 @@ internal class ExampleAppGenerator
                 }
             );
 
-            var groupContainer = controlFactory.Create("GroupContainer", template: "GroupContainer",
+            var groupContainer = _controlFactory.Create("GroupContainer", template: "GroupContainer",
                 properties: new()
                 {
                 { "DropShadow", "DropShadow.Light" },
@@ -70,7 +76,7 @@ internal class ExampleAppGenerator
                 children: [label1, button1]
             );
 
-            var graph = controlFactory.CreateScreen("Hello from .Net",
+            var graph = _controlFactory.CreateScreen("Hello from .Net",
                 children: [groupContainer]
             );
 
@@ -81,23 +87,25 @@ internal class ExampleAppGenerator
     }
 
     // produce a specified app based on commandline input
-    public static App CreateApp(IServiceProvider provider, string appName, int numScreens, string[] controls)
+    public App GenerateApp(string appName, int numScreens, IList<string>? controls)
     {
-        var controlFactory = provider.GetRequiredService<IControlFactory>();
-
-        var app = controlFactory.CreateApp(appName);
+        var app = _controlFactory.CreateApp(appName);
 
         for (var i = 0; i < numScreens; i++)
         {
             var childList = new List<Control>();
-            foreach (var control in controls)
+
+            if (controls != null)
             {
-                childList.Add(controlFactory.Create(control + childList.Count.ToString(), template: control,
-                    properties: new()
-                ));
+                foreach (var control in controls)
+                {
+                    childList.Add(_controlFactory.Create(control + childList.Count.ToString(), template: control,
+                       properties: new()
+                   ));
+                }
             }
 
-            app.Screens.Add(controlFactory.CreateScreen("Hello from .Net", children: childList.ToArray()));
+            app.Screens.Add(_controlFactory.CreateScreen("Hello from .Net", children: childList.ToArray()));
         }
 
         return app;

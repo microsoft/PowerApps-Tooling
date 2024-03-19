@@ -5,6 +5,7 @@ using System.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using MSAppGenerator;
 
 namespace Test.AppWriter;
 
@@ -15,6 +16,7 @@ internal class Program
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPowerAppsPersistence(true);
+        serviceCollection.AddSingleton<IAppGeneratorFactory, AppGeneratorFactory>();
         var serviceProvider = serviceCollection.BuildServiceProvider();
         return serviceProvider;
     }
@@ -48,7 +50,10 @@ internal class Program
         return false;
     }
 
-    private static void CreateMSApp(string fullPathToMsApp, int numScreens)
+    /// <summary>
+    /// Attempt to do specified app creation
+    /// </summary>
+    private static void CreateMSApp(bool interactive, string fullPathToMsApp, int numScreens, IList<string>? controlsinfo)
     {
         // Setup services for creating MSApp representation
         var provider = ConfigureServiceProvider();
@@ -56,26 +61,11 @@ internal class Program
         // Create a new empty MSApp
         using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
-        // Add a basic example app (note: this will be replaced with interactive process)
-        msapp.App = ExampleAppGenerator.GetExampleApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp), numScreens);
+        // Select Generator based off specified mode
+        var generator = provider.GetRequiredService<IAppGeneratorFactory>().Create(interactive);
 
-        // Output the MSApp to the path provided
-        msapp.Save();
-        Console.WriteLine("Success!  MSApp generated and saved to the provided path");
-    }
-
-    // Attempt to do specified app creation
-    private static void CreateMSApp(bool interactive, string fullPathToMsApp, int numScreens, string[] controlsinfo)
-    {
-        // Setup services for creating MSApp representation
-        var provider = ConfigureServiceProvider();
-
-        // Create a new empty MSApp
-        using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
-
-        msapp.App = interactive
-            ? InteractiveAppGenerator.GenerateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp))
-            : ExampleAppGenerator.CreateApp(provider, Path.GetFileNameWithoutExtension(fullPathToMsApp),
+        // Generate the app
+        msapp.App = generator.GenerateApp(Path.GetFileNameWithoutExtension(fullPathToMsApp),
                 numScreens, controlsinfo);
 
         // Output the MSApp to the path provided
@@ -117,7 +107,7 @@ internal class Program
                 result.ErrorMessage = "Number of screens must be greater than 0";
             }
         });
-        var controlsOptions = new Option<string[]>(
+        var controlsOptions = new Option<IList<string>>(
             name: "--controls",
             description: "(list of string) A list of control templates (i.e. Button Label [Template]...)")
         { AllowMultipleArgumentsPerToken = true };
