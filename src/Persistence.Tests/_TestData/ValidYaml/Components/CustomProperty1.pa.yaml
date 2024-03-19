@@ -1,0 +1,8 @@
+Component: 
+Name: Component1
+CustomProperties:
+- MyTextProp1: 
+  PropertyKind: Input
+  PropertyType: Data
+  DataType: String
+  Default: lorem
