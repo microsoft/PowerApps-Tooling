@@ -6,6 +6,9 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace MSAppGenerator;
 
+/// <summary>
+/// Generates an MSApp from a set of parameters
+/// </summary>
 public class ExampleGenerator : IAppGenerator
 {
     private readonly IControlFactory _controlFactory;
@@ -86,7 +89,9 @@ public class ExampleGenerator : IAppGenerator
         return app;
     }
 
-    // produce a specified app based on commandline input
+    /// <summary>
+    /// Creates MSApp based on input parameters
+    /// </summary>
     public App GenerateApp(string appName, int numScreens, IList<string>? controls)
     {
         var app = _controlFactory.CreateApp(appName);
