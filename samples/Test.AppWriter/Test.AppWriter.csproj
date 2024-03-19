@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- This reference will be replaced with Nuget package reference -->
     <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
       <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
