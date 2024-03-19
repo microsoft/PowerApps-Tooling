@@ -337,7 +337,7 @@ public class DeserializerValidTests : TestBase
             new CustomProperty()
             {
                 Name = "MyTextProp1",
-                DataType = DataType.String,
+                DataType = "String",
                 Default = "lorem",
                 Kind = CustomProperty.PropertyKind.Input,
                 Type = CustomProperty.PropertyType.Data,
@@ -350,12 +350,12 @@ public class DeserializerValidTests : TestBase
             new CustomProperty()
             {
                 Name = "MyFuncProp1",
-                DataType = DataType.String,
+                DataType = "String",
                 Default = "lorem",
                 Kind = CustomProperty.PropertyKind.Input,
                 Type = CustomProperty.PropertyType.Function,
                 Parameters = new[] {
-                    new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = DataType.String }
+                    new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = "String" }
                 },
             },
             @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"

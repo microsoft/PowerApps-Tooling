@@ -15,7 +15,7 @@ public record CustomProperty
     [YamlMember(Alias = "PropertyType")]
     public PropertyType Type { get; init; } = PropertyType.Data;
 
-    public DataType DataType { get; init; } = DataType.String;
+    public string DataType { get; init; } = "String";
 
     public string? DisplayName { get; init; }
 

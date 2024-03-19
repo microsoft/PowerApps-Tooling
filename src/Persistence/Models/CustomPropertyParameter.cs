@@ -7,6 +7,6 @@ public record CustomPropertyParameter
 {
     public string Name { get; init; } = string.Empty;
     public string? Description { get; init; }
-    public DataType DataType { get; init; }
+    public string DataType { get; init; } = "String";
     public bool IsRequired { get; init; }
 }
