@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 
@@ -29,8 +28,6 @@ public class YamlSerializationFactory : IYamlSerializationFactory
 
         var yamlSerializer = new SerializerBuilder()
                 .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
-                .WithEventEmitter(next => new NamedObjectEmitter<CustomProperty>(next, c => c.Name))
-                .WithEventEmitter(next => new NamedObjectEmitter<CustomPropertyParameter>(next, c => c.Name))
                 .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
                 .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)

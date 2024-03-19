@@ -7,7 +7,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public record CustomProperty
 {
-    [YamlIgnore]
     public string Name { get; init; } = string.Empty;
 
     [YamlMember(Alias = "PropertyKind")]

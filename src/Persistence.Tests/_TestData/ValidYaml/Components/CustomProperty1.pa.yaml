@@ -1,7 +1,7 @@
 Component: 
 Name: Component1
 CustomProperties:
-- MyTextProp1: 
+- Name: MyTextProp1
   PropertyKind: Input
   PropertyType: Data
   DataType: String
