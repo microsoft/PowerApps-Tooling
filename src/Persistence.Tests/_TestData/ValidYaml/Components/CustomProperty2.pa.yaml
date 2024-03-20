@@ -1,0 +1,12 @@
+Component: 
+Name: Component1
+CustomProperties:
+- Name: MyFuncProp1
+  PropertyKind: Input
+  PropertyType: Function
+  DataType: String
+  Default: lorem
+  Parameters:
+  - Name: param1
+    DataType: String
+    IsRequired: true

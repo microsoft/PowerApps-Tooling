@@ -1,63 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.EventEmitters;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class FirstClassControlsEmitter : ChainedEventEmitter
+internal class FirstClassControlsEmitter : NamedObjectEmitter<Control>
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-
     public FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
-       : base(nextEmitter)
+       : base(nextEmitter, c => GetControlName(c, controlTemplateStore))
     {
-        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
+
     }
 
-    public override void Emit(MappingStartEventInfo eventInfo, IEmitter emitter)
+    private static string? GetControlName(Control control, IControlTemplateStore controlTemplateStore)
     {
-        nextEmitter.Emit(eventInfo, emitter);
-
-        if (CheckIsFirstClass(eventInfo, out var nodeName))
-        {
-            var keySource = new ObjectDescriptor(nodeName, typeof(string), typeof(string));
-            nextEmitter.Emit(new ScalarEventInfo(keySource), emitter);
-
-            var valueSource = new ObjectDescriptor(null, typeof(string), typeof(string));
-            nextEmitter.Emit(new ScalarEventInfo(valueSource), emitter);
-        }
-    }
-
-    private bool CheckIsFirstClass(EventInfo eventInfo, [MaybeNullWhen(false)] out string nodeName)
-    {
-        var control = eventInfo.Source.Value as Control;
-        if (control == null)
-        {
-            nodeName = null;
-            return false;
-        }
-
-        // If the control has a template, use the template name
         if (control.Template != null && control.Template.HasDisplayName)
         {
-            nodeName = control.Template.DisplayName;
-            return true;
+            return control.Template.DisplayName;
         }
 
-        // If template is not found, look for the template by id
-        if (_controlTemplateStore.TryGetById(control.TemplateId, out var controlTemplate))
+        if (controlTemplateStore.TryGetById(control.TemplateId, out var controlTemplate))
         {
-            nodeName = controlTemplate.DisplayName;
-            return true;
+            return controlTemplate.DisplayName;
         }
 
-        nodeName = null;
-        return false;
+        return null;
     }
 }

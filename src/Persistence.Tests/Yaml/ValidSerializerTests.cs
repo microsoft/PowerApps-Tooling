@@ -185,7 +185,6 @@ public class ValidSerializerTests : TestBase
         sut.Should().Be(expectedYaml);
     }
 
-
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-variant.pa.yaml", "SuperButton", null)]
     [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical")]
@@ -204,5 +203,54 @@ public class ValidSerializerTests : TestBase
         var sut = serializer.Serialize(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
+    }
+
+    public static IEnumerable<object[]> Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data => new List<object[]>()
+    {
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyTextProp1",
+                DataType = "String",
+                Default = "lorem",
+                Kind = CustomProperty.PropertyKind.Input,
+                Type = CustomProperty.PropertyType.Data,
+                Parameters = Array.Empty<CustomPropertyParameter>()
+            },
+            @"_TestData/ValidYaml/Components/CustomProperty1.pa.yaml"
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyFuncProp1",
+                DataType = "String",
+                Default = "lorem",
+                Kind = CustomProperty.PropertyKind.Input,
+                Type = CustomProperty.PropertyType.Function,
+                Parameters = new[] {
+                    new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = "String" }
+                },
+            },
+            @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"
+        }
+    };
+
+    [TestMethod]
+    [DynamicData(nameof(Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data))]
+    public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty customProperty, string expectedYamlFile)
+    {
+        var component = ControlFactory.Create("Component1", "Component") as Component;
+        component.Should().NotBeNull();
+        component!.CustomProperties.Should().NotBeNull();
+        component.CustomProperties.Add(customProperty);
+
+        var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var serializedComponent = sut.Serialize(component);
+
+        var expectedYaml = File.ReadAllText(expectedYamlFile);
+        serializedComponent.Should().Be(expectedYaml);
     }
 }

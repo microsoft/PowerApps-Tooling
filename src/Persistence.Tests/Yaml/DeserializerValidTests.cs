@@ -329,4 +329,51 @@ public class DeserializerValidTests : TestBase
         galleryTemplate.Properties.Should().NotBeNull().And.HaveCount(1);
         galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
     }
+
+    public static IEnumerable<object[]> Deserialize_ShouldParseYamlForComponentCustomProperties_Data => new List<object[]>()
+    {
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyTextProp1",
+                DataType = "String",
+                Default = "lorem",
+                Kind = CustomProperty.PropertyKind.Input,
+                Type = CustomProperty.PropertyType.Data,
+                Parameters = Array.Empty<CustomPropertyParameter>()
+            },
+            @"_TestData/ValidYaml/Components/CustomProperty1.pa.yaml"
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyFuncProp1",
+                DataType = "String",
+                Default = "lorem",
+                Kind = CustomProperty.PropertyKind.Input,
+                Type = CustomProperty.PropertyType.Function,
+                Parameters = new[] {
+                    new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = "String" }
+                },
+            },
+            @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"
+        }
+    };
+
+    [TestMethod]
+    [DynamicData(nameof(Deserialize_ShouldParseYamlForComponentCustomProperties_Data))]
+    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty expectedCustomProperty, string yamlFile)
+    {
+        var expectedYaml = File.ReadAllText(yamlFile);
+
+        var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+
+        var component = sut.Deserialize<Component>(expectedYaml);
+        component.Should().NotBeNull();
+        component!.CustomProperties.Should().NotBeNull().And.HaveCount(1);
+
+        component.CustomProperties[0].Should().BeEquivalentTo(expectedCustomProperty);
+    }
 }
