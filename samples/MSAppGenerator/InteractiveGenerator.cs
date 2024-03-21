@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 namespace MSAppGenerator;
 
