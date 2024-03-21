@@ -1,0 +1,6 @@
+App: 
+Properties:
+  OnStart: =Set(foo, 123)
+Settings:
+  Name: Test App Name
+  Layout: Landscape
