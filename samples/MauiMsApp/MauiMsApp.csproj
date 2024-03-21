@@ -64,6 +64,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
       <!-- This reference will be replaced with Nuget package reference -->
 	  <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
 	    <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
@@ -71,12 +75,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="CreatePage.xaml.cs">
+	    <DependentUpon>CreatePage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="ScreensPage.xaml.cs">
 	    <DependentUpon>ScreensPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="CreatePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="ScreensPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiMsApp.CreatePage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+
+            <Label
+                HorizontalOptions="Center"
+                Text="File path:"
+                SemanticProperties.HeadingLevel="Level1" />
+            <Entry
+                x:Name="_filePathEntry"
+                SemanticProperties.Description="Input field for msapp file path for app creation"/>
+            <Label
+                HorizontalOptions="Center"
+                Text="Number of Screens:"
+                SemanticProperties.HeadingLevel="Level1" />
+            <Entry
+                x:Name="_numScreensEntry"
+                SemanticProperties.Description="Input field for msapp file path for app creation"/>
+            <Label
+                HorizontalOptions="Center"
+                Text="Control Templates:"
+                SemanticProperties.HeadingLevel="Level1" />
+            <Entry
+                x:Name="_controlTemplatesEntry"
+                SemanticProperties.Description="Input field for msapp file path for app creation"/>
+
+            <HorizontalStackLayout>
+                <Button
+                    x:Name="_createButton"
+                    Text="Create"
+                    Clicked="OnCreateClicked"/>
+                <Button
+                    x:Name="_backButton"
+                    Text="Back"
+                    Clicked="OnBackClicked"/>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

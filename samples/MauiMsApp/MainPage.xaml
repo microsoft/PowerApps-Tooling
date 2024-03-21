@@ -12,19 +12,20 @@
                     Source="power_apps_512.png"
                     HeightRequest="105"
                     Aspect="AspectFit"
-                    SemanticProperties.Description="dot net bot in a race car number eight" />
-                <Label VerticalTextAlignment="Center"
-                       Margin="20"
-                        Text="+"
-                        Style="{StaticResource Headline}"
-                        FontSize="Header"
-                        SemanticProperties.HeadingLevel="Level1" />
+                    SemanticProperties.Description="PowerApps logo" />
+                <Label
+                    VerticalTextAlignment="Center"
+                    Margin="20"
+                    Text="+"
+                    Style="{StaticResource Headline}"
+                    FontSize="Header"
+                    SemanticProperties.HeadingLevel="Level1" />
                 <Image
                     Source="dotnet_bot.png"
                     HeightRequest="125"
                     Aspect="AspectFit"
                     SemanticProperties.Description="dot net bot in a race car number eight" />
-            
+
             </HorizontalStackLayout>
 
             <Label
@@ -47,6 +48,13 @@
                     Clicked="OnOpenClicked"
                     HorizontalOptions="Center" />
 
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Entry
+                    x:Name="_filePathEntry"
+                    SemanticProperties.Description="Input field for msapp file path for app creation"/>
+
                 <Button
                     x:Name="_createButton"
                     Margin="10,0,10,0"
@@ -54,7 +62,6 @@
                     SemanticProperties.Hint="Creates Power Apps file (*.msapp)"
                     Clicked="OnCreateClicked"
                     HorizontalOptions="Center" />
-                
             </HorizontalStackLayout>
 
         </VerticalStackLayout>
