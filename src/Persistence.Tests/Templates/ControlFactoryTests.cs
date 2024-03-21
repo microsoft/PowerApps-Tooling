@@ -42,7 +42,6 @@ public class ControlFactoryTests : TestBase
             .And.BeEmpty();
     }
 
-
     [TestMethod]
     public void CreateFromTemplateName_Should_CreateFirstClassTypes()
     {
@@ -50,6 +49,23 @@ public class ControlFactoryTests : TestBase
 
         var result = sut.Create("Screen1", "Screen", properties: null);
         result.Should().NotBeNull().And.BeOfType<Screen>();
+        result.Properties.Should().NotBeNull().And.BeEmpty();
+        result.Children.Should().BeNull();
+    }
+
+    [TestMethod]
+    [DataRow("Component", "http://microsoft.com/appmagic/Component")]
+    [DataRow("CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    public void CreateComponent_ShouldCreateValidInstace(string componentType, string expectedTemplateId)
+    {
+        var sut = new ControlFactory(ControlTemplateStore);
+
+        var result = sut.Create("MyComponent1", componentType);
+        result.Should().NotBeNull().And.BeAssignableTo<Component>();
+        result.Name.Should().Be("MyComponent1");
+        result.Template.Should().NotBeNull();
+        result.Template.Id.Should().Be(expectedTemplateId);
+        result.Template.Name.Should().Be("MyComponent1");
         result.Properties.Should().NotBeNull().And.BeEmpty();
         result.Children.Should().BeNull();
     }
