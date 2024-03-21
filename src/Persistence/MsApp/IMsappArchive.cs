@@ -16,6 +16,10 @@ public interface IMsappArchive : IDisposable
     /// </summary>
     App? App { get; set; }
 
+    Version Version { get; }
+
+    Version DocVersion { get; }
+
     T Deserialize<T>(string entryName, bool ensureRoundTrip = true);
 
     /// <summary>
