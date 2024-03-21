@@ -204,6 +204,28 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
+    public Version Version
+    {
+        get
+        {
+            if (_header == null)
+                _header = LoadHeader();
+
+            return _header.MSAppStructureVersion;
+        }
+    }
+
+    public Version DocVersion
+    {
+        get
+        {
+            if (_header == null)
+                _header = LoadHeader();
+
+            return _header.DocVersion;
+        }
+    }
+
     public bool AddGitIgnore { get; init; } = true;
 
     #endregion
@@ -494,6 +516,18 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var entryStream = entry.Open();
         using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
         JsonSerializer.Serialize(writer, _header, JsonSerializerOptions);
+    }
+
+    private Header LoadHeader()
+    {
+        var entry = GetRequiredEntry(HeaderFileName);
+        using var entryStream = entry.Open();
+
+        var header = JsonSerializer.Deserialize<Header>(entryStream);
+        if (header == null)
+            throw new PersistenceException("Failed to deserialize header.") { FileName = entry.FullName };
+
+        return header;
     }
 
     private void SaveProperties()

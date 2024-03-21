@@ -122,6 +122,7 @@ public class MsappArchiveTests : TestBase
         msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
         msappArchive.App.Should().NotBeNull();
         msappArchive.App!.Screens.Count.Should().Be(controlsCount);
+        msappArchive.Version.Should().Be(Version.Parse("2.0"));
 
         var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
     }
