@@ -15,7 +15,6 @@ public record Header
     public required Version DocVersion { get; init; } = new Version("1.337");
     public required Version MinVersionToLoad { get; init; } = new Version("1.337");
     public required Version MSAppStructureVersion { get; init; } = new Version("2.0");
-    public required DateTime? LastSavedDateTimeUTC { get; init; } = DateTime.UtcNow;
 
     public AnalysisOptionsHeader AnalysisOptions { get; init; } = new AnalysisOptionsHeader();
 
