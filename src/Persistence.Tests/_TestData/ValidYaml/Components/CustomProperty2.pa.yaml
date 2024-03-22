@@ -2,9 +2,11 @@ Component:
 Name: Component1
 CustomProperties:
 - Name: MyFuncProp1
-  PropertyKind: Input
+  Direction: Input
   PropertyType: Function
   DataType: String
+  Category: Data
+  IsResettable: false
   Default: lorem
   Parameters:
   - Name: param1
