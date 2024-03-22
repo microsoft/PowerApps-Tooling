@@ -28,4 +28,6 @@ public record App : Control
 
     [YamlIgnore]
     public IList<Screen> Screens { get; set; } = new List<Screen>();
+
+    public Settings? Settings { get; init; }
 }

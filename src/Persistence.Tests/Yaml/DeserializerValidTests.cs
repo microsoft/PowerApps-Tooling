@@ -199,6 +199,27 @@ public class DeserializerValidTests : TestBase
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/App-with-settings.pa.yaml", "Test App Name", 1)]
+    public void Deserialize_App_WithSettings_ShouldSucceed(string path, string expectedName, int propertiesCount)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var controlObj = deserializer.Deserialize(yamlReader);
+        controlObj.Should().BeAssignableTo<App>();
+        var app = controlObj as App;
+
+        app!.Settings.Should().NotBeNull();
+        app!.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
+        app!.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
+        app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
+    }
+
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml/Screen-with-unmatched-field.pa.yaml")]
     public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)

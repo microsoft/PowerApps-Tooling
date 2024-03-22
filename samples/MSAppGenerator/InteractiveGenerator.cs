@@ -1,14 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-namespace Test.AppWriter;
-internal class InteractiveAppGenerator
+namespace MSAppGenerator;
+
+/// <summary>
+/// Generates an MSApp using input from interactive commandline session
+/// </summary>
+public class InteractiveGenerator : IAppGenerator
 {
-    // Simple function to shorthand the 'console write, console read' paradigm
+    private readonly IControlFactory _controlFactory;
+
+    public InteractiveGenerator(IControlFactory controlFactory)
+    {
+        _controlFactory = controlFactory;
+    }
+
+    /// <summary>
+    /// Simple function to shorthand the 'console write, console read' paradigm
+    /// </summary>
     private static string Prompt(string prompt)
     {
         string? input = null;
@@ -20,11 +32,12 @@ internal class InteractiveAppGenerator
         return input;
     }
 
-    // Performs interactive commandline session to specify parameters for an app
-    public static App GenerateApp(IServiceProvider provider, string appName)
+    /// <summary>
+    /// Performs interactive commandline session to specify parameters for an app
+    /// </summary>
+    public App GenerateApp(string filePath, int numScreens, IList<string>? controls)
     {
-        var controlFactory = provider.GetRequiredService<IControlFactory>();
-        var app = controlFactory.CreateApp(appName);
+        var app = _controlFactory.CreateApp(filePath);
 
         string input;
         var continueApp = true;
@@ -46,14 +59,14 @@ internal class InteractiveAppGenerator
                         var controltemplate = Prompt("    Input control template: ");
                         //input = Prompt("Specify properties? (y/n): ");
 
-                        childlist.Add(controlFactory.Create(controlname, template: controltemplate,
+                        childlist.Add(_controlFactory.Create(controlname, template: controltemplate,
                             properties: new()
                         ));
                     }
                     else if (input?.ToLower()[0] == 'n')
                     {
                         continueScreen = false;
-                        app.Screens.Add(controlFactory.CreateScreen(screenname, children: childlist.ToArray()));
+                        app.Screens.Add(_controlFactory.CreateScreen(screenname, children: childlist.ToArray()));
                     }
                 }
 
