@@ -36,12 +36,6 @@ public record CustomProperty
         Output
     }
 
-    public enum PropertyCategory
-    {
-        Data,
-        Behavior
-    }
-
     public enum PropertyType
     {
         Data,

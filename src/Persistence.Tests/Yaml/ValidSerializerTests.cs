@@ -130,9 +130,9 @@ public class ValidSerializerTests : TestBase
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = controlText } }
+                { "Text", controlText }
             }
         );
 
@@ -198,6 +198,29 @@ public class ValidSerializerTests : TestBase
         );
         graph.Layout = expectedLayout;
 
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-sorted-properties.pa.yaml", "SuperButton", "Some value")]
+    public void Should_SortBy_Category(string expectedPath, string templateName, string expectedValue)
+    {
+        var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
+            properties: new Dictionary<string, ControlProperty>()
+            {
+                { "a2_Data", new("a2_Data", expectedValue) { Category = PropertyCategory.Data } },
+                { "a1_Data", new("a1_Data", expectedValue) { Category = PropertyCategory.Data } },
+                { "x2_Behavior", new("x2_Behavior", expectedValue) { Category = PropertyCategory.Behavior } },
+                { "x1_Behavior", new("x1_Behavior", expectedValue) { Category = PropertyCategory.Behavior } },
+                { "y3_Design", new("y3_Design", expectedValue) { Category = PropertyCategory.Design } },
+                { "y2_Design", new("y2_Design", expectedValue) { Category = PropertyCategory.Design } },
+                { "y1_Design", new("y1_Design", expectedValue) { Category = PropertyCategory.Design } },
+            }
+        );
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.Serialize(graph).NormalizeNewlines();
