@@ -12,7 +12,7 @@ internal class ControlPropertyConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type)
     {
-        return type == typeof(ControlPropertyValue);
+        return type == typeof(ControlProperty);
     }
 
     public object? ReadYaml(IParser parser, Type type)
@@ -22,7 +22,7 @@ internal class ControlPropertyConverter : IYamlTypeConverter
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)
     {
-        var property = (ControlPropertyValue)value!;
+        var property = (ControlProperty)value!;
         var style = property.IsFormula ? ScalarStyle.Literal : ScalarStyle.Plain;
 
 #pragma warning disable CS8604 // Possible null reference with property value, but it's legal in YAML.

@@ -104,7 +104,7 @@ public abstract record Control
         for (var i = 0; i < Children.Count; i++)
         {
             var zIndex = Children.Count - i;
-            Children[i].Properties.Set(PropertyNames.ZIndex, new(zIndex.ToString(CultureInfo.InvariantCulture)) { IsFormula = false });
+            Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
         }
     }
 
