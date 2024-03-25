@@ -36,9 +36,9 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
                 value = parser.Consume<Scalar>().Value;
 
             if (IsTextFirst)
-                collection.Add(key.Value, ControlPropertyValue.FromTextFirstString(value));
+                collection.Add(key.Value, ControlProperty.FromTextFirstString(key.Value, value));
             else
-                collection.Add(key.Value, new ControlPropertyValue() { Value = value });
+                collection.Add(key.Value, value);
         }
 
         parser.MoveNext();
@@ -52,13 +52,13 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
         emitter.Emit(new MappingStart());
 
-        var sortedKeys = collection.Keys.OrderBy(x => x, StringComparer.Ordinal);
+        var sortedKeys = collection.Values.OrderBy(p => p, Comparer<ControlProperty>.Default);
 
         foreach (var key in sortedKeys)
         {
-            emitter.Emit(new Scalar(key));
+            emitter.Emit(new Scalar(key.Name));
 
-            var property = collection[key];
+            var property = collection[key.Name];
             var propertyValue = property.Value;
             if (IsTextFirst)
             {

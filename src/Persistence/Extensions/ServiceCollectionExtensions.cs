@@ -56,9 +56,9 @@ public static class ServiceCollectionExtensions
                     AddPropertiesToParent = true,
                     InputProperties =
                     {
-                        { "ItemAccessibleLabel", null },
-                        { "TemplateFill", null },
-                        { "OnSelect", null }
+                        { "ItemAccessibleLabel", string.Empty },
+                        { "TemplateFill", string.Empty },
+                        { "OnSelect", string.Empty }
                     }
                 }
             }

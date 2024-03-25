@@ -52,9 +52,9 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_ShouldParseYamlWithChildNodes()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a screen" }  },
+                { "Text", "I am a screen" },
             },
             children: new Control[]
             {
@@ -112,9 +112,9 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_ShouldParseYamlForCustomControl()
     {
         var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a custom control" } },
+                { "Text", "I am a custom control" },
             }
         );
 
@@ -360,7 +360,7 @@ public class DeserializerValidTests : TestBase
                 Name = "MyTextProp1",
                 DataType = "String",
                 Default = "lorem",
-                Kind = CustomProperty.PropertyKind.Input,
+                Direction = CustomProperty.PropertyDirection.Input,
                 Type = CustomProperty.PropertyType.Data,
                 Parameters = Array.Empty<CustomPropertyParameter>()
             },
@@ -373,7 +373,7 @@ public class DeserializerValidTests : TestBase
                 Name = "MyFuncProp1",
                 DataType = "String",
                 Default = "lorem",
-                Kind = CustomProperty.PropertyKind.Input,
+                Direction = CustomProperty.PropertyDirection.Input,
                 Type = CustomProperty.PropertyType.Function,
                 Parameters = new[] {
                     new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = "String" }

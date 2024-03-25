@@ -17,6 +17,8 @@ public record CommandComponent : Component
     {
         Name = name;
         Variant = variant;
-        Template = controlTemplateStore.GetByName(BuiltInTemplates.CommandComponent);
+
+        var baseTemplate = controlTemplateStore.GetByName(BuiltInTemplates.CommandComponent);
+        Template = baseTemplate with { Name = name };
     }
 }

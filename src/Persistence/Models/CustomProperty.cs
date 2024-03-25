@@ -7,15 +7,18 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public record CustomProperty
 {
-    public string Name { get; init; } = string.Empty;
+    public required string Name { get; init; }
 
-    [YamlMember(Alias = "PropertyKind")]
-    public PropertyKind Kind { get; init; } = PropertyKind.Input;
+    public PropertyDirection Direction { get; init; } = PropertyDirection.Input;
 
     [YamlMember(Alias = "PropertyType")]
     public PropertyType Type { get; init; } = PropertyType.Data;
 
     public string DataType { get; init; } = "String";
+
+    public PropertyCategory Category { get; init; } = PropertyCategory.Data;
+
+    public bool IsResettable { get; init; }
 
     public string? DisplayName { get; init; }
 
@@ -27,7 +30,7 @@ public record CustomProperty
 
     public IList<CustomPropertyParameter> Parameters { get; init; } = new List<CustomPropertyParameter>();
 
-    public enum PropertyKind
+    public enum PropertyDirection
     {
         Input,
         Output

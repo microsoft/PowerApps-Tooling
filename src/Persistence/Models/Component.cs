@@ -8,6 +8,9 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
+/// <summary>
+/// This class is meant to describe a Component definition.
+/// </summary>
 [FirstClass(templateName: BuiltInTemplates.Component)]
 [YamlSerializable]
 public record Component : Control
@@ -22,7 +25,9 @@ public record Component : Control
     {
         Name = name;
         Variant = variant;
-        Template = controlTemplateStore.GetByName(BuiltInTemplates.Component);
+
+        var baseTemplate = controlTemplateStore.GetByName(BuiltInTemplates.Component);
+        Template = baseTemplate with { Name = name };
     }
 
     [YamlMember(Order = 100)]
