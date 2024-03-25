@@ -9,23 +9,28 @@
             Spacing="25">
 
             <Label
+                Text="Create a new MSApp File:"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1" />
+
+            <Label
                 HorizontalOptions="Center"
                 Text="File path:"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level2" />
             <Entry
                 x:Name="_filePathEntry"
                 SemanticProperties.Description="Input field for msapp file path for app creation"/>
             <Label
                 HorizontalOptions="Center"
                 Text="Number of Screens:"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level3" />
             <Entry
                 x:Name="_numScreensEntry"
                 SemanticProperties.Description="Input field for msapp file path for app creation"/>
             <Label
                 HorizontalOptions="Center"
                 Text="Control Templates:"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level4" />
             <Entry
                 x:Name="_controlTemplatesEntry"
                 SemanticProperties.Description="Input field for msapp file path for app creation"/>

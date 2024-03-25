@@ -47,14 +47,9 @@
                     SemanticProperties.Hint="Opens Power Apps file (*.msapp)"
                     Clicked="OnOpenClicked"
                     HorizontalOptions="Center" />
-
             </HorizontalStackLayout>
 
             <HorizontalStackLayout HorizontalOptions="Center">
-                <Entry
-                    x:Name="_filePathEntry"
-                    SemanticProperties.Description="Input field for msapp file path for app creation"/>
-
                 <Button
                     x:Name="_createButton"
                     Margin="10,0,10,0"

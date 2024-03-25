@@ -17,24 +17,32 @@ public partial class CreatePage : ContentPage
     /// <summary>
     /// Attempt to do specified app creation
     /// </summary>
-    private void CreateMSApp(bool interactive, string fullPathToMsApp, int numScreens, IList<string>? controlsinfo)
+    private async Task CreateMSApp(bool interactive, string fullPathToMsApp, int numScreens, IList<string>? controlsinfo)
     {
-        // Setup services for creating MSApp representation
-        var provider = Handler!.MauiContext!.Services;
+        try
+        {
+            // Setup services for creating MSApp representation
+            var provider = Handler!.MauiContext!.Services;
 
-        // Create a new empty MSApp
-        using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
+            // Create a new empty MSApp
+            using var msapp = provider.GetRequiredService<IMsappArchiveFactory>().Create(fullPathToMsApp);
 
-        // Select Generator based off specified mode
-        var generator = provider.GetRequiredService<IAppGeneratorFactory>().Create(interactive);
+            // Select Generator based off specified mode
+            var generator = provider.GetRequiredService<IAppGeneratorFactory>().Create(interactive);
 
-        // Generate the app
-        msapp.App = generator.GenerateApp(Path.GetFileNameWithoutExtension(fullPathToMsApp),
-                numScreens, controlsinfo);
+            // Generate the app
+            msapp.App = generator.GenerateApp(Path.GetFileNameWithoutExtension(fullPathToMsApp),
+                    numScreens, controlsinfo);
 
-        // Output the MSApp to the path provided
-        msapp.Save();
-        Console.WriteLine("Success!  MSApp generated and saved to the provided path");
+            // Output the MSApp to the path provided
+            msapp.Save();
+
+            await DisplayAlert("Success", "You are now a PowerApps Pro Developer!", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Alert", "Something went wrong:\n" + ex.Message, "OK");
+        }
     }
 
 #pragma warning disable CA1822 // Mark members as static
@@ -47,7 +55,7 @@ public partial class CreatePage : ContentPage
             int numScreens;
             var result = int.TryParse(_numScreensEntry.Text, out numScreens);
             var controlTemplates = _controlTemplatesEntry.Text.Split(' ');
-            CreateMSApp(false, filePath, numScreens, controlTemplates);
+            await CreateMSApp(false, filePath, numScreens, controlTemplates);
         }
         catch (Exception)
         {
