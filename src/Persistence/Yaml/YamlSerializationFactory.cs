@@ -26,12 +26,15 @@ public class YamlSerializationFactory : IYamlSerializationFactory
     {
         options ??= YamlSerializerOptions.Default;
 
-        var yamlSerializer = new SerializerBuilder()
+        var yamlModelConverter = new YamlModelConverter();
+        var yamlSerializerBuilder = new SerializerBuilder()
                 .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
                 .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
                 .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
-                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
-           .Build();
+                .WithTypeConverter(yamlModelConverter)
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
+        yamlModelConverter.ValueSerializer = yamlSerializerBuilder.BuildValueSerializer();
+        var yamlSerializer = yamlSerializerBuilder.Build();
 
         return yamlSerializer;
     }
@@ -45,7 +48,8 @@ public class YamlSerializationFactory : IYamlSerializationFactory
     {
         options ??= YamlDeserializerOptions.Default;
 
-        var yamlDeserializer = new DeserializerBuilder()
+        var yamlModelConverter = new YamlModelConverter();
+        var yamlDeserializerBuilder = new DeserializerBuilder()
             .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
             .IgnoreUnmatchedProperties()
             .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
@@ -54,7 +58,10 @@ public class YamlSerializationFactory : IYamlSerializationFactory
                 o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
             })
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
-            .Build();
+            .WithTypeConverter(yamlModelConverter);
+        yamlModelConverter.ValueDeserializer = yamlDeserializerBuilder.BuildValueDeserializer();
+
+        var yamlDeserializer = yamlDeserializerBuilder.Build();
 
         return yamlDeserializer;
     }
