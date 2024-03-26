@@ -261,11 +261,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 #if DEBUG
         // Expected round trip serialization
         using var stringWriter = new StringWriter();
-        _serializer.Serialize(stringWriter, result);
+        _serializer.Serialize(stringWriter, ControlFormatter.BeforeSerialize(result));
 #endif
         // Ensure round trip serialization
         using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _serializer.Serialize(roundTripWriter, result);
+        _serializer.Serialize(roundTripWriter, ControlFormatter.BeforeSerialize(result));
 
         return result;
     }
@@ -361,6 +361,9 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public void Save(Control control, string? directory = null)
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
+
+        // convert here
+
 
         var controlDirectory = directory == null ? Directories.Src : Path.Combine(Directories.Src, directory);
         var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlPaFileExtension));

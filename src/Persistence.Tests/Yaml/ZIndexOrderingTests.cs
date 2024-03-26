@@ -26,7 +26,7 @@ public class ZIndexOrderingTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.Serialize(ControlFormatter.BeforeSerialize(graph));
         var expected = File.ReadAllText(@"_TestData/ValidYaml/ZIndexOrdering/Screen-with-sorted-children.pa.yaml");
         sut.Should().BeEquivalentTo(expected);
     }
