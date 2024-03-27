@@ -35,8 +35,7 @@ public class RoundTripTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Deserialize the yaml into an object.
-        var method = typeof(IYamlDeserializer).GetMethod("Deserialize", new[] { typeof(TextReader) })!.MakeGenericMethod(rootType);
-        var controlObj = method.Invoke(deserializer, new[] { yamlReader });
+        var controlObj = deserializer.DeserializeControl(yamlReader, rootType);
 
         // Validate the control.
         controlObj.Should().BeAssignableTo(rootType);

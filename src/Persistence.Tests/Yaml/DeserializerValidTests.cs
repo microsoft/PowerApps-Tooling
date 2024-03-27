@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Persistence.Tests.Extensions;
 
 namespace Persistence.Tests.Yaml;
 
@@ -167,8 +168,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var method = typeof(IYamlDeserializer).GetMethod("Deserialize", new[] { typeof(TextReader) })!.MakeGenericMethod(expectedType);
-        var controlObj = method.Invoke(deserializer, new[] { yamlReader });
+        var controlObj = deserializer.DeserializeControl(yamlReader, expectedType);
 
         // Assert
         controlObj.Should().BeAssignableTo(expectedType);

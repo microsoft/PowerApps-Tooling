@@ -276,7 +276,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _yamlDeserializer!.DeserializeControl<T>(textReader);
+            var result = _yamlDeserializer.DeserializeControl<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)

@@ -20,11 +20,16 @@ public class YamlDeserializer : IYamlDeserializer
 
     public TControl DeserializeControl<TControl>(string yaml) where TControl : Control
     {
+        if (string.IsNullOrWhiteSpace(yaml))
+            throw new ArgumentNullException(nameof(yaml));
+
         return _deserializer.Deserialize<TControl>(yaml).AfterDeserialize(_controlFactory);
     }
 
     public TControl DeserializeControl<TControl>(TextReader reader) where TControl : Control
     {
+        _ = reader ?? throw new ArgumentNullException(nameof(reader));
+
         return _deserializer.Deserialize<TControl>(reader).AfterDeserialize(_controlFactory);
     }
 }
