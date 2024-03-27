@@ -50,7 +50,7 @@ public class RoundTripTests : TestBase
             control.Children.Should().BeNull();
 
         // Serialize the object back into yaml.
-        var actualYaml = serializer.Serialize(control).NormalizeNewlines();
+        var actualYaml = serializer.SerializeControl(control).NormalizeNewlines();
 
         // Assert that the yaml is the same.
         var expectedYaml = File.ReadAllText(path).NormalizeNewlines();

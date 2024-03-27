@@ -253,7 +253,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _deserializer.Deserialize<T>(reader);
+            result = _deserializer.DeserializeControl<T>(reader);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -261,11 +261,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 #if DEBUG
         // Expected round trip serialization
         using var stringWriter = new StringWriter();
-        _serializer.Serialize(stringWriter, result);
+        _serializer.SerializeControl(stringWriter, result);
 #endif
         // Ensure round trip serialization
         using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _serializer.Serialize(roundTripWriter, result);
+        _serializer.SerializeControl(roundTripWriter, result);
 
         return result;
     }
@@ -276,7 +276,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _deserializer!.Deserialize<T>(textReader);
+            var result = _deserializer!.DeserializeControl<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)
@@ -367,7 +367,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.Serialize(writer, control);
+            _serializer.SerializeControl(writer, control);
         }
 
         SaveEditorState(control);
@@ -408,7 +408,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
         {
-            _serializer.Serialize(appWriter, _app);
+            _serializer.SerializeControl(appWriter, _app);
         }
 
         foreach (var screen in _app.Screens)
