@@ -56,6 +56,6 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
             .Build();
 
-        return new YamlDeserializer(yamlDeserializer);
+        return new YamlDeserializer(yamlDeserializer, _controlFactory);
     }
 }

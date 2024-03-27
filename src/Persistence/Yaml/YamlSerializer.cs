@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
@@ -17,11 +17,11 @@ public class YamlSerializer : IYamlSerializer
 
     public string Serialize<T>(T graph) where T : Control
     {
-        return _serializer.Serialize(graph);
+        return _serializer.Serialize(graph.BeforeSerialize());
     }
 
     public void Serialize<T>(TextWriter writer, T graph) where T : Control
     {
-        _serializer.Serialize(writer, graph);
+        _serializer.Serialize(writer, graph.BeforeSerialize());
     }
 }

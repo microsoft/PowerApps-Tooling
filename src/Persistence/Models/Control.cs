@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -88,56 +85,6 @@ public abstract record Control
 
             return int.MaxValue;
 
-        }
-    }
-
-    [OnDeserialized]
-    internal void AfterDeserialize()
-    {
-        // Apply a descending ZIndex value for each child
-        if (Children == null)
-            return;
-
-        if (this is App)
-            return; // Apps do not place ZIndex on their Host child
-
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var zIndex = Children.Count - i;
-            Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
-        }
-    }
-
-    [OnSerializing]
-    internal void BeforeSerialize()
-    {
-        HideNestedTemplates();
-
-        if (_children != null)
-            _children.Sort((c1, c2) => c2.ZIndex.CompareTo(c1.ZIndex));
-
-        Properties.Remove(PropertyNames.ZIndex);
-    }
-
-    /// <summary>
-    /// Called before serialization to hide nested templates which add properties to parent from YAML output.
-    /// </summary>
-    internal void HideNestedTemplates()
-    {
-        if (_children == null)
-            return;
-
-        for (var i = 0; i < _children.Count; i++)
-        {
-            if (_children[i].Template.AddPropertiesToParent)
-            {
-                foreach (var childTemplateProperty in _children[i].Properties)
-                {
-                    Properties.Add(childTemplateProperty.Key, childTemplateProperty.Value);
-                }
-                _children.RemoveAt(i);
-                i--;
-            }
         }
     }
 }

@@ -47,11 +47,6 @@ public class ControlObjectFactory : IObjectFactory
     public void ExecuteOnDeserialized(object value)
     {
         _defaultObjectFactory.ExecuteOnDeserialized(value);
-
-        if (value is Control control)
-        {
-            RestoreNestedTemplates(control);
-        }
     }
 
     public void ExecuteOnDeserializing(object value)
@@ -77,34 +72,5 @@ public class ControlObjectFactory : IObjectFactory
     public Type GetValueType(Type type)
     {
         return _defaultObjectFactory.GetValueType(type);
-    }
-
-
-    internal void RestoreNestedTemplates(Control control)
-    {
-        if (control.Template == null || control.Template.NestedTemplates == null)
-            return;
-
-        foreach (var nestedTemplate in control.Template.NestedTemplates)
-        {
-            if (!nestedTemplate.AddPropertiesToParent)
-                continue;
-
-            var nestedControl = _controlFactory.Create(Guid.NewGuid().ToString(), nestedTemplate);
-            if (control.Children == null)
-                control.Children = new List<Control>();
-            control.Children.Add(nestedControl);
-
-            // Move properties from parent to nested template
-            for (var i = 0; i < control.Properties.Count; i++)
-            {
-                var property = control.Properties.ElementAt(i);
-                if (!nestedTemplate.InputProperties.ContainsKey(property.Key))
-                    continue;
-                nestedControl.Properties.Add(property.Key, property.Value);
-                control.Properties.Remove(property.Key);
-                i--;
-            }
-        }
     }
 }
