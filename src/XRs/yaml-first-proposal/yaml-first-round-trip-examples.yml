@@ -1,0 +1,176 @@
+%YAML 1.2
+---
+# Round-tripping behavior (null and boolean tests)
+# Original source code:
+SrcCodeEx1 As SrcCodeEx:
+    # Null tests
+    Text10: =
+    Text20:
+    Text21: null
+    Text22: NULL
+    Text23: ~    # Explicit yaml null token.
+
+    # Boolean tests
+    Text30: true
+    Text31: false
+    Text32: True
+    Text33: FALSE
+...
+# After rount-trip, expected serialization:
+---
+SrcCodeEx1 As SrcCodeEx:
+    Text10:
+    Text20:
+    Text21:
+    Text22:
+    Text23:
+    Text30: true
+    Text31: false
+    Text32: true
+    Text33: false
+...
+
+
+---
+# Round-tripping behavior (integer tests)
+# Original source code:
+SrcCodeEx1 As SrcCodeEx:
+    Text10: ="100"
+    Text11: ="0x64"
+    Text12: ="0o144"
+    Text20: =100    # What does PFx coercion do?
+    Text21: =-100
+    Text30: 100
+    Text31: -100
+    Text32: +100    # Q: Is this valid PFx expression?
+    Text33: 0x64    # (base 16) deserialized as: =100
+    Text34: 0o144   # (base 8)  deserialized as: =100
+    # TODO: Add examples of long literals. Yaml doesn't impose a length limit on int literals.
+...
+# After rount-trip, expected serialization:
+---
+SrcCodeEx1 As SrcCodeEx:
+    Text10: ="100"
+    Text11: ="0x64"
+    Text12: ="0o144"
+    Text20: 100
+    Text21: -100
+    Text30: 100
+    Text31: -100
+    Text32: 100
+    Text33: 100
+    Text34: 100
+...
+
+
+---
+# Round-tripping behavior (float tests)
+# Original source code:
+SrcCodeEx1 As SrcCodeEx:
+    Text10: ="3.14159"
+    Text11: ="+3.14159"
+    Text12: ="-3.14159"
+    Text20: =3.14159
+    Text21: =+3.14159  # Q: Is this valid PFx expression?
+    Text22: =-3.14159
+    Text30: 3.14159
+    Text31: +3.14159
+    Text32: -3.14159
+    Text33: +.314159e+1
+    Text34: -31.4159E-1
+    # TODO: Add examples of long literals. Yaml doesn't impose a length limit on float literals.
+...
+# After rount-trip, expected serialization:
+---
+SrcCodeEx1 As SrcCodeEx:
+    Text10: ="3.14159"
+    Text11: ="+3.14159"
+    Text12: ="-3.14159"
+    Text20: 3.14159
+    Text21: 3.14159
+    Text22: -3.14159
+    Text30: 3.14159
+    Text31: 3.14159
+    Text32: -3.14159
+    Text33: 3.14159
+    Text34: -3.14159
+...
+
+---
+# Round-tripping behavior (infinity/not a number tests)
+# Original source code:
+SrcCodeEx1 As SrcCodeEx:
+    Text11: =".INF"
+    Text12: =".nan"
+
+    # Q: Is there a way to represent these in PFx?
+    Text20: =.INF
+    Text21: =.NAN
+
+    # If NOT allowed in PFx, we should cause a parser error, and document that they are not supported literal values.
+    # We should NOT silently coerce them to an 'interpolated string', as that would break expectations of Yaml author
+    # and will cause hard to resolve ambiguity if these literals are supported in the future.
+    Text31: .inf
+    Text32: -.INF
+    Text33: +.Inf
+    Text34: .nan
+    Text35: .NAN
+    Text36: .NaN
+...
+# After rount-trip, expected serialization:
+# Assuming that .INF and .NAN ARE supported in PFx.
+# TODO: Choose the connonical form for these literals. e.g. upper-case or lower-case.
+---
+SrcCodeEx1 As SrcCodeEx:
+    Text11: =".INF"
+    Text12: =".nan"
+    Text20: .INF
+    Text21: .NAN
+    Text31: .INF
+    Text32: -.INF
+    Text33: +.INF
+    Text34: .NAN
+    Text35: .NAN
+    Text36: .NAN
+...
+
+---
+# Round-tripping behavior (string literal tests - NOT interpolated)
+# Original source code:
+SrcCodeEx1 As SrcCodeEx:
+    Text10: =""
+    Text11: ="Hello, World!"
+    Text12: ="Hello, {name}!"
+    Text13: =$"Hello, {name}!"
+    Text20: ""
+    Text21: ''
+    Text22: | # plain style multiline string is always folded per yaml spec:
+
+    Text30: Hello, World!
+    Text31: 'Hello, World!'
+    Text32: "Hello, World!"
+    Text33: # plain style multiline string is always folded per yaml spec:
+      Hello,
+      World!
+    Text34: Hello, {name}!   # Looks like interpolated string, but text-first is turned off.
+    Text40: |
+      ="Hello, sentence with special chars : # ? "" ' in it!"
+...
+# After rount-trip, expected serialization:
+---
+SrcCodeEx1 As SrcCodeEx:
+    Text10: ''
+    Text11: Hello, World!
+    Text12: Hello, {name}!
+    Text13: =$"Hello, {name}!"
+    Text20: ''
+    Text21: ''
+    Text22: ''
+    Text30: Hello, World!
+    Text31: Hello, World!
+    Text32: Hello, World!
+    Text33: Hello, World!
+    Text34: Hello, {name}!
+    Text40: |
+      ="Hello, sentence with special chars : # ? "" ' in it!"
+...

@@ -1,0 +1,98 @@
+---
+# Top-level screens: Option A
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            # ...
+---
+# Top-level screens: Option B
+Screens:
+  Screen1:
+    Screen:
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            # ...
+---
+# Top-level screens: Option C
+Screens:
+  Screen1:
+    Control: screen
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            # ...
+
+
+---
+# Top-level screens: Option F
+Screens:
+  - Screen:
+    Name: Screen1
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            # ...
+---
+# Top-level screens: Option G
+# similar to AzDO jobs[*].job
+Screens:
+  - Screen: Screen1
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            # ...
+
+
+---
+# Top-level screen (singular): Option X
+Screen:
+  Name: Screen1
+  Properties:
+    Fill: =RGBA(200, 200, 200, 1)
+    # ...
+  Children:
+    - Label1:
+        Control: label
+        Properties:
+          Text: ="A label"
+          # ...
+---
+# Top-level screen (singular): Option Y
+Screen: Screen1
+Properties:
+  Fill: =RGBA(200, 200, 200, 1)
+  # ...
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...

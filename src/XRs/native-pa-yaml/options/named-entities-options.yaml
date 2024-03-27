@@ -1,0 +1,87 @@
+---
+# Named items: Option B
+# Unordered named items:
+CustomProperties:
+  AppTitle:
+    Type: Input
+    DisplayName: App Title
+    #...
+  ScreenTitle:
+    Type: Input
+    DisplayName: Screen Title
+    #...
+
+# Ordered named items:
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+  - Label2:
+      Control: label
+      Properties:
+        Text: ="A label"
+
+---
+# Named items: Option C
+Children-Unordered:
+  Label1:
+    Control: label
+    Properties:
+      Text: ="A label"
+  Label2:
+    Control: label
+    Properties:
+      Text: ="A label"
+
+Children-Ordered:
+  - Control: label
+    Name: Label1
+    Properties:
+      Text: ="A label"
+  - Control: label
+    Name: Label2
+    Properties:
+      Text: ="A label"
+
+---
+# Top-level screens: Option C
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...
+---
+# Top-level screens: Option D
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...
+---
+# Top-level screens: Option E
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...
+---
+# Top-level screens: Option F
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...
+---
+# Top-level screens: Option G
+# similar to AzDO jobs[*].job
+Children:
+  - Label1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        # ...

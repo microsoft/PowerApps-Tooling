@@ -1,0 +1,68 @@
+# The following three documents are all equivalent
+# when utilizing yaml to its fullest
+---
+SizeBreakpoints: =[1200, 1800, 2400]
+---
+SizeBreakpoints2: [1200, 1800, 2400]
+---
+SizeBreakpoints2:
+  - 1200
+  - 1800
+  - 2400
+...
+# The following show DropDown List with fixed data items:
+---
+- ddlChildren:
+    Control: dropdown
+    Properties:
+      Default: Foo bar - BBB
+      # Items: |-
+      #     =Filter([{ParentId: 1, Id: 11, Name: "Foo bar - AAA"},{ParentId: 1, Id: 12, Name: "Foo bar - BBB"},{ParentId: 2, Id: 21, Name: "Baz - CCC"},{ParentId: 3, Id: 32, Name: "Tuck - ZZZ"}], ParentId = ddlParent.Selected.Id)
+      Items:
+        - ParentId: 1
+          Id: 11
+          Name: Foo bar - AAA
+        - ParentId: 1
+          Id: 12
+          Name: Foo bar - BBB
+        - ParentId: 2
+          Id: 21
+          Name: Baz - CCC
+        - ParentId: 3
+          Id: 32
+          Name: Tuck - ZZZ
+      Width: 226
+      X: 40
+      Y: 390
+      ZIndex: 2
+
+- ddlParent:
+    Control: dropdown
+    Properties:
+      Default: Baz
+      # Items: |-
+      #     =[{Id: 1, Name: "Foo bar"},{Id: 2, Name: "Baz"}]
+      Items:
+        - Id: 1
+          Name: Foo bar
+        - Id: 2
+          Name: Baz
+      Width: 226
+      X: 40
+      Y: 323
+      ZIndex: 3
+...
+
+# The following show a Gallery with fixed data items:
+---
+- Gallery3:
+    Control: gallery
+    Properties:
+      # Instructions: Take the following line and show how copilot recommends things:
+      # Items: |-
+      #     =[{Id: 1, Name: "Foo bar"},{Id: 2, Name: "Baz"}]
+      Items:
+        - Id: 1
+          Name: Foo bar
+        - Id: 2
+          Name: Baz

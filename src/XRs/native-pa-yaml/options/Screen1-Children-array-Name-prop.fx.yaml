@@ -1,0 +1,138 @@
+# This file is an example using the following principals:
+# A control instance has its type, name, properties and children all as top-level properties.
+# Children is an array of Control instances.
+#
+# - Modify object instances:
+#   1. Add `Properties`, and indent all existing rule properties under it.
+#   2. Add `Children` property, and indent all children with 'As' notation under it.
+#   3. Make each child control with 'As' notation an array item instance. namely, add '- ' before each 'As' property.
+#   4. For each object instance ('As' notation) where "{Name} As {ControlType}" is used:
+#     3.1. Create `Name` property, and give it the value in the As
+#     3.2. Create 'Control' property, and give it the value in the ControlType
+
+Screen:
+  Name: Screen1
+  Children:
+    - Control: label
+      Name: Label1
+      Properties:
+        Text: ="A label"
+        X: =40
+        Y: =40
+
+    - Control: text
+      Name: TextInput1
+      Properties:
+        Default: ="Default input"
+        X: =40
+        Y: =80
+
+    - Control: button
+      Name: Button1
+      Properties:
+        Text: ="A Button"
+        X: =40
+        Y: =187
+
+    - Control: gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'
+      Name: Gallery1
+      Properties:
+        DelayItemLoading: =true
+        Height: =479
+        Items: =CustomGallerySample
+        Layout: =Layout.Vertical
+        # ...
+      Children:
+        - Control: galleryTemplate1
+          Name: galleryTemplate1
+          Properties:
+            TemplateFill: =RGBA(200, 200, 200, 255)
+
+        - Control: image
+          Name: Image1
+          Properties:
+            Height: =61
+            OnSelect: =Select(Parent)
+            # ...
+            X: =16
+            Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+
+        - Control: label
+          Name: Title1
+          Properties:
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =25
+            OnSelect: =Select(Parent)
+            # ...
+            X: =103
+            Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle1.Size * 1.8)) / 2
+
+        - Control: label
+          Name: Subtitle1
+          Properties:
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =35
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.SampleText
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Title1.Width
+            X: =Title1.X
+            Y: =Title1.Y + Title1.Height
+
+        - Control: icon.ChevronRight
+          Name: NextArrow1
+          Properties:
+            AccessibleLabel: =Self.Tooltip
+            Color: =RGBA(166, 166, 166, 1)
+            Height: =50
+            Icon: =Icon.ChevronRight
+            OnSelect: =Select(Parent)
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Tooltip: ="View item details"
+            Width: =50
+            X: =Parent.TemplateWidth - Self.Width - 12
+            Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+
+        - Control: rectangle
+          Name: Separator1
+          Properties:
+            Height: =8
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight - Self.Height
+
+        - Control: rectangle
+          Name: Rectangle1
+          Properties:
+            Height: =Parent.TemplateHeight - Separator1.Height
+            OnSelect: =Select(Parent)
+            Visible: =ThisItem.IsSelected
+            Width: =4
+
+    - Control: label
+      Name: Label1_2
+      Properties:
+        Text: ="A label"
+        X: =40
+        Y: =444
+
+    - Control: text
+      Name: TextInput1_2
+      Properties:
+        Default: ="Default input"
+        X: =40
+        Y: =484
+
+    - Control: button
+      Name: Button1_2
+      Properties:
+        Text: ="A Button"
+        X: =40
+        Y: =542

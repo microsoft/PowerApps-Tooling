@@ -1,0 +1,42 @@
+# Example docker compose file
+name: myapp
+
+services:
+  foo:
+    image: busybox
+    command: echo "I'm running ${COMPOSE_PROJECT_NAME}"
+  redis:
+    image: redis:latest
+    configs:
+      - my_config
+      - my_other_config
+  proxy:
+    build: ./proxy
+    networks:
+      - frontend
+  app:
+    build: ./app
+    networks:
+      - frontend
+      - backend
+  db:
+    image: postgres
+    networks:
+      - backend
+
+configs:
+  my_config:
+    file: ./my_config.txt
+  my_other_config:
+    external: true
+
+networks:
+  frontend:
+    # Use a custom driver
+    driver: custom-driver-1
+  backend:
+    # Use a custom driver which takes special options
+    driver: custom-driver-2
+    driver_opts:
+      foo: "1"
+      bar: "2"

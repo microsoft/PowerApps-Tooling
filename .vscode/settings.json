@@ -12,6 +12,7 @@
     "src/schemas/pa-yaml/v2.2/pa.schema.yaml": [
       "src/schemas-tests/pa-yaml/v2.2/**/*.pa.yaml"
     ],
+    "no-schema": "src/XRs/*.yaml",
     "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/schemas/pa-yaml/v2.2/pa.schema.yaml": "*.pa.yaml"
   }
 }

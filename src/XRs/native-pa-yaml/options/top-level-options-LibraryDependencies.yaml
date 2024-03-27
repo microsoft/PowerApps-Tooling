@@ -1,0 +1,19 @@
+---
+# top-level App: Option A
+# The LibraryLogicalName becomes the namespace used in the instances
+LibraryDependencies:
+  - LibraryLogicalName: joem_componentlibrary_1e112
+    LibraryVersion: '2024-02-10T02:58:30Z'
+---
+# top-level App: Option B
+LibraryDependencies:
+  # Mapping where the key is the identifier for the library, and the value is the library identification metadata
+  # When creating a component instance from the library, the identifier is used to reference the library.
+  # e.g. MyHeader1: { Component: JoeMComponentLibrary.Header }
+  - LibraryLogicalName: joem_componentlibrary_1e112
+    LibraryVersion: '2024-02-10T02:58:30Z'
+
+# TODOs:
+# - It looks like it may be possible to have a library dependency which doesn't have a logical name (see: Properties.json#/LibraryDependencies#/*/HasLibraryLogicalName)
+#   How should these be handled/represented?
+# -

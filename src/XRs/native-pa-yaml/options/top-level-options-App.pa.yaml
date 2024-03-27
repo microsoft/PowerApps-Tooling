@@ -1,0 +1,60 @@
+---
+# top-level App: Option A
+App:
+  Control: appinfo
+  Properties:
+    BackEnabled: =true
+    OnStart: =Set(var1, "hello world!")
+    StartScreen: =Screen1
+    Theme: =PowerAppsTheme
+
+  Children:
+    - Host:
+        Control: hostControl.DefaultHostControlVariant
+        Properties:
+          OnCancel: =Set(hostAction, "Cancel")
+          OnEdit: =Set(hostMode, "Edit")
+          OnNew: =Set(hostMode, "New")
+          OnSave: =Set(hostAction, "Save")
+          OnView: =Set(hostMode, "View")
+---
+# top-level App: Option B
+App:
+  Properties:
+    BackEnabled: =true
+    OnStart: =Set(var1, "hello world!")
+    StartScreen: =Screen1
+    Theme: =PowerAppsTheme
+
+  Children:
+    - Host:
+        Control: hostControl.DefaultHostControlVariant
+        Properties:
+          OnCancel: =Set(hostAction, "Cancel")
+          OnEdit: =Set(hostMode, "Edit")
+          OnNew: =Set(hostMode, "New")
+          OnSave: =Set(hostAction, "Save")
+          OnView: =Set(hostMode, "View")
+
+---
+# top-level App: Option C
+App:
+  BackEnabled: =true
+  OnStart: =Set(var1, "hello world!")
+  StartScreen: =Screen1
+  Theme: =PowerAppsTheme
+
+  Host:
+    OnCancel: =Set(hostAction, "Cancel")
+    OnEdit: =Set(hostMode, "Edit")
+    OnNew: =Set(hostMode, "New")
+    OnSave: =Set(hostAction, "Save")
+    OnView: =Set(hostMode, "View")
+
+---
+
+- Add these screenshots
+- Add options for component instance
+- Call out 'schema keywords' as a principal. benefits for copy/paste eg
+- add library references
+- add pcf references and instances

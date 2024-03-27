@@ -1,0 +1,98 @@
+# top-level property: Option A
+ComponentDefinitions:
+  MyHeaderComponent:
+    CustomProperties:
+      AppTitle:
+        Type: Input
+        DisplayName: App Title
+        Description: The title of the App
+        DataType: string
+        RaiseOnReset: false
+
+      ScreenTitle:
+        Type: Input
+        DisplayName: Screen Title
+        Description: The title of the screen
+        DataType: string
+        RaiseOnReset: false
+
+      HeaderTitle:
+        Type: Output
+        DisplayName: Full Title
+        Description: The full title of the header
+        DataType: string
+        RaiseOnReset: false
+
+    Properties:
+      AppTitle: ="My App"
+      Fill: =RGBA(141, 198, 63, 1)
+      Height: =50
+      ScreenTitle: ="ScreenX"
+      HeaderTitle: =Concatenate(MyHeaderComponent.AppTitle, " - ", MyHeaderComponent.ScreenTitle)
+      Width: =640
+      X: =0
+      Y: =0
+
+    Children:
+      - Control: label
+        Name: Label4
+        Properties:
+          Align: =Align.Center
+          BorderColor: =RGBA(0, 18, 107, 1)
+          Color: =RGBA(0, 0, 0, 1)
+          DisabledColor: =RGBA(166, 166, 166, 1)
+          FontWeight: =FontWeight.Bold
+          Height: =Parent.Height
+          Size: =20
+          Text: =MyHeaderComponent.HeaderTitle
+          Width: =Parent.Width
+---
+# top-level property: Option B
+# Default property value in CustomProperties, not in Properties
+ComponentDefinitions:
+  MyHeaderComponent:
+    CustomProperties:
+      AppTitle:
+        Type: Input
+        DisplayName: App Title
+        Description: The title of the App
+        DataType: string
+        RaiseOnReset: false
+        Default: ="My App"
+
+      ScreenTitle:
+        Type: Input
+        DisplayName: Screen Title
+        Description: The title of the screen
+        DataType: string
+        RaiseOnReset: false
+        Default: ="ScreenX"
+
+      HeaderTitle:
+        Type: Output
+        DisplayName: Full Title
+        Description: The full title of the header
+        DataType: string
+        RaiseOnReset: false
+        Default: =Concatenate(MyHeaderComponent.AppTitle, " - ", MyHeaderComponent.ScreenTitle)
+
+    Properties:
+      Fill: =RGBA(141, 198, 63, 1)
+      Height: =50
+      Width: =640
+      X: =0
+      Y: =0
+
+    Children:
+      - Control: label
+        Name: Label4
+        Properties:
+          Align: =Align.Center
+          BorderColor: =RGBA(0, 18, 107, 1)
+          Color: =RGBA(0, 0, 0, 1)
+          DisabledColor: =RGBA(166, 166, 166, 1)
+          FontWeight: =FontWeight.Bold
+          Height: =Parent.Height
+          Size: =20
+          Text: =MyHeaderComponent.HeaderTitle
+          Width: =Parent.Width

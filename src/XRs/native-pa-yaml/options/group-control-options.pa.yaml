@@ -1,0 +1,113 @@
+# Considerations:
+# - a group is a sibling to the controls it groups.
+# - it's zindex is computed to be: The max zindex of all controls in the group.
+#   This means we really don't even need to capture it in document order.
+
+---
+# Group control: Option A - Parent-child grouping
+# Error: App will be corrupted because zindex will get lost.
+# Cannot represent as a container control.
+Screens:
+  Screen1:
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="A label1"
+      - Group1:
+          Control: Group
+          Children:
+            - Label2:
+                Control: Label
+                Properties:
+                  Text: ="A label2"
+            - Label3:
+                Control: Label
+                Properties:
+                  Text: ="A label3"
+      - Label4:
+          Control: Label
+          Properties:
+            Text: ="A label4"
+---
+# Group control: Option B - Groups are separate from Children
+Screens:
+  Screen1:
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="A label1"
+      - Label2:
+          Control: Label
+          Properties:
+            Text: ="A label2"
+      - Label3:
+          Control: Label
+          Properties:
+            Text: ="A label3"
+      - Label4:
+          Control: Label
+          Properties:
+            Text: ="A label4"
+    Groups:
+      Group1:
+        ControlNames:
+          - Label1
+          - Label3
+
+        # Design note: IIF we ever want to support the concept of locking
+        # groups, it would be a non-breaking change to add it as a property here
+        IsLocked: true
+---
+# Group control: Option C - Group name is optional property
+Screens:
+  Screen1:
+    Children:
+      - Label1:
+          Control: Label
+          Group: Group1
+          Properties:
+            Text: ="A label1"
+      - Label2:
+          Control: Label
+          Properties:
+            Text: ="A label2"
+      - Label3:
+          Control: Label
+          Group: Group1
+          Properties:
+            Text: ="A label3"
+      - Group1:
+          Control: Group
+      - Label4:
+          Control: Label
+          Properties:
+            Text: ="A label4"
+---
+# Group control: Option D - Sibling built-in control
+# Similar to how it's represented in json
+Screens:
+  Screen1:
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="A label1"
+      - Label2:
+          Control: Label
+          Properties:
+            Text: ="A label2"
+      - Label3:
+          Control: Label
+          Properties:
+            Text: ="A label3"
+      - Group1:
+          Control: Group
+          ControlNames:
+            - Label1
+            - Label3
+      - Label4:
+          Control: Label
+          Properties:
+            Text: ="A label4"

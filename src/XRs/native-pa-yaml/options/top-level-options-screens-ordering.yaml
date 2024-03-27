@@ -1,0 +1,38 @@
+---
+# Screen ordering: Option A
+# ScreensOrder - sequence of screen names
+# to indicate the order
+ScreensOrder:
+  - MainMenu
+  - DetailScreen
+  - Screen1
+
+...
+# Screen ordering: Option B
+# Screen objects have SortOrder property
+# to specify the order of the screens
+---
+Screens:
+  MainMenu:
+    Screen:
+    SortOrder: 1
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+---
+Screens:
+  DetailScreen:
+    Screen:
+    SortOrder: 2
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+---
+Screens:
+  Screen1:
+    Screen:
+    SortOrder: 3
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      # ...
+

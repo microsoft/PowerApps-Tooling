@@ -1,0 +1,71 @@
+---
+# Option1: A 'Component' control adds extra top-level
+# property to indicate the component's identifier.
+Screens:
+  ComponentsScreen4:
+    Children:
+      - MyHeaderComponent_2:
+          Control: Component
+          ComponentName: MyHeaderComponent
+          Properties:
+            Height: =77
+            ScreenTitle: ="Screen A"
+            Width: =1366
+
+      - MenuTemplate_1:
+          Control: Component
+          ComponentName: MenuTemplate
+          ComponentLibraryName: joem_componentslibrary_1e112
+          Properties:
+            MenuItems: |-
+              =Table({Title: "Foo", Tag: "foo"}
+                , {Title: "Bar", Tag: "bar"}
+                , {Title: "Baz", Tag: "baz"}
+                )
+            X: =15
+            Y: =294
+---
+# Option1: B 'Control' type property is not required
+# as it is implied from the 'Component' property
+Screens:
+  ComponentsScreen4:
+    Children:
+      - MyHeaderComponent_2:
+          Component: MyHeaderComponent
+          Properties:
+            Height: =77
+            ScreenTitle: ="Screen A"
+            Width: =1366
+
+      - MenuTemplate_1:
+          Component: joem_componentslibrary_1e112.MenuTemplate
+          Properties:
+            MenuItems: |-
+              =Table({Title: "Foo", Tag: "foo"}
+                , {Title: "Bar", Tag: "bar"}
+                , {Title: "Baz", Tag: "baz"}
+                )
+            X: =15
+            Y: =294
+---
+# Option1: C 'Control' type is a URI-like value, which will hold the Component's identifier
+Screens:
+  ComponentsScreen4:
+    Children:
+      - MyHeaderComponent_2:
+          Control: Component/MyHeaderComponent
+          Properties:
+            Height: =77
+            ScreenTitle: ="Screen A"
+            Width: =1366
+
+      - MenuTemplate_1:
+          Control: Component/joem_componentslibrary_1e112.MenuTemplate
+          Properties:
+            MenuItems: |-
+              =Table({Title: "Foo", Tag: "foo"}
+                , {Title: "Bar", Tag: "bar"}
+                , {Title: "Baz", Tag: "baz"}
+                )
+            X: =15
+            Y: =294

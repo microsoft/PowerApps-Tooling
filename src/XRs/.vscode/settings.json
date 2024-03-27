@@ -1,0 +1,9 @@
+{
+  "[yaml]": {},
+  "yaml.schemaStore.enable": false,
+  "yaml.validate": false,
+  "cSpell.enabled": false,
+  "yaml.schemas": {
+    "no-schema": "*.yaml"
+  }
+}

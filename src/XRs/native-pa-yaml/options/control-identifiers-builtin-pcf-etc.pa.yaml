@@ -1,0 +1,198 @@
+Screens:
+  ClassicControlsScreen:
+    Children:
+      # Template/Id: "http://microsoft.com/appmagic/label"
+      # Template/Name: "label"
+      - Label1:
+          Control: Label
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/text"
+      # Template/Name: "text"
+      - TextInput1:
+          Control: Text
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/slider"
+      # Template/Name: "slider"
+      - Slider1:
+          Control: Slider
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/icon"
+      # Template/Name: "icon"
+      # Variant: "Add"
+      - IconAdd1:
+          Control: icon
+          Variant: Add
+          Properties:
+            # Not sure whether we should prefer the Variant or the Icon property
+            Icon: =Icon.Add
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/icon"
+      # Template/Name: "icon"
+      # Variant: "ArrowUp"
+      - IconAdd1:
+          Control: icon
+          Variant: ArrowUp
+          Properties:
+            # The oam file makes it so the Icon's default value is set depending on the Variant. So we wouldn't normally serialize it.
+            #Icon: =Icon.ArrowUp
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/shape"
+      # Template/Name: "icon"
+      # Variant: "Add"
+      - IconAdd1:
+          Control: icon
+          Variant: Add
+          Properties:
+            X: =20
+
+  ModernControlsScreen:
+    Children:
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas"
+      # Templates/Name: "PowerApps_CoreControls_TextCanvas"
+      # Template/TemplateDisplayName: "Text"
+      - TextCanvas1:
+          Control: PowerApps_CoreControls_TextCanvas
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextInputCanvas"
+      # Template/Name: "PowerApps_CoreControls_TextInputCanvas"
+      # Template/TemplateDisplayName: "Text input"
+      - TextInputCanvas1:
+          Control: PowerApps_CoreControls_TextInputCanvas
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_Slider"
+      # Template/Name: "PowerApps_CoreControls_Slider"
+      # Template/TemplateDisplayName: "Slider"
+      - Slider3:
+          Control: PowerApps_CoreControls_Slider
+          Properties:
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_Icon"
+      # Template/Name: "PowerApps_CoreControls_Icon"
+      # Template/TemplateDisplayName: "Icon"
+      # Variant: <not set>
+      - IconAdd6:
+          Control: PowerApps_CoreControls_Icon
+          Properties:
+            # Icon is not serialized because it has the default InvariantScript
+            # REVIEW: Should some control properties be allowed to always be serialized to yaml? e.g. JsonIgnoreCondition.Never
+            # Icon: ="Add"
+            X: =20
+
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_Icon"
+      # Template/Name: "PowerApps_CoreControls_Icon"
+      # Template/TemplateDisplayName: "Icon"
+      # Variant: <not set>
+      - IconChevronDown7:
+          Control: PowerApps_CoreControls_Icon
+          Properties:
+            Icon: ="ChevronDown"
+            X: =20
+
+  CodePcfControlsScreen:
+    Children:
+      # Custom PCF control instance:
+      # Template/Id: "http://microsoft.com/appmagic/powercontrol/mspatool_PATooling.Samples.Label"
+      # Template/Name: "mspatool_PATooling.Samples.Label"
+      # Looks like the UX will add the code namespace when the control's display name conflicts with an existing control:
+      # Template/TemplateDisplayName: "Label(PATooling.Samples)"
+      # Notes:
+      # pcf control PublisherPrefix: "mspatool"
+      # pcf control's class name with namespace: PATooling.Samples.Label
+      - Label5:
+          Control: CodeComponent
+          ComponentName: mspatool_PATooling.Samples.Label
+          Properties:
+            Text: ="Hello World!"
+            X: =20
+
+  ComponentInstanceControlsScreen:
+    Children:
+      # Template/Id: http://microsoft.com/appmagic/Component
+      # Template/Name: 9895109e97834dc08d5a8d630aca10f7
+      # Template/ComponentType: CanvasComponent
+      # Template/ComponentDefinitionInfo/Name: Label
+      - Label6:
+          Control: Component
+          ComponentName: Label
+          Properties:
+            Title: ="Screen title here"
+            X: =20
+
+
+  # Proposal A: Add a separate 'Family' property
+  ProposalAScreen:
+    Children:
+      # Maps to templateId: http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_Slider
+      - BuiltInModernSlider1:
+          Control: Slider
+          Family: Fluent9
+          Properties:
+            X: =20
+
+      # Maps to templateId: http://microsoft.com/appmagic/slider
+      - BuiltInClassicSlider1:
+          Control: Slider
+          Family: Legacy
+          Properties:
+            X: =20
+
+      # When the 'Family' is not required:
+      # Maps to templateId: http://microsoft.com/appmagic/label
+      - BuiltInLabel1:
+          Control: Label
+          Properties:
+            X: =20
+
+  # Proposal B: The 'Family' is part of Control
+  ProposalBScreen:
+    Children:
+      # Maps to templateId: http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_Slider
+      - BuiltInModernSlider1:
+          Control: Fluent9/Slider
+          Properties:
+            X: =20
+
+      # Maps to templateId: http://microsoft.com/appmagic/slider
+      - BuiltInClassicSlider1:
+          Control: Legacy/Slider
+          Properties:
+            X: =20
+
+      # When the 'Family' is not required:
+      # Maps to templateId: http://microsoft.com/appmagic/label
+      - BuiltInLabel1:
+          Control: Label
+          Properties:
+            X: =20
+
+  # Proposal B: Pcf (Code Components) corollary
+  ProposalBScreen:
+    Children:
+
+      # Proposal B: 3rd party PCF controls (aka Code Components)
+      - PcfCodeComponentSlider1:
+          Control: CodeComponent
+          ComponentName: pppref_MyCompany.PcfControls.Slider
+          Properties:
+            X: =20
+
+      # Proposal B: Custom Component controls
+      - CustomComponentSlider1:
+          Control: Component
+          ComponentName: Slider
+          Properties:
+            X: =20
+
