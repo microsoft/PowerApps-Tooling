@@ -56,8 +56,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private readonly bool _leaveOpen;
 
     // Yaml serializer and deserializer
-    private readonly IYamlSerializer _serializer;
-    private readonly IYamlDeserializer _deserializer;
+    private readonly IYamlSerializer _yamlSerializer;
+    private readonly IYamlDeserializer _yamlDeserializer;
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -119,8 +119,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         _stream = stream;
         _leaveOpen = leaveOpen;
-        _serializer = yamlSerializationFactory.CreateSerializer();
-        _deserializer = yamlSerializationFactory.CreateDeserializer();
+        _yamlSerializer = yamlSerializationFactory.CreateSerializer();
+        _yamlDeserializer = yamlSerializationFactory.CreateDeserializer();
         _logger = logger;
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
         CreateGitIgnore();
@@ -253,7 +253,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _deserializer.DeserializeControl<T>(reader);
+            result = _yamlDeserializer.DeserializeControl<T>(reader);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -261,11 +261,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 #if DEBUG
         // Expected round trip serialization
         using var stringWriter = new StringWriter();
-        _serializer.SerializeControl(stringWriter, result);
+        _yamlSerializer.SerializeControl(stringWriter, result);
 #endif
         // Ensure round trip serialization
         using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _serializer.SerializeControl(roundTripWriter, result);
+        _yamlSerializer.SerializeControl(roundTripWriter, result);
 
         return result;
     }
@@ -276,7 +276,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _deserializer!.DeserializeControl<T>(textReader);
+            var result = _yamlDeserializer!.DeserializeControl<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)
@@ -367,7 +367,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.SerializeControl(writer, control);
+            _yamlSerializer.SerializeControl(writer, control);
         }
 
         SaveEditorState(control);
@@ -408,7 +408,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
         {
-            _serializer.SerializeControl(appWriter, _app);
+            _yamlSerializer.SerializeControl(appWriter, _app);
         }
 
         foreach (var screen in _app.Screens)
