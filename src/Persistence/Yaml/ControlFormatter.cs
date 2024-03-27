@@ -13,9 +13,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 /// for handling Z-Index, ordering, and nested template.
 /// This is intended to be temporary, replaced by the conversion to another lower model.
 /// </summary>
-public static class ControlFormatter
+internal static class ControlFormatter
 {
-    public static T BeforeSerialize<T>(this T control) where T : Control
+    internal static T BeforeSerialize<T>(this T control) where T : Control
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
@@ -38,7 +38,7 @@ public static class ControlFormatter
         return control with { Children = children, Properties = properties };
     }
 
-    public static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
+    internal static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
@@ -80,7 +80,7 @@ public static class ControlFormatter
 
     private static (List<Control> childrenToAdd, List<string> propertiesToRemove) RestoreNestedTemplates(Control control, IControlFactory controlFactory)
     {
-        var childrenToAdd = (control.Template.NestedTemplates ?? Enumerable.Empty<ControlTemplate>())
+        var childrenToAdd = (control.Template?.NestedTemplates ?? Enumerable.Empty<ControlTemplate>())
             .Where(t => t.AddPropertiesToParent)
             .Select(nestedTemplate =>
                 controlFactory.Create(Guid.NewGuid().ToString(), nestedTemplate,

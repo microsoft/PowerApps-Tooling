@@ -434,7 +434,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        // For app entry name is always "App.pa.yaml" now
+        // For app entry name is always "App.pa.yaml" now 
         var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
         if (appEntry == null)
             return null;
