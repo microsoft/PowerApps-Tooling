@@ -253,7 +253,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _deserializer.Deserialize<T>(reader);
+            result = _deserializer.Deserialize<T>(reader).AfterDeserialize(/* TODO - Need to get a ControlFactory instance*/);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -362,15 +362,12 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
-        // convert here
-
-
         var controlDirectory = directory == null ? Directories.Src : Path.Combine(Directories.Src, directory);
         var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlPaFileExtension));
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.Serialize(writer, control);
+            _serializer.Serialize(writer, ControlFormatter.BeforeSerialize(control));
         }
 
         SaveEditorState(control);

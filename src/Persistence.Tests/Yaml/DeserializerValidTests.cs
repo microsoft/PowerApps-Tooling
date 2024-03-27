@@ -79,7 +79,7 @@ public class DeserializerValidTests : TestBase
 
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
-        var sut = deserializer.Deserialize<Control>(yaml);
+        var sut = deserializer.Deserialize<Control>(yaml).AfterDeserialize(ControlFactory);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
@@ -321,7 +321,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var screen = deserializer.Deserialize<Screen>(yamlReader);
+        var screen = deserializer.Deserialize<Screen>(yamlReader).AfterDeserialize(ControlFactory);
 
         // Assert
         screen.Should().NotBeNull();

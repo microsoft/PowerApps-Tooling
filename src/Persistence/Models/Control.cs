@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -87,23 +85,6 @@ public abstract record Control
 
             return int.MaxValue;
 
-        }
-    }
-
-    [OnDeserialized]
-    internal void AfterDeserialize()
-    {
-        // Apply a descending ZIndex value for each child
-        if (Children == null)
-            return;
-
-        if (this is App)
-            return; // Apps do not place ZIndex on their Host child
-
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var zIndex = Children.Count - i;
-            Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
         }
     }
 }

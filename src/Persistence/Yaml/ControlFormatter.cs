@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
@@ -13,7 +15,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 /// </summary>
 public static class ControlFormatter
 {
-    public static Control BeforeSerialize(Control control)
+    public static T BeforeSerialize<T>(this T control) where T : Control
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
@@ -34,5 +36,62 @@ public static class ControlFormatter
                 .Concat(propertiesToMerge));
 
         return control with { Children = children, Properties = properties };
+    }
+
+    public static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
+    {
+        _ = control ?? throw new ArgumentNullException(nameof(control));
+
+        // No processing needed if there are no children, or if the control is an App
+        if (control is App || control.Children == null || !control.Children.Any())
+        {
+            return control;
+        }
+
+        // Create any children from nested templates
+        var (childrenToAdd, propertiesToRemove) = RestoreNestedTemplates(control, controlFactory);
+
+        var originalChildCount = control.Children.Count;
+
+        var children = control.Children
+            .Select(c => AfterDeserialize(c, controlFactory)) // Recurse into child controls
+            .Select(addZIndex)
+            .Concat(childrenToAdd)
+            .ToList();
+
+        var properties = propertiesToRemove.Count > 0
+            ? new ControlPropertiesCollection(control.Properties.ExceptBy(propertiesToRemove, kvp => kvp.Key))
+            : control.Properties;
+
+        return control with { Children = children, Properties = properties };
+
+        Control addZIndex(Control control, int orderedIndex)
+        {
+            // Controls are sorted in descending Z-Index order
+            var zIndex = originalChildCount - orderedIndex;
+            var zIndexProp = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
+
+            var newProperties = new ControlPropertiesCollection(
+                control.Properties.Append(KeyValuePair.Create(PropertyNames.ZIndex, zIndexProp)));
+
+            return control with { Properties = newProperties };
+        }
+    }
+
+    private static (List<Control> childrenToAdd, List<string> propertiesToRemove) RestoreNestedTemplates(Control control, IControlFactory controlFactory)
+    {
+        var childrenToAdd = (control.Template.NestedTemplates ?? Enumerable.Empty<ControlTemplate>())
+            .Where(t => t.AddPropertiesToParent)
+            .Select(nestedTemplate =>
+                controlFactory.Create(Guid.NewGuid().ToString(), nestedTemplate,
+                    properties: new ControlPropertiesCollection(
+                        nestedTemplate.InputProperties
+                            .Where(prop => control.Properties.ContainsKey(prop.Key))
+                            .Select(prop => KeyValuePair.Create(prop.Key, control.Properties[prop.Key]))))
+            )
+            .ToList();
+
+        var propertiesToRemove = childrenToAdd.SelectMany(c => c.Properties.Keys).ToList();
+        return (childrenToAdd, propertiesToRemove);
     }
 }
