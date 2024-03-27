@@ -52,7 +52,7 @@ public class DeserializerInvalidTests
     {
         // Arrange
         var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead("_TestData\\ValidYaml\\Screen\\with-name.pa.yaml");
+        using var yamlStream = File.OpenRead("_TestData/ValidYaml/Screen/with-name.pa.yaml");
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
