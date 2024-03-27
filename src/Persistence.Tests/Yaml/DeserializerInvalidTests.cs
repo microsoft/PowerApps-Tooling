@@ -37,7 +37,7 @@ public class DeserializerInvalidTests
             catch (Exception ex) when (ex is not AssertFailedException)
             {
                 // Assert exceptions are thrown
-                failedFiles++;
+                Interlocked.Increment(ref failedFiles);
             }
         });
 
