@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.ObjectFactories;

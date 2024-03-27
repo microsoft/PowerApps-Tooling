@@ -253,7 +253,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _deserializer.Deserialize<T>(reader).AfterDeserialize(/* TODO - Need to get a ControlFactory instance*/);
+            result = _deserializer.Deserialize<T>(reader);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -261,11 +261,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 #if DEBUG
         // Expected round trip serialization
         using var stringWriter = new StringWriter();
-        _serializer.Serialize(stringWriter, ControlFormatter.BeforeSerialize(result));
+        _serializer.Serialize(stringWriter, result);
 #endif
         // Ensure round trip serialization
         using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _serializer.Serialize(roundTripWriter, ControlFormatter.BeforeSerialize(result));
+        _serializer.Serialize(roundTripWriter, result);
 
         return result;
     }
@@ -367,7 +367,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.Serialize(writer, ControlFormatter.BeforeSerialize(control));
+            _serializer.Serialize(writer, control);
         }
 
         SaveEditorState(control);
@@ -434,7 +434,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        // For app entry name is always "App.pa.yaml" now 
+        // For app entry name is always "App.pa.yaml" now
         var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
         if (appEntry == null)
             return null;
