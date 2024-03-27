@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public interface IYamlDeserializer
 {
-    public T Deserialize<T>(string yaml) where T : Control;
+    public TControl Deserialize<TControl>(string yaml) where TControl : Control;
 
-    public T Deserialize<T>(TextReader reader) where T : Control;
+    public TControl Deserialize<TControl>(TextReader reader) where TControl : Control;
 }
