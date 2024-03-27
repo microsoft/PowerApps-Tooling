@@ -20,7 +20,7 @@ public interface IMsappArchive : IDisposable
 
     Version DocVersion { get; }
 
-    T Deserialize<T>(string entryName, bool ensureRoundTrip = true);
+    T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control;
 
     /// <summary>
     /// Saves control in the archive. Control can be App, Screen, or individual control.

@@ -28,7 +28,7 @@ public class DeserializerInvalidTests
             // Act
             try
             {
-                var result = deserializer.Deserialize(yamlReader);
+                var result = deserializer.Deserialize<Control>(yamlReader);
                 if (result is not Control)
                     throw new InvalidOperationException("Expected a control");
 

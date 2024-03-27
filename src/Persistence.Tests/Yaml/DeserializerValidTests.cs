@@ -167,7 +167,8 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var method = typeof(IYamlDeserializer).GetMethod("Deserialize", new[] { typeof(TextReader) })!.MakeGenericMethod(expectedType);
+        var controlObj = method.Invoke(deserializer, new[] { yamlReader });
 
         // Assert
         controlObj.Should().BeAssignableTo(expectedType);
@@ -191,9 +192,8 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
-        controlObj.Should().BeAssignableTo<App>();
-        var app = controlObj as App;
+        var app = deserializer.Deserialize<App>(yamlReader);
+
         app!.Name.Should().NotBeNull().And.Be(expectedName);
         app.Children.Should().NotBeNull().And.HaveCount(controlCount);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
@@ -210,13 +210,11 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
-        controlObj.Should().BeAssignableTo<App>();
-        var app = controlObj as App;
+        var app = deserializer.Deserialize<App>(yamlReader);
 
-        app!.Settings.Should().NotBeNull();
-        app!.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
-        app!.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
+        app.Settings.Should().NotBeNull();
+        app.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
+        app.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
@@ -230,7 +228,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var controlObj = deserializer.Deserialize<Screen>(yamlReader);
 
         // Assert
         controlObj.Should().NotBeNull();
@@ -280,11 +278,9 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var result = deserializer.Deserialize(yamlReader);
-        result.Should().BeAssignableTo<Component>();
+        var component = deserializer.Deserialize<Component>(yamlReader);
 
         // Assert
-        var component = (Component)result!;
         component.Name.Should().Be(expectedName);
         component.Template.Should().NotBeNull();
         component.Template!.Name.Should().Be(expectedTemplateName);
@@ -306,11 +302,9 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var result = deserializer.Deserialize(yamlReader);
-        result.Should().BeAssignableTo<Control>();
+        var control = deserializer.Deserialize<BuiltInControl>(yamlReader);
 
         // Assert
-        var control = (Control)result!;
         control.Name.Should().Be(expectedName);
         control.Template.Should().NotBeNull();
         control.Template!.Name.Should().Be(expectedTemplateName);

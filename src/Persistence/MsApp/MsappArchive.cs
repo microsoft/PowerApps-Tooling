@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -57,8 +56,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private readonly bool _leaveOpen;
 
     // Yaml serializer and deserializer
-    private readonly ISerializer _serializer;
-    private readonly IDeserializer _deserializer;
+    private readonly IYamlSerializer _serializer;
+    private readonly IYamlDeserializer _deserializer;
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -242,7 +241,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="PersistenceException"></exception>
-    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true)
+    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control
     {
         if (string.IsNullOrWhiteSpace(entryName))
             throw new ArgumentNullException(nameof(entryName));
@@ -271,13 +270,13 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return result;
     }
 
-    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : class
+    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : Control
     {
         _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _deserializer!.Deserialize(textReader) as T;
+            var result = _deserializer!.Deserialize<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)
