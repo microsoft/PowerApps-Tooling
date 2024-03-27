@@ -65,6 +65,11 @@ internal class ControlTypeInspector : ITypeInspector
                 return new EmptyPropertyDescriptor(name);
         }
 
+        // For controls all properties have to match the list of expected properties.
+        // This improves error reporting via setting ignoreUnmatched to false.
+        if (type == typeof(Control))
+            return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched: false);
+
         return _innerTypeInspector.GetProperty(type, container, name, ignoreUnmatched);
     }
 }

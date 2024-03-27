@@ -1,0 +1,11 @@
+Screens:
+- Screen: 
+  Name: Screen1
+  Properties:
+    LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+  Children:
+  - NoValidControl: 
+    Name: Foo
+    Properties:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      BorderThickness: =2
