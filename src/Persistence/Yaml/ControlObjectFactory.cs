@@ -30,6 +30,12 @@ public class ControlObjectFactory : IObjectFactory
             return _controlFactory.Create(controlTemplate.Name, controlTemplate);
         }
 
+        // Control is abstract, so we'll try to create a concrete custom control type.
+        if (type == typeof(Control))
+        {
+            return _controlFactory.Create(nameof(CustomControl), nameof(Control));
+        }
+
         return _defaultObjectFactory.Create(type);
     }
 
@@ -76,7 +82,7 @@ public class ControlObjectFactory : IObjectFactory
 
     internal void RestoreNestedTemplates(Control control)
     {
-        if (control.Template.NestedTemplates == null)
+        if (control.Template == null || control.Template.NestedTemplates == null)
             return;
 
         foreach (var nestedTemplate in control.Template.NestedTemplates)
