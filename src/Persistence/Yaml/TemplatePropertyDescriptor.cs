@@ -19,7 +19,7 @@ public class TemplatePropertyDescriptor : IPropertyDescriptor
         _controlTemplate = controlTemplate;
     }
 
-    public string Name { get; } = nameof(Control.Template);
+    public string Name => nameof(Control.Template);
 
     public Type Type => typeof(object);
 
@@ -39,13 +39,13 @@ public class TemplatePropertyDescriptor : IPropertyDescriptor
         var templateProperty = target.GetType().GetProperty(nameof(Control.Template)) ?? throw new InvalidOperationException($"Target does not have a {nameof(Control.Template)} property.");
         if (_controlTemplate == null)
         {
-            if (value is not string)
+            if (value is not string val)
                 throw new InvalidOperationException("Value is not a string.");
 
-            if (_controlTemplateStore.TryGetByIdOrName((string)value, out var controlTemplate))
+            if (_controlTemplateStore.TryGetByIdOrName(val, out var controlTemplate))
                 templateProperty.SetValue(target, controlTemplate);
             else
-                templateProperty.SetValue(target, new ControlTemplate((string)value));
+                templateProperty.SetValue(target, new ControlTemplate(val));
         }
         else
             templateProperty.SetValue(target, _controlTemplate);
