@@ -17,12 +17,12 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
-    public ISerializer CreateSerializer(bool? isTextFirst = null)
+    public IYamlSerializer CreateSerializer(bool? isTextFirst = null)
     {
         return CreateSerializer(new YamlSerializerOptions { IsTextFirst = isTextFirst ?? YamlSerializerOptions.Default.IsTextFirst });
     }
 
-    public ISerializer CreateSerializer(YamlSerializerOptions? options)
+    public IYamlSerializer CreateSerializer(YamlSerializerOptions? options)
     {
         options ??= YamlSerializerOptions.Default;
 
@@ -33,15 +33,15 @@ public class YamlSerializationFactory : IYamlSerializationFactory
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
            .Build();
 
-        return yamlSerializer;
+        return new YamlSerializer(yamlSerializer);
     }
 
-    public IDeserializer CreateDeserializer(bool? isTextFirst = null)
+    public IYamlDeserializer CreateDeserializer(bool? isTextFirst = null)
     {
         return CreateDeserializer(new YamlDeserializerOptions { IsTextFirst = isTextFirst ?? YamlDeserializerOptions.Default.IsTextFirst });
     }
 
-    public IDeserializer CreateDeserializer(YamlDeserializerOptions? options)
+    public IYamlDeserializer CreateDeserializer(YamlDeserializerOptions? options)
     {
         options ??= YamlDeserializerOptions.Default;
 
@@ -56,6 +56,6 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
             .Build();
 
-        return yamlDeserializer;
+        return new YamlDeserializer(yamlDeserializer, _controlFactory);
     }
 }

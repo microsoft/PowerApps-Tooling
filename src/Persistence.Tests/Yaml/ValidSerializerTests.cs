@@ -22,7 +22,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
     }
 
@@ -48,7 +48,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(app).NormalizeNewlines();
+        var sut = serializer.SerializeControl(app).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -66,7 +66,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: =A{Environment.NewLine}  PropertyB: =B{Environment.NewLine}  PropertyC: =C{Environment.NewLine}");
     }
 
@@ -99,7 +99,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
     }
 
@@ -115,7 +115,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
     }
 
@@ -138,7 +138,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -180,7 +180,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -200,7 +200,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -223,7 +223,7 @@ public class ValidSerializerTests : TestBase
         );
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -271,7 +271,7 @@ public class ValidSerializerTests : TestBase
 
         var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var serializedComponent = sut.Serialize(component);
+        var serializedComponent = sut.SerializeControl(component);
 
         var expectedYaml = File.ReadAllText(expectedYamlFile);
         serializedComponent.Should().Be(expectedYaml);

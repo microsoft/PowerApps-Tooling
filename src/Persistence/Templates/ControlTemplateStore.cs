@@ -140,10 +140,7 @@ public class ControlTemplateStore : IControlTemplateStore
 
     public bool TryGetByType(Type type, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
     {
-        if (_typeToTemplate.TryGetValue(type, out controlTemplate))
-            return true;
-
-        return false;
+        return _typeToTemplate.TryGetValue(type, out controlTemplate);
     }
 
     /// <summary>

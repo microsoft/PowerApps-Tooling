@@ -32,7 +32,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
         {
             var key = parser.Consume<Scalar>();
             string? value = null;
-            if (!_nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out var _))
+            if (!_nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out _))
                 value = parser.Consume<Scalar>().Value;
 
             if (IsTextFirst)

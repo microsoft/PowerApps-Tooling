@@ -26,7 +26,7 @@ public class ZIndexOrderingTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         var expected = File.ReadAllText(@"_TestData/ValidYaml/ZIndexOrdering/Screen-with-sorted-children.pa.yaml");
         sut.Should().BeEquivalentTo(expected);
     }
@@ -39,7 +39,7 @@ public class ZIndexOrderingTests : TestBase
         using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/ZIndexOrdering/Screen-with-sorted-children.pa.yaml");
         using var yamlReader = new StreamReader(yamlStream);
 
-        var sut = deserializer.Deserialize<Screen>(yamlReader);
+        var sut = deserializer.DeserializeControl<Screen>(yamlReader);
 
         sut.Children.Should()
             .HaveCount(5)
