@@ -1,0 +1,350 @@
+# Unfortunately, it also seems to make it so that schema cache doesn't get updated if the schema file updates.
+# WORKAROUND: Close the VSCode window and reopen.
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://powerapps.com/schemas/pa-yaml/v2.2/pa.schema
+title: Microsoft Power Apps schema for app source yaml files (v2.2).
+description: >-
+  The schema for all *.pa.yaml files which are used to describe a Power Apps canvas app.
+  All *.pa.yaml files in an *.msapp are logically combined into a single *.pa.yaml file.
+
+type: object
+additionalProperties: false
+properties:
+  App:
+    $ref: "#/definitions/App-instance"
+  Screens:
+    $ref: "#/definitions/Screens-name-instance-map"
+  ComponentDefinitions:
+    $ref: "#/definitions/ComponentDefinitions-name-instance-map"
+
+definitions:
+  App-instance:
+    description: Represents the top-level App entity.
+    type: object
+    additionalProperties: false
+    properties:
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+
+      # Note: App children is fixed.
+      Children:
+        description: The App currently only supports the 'Host' child.
+        type: object
+        additionalProperties: false
+        properties:
+          Host:
+            type: object
+            additionalProperties: false
+            properties:
+              # Currently, the Control identifier is static, but may need to be exposed in order to support variants
+              #Control: { $ref: "#/definitions/Control-type-identifier" }
+              Properties: { $ref: "#/definitions/Properties-formula-map" }
+
+  Screens-name-instance-map:
+    type: object
+    propertyNames: { $ref: "#/definitions/Screen-name" }
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        Properties: { $ref: "#/definitions/Properties-formula-map" }
+        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+
+  Screen-name:
+    description: The base requirements for a named entity in an app.
+    type: string
+    pattern: "^[a-zA-Z0-9_- ]+$"
+
+  Children-Control-instance-sequence:
+    description: >-
+      A sequence of control instances, where each item is a control's name with a control instance.
+      The order of the control instances in the sequence indicates the effective z-index of the control in the app.
+    type: array
+    items:
+      type: object
+      minProperties: 1
+      maxProperties: 1
+      propertyNames: { $ref: "#/definitions/Control-name" }
+      additionalProperties:
+        $ref: "#/definitions/Control-instance"
+
+  Control-name:
+    description: The base requirements for a named entity in an app.
+    type: string
+    pattern: "^[a-zA-Z0-9_].*$"
+
+  Control-instance:
+    allOf:
+      - $ref: "#/definitions/Control-instance-base"
+
+  Control-instance-base:
+    type: object
+    required: [Control]
+    properties:
+      Control: { $ref: "#/definitions/Control-type-identifier" }
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+    additionalProperties: false
+
+  Control-type-identifier:
+    type: string
+    oneOf:
+      - $ref: "#/definitions/control-template-name"
+      - $ref: "#/definitions/Control-type-identifier-component"
+
+  control-template-name:
+    type: string
+    pattern: |-
+      ^[a-zA-Z0-9][a-zA-Z0-9_.']*$
+
+  Control-type-identifier-component:
+    description: >-
+      Identifies a custom component instance identifier.
+      The value should be in the format: 'component/' ComponentIdentifier
+    type: string
+    # Regex pattern should match the following logical pattern: 'component/' ( ComponentLibrary-unique-name '.' )? ComponentDefinition-name
+    pattern: |-
+      ^component/([a-zA-Z0-9][a-zA-Z0-9_]*\.)?[a-zA-Z0-9][a-zA-Z0-9_]*$
+
+  ComponentDefinitions-name-instance-map:
+    type: object
+    propertyNames: { $ref: "#/definitions/ComponentDefinition-name" }
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        Description:
+          description: The description for this component definition.
+          type: string
+        AccessAppScope:
+          description: >
+            Indicates whether this component can access app level information.
+            Not available for components defined in a component library.
+          type: boolean
+        CustomProperties:
+          type: object
+          propertyNames:
+            $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
+          additionalProperties:
+            $ref: "#/definitions/ComponentDefinition-CustomProperty"
+        Properties:
+          allOf:
+            - $ref: "#/definitions/Properties-formula-map"
+            - propertyNames:
+                examples:
+                  # These are the known properties for a component definition, but others may be allowed in the future, along with those defined by custom Output properties.
+                  - ContentLanguage
+                  - ChildTabPriority
+                  - EnableChildFocus
+                  - Fill
+                  - Height
+                  - Width
+                  - OnReset
+        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+
+  ComponentDefinition-name:
+    # TODO: Update according to actual requirements for a component definition name
+    $ref: "#/definitions/entity-name"
+
+  ComponentDefinition-CustomProperty-name:
+    $ref: "#/definitions/entity-property-name"
+
+  ComponentDefinition-CustomProperty:
+    type: object
+    required: [PropertyKind]
+    properties:
+      PropertyKind:
+        description: The kind of property that is added to the custom component.
+        type: string
+        oneOf:
+          - const: Input
+            description: An input data property.
+          - const: Output
+            description: An output data property.
+          - const: InputFunction
+            description: An input function property.
+          - const: OutputFunction
+            description: An output function property.
+          - const: Event
+            description: A property that represents an event.
+          - const: Action
+            description: A property that represents an action.
+      DisplayName:
+        # TODO: This property will get removed from the document
+        description: DEPRECATED. This is not used anywhere and will be removed.
+        type: string
+      Description:
+        type: string
+    allOf:
+      - if:
+          properties:
+            PropertyKind: { const: "Input" }
+        then:
+          required: [DataType]
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            DataType: { $ref: "#/definitions/pfx-data-type" }
+            RaiseOnReset:
+              description: If turned on, the component's OnReset behavior will run when the input property's value changes.
+              type: boolean
+            Default:
+              allOf:
+                - description: The default formula to use for this property when an instance does not explicitly set it.
+                - $ref: "#/definitions/pfx-formula"
+      - if:
+          properties:
+            PropertyKind: { const: "Output" }
+        then:
+          required: [DataType]
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            DataType: { $ref: "#/definitions/pfx-data-type" }
+      - if:
+          properties:
+            PropertyKind: { const: "InputFunction" }
+        then:
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Parameters: { $ref: "#/definitions/pfx-function-parameters" }
+            Default:
+              description: The default formula to use for this property when an instance does not explicitly set it.
+              allOf:
+                - $ref: "#/definitions/pfx-formula"
+      - if:
+          properties:
+            PropertyKind: { const: "OutputFunction" }
+        then:
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Parameters: { $ref: "#/definitions/pfx-function-parameters" }
+      - if:
+          properties:
+            PropertyKind: { const: "Event" }
+        then:
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Parameters: { $ref: "#/definitions/pfx-function-parameters" }
+      - if:
+          properties:
+            PropertyKind: { const: "Action" }
+        then:
+          additionalProperties: false
+          properties:
+            PropertyKind: true
+            DisplayName: true
+            Description: true
+            ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Parameters: { $ref: "#/definitions/pfx-function-parameters" }
+
+  ComponentLibrary-unique-name:
+    # TODO: Change this to match the pattern used for LibraryUniqueName in Dataverse
+    $ref: "#/definitions/entity-name"
+
+  Properties-formula-map:
+    description: >-
+      A map of property names to formulas.
+      The allowed property names are dependant on the entity instance type.
+      The values are Power Fx formula expressions.
+    type: object
+    additionalProperties:
+      $ref: "#/definitions/pfx-formula"
+
+  entity-name:
+    description: The base requirements for a named entity in an app.
+    type: string
+    pattern: "^[a-zA-Z0-9_]+$"
+
+  entity-property-name:
+    description: The base requirements for a property of an entity in an app.
+    type: string
+    pattern: |-
+      ^[a-zA-Z][a-zA-Z0-9_]*$
+
+  pfx-function-parameters:
+    type: array
+    items:
+      type: object
+      minProperties: 1
+      maxProperties: 1
+      propertyNames: { $ref: "#/definitions/pfx-function-parameter-name" }
+      additionalProperties:
+        type: object
+        required: [DataType]
+        properties:
+          Description: { type: string }
+          IsRequired: { type: boolean }
+          DataType: { $ref: "#/definitions/pfx-data-type" }
+        allOf:
+          - if:
+              required: [IsRequired]
+              properties:
+                IsRequired: { const: true }
+            then:
+              additionalProperties: false
+              properties:
+                Name: true
+                IsRequired: true
+                DataType: true
+                Description: true
+            else:
+              additionalProperties: false
+              properties:
+                Name: true
+                IsRequired: true
+                DataType: true
+                Description: true
+                Default:
+                  description: The default formula to use for this property when an instance does not explicitly set it.
+                  allOf:
+                    - $ref: "#/definitions/pfx-formula"
+
+  pfx-function-parameter-name:
+    description: The name of a Power Fx function parameter.
+    type: string
+    pattern: "^[a-zA-Z0-9_]+$"
+
+  pfx-function-return-type:
+    oneOf:
+      - $ref: "#/definitions/pfx-data-type"
+      - description: aka `void`
+        enum: [None]
+
+  pfx-data-type:
+    type: string
+    enum:
+      - Text
+      - Number
+      - Boolean
+      - DateAndTime
+      - Screen
+      - Record
+      - Table
+      - Image
+      - VideoOrAudio
+      - Color
+      - Currency
+
+  pfx-formula:
+    oneOf:
+      # Note: The first item of a 'oneOf' will be used for error message when none match. So we make sure our default preferred normalization is first.
+      - type: string
+        pattern: "^=.*$"
+      - type: 'null'
