@@ -18,13 +18,18 @@ public class YamlDeserializer : IYamlDeserializer
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
-    public T Deserialize<T>(string yaml) where T : Control
+    public TControl DeserializeControl<TControl>(string yaml) where TControl : Control
     {
-        return _deserializer.Deserialize<T>(yaml).AfterDeserialize(_controlFactory);
+        if (string.IsNullOrWhiteSpace(yaml))
+            throw new ArgumentNullException(nameof(yaml));
+
+        return _deserializer.Deserialize<TControl>(yaml).AfterDeserialize(_controlFactory);
     }
 
-    public T Deserialize<T>(TextReader reader) where T : Control
+    public TControl DeserializeControl<TControl>(TextReader reader) where TControl : Control
     {
-        return _deserializer.Deserialize<T>(reader).AfterDeserialize(_controlFactory);
+        _ = reader ?? throw new ArgumentNullException(nameof(reader));
+
+        return _deserializer.Deserialize<TControl>(reader).AfterDeserialize(_controlFactory);
     }
 }
