@@ -12,9 +12,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [DebuggerDisplay("{Template?.DisplayName}: {Name}")]
 public abstract record Control
 {
-    [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
-    private IList<Control>? _children;
-
     public Control()
     {
     }
@@ -67,7 +64,7 @@ public abstract record Control
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
     [YamlMember(Order = 5)]
-    public IList<Control>? Children { get => _children; set => _children = value; }
+    public IList<Control>? Children { get; set; }
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }

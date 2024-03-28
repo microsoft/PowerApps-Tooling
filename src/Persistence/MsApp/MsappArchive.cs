@@ -154,7 +154,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public static IMsappArchive Open(string path, IServiceProvider serviceProvider)
     {
         if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException("Path cannot be null or whitespace.", nameof(path));
+            throw new ArgumentNullException(nameof(path), "Path cannot be null or whitespace.");
         _ = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         var yamlSerializationFactory = serviceProvider.GetRequiredService<IYamlSerializationFactory>();
@@ -188,8 +188,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_app == null)
-                _app = LoadApp();
+            _app ??= LoadApp();
             return _app;
         }
 
@@ -207,8 +206,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_header == null)
-                _header = LoadHeader();
+            _header ??= LoadHeader();
 
             return _header.MSAppStructureVersion;
         }
@@ -218,8 +216,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_header == null)
-                _header = LoadHeader();
+            _header ??= LoadHeader();
 
             return _header.DocVersion;
         }

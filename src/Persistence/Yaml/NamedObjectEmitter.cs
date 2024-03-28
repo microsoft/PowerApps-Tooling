@@ -35,8 +35,7 @@ internal class NamedObjectEmitter<T> : ChainedEventEmitter
     {
         nextEmitter.Emit(eventInfo, emitter);
 
-        var value = eventInfo.Source.Value as T;
-        if (value is null)
+        if (eventInfo.Source.Value is not T value)
             return;
 
         var nodeName = _nodeNameProvider(value);
