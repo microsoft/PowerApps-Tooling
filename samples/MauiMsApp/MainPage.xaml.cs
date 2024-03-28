@@ -44,8 +44,10 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void OnCreateClicked(object sender, EventArgs e)
+    private async void OnCreateClicked(object sender, EventArgs e)
     {
+        var page = Handler!.MauiContext!.Services.GetRequiredService<CreatePage>();
+        await Navigation.PushAsync(page);
     }
 }
 

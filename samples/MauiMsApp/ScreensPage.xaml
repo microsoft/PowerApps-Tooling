@@ -24,7 +24,11 @@
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
-        </CollectionView>        
+        </CollectionView>
+        <Button
+            x:Name="_backButton"
+            Text="Back"
+            Clicked="OnBackClicked"/>
     </StackLayout>
 
 </ContentPage>
