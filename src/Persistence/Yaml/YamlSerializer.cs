@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
@@ -15,13 +14,13 @@ public class YamlSerializer : IYamlSerializer
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
     }
 
-    public string SerializeControl<TControl>(TControl graph) where TControl : Control
+    public string SerializeControl<T>(T graph)
     {
-        return _serializer.Serialize(graph.BeforeSerialize());
+        return _serializer.Serialize(graph);
     }
 
-    public void SerializeControl<TControl>(TextWriter writer, TControl graph) where TControl : Control
+    public void SerializeControl<T>(TextWriter writer, T graph)
     {
-        _serializer.Serialize(writer, graph.BeforeSerialize());
+        _serializer.Serialize(writer, graph);
     }
 }
