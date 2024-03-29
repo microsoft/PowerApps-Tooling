@@ -180,7 +180,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph.BeforeSerialize()).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
