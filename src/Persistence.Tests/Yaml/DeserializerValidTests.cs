@@ -391,4 +391,23 @@ public class DeserializerValidTests : TestBase
 
         component.CustomProperties[0].Should().BeEquivalentTo(expectedCustomProperty);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Group/with-two-children.pa.yaml", 2, "My Small Group")]
+    [DataRow(@"_TestData/ValidYaml/Group/with-nested-children.pa.yaml", 2, "My Nested Group")]
+    public void Deserialize_ShouldParseYamlForGroupWithChildren(string path, int expectedChildrenCount, string expectedName)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var group = deserializer.DeserializeControl<GroupControl>(yamlReader);
+
+        // Assert
+        group.Should().NotBeNull();
+        group.Children.Should().NotBeNull().And.HaveCount(expectedChildrenCount);
+        group.Name.Should().Be(expectedName);
+    }
 }

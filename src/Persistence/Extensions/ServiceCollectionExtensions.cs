@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         store.Add(new() { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new() { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
         store.Add(new() { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
+        store.Add(new() { Name = "group", Id = "http://microsoft.com/appmagic/group" });
 
         // Gallery
         store.Add(new()
