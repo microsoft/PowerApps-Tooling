@@ -250,7 +250,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _yamlDeserializer.DeserializeControl<T>(reader);
+            result = _yamlDeserializer.Deserialize<T>(reader);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -273,7 +273,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _yamlDeserializer.DeserializeControl<T>(textReader);
+            var result = _yamlDeserializer.Deserialize<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)
