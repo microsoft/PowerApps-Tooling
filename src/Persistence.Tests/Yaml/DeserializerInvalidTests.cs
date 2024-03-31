@@ -29,7 +29,7 @@ public class DeserializerInvalidTests
             // Act
             try
             {
-                var result = deserializer.DeserializeControl<Control>(yamlReader);
+                var result = deserializer.Deserialize<Control>(yamlReader);
                 if (result is not Control)
                     throw new InvalidOperationException("Expected a control");
 
@@ -57,7 +57,7 @@ public class DeserializerInvalidTests
 
         // Act
         // Explicitly using the wrong type BuiltInControl
-        Action act = () => { deserializer.DeserializeControl<BuiltInControl>(yamlReader); }; // Explicitly using the wrong type BuiltInControl
+        Action act = () => { deserializer.Deserialize<BuiltInControl>(yamlReader); }; // Explicitly using the wrong type BuiltInControl
 
         // Assert
         act.Should().Throw<YamlException>()
@@ -72,7 +72,7 @@ public class DeserializerInvalidTests
         var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         // Act
-        Action act = () => deserializer.DeserializeControl<Control>(string.Empty);
+        Action act = () => deserializer.Deserialize<Control>(string.Empty);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'yaml')");

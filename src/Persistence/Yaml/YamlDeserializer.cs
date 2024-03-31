@@ -14,7 +14,7 @@ public class YamlDeserializer : IYamlDeserializer
         _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
     }
 
-    public T DeserializeControl<T>(string yaml)
+    public T Deserialize<T>(string yaml)
     {
         if (string.IsNullOrWhiteSpace(yaml))
             throw new ArgumentNullException(nameof(yaml));
@@ -22,7 +22,7 @@ public class YamlDeserializer : IYamlDeserializer
         return _deserializer.Deserialize<T>(yaml);
     }
 
-    public T DeserializeControl<T>(TextReader reader)
+    public T Deserialize<T>(TextReader reader)
     {
         _ = reader ?? throw new ArgumentNullException(nameof(reader));
 
