@@ -22,4 +22,9 @@ public partial class ScreensPage : ContentPage
             OnPropertyChanged(nameof(MsappArchive));
         }
     }
+
+    private void OnBackClicked(object sender, EventArgs e)
+    {
+        Navigation.PopAsync();
+    }
 }
