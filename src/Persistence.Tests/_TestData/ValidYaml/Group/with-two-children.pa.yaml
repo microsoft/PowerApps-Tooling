@@ -1,0 +1,7 @@
+Group: 
+Name: My Small Group
+Children:
+- Button:
+  Name: My Button
+- Text:
+  Name: My Label

@@ -96,6 +96,11 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         _properties.Add(keyValue.Item1, new ControlProperty(keyValue.Item1, keyValue.Item2));
     }
 
+    public void Remove(string key)
+    {
+        _properties.Remove(key);
+    }
+
     public IEnumerator<KeyValuePair<string, ControlProperty>> GetEnumerator()
     {
         return _properties.GetEnumerator();

@@ -1,0 +1,12 @@
+Group: 
+Name: My Nested Group
+Children:
+- Button:
+  Name: My Button
+- Gallery:
+  Name: My Gallery
+  Children:
+  - Text:
+    Name: My Nested Label
+  - Button:
+    Name: My Nested Button

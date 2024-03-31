@@ -7,7 +7,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public interface IYamlSerializer
 {
-    public string SerializeControl<TControl>(TControl graph) where TControl : Control;
+    public string Serialize(object graph);
 
-    public void SerializeControl<TControl>(TextWriter writer, TControl graph) where TControl : Control;
+    public string SerializeControl<T>(T graph) where T : Control;
+
+    public void SerializeControl<T>(TextWriter writer, T graph) where T : Control;
 }
