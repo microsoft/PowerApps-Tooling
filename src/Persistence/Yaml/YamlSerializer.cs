@@ -15,13 +15,25 @@ public class YamlSerializer : IYamlSerializer
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
     }
 
-    public string SerializeControl<TControl>(TControl graph) where TControl : Control
+    public string Serialize(object graph)
     {
-        return _serializer.Serialize(graph.BeforeSerialize());
+        _ = graph ?? throw new ArgumentNullException(nameof(graph));
+
+        return _serializer.Serialize(graph);
     }
 
-    public void SerializeControl<TControl>(TextWriter writer, TControl graph) where TControl : Control
+    public string SerializeControl<T>(T graph) where T : Control
     {
-        _serializer.Serialize(writer, graph.BeforeSerialize());
+        _ = graph ?? throw new ArgumentNullException(nameof(graph));
+
+        return _serializer.Serialize(graph);
+    }
+
+    public void SerializeControl<T>(TextWriter writer, T graph) where T : Control
+    {
+        _ = writer ?? throw new ArgumentNullException(nameof(writer));
+        _ = graph ?? throw new ArgumentNullException(nameof(graph));
+
+        _serializer.Serialize(writer, graph);
     }
 }

@@ -1,0 +1,30 @@
+App:
+  Properties:
+    BackEnabled: =true
+    Theme: =PowerAppsTheme
+
+  Children:
+    Host:
+      Properties:
+        OnCancel: =false
+        OnEdit: =false
+        OnNew: =false
+        OnSave: =false
+        OnView: =false
+
+Screens:
+  Screen1:
+    Children:
+      - Label1:
+          Control: label
+          Properties:
+            Text: ="A label"
+            X: =40
+            Y: =40
+
+      - TextInput1:
+          Control: text
+          Properties:
+            Default: ="Default input"
+            X: =40
+            Y: =80

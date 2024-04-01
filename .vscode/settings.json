@@ -1,0 +1,17 @@
+{
+  "cSpell.words": [
+    "Dataverse",
+    "PPUX",
+    "msapp"
+  ],
+  "[yaml]": {},
+  "yaml.schemaStore.enable": true,
+  "yaml.validate": true,
+  "yaml.schemas": {
+    "http://json-schema.org/draft-07/schema#": "*.schema.yaml",
+    "src/schemas/pa-yaml/v2.2/pa.schema.yaml": [
+      "src/schemas-tests/pa-yaml/v2.2/**/*.pa.yaml"
+    ],
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/schemas/pa-yaml/v2.2/pa.schema.yaml": "*.pa.yaml"
+  }
+}

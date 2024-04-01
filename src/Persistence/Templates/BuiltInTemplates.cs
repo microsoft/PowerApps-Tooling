@@ -10,4 +10,5 @@ public static class BuiltInTemplates
     public const string Screen = "Screen";
     public const string Component = "Component";
     public const string CommandComponent = "CommandComponent";
+    public const string Group = "Group";
 }

@@ -13,9 +13,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 /// for handling Z-Index, ordering, and nested template.
 /// This is intended to be temporary, replaced by the conversion to another lower model.
 /// </summary>
-internal static class ControlFormatter
+public static class ControlFormatter
 {
-    internal static T BeforeSerialize<T>(this T control) where T : Control
+    public static T BeforeSerialize<T>(this T control) where T : Control
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
@@ -38,7 +38,7 @@ internal static class ControlFormatter
         return control with { Children = children, Properties = properties };
     }
 
-    internal static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
+    public static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
     {
         _ = control ?? throw new ArgumentNullException(nameof(control));
 

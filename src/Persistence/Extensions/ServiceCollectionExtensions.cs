@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         store.Add(new() { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new() { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
         store.Add(new() { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
+        store.Add(new() { Name = "group", Id = "http://microsoft.com/appmagic/group" });
 
         // Gallery
         store.Add(new()
@@ -74,6 +75,7 @@ public static class ServiceCollectionExtensions
     {
         store.Add(new() { Name = "text", Id = "http://microsoft.com/appmagic/text" });
         store.Add(new() { Name = "button", Id = "http://microsoft.com/appmagic/button" });
+        store.Add(new() { Name = "label", Id = "http://microsoft.com/appmagic/label" });
 
         store.Add(new() { Name = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
         store.Add(new() { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });

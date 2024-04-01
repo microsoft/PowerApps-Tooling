@@ -1,0 +1,22 @@
+- Group: 
+  Name: Group1
+  Children:
+  - Text: 
+    Name: Label1
+  - Text:
+    Name: Label2
+- Group: 
+  Name: Group2
+  Children:
+  - Text: 
+    Name: Label1
+  - Text:
+    Name: Label2
+- Group: 
+  Name: Group3
+  Children:
+  - Text: 
+    Name: Label1
+  - Text:
+    Name: Label2
+
