@@ -283,19 +283,26 @@ definitions:
             Parameters: { $ref: "#/definitions/pfx-function-parameters" }
 
   ComponentLibrary-unique-name:
-    # Specification owned by PPUX service.
-    # Dataverse Publisher Prefix has constraint: The prefix must be 2 to 8 characters long, can only consist of alpha-numerics, must start with a letter.
     description: |-
       The unique name of the component library within Dataverse.
       It has the form "{PublisherPrefix}_{ComponentLibraryName}".
     type: string
-    # TODO: Update the pattern to include any additional allowed chars once we know the full set.
-    # that contains the allowed set "letter, digit, '-', '(', ')' or '_'."
+    # Dataverse Publisher Prefix:
+    # - must be 2 to 8 characters long, can only consist of alpha-numerics, must start with a letter.
+    # AppName Specification (owned by PPUX service):
+    # - SaveAsDialog.tsx#onSave() : https://dev.azure.com/msazure/OneAgile/_git/PowerApps-Client?path=/src/AppMagic/powerapps-client/packages/powerapps-authoring/src/components/SaveDialog/SaveAsDialog.tsx&version=GBmaster&_a=contents
+    #   - maxLength: 64
+    # - isValidAppName : https://dev.azure.com/msazure/OneAgile/_git/PowerApps-Client?path=/src/AppMagic/powerapps-client/packages/powerapps-authoring/src/components/Backstage/AppSettings/BasicAppSettings/Common.ts
+    #   - First char must be non-whitespace char. i.e. \S
+    #   - Must contain at least one non-whitespace char. i.e. \S
+    # - StringUtility.ts#isValidFileName
+    #   - Must contain at least one non-whitespace char. i.e. \S
+    #   - Must not contain an invalid filename char. i.e. const invalidFileNameChars = '*".?:\\<>|/';
     pattern: |-
-      ^([a-z][a-z0-9]{1,7})_([a-z0-9][a-z0-9_,()-]*)$
+      ^([a-z][a-z0-9]{1,7})_(\S.{0,63})$
     not:
       description: |-
-        Cannot contain any of the invalid chars `.\/:*?"<>|`.
+        Cannot contain any of the following invalid chars `.\/:*?"<>|`.
       pattern: |-
         [.\\/:*?"<>|]
 

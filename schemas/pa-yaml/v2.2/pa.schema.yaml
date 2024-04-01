@@ -41,6 +41,8 @@ definitions:
               Properties: { $ref: "#/definitions/Properties-formula-map" }
 
   Screens-name-instance-map:
+    description: |-
+      Unordered map where keys are the names of each screen.
     type: object
     propertyNames: { $ref: "#/definitions/Screen-name" }
     additionalProperties:
@@ -51,9 +53,7 @@ definitions:
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   Screen-name:
-    description: The base requirements for a named entity in an app.
-    type: string
-    pattern: "^[a-zA-Z0-9_- ]+$"
+    $ref: "#/definitions/entity-name"
 
   Children-Control-instance-sequence:
     description: >-
@@ -64,47 +64,76 @@ definitions:
       type: object
       minProperties: 1
       maxProperties: 1
-      propertyNames: { $ref: "#/definitions/Control-name" }
+      propertyNames: { $ref: "#/definitions/Control-instance-name" }
       additionalProperties:
         $ref: "#/definitions/Control-instance"
 
-  Control-name:
-    description: The base requirements for a named entity in an app.
-    type: string
-    pattern: "^[a-zA-Z0-9_].*$"
+  Control-instance-name:
+    $ref: "#/definitions/entity-name"
 
   Control-instance:
-    allOf:
-      - $ref: "#/definitions/Control-instance-base"
-
-  Control-instance-base:
     type: object
     required: [Control]
     properties:
       Control: { $ref: "#/definitions/Control-type-identifier" }
+      Variant: { $ref: "#/definitions/Control-variant-name" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
-    additionalProperties: false
+    if:
+      required: [Control]
+      properties:
+        Control: { $ref: "#/definitions/Control-type-component" }
+    then:
+      required: [ComponentName]
+      properties:
+        Control: true
+        ComponentLibraryUniqueName: { $ref: "#/definitions/ComponentLibrary-unique-name" }
+        ComponentName: { $ref: "#/definitions/ComponentDefinition-name" }
+        Properties: true
+        # Note: Component instances do not support Variants or Children.
+      additionalProperties: false
+    else:
+      # Expected to be a built-in control library template
+      properties:
+        Control: true
+        Variant: true
+        Properties: true
+        Children: true
+      additionalProperties: false
 
   Control-type-identifier:
+    description: The invariant type of control being instantiated.
     type: string
     oneOf:
-      - $ref: "#/definitions/control-template-name"
-      - $ref: "#/definitions/Control-type-identifier-component"
+      - $ref: "#/definitions/control-library-template-name"
+      - $ref: "#/definitions/Control-type-component"
 
-  control-template-name:
+  Control-type-component:
+    description: |-
+      Identifies a custom component instance. This control type requires additional properties to be specified.
     type: string
-    pattern: |-
-      ^[a-zA-Z0-9][a-zA-Z0-9_.']*$
+    const: component
 
-  Control-type-identifier-component:
-    description: >-
-      Identifies a custom component instance identifier.
-      The value should be in the format: 'component/' ComponentIdentifier
+  control-library-template-name:
+    description: The invariant name of a control template published by Power Apps (aka the 'Control Library').
     type: string
-    # Regex pattern should match the following logical pattern: 'component/' ( ComponentLibrary-unique-name '.' )? ComponentDefinition-name
+    minimum: 1
+    # NOTE: The pattern here is more restrictive than a DName, to represent the actual set of chars used.
+    # By doing this, we can catch invalid uses. We can always expand the char set in the future iif needed.
     pattern: |-
-      ^component/([a-zA-Z0-9][a-zA-Z0-9_]*\.)?[a-zA-Z0-9][a-zA-Z0-9_]*$
+      ^[a-zA-Z0-9][a-zA-Z0-9]*$
+    not:
+      $comment: Exclude 1st class control type names which are not defined in the 'Control Library'.
+      enum: [component]
+    examples:
+      # TODO: Add additional well-known control types here for usability
+      - label
+      - gallery
+
+  Control-variant-name:
+    description: The variant of a control template being instantiated.
+    allOf:
+      - $ref: "#/definitions/entity-name"
 
   ComponentDefinitions-name-instance-map:
     type: object
@@ -143,7 +172,6 @@ definitions:
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   ComponentDefinition-name:
-    # TODO: Update according to actual requirements for a component definition name
     $ref: "#/definitions/entity-name"
 
   ComponentDefinition-CustomProperty-name:
@@ -255,8 +283,28 @@ definitions:
             Parameters: { $ref: "#/definitions/pfx-function-parameters" }
 
   ComponentLibrary-unique-name:
-    # TODO: Change this to match the pattern used for LibraryUniqueName in Dataverse
-    $ref: "#/definitions/entity-name"
+    description: |-
+      The unique name of the component library within Dataverse.
+      It has the form "{PublisherPrefix}_{ComponentLibraryName}".
+    type: string
+    # Dataverse Publisher Prefix:
+    # - must be 2 to 8 characters long, can only consist of alpha-numerics, must start with a letter.
+    # AppName Specification (owned by PPUX service):
+    # - SaveAsDialog.tsx#onSave() : https://dev.azure.com/msazure/OneAgile/_git/PowerApps-Client?path=/src/AppMagic/powerapps-client/packages/powerapps-authoring/src/components/SaveDialog/SaveAsDialog.tsx&version=GBmaster&_a=contents
+    #   - maxLength: 64
+    # - isValidAppName : https://dev.azure.com/msazure/OneAgile/_git/PowerApps-Client?path=/src/AppMagic/powerapps-client/packages/powerapps-authoring/src/components/Backstage/AppSettings/BasicAppSettings/Common.ts
+    #   - First char must be non-whitespace char. i.e. \S
+    #   - Must contain at least one non-whitespace char. i.e. \S
+    # - StringUtility.ts#isValidFileName
+    #   - Must contain at least one non-whitespace char. i.e. \S
+    #   - Must not contain an invalid filename char. i.e. const invalidFileNameChars = '*".?:\\<>|/';
+    pattern: |-
+      ^([a-z][a-z0-9]{1,7})_(\S.{0,63})$
+    not:
+      description: |-
+        Cannot contain any of the following invalid chars `.\/:*?"<>|`.
+      pattern: |-
+        [.\\/:*?"<>|]
 
   Properties-formula-map:
     description: >-
@@ -264,19 +312,19 @@ definitions:
       The allowed property names are dependant on the entity instance type.
       The values are Power Fx formula expressions.
     type: object
+    propertyNames:
+      $ref: "#/definitions/entity-property-name"
     additionalProperties:
       $ref: "#/definitions/pfx-formula"
 
   entity-name:
+    # aka: DName
     description: The base requirements for a named entity in an app.
     type: string
-    pattern: "^[a-zA-Z0-9_]+$"
 
   entity-property-name:
     description: The base requirements for a property of an entity in an app.
     type: string
-    pattern: |-
-      ^[a-zA-Z][a-zA-Z0-9_]*$
 
   pfx-function-parameters:
     type: array
@@ -319,7 +367,8 @@ definitions:
   pfx-function-parameter-name:
     description: The name of a Power Fx function parameter.
     type: string
-    pattern: "^[a-zA-Z0-9_]+$"
+    # TODO: Add `pattern` with correct char set
+    # pattern: "^[a-zA-Z0-9_]+$"
 
   pfx-function-return-type:
     oneOf:
@@ -346,5 +395,5 @@ definitions:
     oneOf:
       # Note: The first item of a 'oneOf' will be used for error message when none match. So we make sure our default preferred normalization is first.
       - type: string
-        pattern: "^=.*$"
+        pattern: ^=.*
       - type: 'null'
