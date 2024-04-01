@@ -97,6 +97,14 @@ internal class Program
             }
             )
         { IsRequired = true };
+        var propertyName = new Option<string>(
+            name: "--property",
+            description: "Enables interactive mode for MSApp creation"
+        )
+        {
+            IsRequired = true
+        };
+
         var numScreensOption = new Option<int>(
             name: "--numscreens",
             description: "(integer) The number of screens to generate in the App",
@@ -129,6 +137,17 @@ internal class Program
         }, interactiveOption, filePathOption, numScreensOption, controlsOptions);
 
         rootCommand.AddCommand(createCommand);
+
+        var debugCommand = new Command("debug", "Debug Power Fx expession.")
+        {
+            propertyName,
+        };
+        debugCommand.SetHandler((property) =>
+        {
+            var debug = new DebugPowerFx(property);
+            debug.Run();
+        }, propertyName);
+        rootCommand.AddCommand(debugCommand);
 
         rootCommand.Invoke(args);
     }

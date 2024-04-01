@@ -6,6 +6,8 @@
     <!-- TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PowerFxVersion>1.2.0</PowerFxVersion>
+    <PowerFxDebug>true</PowerFxDebug>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,6 +24,8 @@
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.4.0-alpha.22272.1" />
     <PackageReference Include="YamlDotNet" Version="15.1.1" />
+    <PackageReference Condition="$(PowerFxDebug) != 'true'" Include="Microsoft.PowerFx.Core" Version="$(PowerFxVersion)" />
+    <PackageReference Condition="$(PowerFxDebug) != 'true'" Include="Microsoft.PowerFx.Interpreter" Version="$(PowerFxVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +34,12 @@
 
   <ItemGroup>
     <!-- This reference will be replaced with Nuget package reference -->
+    <Reference Condition="$(PowerFxDebug) == 'true'" Include="Microsoft.PowerFx.Core">
+      <HintPath>..\..\..\Power-Fx\src\libraries\Microsoft.PowerFx.Core\bin\Debug\netstandard2.0\Microsoft.PowerFx.Core.dll</HintPath>
+    </Reference>
+    <Reference Condition="$(PowerFxDebug) == 'true'" Include="Microsoft.PowerFx.Core">
+      <HintPath>..\..\..\Power-Fx\src\libraries\Microsoft.PowerFx.Interpreter\bin\Debug\netstandard2.0\Microsoft.PowerFx.Interpreter.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
       <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
     </Reference>
