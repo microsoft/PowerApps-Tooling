@@ -8,6 +8,9 @@ namespace Test.AppWriter;
 
 internal class InputProcessor
 {
+    /// <summary>
+    /// Validate that the provided filepath is accessible and not an existing file
+    /// </summary>
     private static bool ValidateFilePath(string filePath, out string error)
     {
         error = string.Empty;
@@ -37,6 +40,9 @@ internal class InputProcessor
         return false;
     }
 
+    /// <summary>
+    /// Function to bind to the Create command and call App Creation code
+    /// </summary>
     private static void CreateFunction(bool interactive, string fullPathToMsApp, int numScreens, IList<string>? controlsinfo)
     {
         var creator = new AppCreator();
@@ -52,9 +58,8 @@ internal class InputProcessor
     }
 
     /// <summary>
-    /// Configures and returns the root command to pass commandline args into.
+    /// Configures and returns the root command to process commandline arguments
     /// </summary>
-    /// <returns></returns>
     public static RootCommand GetRootCommand()
     {
         var interactiveOption = new Option<bool>(
