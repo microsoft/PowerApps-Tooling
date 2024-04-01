@@ -1,0 +1,24 @@
+# see https://aka.ms/editorconfigdocs
+
+# We make this the root, so we can test what the actual .editorconfig file would be for a customer's repo.
+# It allows us to open VSCode to this folder w/o opening up any other configurations, resulting in faster loads and manual schema validation when authoring schemas.
+root = true
+
+[*]
+indent_style = space
+charset = utf-8
+trim_trailing_whitespace = false
+
+[*.{yaml,yml}]
+tab_width = 2
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = false # Yaml scalars may contain data that end with trailing whitespace
+
+# Explicit config for yaml files
+[*.{md}]
+tab_width = 2
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = false
