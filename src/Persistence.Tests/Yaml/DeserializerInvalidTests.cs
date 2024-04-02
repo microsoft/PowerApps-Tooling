@@ -77,4 +77,29 @@ public class DeserializerInvalidTests
         // Assert
         act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'yaml')");
     }
+
+    public record TestSchema
+    {
+        public required Screen[] Screens { get; init; }
+    }
+
+    [TestMethod]
+    public void Deserialize_Screens_List()
+    {
+        // Arrange
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead("_TestData/InvalidYaml/screens-with-duplicates.pa.yaml");
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        Action act = () =>
+        {
+            // Explicitly using list of screens
+            var result = deserializer.Deserialize<TestSchema>(yamlReader);
+        };
+
+        // Assert
+        act.Should().Throw<YamlException>()
+            .WithMessage("Encountered duplicate key Name");
+    }
 }
