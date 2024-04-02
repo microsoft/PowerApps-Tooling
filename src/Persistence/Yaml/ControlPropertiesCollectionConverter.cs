@@ -41,16 +41,6 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
                 collection.Add(key.Value, ControlProperty.FromTextFirstString(key.Value, value));
             else
             {
-                // DEBUGGING!
-                try
-                {
-                    Debug.Assert(value?.StartsWith('=') ?? false);
-                }
-                catch
-                {
-                    //throw;
-                }
-
                 collection.Add(key.Value, value?.TrimStart('='));
             }
         }
