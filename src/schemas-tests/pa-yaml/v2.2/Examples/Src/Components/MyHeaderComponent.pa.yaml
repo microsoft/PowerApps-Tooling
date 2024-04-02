@@ -1,0 +1,101 @@
+ComponentDefinitions:
+  MyHeaderComponent:
+    CustomProperties:
+      AppTitle:
+        PropertyKind: Input
+        DisplayName: App Title
+        Description: The title of the App
+        DataType: Text
+        Default: ="My App"
+        RaiseOnReset: false
+
+      ScreenTitle:
+        PropertyKind: Input
+        DisplayName: Screen Title
+        Description: The title of the screen
+        DataType: Text
+        Default: ="ScreenX"
+        RaiseOnReset: false
+
+      HeaderTitle:
+        PropertyKind: Output
+        DisplayName: Full Title
+        Description: The full title of the header
+        DataType: Text
+
+      MyInputProp1:
+        PropertyKind: Input
+        Description: An input data property
+        DataType: Text
+        RaiseOnReset: true
+        Default: ="Hello world!"
+
+      MyOutputProp1:
+        PropertyKind: Output
+        Description: An output data property
+        DataType: Number
+
+      MyInputFunc1:
+        PropertyKind: InputFunction
+        Description: An input function property
+        ReturnType: Number
+        Parameters:
+          - parameter1:
+              DataType: Number
+              IsRequired: true
+        Default: =parameter1 + 1
+
+      MyOutputFunc2:
+        PropertyKind: OutputFunction
+        Description: An output function property
+        ReturnType: Number
+        Parameters:
+          - parameter1:
+              DataType: Number
+              IsRequired: true
+
+      MyEvent1None:
+        PropertyKind: Event
+        Description: An event property
+        ReturnType: Number
+        Parameters:
+          - parameter1:
+              DataType: Number
+              IsRequired: true
+
+      MyAction1:
+        PropertyKind: Action
+        Description: An event property
+        ReturnType: Number
+        Parameters:
+          - parameter1:
+              DataType: Number
+              IsRequired: true
+          - parameter3:
+              DataType: Text
+              Default: ="Hello world!"
+          - param4:
+              DataType: Number
+              Default: =false
+
+    Properties:
+      Fill: =RGBA(141, 198, 63, 1)
+      Height: =50
+      HeaderTitle: =Concatenate(MyHeaderComponent.AppTitle, " - ", MyHeaderComponent.ScreenTitle)
+      Width: =640
+      X: =0
+      Y: =0
+
+    Children:
+      - Label4:
+          Control: label
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =Parent.Height
+            Size: =20
+            Text: =MyHeaderComponent.HeaderTitle
+            Width: =Parent.Width

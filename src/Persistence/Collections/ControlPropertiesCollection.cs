@@ -8,15 +8,15 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 [DebuggerDisplay("Count = {Count}")]
-public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPropertyValue>
+public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlProperty>
 {
-    private readonly Dictionary<string, ControlPropertyValue> _properties = new();
+    private readonly Dictionary<string, ControlProperty> _properties = new();
 
     public ControlPropertiesCollection()
     {
     }
 
-    public ControlPropertiesCollection(IEnumerable<KeyValuePair<string, ControlPropertyValue>> values)
+    public ControlPropertiesCollection(IEnumerable<KeyValuePair<string, ControlProperty>> values)
     {
         foreach (var kvp in values)
         {
@@ -24,7 +24,15 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         }
     }
 
-    public ControlPropertiesCollection(ReadOnlySpan<KeyValuePair<string, ControlPropertyValue>> values)
+    public ControlPropertiesCollection(IEnumerable<ControlProperty> values)
+    {
+        foreach (var kvp in values)
+        {
+            _properties.Add(kvp.Name, kvp);
+        }
+    }
+
+    public ControlPropertiesCollection(ReadOnlySpan<KeyValuePair<string, ControlProperty>> values)
     {
         foreach (var kvp in values)
         {
@@ -37,16 +45,25 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
     /// </summary>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static ControlPropertiesCollection Create(scoped ReadOnlySpan<KeyValuePair<string, ControlPropertyValue>> values)
+    public static ControlPropertiesCollection Create(scoped ReadOnlySpan<KeyValuePair<string, ControlProperty>> values)
     {
         return new(values);
     }
 
-    public ControlPropertyValue this[string key] => _properties[key];
+    public static ControlPropertiesCollection Create(IEnumerable<ControlProperty> values)
+    {
+        return new(values);
+    }
+
+    public ControlProperty this[string key]
+    {
+        get => _properties[key];
+        set => _properties[key] = value;
+    }
 
     public IEnumerable<string> Keys => _properties.Keys;
 
-    public IEnumerable<ControlPropertyValue> Values => _properties.Values;
+    public IEnumerable<ControlProperty> Values => _properties.Values;
 
     public int Count => _properties.Count;
 
@@ -55,7 +72,7 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         return _properties.ContainsKey(key);
     }
 
-    public void Add(string key, ControlPropertyValue value)
+    public void Add(string key, ControlProperty value)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentNullException(nameof(key));
@@ -68,7 +85,7 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentNullException(nameof(key));
 
-        _properties.Add(key, new ControlPropertyValue(value));
+        _properties.Add(key, new ControlProperty(key, value));
     }
 
     public void Add(Tuple<string, string> keyValue)
@@ -76,15 +93,7 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         if (string.IsNullOrWhiteSpace(keyValue.Item1))
             throw new ArgumentNullException(nameof(keyValue.Item1));
 
-        _properties.Add(keyValue.Item1, new ControlPropertyValue(keyValue.Item2));
-    }
-
-    internal void Set(string key, ControlPropertyValue value)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentNullException(nameof(key));
-
-        _properties[key] = value;
+        _properties.Add(keyValue.Item1, new ControlProperty(keyValue.Item1, keyValue.Item2));
     }
 
     public void Remove(string key)
@@ -92,12 +101,12 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         _properties.Remove(key);
     }
 
-    public IEnumerator<KeyValuePair<string, ControlPropertyValue>> GetEnumerator()
+    public IEnumerator<KeyValuePair<string, ControlProperty>> GetEnumerator()
     {
         return _properties.GetEnumerator();
     }
 
-    public bool TryGetValue(string key, [MaybeNullWhen(false)] out ControlPropertyValue value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out ControlProperty value)
     {
         return _properties.TryGetValue(key, out value);
     }
@@ -107,7 +116,7 @@ public class ControlPropertiesCollection : IReadOnlyDictionary<string, ControlPr
         return GetEnumerator();
     }
 
-    public static implicit operator ControlPropertiesCollection(Dictionary<string, ControlPropertyValue> collection)
+    public static implicit operator ControlPropertiesCollection(Dictionary<string, ControlProperty> collection)
     {
         return new ControlPropertiesCollection(collection);
     }

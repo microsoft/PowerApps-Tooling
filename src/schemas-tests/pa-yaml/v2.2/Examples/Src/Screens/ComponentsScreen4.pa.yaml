@@ -1,0 +1,57 @@
+Screens:
+  ComponentsScreen4:
+    Children:
+      - MyHeaderComponent_2:
+          Control: component
+          ComponentName: MyHeaderComponent
+          Properties:
+            Height: =77
+            ScreenTitle: ="Screen A"
+            Width: =1366
+
+      - MyHeaderComponent_3:
+          Control: component
+          ComponentName: MyHeaderComponent
+          Properties:
+            ScreenTitle: ="Screen B"
+            Y: =98
+
+      - MyHeaderComponent_4:
+          Control: component
+          ComponentName: MyHeaderComponent
+          Properties:
+            ScreenTitle: ="Screen C"
+            Y: =197
+
+      - CommonHeader_1:
+          Control: component
+          ComponentName: CommonHeader
+          ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
+          Properties:
+            AppTitle: ="Sample App"
+            Height: =90
+            ScreenTitle: ="Components Testing"
+            Width: =680
+            X: =305
+            Y: =294
+
+      - MenuTemplate_1:
+          Control: component
+          ComponentName: MenuTemplate
+          ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
+          Properties:
+            MenuItems: |-
+              =Table({Title: "Foo", Tag: "foo"}
+                , {Title: "Bar", Tag: "bar"}
+                , {Title: "Baz", Tag: "baz"}
+                )
+            X: =15
+            Y: =294
+
+      - selectedMenuItemLabel:
+          Control: label
+          Properties:
+            Text: =$"{MenuTemplate_1.Selected.Title} ({MenuTemplate_1.Selected.Tag})"
+            Width: =218
+            X: =285
+            Y: =537

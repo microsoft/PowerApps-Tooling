@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Persistence.Tests.Extensions;
 
 namespace Persistence.Tests.Yaml;
 
@@ -31,7 +32,7 @@ public class DeserializerValidTests : TestBase
         );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer(isTextFirst);
-        var yaml = serializer.Serialize(graph);
+        var yaml = serializer.SerializeControl(graph);
 
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(isTextFirst);
 
@@ -52,9 +53,9 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_ShouldParseYamlWithChildNodes()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a screen" }  },
+                { "Text", "I am a screen" },
             },
             children: new Control[]
             {
@@ -75,7 +76,7 @@ public class DeserializerValidTests : TestBase
         );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
-        var yaml = serializer.Serialize(graph);
+        var yaml = serializer.SerializeControl(graph);
 
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
@@ -112,14 +113,14 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_ShouldParseYamlForCustomControl()
     {
         var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = "I am a custom control" } },
+                { "Text", "I am a custom control" },
             }
         );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
-        var yaml = serializer.Serialize(graph);
+        var yaml = serializer.SerializeControl(graph);
 
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
@@ -142,7 +143,7 @@ public class DeserializerValidTests : TestBase
         var graph = ControlFactory.Create(controlName, templateName);
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
-        var yaml = serializer.Serialize(graph);
+        var yaml = serializer.SerializeControl(graph);
 
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
@@ -167,7 +168,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var controlObj = deserializer.DeserializeControl(yamlReader, expectedType);
 
         // Assert
         controlObj.Should().BeAssignableTo(expectedType);
@@ -191,9 +192,8 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
-        controlObj.Should().BeAssignableTo<App>();
-        var app = controlObj as App;
+        var app = deserializer.Deserialize<App>(yamlReader);
+
         app!.Name.Should().NotBeNull().And.Be(expectedName);
         app.Children.Should().NotBeNull().And.HaveCount(controlCount);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
@@ -210,13 +210,11 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
-        controlObj.Should().BeAssignableTo<App>();
-        var app = controlObj as App;
+        var app = deserializer.Deserialize<App>(yamlReader);
 
-        app!.Settings.Should().NotBeNull();
-        app!.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
-        app!.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
+        app.Settings.Should().NotBeNull();
+        app.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
+        app.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
@@ -230,7 +228,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var controlObj = deserializer.Deserialize<Screen>(yamlReader);
 
         // Assert
         controlObj.Should().NotBeNull();
@@ -280,11 +278,9 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var result = deserializer.Deserialize(yamlReader);
-        result.Should().BeAssignableTo<Component>();
+        var component = deserializer.Deserialize<Component>(yamlReader);
 
         // Assert
-        var component = (Component)result!;
         component.Name.Should().Be(expectedName);
         component.Template.Should().NotBeNull();
         component.Template!.Name.Should().Be(expectedTemplateName);
@@ -306,11 +302,9 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var result = deserializer.Deserialize(yamlReader);
-        result.Should().BeAssignableTo<Control>();
+        var control = deserializer.Deserialize<BuiltInControl>(yamlReader);
 
         // Assert
-        var control = (Control)result!;
         control.Name.Should().Be(expectedName);
         control.Template.Should().NotBeNull();
         control.Template!.Name.Should().Be(expectedTemplateName);
@@ -396,5 +390,24 @@ public class DeserializerValidTests : TestBase
         component!.CustomProperties.Should().NotBeNull().And.HaveCount(1);
 
         component.CustomProperties[0].Should().BeEquivalentTo(expectedCustomProperty);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/Group/with-two-children.pa.yaml", 2, "My Small Group")]
+    [DataRow(@"_TestData/ValidYaml/Group/with-nested-children.pa.yaml", 2, "My Nested Group")]
+    public void Deserialize_ShouldParseYamlForGroupWithChildren(string path, int expectedChildrenCount, string expectedName)
+    {
+        // Arrange
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead(path);
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var group = deserializer.Deserialize<GroupControl>(yamlReader);
+
+        // Assert
+        group.Should().NotBeNull();
+        group.Children.Should().NotBeNull().And.HaveCount(expectedChildrenCount);
+        group.Name.Should().Be(expectedName);
     }
 }

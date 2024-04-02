@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using MSAppGenerator;
 
 namespace MauiMsApp;
 public static class MauiProgram
@@ -31,6 +32,7 @@ public static class MauiProgram
     private static MauiAppBuilder RegisterMsAppPersistence(this MauiAppBuilder mauiAppBuilder)
     {
         mauiAppBuilder.Services.AddPowerAppsPersistence(useDefaultTemplates: true);
+        mauiAppBuilder.Services.AddTransient<IAppGeneratorFactory, AppGeneratorFactory>();
 
         return mauiAppBuilder;
     }
@@ -39,6 +41,7 @@ public static class MauiProgram
     {
         mauiAppBuilder.Services.AddTransient<MainPage>();
         mauiAppBuilder.Services.AddTransient<ScreensPage>();
+        mauiAppBuilder.Services.AddTransient<CreatePage>();
 
         return mauiAppBuilder;
     }

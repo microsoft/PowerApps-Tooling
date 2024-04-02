@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -57,8 +56,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private readonly bool _leaveOpen;
 
     // Yaml serializer and deserializer
-    private readonly ISerializer _serializer;
-    private readonly IDeserializer _deserializer;
+    private readonly IYamlSerializer _yamlSerializer;
+    private readonly IYamlDeserializer _yamlDeserializer;
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -120,8 +119,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         _stream = stream;
         _leaveOpen = leaveOpen;
-        _serializer = yamlSerializationFactory.CreateSerializer();
-        _deserializer = yamlSerializationFactory.CreateDeserializer();
+        _yamlSerializer = yamlSerializationFactory.CreateSerializer();
+        _yamlDeserializer = yamlSerializationFactory.CreateDeserializer();
         _logger = logger;
         ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
         CreateGitIgnore();
@@ -155,7 +154,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public static IMsappArchive Open(string path, IServiceProvider serviceProvider)
     {
         if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException("Path cannot be null or whitespace.", nameof(path));
+            throw new ArgumentNullException(nameof(path), "Path cannot be null or whitespace.");
         _ = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         var yamlSerializationFactory = serviceProvider.GetRequiredService<IYamlSerializationFactory>();
@@ -189,8 +188,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_app == null)
-                _app = LoadApp();
+            _app ??= LoadApp();
             return _app;
         }
 
@@ -208,8 +206,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_header == null)
-                _header = LoadHeader();
+            _header ??= LoadHeader();
 
             return _header.MSAppStructureVersion;
         }
@@ -219,8 +216,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         get
         {
-            if (_header == null)
-                _header = LoadHeader();
+            _header ??= LoadHeader();
 
             return _header.DocVersion;
         }
@@ -242,7 +238,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="PersistenceException"></exception>
-    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true)
+    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control
     {
         if (string.IsNullOrWhiteSpace(entryName))
             throw new ArgumentNullException(nameof(entryName));
@@ -254,7 +250,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         T result;
         using (var reader = new StreamReader(entry.Open()))
         {
-            result = _deserializer.Deserialize<T>(reader);
+            result = _yamlDeserializer.Deserialize<T>(reader);
             if (!ensureRoundTrip)
                 return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
         }
@@ -262,22 +258,22 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 #if DEBUG
         // Expected round trip serialization
         using var stringWriter = new StringWriter();
-        _serializer.Serialize(stringWriter, result);
+        _yamlSerializer.SerializeControl(stringWriter, result);
 #endif
         // Ensure round trip serialization
         using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _serializer.Serialize(roundTripWriter, result);
+        _yamlSerializer.SerializeControl(roundTripWriter, result);
 
         return result;
     }
 
-    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : class
+    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : Control
     {
         _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
         using var textReader = new StreamReader(archiveEntry.Open());
         try
         {
-            var result = _deserializer!.Deserialize(textReader) as T;
+            var result = _yamlDeserializer.Deserialize<T>(textReader);
             return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
         }
         catch (Exception ex)
@@ -368,7 +364,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
         using (var writer = new StreamWriter(entry.Open()))
         {
-            _serializer.Serialize(writer, control);
+            _yamlSerializer.SerializeControl(writer, control);
         }
 
         SaveEditorState(control);
@@ -409,7 +405,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
         {
-            _serializer.Serialize(appWriter, _app);
+            _yamlSerializer.SerializeControl(appWriter, _app);
         }
 
         foreach (var screen in _app.Screens)

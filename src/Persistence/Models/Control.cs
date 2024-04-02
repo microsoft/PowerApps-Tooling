@@ -15,7 +15,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [DebuggerDisplay("{Template?.DisplayName}: {Name}")]
 public abstract record Control
 {
-    [SuppressMessage("Style", "IDE0032:Use auto property", Justification = "We need both 'public init' and 'private set', which cannot be accomplished by auto property")]
     private IList<Control>? _children;
 
     public Control()
@@ -72,6 +71,7 @@ public abstract record Control
     [YamlMember(Order = 5)]
     public IList<Control>? Children { get => _children; set => _children = value; }
 
+
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }
 
@@ -87,9 +87,9 @@ public abstract record Control
                 return zIndex;
 
             return int.MaxValue;
-
         }
     }
+
 
     [OnDeserialized]
     internal void AfterDeserialize()
@@ -104,7 +104,7 @@ public abstract record Control
         for (var i = 0; i < Children.Count; i++)
         {
             var zIndex = Children.Count - i;
-            Children[i].Properties.Set(PropertyNames.ZIndex, new(zIndex.ToString(CultureInfo.InvariantCulture)) { IsFormula = false });
+            Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
         }
     }
 

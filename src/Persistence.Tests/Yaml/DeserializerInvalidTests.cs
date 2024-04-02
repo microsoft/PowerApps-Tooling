@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using YamlDotNet.Core;
 
 namespace Persistence.Tests.Yaml;
 
@@ -15,10 +16,11 @@ public class DeserializerInvalidTests
         // Arrange
         var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
-        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.fx.yaml", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.pa.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file
-        // var files = new string[] { @"_TestData/InvalidYaml/Screen-with-host.fx.yaml" };
+        // var files = new string[] { @"_TestData/InvalidYaml/Screen-with-host.pa.yaml" };
 
+        var failedFiles = 0;
         Parallel.ForEach(files, file =>
         {
             using var yamlStream = File.OpenRead(file);
@@ -27,7 +29,7 @@ public class DeserializerInvalidTests
             // Act
             try
             {
-                var result = deserializer.Deserialize(yamlReader);
+                var result = deserializer.Deserialize<Control>(yamlReader);
                 if (result is not Control)
                     throw new InvalidOperationException("Expected a control");
 
@@ -36,7 +38,68 @@ public class DeserializerInvalidTests
             catch (Exception ex) when (ex is not AssertFailedException)
             {
                 // Assert exceptions are thrown
+                Interlocked.Increment(ref failedFiles);
             }
         });
+
+        // Assert
+        failedFiles.Should().BeGreaterThan(0);
+        failedFiles.Should().Be(files.Length, "all files should fail");
+    }
+
+    [TestMethod]
+    public void Deserialize_ShouldFailWhenExpectingDifferentType()
+    {
+        // Arrange
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead("_TestData/ValidYaml/Screen/with-name.pa.yaml");
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        // Explicitly using the wrong type BuiltInControl
+        Action act = () => { deserializer.Deserialize<BuiltInControl>(yamlReader); }; // Explicitly using the wrong type BuiltInControl
+
+        // Assert
+        act.Should().Throw<YamlException>()
+            .WithInnerException<NotSupportedException>()
+            .WithMessage("Cannot covert Microsoft.PowerPlatform.PowerApps.Persistence.Models.Screen to BuiltInControl");
+    }
+
+    [TestMethod]
+    public void Deserialize_EmptyString()
+    {
+        // Arrange
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+
+        // Act
+        Action act = () => deserializer.Deserialize<Control>(string.Empty);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'yaml')");
+    }
+
+    public record TestSchema
+    {
+        public required Screen[] Screens { get; init; }
+    }
+
+    [TestMethod]
+    public void Deserialize_Screens_List()
+    {
+        // Arrange
+        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        using var yamlStream = File.OpenRead("_TestData/InvalidYaml/screens-with-duplicates.pa.yaml");
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        Action act = () =>
+        {
+            // Explicitly using list of screens
+            var result = deserializer.Deserialize<TestSchema>(yamlReader);
+        };
+
+        // Assert
+        act.Should().Throw<YamlException>()
+            .WithMessage("Encountered duplicate key Name");
     }
 }

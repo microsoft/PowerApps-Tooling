@@ -22,7 +22,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
     }
 
@@ -48,7 +48,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(app).NormalizeNewlines();
+        var sut = serializer.SerializeControl(app).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -66,7 +66,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: =A{Environment.NewLine}  PropertyB: =B{Environment.NewLine}  PropertyC: =C{Environment.NewLine}");
     }
 
@@ -99,7 +99,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
     }
 
@@ -115,7 +115,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph);
+        var sut = serializer.SerializeControl(graph);
         sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
     }
 
@@ -130,15 +130,15 @@ public class ValidSerializerTests : TestBase
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
-            properties: new Dictionary<string, ControlPropertyValue>()
+            properties: new()
             {
-                { "Text", new() { Value = controlText } }
+                { "Text", controlText }
             }
         );
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -180,7 +180,7 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var sut = serializer.Serialize(graph).NormalizeNewlines();
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
@@ -200,10 +200,61 @@ public class ValidSerializerTests : TestBase
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-sorted-properties.pa.yaml", "SuperButton", "Some value")]
+    public void Should_SortBy_Category(string expectedPath, string templateName, string expectedValue)
+    {
+        var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
+            properties: new Dictionary<string, ControlProperty>()
+            {
+                { "a2_Data", new("a2_Data", expectedValue) { Category = PropertyCategory.Data } },
+                { "a1_Data", new("a1_Data", expectedValue) { Category = PropertyCategory.Data } },
+                { "x2_Behavior", new("x2_Behavior", expectedValue) { Category = PropertyCategory.Behavior } },
+                { "x1_Behavior", new("x1_Behavior", expectedValue) { Category = PropertyCategory.Behavior } },
+                { "y3_Design", new("y3_Design", expectedValue) { Category = PropertyCategory.Design } },
+                { "y2_Design", new("y2_Design", expectedValue) { Category = PropertyCategory.Design } },
+                { "y1_Design", new("y1_Design", expectedValue) { Category = PropertyCategory.Design } },
+            }
+        );
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml/With-list-of-controls.pa.yaml", "SuperButton")]
+    public void Should_Serialize_List_Of_Controls(string expectedPath, string templateName)
+    {
+        var graph = new List<Control>()
+        {
+            ControlFactory.Create("BuiltIn Control1", template: templateName,
+                properties: new()
+                {
+                    { "Text", "Just text" },
+                }
+            ),
+            ControlFactory.Create("BuiltIn Label", template: "Label",
+                properties: new()
+                {
+                    { "Text", "Just label text" },
+                }
+            ),
+        };
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+
         var sut = serializer.Serialize(graph).NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
+
 
     public static IEnumerable<object[]> Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data => new List<object[]>()
     {
@@ -248,7 +299,7 @@ public class ValidSerializerTests : TestBase
 
         var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
-        var serializedComponent = sut.Serialize(component);
+        var serializedComponent = sut.SerializeControl(component);
 
         var expectedYaml = File.ReadAllText(expectedYamlFile);
         serializedComponent.Should().Be(expectedYaml);

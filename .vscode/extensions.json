@@ -4,6 +4,7 @@
     "davidanson.vscode-markdownlint",
     "eamodio.gitlens",
     "ms-azure-devops.azure-pipelines",
-    "ms-dotnettools.csharp"
+    "ms-dotnettools.csharp",
+    "redhat.vscode-yaml"
   ]
 }

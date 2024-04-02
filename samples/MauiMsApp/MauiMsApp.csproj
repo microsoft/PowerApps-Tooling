@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+    <!-- <TargetFramework>net8.0</TargetFramework> -->
+    <TargetFrameworks>$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
-		<!-- <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks> -->
+    <!--<TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks>-->
+		<!--<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>-->
 
 		<!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
@@ -60,7 +61,15 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<PackageReference Include="YamlDotNet" Version="15.1.0" />
+		<PackageReference Include="YamlDotNet" Version="15.1.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -71,12 +80,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="CreatePage.xaml.cs">
+	    <DependentUpon>CreatePage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="ScreensPage.xaml.cs">
 	    <DependentUpon>ScreensPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="CreatePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="ScreensPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

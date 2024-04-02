@@ -69,7 +69,6 @@ public class InteractiveGenerator : IAppGenerator
                         app.Screens.Add(_controlFactory.CreateScreen(screenname, children: childlist.ToArray()));
                     }
                 }
-
             }
             else if (input?.ToLower()[0] == 'n')
             {

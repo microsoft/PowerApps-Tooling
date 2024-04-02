@@ -35,7 +35,7 @@ public class RoundTripTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Deserialize the yaml into an object.
-        var controlObj = deserializer.Deserialize(yamlReader);
+        var controlObj = deserializer.DeserializeControl(yamlReader, rootType);
 
         // Validate the control.
         controlObj.Should().BeAssignableTo(rootType);
@@ -49,7 +49,7 @@ public class RoundTripTests : TestBase
             control.Children.Should().BeNull();
 
         // Serialize the object back into yaml.
-        var actualYaml = serializer.Serialize(controlObj).NormalizeNewlines();
+        var actualYaml = serializer.SerializeControl(control).NormalizeNewlines();
 
         // Assert that the yaml is the same.
         var expectedYaml = File.ReadAllText(path).NormalizeNewlines();
