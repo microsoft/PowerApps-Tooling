@@ -82,5 +82,7 @@ public static class ServiceCollectionExtensions
 
         store.Add(new() { Name = "DataCard", Id = "http://microsoft.com/appmagic/card" });
         store.Add(new() { Name = "TypedDataCard", Id = "http://microsoft.com/appmagic/card" });
+
+        store.Add(new() { Name = "groupContainer", Id = "http://microsoft.com/appmagic/groupContainer" });
     }
 }

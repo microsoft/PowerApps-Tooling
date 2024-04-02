@@ -46,6 +46,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         options ??= YamlDeserializerOptions.Default;
 
         var yamlDeserializer = new DeserializerBuilder()
+            .WithDuplicateKeyChecking()
             .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
             .IgnoreUnmatchedProperties()
             .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
