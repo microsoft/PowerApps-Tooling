@@ -1,5 +1,4 @@
 ButtonCanvas: 
 Name: BuiltIn Control1
 Properties:
-  Text: |-
-    ="=Starts with equals"
+  Text: ="=Starts with equals"

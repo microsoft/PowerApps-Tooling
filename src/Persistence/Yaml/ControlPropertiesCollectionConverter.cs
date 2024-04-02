@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Core;
@@ -15,7 +16,8 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
     private readonly NullNodeDeserializer _nullNodeDeserializer = new();
     private readonly Scalar NullScalar = new("tag:yaml.org,2002:null", string.Empty);
 
-    public bool IsTextFirst { get; set; } = true;
+    [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily", Justification = "Explicitly setting to false for clarity")]
+    public bool IsTextFirst { get; set; } = false;
 
     public bool Accepts(Type type)
     {
@@ -38,7 +40,19 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
             if (IsTextFirst)
                 collection.Add(key.Value, ControlProperty.FromTextFirstString(key.Value, value));
             else
-                collection.Add(key.Value, value);
+            {
+                // DEBUGGING!
+                try
+                {
+                    Debug.Assert(value?.StartsWith('=') ?? false);
+                }
+                catch
+                {
+                    //throw;
+                }
+
+                collection.Add(key.Value, value?.TrimStart('='));
+            }
         }
 
         parser.MoveNext();
@@ -76,11 +90,19 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
                 else
                     propertyValue = $"={propertyValue!}";
             }
-
-            if (propertyValue != null && (propertyValue.Contains(" #") || propertyValue.Contains(": ") || propertyValue.Contains('\"')))
-                emitter.Emit(new Scalar(null, null, propertyValue, ScalarStyle.Literal, true, false));
             else
-                emitter.Emit(new Scalar(propertyValue!));
+            {
+                if (propertyValue == null)
+                {
+                    emitter.Emit(NullScalar);
+                    continue;
+                }
+
+                propertyValue = propertyValue.StartsWith('=') ? propertyValue : $"={propertyValue}";
+            }
+
+            var scalarStyle = ControlPropertyConverter.DetermineScalarStyleForProperty(propertyValue);
+            emitter.Emit(new Scalar(null, null, propertyValue, scalarStyle, true, false));
         }
 
         emitter.Emit(new MappingEnd());

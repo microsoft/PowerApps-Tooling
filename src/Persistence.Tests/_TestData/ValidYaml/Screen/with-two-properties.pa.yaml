@@ -1,5 +1,5 @@
 Screen: 
 Name: Hello
 Properties:
-  Name: NameProperty1
-  Type: TypeProperty1
+  Name: =NameProperty1
+  Type: =TypeProperty1

@@ -1,16 +1,16 @@
 Screen: 
 Name: Screen with two properties and two controls
 Properties:
-  Name: NameProperty1
-  Type: TypeProperty1
+  Name: =NameProperty1
+  Type: =TypeProperty1
 Children:
 - Button: 
   Name: Button1
   Properties:
-    X: 10
-    Y: 20
+    X: =10
+    Y: =20
 - Text: 
   Name: Text1
   Properties:
-    X: 10
-    Y: 20
+    X: =10
+    Y: =20

@@ -1,22 +1,22 @@
 Screen: 
 Name: Screen with two properties and two nested controls
 Properties:
-  Name: NameProperty1
-  Type: TypeProperty1
+  Name: =NameProperty1
+  Type: =TypeProperty1
 Children:
 - Button: 
   Name: Button1
   Properties:
-    X: 10
-    Y: 20
+    X: =10
+    Y: =20
   Children:
   - Button: 
     Name: Nested button
 - Text: 
   Name: Text1
   Properties:
-    X: 10
-    Y: 20
+    X: =10
+    Y: =20
   Children:
   - Button: 
     Name: Nested button

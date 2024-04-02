@@ -1,4 +1,4 @@
 Button:
 Name: button with template
 Properties:
-  Text: button text
+  Text: ="button text"
