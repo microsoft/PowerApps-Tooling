@@ -2,4 +2,4 @@ Button:
 Name: built in
 Variant: SuperButton
 Properties:
-  Text: button text
+  Text: ="button text"
