@@ -32,7 +32,7 @@ public class TestBase
         ControlFactory = ServiceProvider.GetRequiredService<IControlFactory>();
     }
 
-    public static IServiceProvider BuildServiceProvider()
+    private static IServiceProvider BuildServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
         var serviceProvider = ConfigureServices(serviceCollection);
