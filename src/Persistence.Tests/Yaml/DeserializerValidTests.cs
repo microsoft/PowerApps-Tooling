@@ -55,7 +55,7 @@ public class DeserializerValidTests : TestBase
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
             {
-                { "Text", "I am a screen" },
+                { "Text", "\"I am a screen\"" },
             },
             children: new Control[]
             {
@@ -63,12 +63,12 @@ public class DeserializerValidTests : TestBase
                     properties:
                     new ()
                     {
-                        { "Text", "lorem ipsum" },
+                        { "Text", "\"lorem ipsum\"" },
                     }),
                 ControlFactory.Create("Button1", template: "button",
                     properties : new ()
                     {
-                        { "Text", "click me" },
+                        { "Text", "\"click me\"" },
                         { "X", "100" },
                         { "Y", "200" }
                     })
@@ -87,7 +87,7 @@ public class DeserializerValidTests : TestBase
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
-        sut.Properties["Text"].Value.Should().Be("I am a screen");
+        sut.Properties["Text"].Value.Should().Be("\"I am a screen\"");
 
         sut.Children.Should().NotBeNull().And.HaveCount(2);
         sut.Children![0].Should().BeOfType<BuiltInControl>();
@@ -96,7 +96,7 @@ public class DeserializerValidTests : TestBase
         sut.Children![0].Properties.Should().NotBeNull()
                 .And.HaveCount(2)
                 .And.ContainKeys("Text", PropertyNames.ZIndex);
-        sut.Children![0].Properties["Text"].Value.Should().Be("lorem ipsum");
+        sut.Children![0].Properties["Text"].Value.Should().Be("\"lorem ipsum\"");
 
         sut.Children![1].Should().BeOfType<BuiltInControl>();
         sut.Children![1].Name.Should().Be("Button1");
@@ -104,7 +104,7 @@ public class DeserializerValidTests : TestBase
         sut.Children![1].Properties.Should().NotBeNull()
                 .And.HaveCount(4)
                 .And.ContainKeys("Text", "X", "Y", PropertyNames.ZIndex);
-        sut.Children![1].Properties["Text"].Value.Should().Be("click me");
+        sut.Children![1].Properties["Text"].Value.Should().Be("\"click me\"");
         sut.Children![1].Properties["X"].Value.Should().Be("100");
         sut.Children![1].Properties["Y"].Value.Should().Be("200");
     }
@@ -115,7 +115,7 @@ public class DeserializerValidTests : TestBase
         var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
             properties: new()
             {
-                { "Text", "I am a custom control" },
+                { "Text", "\"I am a custom control\"" },
             }
         );
 
@@ -132,7 +132,7 @@ public class DeserializerValidTests : TestBase
         sut.Properties.Should().NotBeNull()
                 .And.HaveCount(1)
                 .And.ContainKey("Text");
-        sut.Properties["Text"].Value.Should().Be("I am a custom control");
+        sut.Properties["Text"].Value.Should().Be("\"I am a custom control\"");
     }
 
     [TestMethod]
@@ -238,7 +238,7 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_Strings()
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(isTextFirst: true);
         using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/Strings.pa.yaml");
         using var yamlReader = new StreamReader(yamlStream);
 

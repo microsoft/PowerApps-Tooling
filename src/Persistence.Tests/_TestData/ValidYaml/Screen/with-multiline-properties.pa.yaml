@@ -1,8 +1,8 @@
 Screen: 
 Name: Screen with two multiline properties
 Properties:
-  Long Line: >
-    Launch(Navigation_1.url);
+  Long Line: |
+    =Launch(Navigation_1.url);
 
         Set(
             ShowNewMenu,
@@ -18,4 +18,4 @@ Properties:
             ShowResearchMenu,
             false
         );
-  Name: NameProperty1
+  Name: =NameProperty1

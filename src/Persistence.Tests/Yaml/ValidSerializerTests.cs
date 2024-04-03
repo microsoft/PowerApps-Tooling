@@ -23,7 +23,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a screen\"{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -37,12 +37,12 @@ public class ValidSerializerTests : TestBase
             ControlFactory.CreateScreen("Screen1",
                 properties: new()
                 {
-                    { "Text", "I am a screen" },
+                    { "Text", "\"I am a screen\"" },
                 }),
             ControlFactory.CreateScreen("Screen2",
                 properties: new()
                 {
-                    { "Text", "I am another screen" },
+                    { "Text", "\"I am another screen\"" },
                 }),
         };
 
@@ -59,9 +59,9 @@ public class ValidSerializerTests : TestBase
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
             {
-                { "PropertyB", "B" },
-                { "PropertyC", "C" },
-                { "PropertyA", "A" },
+                { "PropertyB", "=B" },
+                { "PropertyC", "=C" },
+                { "PropertyA", "=A" },
             });
 
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
@@ -100,7 +100,7 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a screen{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: lorem ipsum{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: click me{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
+        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a screen\"{Environment.NewLine}Children:{Environment.NewLine}- Text: {Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: =\"lorem ipsum\"{Environment.NewLine}- Button: {Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: =\"click me\"{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
     }
 
     [TestMethod]
@@ -116,17 +116,18 @@ public class ValidSerializerTests : TestBase
         var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 
         var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: I am a custom control{Environment.NewLine}");
+        sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a custom control\"{Environment.NewLine}");
     }
 
     [TestMethod]
     [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml/BuiltInControl1.pa.yaml")]
     [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml/BuiltInControl2.pa.yaml")]
-    [DataRow("ButtonCanvas", "Text`~!@#$%^&*()_-+=\", \":", @"_TestData/ValidYaml/BuiltInControl3.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"Text`~!@#$%^&*()_-+=\", \":\"", @"_TestData/ValidYaml/BuiltInControl3.pa.yaml")]
     [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.pa.yaml")]
     [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.pa.yaml")]
     [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.pa.yaml")]
     [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml/BuiltInControl7.pa.yaml")]
+    [DataRow("ButtonCanvas", "\"Text containing PFX \"\"Double-Double-Quote\"\" escape sequence\"", @"_TestData/ValidYaml/BuiltInControl8.pa.yaml")]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,

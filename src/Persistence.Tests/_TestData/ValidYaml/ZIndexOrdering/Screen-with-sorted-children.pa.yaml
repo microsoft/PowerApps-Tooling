@@ -1,7 +1,7 @@
 Screen: 
 Name: Screen1
 Properties:
-  Text: I am a screen
+  Text: ="I am a screen"
 Children:
 - Text: 
   Name: Label5
