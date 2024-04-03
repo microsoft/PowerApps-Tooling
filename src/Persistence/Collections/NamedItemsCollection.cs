@@ -97,12 +97,31 @@ public abstract class NamedItemsCollection<TValue> :
         return _items.ContainsKey(key);
     }
 
+    public void Add(TValue value)
+    {
+        if (value is null)
+            throw new ArgumentNullException(nameof(value));
+        _items.Add(_keySelector(value), value);
+    }
+
     public void Add(string key, TValue value)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentNullException(nameof(key));
 
         _items.Add(key, value);
+    }
+
+    public void Add(KeyValuePair<string, TValue> kv)
+    {
+        _items.Add(kv.Key, kv.Value);
+    }
+
+    public void Add(object key, object? value)
+    {
+        if (key is string s && value is TValue v)
+            Add(s, v);
+        throw new ArgumentException();
     }
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
@@ -130,9 +149,16 @@ public abstract class NamedItemsCollection<TValue> :
         return _items.Remove(key);
     }
 
-    public void Add(KeyValuePair<string, TValue> kv)
+    public bool Remove(KeyValuePair<string, TValue> item)
     {
-        _items.Add(kv.Key, kv.Value);
+        return _items.Remove(item.Key);
+    }
+
+    public bool Remove(TValue value)
+    {
+        if (value is null)
+            throw new ArgumentNullException(nameof(value));
+        return _items.Remove(_keySelector(value));
     }
 
     public void Clear()
@@ -148,18 +174,6 @@ public abstract class NamedItemsCollection<TValue> :
     public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
     {
         throw new NotImplementedException();
-    }
-
-    public bool Remove(KeyValuePair<string, TValue> item)
-    {
-        return _items.Remove(item.Key);
-    }
-
-    public void Add(object key, object? value)
-    {
-        if (key is string s && value is TValue v)
-            Add(s, v);
-        throw new ArgumentException();
     }
 
     public bool Contains(object key)
