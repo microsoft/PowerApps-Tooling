@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 [DebuggerDisplay("Count = {Count}")]
-public class NamedItemsCollection<TValue> :
+public abstract class NamedItemsCollection<TValue> :
     IDictionary<string, TValue>,
     IDictionary where
     TValue : notnull
@@ -20,7 +20,7 @@ public class NamedItemsCollection<TValue> :
         _keySelector = keySelector ?? throw new ArgumentNullException(nameof(keySelector));
     }
 
-    public NamedItemsCollection(IEnumerable<TValue> values, Func<TValue, string> keySelector) : this(keySelector)
+    protected NamedItemsCollection(IEnumerable<TValue> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var item in values)
         {
@@ -28,7 +28,7 @@ public class NamedItemsCollection<TValue> :
         }
     }
 
-    internal NamedItemsCollection(IEnumerable<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
+    protected NamedItemsCollection(IEnumerable<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var kvp in values)
         {
@@ -36,7 +36,7 @@ public class NamedItemsCollection<TValue> :
         }
     }
 
-    internal NamedItemsCollection(ReadOnlySpan<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
+    protected NamedItemsCollection(ReadOnlySpan<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var kvp in values)
         {

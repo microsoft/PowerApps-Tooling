@@ -9,6 +9,6 @@ CustomProperties:
     IsResettable: false
     Default: lorem
     Parameters:
-    - Name: param1
-      DataType: String
-      IsRequired: true
+      param1:
+        DataType: String
+        IsRequired: true
