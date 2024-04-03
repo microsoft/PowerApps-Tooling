@@ -7,17 +7,20 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 [DebuggerDisplay("Count = {Count}")]
-public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDictionary
+public class NamedItemsCollection<TValue> :
+    IDictionary<string, TValue>,
+    IDictionary where
+    TValue : notnull
 {
-    private readonly Dictionary<string, T> _items = new();
-    private readonly Func<T, string> _keySelector;
+    private readonly Dictionary<string, TValue> _items = new();
+    private readonly Func<TValue, string> _keySelector;
 
-    protected NamedItemsCollection(Func<T, string> keySelector)
+    protected NamedItemsCollection(Func<TValue, string> keySelector)
     {
         _keySelector = keySelector ?? throw new ArgumentNullException(nameof(keySelector));
     }
 
-    public NamedItemsCollection(IEnumerable<T> values, Func<T, string> keySelector) : this(keySelector)
+    public NamedItemsCollection(IEnumerable<TValue> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var item in values)
         {
@@ -25,7 +28,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         }
     }
 
-    internal NamedItemsCollection(IEnumerable<KeyValuePair<string, T>> values, Func<T, string> keySelector) : this(keySelector)
+    internal NamedItemsCollection(IEnumerable<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var kvp in values)
         {
@@ -33,7 +36,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         }
     }
 
-    internal NamedItemsCollection(ReadOnlySpan<KeyValuePair<string, T>> values, Func<T, string> keySelector) : this(keySelector)
+    internal NamedItemsCollection(ReadOnlySpan<KeyValuePair<string, TValue>> values, Func<TValue, string> keySelector) : this(keySelector)
     {
         foreach (var kvp in values)
         {
@@ -41,7 +44,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         }
     }
 
-    public T this[string key]
+    public TValue this[string key]
     {
         get => _items[key];
         set => _items[key] = value;
@@ -49,17 +52,17 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
 
     public IEnumerable<string> Keys => _items.Keys;
 
-    public IEnumerable<T> Values => _items.Values;
+    public IEnumerable<TValue> Values => _items.Values;
 
     public int Count => _items.Count;
 
     public bool IsReadOnly => false;
 
-    ICollection<string> IDictionary<string, T>.Keys => _items.Keys;
-
-    ICollection<T> IDictionary<string, T>.Values => _items.Values;
-
     public bool IsFixedSize => false;
+
+    ICollection<string> IDictionary<string, TValue>.Keys => _items.Keys;
+
+    ICollection<TValue> IDictionary<string, TValue>.Values => _items.Values;
 
     ICollection IDictionary.Keys => _items.Keys;
 
@@ -79,7 +82,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         }
         set
         {
-            if (key is string s && value is T v)
+            if (key is string s && value is TValue v)
             {
                 _items[s] = v;
                 return;
@@ -94,7 +97,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         return _items.ContainsKey(key);
     }
 
-    public void Add(string key, T value)
+    public void Add(string key, TValue value)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentNullException(nameof(key));
@@ -102,19 +105,24 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         _items.Add(key, value);
     }
 
-    public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
-    {
-        return _items.GetEnumerator();
-    }
-
-    public bool TryGetValue(string key, [MaybeNullWhen(false)] out T value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
     {
         return _items.TryGetValue(key, out value);
     }
 
+    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
+    {
+        return _items.GetEnumerator();
+    }
+
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return GetEnumerator();
+        return _items.GetEnumerator();
+    }
+
+    IDictionaryEnumerator IDictionary.GetEnumerator()
+    {
+        return ((IDictionary)_items).GetEnumerator();
     }
 
     public bool Remove(string key)
@@ -122,7 +130,7 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         return _items.Remove(key);
     }
 
-    public void Add(KeyValuePair<string, T> kv)
+    public void Add(KeyValuePair<string, TValue> kv)
     {
         _items.Add(kv.Key, kv.Value);
     }
@@ -132,24 +140,24 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
         _items.Clear();
     }
 
-    public bool Contains(KeyValuePair<string, T> item)
+    public bool Contains(KeyValuePair<string, TValue> item)
     {
         return _items.Contains(item);
     }
 
-    public void CopyTo(KeyValuePair<string, T>[] array, int arrayIndex)
+    public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
     {
         throw new NotImplementedException();
     }
 
-    public bool Remove(KeyValuePair<string, T> item)
+    public bool Remove(KeyValuePair<string, TValue> item)
     {
         return _items.Remove(item.Key);
     }
 
     public void Add(object key, object? value)
     {
-        if (key is string s && value is T v)
+        if (key is string s && value is TValue v)
             Add(s, v);
         throw new ArgumentException();
     }
@@ -158,15 +166,10 @@ public abstract class NamedItemsCollection<T> : IDictionary<string, T>, IDiction
     {
         if (key is string s)
             return ContainsKey(s);
-        if (key is T v)
+        if (key is TValue v)
             return ContainsKey(_keySelector(v));
 
         throw new ArgumentException();
-    }
-
-    IDictionaryEnumerator IDictionary.GetEnumerator()
-    {
-        return _items.GetEnumerator();
     }
 
     public void Remove(object key)

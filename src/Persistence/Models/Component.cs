@@ -34,8 +34,6 @@ public record Component : Control
 
     [YamlMember(Order = 100)]
     public CustomPropertiesCollection CustomProperties { get; init; } = new();
-    //public Dictionary<string, CustomProperty> CustomProperties { get; init; } = new();
-    //public IDictionary<string, CustomProperty> CustomProperties { get; init; } = new CustomPropertiesCollection();
 
     [OnDeserialized]
     internal override void AfterDeserialize()
