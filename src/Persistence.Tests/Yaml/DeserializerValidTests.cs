@@ -355,8 +355,7 @@ public class DeserializerValidTests : TestBase
                 DataType = "String",
                 Default = "lorem",
                 Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Data,
-                Parameters = Array.Empty<CustomPropertyParameter>()
+                Type = CustomProperty.PropertyType.Data
             },
             @"_TestData/ValidYaml/Components/CustomProperty1.pa.yaml"
         },
@@ -370,7 +369,11 @@ public class DeserializerValidTests : TestBase
                 Direction = CustomProperty.PropertyDirection.Input,
                 Type = CustomProperty.PropertyType.Function,
                 Parameters = new[] {
-                    new CustomPropertyParameter() { IsRequired = true, Name = "param1", DataType = "String" }
+                    new CustomPropertyParameter(){
+                        Name = "param1",
+                        DataType = "String",
+                        IsRequired = true,
+                    }
                 },
             },
             @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"
@@ -387,9 +390,11 @@ public class DeserializerValidTests : TestBase
 
         var component = sut.Deserialize<Component>(expectedYaml);
         component.Should().NotBeNull();
-        component!.CustomProperties.Should().NotBeNull().And.HaveCount(1);
+        component!.CustomProperties.Should().NotBeNull()
+            .And.HaveCount(1)
+            .And.ContainKey(expectedCustomProperty.Name);
 
-        component.CustomProperties[0].Should().BeEquivalentTo(expectedCustomProperty);
+        component.CustomProperties[expectedCustomProperty.Name].Should().BeEquivalentTo(expectedCustomProperty);
     }
 
     [TestMethod]

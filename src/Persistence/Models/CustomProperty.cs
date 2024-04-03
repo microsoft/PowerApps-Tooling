@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public record CustomProperty
 {
-    public required string Name { get; init; }
+    [YamlIgnore]
+    public required string Name { get; set; }
 
     public PropertyDirection Direction { get; init; } = PropertyDirection.Input;
 
@@ -28,7 +31,7 @@ public record CustomProperty
 
     public string? Tooltip { get; init; }
 
-    public IList<CustomPropertyParameter> Parameters { get; init; } = new List<CustomPropertyParameter>();
+    public CustomPropertyParametersCollection Parameters { get; init; } = new();
 
     public enum PropertyDirection
     {
@@ -42,5 +45,17 @@ public record CustomProperty
         Event,
         Function,
         Action
+    }
+
+    [OnDeserialized]
+    internal void AfterDeserialize()
+    {
+        if (Parameters != null)
+        {
+            foreach (var kv in Parameters)
+            {
+                kv.Value.Name = kv.Key;
+            }
+        }
     }
 }

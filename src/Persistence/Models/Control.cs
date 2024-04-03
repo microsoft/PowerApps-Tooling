@@ -92,7 +92,7 @@ public abstract record Control
 
 
     [OnDeserialized]
-    internal void AfterDeserialize()
+    internal virtual void AfterDeserialize()
     {
         // Apply a descending ZIndex value for each child
         if (Children == null)
