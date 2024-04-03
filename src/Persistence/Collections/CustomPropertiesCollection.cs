@@ -19,8 +19,6 @@ public class CustomPropertiesCollection : NamedItemsCollection<CustomProperty>
 
     internal CustomPropertiesCollection(IEnumerable<KeyValuePair<string, CustomProperty>> values) : base(values, _keySelector) { }
 
-    internal CustomPropertiesCollection(ReadOnlySpan<KeyValuePair<string, CustomProperty>> values) : base(values, _keySelector) { }
-
     public static implicit operator CustomPropertiesCollection(Dictionary<string, CustomProperty> dictionary)
     {
         return new CustomPropertiesCollection(dictionary);
