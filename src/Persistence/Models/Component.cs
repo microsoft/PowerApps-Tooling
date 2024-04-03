@@ -3,8 +3,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -31,5 +33,21 @@ public record Component : Control
     }
 
     [YamlMember(Order = 100)]
-    public IList<CustomProperty> CustomProperties { get; init; } = new List<CustomProperty>();
+    public CustomPropertiesCollection CustomProperties { get; init; } = new();
+    //public Dictionary<string, CustomProperty> CustomProperties { get; init; } = new();
+    //public IDictionary<string, CustomProperty> CustomProperties { get; init; } = new CustomPropertiesCollection();
+
+    [OnDeserialized]
+    internal override void AfterDeserialize()
+    {
+        base.AfterDeserialize();
+
+        if (CustomProperties != null)
+        {
+            foreach (var kv in CustomProperties)
+            {
+                kv.Value.Name = kv.Key;
+            }
+        }
+    }
 }

@@ -7,7 +7,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 public record CustomProperty
 {
-    public required string Name { get; init; }
+    [YamlIgnore]
+    public required string Name { get; set; }
 
     public PropertyDirection Direction { get; init; } = PropertyDirection.Input;
 

@@ -295,7 +295,7 @@ public class ValidSerializerTests : TestBase
         var component = ControlFactory.Create("Component1", "Component") as Component;
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull();
-        component.CustomProperties.Add(customProperty);
+        component.CustomProperties.Add(customProperty.Name, customProperty);
 
         var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
 

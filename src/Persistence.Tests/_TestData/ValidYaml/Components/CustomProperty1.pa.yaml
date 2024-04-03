@@ -1,10 +1,10 @@
 Component: 
 Name: Component1
 CustomProperties:
-- Name: MyTextProp1
-  Direction: Input
-  PropertyType: Data
-  DataType: String
-  Category: Data
-  IsResettable: false
-  Default: lorem
+  MyTextProp1:
+    Direction: Input
+    PropertyType: Data
+    DataType: String
+    Category: Data
+    IsResettable: false
+    Default: lorem

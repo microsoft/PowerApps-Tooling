@@ -387,9 +387,11 @@ public class DeserializerValidTests : TestBase
 
         var component = sut.Deserialize<Component>(expectedYaml);
         component.Should().NotBeNull();
-        component!.CustomProperties.Should().NotBeNull().And.HaveCount(1);
+        component!.CustomProperties.Should().NotBeNull()
+            .And.HaveCount(1)
+            .And.ContainKey(expectedCustomProperty.Name);
 
-        component.CustomProperties[0].Should().BeEquivalentTo(expectedCustomProperty);
+        component.CustomProperties[expectedCustomProperty.Name].Should().BeEquivalentTo(expectedCustomProperty);
     }
 
     [TestMethod]
