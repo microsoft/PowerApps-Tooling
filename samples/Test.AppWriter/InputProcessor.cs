@@ -11,10 +11,12 @@ internal class InputProcessor
     /// <summary>
     /// Validate that the provided filepath is accessible and not an existing file
     /// </summary>
-    private static bool ValidateFilePath(string filePath, out string error)
+    private static bool ValidateFilePath(string filePath, out string error, bool isFolder = false)
     {
         error = string.Empty;
-        if (!File.Exists(filePath))
+
+        var attr = File.GetAttributes(filePath);
+        if (!File.Exists(filePath) || attr.HasFlag(FileAttributes.Directory))
             return true;
 
         Console.WriteLine($"Warning: File '{filePath}' already exists");
@@ -58,6 +60,21 @@ internal class InputProcessor
     }
 
     /// <summary>
+    /// Roundtrips all MSApps in a folder, will generate a report at the outpath 
+    /// </summary>
+    private static void ValidateFunction(string filePath, string outPath, int numPasses)
+    {
+        var validator = new AppValidator();
+
+        var msapp = validator.GetAppFromFile(filePath);
+
+        if (msapp != null)
+        {
+            msapp.Save();
+        }
+    }
+
+    /// <summary>
     /// Configures and returns the root command to process commandline arguments
     /// </summary>
     public static RootCommand GetRootCommand()
@@ -69,7 +86,7 @@ internal class InputProcessor
             );
         var filePathOption = new Option<FileInfo?>(
             name: "--filepath",
-            description: "(string) The path where the msapp file should be generated, including filename and extension",
+            description: "(string) The desired filepath for the msapp file, including filename and extension",
             parseArgument: result =>
             {
                 var filePath = result.Tokens.Single().Value;
@@ -82,6 +99,35 @@ internal class InputProcessor
             }
             )
         { IsRequired = true };
+        var folderPathOption = new Option<FileInfo?>(
+            name: "--folderpath",
+            description: "(string) The desired path to folder containing MSAPPs",
+            parseArgument: result =>
+            {
+                var filePath = result.Tokens.Single().Value;
+
+                if (ValidateFilePath(filePath, out var error))
+                    return new FileInfo(filePath);
+
+                result.ErrorMessage = error;
+                return null;
+            }
+            )
+        { IsRequired = true };
+        var outPathOption = new Option<FileInfo?>(
+            name: "--outpath",
+            description: "(string) The path where results of validation should be output",
+            parseArgument: result =>
+            {
+                var filePath = result.Tokens.Single().Value;
+
+                if (ValidateFilePath(filePath, out var error))
+                    return new FileInfo(filePath);
+
+                result.ErrorMessage = error;
+                return null;
+            }
+            );
         var numScreensOption = new Option<int>(
             name: "--numscreens",
             description: "(integer) The number of screens to generate in the App",
@@ -98,8 +144,14 @@ internal class InputProcessor
             name: "--controls",
             description: "(list of string) A list of control templates (i.e. Button Label [Template]...)")
         { AllowMultipleArgumentsPerToken = true };
+        var numPassesOption = new Option<int>(
+            name: "--numpasses",
+            description: "(integer) The number of passes to roundtrip load/save each MSApp",
+            getDefaultValue: () => 1
+            );
 
         var rootCommand = new RootCommand("Test Writer for MSApp files.");
+
         var createCommand = new Command("create", "Create a new MSApp at the specified path.")
         {
             interactiveOption,
@@ -107,13 +159,25 @@ internal class InputProcessor
             numScreensOption,
             controlsOptions
         };
-
         createCommand.SetHandler((interactive, filepath, numscreens, controls) =>
         {
             CreateFunction(interactive, filepath!.FullName, numscreens, controls);
         }, interactiveOption, filePathOption, numScreensOption, controlsOptions);
 
         rootCommand.AddCommand(createCommand);
+
+        var validateCommand = new Command("validate", "Validate an group of existing MSApps at the specified path.")
+        {
+            folderPathOption,
+            outPathOption,
+            numPassesOption
+        };
+        validateCommand.SetHandler((folderpath, outpath, numpasses) =>
+        {
+            ValidateFunction(folderpath!.FullName, outpath!.FullName, numpasses);
+        }, folderPathOption, outPathOption, numPassesOption);
+
+        rootCommand.AddCommand(validateCommand);
 
         return rootCommand;
     }
