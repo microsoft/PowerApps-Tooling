@@ -101,9 +101,18 @@ public abstract record Control
         if (this is App)
             return; // Apps do not place ZIndex on their Host child
 
+
+        var zindexCalc = (int i) => Children.Count - i;
+        // For group containers, ZIndex is the actual order of what is shown in the tree view, not descending.
+        // Handle that here to ensure we match what is expected
+        if (Template.Name == "GroupContainer")
+        {
+            zindexCalc = (int i) => i + 1;
+        }
+
         for (var i = 0; i < Children.Count; i++)
         {
-            var zIndex = Children.Count - i;
+            var zIndex = zindexCalc(i);
             Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
         }
     }
@@ -113,8 +122,18 @@ public abstract record Control
     {
         HideNestedTemplates();
 
+        Comparison<Control> zIndexComparison = (Control c1, Control c2) => c2.ZIndex.CompareTo(c1.ZIndex);
+
+        // For group containers, ZIndex is the reverse order of what is shown in the tree view
+        // Handle that here to ensure we match what is expected
+        if (Template.Name == "GroupContainer")
+        {
+            zIndexComparison = (Control c1, Control c2) => c1.ZIndex.CompareTo(c2.ZIndex);
+        }
+
+
         if (_children != null)
-            _children.Sort((c1, c2) => c2.ZIndex.CompareTo(c1.ZIndex));
+            _children.Sort(zIndexComparison);
 
         Properties.Remove(PropertyNames.ZIndex);
     }

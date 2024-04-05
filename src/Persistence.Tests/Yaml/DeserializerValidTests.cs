@@ -97,6 +97,7 @@ public class DeserializerValidTests : TestBase
                 .And.HaveCount(2)
                 .And.ContainKeys("Text", PropertyNames.ZIndex);
         sut.Children![0].Properties["Text"].Value.Should().Be("\"lorem ipsum\"");
+        sut.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
 
         sut.Children![1].Should().BeOfType<BuiltInControl>();
         sut.Children![1].Name.Should().Be("Button1");
@@ -107,6 +108,74 @@ public class DeserializerValidTests : TestBase
         sut.Children![1].Properties["Text"].Value.Should().Be("\"click me\"");
         sut.Children![1].Properties["X"].Value.Should().Be("100");
         sut.Children![1].Properties["Y"].Value.Should().Be("200");
+        sut.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
+    }
+
+
+    [TestMethod]
+    public void Deserialize_GroupContainersShouldOrderZIndexInverse()
+    {
+        var graph = ControlFactory.CreateScreen("Screen1",
+            properties: new()
+            {
+                { "Text", "\"I am a screen\"" },
+            },
+            children: new Control[]
+            {
+                ControlFactory.Create("group", template: "groupContainer", children: new Control[] {
+                    ControlFactory.Create("Label1", template: "text",
+                        properties:
+                        new ()
+                        {
+                            { "Text", "\"lorem ipsum\"" },
+                        }),
+                    ControlFactory.Create("Button1", template: "button",
+                        properties : new ()
+                        {
+                            { "Text", "\"click me\"" },
+                            { "X", "100" },
+                            { "Y", "200" }
+                        })
+                })
+            }
+        );
+
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var yaml = serializer.SerializeControl(graph);
+
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+
+        var sut = deserializer.Deserialize<Control>(yaml);
+        sut.Should().NotBeNull().And.BeOfType<Screen>();
+        sut.Name.Should().Be("Screen1");
+        sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
+        sut.Properties.Should().NotBeNull()
+                .And.HaveCount(1)
+                .And.ContainKey("Text");
+        sut.Properties["Text"].Value.Should().Be("\"I am a screen\"");
+        sut.Children.Should().NotBeNull().And.HaveCount(1);
+
+        var group = sut.Children![0];
+
+        group.Children.Should().NotBeNull().And.HaveCount(2);
+        group.Children![0].Should().BeOfType<BuiltInControl>();
+        group.Children![0].Name.Should().Be("Label1");
+        group.Children![0].TemplateId.Should().Be("http://microsoft.com/appmagic/text");
+        group.Children![0].Properties.Should().NotBeNull()
+                .And.HaveCount(2)
+                .And.ContainKeys("Text", PropertyNames.ZIndex);
+        group.Children![0].Properties["Text"].Value.Should().Be("\"lorem ipsum\"");
+        group.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
+
+        group.Children![1].Should().BeOfType<BuiltInControl>();
+        group.Children![1].Name.Should().Be("Button1");
+        group.Children![1].TemplateId.Should().Be("http://microsoft.com/appmagic/button");
+        group.Children![1].Properties.Should().NotBeNull()
+                .And.HaveCount(4)
+                .And.ContainKeys("Text", "X", "Y", PropertyNames.ZIndex);
+        group.Children![1].Properties["Text"].Value.Should().Be("\"click me\"");
+        group.Children![1].Properties["X"].Value.Should().Be("100");
+        group.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
     }
 
     [TestMethod]
