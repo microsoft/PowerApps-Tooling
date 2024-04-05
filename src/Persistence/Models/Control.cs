@@ -105,7 +105,7 @@ public abstract record Control
         var zindexCalc = (int i) => Children.Count - i;
         // For group containers, ZIndex is the actual order of what is shown in the tree view, not descending.
         // Handle that here to ensure we match what is expected
-        if (Template.Name == "GroupContainer")
+        if (Template.Name == BuiltInTemplates.GroupContainer)
         {
             zindexCalc = (int i) => i + 1;
         }
@@ -126,7 +126,7 @@ public abstract record Control
 
         // For group containers, ZIndex is the reverse order of what is shown in the tree view
         // Handle that here to ensure we match what is expected
-        if (Template.Name == "GroupContainer")
+        if (Template.Name == BuiltInTemplates.GroupContainer)
         {
             zIndexComparison = (Control c1, Control c2) => c1.ZIndex.CompareTo(c2.ZIndex);
         }
