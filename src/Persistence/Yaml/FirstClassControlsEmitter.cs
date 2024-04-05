@@ -13,6 +13,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 internal class FirstClassControlsEmitter : ChainedEventEmitter
 {
     private readonly IControlTemplateStore _controlTemplateStore;
+    private readonly IReadOnlySet<string> _shortNameTypes = new HashSet<string> { "App", "Host", "Screen" };
 
     public FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
        : base(nextEmitter)
@@ -28,7 +29,7 @@ internal class FirstClassControlsEmitter : ChainedEventEmitter
         {
             ObjectDescriptor keySource;
             ObjectDescriptor valueSource;
-            if (nodeName is "App" or "Host" or "Screen")
+            if (_shortNameTypes.Contains(nodeName))
             {
                 keySource = new ObjectDescriptor(nodeName, typeof(string), typeof(string));
                 valueSource = new ObjectDescriptor(null, typeof(string), typeof(string));
