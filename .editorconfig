@@ -29,7 +29,8 @@ indent_size = 4
 end_of_line = crlf
 trim_trailing_whitespace = true
 
-dotnet_analyzer_diagnostic.category-Style.severity = error
+# Do not ever set to error, or these cause build failures during development.
+dotnet_analyzer_diagnostic.category-Style.severity = warning
 
 # Organize usings
 dotnet_sort_system_directives_first = true
@@ -37,27 +38,32 @@ dotnet_separate_import_directive_groups = false
 
 file_header_template = Copyright (c) Microsoft Corporation.\nLicensed under the MIT License.
 
-dotnet_diagnostic.IDE0003.severity = error    # this and Me preferences
-dotnet_diagnostic.IDE0007.severity = error    # Use 'var' instead of explicit type
-dotnet_diagnostic.IDE0005.severity = error    # Remove unnecessary using directives
+dotnet_diagnostic.IDE0003.severity = warning    # this and Me preferences
+dotnet_diagnostic.IDE0007.severity = warning    # Use 'var' instead of explicit type
+dotnet_diagnostic.IDE0005.severity = warning    # Remove unnecessary using directives
 dotnet_diagnostic.IDE0010.severity = none     # Add missing cases to switch statement
 dotnet_diagnostic.IDE0011.severity = none     # Add braces
 dotnet_diagnostic.IDE0028.severity = none     # Use collection initializers or expressions
 dotnet_diagnostic.IDE0042.severity = none     # Deconstruct variable declaration
+dotnet_diagnostic.IDE0043.severity = warning
 dotnet_diagnostic.IDE0045.severity = none     # Use conditional expression for assignment
 dotnet_diagnostic.IDE0046.severity = none     # Use conditional expression for return
-dotnet_diagnostic.IDE0055.severity = error    # Formatting rule
+dotnet_diagnostic.IDE0051.severity = warning
+dotnet_diagnostic.IDE0052.severity = warning
+dotnet_diagnostic.IDE0055.severity = warning    # Formatting rule
 dotnet_diagnostic.IDE0057.severity = none     # Use range operator
 dotnet_diagnostic.IDE0058.severity = none     # Remove unnecessary expression value
 dotnet_diagnostic.IDE0060.severity = none     # Remove unused parameter
+dotnet_diagnostic.IDE0061.severity = none
 dotnet_diagnostic.IDE0063.severity = none     # Use simple 'using' statement
 dotnet_diagnostic.IDE0066.severity = none     # Use switch expression
+dotnet_diagnostic.IDE0064.severity = warning
 dotnet_diagnostic.IDE0070.severity = none     # Use 'System.HashCode.Combine'
-dotnet_diagnostic.IDE0073.severity = error	  # Require file header
+dotnet_diagnostic.IDE0073.severity = warning	  # Require file header
 dotnet_diagnostic.IDE0078.severity = none     # Use pattern matching
-dotnet_diagnostic.IDE0090.severity = error    # expression can be simplified
+dotnet_diagnostic.IDE0090.severity = warning    # expression can be simplified
 dotnet_diagnostic.IDE0130.severity = none     # Namespace does not match folder structure
-dotnet_diagnostic.IDE0161.severity = error    # Namespace declaration preferences
+dotnet_diagnostic.IDE0161.severity = warning    # Namespace declaration preferences
 dotnet_diagnostic.IDE0210.severity = none     # Convert to top-level statements
 dotnet_diagnostic.IDE1006.severity = none     # These words must begin with upper case characters
 
@@ -565,10 +571,6 @@ csharp_style_expression_bodied_local_functions = false:silent
 csharp_style_var_elsewhere = true:error
 csharp_style_var_when_type_is_apparent = true:error
 csharp_style_var_for_built_in_types = true:error
-dotnet_diagnostic.IDE0051.severity = error
-dotnet_diagnostic.IDE0052.severity = error
-dotnet_diagnostic.IDE0064.severity = error
-dotnet_diagnostic.IDE0043.severity = error
 dotnet_diagnostic.CA1507.severity = error
 csharp_space_around_binary_operators = before_and_after
 csharp_style_throw_expression = true:suggestion
@@ -601,4 +603,3 @@ csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 dotnet_diagnostic.CA1802.severity = error
 dotnet_diagnostic.CA1805.severity = error
-dotnet_diagnostic.IDE0061.severity = none

@@ -4,12 +4,15 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
     <ItemGroup>
