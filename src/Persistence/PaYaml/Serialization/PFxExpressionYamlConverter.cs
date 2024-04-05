@@ -51,12 +51,12 @@ public class PFxExpressionYamlConverter : IYamlTypeConverter
 
         // If the script contains a substring that would cause extra yaml escaping, force it to a literal block
         // The goal here for PFx yaml is that we avoid using yaml string escaping whenever possible.
-        var forceLiteralBlock =
-            // These char sequences are special to YAML parsers, so must be escaped or forced to literal block
-            expression.InvariantScript.Contains(" #")
-            || expression.InvariantScript.Contains(": ")
-            // Force multi-line scripts to be literal blocks
-            || expression.InvariantScript.Contains('\n')
+
+        // These char sequences are special to YAML parsers, so must be escaped or forced to literal block
+        var forceLiteralBlock = expression.InvariantScript.Contains(" #")
+            || expression.InvariantScript.Contains(": ");
+        // Force multi-line scripts to be literal blocks
+        forceLiteralBlock |= expression.InvariantScript.Contains('\n')
             || expression.InvariantScript.Contains('\r');
         if (!forceLiteralBlock && _formattingOptions.ForceLiteralBlockIfContainsAny?.Count > 0)
         {
