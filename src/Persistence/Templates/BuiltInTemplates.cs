@@ -10,5 +10,8 @@ public static class BuiltInTemplates
     public const string Screen = "Screen";
     public const string Component = "Component";
     public const string CommandComponent = "CommandComponent";
+    // Group is the legacy group container template
     public const string Group = "Group";
+    // Group Container is the newer layout container template
+    public const string GroupContainer = "GroupContainer";
 }
