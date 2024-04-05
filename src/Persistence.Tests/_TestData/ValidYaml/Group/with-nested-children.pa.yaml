@@ -1,12 +1,12 @@
-Group: 
+Control: Group
 Name: My Nested Group
 Children:
-- Button:
+- Control: Button
   Name: My Button
-- Gallery:
+- Control: Gallery
   Name: My Gallery
   Children:
-  - Text:
+  - Control: Text
     Name: My Nested Label
-  - Button:
+  - Control: Button
     Name: My Nested Button

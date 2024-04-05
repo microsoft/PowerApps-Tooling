@@ -3,13 +3,13 @@ Name: Screen1
 Properties:
   Text: ="I am a screen"
 Children:
-- Gallery: 
+- Control: Gallery
   Name: Gallery1
   Properties:
     Items: =Accounts
     TemplateFill: =RGBA(0, 0, 0, 0)
   Children:
-  - Button: 
+  - Control: Button
     Name: button12
     Properties:
       Fill: =RGBA(0, 0, 0, 0)

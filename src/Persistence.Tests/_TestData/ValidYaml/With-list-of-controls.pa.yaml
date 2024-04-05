@@ -2,7 +2,7 @@
   Name: BuiltIn Control1
   Properties:
     Text: =Just text
-- Label: 
+- Control: Label
   Name: BuiltIn Label
   Properties:
     Text: =Just label text

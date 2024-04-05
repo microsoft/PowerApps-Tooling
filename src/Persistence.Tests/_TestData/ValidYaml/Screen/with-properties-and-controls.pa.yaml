@@ -4,12 +4,12 @@ Properties:
   Name: =NameProperty1
   Type: =TypeProperty1
 Children:
-- Button: 
+- Control: Button
   Name: Button1
   Properties:
     X: =10
     Y: =20
-- Text: 
+- Control: Text
   Name: Text1
   Properties:
     X: =10

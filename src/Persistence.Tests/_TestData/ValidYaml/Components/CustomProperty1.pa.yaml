@@ -1,4 +1,4 @@
-Component: 
+Control: Component
 Name: Component1
 CustomProperties:
   MyTextProp1:

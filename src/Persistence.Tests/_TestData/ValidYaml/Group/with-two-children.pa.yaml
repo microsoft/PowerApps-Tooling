@@ -1,7 +1,7 @@
-Group: 
+Control: Group
 Name: My Small Group
 Children:
-- Button:
+- Control: Button
   Name: My Button
-- Text:
+- Control: Text
   Name: My Label

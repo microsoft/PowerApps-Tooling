@@ -4,7 +4,7 @@ Properties:
   Fill: =White
   LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
 Children:
-- Text: 
+- Control: Text
   Name: ="Built-in Text"
   Properties:
     BorderColor: =RGBA(0, 18, 107, 1)
@@ -15,7 +15,7 @@ Children:
     Width: =560
     X: =30
     Y: =308
-- Button: 
+- Control: Button
   Name: Built-in Button
   Properties:
     DisabledBorderColor: =RGBA(166, 166, 166, 1)
