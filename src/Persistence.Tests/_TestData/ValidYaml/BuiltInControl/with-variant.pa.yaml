@@ -1,4 +1,4 @@
-Button: 
+Control: Button
 Name: built in
 Variant: SuperButton
 Properties:

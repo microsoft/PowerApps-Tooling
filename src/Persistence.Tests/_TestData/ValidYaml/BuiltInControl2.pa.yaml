@@ -1,4 +1,4 @@
-ButtonCanvas: 
+Control: ButtonCanvas
 Name: BuiltIn Control1
 Properties:
   Text: ="Normal text"

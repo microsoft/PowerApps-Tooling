@@ -15,7 +15,7 @@ Children:
     Width: 560
     X: 30
     Y: 308
-- Button:
+- Control: Button
   Name: Button with no template
   Properties:
     DisabledBorderColor: RGBA(166, 166, 166, 1)
