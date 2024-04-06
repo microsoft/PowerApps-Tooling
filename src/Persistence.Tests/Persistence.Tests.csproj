@@ -33,6 +33,7 @@
     <ItemGroup Label="Global usings">
         <Using Include="FluentAssertions" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+        <Using Include="Persistence.Tests.Extensions" />
     </ItemGroup>
 
     <ItemGroup>

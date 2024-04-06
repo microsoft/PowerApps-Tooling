@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using Persistence.Tests.Extensions;
 
 namespace Persistence.Tests.Yaml;
 

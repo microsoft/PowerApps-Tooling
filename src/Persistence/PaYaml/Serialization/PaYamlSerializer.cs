@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using YamlDotNet.Serialization;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 public static class PaYamlSerializer
 {
@@ -48,8 +48,10 @@ public static class PaYamlSerializer
         var targetType = typeof(TValue);
 
         // Configure the YamlDotNet serializer
+        var serializationContext = new SerializationContext();
         var builder = new SerializerBuilder();
-        options.ApplyToSerializerBuilder(builder);
+        options.ApplyToSerializerBuilder(builder, serializationContext);
+        serializationContext.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
         serializer.Serialize(writer, value, targetType);
@@ -95,8 +97,10 @@ public static class PaYamlSerializer
         options ??= PaYamlSerializerOptions.Default;
 
         // Configure the YamlDotNet serializer
+        var serializationContext = new SerializationContext();
         var builder = new DeserializerBuilder();
-        options.ApplyToDeserializerBuilder(builder);
+        options.ApplyToDeserializerBuilder(builder, serializationContext);
+        serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
         var serializer = builder.Build();
 
         return serializer.Deserialize<TValue>(reader);

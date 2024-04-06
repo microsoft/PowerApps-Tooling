@@ -6,7 +6,7 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization.NodeDeserializers;
 using YamlDotNet.Serialization.Schemas;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 internal static class PaYamlDotNetExtensions
 {
