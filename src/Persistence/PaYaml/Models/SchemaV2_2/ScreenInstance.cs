@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2
 
 public record ScreenInstance
 {
-    public SortedDictionary<string, PFxExpressionYaml>? Properties { get; init; }
+    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public List<Dictionary<string, ControlInstance>>? Children { get; init; }
+    public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }

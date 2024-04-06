@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using Persistence.Tests.Extensions;
 
 namespace Persistence.Tests.Yaml;
 
@@ -393,23 +392,20 @@ public class DeserializerValidTests : TestBase
         var screen = deserializer.Deserialize<Screen>(yamlReader);
 
         // Assert
-        screen.Should().NotBeNull();
-        if (screen.Children == null)
-            throw new ArgumentNullException(nameof(screen.Children));
+        screen.ShouldNotBeNull();
+        screen.Children.ShouldNotBeNull();
         screen.Children.Should().NotBeNull().And.HaveCount(1);
         var gallery = screen.Children[0];
         gallery.Should().NotBeNull().And.BeOfType<BuiltInControl>();
         gallery.Template.Name.Should().Be("Gallery");
-        if (gallery.Children == null)
-            throw new ArgumentNullException(nameof(gallery.Children));
+        gallery.Children.ShouldNotBeNull();
 
         // Check properties got moved to the gallery template
         gallery.Children.Should().HaveCount(2);
         gallery.Properties.Should().NotBeNull().And.HaveCount(2);
         gallery.Properties.Should().NotContainKeys("TemplateFill", "OnSelect");
         var galleryTemplate = gallery.Children.FirstOrDefault(c => c.Template.Name == "GalleryTemplate");
-        if (galleryTemplate == null)
-            throw new ArgumentNullException(nameof(galleryTemplate));
+        galleryTemplate.ShouldNotBeNull();
         galleryTemplate.Properties.Should().NotBeNull().And.HaveCount(1);
         galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
     }

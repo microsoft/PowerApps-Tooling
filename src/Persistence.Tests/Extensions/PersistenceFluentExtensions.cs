@@ -8,7 +8,7 @@ using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using YamlDotNet.RepresentationModel;
 
-namespace Persistence.Tests;
+namespace Persistence.Tests.Extensions;
 
 /// <summary>
 /// Extensions for tests.

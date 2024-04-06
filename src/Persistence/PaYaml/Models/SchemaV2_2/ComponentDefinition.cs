@@ -22,11 +22,11 @@ public class ComponentDefinition
 
     public bool AccessAppScope { get; init; }
 
-    public Dictionary<string, ComponentCustomPropertyUnion>? CustomProperties { get; init; }
+    public NamedObjectMapping<ComponentCustomPropertyUnion>? CustomProperties { get; init; }
 
-    public SortedDictionary<string, PFxExpressionYaml>? Properties { get; init; }
+    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public List<Dictionary<string, ControlInstance>>? Children { get; init; }
+    public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }
 
 public abstract class ComponentCustomPropertyBase
@@ -52,5 +52,5 @@ public class ComponentCustomPropertyUnion : ComponentCustomPropertyBase
 
     public string? ReturnType { get; init; }
 
-    public List<Dictionary<string, PFxFunctionParameter>>? Parameters { get; init; }
+    public NamedObjectSequence<PFxFunctionParameter>? Parameters { get; init; }
 }

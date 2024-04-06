@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-namespace Persistence.Tests.PaYaml;
+namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
 public class PaYamlSerializerTests : TestBase
@@ -95,10 +95,12 @@ public class PaYamlSerializerTests : TestBase
         paFileRoot.Screens.ShouldNotBeNull();
 
         // Check random spot in the document
-        paFileRoot.App.Properties.Should().ContainKey("Theme");
-        var screen = paFileRoot.Screens.Should().ContainKey("Screen1").WhoseValue;
+        paFileRoot.App.Properties.ShouldNotBeNull();
+        paFileRoot.App.Properties.Should().ContainNames("BackEnabled", "Theme");
+        var screen = paFileRoot.Screens.Should().ContainName("Screen1").WhoseValue;
         screen.Properties.Should().BeNullOrEmpty();
-        screen.Children.Should().HaveCount(2);
+        screen.Children.Should().HaveCount(2)
+            .And.ContainNames("Label1", "TextInput1");
     }
 
     #endregion
