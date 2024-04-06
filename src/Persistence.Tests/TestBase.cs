@@ -8,10 +8,8 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests;
 
-public class TestBase
+public abstract class TestBase : VSTestBase
 {
-    public required TestContext TestContext { get; set; }
-
     public static IServiceProvider ServiceProvider { get; set; }
 
     public IControlTemplateStore ControlTemplateStore { get; private set; }

@@ -15,9 +15,16 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
     where TValue : notnull
     where TNamedObject : INamedObject<TName, TValue>
 {
-    private protected NamedObjectSequenceBase(IEqualityComparer<TName> comparer)
+    private protected NamedObjectSequenceBase(IEnumerable<TNamedObject>? values, IEqualityComparer<TName> comparer)
     {
         InnerCollection = new(comparer);
+        if (values is not null)
+        {
+            foreach (var namedObject in values)
+            {
+                Add(namedObject);
+            }
+        }
     }
 
     private protected InnerKeyedCollection InnerCollection { get; }

@@ -37,7 +37,7 @@ public class PFxExpressionYamlConverter : IYamlTypeConverter
             return new PFxExpressionYaml(script);
         }
 
-        throw new PaYamlSerializationException($"Power Fx expressions must start with '{PFxExpressionYamlFormattingOptions.ScalarPrefix}'.", scalar.Start);
+        throw new PaYamlSerializationException($"Power Fx expressions must start with '{PFxExpressionYamlFormattingOptions.ScalarPrefix}'.", scalar.Start.ToYamlLocation());
     }
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)

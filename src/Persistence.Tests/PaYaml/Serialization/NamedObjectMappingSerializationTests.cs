@@ -2,22 +2,12 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
-using YamlDotNet.Serialization;
 
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
-public class NamedObjectMappingSerializationTests : TestBase
+public class NamedObjectMappingSerializationTests : SerializationTestBase
 {
-    private readonly IDeserializer _deserializer;
-
-    public NamedObjectMappingSerializationTests()
-    {
-        // Note: Currently, the NamedObjectMapping<TValue> doesn't need a TypeConverter to be registered.
-        var builder = new DeserializerBuilder();
-        _deserializer = builder.Build();
-    }
-
     [TestMethod]
     // Null literals
     [DataRow("TheMapping: ~", null)]
@@ -39,7 +29,7 @@ public class NamedObjectMappingSerializationTests : TestBase
 
     private void VerifyDeserialize<TValue>(string yaml, int? expectedCount, string[]? expectedNames = null) where TValue : notnull
     {
-        var testObject = _deserializer.Deserialize<TestOM<TValue>>(yaml);
+        var testObject = DeserializeViaYamlDotNet<TestOM<TValue>>(yaml);
         testObject.ShouldNotBeNull();
         if (expectedCount is null)
         {
@@ -67,7 +57,7 @@ public class NamedObjectMappingSerializationTests : TestBase
     v3
   n2: v2
 ";
-        var testObject = _deserializer.Deserialize<TestOM<string>>(yaml);
+        var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         testObject.TheMapping.ShouldNotBeNull();
         testObject.TheMapping.Names.Should().Equal(new[] { "n1", "n2", "n3" }, "ordering of a mapping is by name");
@@ -80,6 +70,15 @@ public class NamedObjectMappingSerializationTests : TestBase
         testObject.TheMapping.GetNamedObject("n3").Should()
             .HaveValueEqual("v3")
             .And.HaveStartEqual(4, 3);
+    }
+
+    [TestMethod]
+    public void SerializeAsPropertyBeingNullOrEmpty()
+    {
+        SerializeViaYamlDotNet(new TestOM<string> { TheMapping = null })
+            .Should().Be("{}" + DefaultOptions.NewLine);
+        SerializeViaYamlDotNet(new TestOM<string> { TheMapping = new() })
+            .Should().Be("{}" + DefaultOptions.NewLine);
     }
 
     public record TestOM<TValue>

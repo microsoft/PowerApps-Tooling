@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using YamlDotNet.Core;
-
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
 public interface INamedObject<TName, TValue>
@@ -11,5 +9,5 @@ public interface INamedObject<TName, TValue>
 {
     TName Name { get; }
     TValue Value { get; }
-    Mark? Start { get; }
+    PaYamlLocation? Start { get; }
 }

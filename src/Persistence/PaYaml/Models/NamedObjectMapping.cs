@@ -21,7 +21,17 @@ public class NamedObjectMapping<TValue> : NamedObjectMappingBase<string, TValue,
     }
 
     public NamedObjectMapping(IComparer<string>? comparer)
-        : base(comparer ?? DefaultComparer)
+        : base(null, comparer ?? DefaultComparer)
+    {
+    }
+
+    public NamedObjectMapping(IEnumerable<NamedObject<TValue>>? values)
+        : this(values, DefaultComparer)
+    {
+    }
+
+    public NamedObjectMapping(IEnumerable<NamedObject<TValue>>? values, IComparer<string>? comparer)
+        : base(values, comparer ?? DefaultComparer)
     {
     }
 

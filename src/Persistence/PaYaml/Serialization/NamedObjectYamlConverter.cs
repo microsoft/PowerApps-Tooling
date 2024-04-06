@@ -5,7 +5,6 @@ using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
@@ -13,7 +12,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue>>
     where TValue : notnull
 {
-    public NamedObjectYamlConverter(SerializationContext serializationContext)
+    public NamedObjectYamlConverter(PaSerializationContext serializationContext)
         : base(serializationContext)
     {
     }
@@ -25,10 +24,10 @@ public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue
 
         // The default representation is expected to represent a single-item mapping
         var start = parser.Current.Start;
-        var name = (string?)nestedObjectDeserializer(typeof(string)) ?? throw new PaYamlSerializationException($"Named object key cannot be null.", start);
-        var value = (TValue?)nestedObjectDeserializer(typeof(TValue)) ?? throw new PaYamlSerializationException($"Named object value cannot be null.", start);
+        var name = (string?)nestedObjectDeserializer(typeof(string)) ?? throw new PaYamlSerializationException($"Named object key cannot be null.", start.ToYamlLocation());
+        var value = (TValue?)nestedObjectDeserializer(typeof(TValue)) ?? throw new PaYamlSerializationException($"Named object value cannot be null.", start.ToYamlLocation());
 
-        return new NamedObject<TValue>(name, value) { Start = start };
+        return new NamedObject<TValue>(name, value) { Start = start.ToYamlLocation() };
     }
 
     internal static void WriteNameAndValueEventsCore(IEmitter emitter, NamedObject<TValue> namedObject, ObjectSerializer nestedObjectSerializer)
@@ -46,9 +45,7 @@ public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue
     {
         // The default representation is expected to represent a single-item mapping
         var mappingStart = parser.Consume<MappingStart>();
-        using var serializerState = new SerializerState();
-        var namedObject = ReadNameAndValueEventsCore(parser, SerializationContext.CreateObjectDeserializer(parser, serializerState));
-        // REVIEW: should we call serializerState.OnDeserialization()?
+        var namedObject = ReadNameAndValueEventsCore(parser, SerializationContext.CreateObjectDeserializer(parser));
 
         // There shouldn't be any more keys in the mapping
         parser.Consume<MappingEnd>();

@@ -10,6 +10,4 @@ public record PFxFunctionParameter()
     public bool IsRequired { get; init; }
 
     public PFxDataType? DataType { get; init; }
-
-    public PFxExpressionYaml? Default { get; init; }
 }

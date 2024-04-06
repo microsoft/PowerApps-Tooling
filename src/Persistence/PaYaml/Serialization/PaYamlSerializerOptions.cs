@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 public record PaYamlSerializerOptions
 {
-    internal static readonly PaYamlSerializerOptions Default = new();
+    public static readonly PaYamlSerializerOptions Default = new();
 
     public string NewLine { get; init; } = "\n";
 
@@ -20,7 +20,7 @@ public record PaYamlSerializerOptions
 
     public Action<SerializerBuilder>? AdditionalSerializerConfiguration { get; init; }
 
-    internal void ApplyToDeserializerBuilder(DeserializerBuilder builder, SerializationContext serializationContext)
+    internal void ApplyToDeserializerBuilder(DeserializerBuilder builder, PaSerializationContext serializationContext)
     {
         builder
             .WithDuplicateKeyChecking()
@@ -29,7 +29,14 @@ public record PaYamlSerializerOptions
         AdditionalDeserializerConfiguration?.Invoke(builder);
     }
 
-    internal void ApplyToSerializerBuilder(SerializerBuilder builder, SerializationContext serializationContext)
+    internal void ApplyToSerializerBuilder(SerializerBuilder builder, PaSerializationContext serializationContext)
+    {
+        ApplySerializerFormatting(builder);
+        AddTypeConverters(builder, serializationContext);
+        AdditionalSerializerConfiguration?.Invoke(builder);
+    }
+
+    private void ApplySerializerFormatting(SerializerBuilder builder)
     {
         // TODO: Can we control indentation chars? e.g. to be explicitly set to 2 spaces?
         builder
@@ -40,15 +47,23 @@ public record PaYamlSerializerOptions
             .WithIndentedSequences() // to match VS Code's default formatting settings
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitDefaults)
             ;
-        AddTypeConverters(builder, serializationContext);
-        AdditionalSerializerConfiguration?.Invoke(builder);
     }
 
-    private void AddTypeConverters<TBuilder>(BuilderSkeleton<TBuilder> builder, SerializationContext serializationContext)
+    private void AddTypeConverters<TBuilder>(BuilderSkeleton<TBuilder> builder, PaSerializationContext serializationContext)
         where TBuilder : BuilderSkeleton<TBuilder>
     {
         builder.WithTypeConverter(new PFxExpressionYamlConverter(PFxExpressionYamlFormatting));
         builder.WithTypeConverter(new NamedObjectYamlConverter<ControlInstance>(serializationContext));
         builder.WithTypeConverter(new NamedObjectYamlConverter<PFxFunctionParameter>(serializationContext));
+    }
+
+    // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
+    /// <summary>
+    /// Applies the formatting options on this instance to a serializer.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "TESTONLY")]
+    public void TESTONLY_ApplySerializerFormatting(SerializerBuilder builder)
+    {
+        ApplySerializerFormatting(builder);
     }
 }

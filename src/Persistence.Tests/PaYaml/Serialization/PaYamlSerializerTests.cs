@@ -7,7 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
-public class PaYamlSerializerTests : TestBase
+public class PaYamlSerializerTests : VSTestBase
 {
     #region Deserialize Examples
 
@@ -53,11 +53,7 @@ public class PaYamlSerializerTests : TestBase
         // Check screen counts
         paFileRoot.Screens.Should().HaveCount(1);
         var screen = paFileRoot.Screens.First().Value;
-        if (expectedScreenPropertiesCount == 0)
-            screen.Properties.Should().BeNull();
-        else
-            screen.Properties.Should().NotBeNull()
-                .And.HaveCount(expectedScreenPropertiesCount);
+        screen.Properties.Should().HaveCount(expectedScreenPropertiesCount);
         screen.Children.Should().HaveCount(expectedScreenChildrenCount);
         screen.GetDescendantsCount().Should().Be(expectedDescendantsCount);
     }

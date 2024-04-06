@@ -18,9 +18,16 @@ public abstract class NamedObjectMappingBase<TName, TValue, TNamedObject> : INam
     where TValue : notnull
     where TNamedObject : INamedObject<TName, TValue>
 {
-    private protected NamedObjectMappingBase(IComparer<TName> comparer)
+    private protected NamedObjectMappingBase(IEnumerable<TNamedObject>? values, IComparer<TName> comparer)
     {
         InnerCollection = new(comparer);
+        if (values is not null)
+        {
+            foreach (var namedObject in values)
+            {
+                Add(namedObject);
+            }
+        }
     }
 
     private protected SortedList<TName, TNamedObject> InnerCollection { get; }

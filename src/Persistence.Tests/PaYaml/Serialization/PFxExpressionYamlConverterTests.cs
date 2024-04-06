@@ -8,35 +8,36 @@ using YamlDotNet.Serialization;
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
-public class PFxExpressionYamlConverterTests : TestBase
+public class PFxExpressionYamlConverterTests : SerializationTestBase
 {
     private static readonly PFxExpressionYamlFormattingOptions FailSafeOptions = new()
     {
         ForceLiteralBlockIfContainsAny = null //new[] { "\"" }
     };
 
+    public PFxExpressionYamlConverterTests()
+    {
+        DefaultOptions = DefaultOptions with
+        {
+            PFxExpressionYamlFormatting = FailSafeOptions,
+        };
+    }
+
+    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    {
+        base.ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
+        builder.WithTypeConverter(new PFxExpressionYamlConverter(options.PFxExpressionYamlFormatting));
+    }
+
+    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    {
+        base.ConfigureYamlDotNetSerializer(builder, options, serializationContext);
+        builder.WithTypeConverter(new PFxExpressionYamlConverter(options.PFxExpressionYamlFormatting));
+    }
+
     [TestMethod]
     public void ReadYamlWithFailSafeOptions()
     {
-        var deserializer = new DeserializerBuilder()
-            .WithTypeConverter(new PFxExpressionYamlConverter(FailSafeOptions))
-            .Build();
-
-        void VerifyDeserialize(string yaml, string? expectedScript)
-        {
-            var testObject = deserializer.Deserialize<NamedPFxExpressionYaml>(yaml);
-            testObject.ShouldNotBeNull();
-            if (expectedScript is null)
-            {
-                testObject.Expression.Should().BeNull();
-            }
-            else
-            {
-                testObject.Expression.ShouldNotBeNull();
-                testObject.Expression.InvariantScript.Should().Be(expectedScript);
-            }
-        }
-
         // Null literals
         VerifyDeserialize("Expression: ", null);
         VerifyDeserialize("Expression:", null);
@@ -62,25 +63,26 @@ public class PFxExpressionYamlConverterTests : TestBase
         VerifyDeserialize("Expression: |\n  =val1\n   & \n  foo\n  ", "val1\n & \nfoo\n");
     }
 
+    private void VerifyDeserialize(string yaml, string? expectedScript)
+    {
+        var testObject = DeserializeViaYamlDotNet<NamedPFxExpressionYaml>(yaml);
+        testObject.ShouldNotBeNull();
+        if (expectedScript is null)
+        {
+            testObject.Expression.Should().BeNull();
+        }
+        else
+        {
+            testObject.Expression.ShouldNotBeNull();
+            testObject.Expression.InvariantScript.Should().Be(expectedScript);
+        }
+    }
+
     [TestMethod]
     public void WriteYamlWithFailSafeOptions()
     {
-        var serializer = new SerializerBuilder()
-            .WithNewLine("\n") // Ensure tests are consistent across platforms
-            .WithTypeConverter(new PFxExpressionYamlConverter(FailSafeOptions))
-            .Build();
-
-        void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
-        {
-            var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
-            var testObject = new NamedPFxExpressionYaml(expression);
-            var expectedYaml = expectedExpressionYaml is null ? "Expression:" : $"Expression: {expectedExpressionYaml}\n";
-            var actualYaml = serializer.Serialize(testObject);
-            actualYaml.Should().Be(expectedYaml);
-        }
-
         // Only the canonical null literal will be written:
-        VerifySerialize(null, "");
+        VerifySerialize("", "=");
 
         // Plain scalars
         VerifySerialize("foo", "=foo");
@@ -94,6 +96,22 @@ public class PFxExpressionYamlConverterTests : TestBase
         // Multiline scripts
         VerifySerialize("val1\n & \nfoo", "|-\n  =val1\n   & \n  foo");
         VerifySerialize("val1\n & \nfoo\n", "|\n  =val1\n   & \n  foo");
+    }
+
+    private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
+    {
+        var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
+        var testObject = new NamedPFxExpressionYaml(expression);
+        var expectedYaml = expectedExpressionYaml is null ? "Expression:" : $"Expression: {expectedExpressionYaml}\n";
+        var actualYaml = SerializeViaYamlDotNet(testObject);
+        actualYaml.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
+    public void SerializeAsPropertyBeingNull()
+    {
+        SerializeViaYamlDotNet(new NamedPFxExpressionYaml { Expression = null })
+            .Should().Be("{}" + DefaultOptions.NewLine);
     }
 
     public record NamedPFxExpressionYaml

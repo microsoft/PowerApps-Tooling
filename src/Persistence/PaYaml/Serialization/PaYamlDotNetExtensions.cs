@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization.NodeDeserializers;
@@ -29,5 +30,15 @@ internal static class PaYamlDotNetExtensions
     public static void EmitNull(this IEmitter emitter)
     {
         emitter.Emit(_nullImplicitPlainScalar);
+    }
+
+    public static PaYamlLocation? ToYamlLocation(this Mark mark)
+    {
+        if (mark.Equals(Mark.Empty))
+        {
+            return null;
+        }
+
+        return new PaYamlLocation(mark.Line, mark.Column);
     }
 }
