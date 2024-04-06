@@ -2,21 +2,22 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Core;
 
 namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class DeserializerInvalidTests
+public class DeserializerInvalidTests : TestBase
 {
     [TestMethod]
-    public void Deserialize_ShouldFailWhenYamlIsInvalid()
+    [DataRow(true)]
+    [DataRow(false)]
+    public void Deserialize_ShouldFailWhenYamlIsInvalid(bool isControlIdentifiers)
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        var files = Directory.GetFiles(@"_TestData/InvalidYaml", $"*.pa.yaml", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(GetTestFilePath(@"_TestData/InvalidYaml{0}", isControlIdentifiers), $"*.pa.yaml", SearchOption.AllDirectories);
         // Uncomment to test single file
         // var files = new string[] { @"_TestData/InvalidYaml/Screen-with-host.pa.yaml" };
 
@@ -48,11 +49,13 @@ public class DeserializerInvalidTests
     }
 
     [TestMethod]
-    public void Deserialize_ShouldFailWhenExpectingDifferentType()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Deserialize_ShouldFailWhenExpectingDifferentType(bool isControlIdentifiers)
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead("_TestData/ValidYaml/Screen/with-name.pa.yaml");
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath("_TestData/ValidYaml{0}/Screen/with-name.pa.yaml", isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -69,7 +72,7 @@ public class DeserializerInvalidTests
     public void Deserialize_EmptyString()
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = CreateDeserializer();
 
         // Act
         Action act = () => deserializer.Deserialize<Control>(string.Empty);
@@ -84,11 +87,13 @@ public class DeserializerInvalidTests
     }
 
     [TestMethod]
-    public void Deserialize_Screens_List()
+    [DataRow(@"_TestData/InvalidYaml{0}/screens-with-duplicates.pa.yaml", false)]
+    [DataRow(@"_TestData/InvalidYaml{0}/screens-with-duplicates.pa.yaml", true)]
+    public void Deserialize_Screens_List(string path, bool isControlIdentifiers)
     {
         // Arrange
-        var deserializer = TestBase.ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead("_TestData/InvalidYaml/screens-with-duplicates.pa.yaml");
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -100,6 +105,6 @@ public class DeserializerInvalidTests
 
         // Assert
         act.Should().Throw<YamlException>()
-            .WithMessage("Encountered duplicate key Name");
+            .WithMessage("Duplicate control property*");
     }
 }

@@ -56,7 +56,7 @@ public class ControlFactoryTests : TestBase
     [TestMethod]
     [DataRow("Component", "http://microsoft.com/appmagic/Component")]
     [DataRow("CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
-    public void CreateComponent_ShouldCreateValidInstace(string componentType, string expectedTemplateId)
+    public void CreateComponent_ShouldCreateValidInstance(string componentType, string expectedTemplateId)
     {
         var sut = new ControlFactory(ControlTemplateStore);
 
@@ -65,7 +65,7 @@ public class ControlFactoryTests : TestBase
         result.Name.Should().Be("MyComponent1");
         result.Template.Should().NotBeNull();
         result.Template.Id.Should().Be(expectedTemplateId);
-        result.Template.Name.Should().Be("MyComponent1");
+        result.Template.Name.Should().Be(componentType);
         result.Properties.Should().NotBeNull().And.BeEmpty();
         result.Children.Should().BeNull();
     }

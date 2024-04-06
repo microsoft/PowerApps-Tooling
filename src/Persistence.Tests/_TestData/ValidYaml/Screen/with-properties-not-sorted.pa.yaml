@@ -1,0 +1,6 @@
+Control: Screen
+Name: Screen1
+Properties:
+  PropertyA: =A
+  PropertyB: =B
+  PropertyC: =C

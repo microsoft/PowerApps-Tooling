@@ -1,4 +1,4 @@
-Screen: 
+Control: Screen
 Name: Screen 1
 Properties:
   Fill: =White

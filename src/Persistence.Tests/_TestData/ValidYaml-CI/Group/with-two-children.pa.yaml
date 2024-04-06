@@ -1,0 +1,7 @@
+My Small Group:
+  Control: Group 
+  Children:
+  - My Button:
+      Control: Button
+  - My Label:
+      Control: Text

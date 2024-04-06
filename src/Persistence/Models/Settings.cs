@@ -11,6 +11,6 @@ public record Settings
         Landscape
     }
 
-    public string Name { get; init; } = string.Empty;
-    public AppLayout Layout { get; init; }
+    public string Name { get; set; } = string.Empty;
+    public AppLayout Layout { get; set; }
 }

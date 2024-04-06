@@ -30,10 +30,10 @@ public class DeserializerValidTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer(isTextFirst);
+        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer(new() { IsTextFirst = isTextFirst });
         var yaml = serializer.SerializeControl(graph);
 
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(isTextFirst);
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(new() { IsTextFirst = true });
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -112,7 +112,9 @@ public class DeserializerValidTests : TestBase
 
 
     [TestMethod]
-    public void Deserialize_GroupContainersShouldOrderZIndexInverse()
+    [DataRow(true)]
+    [DataRow(false)]
+    public void Deserialize_GroupContainersShouldOrderZIndexInverse(bool isControlIdentifiers)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
@@ -139,10 +141,10 @@ public class DeserializerValidTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
         var yaml = serializer.SerializeControl(graph);
 
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = CreateDeserializer(isControlIdentifiers);
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.Should().NotBeNull().And.BeOfType<Screen>();
@@ -164,7 +166,7 @@ public class DeserializerValidTests : TestBase
                 .And.HaveCount(2)
                 .And.ContainKeys("Text", PropertyNames.ZIndex);
         group.Children![0].Properties["Text"].Value.Should().Be("\"lorem ipsum\"");
-        group.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
+        group.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
 
         group.Children![1].Should().BeOfType<BuiltInControl>();
         group.Children![1].Name.Should().Be("Button1");
@@ -174,7 +176,7 @@ public class DeserializerValidTests : TestBase
                 .And.ContainKeys("Text", "X", "Y", PropertyNames.ZIndex);
         group.Children![1].Properties["Text"].Value.Should().Be("\"click me\"");
         group.Children![1].Properties["X"].Value.Should().Be("100");
-        group.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
+        group.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
     }
 
     [TestMethod]
@@ -220,47 +222,55 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-name.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.pa.yaml", typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-template-id.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-template-name.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-id.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-template-name.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
-    public void Deserialize_ShouldSucceed(string path, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-controls.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-controls.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-name.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-name.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Control-with-custom-template.pa.yaml", true, typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
+    [DataRow(@"_TestData/ValidYaml{0}/Control-with-custom-template.pa.yaml", false, typeof(CustomControl), "http://localhost/#customcontrol", "My Power Apps Custom Control", 0, 8)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-id.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-id.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-name.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-name.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-id.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-id.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-name.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-name.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
+    public void Deserialize_ShouldSucceed(string path, bool isControlIdentifiers, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var controlObj = deserializer.DeserializeControl(yamlReader, expectedType);
+        var controlObj = deserializer.Deserialize<Control>(yamlReader);
 
         // Assert
         controlObj.Should().BeAssignableTo(expectedType);
-        var control = controlObj as Control;
-        control!.TemplateId.Should().NotBeNull().And.Be(expectedTemplateId);
-        control!.Name.Should().NotBeNull().And.Be(expectedName);
+        controlObj!.TemplateId.Should().NotBeNull().And.Be(expectedTemplateId);
+        controlObj!.Name.Should().NotBeNull().And.Be(expectedName);
         if (controlCount > 0)
-            control.Children.Should().NotBeNull().And.HaveCount(controlCount);
+            controlObj.Children.Should().NotBeNull().And.HaveCount(controlCount);
         else
-            control.Children.Should().BeNull();
-        control.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
+            controlObj.Children.Should().BeNull();
+        controlObj.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App.pa.yaml", "Test app 1", 1, 0)]
-    public void Deserialize_App_ShouldSucceed(string path, string expectedName, int controlCount, int propertiesCount)
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", true, "Test app 1", 1, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", false, "Test app 1", 1, 0)]
+    public void Deserialize_App_ShouldSucceed(string path, bool isControlIdentifiers, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var app = deserializer.Deserialize<App>(yamlReader);
+        var app = deserializer.Deserialize<Control>(yamlReader);
 
         app!.Name.Should().NotBeNull().And.Be(expectedName);
         app.Children.Should().NotBeNull().And.HaveCount(controlCount);
@@ -269,16 +279,19 @@ public class DeserializerValidTests : TestBase
 
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App-with-settings.pa.yaml", "Test App Name", 1)]
-    public void Deserialize_App_WithSettings_ShouldSucceed(string path, string expectedName, int propertiesCount)
+    [DataRow(@"_TestData/ValidYaml{0}/App-with-settings.pa.yaml", true, "Test App Name", 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/App-with-settings.pa.yaml", false, "Test App Name", 1)]
+    public void Deserialize_App_WithSettings_ShouldSucceed(string path, bool isControlIdentifiers, string expectedName, int propertiesCount)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
         var app = deserializer.Deserialize<App>(yamlReader);
+        if (app == null)
+            throw new InvalidOperationException(nameof(app));
 
         app.Settings.Should().NotBeNull();
         app.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
@@ -287,12 +300,13 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-unmatched-field.pa.yaml")]
-    public void Deserialize_ShouldIgnoreUnmatchedProperties(string path)
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-unmatched-field.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-unmatched-field.pa.yaml", false)]
+    public void Deserialize_ShouldIgnoreUnmatchedProperties(string path, bool isControlIdentifiers)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -306,7 +320,10 @@ public class DeserializerValidTests : TestBase
     public void Deserialize_Strings()
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(isTextFirst: true);
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer
+        (
+            new YamlSerializationOptions() { IsTextFirst = true }
+        );
         using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/Strings.pa.yaml");
         using var yamlReader = new StreamReader(yamlStream);
 
@@ -332,17 +349,19 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Component.pa.yaml", "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
-    [DataRow(@"_TestData/ValidYaml/CommandComponent.pa.yaml", "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", true, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
+    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", false, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
+    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", true, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", false, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
     public void Deserialize_Component_ShouldSucceed(
-        string path,
+        string path, bool isControlIdentifiers,
         string expectedName,
         string expectedTemplateName,
         string expectedTemplateId)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -357,16 +376,17 @@ public class DeserializerValidTests : TestBase
 
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-variant.pa.yaml", "built in", "Button", "SuperButton")]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-variant.pa.yaml", true, "built in", "Button", "SuperButton")]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-variant.pa.yaml", false, "built in", "Button", "SuperButton")]
     public void Variant_ShouldSucceed(
-        string path,
+        string path, bool isControlIdentifiers,
         string expectedName,
         string expectedTemplateName,
         string expectedVariant)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -380,16 +400,17 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]
-    public void Deserialize_Should_AddGalleryTemplate(string path)
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", false)]
+    public void Deserialize_Should_AddGalleryTemplate(string path, bool isControlIdentifiers)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var screen = deserializer.Deserialize<Screen>(yamlReader);
+        var screen = deserializer.Deserialize<Control>(yamlReader);
 
         // Assert
         screen.ShouldNotBeNull();
@@ -422,7 +443,19 @@ public class DeserializerValidTests : TestBase
                 Direction = CustomProperty.PropertyDirection.Input,
                 Type = CustomProperty.PropertyType.Data
             },
-            @"_TestData/ValidYaml/Components/CustomProperty1.pa.yaml"
+            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", false
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyTextProp1",
+                DataType = "String",
+                Default = "lorem",
+                Direction = CustomProperty.PropertyDirection.Input,
+                Type = CustomProperty.PropertyType.Data
+            },
+            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", true
         },
         new object[]
         {
@@ -441,19 +474,37 @@ public class DeserializerValidTests : TestBase
                     }
                 },
             },
-            @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"
+            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", false
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyFuncProp1",
+                DataType = "String",
+                Default = "lorem",
+                Direction = CustomProperty.PropertyDirection.Input,
+                Type = CustomProperty.PropertyType.Function,
+                Parameters = new[] {
+                    new CustomPropertyParameter(){
+                        Name = "param1",
+                        DataType = "String",
+                        IsRequired = true,
+                    }
+                },
+            },
+            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", true
         }
     };
 
     [TestMethod]
     [DynamicData(nameof(Deserialize_ShouldParseYamlForComponentCustomProperties_Data))]
-    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty expectedCustomProperty, string yamlFile)
+    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty expectedCustomProperty, string yamlFile, bool isControlIdentifiers)
     {
-        var expectedYaml = File.ReadAllText(yamlFile);
+        var expectedYaml = File.ReadAllText(GetTestFilePath(yamlFile, isControlIdentifiers));
+        var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-
-        var component = sut.Deserialize<Component>(expectedYaml);
+        var component = deserializer.Deserialize<Control>(expectedYaml) as Component;
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull()
             .And.HaveCount(1)
@@ -463,13 +514,15 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Group/with-two-children.pa.yaml", 2, "My Small Group")]
-    [DataRow(@"_TestData/ValidYaml/Group/with-nested-children.pa.yaml", 2, "My Nested Group")]
-    public void Deserialize_ShouldParseYamlForGroupWithChildren(string path, int expectedChildrenCount, string expectedName)
+    [DataRow(@"_TestData/ValidYaml{0}/Group/with-two-children.pa.yaml", true, 2, "My Small Group")]
+    [DataRow(@"_TestData/ValidYaml{0}/Group/with-two-children.pa.yaml", false, 2, "My Small Group")]
+    [DataRow(@"_TestData/ValidYaml{0}/Group/with-nested-children.pa.yaml", true, 2, "My Nested Group")]
+    [DataRow(@"_TestData/ValidYaml{0}/Group/with-nested-children.pa.yaml", false, 2, "My Nested Group")]
+    public void Deserialize_ShouldParseYamlForGroupWithChildren(string path, bool isControlIdentifiers, int expectedChildrenCount, string expectedName)
     {
         // Arrange
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
@@ -479,5 +532,24 @@ public class DeserializerValidTests : TestBase
         group.Should().NotBeNull();
         group.Children.Should().NotBeNull().And.HaveCount(expectedChildrenCount);
         group.Name.Should().Be(expectedName);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/With-list-of-controls.pa.yaml", true, 2, typeof(CustomControl), "BuiltIn Control1")]
+    [DataRow(@"_TestData/ValidYaml{0}/With-list-of-controls.pa.yaml", false, 2, typeof(CustomControl), "BuiltIn Control1")]
+    public void Deserialize_ShouldParse_Lists_of_Controls(string path, bool isControlIdentifiers, int expectedCount, Type expectedType, string expectedName)
+    {
+        // Arrange
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var listObj = deserializer.Deserialize<object>(yamlReader);
+        listObj.Should().NotBeNull().And.BeAssignableTo(typeof(List<Control>));
+        var list = (List<Control>)listObj;
+        list.Should().HaveCount(expectedCount);
+        list.First().Should().BeOfType(expectedType);
+        list.First().Name.Should().Be(expectedName);
     }
 }

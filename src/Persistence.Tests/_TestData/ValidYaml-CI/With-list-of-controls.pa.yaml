@@ -1,0 +1,8 @@
+- BuiltIn Control1:
+    Control: SuperButton
+    Properties:
+      Text: =Just text
+- BuiltIn Label:
+    Control: Label
+    Properties:
+      Text: =Just label text

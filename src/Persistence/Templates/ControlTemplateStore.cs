@@ -129,10 +129,10 @@ public class ControlTemplateStore : IControlTemplateStore
     /// </summary>
     public bool TryGetByIdOrName(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
     {
-        if (TryGetById(id, out controlTemplate))
+        if (TryGetTemplateByName(id, out controlTemplate))
             return true;
 
-        if (TryGetTemplateByName(id, out controlTemplate))
+        if (TryGetById(id, out controlTemplate))
             return true;
 
         return false;

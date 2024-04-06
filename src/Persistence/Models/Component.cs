@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.Callbacks;
@@ -29,11 +30,11 @@ public record Component : Control
         Variant = variant;
 
         var baseTemplate = controlTemplateStore.GetByName(BuiltInTemplates.Component);
-        Template = baseTemplate with { Name = name };
+        Template = baseTemplate with { Name = baseTemplate.Name };
     }
 
     [YamlMember(Order = 100)]
-    public CustomPropertiesCollection CustomProperties { get; init; } = new();
+    public CustomPropertiesCollection CustomProperties { get; set; } = new();
 
     [OnDeserialized]
     internal override void AfterDeserialize()
@@ -46,6 +47,15 @@ public record Component : Control
             {
                 kv.Value.Name = kv.Key;
             }
+        }
+    }
+
+    internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
+    {
+        if (controlDefinition.TryGetValue<CustomPropertiesCollection>(nameof(CustomProperties), out var customProperties))
+        {
+            if (customProperties != null)
+                CustomProperties = customProperties;
         }
     }
 }

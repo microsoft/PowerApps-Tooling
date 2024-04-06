@@ -4,6 +4,7 @@
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests;
 
@@ -45,5 +46,34 @@ public class TestBase
         services.AddPowerAppsPersistence(useDefaultTemplates: true);
 
         return services.BuildServiceProvider();
+    }
+
+    public static IYamlDeserializer CreateDeserializer(bool isControlIdentifiers = false, bool isTextFirst = false)
+    {
+        return ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer
+        (
+            new YamlSerializationOptions
+            {
+                IsTextFirst = isTextFirst,
+                IsControlIdentifiers = isControlIdentifiers
+            }
+        );
+    }
+
+    public static IYamlSerializer CreateSerializer(bool isControlIdentifiers = false, bool isTextFirst = false)
+    {
+        return ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer
+        (
+            new YamlSerializationOptions
+            {
+                IsTextFirst = isTextFirst,
+                IsControlIdentifiers = isControlIdentifiers
+            }
+        );
+    }
+
+    public static string GetTestFilePath(string path, bool isControlIdentifiers = false)
+    {
+        return string.Format(path, isControlIdentifiers ? "-CI" : string.Empty);
     }
 }

@@ -1,0 +1,21 @@
+Screen with two multiline properties:
+  Control: Screen
+  Properties:
+    Long Line: |
+      =Launch(Navigation_1.url);
+
+          Set(
+              ShowNewMenu,
+              false
+          );
+
+          Set(
+              ShowAdminMenu,
+              false
+          );
+
+          Set(
+              ShowResearchMenu,
+              false
+          );
+    Name: =NameProperty1

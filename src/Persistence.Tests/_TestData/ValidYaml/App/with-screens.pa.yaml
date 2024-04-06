@@ -1,0 +1,22 @@
+App: 
+Settings:
+  Name: Test App Name
+  Layout: Landscape
+Properties:
+  OnStart: =Set(foo, 123)
+Screens:
+- Screen:
+  Name: Screen1
+  Properties:
+    OnStart: =Set(bar, 456)
+  Children:
+  - ButtonCanvas:
+    Name: My control
+- Screen:
+  Name: Screen2
+  Properties:
+    OnStart: =Set(bar, 456)
+  Children:
+  - ButtonCanvas:
+    Name: My control
+  

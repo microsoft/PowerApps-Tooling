@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.Yaml;
 
@@ -10,24 +9,23 @@ namespace Persistence.Tests.Yaml;
 public class ValidSerializerTests : TestBase
 {
     [TestMethod]
-    public void Serialize_ShouldCreateValidYamlForSimpleStructure()
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-name.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-name.pa.yaml", false)]
+    public void Serialize_ShouldCreateValidYaml_for_Screen(string expectedPath, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.CreateScreen("Screen1",
-            properties: new()
-            {
-                { "Text", "\"I am a screen\"" },
-            }
-        );
+        var graph = ControlFactory.Create("Hello", "Screen");
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
-        var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a screen\"{Environment.NewLine}");
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/App.pa.yaml")]
-    public void Serialize_ShouldCreateValidYamlForApp(string expectedPath)
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", false)]
+    public void Serialize_ShouldCreateValidYamlForApp(string expectedPath, bool isControlIdentifiers)
     {
         var app = ControlFactory.CreateApp("Test app 1");
 
@@ -45,15 +43,17 @@ public class ValidSerializerTests : TestBase
                 }),
         };
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(app).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    public void Serialize_ShouldSortControlPropertiesAlphabetically()
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-not-sorted.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-not-sorted.pa.yaml", false)]
+    public void Serialize_ShouldSortControlPropertiesAlphabetically(string expectedPath, bool isControlIdentifiers)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
@@ -63,16 +63,19 @@ public class ValidSerializerTests : TestBase
                 { "PropertyA", "=A" },
             });
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
-        var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  PropertyA: =A{Environment.NewLine}  PropertyB: =B{Environment.NewLine}  PropertyC: =C{Environment.NewLine}");
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    public void Serialize_ShouldCreateValidYamlWithChildNodes()
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-controls1.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-controls1.pa.yaml", false)]
+    public void Serialize_ShouldCreateValidYamlWithChildNodes(string expectedPath, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.CreateScreen("Screen1",
+        var graph = ControlFactory.Create("Screen1", "Screen",
             properties: new()
             {
                 { "Text", "\"I am a screen\"" },
@@ -96,14 +99,17 @@ public class ValidSerializerTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
-        var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Screen: {Environment.NewLine}Name: Screen1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a screen\"{Environment.NewLine}Children:{Environment.NewLine}- Control: Text{Environment.NewLine}  Name: Label1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: =\"lorem ipsum\"{Environment.NewLine}- Control: Button{Environment.NewLine}  Name: Button1{Environment.NewLine}  Properties:{Environment.NewLine}    Text: =\"click me\"{Environment.NewLine}    X: =100{Environment.NewLine}    Y: =200{Environment.NewLine}");
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    public void Serialize_ShouldCreateValidYamlForCustomControl()
+    [DataRow(@"_TestData/ValidYaml{0}/CustomControls/with-property.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/CustomControls/with-property.pa.yaml", false)]
+    public void Serialize_ShouldCreateValidYamlForCustomControl(string expectedPath, bool isControlIdentifiers)
     {
         var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
             properties: new()
@@ -112,22 +118,31 @@ public class ValidSerializerTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
-        var sut = serializer.SerializeControl(graph);
-        sut.Should().Be($"Control: http://localhost/#customcontrol{Environment.NewLine}Name: CustomControl1{Environment.NewLine}Properties:{Environment.NewLine}  Text: =\"I am a custom control\"{Environment.NewLine}");
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml/BuiltInControl1.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml/BuiltInControl2.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"Text`~!@#$%^&*()_-+=\", \":\"", @"_TestData/ValidYaml/BuiltInControl3.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml/BuiltInControl4.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml/BuiltInControl5.pa.yaml")]
-    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml/BuiltInControl6.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml/BuiltInControl7.pa.yaml")]
-    [DataRow("ButtonCanvas", "\"Text containing PFX \"\"Double-Double-Quote\"\" escape sequence\"", @"_TestData/ValidYaml/BuiltInControl8.pa.yaml")]
-    public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath)
+    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml{0}/BuiltInControl1.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "$\"Interpolated text {User().FullName}\"", @"_TestData/ValidYaml{0}/BuiltInControl1.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml{0}/BuiltInControl2.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"Normal text\"", @"_TestData/ValidYaml{0}/BuiltInControl2.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"Text`~!@#$%^&*()_-+=\", \":\"", @"_TestData/ValidYaml{0}/BuiltInControl3.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"Text`~!@#$%^&*()_-+=\", \":\"", @"_TestData/ValidYaml{0}/BuiltInControl3.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml{0}/BuiltInControl4.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"Hello : World\"", @"_TestData/ValidYaml{0}/BuiltInControl4.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml{0}/BuiltInControl5.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"Hello # World\"", @"_TestData/ValidYaml{0}/BuiltInControl5.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml{0}/BuiltInControl6.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "'Hello single quoted'.Text", @"_TestData/ValidYaml{0}/BuiltInControl6.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml{0}/BuiltInControl7.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"=Starts with equals\"", @"_TestData/ValidYaml{0}/BuiltInControl7.pa.yaml", true)]
+    [DataRow("ButtonCanvas", "\"Text containing PFX \"\"Double-Double-Quote\"\" escape sequence\"", @"_TestData/ValidYaml{0}/BuiltInControl8.pa.yaml", false)]
+    [DataRow("ButtonCanvas", "\"Text containing PFX \"\"Double-Double-Quote\"\" escape sequence\"", @"_TestData/ValidYaml{0}/BuiltInControl8.pa.yaml", true)]
+    public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath, bool isControlIdentifiers)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
             properties: new()
@@ -136,16 +151,17 @@ public class ValidSerializerTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(graph).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-gallery.pa.yaml")]
-    public void Serialize_Should_FlattenGalleryTemplate(string expectedPath)
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", false)]
+    public void Serialize_Should_FlattenGalleryTemplate(string expectedPath, bool isControlIdentifiers)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
@@ -178,17 +194,19 @@ public class ValidSerializerTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(graph).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-variant.pa.yaml", "SuperButton", null)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical")]
-    public void Valid_Variant(string expectedPath, string expectedVariant, string expectedLayout)
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-variant.pa.yaml", "SuperButton", null, true)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-variant.pa.yaml", "SuperButton", null, false)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical", false)]
+    public void Valid_Variant(string expectedPath, string expectedVariant, string expectedLayout, bool isControlIdentifiers)
     {
         var graph = ControlFactory.Create("built in", "Button", variant: expectedVariant,
             properties: new()
@@ -198,16 +216,17 @@ public class ValidSerializerTests : TestBase
         );
         graph.Layout = expectedLayout;
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(graph).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl/with-sorted-properties.pa.yaml", "SuperButton", "Some value")]
-    public void Should_SortBy_Category(string expectedPath, string templateName, string expectedValue)
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-sorted-properties.pa.yaml", true, "SuperButton", "Some value")]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-sorted-properties.pa.yaml", false, "SuperButton", "Some value")]
+    public void Should_SortBy_Category(string expectedPath, bool isControlIdentifiers, string templateName, string expectedValue)
     {
         var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
             properties: new Dictionary<string, ControlProperty>()
@@ -221,17 +240,18 @@ public class ValidSerializerTests : TestBase
                 { "y1_Design", new("y1_Design", expectedValue) { Category = PropertyCategory.Design } },
             }
         );
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(graph).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/With-list-of-controls.pa.yaml", "SuperButton")]
-    public void Should_Serialize_List_Of_Controls(string expectedPath, string templateName)
+    [DataRow(@"_TestData/ValidYaml{0}/With-list-of-controls.pa.yaml", true, "SuperButton")]
+    [DataRow(@"_TestData/ValidYaml{0}/With-list-of-controls.pa.yaml", false, "SuperButton")]
+    public void Should_Serialize_List_Of_Controls(string expectedPath, bool isControlIdentifiers, string templateName)
     {
         var graph = new List<Control>()
         {
@@ -248,10 +268,10 @@ public class ValidSerializerTests : TestBase
                 }
             ),
         };
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.Serialize(graph).NormalizeNewlines();
-        var expectedYaml = File.ReadAllText(expectedPath).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         sut.Should().Be(expectedYaml);
     }
 
@@ -268,7 +288,19 @@ public class ValidSerializerTests : TestBase
                 Direction = CustomProperty.PropertyDirection.Input,
                 Type = CustomProperty.PropertyType.Data
             },
-            @"_TestData/ValidYaml/Components/CustomProperty1.pa.yaml"
+            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", false
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyTextProp1",
+                DataType = "String",
+                Default = "lorem",
+                Direction = CustomProperty.PropertyDirection.Input,
+                Type = CustomProperty.PropertyType.Data
+            },
+            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", true
         },
         new object[]
         {
@@ -287,24 +319,43 @@ public class ValidSerializerTests : TestBase
                     }
                 },
             },
-            @"_TestData/ValidYaml/Components/CustomProperty2.pa.yaml"
+            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", false
+        },
+        new object[]
+        {
+            new CustomProperty()
+            {
+                Name = "MyFuncProp1",
+                DataType = "String",
+                Default = "lorem",
+                Direction = CustomProperty.PropertyDirection.Input,
+                Type = CustomProperty.PropertyType.Function,
+                Parameters = new[] {
+                    new CustomPropertyParameter(){
+                        Name = "param1",
+                        DataType= "String",
+                        IsRequired = true,
+                    }
+                },
+            },
+            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", true
         }
     };
 
     [TestMethod]
     [DynamicData(nameof(Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data))]
-    public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty customProperty, string expectedYamlFile)
+    public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty customProperty, string expectedYamlFile, bool isControlIdentifiers)
     {
         var component = ControlFactory.Create("Component1", "Component") as Component;
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull();
         component.CustomProperties.Add(customProperty.Name, customProperty);
 
-        var sut = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var sut = CreateSerializer(isControlIdentifiers);
 
-        var serializedComponent = sut.SerializeControl(component);
+        var serializedComponent = sut.SerializeControl(component).NormalizeNewlines();
 
-        var expectedYaml = File.ReadAllText(expectedYamlFile);
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedYamlFile, isControlIdentifiers)).NormalizeNewlines();
         serializedComponent.Should().Be(expectedYaml);
     }
 }

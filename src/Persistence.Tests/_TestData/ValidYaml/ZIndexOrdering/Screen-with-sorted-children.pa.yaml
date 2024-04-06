@@ -1,4 +1,4 @@
-Screen: 
+Control: Screen
 Name: Screen1
 Properties:
   Text: ="I am a screen"

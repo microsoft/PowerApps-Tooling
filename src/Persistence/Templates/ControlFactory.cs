@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
@@ -18,11 +19,36 @@ public class ControlFactory : IControlFactory
 
     public Control Create(string name, string template, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        if (TryCreateFirstClassControl(name, template, variant ?? string.Empty, properties, children, out var control))
-            return control;
-
-        if (_controlTemplateStore.TryGetTemplateByName(template, out var controlTemplate))
+        if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
         {
+            if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition: null, out var control))
+                return control;
+
+            return new BuiltInControl(name, variant ?? string.Empty, controlTemplate)
+            {
+                Properties = properties ?? new(),
+                Children = children
+            };
+        }
+
+        return new CustomControl(name, variant ?? string.Empty, new ControlTemplate(template))
+        {
+            Properties = properties ?? new(),
+            Children = children
+        };
+    }
+
+    public Control Create(string name, string template, Dictionary<string, object?> controlDefinition)
+    {
+        controlDefinition.TryGetValue<string>(nameof(Control.Variant), out var variant);
+        controlDefinition.TryGetValue<ControlPropertiesCollection>(nameof(Control.Properties), out var properties);
+        controlDefinition.TryGetValue<IList<Control>?>(nameof(Control.Children), out var children);
+
+        if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
+        {
+            if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition, out var control))
+                return control;
+
             return new BuiltInControl(name, variant ?? string.Empty, controlTemplate)
             {
                 Properties = properties ?? new(),
@@ -39,7 +65,7 @@ public class ControlFactory : IControlFactory
 
     public Control Create(string name, ControlTemplate template, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        if (TryCreateFirstClassControl(name, template.Name, variant ?? string.Empty, properties, children, out var control))
+        if (TryCreateFirstClassControl(name, template.Name, variant ?? string.Empty, properties, children, controlDefinition: null, out var control))
             return control;
 
         return new BuiltInControl(name, variant ?? string.Empty, template)
@@ -67,7 +93,9 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    private bool TryCreateFirstClassControl(string name, string template, string variant, ControlPropertiesCollection? properties, IList<Control>? children, [MaybeNullWhen(false)] out Control control)
+    private bool TryCreateFirstClassControl(string name, string template, string variant,
+        ControlPropertiesCollection? properties, IList<Control>? children, Dictionary<string, object?>? controlDefinition,
+        [MaybeNullWhen(false)] out Control control)
     {
         control = null;
         if (!_controlTemplateStore.TryGetControlTypeByName(template, out var controlType))
@@ -78,10 +106,11 @@ public class ControlFactory : IControlFactory
             throw new InvalidOperationException($"Failed to create control of type {controlType.Name}.");
 
         if (properties is not null)
-            foreach (var prop in properties)
-                controlInstance.Properties.Add(prop.Key, prop.Value);
+            controlInstance.Properties = properties;
 
         controlInstance.Children = children;
+        if (controlDefinition != null)
+            controlInstance.AfterCreate(controlDefinition);
 
         control = controlInstance;
 

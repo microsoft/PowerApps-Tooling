@@ -1,0 +1,10 @@
+BuiltIn Control1:
+  Control: SuperButton
+  Properties:
+    x1_Behavior: =Some value
+    x2_Behavior: =Some value
+    a1_Data: =Some value
+    a2_Data: =Some value
+    y1_Design: =Some value
+    y2_Design: =Some value
+    y3_Design: =Some value

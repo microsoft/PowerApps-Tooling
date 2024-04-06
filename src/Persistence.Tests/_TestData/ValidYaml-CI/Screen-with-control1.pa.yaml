@@ -1,0 +1,5 @@
+Hello:
+  Control: Screen
+  Children:
+  - My control:
+      Control: ButtonCanvas

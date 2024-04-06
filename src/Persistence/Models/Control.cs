@@ -35,7 +35,7 @@ public abstract record Control
     [YamlMember(Alias = YamlFields.Control, Order = 0)]
     public string TemplateId => Template.Id;
 
-    private readonly string _name = string.Empty;
+    private string _name = string.Empty;
     /// <summary>
     /// the control's name.
     /// </summary>
@@ -43,7 +43,7 @@ public abstract record Control
     public required string Name
     {
         get => _name;
-        init
+        set
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException(nameof(Name));
@@ -62,7 +62,7 @@ public abstract record Control
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
     [YamlMember(Order = 4)]
-    public ControlPropertiesCollection Properties { get; init; } = new();
+    public ControlPropertiesCollection Properties { get; set; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
@@ -115,6 +115,10 @@ public abstract record Control
             var zIndex = zindexCalc(i);
             Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
         }
+    }
+
+    internal virtual void AfterCreate(Dictionary<string, object?> controlDefinition)
+    {
     }
 
     [OnSerializing]

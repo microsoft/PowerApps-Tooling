@@ -17,46 +17,75 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
     }
 
-    public IYamlSerializer CreateSerializer(bool? isTextFirst = null)
+    public IYamlSerializer CreateSerializer(YamlSerializationOptions? options = null)
     {
-        return CreateSerializer(new YamlSerializerOptions { IsTextFirst = isTextFirst ?? YamlSerializerOptions.Default.IsTextFirst });
-    }
+        options ??= YamlSerializationOptions.Default;
 
-    public IYamlSerializer CreateSerializer(YamlSerializerOptions? options)
-    {
-        options ??= YamlSerializerOptions.Default;
+        var componentConverter = new ComponentConverter(_controlFactory) { Options = options };
+        var controlConverter = new ControlConverter(_controlFactory) { Options = options };
+        var customPropertiesCollectionConverter = new CustomPropertiesCollectionConverter() { Options = options };
 
-        var yamlSerializer = new SerializerBuilder()
-            .WithEventEmitter(next => new FirstClassControlsEmitter(next, _controlTemplateStore))
+        var builder = new SerializerBuilder()
             .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
-            .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
-            .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
-            .Build();
+            .WithTypeConverter(new ControlPropertiesCollectionConverter() { Options = options })
+            .WithTypeConverter(controlConverter)
+            .WithTypeConverter(componentConverter)
+            .WithTypeConverter(customPropertiesCollectionConverter)
+            .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
 
-        return new YamlSerializer(yamlSerializer);
+        var valueSerializer = builder.BuildValueSerializer();
+        componentConverter.ValueSerializer = valueSerializer;
+        controlConverter.ValueSerializer = valueSerializer;
+        customPropertiesCollectionConverter.ValueSerializer = valueSerializer;
+
+        return new YamlSerializer(builder.Build());
     }
 
-    public IYamlDeserializer CreateDeserializer(bool? isTextFirst = null)
+    public IYamlDeserializer CreateDeserializer(YamlSerializationOptions? options = null)
     {
-        return CreateDeserializer(new YamlDeserializerOptions { IsTextFirst = isTextFirst ?? YamlDeserializerOptions.Default.IsTextFirst });
-    }
+        options ??= YamlSerializationOptions.Default;
 
-    public IYamlDeserializer CreateDeserializer(YamlDeserializerOptions? options)
-    {
-        options ??= YamlDeserializerOptions.Default;
-
-        var yamlDeserializer = new DeserializerBuilder()
+        var builder = new DeserializerBuilder()
             .WithDuplicateKeyChecking()
-            .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
             .IgnoreUnmatchedProperties()
-            .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
-            .WithTypeDiscriminatingNodeDeserializer(o =>
-            {
-                o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
-            })
-            .WithTypeConverter(new ControlPropertiesCollectionConverter() { IsTextFirst = options.IsTextFirst })
-            .Build();
+            .WithTypeConverter(new ControlPropertiesCollectionConverter() { Options = options });
 
-        return new YamlDeserializer(yamlDeserializer);
+        if (!options.IsControlIdentifiers)
+        {
+            builder
+                .WithObjectFactory(new ControlObjectFactory(_controlTemplateStore, _controlFactory))
+                .WithTypeDiscriminatingNodeDeserializer(o =>
+                {
+                    o.AddTypeDiscriminator(new ControlTypeDiscriminator(_controlTemplateStore));
+                });
+        }
+
+        var controlConverter = new ControlConverter(_controlFactory) { Options = options };
+        var componentConverter = new ComponentConverter(_controlFactory) { Options = options };
+        var appConverter = new AppConverter(_controlFactory) { Options = options };
+        var controlCollectionConverter = new ControlCollectionConverter()
+        {
+            IsTextFirst = options.IsTextFirst
+        };
+        var customPropertiesCollectionConverter = new CustomPropertiesCollectionConverter() { Options = options };
+
+        // Order of type converters is important
+        builder
+            .WithTypeConverter(new ControlPropertyConverter())
+            .WithTypeConverter(controlConverter)
+            .WithTypeConverter(componentConverter)
+            .WithTypeConverter(appConverter)
+            .WithTypeConverter(controlCollectionConverter)
+            .WithTypeConverter(customPropertiesCollectionConverter);
+
+        // We need to build the value deserializer after adding the converters
+        var valueDeserializer = builder.BuildValueDeserializer();
+        customPropertiesCollectionConverter.ValueDeserializer = valueDeserializer;
+        controlConverter.ValueDeserializer = valueDeserializer;
+        componentConverter.ValueDeserializer = valueDeserializer;
+        appConverter.ValueDeserializer = valueDeserializer;
+        controlCollectionConverter.ValueDeserializer = valueDeserializer;
+
+        return new YamlDeserializer(builder.Build());
     }
 }

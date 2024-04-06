@@ -54,7 +54,6 @@ public static class ControlFormatter
         var originalChildCount = control.Children.Count;
 
         var children = control.Children
-            .Select(c => AfterDeserialize(c, controlFactory)) // Recurse into child controls
             .Select(addZIndex)
             .Concat(childrenToAdd)
             .ToList();

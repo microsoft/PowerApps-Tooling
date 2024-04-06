@@ -1,0 +1,15 @@
+Control: Screen
+Name: Screen1
+Properties:
+  Text: ="I am a screen"
+Children:
+- Control: Text
+  Name: Label1
+  Properties:
+    Text: ="lorem ipsum"
+- Control: Button
+  Name: Button1
+  Properties:
+    Text: ="click me"
+    X: =100
+    Y: =200

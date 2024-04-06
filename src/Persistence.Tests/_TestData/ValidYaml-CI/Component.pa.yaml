@@ -1,0 +1,7 @@
+MyCustomComponent:
+  Control: Component
+  Properties:
+    Fill: =RGBA(152, 208, 70, 1)
+    Height: =150
+    Width: =300
+  Children:

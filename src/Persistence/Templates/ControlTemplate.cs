@@ -22,13 +22,14 @@ public record ControlTemplate
     public ControlTemplate(string id)
     {
         Id = id;
-        Name = id;
+        _name = id;
     }
+
     public required string Id { get; init; }
 
     private string _name = string.Empty;
 
-    public required string Name
+    public string Name
     {
         get => _name;
         init
