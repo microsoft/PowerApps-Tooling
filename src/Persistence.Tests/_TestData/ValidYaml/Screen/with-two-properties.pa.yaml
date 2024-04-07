@@ -1,4 +1,4 @@
-Screen: 
+Control: Screen
 Name: Hello
 Properties:
   Name: =NameProperty1

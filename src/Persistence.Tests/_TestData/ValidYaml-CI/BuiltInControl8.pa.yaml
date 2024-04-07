@@ -1,0 +1,4 @@
+BuiltIn Control1:
+  Control: ButtonCanvas
+  Properties:
+    Text: ="Text containing PFX ""Double-Double-Quote"" escape sequence"

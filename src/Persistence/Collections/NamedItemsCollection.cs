@@ -173,7 +173,7 @@ public abstract class NamedItemsCollection<TValue> :
 
     public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
     {
-        throw new NotImplementedException();
+        ((IDictionary<string, TValue>)_items).CopyTo(array, arrayIndex);
     }
 
     public bool Contains(object key)

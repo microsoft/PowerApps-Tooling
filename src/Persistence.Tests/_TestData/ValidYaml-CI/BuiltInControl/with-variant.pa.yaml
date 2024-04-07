@@ -1,0 +1,5 @@
+built in:
+  Control: Button
+  Variant: SuperButton
+  Properties:
+    Text: ="button text"

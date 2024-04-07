@@ -1,0 +1,4 @@
+BuiltIn Control1:
+  Control: ButtonCanvas
+  Properties:
+    Text: ='Hello single quoted'.Text

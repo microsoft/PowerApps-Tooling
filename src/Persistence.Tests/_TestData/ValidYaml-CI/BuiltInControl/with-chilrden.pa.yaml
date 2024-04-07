@@ -1,0 +1,9 @@
+built in container:
+  Control: Container 
+  Properties:
+    X: =30
+  Children:
+  - It is a dog:
+      Control: Button 
+  - It is a cat:
+      Control: Button 

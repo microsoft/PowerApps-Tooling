@@ -1,0 +1,4 @@
+button with template:
+  Control: Button
+  Properties:
+    Text: ="button text"

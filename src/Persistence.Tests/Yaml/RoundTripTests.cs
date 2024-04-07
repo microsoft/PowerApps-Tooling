@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Persistence.Tests.Yaml;
 
@@ -10,27 +9,43 @@ namespace Persistence.Tests.Yaml;
 public class RoundTripTests : TestBase
 {
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-name.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-name.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "My Power Apps Screen", 0, 0)]
-    [DataRow(@"_TestData/ValidYaml/Screen-with-controls.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-name.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "My Power Apps Screen", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-controls.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Screen 1", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-two-properties.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen-with-controls.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "Screen 1", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-two-properties.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Hello", 2, 0)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-properties-and-controls.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-two-properties.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "Hello", 2, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-controls.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Screen with two properties and two controls", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-properties-and-nested-controls.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-controls.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "Screen with two properties and two controls", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-nested-controls.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Screen with two properties and two nested controls", 2, 2)]
-    [DataRow(@"_TestData/ValidYaml/Screen/with-multiline-properties.pa.yaml", typeof(Screen), "http://microsoft.com/appmagic/screen",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-nested-controls.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "Screen with two properties and two nested controls", 2, 2)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-multiline-properties.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen",
         "Screen with two multiline properties", 2, 0)]
-    [DataRow(@"_TestData/ValidYaml/Control-with-custom-template.pa.yaml", typeof(CustomControl), "http://localhost/#customcontrol",
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-multiline-properties.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen",
+        "Screen with two multiline properties", 2, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/Control-with-custom-template.pa.yaml", true, typeof(CustomControl), "http://localhost/#customcontrol",
         "My Power Apps Custom Control", 8, 0)]
-    [DataRow(@"_TestData/ValidYaml/BuiltInControl1.pa.yaml", typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas",
+    [DataRow(@"_TestData/ValidYaml{0}/Control-with-custom-template.pa.yaml", false, typeof(CustomControl), "http://localhost/#customcontrol",
+        "My Power Apps Custom Control", 8, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl1.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas",
         "BuiltIn Control1", 1, 0)]
-    public void RoundTrip_ValidYaml(string path, Type rootType, string expectedTemplateId, string expectedName, int expectedPropsCount, int expectedControlCount)
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl1.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas",
+        "BuiltIn Control1", 1, 0)]
+    public void RoundTrip_ValidYaml(string path, bool isControlIdentifiers, Type rootType, string expectedTemplateId, string expectedName, int expectedPropsCount, int expectedControlCount)
     {
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
-        using var yamlStream = File.OpenRead(path);
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        var serializer = CreateSerializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         // Deserialize the yaml into an object.
@@ -51,7 +66,7 @@ public class RoundTripTests : TestBase
         var actualYaml = serializer.SerializeControl(control).NormalizeNewlines();
 
         // Assert that the yaml is the same.
-        var expectedYaml = File.ReadAllText(path).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(path, isControlIdentifiers)).NormalizeNewlines();
         actualYaml.Should().Be(expectedYaml);
     }
 }

@@ -1,0 +1,4 @@
+CustomControl1:
+  Control: http://localhost/#customcontrol
+  Properties:
+    Text: ="I am a custom control"

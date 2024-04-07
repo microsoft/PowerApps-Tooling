@@ -1,0 +1,14 @@
+Component1:
+  Control: Component
+  CustomProperties:
+    MyFuncProp1:
+      Direction: Input
+      PropertyType: Function
+      DataType: String
+      Category: Data
+      IsResettable: false
+      Default: lorem
+      Parameters:
+        param1:
+          DataType: String
+          IsRequired: true

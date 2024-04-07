@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -16,8 +16,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
     private readonly NullNodeDeserializer _nullNodeDeserializer = new();
     private readonly Scalar NullScalar = new("tag:yaml.org,2002:null", string.Empty);
 
-    [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily", Justification = "Explicitly setting to false for clarity")]
-    public bool IsTextFirst { get; set; } = false;
+    public required YamlSerializationOptions Options { get; set; }
 
     public bool Accepts(Type type)
     {
@@ -26,6 +25,8 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
     public object ReadYaml(IParser parser, Type type)
     {
+        _ = parser ?? throw new ArgumentNullException(nameof(parser));
+
         var collection = new ControlPropertiesCollection();
 
         parser.MoveNext();
@@ -37,7 +38,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
             if (!_nullNodeDeserializer.Deserialize(parser, typeof(object), null!, out _))
                 value = parser.Consume<Scalar>().Value;
 
-            if (IsTextFirst)
+            if (Options.IsTextFirst)
                 collection.Add(key.Value, ControlProperty.FromTextFirstString(key.Value, value));
             else
             {
@@ -64,7 +65,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
 
             var property = collection[key.Name];
             var propertyValue = property.Value;
-            if (IsTextFirst)
+            if (Options.IsTextFirst)
             {
                 if (propertyValue == null)
                 {
@@ -91,7 +92,7 @@ public class ControlPropertiesCollectionConverter : IYamlTypeConverter
                 propertyValue = propertyValue.StartsWith('=') ? propertyValue : $"={propertyValue}";
             }
 
-            var scalarStyle = ControlPropertyConverter.DetermineScalarStyleForProperty(propertyValue);
+            var scalarStyle = propertyValue.DetermineScalarStyleForProperty();
             emitter.Emit(new Scalar(null, null, propertyValue, scalarStyle, true, false));
         }
 

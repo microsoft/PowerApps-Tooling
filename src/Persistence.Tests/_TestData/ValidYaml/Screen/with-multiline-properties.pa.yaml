@@ -1,4 +1,4 @@
-Screen: 
+Control: Screen
 Name: Screen with two multiline properties
 Properties:
   Long Line: |

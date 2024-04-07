@@ -10,7 +10,9 @@ namespace Persistence.Tests.Yaml;
 public class ZIndexOrderingTests : TestBase
 {
     [TestMethod]
-    public void SerializedChildrenInZOrder()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void SerializedChildrenInZOrder(bool isControlIdentifiers)
     {
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new() { { "Text", "\"I am a screen\"" }, },
@@ -24,19 +26,21 @@ public class ZIndexOrderingTests : TestBase
             }
         );
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.SerializeControl(graph);
-        var expected = File.ReadAllText(@"_TestData/ValidYaml/ZIndexOrdering/Screen-with-sorted-children.pa.yaml");
+        var expected = File.ReadAllText(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/Screen-with-sorted-children.pa.yaml", isControlIdentifiers));
         sut.Should().BeEquivalentTo(expected);
     }
 
     [TestMethod]
-    public void DeserializeChildrenShouldHaveMatchingZIndexProperty()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void DeserializeChildrenShouldHaveMatchingZIndexProperty(bool isControlIdentifiers)
     {
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/ZIndexOrdering/Screen-with-sorted-children.pa.yaml");
+        using var yamlStream = File.OpenRead(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/Screen-with-sorted-children.pa.yaml", isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         var sut = deserializer.Deserialize<Screen>(yamlReader);
@@ -54,11 +58,13 @@ public class ZIndexOrderingTests : TestBase
     }
 
     [TestMethod]
-    public void Deserialize_List_Should_Be_With_ZIndex()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Deserialize_List_Should_Be_With_ZIndex(bool isControlIdentifiers)
     {
-        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+        var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        using var yamlStream = File.OpenRead(@"_TestData/ValidYaml/ZIndexOrdering/With-list-of-controls-with-children.pa.yaml");
+        using var yamlStream = File.OpenRead(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/With-list-of-controls-with-children.pa.yaml", isControlIdentifiers));
         using var yamlReader = new StreamReader(yamlStream);
 
         var result = deserializer.Deserialize<List<Control>>(yamlReader);
@@ -77,7 +83,9 @@ public class ZIndexOrderingTests : TestBase
     }
 
     [TestMethod]
-    public void Seralizes_List_Should_Be_Without_ZIndex()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Seralizes_List_Should_Be_Without_ZIndex(bool isControlIdentifiers)
     {
         var graph = new List<Control>
         {
@@ -88,15 +96,17 @@ public class ZIndexOrderingTests : TestBase
             MakeLabelWithZIndex(4),
         };
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.Serialize(graph);
-        var expected = File.ReadAllText(@"_TestData/ValidYaml/ZIndexOrdering/With-list-of-controls.pa.yaml");
+        var expected = File.ReadAllText(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/With-list-of-controls.pa.yaml", isControlIdentifiers));
         sut.Should().BeEquivalentTo(expected);
     }
 
     [TestMethod]
-    public void Seralizes_SortedList_Should_Be_Without_ZIndex()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Seralizes_SortedList_Should_Be_Without_ZIndex(bool isControlIdentifiers)
     {
         var graph = new SortedList<int, Control>
         {
@@ -107,10 +117,10 @@ public class ZIndexOrderingTests : TestBase
             {4, MakeLabelWithZIndex(4) },
         };
 
-        var serializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer();
+        var serializer = CreateSerializer(isControlIdentifiers);
 
         var sut = serializer.Serialize(graph.Values);
-        var expected = File.ReadAllText(@"_TestData/ValidYaml/ZIndexOrdering/With-sortedlist-of-controls.pa.yaml");
+        var expected = File.ReadAllText(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/With-sortedlist-of-controls.pa.yaml", isControlIdentifiers));
         sut.Should().BeEquivalentTo(expected);
     }
 

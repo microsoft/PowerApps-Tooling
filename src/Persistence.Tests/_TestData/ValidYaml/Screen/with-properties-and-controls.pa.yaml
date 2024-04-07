@@ -1,4 +1,4 @@
-Screen: 
+Control: Screen
 Name: Screen with two properties and two controls
 Properties:
   Name: =NameProperty1

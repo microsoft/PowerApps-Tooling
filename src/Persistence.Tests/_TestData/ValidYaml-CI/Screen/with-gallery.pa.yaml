@@ -1,0 +1,15 @@
+Screen1:
+  Control: Screen
+  Properties:
+    Text: ="I am a screen"
+  Children:
+  - Gallery1:
+      Control: Gallery
+      Properties:
+        Items: =Accounts
+        TemplateFill: =RGBA(0, 0, 0, 0)
+      Children:
+      - button12:
+          Control: Button
+          Properties:
+            Fill: =RGBA(0, 0, 0, 0)

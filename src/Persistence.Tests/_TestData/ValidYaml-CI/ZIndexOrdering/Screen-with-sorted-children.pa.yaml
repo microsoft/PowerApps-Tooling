@@ -1,0 +1,15 @@
+Screen1:
+  Control: Screen
+  Properties:
+    Text: ="I am a screen"
+  Children:
+  - Label5:
+      Control: Text
+  - Label4:
+      Control: Text
+  - Label3:
+      Control: Text
+  - Label2:
+      Control: Text
+  - Label1:
+      Control: Text

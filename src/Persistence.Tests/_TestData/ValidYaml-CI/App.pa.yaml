@@ -1,0 +1,5 @@
+Test app 1:
+  Control: App
+  Children:
+  - Host:
+      Control: Host
