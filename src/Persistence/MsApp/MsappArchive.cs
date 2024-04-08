@@ -414,6 +414,26 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
+    public void SaveAs(string filePath)
+    {
+        var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        SaveAs(fileStream);
+    }
+
+    public void SaveAs(Stream stream)
+    {
+        // Create new ZipArchive at requested path and store current ZipArchive object
+        var tZipArchive = ZipArchive;
+        ZipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
+
+        // Perform Save using the new ZipArchive
+        Save();
+
+        // Swap the archive back to the original archive
+        ZipArchive.Dispose();
+        ZipArchive = tZipArchive;
+    }
+
     public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
