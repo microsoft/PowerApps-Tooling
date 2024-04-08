@@ -158,20 +158,6 @@ internal class ControlConverter : IYamlTypeConverter
             return ValueDeserializer!.DeserializeValue(parser, typeof(object), serializerState, ValueDeserializer);
         }
 
-        /*
-        else if (parser.Current is Scalar)
-        {
-            value = parser.Consume<Scalar>().Value;
-            if (!Options.IsControlIdentifiers)
-            {
-                if (key.Value == nameof(Control.Name))
-                    controlName = (string)value;
-            }
-        }
-        else
-            throw new YamlException(parser.Current!.Start, parser.Current.End, $"Expected scalar value for control property '{key.Value}' in control '{controlName}'");
-        */
-
         return null;
     }
 

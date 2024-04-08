@@ -5,7 +5,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 public static class BuiltInTemplates
 {
-    public const string App = "AppInfo";
+    public const string App = "Appinfo";
     public const string Host = "HostControl";
     public const string Screen = "Screen";
     public const string Component = "Component";
