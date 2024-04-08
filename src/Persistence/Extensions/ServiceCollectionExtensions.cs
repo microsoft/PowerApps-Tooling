@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
     private static void AddMinimalTemplates(ControlTemplateStore store)
     {
         store.Add(new() { Name = "hostControl", DisplayName = "host", Id = "http://microsoft.com/appmagic/hostcontrol" });
-        store.Add(new() { Name = "appInfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
+        store.Add(new() { Name = "appinfo", DisplayName = "app", Id = "http://microsoft.com/appmagic/appinfo" });
         store.Add(new() { Name = "screen", Id = "http://microsoft.com/appmagic/screen" });
         store.Add(new() { Name = "component", Id = "http://microsoft.com/appmagic/Component" });
         store.Add(new() { Name = "group", Id = "http://microsoft.com/appmagic/group" });

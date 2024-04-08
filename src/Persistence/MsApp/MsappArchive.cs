@@ -431,11 +431,19 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        // For app entry name is always "App.pa.yaml" now 
-        var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
-        if (appEntry == null)
-            return null;
-        var app = Deserialize<App>(appEntry.FullName);
+        App app;
+        try
+        {
+            // For app entry name is always "App.pa.yaml" now 
+            var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
+            if (appEntry == null)
+                return null;
+            app = Deserialize<App>(appEntry.FullName, ensureRoundTrip: false);
+        }
+        catch (Exception ex)
+        {
+            throw new PersistenceException("Failed to deserialize app.", ex) { FileName = AppFileName };
+        }
 
         app.Screens = LoadScreens();
 
@@ -447,13 +455,13 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _logger?.LogInformation("Loading top level screens from Yaml.");
 
         var screens = new Dictionary<string, Screen>();
-        foreach (var yamlEntry in GetDirectoryEntries(Directories.Src, YamlFileExtension))
+        foreach (var yamlEntry in GetDirectoryEntries(Directories.Src, YamlFileExtension, recursive: false))
         {
             // Skip the app file
             if (yamlEntry.FullName.EndsWith(AppFileName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var screen = Deserialize<Screen>(yamlEntry.FullName);
+            var screen = Deserialize<Screen>(yamlEntry.FullName, ensureRoundTrip: false);
             screens.Add(screen.Name, screen);
         }
 
