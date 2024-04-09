@@ -37,8 +37,6 @@ public record CustomProperty
 
     public string? Default { get; init; }
 
-    public string? Tooltip { get; init; }
-
     public CustomPropertyParametersCollection Parameters { get; init; } = new();
 
     public enum PropertyDirection
