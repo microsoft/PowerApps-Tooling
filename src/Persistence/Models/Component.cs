@@ -33,6 +33,12 @@ public record Component : Control, IConvertible
         Template = baseTemplate with { Name = baseTemplate.Name };
     }
 
+    [YamlMember(Order = 98)]
+    public string? Description { get; set; }
+
+    [YamlMember(Order = 99)]
+    public bool AccessAppScope { get; set; }
+
     [YamlMember(Order = 100)]
     public CustomPropertiesCollection CustomProperties { get; set; } = new();
 
@@ -56,6 +62,17 @@ public record Component : Control, IConvertible
         {
             if (customProperties != null)
                 CustomProperties = customProperties;
+        }
+
+        if (controlDefinition.TryGetValue<string>(nameof(Description), out var description))
+        {
+            Description = description;
+        }
+
+        if (controlDefinition.TryGetValue<string>(nameof(AccessAppScope), out var tmpString) &&
+            bool.TryParse(tmpString, out var accessAppScope))
+        {
+            AccessAppScope = accessAppScope;
         }
     }
 
