@@ -136,4 +136,33 @@ public class MsappArchiveSaveTests : TestBase
         msappArchive.CanonicalEntries.Count.Should().Be(sameNames.Length);
         msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlPaFileExtension}")));
     }
+
+    [TestMethod]
+    [DataRow("HelloWorld", "HelloScreen")]
+    public void Msapp_ShouldSaveAs_NewFilePath(string appName, string screenName)
+    {
+        // Arrange
+        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+        var tempFileTwo = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+        using (var msappArchive = MsappArchiveFactory.Create(tempFile))
+        {
+            msappArchive.App.Should().BeNull();
+
+            // Act
+            var app = ControlFactory.CreateApp(appName);
+            app.Screens.Add(ControlFactory.CreateScreen(screenName));
+            msappArchive.App = app;
+
+            msappArchive.SaveAs(tempFileTwo);
+        }
+
+        // Assert
+        File.Exists(tempFile).Should().BeFalse();
+        using var msappValidation = MsappArchiveFactory.Open(tempFileTwo);
+        msappValidation.App.Should().NotBeNull();
+        msappValidation.App!.Screens.Count.Should().Be(1);
+        msappValidation.App.Screens.Single().Name.Should().Be(screenName);
+        msappValidation.App.Name.Should().Be(appName);
+        msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
+    }
 }
