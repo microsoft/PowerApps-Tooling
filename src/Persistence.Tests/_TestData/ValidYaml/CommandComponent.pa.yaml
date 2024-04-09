@@ -1,5 +1,7 @@
 Control: CommandComponent
 Name: MyCustomCommandComponent
+Description: lorem ipsum
+AccessAppScope: true
 Properties:
   Fill: =RGBA(152, 208, 70, 1)
   Height: =150

@@ -358,4 +358,22 @@ public class ValidSerializerTests : TestBase
         var expectedYaml = File.ReadAllText(GetTestFilePath(expectedYamlFile, isControlIdentifiers)).NormalizeNewlines();
         serializedComponent.Should().Be(expectedYaml);
     }
+
+    [TestMethod]
+    [DataRow("lorem ipsum dolor", false, "Control: Component\nName: Component1\nDescription: lorem ipsum dolor\n")]
+    [DataRow("lorem ipsum dolor", true, "Control: Component\nName: Component1\nDescription: lorem ipsum dolor\nAccessAppScope: true\n")]
+    [DataRow("", true, "Control: Component\nName: Component1\nAccessAppScope: true\n")]
+    public void Serialize_ShouldCreateValidYamlForComponent(string description, bool accessAppScope, string expectedYaml)
+    {
+        var component = (Component)ControlFactory.Create("Component1", "Component");
+        component.Should().NotBeNull();
+        component.Description = description;
+        component.AccessAppScope = accessAppScope;
+
+        var sut = CreateSerializer();
+
+        var serializedComponent = sut.SerializeControl(component).NormalizeNewlines();
+
+        serializedComponent.Should().Be(expectedYaml);
+    }
 }

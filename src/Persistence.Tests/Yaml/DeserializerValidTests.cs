@@ -349,15 +349,17 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", true, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
-    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", false, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component")]
-    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", true, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
-    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", false, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
+    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", true, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component", "lorem ipsum", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", false, "MyCustomComponent", "Component", "http://microsoft.com/appmagic/Component", "lorem ipsum", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", true, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/CommandComponent.pa.yaml", false, "MyCustomCommandComponent", "CommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
     public void Deserialize_Component_ShouldSucceed(
         string path, bool isControlIdentifiers,
         string expectedName,
         string expectedTemplateName,
-        string expectedTemplateId)
+        string expectedTemplateId,
+        string expectedDescription,
+        bool expectedAccessAppScope)
     {
         // Arrange
         var deserializer = CreateDeserializer(isControlIdentifiers);
@@ -369,6 +371,8 @@ public class DeserializerValidTests : TestBase
 
         // Assert
         component.Name.Should().Be(expectedName);
+        component.Description.Should().Be(expectedDescription);
+        component.AccessAppScope.Should().Be(expectedAccessAppScope);
         component.Template.Should().NotBeNull();
         component.Template!.Name.Should().Be(expectedTemplateName);
         component.Template.Id.Should().Be(expectedTemplateId);
