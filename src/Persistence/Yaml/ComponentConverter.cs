@@ -40,7 +40,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
             ValueSerializer!.SerializeValue(emitter, component.Description, typeof(string));
         }
 
-        if(component.AccessAppScope)
+        if (component.AccessAppScope)
         {
             emitter.Emit(new Scalar(nameof(Component.AccessAppScope)));
             ValueSerializer!.SerializeValue(emitter, component.AccessAppScope, typeof(bool));
