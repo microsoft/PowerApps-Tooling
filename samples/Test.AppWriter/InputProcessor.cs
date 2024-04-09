@@ -15,8 +15,12 @@ internal class InputProcessor
     {
         error = string.Empty;
 
-        var attr = File.GetAttributes(filePath);
-        if (!File.Exists(filePath) || attr.HasFlag(FileAttributes.Directory))
+        var dirCheck = false;
+        if (isFolder)
+        {
+            dirCheck &= File.GetAttributes(filePath).HasFlag(FileAttributes.Directory);
+        }
+        if (!File.Exists(filePath) || dirCheck)
             return true;
 
         Console.WriteLine($"Warning: File '{filePath}' already exists");
@@ -52,6 +56,7 @@ internal class InputProcessor
         try
         {
             creator.CreateMSApp(interactive, fullPathToMsApp, numScreens, controlsinfo);
+
         }
         catch (Exception ex)
         {
@@ -70,7 +75,12 @@ internal class InputProcessor
 
         if (msapp != null)
         {
-            msapp.Save();
+            var msapp = validator.GetAppFromFile(file.FullName);
+
+            if (msapp != null)
+            {
+                msapp.SaveAs(outPath + '\\' + file.Name);
+            }
         }
     }
 

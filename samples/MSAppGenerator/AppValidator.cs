@@ -38,7 +38,7 @@ public class AppValidator
     {
         try
         {
-            using var msapp = _serviceProvider.GetRequiredService<IMsappArchiveFactory>().Open(filePath);
+            var msapp = _serviceProvider.GetRequiredService<IMsappArchiveFactory>().Open(filePath);
             if (!string.IsNullOrEmpty(msapp.App.Name) && msapp.App.Screens.Count >= 1)
             {
                 return msapp;
