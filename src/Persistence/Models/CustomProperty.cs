@@ -19,8 +19,6 @@ public record CustomProperty
 
     public string DataType { get; init; } = "String";
 
-    public PropertyCategory Category { get; init; } = PropertyCategory.Data;
-
     public bool IsResettable { get; init; }
 
     public string? DisplayName { get; init; }
