@@ -19,6 +19,14 @@ public record CustomProperty
 
     public string DataType { get; init; } = "String";
 
+    [YamlIgnore]
+    public PropertyCategory Category => Type switch
+    {
+        PropertyType.Action => PropertyCategory.Behavior,
+        PropertyType.Event => PropertyCategory.Behavior,
+        _ => PropertyCategory.Data
+    };
+
     public bool IsResettable { get; init; }
 
     public string? DisplayName { get; init; }
