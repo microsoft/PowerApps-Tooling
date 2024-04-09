@@ -24,7 +24,9 @@ public record CustomProperty
     {
         PropertyType.Action => PropertyCategory.Behavior,
         PropertyType.Event => PropertyCategory.Behavior,
-        _ => PropertyCategory.Data
+        PropertyType.Data => PropertyCategory.Data,
+        PropertyType.Function => PropertyCategory.Data,
+        _ => throw new InvalidOperationException($"Invalid property type: {Type}")
     };
 
     public bool IsResettable { get; init; }
