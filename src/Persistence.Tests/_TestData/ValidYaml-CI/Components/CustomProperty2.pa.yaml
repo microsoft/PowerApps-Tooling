@@ -5,7 +5,6 @@ Component1:
       Direction: Input
       PropertyType: Function
       DataType: String
-      Category: Data
       IsResettable: false
       Default: lorem
       Parameters:

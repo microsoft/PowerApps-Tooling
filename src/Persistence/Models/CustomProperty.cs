@@ -19,7 +19,15 @@ public record CustomProperty
 
     public string DataType { get; init; } = "String";
 
-    public PropertyCategory Category { get; init; } = PropertyCategory.Data;
+    [YamlIgnore]
+    public PropertyCategory Category => Type switch
+    {
+        PropertyType.Action => PropertyCategory.Behavior,
+        PropertyType.Event => PropertyCategory.Behavior,
+        PropertyType.Data => PropertyCategory.Data,
+        PropertyType.Function => PropertyCategory.Data,
+        _ => throw new InvalidOperationException($"Invalid property type: {Type}")
+    };
 
     public bool IsResettable { get; init; }
 
