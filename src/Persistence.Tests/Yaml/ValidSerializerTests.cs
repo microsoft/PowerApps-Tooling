@@ -367,7 +367,7 @@ public class ValidSerializerTests : TestBase
     {
         var component = ControlFactory.Create("Component1", "Component") as Component;
         component.Should().NotBeNull();
-        component.Description = description;
+        component!.Description = description;
         component.AccessAppScope = accessAppScope;
 
         var sut = CreateSerializer();
