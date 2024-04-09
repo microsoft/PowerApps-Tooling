@@ -365,9 +365,9 @@ public class ValidSerializerTests : TestBase
     [DataRow("", true, "Control: Component\nName: Component1\nAccessAppScope: true\n")]
     public void Serialize_ShouldCreateValidYamlForComponent(string description, bool accessAppScope, string expectedYaml)
     {
-        var component = ControlFactory.Create("Component1", "Component") as Component;
+        var component = (Component)ControlFactory.Create("Component1", "Component");
         component.Should().NotBeNull();
-        component!.Description = description;
+        component.Description = description;
         component.AccessAppScope = accessAppScope;
 
         var sut = CreateSerializer();
