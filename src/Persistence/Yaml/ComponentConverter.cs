@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
@@ -36,8 +37,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
 
         if (!string.IsNullOrWhiteSpace(component.Description))
         {
-            emitter.Emit(new Scalar(nameof(Component.Description)));
-            ValueSerializer!.SerializeValue(emitter, component.Description, typeof(string));
+            emitter.Emit(nameof(Component.Description), component.Description);
         }
 
         if (component.AccessAppScope)
