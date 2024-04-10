@@ -42,20 +42,6 @@ public record Component : Control, IConvertible
     [YamlMember(Order = 100)]
     public CustomPropertiesCollection CustomProperties { get; set; } = new();
 
-    [OnDeserialized]
-    internal override void AfterDeserialize()
-    {
-        base.AfterDeserialize();
-
-        if (CustomProperties != null)
-        {
-            foreach (var kv in CustomProperties)
-            {
-                kv.Value.Name = kv.Key;
-            }
-        }
-    }
-
     internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
         if (controlDefinition.TryGetValue<CustomPropertiesCollection>(nameof(CustomProperties), out var customProperties))

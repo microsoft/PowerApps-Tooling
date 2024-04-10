@@ -36,6 +36,15 @@ public class CustomPropertiesCollectionConverter : IYamlTypeConverter
             var value = ValueDeserializer!.DeserializeValue(parser, typeof(CustomProperty), null!, ValueDeserializer) as CustomProperty;
             if (value == null)
                 throw new YamlException(parser.Current!.Start, parser.Current.End, $"Expected custom property '{key.Value}' value");
+
+            if (value.Parameters != null)
+            {
+                foreach (var paramKv in value.Parameters)
+                {
+                    paramKv.Value.Name = paramKv.Key;
+                }
+            }
+
             value.Name = key.Value;
             collection.Add(key.Value, value);
         }

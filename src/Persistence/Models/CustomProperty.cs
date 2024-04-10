@@ -52,16 +52,4 @@ public record CustomProperty
         Function,
         Action
     }
-
-    [OnDeserialized]
-    internal void AfterDeserialize()
-    {
-        if (Parameters != null)
-        {
-            foreach (var kv in Parameters)
-            {
-                kv.Value.Name = kv.Key;
-            }
-        }
-    }
 }
