@@ -1,22 +1,21 @@
-- GroupContainer: 
+- Control: GroupContainer
   Name: Group1
   Children:
   - Control: Text
     Name: Label1
   - Text:
     Name: Label2
-- GroupContainer: 
+- Control: GroupContainer
   Name: Group2
   Children:
   - Control: Text
     Name: Label1
   - Text:
     Name: Label2
-- GroupContainer: 
+- Control: GroupContainer
   Name: Group3
   Children:
   - Control: Text
     Name: Label1
   - Text:
     Name: Label2
-

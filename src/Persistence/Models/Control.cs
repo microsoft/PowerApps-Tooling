@@ -94,8 +94,6 @@ public abstract record Control
     [OnDeserialized]
     internal virtual void AfterDeserialize()
     {
-        // Is this dead code now? Looks like it's not being hit anymore after the schema changes?
-
         // Apply a descending ZIndex value for each child
         if (Children == null)
             return;
@@ -126,7 +124,6 @@ public abstract record Control
     [OnSerializing]
     internal void BeforeSerialize()
     {
-        // Is this dead code now? Looks like it's not being hit anymore after the schema changes?
         HideNestedTemplates();
 
         Comparison<Control> zIndexComparison = (Control c1, Control c2) => c2.ZIndex.CompareTo(c1.ZIndex);

@@ -101,7 +101,7 @@ public class ZIndexOrderingTests : TestBase
             result[i].Children.Should().NotBeNull();
             for (var j = 0; j < result[i].Children!.Count; j++)
             {
-                result[i].Children![j].Name.Should().Be($"Label{result[i].Children!.Count - j}");
+                result[i].Children![j].Name.Should().Be($"Label{j + 1}");
                 result[i].Children![j].ZIndex.Should().Be(j + 1);
             }
         }
