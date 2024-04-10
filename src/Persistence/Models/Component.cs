@@ -7,7 +7,6 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -41,20 +40,6 @@ public record Component : Control, IConvertible
 
     [YamlMember(Order = 100)]
     public CustomPropertiesCollection CustomProperties { get; set; } = new();
-
-    [OnDeserialized]
-    internal override void AfterDeserialize()
-    {
-        base.AfterDeserialize();
-
-        if (CustomProperties != null)
-        {
-            foreach (var kv in CustomProperties)
-            {
-                kv.Value.Name = kv.Key;
-            }
-        }
-    }
 
     internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
     {

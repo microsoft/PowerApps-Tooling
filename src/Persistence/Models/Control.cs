@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -91,55 +88,8 @@ public abstract record Control
     }
 
 
-    [OnDeserialized]
-    internal virtual void AfterDeserialize()
-    {
-        // Apply a descending ZIndex value for each child
-        if (Children == null)
-            return;
-
-        if (this is App)
-            return; // Apps do not place ZIndex on their Host child
-
-
-        var zindexCalc = (int i) => Children.Count - i;
-        // For group containers, ZIndex is the actual order of what is shown in the tree view, not descending.
-        // Handle that here to ensure we match what is expected
-        if (Template.Name == BuiltInTemplates.GroupContainer)
-        {
-            zindexCalc = (int i) => i + 1;
-        }
-
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var zIndex = zindexCalc(i);
-            Children[i].Properties[PropertyNames.ZIndex] = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
-        }
-    }
-
     internal virtual void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
-    }
-
-    [OnSerializing]
-    internal void BeforeSerialize()
-    {
-        HideNestedTemplates();
-
-        Comparison<Control> zIndexComparison = (Control c1, Control c2) => c2.ZIndex.CompareTo(c1.ZIndex);
-
-        // For group containers, ZIndex is the reverse order of what is shown in the tree view
-        // Handle that here to ensure we match what is expected
-        if (Template.Name == BuiltInTemplates.GroupContainer)
-        {
-            zIndexComparison = (Control c1, Control c2) => c1.ZIndex.CompareTo(c2.ZIndex);
-        }
-
-
-        if (_children != null)
-            _children.Sort(zIndexComparison);
-
-        Properties.Remove(PropertyNames.ZIndex);
     }
 
     /// <summary>

@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -51,17 +50,5 @@ public record CustomProperty
         Event,
         Function,
         Action
-    }
-
-    [OnDeserialized]
-    internal void AfterDeserialize()
-    {
-        if (Parameters != null)
-        {
-            foreach (var kv in Parameters)
-            {
-                kv.Value.Name = kv.Key;
-            }
-        }
     }
 }
