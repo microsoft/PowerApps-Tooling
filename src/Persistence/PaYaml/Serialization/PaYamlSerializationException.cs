@@ -2,20 +2,20 @@
 // Licensed under the MIT License.
 
 using System.Runtime.Serialization;
-using YamlDotNet.Core;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 [Serializable]
 internal class PaYamlSerializationException : Exception
 {
-    public PaYamlSerializationException(string message, Mark eventStart)
-        : this(message, eventStart, null)
+    public PaYamlSerializationException(string reason, PaYamlLocation? eventStart)
+        : this(reason, eventStart, null)
     {
     }
 
-    public PaYamlSerializationException(string message, Mark eventStart, Exception? innerException)
-        : base(message, innerException)
+    public PaYamlSerializationException(string reason, PaYamlLocation? eventStart, Exception? innerException)
+        : base(reason, innerException)
     {
         EventStart = eventStart;
     }
@@ -23,7 +23,12 @@ internal class PaYamlSerializationException : Exception
     protected PaYamlSerializationException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
+        EventStart = (PaYamlLocation?)info.GetValue(nameof(EventStart), typeof(PaYamlLocation));
     }
 
-    public Mark EventStart { get; }
+    public override string Message => EventStart == null ? Reason : $"{Reason} (Line: {EventStart.Line}, Col: {EventStart.Column})";
+
+    public string Reason => base.Message; // we get the storage of a string for free
+
+    public PaYamlLocation? EventStart { get; }
 }

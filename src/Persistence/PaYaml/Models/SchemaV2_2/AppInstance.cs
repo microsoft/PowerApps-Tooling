@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2
 
 public record AppInstance
 {
-    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
+    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
 
     public AppInstanceChildren? Children { get; init; }
 }
@@ -23,5 +23,5 @@ public record AppInstanceChildren
 
 public record HostControlInstance
 {
-    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
+    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
 }

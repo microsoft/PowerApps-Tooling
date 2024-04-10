@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.Text;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
@@ -12,6 +13,7 @@ public static class PaYamlSerializer
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
     #region Serialize
+    // TODO: Create transformer for serialization only first, then do a separate PR for deserialization.
 
     /// <summary>
     /// Converts the value of a type specified by a generic type parameter into a YAML string.
@@ -34,10 +36,8 @@ public static class PaYamlSerializer
     {
         _ = utf8Stream ?? throw new ArgumentNullException(nameof(utf8Stream));
 
-        using (var writer = new StreamWriter(utf8Stream, Utf8NoBom))
-        {
-            WriteTextWriter(writer, value, options);
-        }
+        using var writer = new StreamWriter(utf8Stream, Utf8NoBom);
+        WriteTextWriter(writer, value, options);
     }
 
     private static void WriteTextWriter<TValue>(TextWriter writer, in TValue? value, PaYamlSerializerOptions? options)
@@ -48,13 +48,20 @@ public static class PaYamlSerializer
         var targetType = typeof(TValue);
 
         // Configure the YamlDotNet serializer
-        var serializationContext = new SerializationContext();
+        using var serializationContext = new PaSerializationContext();
         var builder = new SerializerBuilder();
         options.ApplyToSerializerBuilder(builder, serializationContext);
         serializationContext.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
-        serializer.Serialize(writer, value, targetType);
+        try
+        {
+            serializer.Serialize(writer, value, targetType);
+        }
+        catch (YamlException ex)
+        {
+            throw new PaYamlSerializationException(ex.Message, ex.Start.ToYamlLocation(), ex);
+        }
     }
     #endregion
 
@@ -72,10 +79,8 @@ public static class PaYamlSerializer
     {
         _ = yaml ?? throw new ArgumentNullException(nameof(yaml));
 
-        using (var reader = new StringReader(yaml))
-        {
-            return ReadFromReader<TValue>(reader, options);
-        }
+        using var reader = new StringReader(yaml);
+        return ReadFromReader<TValue>(reader, options);
     }
 
     public static TValue? Deserialize<TValue>(Stream utf8Stream, PaYamlSerializerOptions? options = null)
@@ -83,10 +88,8 @@ public static class PaYamlSerializer
     {
         _ = utf8Stream ?? throw new ArgumentNullException(nameof(utf8Stream));
 
-        using (var reader = new StreamReader(utf8Stream, detectEncodingFromByteOrderMarks: true))
-        {
-            return ReadFromReader<TValue>(reader, options);
-        }
+        using var reader = new StreamReader(utf8Stream, detectEncodingFromByteOrderMarks: true);
+        return ReadFromReader<TValue>(reader, options);
     }
 
     private static TValue? ReadFromReader<TValue>(TextReader reader, PaYamlSerializerOptions? options)
@@ -97,13 +100,29 @@ public static class PaYamlSerializer
         options ??= PaYamlSerializerOptions.Default;
 
         // Configure the YamlDotNet serializer
-        var serializationContext = new SerializationContext();
+        using var serializationContext = new PaSerializationContext();
         var builder = new DeserializerBuilder();
         options.ApplyToDeserializerBuilder(builder, serializationContext);
         serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
         var serializer = builder.Build();
 
-        return serializer.Deserialize<TValue>(reader);
+        try
+        {
+            var value = serializer.Deserialize<TValue>(reader);
+
+            // Must call OnDeserialization to invoke any post-deserialization callbacks on the deserialized object tree.
+            serializationContext.OnDeserialization();
+
+            return value;
+        }
+        catch (YamlException ex)
+        {
+            throw new PaYamlSerializationException(ex.Message, ex.Start.ToYamlLocation(), ex);
+        }
+
+        // TODO: Consider using FluentValidation nuget package to validate the deserialized object
+        // See: fluentvalidation.net
+        // See: https://www.youtube.com/watch?v=jblRYDMTtvg
     }
     #endregion
 }

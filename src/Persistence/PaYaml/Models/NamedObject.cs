@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using YamlDotNet.Core;
-
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
 /// <summary>
@@ -22,5 +20,5 @@ public record NamedObject<TName, TValue>(TName Name, TValue Value) : INamedObjec
     where TName : notnull
     where TValue : notnull
 {
-    public Mark? Start { get; init; }
+    public PaYamlLocation? Start { get; init; }
 }
