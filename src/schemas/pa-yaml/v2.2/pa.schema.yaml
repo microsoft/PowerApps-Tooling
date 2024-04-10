@@ -237,6 +237,7 @@ definitions:
           properties:
             PropertyKind: { const: "InputFunction" }
         then:
+          required: [ReturnType]
           additionalProperties: false
           properties:
             PropertyKind: true
@@ -252,6 +253,7 @@ definitions:
           properties:
             PropertyKind: { const: "OutputFunction" }
         then:
+          required: [ReturnType]
           additionalProperties: false
           properties:
             PropertyKind: true
@@ -263,6 +265,7 @@ definitions:
           properties:
             PropertyKind: { const: "Event" }
         then:
+          required: [ReturnType]
           additionalProperties: false
           properties:
             PropertyKind: true
@@ -274,6 +277,7 @@ definitions:
           properties:
             PropertyKind: { const: "Action" }
         then:
+          required: [ReturnType]
           additionalProperties: false
           properties:
             PropertyKind: true
@@ -336,33 +340,11 @@ definitions:
       additionalProperties:
         type: object
         required: [DataType]
+        additionalProperties: false
         properties:
           Description: { type: string }
           IsRequired: { type: boolean }
           DataType: { $ref: "#/definitions/pfx-data-type" }
-        allOf:
-          - if:
-              required: [IsRequired]
-              properties:
-                IsRequired: { const: true }
-            then:
-              additionalProperties: false
-              properties:
-                Name: true
-                IsRequired: true
-                DataType: true
-                Description: true
-            else:
-              additionalProperties: false
-              properties:
-                Name: true
-                IsRequired: true
-                DataType: true
-                Description: true
-                Default:
-                  description: The default formula to use for this property when an instance does not explicitly set it.
-                  allOf:
-                    - $ref: "#/definitions/pfx-formula"
 
   pfx-function-parameter-name:
     description: The name of a Power Fx function parameter.

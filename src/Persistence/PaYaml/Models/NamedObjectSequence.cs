@@ -17,7 +17,17 @@ public class NamedObjectSequence<TValue> : NamedObjectSequenceBase<string, TValu
     }
 
     public NamedObjectSequence(IEqualityComparer<string>? comparer)
-        : base(comparer ?? DefaultComparer)
+        : base(null, comparer ?? DefaultComparer)
+    {
+    }
+
+    public NamedObjectSequence(IEnumerable<NamedObject<TValue>>? values)
+        : this(values, DefaultComparer)
+    {
+    }
+
+    public NamedObjectSequence(IEnumerable<NamedObject<TValue>>? values, IEqualityComparer<string>? comparer)
+        : base(values, comparer ?? DefaultComparer)
     {
     }
 

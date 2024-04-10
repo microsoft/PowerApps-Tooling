@@ -1,5 +1,7 @@
 ComponentDefinitions:
   MyHeaderComponent:
+    Description: A header component for all screens in this app.
+    AccessAppScope: true # set to true, to override the default
     CustomProperties:
       AppTitle:
         PropertyKind: Input
@@ -73,10 +75,8 @@ ComponentDefinitions:
               IsRequired: true
           - parameter3:
               DataType: Text
-              Default: ="Hello world!"
           - param4:
               DataType: Number
-              Default: =false
 
     Properties:
       Fill: =RGBA(141, 198, 63, 1)

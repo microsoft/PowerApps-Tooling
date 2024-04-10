@@ -8,18 +8,18 @@ using YamlDotNet.Serialization;
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
-public class NamedObjectSequenceSerializationTests : TestBase
+public class NamedObjectSequenceSerializationTests : SerializationTestBase
 {
-    private readonly IDeserializer _deserializer;
-
-    public NamedObjectSequenceSerializationTests()
+    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
     {
-        var serializationContext = new SerializationContext();
-        var builder = new DeserializerBuilder()
-            .WithTypeConverter(new NamedObjectYamlConverter<string>(serializationContext))
-            ;
-        serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
-        _deserializer = builder.Build();
+        base.ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(serializationContext));
+    }
+
+    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    {
+        base.ConfigureYamlDotNetSerializer(builder, options, serializationContext);
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(serializationContext));
     }
 
     [TestMethod]
@@ -43,7 +43,7 @@ public class NamedObjectSequenceSerializationTests : TestBase
 
     private void VerifyDeserialize<TValue>(string yaml, int? expectedCount, string[]? expectedNames = null) where TValue : notnull
     {
-        var testObject = _deserializer.Deserialize<TestOM<TValue>>(yaml);
+        var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         if (expectedCount is null)
         {
@@ -56,8 +56,7 @@ public class NamedObjectSequenceSerializationTests : TestBase
 
             if (expectedNames is not null)
             {
-                // TODO: Add extension method for ContainNames
-                // testObject.TheSequence.Should().ContainNames(expectedNames);
+                testObject.TheSequence.Should().ContainNames(expectedNames);
             }
         }
     }
@@ -65,8 +64,6 @@ public class NamedObjectSequenceSerializationTests : TestBase
     [TestMethod]
     public void ReadYamlMappingSetsNamedObjectStart()
     {
-
-        // 
         var yaml = @"TheSequence:
   - n1: v1
   # comment line
@@ -75,7 +72,7 @@ public class NamedObjectSequenceSerializationTests : TestBase
   -
    n2: v2
 ";
-        var testObject = _deserializer.Deserialize<TestOM<string>>(yaml);
+        var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         testObject.TheSequence.ShouldNotBeNull();
         testObject.TheSequence.Names.Should().Equal(new[] { "n1", "n3", "n2" }, "ordering of a sequence is by code order");
@@ -88,6 +85,15 @@ public class NamedObjectSequenceSerializationTests : TestBase
         testObject.TheSequence.GetNamedObject("n3").Should()
             .HaveValueEqual("v3")
             .And.HaveStartEqual(4, 5);
+    }
+
+    [TestMethod]
+    public void SerializeAsPropertyBeingNullOrEmpty()
+    {
+        SerializeViaYamlDotNet(new TestOM<string> { TheSequence = null })
+            .Should().Be("{}" + DefaultOptions.NewLine);
+        SerializeViaYamlDotNet(new TestOM<string> { TheSequence = new() })
+            .Should().Be("{}" + DefaultOptions.NewLine);
     }
 
     public record TestOM<TValue>

@@ -3,6 +3,8 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
+// TODO: Make this a base exception for all persistence exceptions and remove custom properties.
+// TODO: Move location context properties to a derived exception class. e.g. PersistenceSerializationException
 public class PersistenceException : Exception
 {
     public required string FileName { get; init; }

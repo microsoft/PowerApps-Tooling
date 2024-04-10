@@ -22,11 +22,11 @@ public class ComponentDefinition
 
     public bool AccessAppScope { get; init; }
 
-    public NamedObjectMapping<ComponentCustomPropertyUnion>? CustomProperties { get; init; }
+    public NamedObjectMapping<ComponentCustomPropertyUnion> CustomProperties { get; init; } = new();
 
-    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
+    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
 
-    public NamedObjectSequence<ControlInstance>? Children { get; init; }
+    public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
 }
 
 public abstract class ComponentCustomPropertyBase
@@ -50,7 +50,7 @@ public class ComponentCustomPropertyUnion : ComponentCustomPropertyBase
 
     public PFxExpressionYaml? Default { get; init; }
 
-    public string? ReturnType { get; init; }
+    public PFxFunctionReturnType? ReturnType { get; init; }
 
-    public NamedObjectSequence<PFxFunctionParameter>? Parameters { get; init; }
+    public NamedObjectSequence<PFxFunctionParameter> Parameters { get; init; } = new();
 }
