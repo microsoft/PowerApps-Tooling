@@ -62,4 +62,29 @@ public record ControlTemplate
     public ControlPropertiesCollection InputProperties { get; init; } = new();
 
     public IList<ControlTemplate>? NestedTemplates { get; init; }
+
+    public CustomComponentInfo? ComponentInfo { get; init; }
+
+    [MemberNotNullWhen(true, nameof(ComponentInfo))]
+    public bool IsCustomComponent => ComponentInfo != null;
+
+    public bool IsPcfControlTemplate { get; init; }
+
+    public class CustomComponentInfo
+    {
+        /// <summary>
+        /// The unique id (a form of guid) of the component as serialized in the app.
+        /// </summary>
+        public required string UniqueId { get; init; }
+
+        /// <summary>
+        /// The friendly identifier of the component.
+        /// </summary>
+        public required string Name { get; init; }
+
+        /// <summary>
+        /// The unique name of the component library if this component originates from a component library.
+        /// </summary>
+        public string? ComponentLibraryUniqueName { get; init; }
+    }
 }
