@@ -35,10 +35,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
         var component = ((Component)value).BeforeSerialize<Component>();
         WriteYamlInternal(emitter, component, type);
 
-        if (!string.IsNullOrWhiteSpace(component.Description))
-        {
-            emitter.Emit(nameof(Component.Description), component.Description);
-        }
+        emitter.Emit(nameof(Component.Description), component.Description);
 
         if (component.AccessAppScope)
         {

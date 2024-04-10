@@ -1,0 +1,25 @@
+Screen1:
+  Control: Screen
+  Properties:
+    Text: ="I am a screen"
+  Children:
+  - Label5:
+      Control: Text
+      Properties:
+        ZIndex: 0
+  - Label4:
+      Control: Text
+      Properties:
+        ZIndex: 1
+  - Label3:
+      Control: Text
+      Properties:
+        ZIndex: 2
+  - Label2:
+      Control: Text
+      Properties:
+        ZIndex: 3
+  - Label1:
+      Control: Text
+      Properties:
+        ZIndex: 4
