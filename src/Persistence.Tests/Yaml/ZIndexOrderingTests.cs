@@ -148,6 +148,28 @@ public class ZIndexOrderingTests : TestBase
         sut.Should().BeEquivalentTo(expected);
     }
 
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Host_should_have_no_ZIndex(bool isControlIdentifiers)
+    {
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+
+        using var yamlStream = File.OpenRead(GetTestFilePath(@"_TestData/ValidYaml{0}/App.pa.yaml", isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        var result = deserializer.Deserialize<Control>(yamlReader);
+        if (result.Children == null)
+        {
+            Assert.Fail("Children should not be null");
+            return;
+        }
+        result.Children.Should().HaveCount(1);
+        var host = result.Children[0];
+        host.Name.Should().Be("Host");
+        host.Properties.Should().NotContainKey(PropertyNames.ZIndex);
+    }
+
     private Control MakeLabelWithZIndex(int i)
     {
         return ControlFactory.Create($"Label{i}", template: "text",
