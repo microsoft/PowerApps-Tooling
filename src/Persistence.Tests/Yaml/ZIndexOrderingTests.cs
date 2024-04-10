@@ -85,6 +85,30 @@ public class ZIndexOrderingTests : TestBase
     [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
+    public void Deserialize_List_Should_Ignore_ZIndex(bool isControlIdentifiers)
+    {
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+
+        using var yamlStream = File.OpenRead(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/with-existing-zindex.pa.yaml", isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        var result = deserializer.Deserialize<Screen>(yamlReader);
+        if (result.Children == null)
+        {
+            Assert.Fail("Children should not be null");
+            return;
+        }
+        result.Children.Should().HaveCount(5);
+        for (var i = 0; i < result.Children.Count; i++)
+        {
+            result.Children[i].Name.Should().Be($"Label{result.Children.Count - i}");
+            result.Children[i].ZIndex.Should().Be(result.Children.Count - i);
+        }
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void Seralizes_List_Should_Be_Without_ZIndex(bool isControlIdentifiers)
     {
         var graph = new List<Control>

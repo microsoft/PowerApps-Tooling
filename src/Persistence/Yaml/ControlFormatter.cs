@@ -69,6 +69,7 @@ public static class ControlFormatter
             // Controls are sorted in descending Z-Index order
             var zIndex = originalChildCount - orderedIndex;
             var zIndexProp = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
+            control.Properties.Remove(PropertyNames.ZIndex);
 
             var newProperties = new ControlPropertiesCollection(
                 control.Properties.Append(KeyValuePair.Create(PropertyNames.ZIndex, zIndexProp)));
