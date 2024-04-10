@@ -1,0 +1,22 @@
+- Group1:
+    Control: GroupContainer
+    Children:
+    - Label1: 
+        Control: Text
+    - Label2:
+        Control: Text
+- Group2: 
+    Control: GroupContainer
+    Children:
+    - Label1: 
+        Control: Text
+    - Label2:
+        Control: Text
+- Group3: 
+    Control: GroupContainer
+    Children:
+    - Label1: 
+        Control: Text
+    - Label2:
+        Control: Text
+
