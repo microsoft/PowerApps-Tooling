@@ -166,7 +166,7 @@ public class DeserializerValidTests : TestBase
                 .And.HaveCount(2)
                 .And.ContainKeys("Text", PropertyNames.ZIndex);
         group.Children![0].Properties["Text"].Value.Should().Be("\"lorem ipsum\"");
-        group.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
+        group.Children![0].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
 
         group.Children![1].Should().BeOfType<BuiltInControl>();
         group.Children![1].Name.Should().Be("Button1");
@@ -176,7 +176,7 @@ public class DeserializerValidTests : TestBase
                 .And.ContainKeys("Text", "X", "Y", PropertyNames.ZIndex);
         group.Children![1].Properties["Text"].Value.Should().Be("\"click me\"");
         group.Children![1].Properties["X"].Value.Should().Be("100");
-        group.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("1");
+        group.Children![1].Properties[PropertyNames.ZIndex].Value.Should().Be("2");
     }
 
     [TestMethod]

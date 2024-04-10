@@ -22,12 +22,17 @@ public static class ControlFormatter
         var childrenToRemove = (control.Children ?? Enumerable.Empty<Control>()).Where(c => c.Template.AddPropertiesToParent).ToList();
         var propertiesToMerge = childrenToRemove.SelectMany(c => c.Properties).ToList();
 
-        // Remove children to be merged, and sort by Z-Index
+        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer;
+
+        // Remove children to be merged
         var children = (control.Children ?? Enumerable.Empty<Control>())
-            .Except(childrenToRemove)
-            .OrderByDescending(c => c.ZIndex)
-            .Select(BeforeSerialize) // Recurse into child controls
-            .ToList();
+            .Except(childrenToRemove);
+
+        // Sort by Z-Index (Ascending if child of group container, descending otherwise)
+        children = (isGroupContainer ?
+                children.OrderBy(c => c.ZIndex) :
+                children.OrderByDescending(c => c.ZIndex))
+            .Select(BeforeSerialize); // Recurse into child controls
 
         // Remove the Z-index property and merge in any needed properties from nested data controls
         var properties = new ControlPropertiesCollection(
@@ -35,7 +40,7 @@ public static class ControlFormatter
                 .Where(kvp => kvp.Key != PropertyNames.ZIndex)
                 .Concat(propertiesToMerge));
 
-        return control with { Children = children, Properties = properties };
+        return control with { Children = children.ToList(), Properties = properties };
     }
 
     public static T AfterDeserialize<T>(this T control, IControlFactory controlFactory) where T : Control
@@ -51,6 +56,7 @@ public static class ControlFormatter
         // Create any children from nested templates
         var (childrenToAdd, propertiesToRemove) = RestoreNestedTemplates(control, controlFactory);
 
+        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer;
         var originalChildCount = control.Children.Count;
 
         var children = control.Children
@@ -66,8 +72,13 @@ public static class ControlFormatter
 
         Control addZIndex(Control control, int orderedIndex)
         {
-            // Controls are sorted in descending Z-Index order
+            // Controls are sorted in descending Z-Index order, except if they're a child of a group container, in which case it's ascending
             var zIndex = originalChildCount - orderedIndex;
+            if (isGroupContainer)
+            {
+                zIndex = orderedIndex + 1;
+            }
+
             var zIndexProp = new ControlProperty(PropertyNames.ZIndex, zIndex.ToString(CultureInfo.InvariantCulture));
             control.Properties.Remove(PropertyNames.ZIndex);
 

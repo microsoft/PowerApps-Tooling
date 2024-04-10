@@ -85,6 +85,31 @@ public class ZIndexOrderingTests : TestBase
     [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
+    public void Deserialize_Container_List_Should_Be_With_ZIndex_Inverse(bool isControlIdentifiers)
+    {
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+
+        using var yamlStream = File.OpenRead(GetTestFilePath(@"_TestData/ValidYaml{0}/ZIndexOrdering/With-list-of-container-controls-with-children.pa.yaml", isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        var result = deserializer.Deserialize<List<Control>>(yamlReader);
+
+        result.Should().HaveCount(3);
+        for (var i = 0; i < result.Count; i++)
+        {
+            result[i].Name.Should().Be($"Group{i + 1}");
+            result[i].Children.Should().NotBeNull();
+            for (var j = 0; j < result[i].Children!.Count; j++)
+            {
+                result[i].Children![j].Name.Should().Be($"Label{j + 1}");
+                result[i].Children![j].ZIndex.Should().Be(j + 1);
+            }
+        }
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void Deserialize_List_Should_Ignore_ZIndex(bool isControlIdentifiers)
     {
         var deserializer = CreateDeserializer(isControlIdentifiers);
