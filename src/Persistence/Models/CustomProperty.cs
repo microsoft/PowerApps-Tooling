@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Callbacks;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
