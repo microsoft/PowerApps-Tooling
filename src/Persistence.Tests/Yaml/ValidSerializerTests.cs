@@ -275,81 +275,17 @@ public class ValidSerializerTests : TestBase
         sut.Should().Be(expectedYaml);
     }
 
-
-    public static IEnumerable<object[]> Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data => new List<object[]>()
-    {
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyTextProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Data
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", false
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyTextProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Data
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", true
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyFuncProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Function,
-                Parameters = new[] {
-                    new CustomPropertyParameter(){
-                        Name = "param1",
-                        DataType= "String",
-                        IsRequired = true,
-                    }
-                },
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", false
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyFuncProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Function,
-                Parameters = new[] {
-                    new CustomPropertyParameter(){
-                        Name = "param1",
-                        DataType= "String",
-                        IsRequired = true,
-                    }
-                },
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", true
-        }
-    };
-
     [TestMethod]
-    [DynamicData(nameof(Serialize_ShouldCreateValidYamlForComponentCustomProperties_Data))]
-    public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty customProperty, string expectedYamlFile, bool isControlIdentifiers)
+    [DynamicData(nameof(ComponentCustomProperties_Data), typeof(TestBase))]
+    public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty[] customProperties, string expectedYamlFile, bool isControlIdentifiers)
     {
         var component = ControlFactory.Create("Component1", "Component") as Component;
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull();
-        component.CustomProperties.Add(customProperty.Name, customProperty);
+        foreach (var prop in customProperties)
+        {
+            component.CustomProperties.Add(prop);
+        }
 
         var sut = CreateSerializer(isControlIdentifiers);
 

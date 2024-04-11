@@ -14,20 +14,19 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 ///    Property1: Value1
 ///    Property2: Value2
 /// </summary>
-/// <typeparam name="T"></typeparam>
-internal class NamedObjectEmitter<T> : ChainedEventEmitter
-    where T : class
+internal class NamedObjectEmitter : ChainedEventEmitter
 {
-    private readonly Func<T, string?> _nodeNameProvider;
+    private Stack<bool> _isNamedObject = new Stack<bool>();
+    private bool _isName;
 
-    public NamedObjectEmitter(IEventEmitter nextEmitter, Func<T, string?> nodeNameProvider) : base(nextEmitter)
+    public NamedObjectEmitter(IEventEmitter nextEmitter) : base(nextEmitter)
     {
-        _nodeNameProvider = nodeNameProvider ?? throw new ArgumentNullException(nameof(nodeNameProvider));
     }
 
+    public required YamlSerializationOptions Options { get; set; }
+
     /// <summary>
-    /// generates a scalar event for the object's name, and then a mapping start event for the object's value.
-    /// if the object is not of type <typeparamref name="T"/> or the resolved name is null or empty, no custom events are emitted.
+    /// Skip name emission if the object is a named object.
     /// </summary>
     /// <param name="eventInfo"></param>
     /// <param name="emitter"></param>
@@ -35,17 +34,34 @@ internal class NamedObjectEmitter<T> : ChainedEventEmitter
     {
         nextEmitter.Emit(eventInfo, emitter);
 
-        if (eventInfo.Source.Value is not T value)
-            return;
+        var namedObject = eventInfo.Source.Value as INamedObject;
+        _isNamedObject.Push(namedObject != null);
+    }
 
-        var nodeName = _nodeNameProvider(value);
-        if (string.IsNullOrWhiteSpace(nodeName))
-            return;
+    public override void Emit(ScalarEventInfo eventInfo, IEmitter emitter)
+    {
+        if (_isNamedObject.Peek())
+        {
+            if (eventInfo.Source.Value != null && eventInfo.Source.Value.Equals(nameof(INamedObject.Name)))
+            {
+                _isName = true;
+                return;
+            }
 
-        var keySource = new ObjectDescriptor(nodeName, typeof(string), typeof(string));
-        nextEmitter.Emit(new ScalarEventInfo(keySource), emitter);
+            // Skip name emission if the object is a named object.
+            if (_isName)
+            {
+                _isName = false;
+                return;
+            }
+        }
+        nextEmitter.Emit(eventInfo, emitter);
+    }
 
-        var valueSource = new ObjectDescriptor(null, typeof(string), typeof(string));
-        nextEmitter.Emit(new ScalarEventInfo(valueSource), emitter);
+    public override void Emit(MappingEndEventInfo eventInfo, IEmitter emitter)
+    {
+        _isNamedObject.Pop();
+
+        nextEmitter.Emit(eventInfo, emitter);
     }
 }

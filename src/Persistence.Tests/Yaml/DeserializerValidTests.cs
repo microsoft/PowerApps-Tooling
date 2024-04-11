@@ -435,86 +435,22 @@ public class DeserializerValidTests : TestBase
         galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
     }
 
-    public static IEnumerable<object[]> Deserialize_ShouldParseYamlForComponentCustomProperties_Data => new List<object[]>()
-    {
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyTextProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Data
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", false
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyTextProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Data
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", true
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyFuncProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Function,
-                Parameters = new[] {
-                    new CustomPropertyParameter(){
-                        Name = "param1",
-                        DataType = "String",
-                        IsRequired = true,
-                    }
-                },
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", false
-        },
-        new object[]
-        {
-            new CustomProperty()
-            {
-                Name = "MyFuncProp1",
-                DataType = "String",
-                Default = "lorem",
-                Direction = CustomProperty.PropertyDirection.Input,
-                Type = CustomProperty.PropertyType.Function,
-                Parameters = new[] {
-                    new CustomPropertyParameter(){
-                        Name = "param1",
-                        DataType = "String",
-                        IsRequired = true,
-                    }
-                },
-            },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", true
-        }
-    };
-
     [TestMethod]
-    [DynamicData(nameof(Deserialize_ShouldParseYamlForComponentCustomProperties_Data))]
-    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty expectedCustomProperty, string yamlFile, bool isControlIdentifiers)
+    [DynamicData(nameof(ComponentCustomProperties_Data), typeof(TestBase))]
+    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty[] expectedCustomProperties, string yamlFile, bool isControlIdentifiers)
     {
         var expectedYaml = File.ReadAllText(GetTestFilePath(yamlFile, isControlIdentifiers));
         var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        var component = deserializer.Deserialize<Control>(expectedYaml) as Component;
+        var component = deserializer.Deserialize<Component>(expectedYaml);
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull()
-            .And.HaveCount(1)
-            .And.ContainKey(expectedCustomProperty.Name);
+            .And.HaveCount(expectedCustomProperties.Length);
 
-        component.CustomProperties[expectedCustomProperty.Name].Should().BeEquivalentTo(expectedCustomProperty);
+        for (var i = 0; i < expectedCustomProperties.Length; i++)
+        {
+            component.CustomProperties[i].Should().BeEquivalentTo(expectedCustomProperties[i]);
+        }
     }
 
     [TestMethod]

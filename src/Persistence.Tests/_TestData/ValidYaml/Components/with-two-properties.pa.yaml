@@ -7,3 +7,9 @@ CustomProperties:
   DataType: String
   IsResettable: false
   Default: lorem
+- Name: MyTextProp2
+  Direction: Input
+  PropertyType: Data
+  DataType: String
+  IsResettable: false
+  Default: lorem

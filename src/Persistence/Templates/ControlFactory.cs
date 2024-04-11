@@ -47,7 +47,9 @@ public class ControlFactory : IControlFactory
         if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
         {
             if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition, out var control))
+            {
                 return control;
+            }
 
             return new BuiltInControl(name, variant ?? string.Empty, controlTemplate)
             {
