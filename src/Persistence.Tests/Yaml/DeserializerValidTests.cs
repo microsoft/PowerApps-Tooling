@@ -367,7 +367,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var component = deserializer.Deserialize<Component>(yamlReader);
+        var component = deserializer.Deserialize<ComponentDefinition>(yamlReader);
 
         // Assert
         component.Name.Should().Be(expectedName);
@@ -442,7 +442,7 @@ public class DeserializerValidTests : TestBase
         var expectedYaml = File.ReadAllText(GetTestFilePath(yamlFile, isControlIdentifiers));
         var deserializer = CreateDeserializer(isControlIdentifiers);
 
-        var component = deserializer.Deserialize<Component>(expectedYaml);
+        var component = deserializer.Deserialize<ComponentDefinition>(expectedYaml);
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull()
             .And.HaveCount(expectedCustomProperties.Length);

@@ -61,7 +61,7 @@ public class ControlFactoryTests : TestBase
         var sut = new ControlFactory(ControlTemplateStore);
 
         var result = sut.Create("MyComponent1", componentType);
-        result.Should().NotBeNull().And.BeAssignableTo<Component>();
+        result.Should().NotBeNull().And.BeAssignableTo<ComponentDefinition>();
         result.Name.Should().Be("MyComponent1");
         result.Template.Should().NotBeNull();
         result.Template.Id.Should().Be(expectedTemplateId);

@@ -14,15 +14,15 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 /// </summary>
 [FirstClass(templateName: BuiltInTemplates.Component)]
 [YamlSerializable]
-public record Component : Control, IConvertible
+public record ComponentDefinition : Control, IConvertible
 {
-    protected Component() { }
+    protected ComponentDefinition() { }
 
     /// <summary>
     /// Default constructor.
     /// </summary>
     [SetsRequiredMembers]
-    public Component(string name, string variant, IControlTemplateStore controlTemplateStore)
+    public ComponentDefinition(string name, string variant, IControlTemplateStore controlTemplateStore)
     {
         Name = name;
         Variant = variant;
@@ -69,57 +69,57 @@ public record Component : Control, IConvertible
 
     public bool ToBoolean(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(bool)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(bool)}");
     }
 
     public byte ToByte(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(byte)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(byte)}");
     }
 
     public char ToChar(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(char)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(char)}");
     }
 
     public DateTime ToDateTime(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(DateTime)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(DateTime)}");
     }
 
     public decimal ToDecimal(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(decimal)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(decimal)}");
     }
 
     public double ToDouble(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(double)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(double)}");
     }
 
     public short ToInt16(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(short)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(short)}");
     }
 
     public int ToInt32(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(int)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(int)}");
     }
 
     public long ToInt64(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(long)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(long)}");
     }
 
     public sbyte ToSByte(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(sbyte)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(sbyte)}");
     }
 
     public float ToSingle(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(float)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(float)}");
     }
 
     public string ToString(IFormatProvider? provider)
@@ -129,22 +129,22 @@ public record Component : Control, IConvertible
 
     public object ToType(Type conversionType, IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {conversionType.Name}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {conversionType.Name}");
     }
 
     public ushort ToUInt16(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(ushort)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(ushort)}");
     }
 
     public uint ToUInt32(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(uint)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(uint)}");
     }
 
     public ulong ToUInt64(IFormatProvider? provider)
     {
-        throw new NotSupportedException($"Cannot covert {typeof(Component)} to {typeof(ulong)}");
+        throw new NotSupportedException($"Cannot covert {typeof(ComponentDefinition)} to {typeof(ulong)}");
     }
 
     #endregion

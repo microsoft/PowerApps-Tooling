@@ -10,10 +10,10 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 [FirstClass(templateName: BuiltInTemplates.CommandComponent)]
 [YamlSerializable]
-public record CommandComponent : Component
+public record CommandComponentDefinition : ComponentDefinition
 {
     [SetsRequiredMembers]
-    public CommandComponent(string name, string variant, IControlTemplateStore controlTemplateStore)
+    public CommandComponentDefinition(string name, string variant, IControlTemplateStore controlTemplateStore)
     {
         Name = name;
         Variant = variant;

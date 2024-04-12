@@ -64,7 +64,7 @@ internal class ControlConverter : IYamlTypeConverter
                 using var serializerState = new SerializerState();
                 value = ValueDeserializer!.DeserializeValue(parser, typeof(List<Control>), serializerState, ValueDeserializer);
             }
-            else if (key.Value == nameof(Component.CustomProperties))
+            else if (key.Value == nameof(ComponentDefinition.CustomProperties))
             {
                 using var serializerState = new SerializerState();
                 value = ValueDeserializer!.DeserializeValue(parser, typeof(List<CustomProperty>), serializerState, ValueDeserializer);
