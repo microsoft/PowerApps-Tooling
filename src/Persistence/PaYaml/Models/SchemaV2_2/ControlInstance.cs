@@ -13,6 +13,8 @@ public record ControlInstance
 
     public string? Variant { get; init; }
 
+    public string? Layout { get; init; }
+
     public string? ComponentName { get; init; }
 
     public string? ComponentLibraryUniqueName { get; init; }

@@ -110,6 +110,9 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
     [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
     [DataRow(@"_TestData/SchemaV2_2/Examples/Single-File-App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV2_2/FullSchemaUses/App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV2_2/FullSchemaUses/Screens-general-controls.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV2_2/FullSchemaUses/Screens-with-components.pa.yaml")]
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);

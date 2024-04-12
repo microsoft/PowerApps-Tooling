@@ -46,14 +46,17 @@ definitions:
     type: object
     propertyNames: { $ref: "#/definitions/Screen-name" }
     additionalProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        Properties: { $ref: "#/definitions/Properties-formula-map" }
-        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      $ref: "#/definitions/Screens-instance"
 
   Screen-name:
     $ref: "#/definitions/entity-name"
+
+  Screens-instance:
+    type: object
+    additionalProperties: false
+    properties:
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   Children-Control-instance-sequence:
     description: >-
@@ -77,6 +80,7 @@ definitions:
     properties:
       Control: { $ref: "#/definitions/Control-type-identifier" }
       Variant: { $ref: "#/definitions/Control-variant-name" }
+      Layout: { $ref: "#/definitions/Control-layout-name" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
     if:
@@ -85,21 +89,22 @@ definitions:
         Control: { $ref: "#/definitions/Control-type-component" }
     then:
       required: [ComponentName]
+      additionalProperties: false
       properties:
         Control: true
         ComponentLibraryUniqueName: { $ref: "#/definitions/ComponentLibrary-unique-name" }
         ComponentName: { $ref: "#/definitions/ComponentDefinition-name" }
         Properties: true
         # Note: Component instances do not support Variants or Children.
-      additionalProperties: false
     else:
       # Expected to be a built-in control library template
+      additionalProperties: false
       properties:
         Control: true
         Variant: true
+        Layout: true
         Properties: true
         Children: true
-      additionalProperties: false
 
   Control-type-identifier:
     description: The invariant type of control being instantiated.
@@ -132,6 +137,11 @@ definitions:
 
   Control-variant-name:
     description: The variant of a control template being instantiated.
+    allOf:
+      - $ref: "#/definitions/entity-name"
+
+  Control-layout-name:
+    description: The layout for a control which supports it.
     allOf:
       - $ref: "#/definitions/entity-name"
 

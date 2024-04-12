@@ -1,0 +1,58 @@
+Screens:
+  screenName2:
+    Properties:
+      Prop2: =screen1Prop2
+      Prop1: =screen1Prop1
+
+    Children:
+      - ctrlB:
+          Control: label
+          Variant: variantB
+          Layout: layoutB
+          Properties:
+            Prop2: =ctrlBProp2
+            Prop1: =ctrlBProp1
+
+      # Purposesly set out of name sorting order to ensure ordering is maintained
+      - ctrlA:
+          Control: label
+          Variant: variantA
+          Layout: layoutA
+          Properties:
+            Prop2: =ctrlAProp2
+            Prop1: =ctrlAProp1
+
+  screenName1:
+    Children:
+      - ctrlC:
+          Control: fooWithChildren
+          Variant: variantC
+          Layout: layoutC
+          Properties:
+            Prop2: =ctrlAProp2
+            Prop1: =ctrlAProp1
+          Children:
+            - ctrlC0:
+                Control: bar
+                Variant: variantC0
+                Layout: layoutC0
+                Properties:
+                  Prop2: =ctrlC0Prop2
+                  Prop1: =ctrlC0Prop1
+                Children:
+                  - ctrlC00:
+                      Control: car
+                      Variant: variantC00
+                      Layout: layoutC00
+            - ctrlC1:
+                Control: bar
+                Variant: variantC1
+                Layout: layoutC1
+                Properties:
+                  Prop2: =ctrlC1Prop2
+                  Prop1: =ctrlC1Prop1
+                Children:
+                  - ctrlC10:
+                      Control: dog
+                      Variant: variantC10
+                      Layout: layoutC10

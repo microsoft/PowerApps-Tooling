@@ -1,0 +1,10 @@
+App:
+  Properties:
+    Prop1: =formula1
+    Prop2: =formula2
+
+  Children:
+    Host:
+      Properties:
+        HostProp1: =HostFormula1
+        HostProp2: =HostFormula2
