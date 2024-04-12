@@ -1,0 +1,75 @@
+Component1:
+  Control: Component
+  Properties:
+    Fill: =RGBA(166, 215, 153, 1)
+    Height: =150
+    Width: =150
+  Children:
+  - ButtonCanvas1:
+      Control: PowerApps_CoreControls_ButtonCanvas
+      Properties:
+        X: =15
+        Y: =55
+  CustomProperties:
+  - inputFuncImage:
+      Direction: Input
+      PropertyType: Function
+      DataType: Image
+      Category: Data
+      IsResettable: false
+      DisplayName: inputFuncImage
+      Default: SampleImage
+      Tooltip: A custom property
+      Parameters:
+      - reqColorParam:
+          Description: a required color param
+          DataType: Color
+          IsRequired: true
+  - inputDataNumberReset:
+      Direction: Input
+      PropertyType: Data
+      DataType: Number
+      Category: Data
+      IsResettable: true
+      DisplayName: inputDataNumberReset
+      Default: 100
+      Description: A custom property
+  - outputBoolData:
+      Direction: Output
+      PropertyType: Data
+      DataType: Boolean
+      Category: Data
+      IsResettable: false
+      DisplayName: outputBoolData
+      Default: true
+      Tooltip: A custom property
+  - eventPropNone:
+      Direction: Input
+      PropertyType: Event
+      DataType: Void
+      Category: Behavior
+      IsResettable: false
+      DisplayName: eventPropNone
+      Tooltip: an event prop with return type none
+      Parameters:
+      - reqVideoParam:
+          Description: a required video parameter to the event prop
+          DataType: Media
+          IsRequired: true
+  - funcTextNoParams:
+      Direction: Input
+      PropertyType: Function
+      DataType: Text
+      Category: Data
+      IsResettable: false
+      DisplayName: funcTextNoParams
+      Default: '"Text"'
+      Tooltip: a custom function with no parameters
+  - actionProp:
+      Direction: Output
+      PropertyType: Action
+      DataType: Void
+      Category: Behavior
+      IsResettable: false
+      DisplayName: actionProp
+      Tooltip: A custom property

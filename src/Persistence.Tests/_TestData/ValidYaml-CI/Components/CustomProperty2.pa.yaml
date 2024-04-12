@@ -1,13 +1,13 @@
 Component1:
   Control: Component
   CustomProperties:
-    MyFuncProp1:
+  - MyFuncProp1:
       Direction: Input
       PropertyType: Function
       DataType: String
       IsResettable: false
       Default: lorem
       Parameters:
-        param1:
+      - param1:
           DataType: String
           IsRequired: true

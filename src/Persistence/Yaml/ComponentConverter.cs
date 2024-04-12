@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
@@ -27,12 +27,23 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
         return ReadYaml(parser, type);
     }
 
+    public override object? ReadKey(IParser parser, string key)
+    {
+        if (key == nameof(Component.CustomProperties))
+        {
+            using var serializerState = new SerializerState();
+            return ValueDeserializer!.DeserializeValue(parser, typeof(List<CustomProperty>), serializerState, ValueDeserializer);
+        }
+
+        return base.ReadKey(parser, key);
+    }
+
     void IYamlTypeConverter.WriteYaml(IEmitter emitter, object? value, Type type)
     {
         if (value == null)
             return;
 
-        var component = ((Component)value).BeforeSerialize<Component>();
+        var component = ((Component)value).BeforeSerialize();
         WriteYamlInternal(emitter, component, type);
 
         emitter.Emit(nameof(Component.Description), component.Description);
@@ -46,7 +57,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
         if (component.CustomProperties != null && component.CustomProperties.Count > 0)
         {
             emitter.Emit(new Scalar(nameof(Component.CustomProperties)));
-            ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(CustomPropertiesCollection));
+            ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(IList<CustomProperty>));
         }
 
         if (Options.IsControlIdentifiers)

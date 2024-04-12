@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-public record CustomProperty
+public record CustomProperty : INamedObject
 {
-    [YamlIgnore]
     public required string Name { get; set; }
 
     public PropertyDirection Direction { get; init; } = PropertyDirection.Input;
@@ -36,7 +35,7 @@ public record CustomProperty
 
     public string? Default { get; init; }
 
-    public CustomPropertyParametersCollection Parameters { get; init; } = new();
+    public IList<CustomPropertyParameter> Parameters { get; set; } = new List<CustomPropertyParameter>();
 
     public enum PropertyDirection
     {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 
@@ -23,20 +24,27 @@ public class YamlSerializationFactory : IYamlSerializationFactory
 
         var componentConverter = new ComponentConverter(_controlFactory) { Options = options };
         var controlConverter = new ControlConverter(_controlFactory) { Options = options };
-        var customPropertiesCollectionConverter = new CustomPropertiesCollectionConverter() { Options = options };
+        var customPropertiesCollectionConverter = new NamedObjectsCollectionConverter<CustomProperty>() { Options = options };
+        var customPropertyParametersCollectionConverter = new NamedObjectsCollectionConverter<CustomPropertyParameter>() { Options = options };
 
         var builder = new SerializerBuilder()
-            .WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore))
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { Options = options })
             .WithTypeConverter(controlConverter)
             .WithTypeConverter(componentConverter)
             .WithTypeConverter(customPropertiesCollectionConverter)
+            .WithTypeConverter(customPropertyParametersCollectionConverter)
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull);
+
+        if (options.IsControlIdentifiers)
+            builder.WithTypeInspector(inner => new NamedObjectTypeInspector(inner));
+        else
+            builder.WithTypeInspector(inner => new ControlTypeInspector(inner, _controlTemplateStore));
 
         var valueSerializer = builder.BuildValueSerializer();
         componentConverter.ValueSerializer = valueSerializer;
         controlConverter.ValueSerializer = valueSerializer;
         customPropertiesCollectionConverter.ValueSerializer = valueSerializer;
+        customPropertyParametersCollectionConverter.ValueSerializer = valueSerializer;
 
         return new YamlSerializer(builder.Build());
     }
@@ -63,11 +71,12 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         var controlConverter = new ControlConverter(_controlFactory) { Options = options };
         var componentConverter = new ComponentConverter(_controlFactory) { Options = options };
         var appConverter = new AppConverter(_controlFactory) { Options = options };
+        var customPropertiesCollectionConverter = new NamedObjectsCollectionConverter<CustomProperty>() { Options = options };
+        var customPropertyParametersCollectionConverter = new NamedObjectsCollectionConverter<CustomPropertyParameter>() { Options = options };
         var controlCollectionConverter = new ControlCollectionConverter()
         {
             IsTextFirst = options.IsTextFirst
         };
-        var customPropertiesCollectionConverter = new CustomPropertiesCollectionConverter() { Options = options };
 
         // Order of type converters is important
         builder
@@ -75,15 +84,17 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             .WithTypeConverter(controlConverter)
             .WithTypeConverter(componentConverter)
             .WithTypeConverter(appConverter)
-            .WithTypeConverter(controlCollectionConverter)
-            .WithTypeConverter(customPropertiesCollectionConverter);
+            .WithTypeConverter(customPropertiesCollectionConverter)
+            .WithTypeConverter(customPropertyParametersCollectionConverter)
+            .WithTypeConverter(controlCollectionConverter);
 
         // We need to build the value deserializer after adding the converters
         var valueDeserializer = builder.BuildValueDeserializer();
-        customPropertiesCollectionConverter.ValueDeserializer = valueDeserializer;
         controlConverter.ValueDeserializer = valueDeserializer;
         componentConverter.ValueDeserializer = valueDeserializer;
         appConverter.ValueDeserializer = valueDeserializer;
+        customPropertiesCollectionConverter.ValueDeserializer = valueDeserializer;
+        customPropertyParametersCollectionConverter.ValueDeserializer = valueDeserializer;
         controlCollectionConverter.ValueDeserializer = valueDeserializer;
 
         return new YamlDeserializer(builder.Build());

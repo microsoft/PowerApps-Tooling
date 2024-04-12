@@ -49,25 +49,24 @@ public abstract record Control
         }
     }
 
-    [YamlMember(Order = 2)]
+    [YamlMember(Order = 3)]
     public required string Variant { get; init; } = string.Empty;
 
-    [YamlMember(Order = 3)]
+    [YamlMember(Order = 4)]
     public string Layout { get; set; } = string.Empty;
 
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    [YamlMember(Order = 4)]
+    [YamlMember(Order = 5)]
     public ControlPropertiesCollection Properties { get; set; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
-    [YamlMember(Order = 5)]
+    [YamlMember(Order = 6)]
     public IList<Control>? Children { get => _children; set => _children = value; }
-
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }

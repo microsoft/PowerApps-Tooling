@@ -67,7 +67,7 @@ internal class ControlConverter : IYamlTypeConverter
             else if (key.Value == nameof(Component.CustomProperties))
             {
                 using var serializerState = new SerializerState();
-                value = ValueDeserializer!.DeserializeValue(parser, typeof(CustomPropertiesCollection), serializerState, ValueDeserializer);
+                value = ValueDeserializer!.DeserializeValue(parser, typeof(List<CustomProperty>), serializerState, ValueDeserializer);
             }
             else
             {
@@ -95,7 +95,7 @@ internal class ControlConverter : IYamlTypeConverter
         if (Options.IsControlIdentifiers)
         {
             if (string.IsNullOrWhiteSpace(templateName))
-                throw new YamlException(parser.Current!.Start, parser.Current.End, $"Control '{controlName}' doesn't have 'Control' template name");
+                throw new YamlException(parser.Current!.Start, parser.Current.End, $"Control '{controlName}' doesn't have template name");
         }
 
         parser.MoveNext();
