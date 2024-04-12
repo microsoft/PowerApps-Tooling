@@ -31,12 +31,12 @@ internal class AppConverter : ControlConverter, IYamlTypeConverter
         if (value == null)
             return;
 
-        var component = ((Component)value).BeforeSerialize<Component>();
+        var component = ((ComponentDefinition)value).BeforeSerialize<ComponentDefinition>();
         WriteYamlInternal(emitter, component, type);
 
         if (component.CustomProperties != null && component.CustomProperties.Count > 0)
         {
-            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(Component.CustomProperties)));
+            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(ComponentDefinition.CustomProperties)));
             ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(CustomPropertiesCollection));
         }
 

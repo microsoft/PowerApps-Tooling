@@ -279,7 +279,7 @@ public class ValidSerializerTests : TestBase
     [DynamicData(nameof(ComponentCustomProperties_Data), typeof(TestBase))]
     public void Serialize_ShouldCreateValidYamlForComponentCustomProperties(CustomProperty[] customProperties, string expectedYamlFile, bool isControlIdentifiers)
     {
-        var component = ControlFactory.Create("Component1", "Component") as Component;
+        var component = ControlFactory.Create("Component1", "Component") as ComponentDefinition;
         component.Should().NotBeNull();
         component!.CustomProperties.Should().NotBeNull();
         foreach (var prop in customProperties)
@@ -301,7 +301,7 @@ public class ValidSerializerTests : TestBase
     [DataRow("", true, "Control: Component\nName: Component1\nAccessAppScope: true\n")]
     public void Serialize_ShouldCreateValidYamlForComponent(string description, bool accessAppScope, string expectedYaml)
     {
-        var component = (Component)ControlFactory.Create("Component1", "Component");
+        var component = (ComponentDefinition)ControlFactory.Create("Component1", "Component");
         component.Should().NotBeNull();
         component.Description = description;
         component.AccessAppScope = accessAppScope;

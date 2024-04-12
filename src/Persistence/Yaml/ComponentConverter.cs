@@ -19,7 +19,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
 
     bool IYamlTypeConverter.Accepts(Type type)
     {
-        return type == typeof(Component);
+        return type == typeof(ComponentDefinition);
     }
 
     object? IYamlTypeConverter.ReadYaml(IParser parser, Type type)
@@ -29,7 +29,7 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
 
     public override object? ReadKey(IParser parser, string key)
     {
-        if (key == nameof(Component.CustomProperties))
+        if (key == nameof(ComponentDefinition.CustomProperties))
         {
             using var serializerState = new SerializerState();
             return ValueDeserializer!.DeserializeValue(parser, typeof(List<CustomProperty>), serializerState, ValueDeserializer);
@@ -43,20 +43,20 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
         if (value == null)
             return;
 
-        var component = ((Component)value).BeforeSerialize();
+        var component = ((ComponentDefinition)value).BeforeSerialize();
         WriteYamlInternal(emitter, component, type);
 
-        emitter.Emit(nameof(Component.Description), component.Description);
+        emitter.Emit(nameof(ComponentDefinition.Description), component.Description);
 
         if (component.AccessAppScope)
         {
-            emitter.Emit(new Scalar(nameof(Component.AccessAppScope)));
+            emitter.Emit(new Scalar(nameof(ComponentDefinition.AccessAppScope)));
             ValueSerializer!.SerializeValue(emitter, component.AccessAppScope, typeof(bool));
         }
 
         if (component.CustomProperties != null && component.CustomProperties.Count > 0)
         {
-            emitter.Emit(new Scalar(nameof(Component.CustomProperties)));
+            emitter.Emit(new Scalar(nameof(ComponentDefinition.CustomProperties)));
             ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(IList<CustomProperty>));
         }
 

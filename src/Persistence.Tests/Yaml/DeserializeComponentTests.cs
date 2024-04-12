@@ -22,7 +22,7 @@ public class DeserializeComponentTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var component = deserializer.Deserialize<Control>(yamlReader) as Component;
+        var component = deserializer.Deserialize<Control>(yamlReader) as ComponentDefinition;
         if (component == null)
             throw new InvalidOperationException("Failed to deserialize component");
 
