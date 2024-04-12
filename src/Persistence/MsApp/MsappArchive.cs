@@ -54,6 +54,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private readonly ILogger<MsappArchive>? _logger;
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
+    private readonly bool _overwriteOnSave;
 
     // Yaml serializer and deserializer
     private readonly IYamlSerializer _yamlSerializer;
@@ -86,17 +87,17 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     #region Constructors
 
     public MsappArchive(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, yamlSerializationFactory, logger)
+        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, overwriteOnSave: false, yamlSerializationFactory, logger)
     {
     }
 
     public MsappArchive(Stream stream, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
+        : this(stream, ZipArchiveMode.Read, leaveOpen: false, overwriteOnSave: false, entryNameEncoding: null, yamlSerializationFactory, logger)
     {
     }
 
     public MsappArchive(Stream stream, ZipArchiveMode mode, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
+        : this(stream, mode, leaveOpen: false, overwriteOnSave: false, entryNameEncoding: null, yamlSerializationFactory, logger)
     {
     }
 
@@ -108,17 +109,21 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <param name="leaveOpen">
     ///     true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false
     /// </param>
+    /// <param name="overwriteOnSave">
+    ///     true to overwrite existing files on save; otherwise, false
+    /// </param>
     /// <param name="yamlSerializationFactory"></param>
     /// <param name="logger"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen, null, yamlSerializationFactory, logger)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, bool overwriteOnSave, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, leaveOpen, overwriteOnSave, null, yamlSerializationFactory, logger)
     {
     }
 
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, bool overwriteOnSave, Encoding? entryNameEncoding, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
     {
         _stream = stream;
         _leaveOpen = leaveOpen;
+        _overwriteOnSave = overwriteOnSave;
         _yamlSerializer = yamlSerializationFactory.CreateSerializer();
         _yamlDeserializer = yamlSerializationFactory.CreateDeserializer();
         _logger = logger;
@@ -345,11 +350,15 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             throw new ArgumentException("Entry name cannot be null or whitespace.", nameof(entryName));
 
         var canonicalEntryName = NormalizePath(entryName);
-        if (_canonicalEntries.Value.ContainsKey(canonicalEntryName))
+        if (_canonicalEntries.Value.ContainsKey(canonicalEntryName) && _overwriteOnSave == false)
             throw new InvalidOperationException($"Entry {entryName} already exists in the archive.");
 
-        var entry = ZipArchive.CreateEntry(entryName);
-        _canonicalEntries.Value.Add(canonicalEntryName, entry);
+        var entry = ZipArchive.Mode == ZipArchiveMode.Create ? null : ZipArchive.GetEntry(entryName);
+        if (entry != null && _overwriteOnSave)
+            entry.Delete();
+
+        entry = ZipArchive.CreateEntry(entryName);
+        _canonicalEntries.Value.TryAdd(canonicalEntryName, entry);
 
         return entry;
     }
@@ -394,6 +403,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public void Save()
     {
+        if (_app == null && GetEntry(Path.Combine(Directories.Src, AppFileName)) != null)
+            _app = LoadApp();
+        if (_header == null && GetEntry(HeaderFileName) != null)
+            _header = LoadHeader();
+
         if (_app == null || _header == null)
             throw new InvalidOperationException("App or header are not set.");
 
@@ -416,7 +430,15 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public void SaveAs(string filePath)
     {
-        var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        if (File.Exists(filePath))
+        {
+            if (_overwriteOnSave)
+                File.Delete(filePath);
+            else
+                throw new InvalidOperationException("File already exists but overwrite is not enabled");
+        }
+
+        using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
         SaveAs(fileStream);
     }
 

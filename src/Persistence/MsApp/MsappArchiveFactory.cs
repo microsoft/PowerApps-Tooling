@@ -32,7 +32,7 @@ public class MsappArchiveFactory : IMsappArchiveFactory
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, overwriteOnSave: false, _yamlSerializationFactory);
     }
 
     public IMsappArchive Open(string path)
@@ -47,22 +47,22 @@ public class MsappArchiveFactory : IMsappArchiveFactory
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, overwriteOnSave: false, _yamlSerializationFactory);
     }
 
-    public IMsappArchive Update(string path)
+    public IMsappArchive Update(string path, bool overwriteOnSave = false)
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentNullException(nameof(path));
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-        return new MsappArchive(fileStream, ZipArchiveMode.Update, leaveOpen: false, _yamlSerializationFactory);
+        return new MsappArchive(fileStream, ZipArchiveMode.Update, leaveOpen: false, overwriteOnSave, _yamlSerializationFactory);
     }
 
-    public IMsappArchive Update(Stream stream, bool leaveOpen = false)
+    public IMsappArchive Update(Stream stream, bool leaveOpen = false, bool overwriteOnSave = false)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, overwriteOnSave, _yamlSerializationFactory);
     }
 }
