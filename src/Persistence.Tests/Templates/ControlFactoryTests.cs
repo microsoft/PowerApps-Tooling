@@ -54,18 +54,17 @@ public class ControlFactoryTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("Component", "http://microsoft.com/appmagic/Component")]
-    [DataRow("CommandComponent", "http://microsoft.com/appmagic/CommandComponent")]
-    public void CreateComponent_ShouldCreateValidInstance(string componentType, string expectedTemplateId)
+    [DataRow("Component", "MyComponent1", "http://microsoft.com/appmagic/Component")]
+    public void CreateComponent_ShouldCreateValidInstance(string componentType, string componentName, string expectedTemplateId)
     {
         var sut = new ControlFactory(ControlTemplateStore);
 
-        var result = sut.Create("MyComponent1", componentType);
+        var result = sut.Create(componentName, componentType);
         result.Should().NotBeNull().And.BeAssignableTo<ComponentDefinition>();
-        result.Name.Should().Be("MyComponent1");
+        result.Name.Should().Be(componentName);
         result.Template.Should().NotBeNull();
         result.Template.Id.Should().Be(expectedTemplateId);
-        result.Template.Name.Should().Be(componentType);
+        result.Template.Name.Should().Be(componentName);
         result.Properties.Should().NotBeNull().And.BeEmpty();
         result.Children.Should().BeNull();
     }

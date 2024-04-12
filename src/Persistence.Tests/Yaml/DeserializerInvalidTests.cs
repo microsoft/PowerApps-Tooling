@@ -65,7 +65,7 @@ public class DeserializerInvalidTests : TestBase
         // Assert
         act.Should().Throw<YamlException>()
             .WithInnerException<NotSupportedException>()
-            .WithMessage("Cannot covert Microsoft.PowerPlatform.PowerApps.Persistence.Models.Screen to BuiltInControl");
+            .WithMessage("Cannot covert Screen to BuiltInControl");
     }
 
     [TestMethod]

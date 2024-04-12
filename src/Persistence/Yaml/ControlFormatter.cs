@@ -22,7 +22,7 @@ public static class ControlFormatter
         var childrenToRemove = (control.Children ?? Enumerable.Empty<Control>()).Where(c => c.Template.AddPropertiesToParent).ToList();
         var propertiesToMerge = childrenToRemove.SelectMany(c => c.Properties).ToList();
 
-        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer;
+        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer.Name;
 
         // Remove children to be merged
         var children = (control.Children ?? Enumerable.Empty<Control>())
@@ -56,7 +56,7 @@ public static class ControlFormatter
         // Create any children from nested templates
         var (childrenToAdd, propertiesToRemove) = RestoreNestedTemplates(control, controlFactory);
 
-        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer;
+        var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer.Name;
         var originalChildCount = control.Children.Count;
 
         var children = control.Children

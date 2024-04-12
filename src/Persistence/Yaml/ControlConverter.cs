@@ -29,16 +29,17 @@ internal class ControlConverter : IYamlTypeConverter
 
     public IValueSerializer? ValueSerializer { get; set; }
 
-    public bool Accepts(Type type)
+    public virtual bool Accepts(Type type)
     {
         return type == typeof(Control) || type.IsSubclassOf(typeof(Control));
     }
 
-    public object? ReadYaml(IParser parser, Type type)
+    public virtual object? ReadYaml(IParser parser, Type type)
     {
         ReadControlDefinitonHeader(parser, out var controlName, out var templateName);
 
         var controlDefinition = new Dictionary<string, object?>();
+        var componentInstance = string.Empty;
         while (!parser.Accept<MappingEnd>(out _))
         {
             var key = parser.Consume<Scalar>();
@@ -78,6 +79,8 @@ internal class ControlConverter : IYamlTypeConverter
                     {
                         if (key.Value == nameof(Control))
                             templateName = (string)value;
+                        else if (key.Value == nameof(ComponentInstance.ComponentName))
+                            componentInstance = (string)value;
                     }
                     else
                     {
@@ -94,7 +97,7 @@ internal class ControlConverter : IYamlTypeConverter
 
         if (Options.IsControlIdentifiers)
         {
-            if (string.IsNullOrWhiteSpace(templateName))
+            if (string.IsNullOrWhiteSpace(templateName) && string.IsNullOrWhiteSpace(componentInstance))
                 throw new YamlException(parser.Current!.Start, parser.Current.End, $"Control '{controlName}' doesn't have template name");
         }
 
@@ -102,7 +105,10 @@ internal class ControlConverter : IYamlTypeConverter
         if (Options.IsControlIdentifiers)
             parser.MoveNext();
 
-        var control = _controlFactory.Create(string.IsNullOrWhiteSpace(controlName) ? templateName : controlName, templateName, controlDefinition);
+        // Create control instance
+        var control = _controlFactory.Create(
+            string.IsNullOrWhiteSpace(controlName) ? templateName : controlName,
+            templateName, componentInstance, controlDefinition);
         return control.AfterDeserialize(_controlFactory);
     }
 
@@ -161,22 +167,40 @@ internal class ControlConverter : IYamlTypeConverter
         return null;
     }
 
-    protected void WriteYamlInternal(IEmitter emitter, Control control, Type type)
+    public void WriteYaml(IEmitter emitter, object? value, Type type)
     {
+        if (value == null)
+            return;
+
+        var control = ((Control)value).BeforeSerialize();
         if (Options.IsControlIdentifiers)
         {
             emitter.Emit(new MappingStart(AnchorName.Empty, TagName.Empty, isImplicit: true, MappingStyle.Block));
             emitter.Emit(new Scalar(null, null, control.Name, control.Name.DetermineScalarStyleForProperty(), true, false));
             emitter.Emit(new MappingStart());
-            emitter.Emit(nameof(Control), control.Template.DisplayName);
+            emitter.Emit(nameof(Control), GetControlTemplateName(control));
         }
         else
         {
             emitter.Emit(new MappingStart());
-            emitter.Emit(nameof(Control), control.Template.DisplayName);
+            emitter.Emit(nameof(Control), GetControlTemplateName(control));
             emitter.Emit(nameof(Control.Name), control.Name);
         }
 
+        OnWriteAfterName(emitter, control);
+
+        if (Options.IsControlIdentifiers)
+            emitter.Emit(new MappingEnd());
+        emitter.Emit(new MappingEnd());
+    }
+
+    public virtual string GetControlTemplateName(Control control)
+    {
+        return control.Template.DisplayName;
+    }
+
+    public virtual void OnWriteAfterName(IEmitter emitter, Control control)
+    {
         emitter.Emit(nameof(Control.Variant), control.Variant);
         emitter.Emit(nameof(Control.Layout), control.Layout);
 
@@ -191,18 +215,5 @@ internal class ControlConverter : IYamlTypeConverter
             emitter.Emit(new Scalar(nameof(Control.Children)));
             ValueSerializer!.SerializeValue(emitter, control.Children, typeof(IList<Control>));
         }
-    }
-
-    public void WriteYaml(IEmitter emitter, object? value, Type type)
-    {
-        if (value == null)
-            return;
-
-        var control = ((Control)value).BeforeSerialize<Control>();
-        WriteYamlInternal(emitter, control, type);
-
-        if (Options.IsControlIdentifiers)
-            emitter.Emit(new MappingEnd());
-        emitter.Emit(new MappingEnd());
     }
 }
