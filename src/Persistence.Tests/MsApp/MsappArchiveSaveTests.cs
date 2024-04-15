@@ -139,7 +139,7 @@ public class MsappArchiveSaveTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", "HelloWorld", "HelloScreen")]
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", "App", "HelloScreen")]
     public void Msapp_ShouldSaveAs_NewFilePath(string testDirectory, string appName, string screenName)
     {
         // Arrange
@@ -159,6 +159,7 @@ public class MsappArchiveSaveTests : TestBase
 
         // Save the test app to another file
         testApp.SaveAs(tempFile);
+
         // Open the app from the file
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
 

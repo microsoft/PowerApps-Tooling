@@ -444,9 +444,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     public void SaveAs(Stream stream)
     {
+        // TODO: This is a lazy solution to trigger _canonicalEntries lazy initialization
+        GetEntry("fakename");
         // Create new ZipArchive at requested path and store current ZipArchive object
         var tZipArchive = ZipArchive;
-        ZipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
+        ZipArchive = new ZipArchive(stream, ZipArchiveMode.Create, false);
 
         // Perform Save using the new ZipArchive
         Save();
