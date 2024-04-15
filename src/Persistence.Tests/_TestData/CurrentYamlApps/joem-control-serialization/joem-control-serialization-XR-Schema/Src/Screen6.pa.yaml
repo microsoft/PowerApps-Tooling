@@ -1,0 +1,181 @@
+Screens:
+  Screen6:
+    #Variant: autoLayout_Sidebar_ver1.0
+    Children:
+      - ScreenContainer2:
+          Control: groupContainer
+          Variant: verticalAutoLayoutContainer
+          Properties:
+            Fill: =RGBA(245, 245, 245, 1)
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            LayoutMode: =LayoutMode.Auto
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Width: =Parent.Width
+          Children:
+            - BottomContainer1:
+                Control: groupContainer
+                Variant: horizontalAutoLayoutContainer
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(245, 245, 245, 1)
+                  FillPortions: =1
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutGap: =16
+                  LayoutMinHeight: =100
+                  LayoutMinWidth: =250
+                  LayoutMode: =LayoutMode.Auto
+                  LayoutWrap: =true
+                  PaddingBottom: =2
+                  PaddingLeft: =2
+                  PaddingRight: =2
+                  PaddingTop: =2
+                Children:
+                  - MainContainer1:
+                      Control: groupContainer
+                      Variant: verticalAutoLayoutContainer
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =7
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =100
+                        LayoutMinWidth: =250
+                        LayoutMode: =LayoutMode.Auto
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                      Children:
+                        - DatePicker1:
+                            Control: datepicker
+                            Properties:
+                              LayoutMinHeight: =40
+                              LayoutMinWidth: =328
+                  - SidebarContainer1:
+                      Control: groupContainer
+                      Variant: verticalAutoLayoutContainer
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =3
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =100
+                        LayoutMinWidth: =250
+                        LayoutMode: =LayoutMode.Auto
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                      Children:
+                        - Gallery2:
+                            Control: gallery
+                            Variant: BrowseLayout_Vertical_TwoTextVariant_ver5.0
+                            Properties:
+                              Items: =Filter(Contacts, 'Contacts (Views)'.'All Contacts')
+                              DelayItemLoading: =true
+                              FillPortions: =1
+                              Height: =Parent.Height
+                              Layout: =Layout.Vertical
+                              LayoutMinHeight: =287
+                              LayoutMinWidth: =320
+                              LoadingSpinner: =LoadingSpinner.Data
+                              TemplatePadding: =0
+                              TemplateSize: =90
+                              Width: =Parent.Width
+                            Children:
+                              - Rectangle3:
+                                  Control: shapes/rectangle
+                                  Properties:
+                                    OnSelect: =Select(Parent)
+                                    Fill: =RGBA(0, 18, 107, 1)
+                                    Height: =Parent.TemplateHeight - Separator3.Height
+                                    Visible: =ThisItem.IsSelected
+                                    Width: =4
+                              - Separator3:
+                                  Control: shapes/rectangle
+                                  Properties:
+                                    OnSelect: =Select(Parent)
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    Height: =8
+                                    Width: =Parent.TemplateWidth
+                                    Y: =Parent.TemplateHeight - Self.Height
+                              - NextArrow3:
+                                  Control: icon
+                                  Variant: ChevronRight
+                                  Properties:
+                                    OnSelect: =Select(Parent)
+                                    AccessibleLabel: =Self.Tooltip
+                                    Tooltip: ="View item details"
+                                    Color: =RGBA(166, 166, 166, 1)
+                                    Height: =50
+                                    Icon: =Icon.ChevronRight
+                                    PaddingBottom: =16
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =16
+                                    Width: =50
+                                    X: =Parent.TemplateWidth - Self.Width - 12
+                                    Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+                              - Subtitle3:
+                                  Control: label
+                                  Properties:
+                                    OnSelect: =Select(Parent)
+                                    Text: =ThisItem.Email
+                                    FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                                    Height: =Self.Size * 1.8
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =12
+                                    VerticalAlign: =VerticalAlign.Top
+                                    Width: =Title3.Width
+                                    X: =Title3.X
+                                    Y: =Title3.Y + Title3.Height
+                              - Title3:
+                                  Control: label
+                                  Properties:
+                                    OnSelect: =Select(Parent)
+                                    Text: =ThisItem.'Full Name'
+                                    Color: =RGBA(50, 49, 48, 1)
+                                    FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                                    Height: =Self.Size * 1.8
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    VerticalAlign: =VerticalAlign.Top
+                                    Width: =Parent.TemplateWidth - 86
+                                    X: =16
+                                    Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle3.Size * 1.8)) / 2
+            - HeaderContainer1:
+                Control: groupContainer
+                Variant: horizontalAutoLayoutContainer
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =75
+                  LayoutMinHeight: =100
+                  LayoutMinWidth: =250
+                  LayoutMode: =LayoutMode.Auto
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                Children:
+                  - MyHeaderComponent_5:
+                      Control: Component
+                      ComponentName: MyHeaderComponent
+                      Properties:
+                        ScreenTitle: ="Screen6"
+                        Fill: =RGBA(255, 191, 0, 1)
+                        Height: =Parent.Height
+                        LayoutMinHeight: =640
+                        LayoutMinWidth: =640
+                        Width: =Parent.Width

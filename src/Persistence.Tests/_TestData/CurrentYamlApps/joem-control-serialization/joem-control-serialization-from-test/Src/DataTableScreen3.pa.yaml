@@ -1,0 +1,65 @@
+DataTableScreen3:
+  Control: Screen
+  Children:
+  - DataTable1:
+      Control: DataTable
+      Variant: datatable
+      Properties:
+        Items: =Filter(Contacts, 'Contacts (Views)'.'Active Contacts')
+        Height: =584
+        Width: =1294
+        X: =40
+        Y: =132
+      Children:
+      - Nickname_Column1:
+          Control: DataTableColumn
+          Variant: textualColumn
+          Properties:
+            AutoWidth: =false
+            FieldDisplayName: ="Nickname"
+            FieldName: ="nickname"
+            FieldVariantName: ="textualColumn"
+            Order: =2
+            Text: =ThisItem.Nickname
+            Width: =191
+      - Birthday_Column1:
+          Control: DataTableColumn
+          Variant: textualColumn
+          Properties:
+            AutoWidth: =false
+            FieldDisplayName: ="Birthday"
+            FieldName: ="birthdate"
+            FieldVariantName: ="textualColumn"
+            Order: =6
+            Text: =ThisItem.Birthday
+            Width: =158
+            X: =1126
+      - Business Phone_Column1:
+          Control: DataTableColumn
+          Variant: textualColumn
+          Properties:
+            FieldDisplayName: ="Business Phone"
+            FieldName: ="telephone1"
+            FieldVariantName: ="textualColumn"
+            Order: =5
+            Text: =ThisItem.'Business Phone'
+      - Email_Column1:
+          Control: DataTableColumn
+          Variant: emailColumn
+          Properties:
+            FieldDisplayName: ="Email"
+            FieldName: ="emailaddress1"
+            FieldVariantName: ="emailColumn"
+            Order: =4
+            Text: =ThisItem.Email
+      - Full Name_Column1:
+          Control: DataTableColumn
+          Variant: textualColumn
+          Properties:
+            AutoWidth: =false
+            FieldDisplayName: ="Full Name"
+            FieldName: ="fullname"
+            FieldVariantName: ="textualColumn"
+            Order: =1
+            Text: =ThisItem.'Full Name'
+            Width: =295

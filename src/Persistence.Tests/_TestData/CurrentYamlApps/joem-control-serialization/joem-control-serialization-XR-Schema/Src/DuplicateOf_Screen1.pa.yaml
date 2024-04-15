@@ -1,0 +1,111 @@
+Screens:
+ DuplicateOf_Screen1:
+  Children:
+  - Gallery1_1:
+      Control: gallery
+      Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+      Properties:
+        DelayItemLoading: =true
+        Height: =479
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =104
+        X: =726
+        Y: =80
+      Children:
+      - Rectangle1_1:
+          Control: shapes/rectangle
+          Properties:
+            OnSelect: =Select(Parent)
+            Fill: =RGBA(0, 18, 107, 1)
+            Height: =Parent.TemplateHeight - Separator1_1.Height
+            Visible: =ThisItem.IsSelected
+            Width: =4
+      - Separator1_1:
+          Control: shapes/rectangle
+          Properties:
+            OnSelect: =Select(Parent)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =8
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight - Self.Height
+      - NextArrow1_1:
+          Control: icon
+          Variant: ChevronRight
+          Properties:
+            OnSelect: =Select(Parent)
+            AccessibleLabel: =Self.Tooltip
+            Tooltip: ="View item details"
+            Color: =RGBA(166, 166, 166, 1)
+            Height: =50
+            Icon: =Icon.ChevronRight
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Width: =50
+            X: =Parent.TemplateWidth - Self.Width - 12
+            Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+      - Subtitle1_1:
+          Control: label
+          Properties:
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.SampleText
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =35
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =12
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Title1_1.Width
+            X: =Title1_1.X
+            Y: =Title1_1.Y + Title1_1.Height
+      - Title1_1:
+          Control: label
+          Properties:
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.SampleHeading
+            Color: =RGBA(50, 49, 48, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =25
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            VerticalAlign: =VerticalAlign.Top
+            Width: =345
+            X: =103
+            Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle1_1.Size * 1.8)) / 2
+      - Image1_1:
+          Control: image
+          Properties:
+            OnSelect: =Select(Parent)
+            Height: =61
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Width: =56
+            X: =16
+            Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+  - Button1_1:
+      Control: button
+      Properties:
+        Text: ="A Button"
+        X: =40
+        Y: =138
+  - TextInput1_1:
+      Control: text
+      Properties:
+        Default: ="Default input"
+        X: =40
+        Y: =80
+  - Label1_1:
+      Control: label
+      Properties:
+        Text: ="A label"
+        X: =40
+        Y: =40

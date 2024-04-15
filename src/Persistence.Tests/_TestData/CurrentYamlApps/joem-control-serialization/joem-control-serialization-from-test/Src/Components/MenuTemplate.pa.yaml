@@ -1,0 +1,76 @@
+MenuTemplate:
+  Control: Component
+  Properties:
+    MenuItems: |-
+      =Table({Title: "Menu Item 1", Tag: "Tag1"}
+        , {Title: "Menu Item 2", Tag: "Tag2"}
+        , {Title: "Menu Item 3", Tag: "Tag3"}
+        )
+    Selected: |-
+      ={Title: Gallery1_2.Selected.Title, Tag: Gallery1_2.Selected.Tag}
+    Fill: =RGBA(153, 207, 236, 1)
+    Height: =400
+    Width: =250
+  Children:
+  - Gallery1_2:
+      Control: Gallery
+      Variant: BrowseLayout_Vertical_OneTextVariant_ver5.0
+      Properties:
+        Items: =MenuTemplate.MenuItems
+        DelayItemLoading: =true
+        Height: =Parent.Height
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =67
+        Width: =Parent.Width
+      Children:
+      - Rectangle2:
+          Control: Rectangle
+          Properties:
+            OnSelect: =Select(Parent)
+            Fill: =RGBA(0, 18, 107, 1)
+            Height: =Parent.TemplateHeight - Separator2.Height
+            Visible: =ThisItem.IsSelected
+            Width: =4
+      - Separator2:
+          Control: Rectangle
+          Properties:
+            OnSelect: =Select(Parent)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =8
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight - Self.Height
+      - NextArrow2:
+          Control: Icon
+          Variant: ChevronRight
+          Properties:
+            OnSelect: =Select(Parent)
+            AccessibleLabel: =Self.Tooltip
+            Tooltip: ="View item details"
+            Color: =RGBA(166, 166, 166, 1)
+            Height: =25
+            Icon: =Icon.ChevronRight
+            PaddingBottom: =4
+            PaddingLeft: =4
+            PaddingRight: =4
+            PaddingTop: =4
+            Width: =25
+            X: =Parent.TemplateWidth - Self.Width - 12
+            Y: =18
+      - Title2:
+          Control: Label
+          Properties:
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Title
+            Color: =RGBA(50, 49, 48, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =37
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            VerticalAlign: =VerticalAlign.Top
+            Width: =197
+            X: =16
+            Y: =18

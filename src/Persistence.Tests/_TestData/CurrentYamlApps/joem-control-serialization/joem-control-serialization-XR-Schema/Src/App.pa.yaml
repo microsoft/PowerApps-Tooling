@@ -1,0 +1,11 @@
+App:
+  Properties:
+    OnStart: =Set(var1, "hello world!")
+    Theme: =PowerAppsTheme
+    StartScreen: =Screen1
+
+  # Example if there actually was a HostControl allowed:
+  Children:
+    Host:
+      Properties:
+        OnLoad: =Set(foo, 'yes')

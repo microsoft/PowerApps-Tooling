@@ -1,0 +1,470 @@
+{
+  "TopParent": {
+    "Type": "ControlInfo",
+    "Name": "AllCustomPropertyTypes",
+    "Template": {
+      "Id": "http://microsoft.com/appmagic/Component",
+      "Version": "1.0",
+      "LastModifiedTimestamp": "638485643238831920",
+      "Name": "112bd49af451410380a41e36a64c3434",
+      "FirstParty": true,
+      "IsPremiumPcfControl": false,
+      "IsCustomGroupControlTemplate": false,
+      "CustomGroupControlTemplateName": "",
+      "IsComponentDefinition": true,
+      "CustomProperties": [
+        {
+          "Name": "MyInputProp1",
+          "Category": 0,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "String",
+          "Hidden": false,
+          "IsResettable": true,
+          "DisplayName": "MyInputProp1",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyOutputProp1",
+          "Category": 0,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "Number",
+          "Hidden": true,
+          "DisplayName": "MyOutputProp1",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyInputFunc1",
+          "Category": 0,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "Number",
+          "Hidden": false,
+          "PropertyScopeKey": {
+            "PropertyScopeRuleNamespaceKey": "22",
+            "PropertyScopeRulesKey": [
+              {
+                "Name": "MyInputFunc1_Parameter2",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter2",
+                  "ParentPropertyName": "MyInputFunc1",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 1,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyInputFunc1_Parameter2",
+                "Tooltip": "A parameter"
+              },
+              {
+                "Name": "MyInputFunc1_Parameter1",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "Number",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter1",
+                  "ParentPropertyName": "MyInputFunc1",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "100",
+                  "Description": "A parameter",
+                  "ParameterIndex": 2,
+                  "ScopePropertyDataType": 5,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyInputFunc1_Parameter1",
+                "Tooltip": "A parameter"
+              },
+              {
+                "Name": "MyInputFunc1_Parameter3",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter3",
+                  "ParentPropertyName": "MyInputFunc1",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 3,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": false,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyInputFunc1_Parameter3",
+                "Tooltip": "A parameter"
+              }
+            ]
+          },
+          "DisplayName": "MyInputFunc1",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyOutputFunc2",
+          "Category": 0,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "String",
+          "Hidden": true,
+          "PropertyScopeKey": {
+            "PropertyScopeRuleNamespaceKey": "22",
+            "PropertyScopeRulesKey": [
+              {
+                "Name": "MyOutputFunc2_Parameter1",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "Number",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter1",
+                  "ParentPropertyName": "MyOutputFunc2",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "100",
+                  "Description": "A parameter",
+                  "ParameterIndex": 1,
+                  "ScopePropertyDataType": 5,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyOutputFunc2_Parameter1",
+                "Tooltip": "A parameter"
+              }
+            ]
+          },
+          "DisplayName": "MyOutputFunc2",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyEvent1None",
+          "Category": 2,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Void\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "Void",
+          "Hidden": false,
+          "PropertyScopeKey": {
+            "PropertyScopeRuleNamespaceKey": "22",
+            "PropertyScopeRulesKey": [
+              {
+                "Name": "MyEvent1None_Parameter1",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter1",
+                  "ParentPropertyName": "MyEvent1None",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 1,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyEvent1None_Parameter1",
+                "Tooltip": "A parameter"
+              },
+              {
+                "Name": "MyEvent1None_Parameter3",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter3",
+                  "ParentPropertyName": "MyEvent1None",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 2,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyEvent1None_Parameter3",
+                "Tooltip": "A parameter"
+              },
+              {
+                "Name": "MyEvent1None_paramNotReq2",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "paramNotReq2",
+                  "ParentPropertyName": "MyEvent1None",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 3,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": false,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyEvent1None_paramNotReq2",
+                "Tooltip": "A parameter"
+              }
+            ]
+          },
+          "DisplayName": "MyEvent1None",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyEvent2Number",
+          "Category": 2,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "Number",
+          "Hidden": false,
+          "PropertyScopeKey": {
+            "PropertyScopeRuleNamespaceKey": "22",
+            "PropertyScopeRulesKey": [
+              {
+                "Name": "MyEvent2Number_Parameter1",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "String",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter1",
+                  "ParentPropertyName": "MyEvent2Number",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "\"Text\"",
+                  "Description": "A parameter",
+                  "ParameterIndex": 1,
+                  "ScopePropertyDataType": 6,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyEvent2Number_Parameter1",
+                "Tooltip": "A parameter"
+              }
+            ]
+          },
+          "DisplayName": "MyEvent2Number",
+          "Tooltip": "A custom property"
+        },
+        {
+          "Name": "MyAction1",
+          "Category": 2,
+          "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}",
+          "PropertyDataTypeKey": "Boolean",
+          "Hidden": true,
+          "PropertyScopeKey": {
+            "PropertyScopeRuleNamespaceKey": "22",
+            "PropertyScopeRulesKey": [
+              {
+                "Name": "MyAction1_Parameter1",
+                "Type": "{\"Version\":\"1.338\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}",
+                "PropertyDataTypeKey": "Boolean",
+                "ScopeVariableInfo": {
+                  "ScopeVariableName": "Parameter1",
+                  "ParentPropertyName": "MyAction1",
+                  "ResolveSelects": false,
+                  "ResolveExpands": false,
+                  "DefaultRule": "true",
+                  "Description": "A parameter",
+                  "ParameterIndex": 1,
+                  "ScopePropertyDataType": 4,
+                  "IsRequired": true,
+                  "DependencyType": "New"
+                },
+                "DisplayName": "MyAction1_Parameter1",
+                "Tooltip": "A parameter"
+              }
+            ]
+          },
+          "DisplayName": "MyAction1",
+          "Tooltip": "A custom property"
+        }
+      ],
+      "ComponentType": "CanvasComponent",
+      "OverridableProperties": {}
+    },
+    "Index": 12,
+    "PublishOrderIndex": 0,
+    "VariantName": "",
+    "LayoutName": "",
+    "MetaDataIDKey": "",
+    "PersistMetaDataIDKey": false,
+    "IsFromScreenLayout": false,
+    "StyleName": "",
+    "Parent": "",
+    "IsDataControl": false,
+    "AllowAccessToGlobals": false,
+    "OptimizeForDevices": "Off",
+    "IsGroupControl": false,
+    "IsAutoGenerated": false,
+    "Rules": [
+      {
+        "Property": "MyInputProp1",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyOutputProp1",
+        "Category": "Data",
+        "InvariantScript": "100",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyInputFunc1_Parameter1",
+        "Category": "Data",
+        "InvariantScript": "100",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyInputFunc1_Parameter2",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyOutputFunc2_Parameter1",
+        "Category": "Data",
+        "InvariantScript": "100",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyOutputFunc2",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyEvent1None_Parameter1",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyEvent1None_Parameter3",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyEvent1None_paramNotReq2",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyEvent2Number_Parameter1",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyAction1_Parameter1",
+        "Category": "Data",
+        "InvariantScript": "true",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyInputFunc1_Parameter3",
+        "Category": "Data",
+        "InvariantScript": "\"Text\"",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyInputFunc1",
+        "Category": "Data",
+        "InvariantScript": "100",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "Fill",
+        "Category": "Design",
+        "InvariantScript": "RGBA(0, 0, 0, 0)",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "Height",
+        "Category": "Design",
+        "InvariantScript": "40",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "Width",
+        "Category": "Design",
+        "InvariantScript": "200",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "X",
+        "Category": "Design",
+        "InvariantScript": "0",
+        "RuleProviderType": "Unknown"
+      },
+      {
+        "Property": "Y",
+        "Category": "Design",
+        "InvariantScript": "0",
+        "RuleProviderType": "Unknown"
+      },
+      {
+        "Property": "ZIndex",
+        "Category": "Design",
+        "InvariantScript": "1",
+        "RuleProviderType": "Unknown"
+      },
+      {
+        "Property": "MyEvent1None",
+        "Category": "Behavior",
+        "InvariantScript": "",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyEvent2Number",
+        "Category": "Behavior",
+        "InvariantScript": "100",
+        "RuleProviderType": "System"
+      },
+      {
+        "Property": "MyAction1",
+        "Category": "Behavior",
+        "InvariantScript": "true",
+        "RuleProviderType": "System"
+      }
+    ],
+    "ControlPropertyState": [
+      "Fill",
+      {
+        "InvariantPropertyName": "Height",
+        "AutoRuleBindingEnabled": false,
+        "AutoRuleBindingString": "",
+        "NameMapSourceSchema": "?",
+        "IsLockable": false,
+        "AFDDataSourceName": ""
+      },
+      {
+        "InvariantPropertyName": "Width",
+        "AutoRuleBindingEnabled": false,
+        "AutoRuleBindingString": "",
+        "NameMapSourceSchema": "?",
+        "IsLockable": false,
+        "AFDDataSourceName": ""
+      },
+      "X",
+      "Y",
+      "ZIndex",
+      "MyInputProp1",
+      "MyOutputProp1",
+      "MyInputFunc1_Parameter1",
+      "MyInputFunc1_Parameter2",
+      "MyOutputFunc2_Parameter1",
+      "MyOutputFunc2",
+      "MyEvent1None_Parameter1",
+      "MyEvent1None_Parameter3",
+      "MyEvent1None_paramNotReq2",
+      "MyEvent1None",
+      "MyEvent2Number_Parameter1",
+      "MyEvent2Number",
+      "MyAction1_Parameter1",
+      "MyAction1",
+      "MyInputFunc1_Parameter3",
+      "MyInputFunc1"
+    ],
+    "IsLocked": false,
+    "ControlUniqueId": "22",
+    "Children": []
+  }
+}

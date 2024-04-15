@@ -1,0 +1,46 @@
+{
+  "Components": [
+    {
+      "Name": "MyHeaderComponent",
+      "TemplateName": "d80f8058036444169c9454831c7dd81e",
+      "Description": "A header component",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    },
+    {
+      "Name": "MenuTemplate",
+      "TemplateName": "fc6c5c35b8244864b0edcec383877ef3",
+      "Description": "",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    },
+    {
+      "Name": "CommonHeader",
+      "TemplateName": "1d6307014d924890acf19d2cd8ba64ba",
+      "Description": "",
+      "AllowCustomization": false,
+      "AllowAccessToGlobals": false
+    },
+    {
+      "Name": "MenuTemplate_2",
+      "TemplateName": "96a60d4ac7ff41b9b06c03831ef2feec",
+      "Description": "",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    },
+    {
+      "Name": "AllCustomPropertyTypes",
+      "TemplateName": "112bd49af451410380a41e36a64c3434",
+      "Description": "A component that has all the property types",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    },
+    {
+      "Name": "label",
+      "TemplateName": "112b8ec0e9274bab85787e41e4d56732",
+      "Description": "Used to ensure we can differentiate a component that happens to have the same name as a built-in control.",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    }
+  ]
+}

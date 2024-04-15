@@ -1,0 +1,25 @@
+CommonHeader:
+  Control: Component
+  Properties:
+    AppTitle: ="App Title Example"
+    HeaderText: |-
+      =If(IsBlankOrError(CommonHeader.AppTitle)
+        , CommonHeader.ScreenTitle
+        , If(IsBlankOrError(CommonHeader.ScreenTitle)
+            , CommonHeader.AppTitle
+            , CommonHeader.ScreenTitle & " - " & CommonHeader.AppTitle
+        )
+      )
+    ScreenTitle: ="Screen Title Example"
+    Height: =40
+  Children:
+  - Label1_3:
+      Control: Label
+      Properties:
+        Text: =CommonHeader.HeaderText
+        Fill: =RGBA(141, 198, 63, 1)
+        FocusedBorderThickness: =10
+        FontWeight: =FontWeight.Bold
+        Height: =Parent.Height
+        Size: =20
+        Width: =Parent.Width

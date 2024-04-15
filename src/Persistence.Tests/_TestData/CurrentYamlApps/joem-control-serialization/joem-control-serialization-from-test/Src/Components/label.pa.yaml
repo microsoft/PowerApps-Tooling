@@ -1,0 +1,14 @@
+label:
+  Control: Component
+  Properties:
+    Height: =40
+    Width: =200
+  Children:
+  - Label3:
+      Control: Label
+      Properties:
+        BorderThickness: =1
+        Fill: =RGBA(246, 88, 16, 1)
+        Height: =Parent.Height
+        Width: =Parent.Width
+  Description: Used to ensure we can differentiate a component that happens to have the same name as a built-in control.

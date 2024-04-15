@@ -1,0 +1,115 @@
+Screens:
+  ComponentsScreen4:
+    Children:
+      - ModifiedLibComponentGroup:
+          Control: group
+          Properties:
+            X: =40
+            Y: =40
+          Children:
+            - selectedMenuItemLabel_1:
+                Control: label
+                Properties:
+                  Text: =$"{MenuTemplate_3.Selected.Title} ({MenuTemplate_3.Selected.Tag})"
+                  Width: =218
+                  X: =598
+                  Y: =663
+            - MenuTemplate_3:
+                Control: Component
+                ComponentName: MenuTemplate_2
+                Properties:
+                  MenuItems: |-
+                    =Table({Title: "Menu Item 1", Tag: "Tag1"}
+                      , {Title: "Menu Item 2", Tag: "Tag2"}
+                      , {Title: "Menu Item 3", Tag: "Tag3"}
+                      )
+                  Selected: |-
+                    ={Title: Gallery1_3.Selected.Title, Tag: Gallery1_3.Selected.Tag}
+                  Fill: =RGBA(153, 207, 236, 1)
+                  Height: =276
+                  Width: =250
+                  X: =598
+                  Y: =365
+      - label_1:
+          Control: label
+          Properties:
+            Height: =40
+            Width: =200
+            X: =1078
+            Y: =514
+      - MenuGroup:
+          Control: group
+          Properties:
+            X: =40
+            Y: =40
+          Children:
+            - selectedMenuItemLabel:
+                Control: label
+                Properties:
+                  Text: =$"{MenuTemplate_1.Selected.Title} ({MenuTemplate_1.Selected.Tag})"
+                  Width: =218
+                  X: =15
+                  Y: =601
+            - MenuTemplate_1:
+                Control: Component
+                ComponentName: MenuTemplate
+                Properties:
+                  MenuItems: |-
+                    =Table({Title: "Foo", Tag: "foo"}
+                      , {Title: "Bar", Tag: "bar"}
+                      , {Title: "Baz", Tag: "baz"}
+                      )
+                  Selected: |-
+                    ={Title: Gallery1_2.Selected.Title, Tag: Gallery1_2.Selected.Tag}
+                  Fill: =RGBA(153, 207, 236, 1)
+                  Height: =283
+                  Width: =250
+                  X: =15
+                  Y: =294
+      - CommonHeader_1:
+          Control: Component
+          ComponentName: CommonHeader
+          Properties:
+            AppTitle: ="App Title Example"
+            HeaderText: |-
+              =If(IsBlankOrError(CommonHeader.AppTitle)
+                , CommonHeader.ScreenTitle
+                , If(IsBlankOrError(CommonHeader.ScreenTitle)
+                    , CommonHeader.AppTitle
+                    , CommonHeader.ScreenTitle & " - " & CommonHeader.AppTitle
+                )
+              )
+            ScreenTitle: ="Screen Title Example"
+            Height: =40
+            X: =377
+            Y: =294
+      - MyHeadersGroup:
+          Control: group
+          Properties:
+            X: =40
+            Y: =40
+          Children:
+            - MyHeaderComponent_2:
+                Control: Component
+                ComponentName: MyHeaderComponent
+                Properties:
+                  ScreenTitle: ="Screen 1"
+                  Fill: =RGBA(255, 191, 0, 1)
+                  Height: =77
+                  Width: =1366
+            - MyHeaderComponent_4:
+                Control: Component
+                ComponentName: MyHeaderComponent
+                Properties:
+                  ScreenTitle: ="Screen Z"
+                  Fill: =RGBA(255, 191, 0, 1)
+                  Height: =50
+                  Y: =197
+            - MyHeaderComponent_3:
+                Control: Component
+                ComponentName: MyHeaderComponent
+                Properties:
+                  ScreenTitle: ="Screen 2"
+                  Fill: =RGBA(255, 191, 0, 1)
+                  Height: =50
+                  Y: =98

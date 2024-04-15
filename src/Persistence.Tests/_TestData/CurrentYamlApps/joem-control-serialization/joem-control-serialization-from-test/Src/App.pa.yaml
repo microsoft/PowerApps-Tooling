@@ -1,0 +1,10 @@
+App:
+  Control: App
+  Properties:
+    OnStart: =Set(var1, "hello world!")
+    Theme: =PowerAppsTheme
+    StartScreen: =Screen1
+  Children:
+  - Host:
+      Control: Host
+      Variant: DefaultHostControlVariant

@@ -1,0 +1,26 @@
+{
+  "QualifiedValues": [
+    {
+      "Namespace": "Contacts (Forms)",
+      "Kind": "default.cds_contact_forms",
+      "Values": {
+        "Information": "894cc46a-b0cb-4ab0-8bf6-200544e46a2d",
+        "Contact Reference Panel": "d880c3cf-80e2-42f3-82f9-24d040d09f17",
+        "Portal Contact (Enhanced)": "c1c97961-2d42-4103-abf8-2fe2bdf38224",
+        "Profile Web Form (Enhanced)": "bddc0100-0dbe-4562-aafe-31d08c8ab506",
+        "Invite Web Form": "d6190b35-9474-4098-9698-33f6627eb3bf",
+        "Live Persona Card Form": "449faa0e-f471-48ec-87d0-4719909546d2",
+        "Social Profiles": "7bb87dfd-ec3e-4ed9-8e3e-5725d3067295",
+        "Contact Quick Create": "661157fe-2fc9-4eaa-835f-5bfa2f7b64f7",
+        "Recent Cases and Entitlements": "f3b707fb-3b5f-45f9-9c6b-5e573bb5d19e",
+        "Update Contact": "26843818-6508-4afe-9342-5fae2ebf15ca",
+        "Contact Quick Form": "bdb0ae1c-32fa-4374-b637-8dafe107bc44",
+        "account contact card": "29de27bc-a257-4f29-99cf-bab4a84e688f",
+        "Contact Card form": "bc0f68dd-a4b1-4a8f-bed3-c8f5db2f89cf",
+        "contact card": "707fc57b-c5e6-471b-a180-e37ed28a38e2",
+        "Profile Web Form (Enhanced) - Japanese": "01124dd8-9bff-4cc0-bb33-ea9d943c3f9f",
+        "Contact": "1fed44d1-ae68-4a41-bd2b-f13acac4acfa"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+AllCustomPropertyTypes:
+  Control: Component
+  Properties:
+    MyAction1: =true
+    MyEvent2Number: =100
+    MyAction1_Parameter1: =true
+    MyEvent1None_Parameter1: ="Text"
+    MyEvent1None_Parameter3: ="Text"
+    MyEvent1None_paramNotReq2: ="Text"
+    MyEvent2Number_Parameter1: ="Text"
+    MyInputFunc1: =100
+    MyInputFunc1_Parameter1: =100
+    MyInputFunc1_Parameter2: ="Text"
+    MyInputFunc1_Parameter3: ="Text"
+    MyInputProp1: ="Text"
+    MyOutputFunc2: ="Text"
+    MyOutputFunc2_Parameter1: =100
+    MyOutputProp1: =100
+    Height: =40
+    Width: =200
+  Description: A component that has all the property types
