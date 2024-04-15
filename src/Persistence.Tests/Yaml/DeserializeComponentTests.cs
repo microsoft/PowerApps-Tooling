@@ -31,7 +31,7 @@ public class DeserializeComponentTests : TestBase
         component.Children!.Count.Should().Be(childrenCount);
         component.Properties!.Count.Should().Be(propertiesCount);
         component.Template.Should().NotBeNull();
-        component.Template!.Name.Should().Be("Component");
+        component.Template!.Name.Should().Be("Component1");
         component.CustomProperties.Count.Should().Be(customPropertiesCount);
         component.CustomProperties[0].Name.Should().Be(firstCustomProperyName);
         component.CustomProperties[0].Parameters.Count.Should().Be(firstCustomProperyParametersCount);

@@ -10,7 +10,7 @@ using YamlDotNet.Serialization;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 [DebuggerDisplay("{Template?.DisplayName}: {Name}")]
-public abstract record Control
+public abstract record Control : IConvertible
 {
     private IList<Control>? _children;
 
@@ -36,7 +36,7 @@ public abstract record Control
     /// <summary>
     /// the control's name.
     /// </summary>
-    [YamlMember(Order = 1)]
+    [YamlMember(Order = 10)]
     public required string Name
     {
         get => _name;
@@ -49,23 +49,23 @@ public abstract record Control
         }
     }
 
-    [YamlMember(Order = 3)]
+    [YamlMember(Order = 20)]
     public required string Variant { get; init; } = string.Empty;
 
-    [YamlMember(Order = 4)]
+    [YamlMember(Order = 30)]
     public string Layout { get; set; } = string.Empty;
 
     /// <summary>
     /// key/value pairs of Control properties. Mapped to/from Control rules.
     /// </summary>
-    [YamlMember(Order = 5)]
+    [YamlMember(Order = 40)]
     public ControlPropertiesCollection Properties { get; set; } = new();
 
     /// <summary>
     /// list of child controls nested under this control.
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
-    [YamlMember(Order = 6)]
+    [YamlMember(Order = 50)]
     public IList<Control>? Children { get => _children; set => _children = value; }
 
     [YamlIgnore]
@@ -112,4 +112,93 @@ public abstract record Control
             }
         }
     }
+
+    #region IConvertible
+
+    public TypeCode GetTypeCode()
+    {
+        return TypeCode.Object;
+    }
+
+    public bool ToBoolean(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(bool)}");
+    }
+
+    public byte ToByte(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(byte)}");
+    }
+
+    public char ToChar(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(char)}");
+    }
+
+    public DateTime ToDateTime(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(DateTime)}");
+    }
+
+    public decimal ToDecimal(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(decimal)}");
+    }
+
+    public double ToDouble(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(double)}");
+    }
+
+    public short ToInt16(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(short)}");
+    }
+
+    public int ToInt32(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(int)}");
+    }
+
+    public long ToInt64(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(long)}");
+    }
+
+    public sbyte ToSByte(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(sbyte)}");
+    }
+
+    public float ToSingle(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(float)}");
+    }
+
+    public string ToString(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(string)}");
+    }
+
+    public object ToType(Type conversionType, IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {conversionType.Name}");
+    }
+
+    public ushort ToUInt16(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(ushort)}");
+    }
+
+    public uint ToUInt32(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(uint)}");
+    }
+
+    public ulong ToUInt64(IFormatProvider? provider)
+    {
+        throw new NotSupportedException($"Cannot covert {GetType().Name} to {typeof(ulong)}");
+    }
+
+    #endregion
 }

@@ -69,4 +69,36 @@ public class RoundTripTests : TestBase
         var expectedYaml = File.ReadAllText(GetTestFilePath(path, isControlIdentifiers)).NormalizeNewlines();
         actualYaml.Should().Be(expectedYaml);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", true)]
+    public void Screen_With_Component_Instance(string path, bool isControlIdentifiers)
+    {
+        // Arrange
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act I: Deserialize the yaml into an object.
+        var screen = deserializer.Deserialize<Control>(yamlReader) as Screen;
+        if (screen == null)
+            throw new InvalidOperationException("Failed to deserialize screen");
+
+        // Assert
+        screen.Children!.Count.Should().Be(1);
+        var customControl = screen.Children[0] as ComponentInstance;
+        if (customControl == null)
+            throw new InvalidOperationException("Failed to deserialize component instance");
+        customControl.Should().NotBeNull();
+        customControl.Name.Should().Be("This is custom component");
+        customControl.ComponentName.Should().Be("ComponentDefinition_1");
+
+        // Act II: Serialize the object back into yaml.
+        var serializer = CreateSerializer(isControlIdentifiers);
+        var actualYaml = serializer.SerializeControl(screen).NormalizeNewlines();
+
+        // Assert that the yaml is the same.
+        var expectedYaml = File.ReadAllText(GetTestFilePath(path, isControlIdentifiers)).NormalizeNewlines();
+        actualYaml.Should().Be(expectedYaml);
+    }
 }

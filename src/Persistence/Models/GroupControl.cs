@@ -8,7 +8,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-[FirstClass(templateName: BuiltInTemplates.Group)]
+[FirstClass(templateName: "Group")]
 [YamlSerializable]
 public record GroupControl : Control
 {
@@ -21,6 +21,6 @@ public record GroupControl : Control
     {
         Name = name;
         Variant = variant;
-        Template = controlTemplateStore.GetByName(BuiltInTemplates.Group);
+        Template = controlTemplateStore.GetByName(BuiltInTemplates.Group.Name);
     }
 }

@@ -6,25 +6,19 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ComponentConverter : ControlConverter, IYamlTypeConverter
+internal class ComponentConverter : ControlConverter
 {
     public ComponentConverter(IControlFactory controlFactory) : base(controlFactory)
     {
     }
 
-    bool IYamlTypeConverter.Accepts(Type type)
+    public override bool Accepts(Type type)
     {
-        return type == typeof(ComponentDefinition);
-    }
-
-    object? IYamlTypeConverter.ReadYaml(IParser parser, Type type)
-    {
-        return ReadYaml(parser, type);
+        return type == typeof(ComponentDefinition) || type == typeof(ComponentInstance);
     }
 
     public override object? ReadKey(IParser parser, string key)
@@ -38,16 +32,30 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
         return base.ReadKey(parser, key);
     }
 
-    void IYamlTypeConverter.WriteYaml(IEmitter emitter, object? value, Type type)
+    public override string GetControlTemplateName(Control control)
     {
-        if (value == null)
-            return;
+        return BuiltInTemplates.Component.Name;
+    }
 
-        var component = ((ComponentDefinition)value).BeforeSerialize();
-        WriteYamlInternal(emitter, component, type);
+    public override void OnWriteAfterName(IEmitter emitter, Control control)
+    {
+        // Nothing special to write for ComponentInstance
+        if (control is ComponentInstance componentInstance)
+        {
+            emitter.Emit(nameof(ComponentInstance.ComponentName), componentInstance.ComponentName);
+            base.OnWriteAfterName(emitter, control);
+            return;
+        }
+
+        var component = (ComponentDefinition)control;
 
         emitter.Emit(nameof(ComponentDefinition.Description), component.Description);
+        base.OnWriteAfterName(emitter, control);
 
+        if (component.Type != ComponentType.Canvas)
+        {
+            emitter.Emit(nameof(ComponentDefinition.Type), component.Type.ToString());
+        }
         if (component.AccessAppScope)
         {
             emitter.Emit(new Scalar(nameof(ComponentDefinition.AccessAppScope)));
@@ -59,9 +67,5 @@ internal class ComponentConverter : ControlConverter, IYamlTypeConverter
             emitter.Emit(new Scalar(nameof(ComponentDefinition.CustomProperties)));
             ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(IList<CustomProperty>));
         }
-
-        if (Options.IsControlIdentifiers)
-            emitter.Emit(new MappingEnd());
-        emitter.Emit(new MappingEnd());
     }
 }

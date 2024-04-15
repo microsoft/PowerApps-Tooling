@@ -1,48 +1,44 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
-using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class AppConverter : ControlConverter, IYamlTypeConverter
+internal class AppConverter : ControlConverter
 {
     public AppConverter(IControlFactory controlFactory) : base(controlFactory)
     {
     }
 
-    bool IYamlTypeConverter.Accepts(Type type)
+    public override bool Accepts(Type type)
     {
         return type == typeof(App);
     }
 
-    object? IYamlTypeConverter.ReadYaml(IParser parser, Type type)
-    {
-        return ReadYaml(parser, type);
-    }
-
-    void IYamlTypeConverter.WriteYaml(IEmitter emitter, object? value, Type type)
+    public override void OnWriteAfterName(IEmitter emitter, Control value)
     {
         if (value == null)
             return;
 
-        var component = ((ComponentDefinition)value).BeforeSerialize<ComponentDefinition>();
-        WriteYamlInternal(emitter, component, type);
+        var app = (App)value;
 
-        if (component.CustomProperties != null && component.CustomProperties.Count > 0)
+        if (app.Settings != null)
         {
-            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(ComponentDefinition.CustomProperties)));
-            ValueSerializer!.SerializeValue(emitter, component.CustomProperties, typeof(CustomPropertiesCollection));
+            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(App.Settings)));
+            ValueSerializer!.SerializeValue(emitter, app.Settings, typeof(Models.Settings));
         }
 
-        if (Options.IsControlIdentifiers)
-            emitter.Emit(new YamlDotNet.Core.Events.MappingEnd());
-        emitter.Emit(new YamlDotNet.Core.Events.MappingEnd());
+        if (app.Screens != null)
+        {
+            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(App.Screens)));
+            ValueSerializer!.SerializeValue(emitter, app.Screens, typeof(List<Screen>));
+        }
+
+        base.OnWriteAfterName(emitter, value);
     }
 
     public override object? ReadKey(IParser parser, string key)

@@ -1,0 +1,9 @@
+Hello:
+  Control: Screen
+  Children:
+  - This is custom component:
+      Control: Component
+      ComponentName: ComponentDefinition_1
+      Properties:
+        X: =15
+        Y: =55

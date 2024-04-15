@@ -1,5 +1,6 @@
 MyCustomCommandComponent:
-  Control: CommandComponent
+  Control: Component
+  Type: Command
   Description: lorem ipsum
   AccessAppScope: true
   Properties:
