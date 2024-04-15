@@ -13,8 +13,14 @@ public static class ServiceCollectionExtensions
     /// registers the MSAPP persistence services
     /// </summary>
     /// <param name="services">the services collection instance.</param>
-    /// <param name="useDefaultTemplates">if true, registers the default templates (eg. 'text', 'button') on the templates store.</param>
-    public static void AddPowerAppsPersistence(this IServiceCollection services, bool useDefaultTemplates = false)
+    /// <param name="additionalTemplateStoreConfiguration">
+    /// When specified, performs additional configuration of the <see cref="ControlTemplateStore"/> instance.<br/>
+    /// e.g. Tests could use the following to add test templates:<br/>
+    /// <code>serviceCollection.AddPowerAppsPersistence(store => store.TESTING_ONLY_AddDefaultTemplates())</code>
+    /// </param>
+    public static void AddPowerAppsPersistence(
+        this IServiceCollection services,
+        Action<ControlTemplateStore>? additionalTemplateStoreConfiguration = null)
     {
         services.AddSingleton<IMsappArchiveFactory, MsappArchiveFactory>();
         services.AddSingleton<IYamlSerializationFactory, YamlSerializationFactory>();
@@ -26,10 +32,8 @@ public static class ServiceCollectionExtensions
 
             AddMinimalTemplates(store);
 
-            if (useDefaultTemplates)
-                AddDefaultTemplates(store);
-
             store.DiscoverBuiltInTemplateTypes();
+            additionalTemplateStoreConfiguration?.Invoke(store);
 
             return store;
         });
@@ -47,13 +51,13 @@ public static class ServiceCollectionExtensions
         store.Add(new()
         {
             Name = "gallery",
-            Id = "http://microsoft.com/appmagic/gallery",
+            Id = WellKnownTemplateIds.Gallery,
             NestedTemplates = new ControlTemplate[]
             {
                 new()
                 {
                     Name = "galleryTemplate",
-                    Id = "http://microsoft.com/appmagic/galleryTemplate",
+                    Id = WellKnownTemplateIds.GalleryTemplate,
                     AddPropertiesToParent = true,
                     InputProperties =
                     {
@@ -64,15 +68,18 @@ public static class ServiceCollectionExtensions
                 }
             }
         });
-        store.Add(new() { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
+        store.Add(new() { Name = "commandComponent", Id = WellKnownTemplateIds.CommandComponent });
     }
 
     /// <summary>
     /// Adds some default templates which are useful for testing
     /// </summary>
     /// <param name="store"></param>
-    private static void AddDefaultTemplates(ControlTemplateStore store)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "TEST ONLY function")]
+    public static void TESTING_ONLY_AddDefaultTemplates(this ControlTemplateStore store)
     {
+        _ = store ?? throw new ArgumentNullException(nameof(store));
+
         store.Add(new() { Name = "text", Id = "http://microsoft.com/appmagic/text" });
         store.Add(new() { Name = "button", Id = "http://microsoft.com/appmagic/button" });
         store.Add(new() { Name = "label", Id = "http://microsoft.com/appmagic/label" });

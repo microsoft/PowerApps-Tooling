@@ -31,7 +31,7 @@ public static class MauiProgram
 
     private static MauiAppBuilder RegisterMsAppPersistence(this MauiAppBuilder mauiAppBuilder)
     {
-        mauiAppBuilder.Services.AddPowerAppsPersistence(useDefaultTemplates: true);
+        mauiAppBuilder.Services.AddPowerAppsPersistence(store => store.TESTING_ONLY_AddDefaultTemplates());
         mauiAppBuilder.Services.AddTransient<IAppGeneratorFactory, AppGeneratorFactory>();
 
         return mauiAppBuilder;

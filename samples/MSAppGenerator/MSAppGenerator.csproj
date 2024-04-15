@@ -9,14 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="YamlDotNet" Version="15.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- This reference will be replaced with Nuget package reference -->
-    <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
-      <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\src\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

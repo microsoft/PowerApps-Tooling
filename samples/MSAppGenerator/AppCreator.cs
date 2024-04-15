@@ -15,7 +15,7 @@ public class AppCreator
     private static IServiceProvider ConfigureServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddPowerAppsPersistence(true);
+        serviceCollection.AddPowerAppsPersistence(store => store.TESTING_ONLY_AddDefaultTemplates());
         serviceCollection.AddSingleton<IAppGeneratorFactory, AppGeneratorFactory>();
         var serviceProvider = serviceCollection.BuildServiceProvider();
         return serviceProvider;

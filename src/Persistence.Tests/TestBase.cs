@@ -21,7 +21,8 @@ public abstract class TestBase : VSTestBase
 
     static TestBase()
     {
-        ServiceProvider = BuildServiceProvider();
+        ServiceProvider = BuildServiceProviderForPersistenceTests(
+            additionalTemplateStoreConfiguration: store => store.TESTING_ONLY_AddDefaultTemplates());
     }
 
     public TestBase()
@@ -32,19 +33,12 @@ public abstract class TestBase : VSTestBase
         ControlFactory = ServiceProvider.GetRequiredService<IControlFactory>();
     }
 
-    private static IServiceProvider BuildServiceProvider()
+    internal static IServiceProvider BuildServiceProviderForPersistenceTests(
+        Action<ControlTemplateStore>? additionalTemplateStoreConfiguration = null)
     {
         var serviceCollection = new ServiceCollection();
-        var serviceProvider = ConfigureServices(serviceCollection);
-
-        return serviceProvider;
-    }
-
-    private static IServiceProvider ConfigureServices(IServiceCollection services)
-    {
-        services.AddPowerAppsPersistence(useDefaultTemplates: true);
-
-        return services.BuildServiceProvider();
+        serviceCollection.AddPowerAppsPersistence(additionalTemplateStoreConfiguration);
+        return serviceCollection.BuildServiceProvider();
     }
 
     public static IYamlDeserializer CreateDeserializer(bool isControlIdentifiers = false, bool isTextFirst = false)
