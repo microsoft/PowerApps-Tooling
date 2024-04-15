@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace Persistence.Tests.MsApp;
@@ -138,27 +139,30 @@ public class MsappArchiveSaveTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("HelloWorld", "HelloScreen")]
-    public void Msapp_ShouldSaveAs_NewFilePath(string appName, string screenName)
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", "HelloWorld", "HelloScreen")]
+    public void Msapp_ShouldSaveAs_NewFilePath(string testDirectory, string appName, string screenName)
     {
         // Arrange
         var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
-        var tempFileTwo = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
-        using (var msappArchive = MsappArchiveFactory.Create(tempFile))
+
+        // Zip archive in memory from folder
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
-            msappArchive.App.Should().BeNull();
-
-            // Act
-            var app = ControlFactory.CreateApp(appName);
-            app.Screens.Add(ControlFactory.CreateScreen(screenName));
-            msappArchive.App = app;
-
-            msappArchive.SaveAs(tempFileTwo);
+            var files = Directory.GetFiles(testDirectory, "*", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                zipArchive.CreateEntryFromFile(file, file.Substring(testDirectory.Length + 1));
+            }
         }
+        using var testApp = MsappArchiveFactory.Update(stream, overwriteOnSave: true);
+
+        // Save the test app to another file
+        testApp.SaveAs(tempFile);
+        // Open the app from the file
+        using var msappValidation = MsappArchiveFactory.Open(tempFile);
 
         // Assert
-        File.Exists(tempFile).Should().BeFalse();
-        using var msappValidation = MsappArchiveFactory.Open(tempFileTwo);
         msappValidation.App.Should().NotBeNull();
         msappValidation.App!.Screens.Count.Should().Be(1);
         msappValidation.App.Screens.Single().Name.Should().Be(screenName);

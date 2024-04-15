@@ -438,7 +438,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
                 throw new InvalidOperationException("File already exists but overwrite is not enabled");
         }
 
-        using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
         SaveAs(fileStream);
     }
 
