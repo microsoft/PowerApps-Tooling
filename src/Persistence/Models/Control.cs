@@ -12,8 +12,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [DebuggerDisplay("{Template?.DisplayName}: {Name}")]
 public abstract record Control : IConvertible
 {
-    private IList<Control>? _children;
-
     public Control()
     {
     }
@@ -66,7 +64,7 @@ public abstract record Control : IConvertible
     /// This collection can be null in cases where the control does not support children.
     /// </summary>
     [YamlMember(Order = 50)]
-    public IList<Control>? Children { get => _children; set => _children = value; }
+    public IList<Control>? Children { get; set; }
 
     [YamlIgnore]
     public ControlEditorState? EditorState { get; set; }
@@ -96,18 +94,18 @@ public abstract record Control : IConvertible
     /// </summary>
     internal void HideNestedTemplates()
     {
-        if (_children == null)
+        if (Children == null)
             return;
 
-        for (var i = 0; i < _children.Count; i++)
+        for (var i = 0; i < Children.Count; i++)
         {
-            if (_children[i].Template.AddPropertiesToParent)
+            if (Children[i].Template.AddPropertiesToParent)
             {
-                foreach (var childTemplateProperty in _children[i].Properties)
+                foreach (var childTemplateProperty in Children[i].Properties)
                 {
                     Properties.Add(childTemplateProperty.Key, childTemplateProperty.Value);
                 }
-                _children.RemoveAt(i);
+                Children.RemoveAt(i);
                 i--;
             }
         }
