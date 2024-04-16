@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
@@ -34,22 +35,32 @@ public class AppValidator
         _serviceProvider = ConfigureServiceProvider();
     }
 
-    public IMsappArchive? GetAppFromFile(string filePath)
+    private IMsappArchive? GetAppFromFile(string filePath)
     {
         try
         {
-            var msapp = _serviceProvider.GetRequiredService<IMsappArchiveFactory>().Open(filePath);
+            var msapp = _serviceProvider.GetRequiredService<IMsappArchiveFactory>().Update(filePath, overwriteOnSave: true);
             if (!string.IsNullOrEmpty(msapp.App.Name) && msapp.App.Screens.Count >= 1)
             {
                 return msapp;
             }
         }
-        catch (NullReferenceException ex) { }
+        catch (NullReferenceException ex) {
+            Console.WriteLine(ex.Message);
+        }
         return null;
     }
 
-    //public App ValidateMSApp(IMsappArchive app)
-    //{
+    public bool ValidateMSApp(string filePath, string savePath)
+    {
+        var msapp = GetAppFromFile(filePath);
 
-    //}
+        if (msapp == null)
+        {
+            return false;
+        }
+
+        msapp.SaveAs(savePath);
+        return true;
+    }
 }

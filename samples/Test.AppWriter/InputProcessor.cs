@@ -67,19 +67,24 @@ internal class InputProcessor
     /// <summary>
     /// Roundtrips all MSApps in a folder, will generate a report at the outpath 
     /// </summary>
-    private static void ValidateFunction(string filePath, string outPath, int numPasses)
+    private static void ValidateFunction(string folderPath, string outPath, int numPasses)
     {
         var validator = new AppValidator();
 
-        var msapp = validator.GetAppFromFile(filePath);
-
-        if (msapp != null)
+        // Ensure there are files present in the provided folder
+        if (Directory.GetFiles(folderPath).Length < 1)
         {
-            var msapp = validator.GetAppFromFile(file.FullName);
+            Console.WriteLine("No files present in provided file path");
+            return;
+        }
 
-            if (msapp != null)
+        for (var i = 0; i < numPasses; i++)
+        {
+            foreach (var file in Directory.GetFiles(folderPath))
             {
-                msapp.SaveAs(outPath + '\\' + file.Name);
+                var tempinfo = new FileInfo(file);
+                var savePath = Path.Combine(outPath, tempinfo.Name);
+                validator.ValidateMSApp(file, savePath);
             }
         }
     }
