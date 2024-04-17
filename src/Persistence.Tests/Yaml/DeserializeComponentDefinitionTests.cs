@@ -6,10 +6,10 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 namespace Persistence.Tests.Yaml;
 
 [TestClass]
-public class DeserializeComponentTests : TestBase
+public class DeserializeComponentDefinitionTests : TestBase
 {
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml{0}/Components/with-custom-properties.pa.yaml", true, 6, 1, 3,
+    [DataRow(@"_TestData/ValidYaml{0}/ComponentDefinitions/with-custom-properties.pa.yaml", true, 6, 1, 3,
         "inputFuncImage", 1, "reqColorParam", "a required color param")]
     public void Deserialize_Component_Should_Succeed(string path, bool isControlIdentifiers,
         int customPropertiesCount, int childrenCount, int propertiesCount,
