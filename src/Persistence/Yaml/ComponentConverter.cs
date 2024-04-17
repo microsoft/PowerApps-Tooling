@@ -43,6 +43,7 @@ internal class ComponentConverter : ControlConverter
         if (control is ComponentInstance componentInstance)
         {
             emitter.Emit(nameof(ComponentInstance.ComponentName), componentInstance.ComponentName);
+            emitter.Emit(nameof(ComponentInstance.ComponentLibraryUniqueName), componentInstance.ComponentLibraryUniqueName);
             base.OnWriteAfterName(emitter, control);
             return;
         }

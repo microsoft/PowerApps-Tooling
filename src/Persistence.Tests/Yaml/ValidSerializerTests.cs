@@ -314,4 +314,35 @@ public class ValidSerializerTests : TestBase
 
         serializedComponent.Should().Be(expectedYaml);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", false)]
+    public void Serialize_ShouldCreateValidYamlForComponentInstance(string expectedPath, bool isControlIdentifiers)
+    {
+        var graph = ControlFactory.CreateScreen("Hello",
+                        properties: new(),
+                        children: new Control[]
+                        {
+                            new ComponentInstance()
+                            {
+                                Name = "This is custom component",
+                                ComponentName = "ComponentDefinition_1",
+                                ComponentLibraryUniqueName = "MyComponentLibrary",
+                                Variant = string.Empty,
+                                Template = new Microsoft.PowerPlatform.PowerApps.Persistence.Templates.ControlTemplate("http://localhost/Component"),
+                                Properties = new()
+                                {
+                                    new ControlProperty("X", "15"),
+                                    new ControlProperty("Y", "55"),
+                                }
+                            }
+                        });
+        var sut = CreateSerializer(isControlIdentifiers: true);
+
+        var serializedGraph = sut.SerializeControl(graph).NormalizeNewlines();
+
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        serializedGraph.Should().Be(expectedYaml);
+    }
 }
