@@ -85,7 +85,7 @@ public abstract class TestBase : VSTestBase
                     Direction = CustomProperty.PropertyDirection.Input, Type = CustomProperty.PropertyType.Data
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", false
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/CustomProperty1.pa.yaml", false
         },
         new object[]
         {
@@ -94,7 +94,7 @@ public abstract class TestBase : VSTestBase
                     Direction = CustomProperty.PropertyDirection.Input, Type = CustomProperty.PropertyType.Data
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty1.pa.yaml", true
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/CustomProperty1.pa.yaml", true
         },
         new object[]
         {
@@ -110,7 +110,7 @@ public abstract class TestBase : VSTestBase
                     },
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", false
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/CustomProperty2.pa.yaml", false
         },
         new object[]
         {
@@ -126,7 +126,7 @@ public abstract class TestBase : VSTestBase
                     },
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/CustomProperty2.pa.yaml", true
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/CustomProperty2.pa.yaml", true
         },
         new object[]
         {
@@ -138,7 +138,7 @@ public abstract class TestBase : VSTestBase
                     Direction = CustomProperty.PropertyDirection.Input, Type = CustomProperty.PropertyType.Data
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/with-two-properties.pa.yaml", false
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/with-two-properties.pa.yaml", false
         },
         new object[]
         {
@@ -150,7 +150,7 @@ public abstract class TestBase : VSTestBase
                     Direction = CustomProperty.PropertyDirection.Input, Type = CustomProperty.PropertyType.Data
                 }
             },
-            @"_TestData/ValidYaml{0}/Components/with-two-properties.pa.yaml", true
+            @"_TestData/ValidYaml{0}/ComponentDefinitions/with-two-properties.pa.yaml", true
         },
 
     };

@@ -351,9 +351,9 @@ public class DeserializerValidTests : TestBase
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", true, "MyCustomComponent", "http://microsoft.com/appmagic/Component", "lorem ipsum", true)]
     [DataRow(@"_TestData/ValidYaml{0}/Component.pa.yaml", false, "MyCustomComponent", "http://microsoft.com/appmagic/Component", "lorem ipsum", true)]
-    [DataRow(@"_TestData/ValidYaml{0}/Components/CommandComponent.pa.yaml", true, "MyCustomCommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
-    [DataRow(@"_TestData/ValidYaml{0}/Components/CommandComponent.pa.yaml", false, "MyCustomCommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
-    public void Deserialize_Component_ShouldSucceed(
+    [DataRow(@"_TestData/ValidYaml{0}/ComponentDefinitions/CommandComponent.pa.yaml", true, "MyCustomCommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/ComponentDefinitions/CommandComponent.pa.yaml", false, "MyCustomCommandComponent", "http://microsoft.com/appmagic/CommandComponent", "lorem ipsum", true)]
+    public void Deserialize_ComponentDefinition_ShouldSucceed(
         string path, bool isControlIdentifiers,
         string expectedName,
         string expectedTemplateId,
@@ -436,7 +436,7 @@ public class DeserializerValidTests : TestBase
 
     [TestMethod]
     [DynamicData(nameof(ComponentCustomProperties_Data), typeof(TestBase))]
-    public void Deserialize_ShouldParseYamlForComponentCustomProperties(CustomProperty[] expectedCustomProperties, string yamlFile, bool isControlIdentifiers)
+    public void Deserialize_ShouldParseYamlForComponentDefinitionCustomProperties(CustomProperty[] expectedCustomProperties, string yamlFile, bool isControlIdentifiers)
     {
         var expectedYaml = File.ReadAllText(GetTestFilePath(yamlFile, isControlIdentifiers));
         var deserializer = CreateDeserializer(isControlIdentifiers);

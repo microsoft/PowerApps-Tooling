@@ -300,7 +300,7 @@ public class ValidSerializerTests : TestBase
     [DataRow(ComponentType.Canvas, "lorem ipsum dolor", true, "Control: Component\nName: Component1\nDescription: lorem ipsum dolor\nAccessAppScope: true\n")]
     [DataRow(ComponentType.Canvas, "", true, "Control: Component\nName: Component1\nAccessAppScope: true\n")]
     [DataRow(ComponentType.Command, "", true, "Control: Component\nName: Component1\nType: Command\nAccessAppScope: true\n")]
-    public void Serialize_ShouldCreateValidYamlForComponent(ComponentType componentType, string description, bool accessAppScope, string expectedYaml)
+    public void Serialize_ShouldCreateValidYamlForComponentDefinitions(ComponentType componentType, string description, bool accessAppScope, string expectedYaml)
     {
         var component = (ComponentDefinition)ControlFactory.Create("Component1", "Component");
         component.Should().NotBeNull();
