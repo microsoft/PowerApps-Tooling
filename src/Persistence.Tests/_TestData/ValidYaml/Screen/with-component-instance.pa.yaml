@@ -1,10 +1,10 @@
-Hello:
-  Control: Screen
-  Children:
-  - This is custom component:
-      Control: Component
-      ComponentName: ComponentDefinition_1
-      ComponentLibraryUniqueName: MyComponentLibrary
-      Properties:
-        X: =15
-        Y: =55
+Control: Screen
+Name: Hello
+Children:
+- Control: Component
+  Name: This is custom component
+  ComponentName: ComponentDefinition_1
+  ComponentLibraryUniqueName: MyComponentLibrary
+  Properties:
+    X: =15
+    Y: =55

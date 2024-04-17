@@ -338,7 +338,7 @@ public class ValidSerializerTests : TestBase
                                 }
                             }
                         });
-        var sut = CreateSerializer(isControlIdentifiers: true);
+        var sut = CreateSerializer(isControlIdentifiers: isControlIdentifiers);
 
         var serializedGraph = sut.SerializeControl(graph).NormalizeNewlines();
 
