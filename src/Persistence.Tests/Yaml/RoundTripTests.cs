@@ -71,8 +71,11 @@ public class RoundTripTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", true)]
-    public void Screen_With_Component_Instance(string path, bool isControlIdentifiers)
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", true, "MyComponentLibrary")]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance.pa.yaml", false, "MyComponentLibrary")]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance-no-library.pa.yaml", true, "")]
+    [DataRow(@"_TestData/ValidYaml{0}/Screen/with-component-instance-no-library.pa.yaml", false, "")]
+    public void Screen_With_Component_Instance(string path, bool isControlIdentifiers, string componentLibraryName)
     {
         // Arrange
         var deserializer = CreateDeserializer(isControlIdentifiers);
@@ -92,7 +95,7 @@ public class RoundTripTests : TestBase
         customControl.Should().NotBeNull();
         customControl.Name.Should().Be("This is custom component");
         customControl.ComponentName.Should().Be("ComponentDefinition_1");
-        customControl.ComponentLibraryUniqueName.Should().Be("MyComponentLibrary");
+        customControl.ComponentLibraryUniqueName.Should().Be(componentLibraryName);
 
         // Act II: Serialize the object back into yaml.
         var serializer = CreateSerializer(isControlIdentifiers);

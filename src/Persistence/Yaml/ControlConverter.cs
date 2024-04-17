@@ -77,20 +77,15 @@ internal class ControlConverter : IYamlTypeConverter
                 if (parser.Current is Scalar)
                 {
                     value = parser.Consume<Scalar>().Value;
-                    if (Options.IsControlIdentifiers)
-                    {
-                        if (key.Value == nameof(Control))
-                            templateName = (string)value;
-                        else if (key.Value == nameof(ComponentInstance.ComponentName))
-                            componentInstanceName = (string)value;
-                        else if (key.Value == nameof(ComponentInstance.ComponentLibraryUniqueName))
-                            componentLibraryUniqueName = (string)value;
-                    }
-                    else
-                    {
-                        if (key.Value == nameof(Control.Name))
-                            controlName = (string)value;
-                    }
+
+                    if (key.Value == nameof(Control))
+                        templateName = (string)value;
+                    else if (key.Value == nameof(ComponentInstance.ComponentName))
+                        componentInstanceName = (string)value;
+                    else if (key.Value == nameof(ComponentInstance.ComponentLibraryUniqueName))
+                        componentLibraryUniqueName = (string)value;
+                    else if (key.Value == nameof(Control.Name))
+                        controlName = (string)value;
                 }
                 else
                     value = ReadKey(parser, key.Value);
