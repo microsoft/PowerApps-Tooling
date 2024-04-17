@@ -25,4 +25,7 @@ public record ComponentInstance : Control
 
     [YamlMember(Order = 1)]
     public string ComponentName { get; set; } = string.Empty;
+
+    [YamlMember(Order = 2)]
+    public string? ComponentLibraryUniqueName { get; set; } = string.Empty;
 }

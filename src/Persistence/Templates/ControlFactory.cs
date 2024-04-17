@@ -17,10 +17,13 @@ public class ControlFactory : IControlFactory
         _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
     }
 
-    public Control Create(string name, string template, string? componentDefinitionName = null, string? variant = null,
+    public Control Create(string name, string template,
+        string? componentDefinitionName = null,
+        string? componentLibraryUniqueName = null,
+        string? variant = null,
         ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        if (TryCreateComponent(name, template, componentDefinitionName, variant, properties, children, controlDefinition: null, out var control))
+        if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
             return control;
 
         if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
@@ -42,7 +45,10 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    public Control Create(string name, string template, string componentDefinitionName, Dictionary<string, object?>? controlDefinition)
+    public Control Create(string name, string template,
+        string componentDefinitionName,
+        string componentLibraryUniqueName,
+        Dictionary<string, object?>? controlDefinition)
     {
         string? variant = null;
         ControlPropertiesCollection? properties = null;
@@ -55,7 +61,7 @@ public class ControlFactory : IControlFactory
             controlDefinition.TryGetValue(nameof(Control.Children), out children);
         }
 
-        if (TryCreateComponent(name, template, componentDefinitionName, variant, properties, children, controlDefinition, out var control))
+        if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition, out var control))
             return control;
 
         if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
@@ -79,9 +85,13 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    public Control Create(string name, ControlTemplate template, string? componentDefinitionName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null)
+    public Control Create(string name, ControlTemplate template,
+        string? componentDefinitionName = null,
+        string? componentLibraryUniqueName = null,
+        string? variant = null,
+        ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        if (TryCreateComponent(name, template, componentDefinitionName, variant, properties, children, controlDefinition: null, out var control))
+        if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
             return control;
 
         if (TryCreateFirstClassControl(name, template.Name, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
@@ -112,7 +122,10 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    private bool TryCreateComponent(string name, string template, string? componentDefinitionName, string? variant,
+    private bool TryCreateComponent(string name, string template,
+        string? componentDefinitionName,
+        string? componentLibraryUniqueName,
+        string? variant,
         ControlPropertiesCollection? properties, IList<Control>? children, Dictionary<string, object?>? controlDefinition,
         [MaybeNullWhen(false)] out Control control)
     {
@@ -123,6 +136,7 @@ public class ControlFactory : IControlFactory
                 new ControlTemplate(ComponentInstance.ComponentInstanceTemplateId) { Name = componentDefinitionName })
             {
                 ComponentName = componentDefinitionName,
+                ComponentLibraryUniqueName = componentLibraryUniqueName,
                 Properties = properties ?? new(),
                 Children = children
             };
@@ -142,7 +156,10 @@ public class ControlFactory : IControlFactory
         return control != null;
     }
 
-    private static bool TryCreateComponent(string name, ControlTemplate template, string? componentDefinitionName, string? variant,
+    private static bool TryCreateComponent(string name, ControlTemplate template,
+        string? componentDefinitionName,
+        string? componentLibraryUniqueName,
+        string? variant,
         ControlPropertiesCollection? properties, IList<Control>? children, Dictionary<string, object?>? controlDefinition,
         [MaybeNullWhen(false)] out Control control)
     {
@@ -151,6 +168,7 @@ public class ControlFactory : IControlFactory
             control = new ComponentInstance(name, variant ?? string.Empty, template)
             {
                 ComponentName = componentDefinitionName,
+                ComponentLibraryUniqueName = componentLibraryUniqueName,
                 Properties = properties ?? new(),
                 Children = children
             };

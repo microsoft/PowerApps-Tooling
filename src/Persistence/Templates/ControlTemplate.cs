@@ -81,10 +81,5 @@ public record ControlTemplate
         /// The friendly identifier of the component.
         /// </summary>
         public required string Name { get; init; }
-
-        /// <summary>
-        /// The unique name of the component library if this component originates from a component library.
-        /// </summary>
-        public string? ComponentLibraryUniqueName { get; init; }
     }
 }
