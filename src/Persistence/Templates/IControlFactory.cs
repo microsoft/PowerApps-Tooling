@@ -8,11 +8,11 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
 public interface IControlFactory
 {
-    Control Create(string name, string template, string? componentDefinitionName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
+    Control Create(string name, string template, string? componentDefinitionName = null, string? componentLibraryUniqueName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
 
-    Control Create(string name, ControlTemplate template, string? componentDefinitionName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
+    Control Create(string name, ControlTemplate template, string? componentDefinitionName = null, string? componentLibraryUniqueName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
 
-    Control Create(string name, string template, string componentDefinitionName, Dictionary<string, object?>? controlDefinition);
+    Control Create(string name, string template, string componentDefinitionName, string componentLibraryUniqueName, Dictionary<string, object?>? controlDefinition);
 
     App CreateApp(string name, ControlPropertiesCollection? properties = null);
 

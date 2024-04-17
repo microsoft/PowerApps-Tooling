@@ -92,6 +92,7 @@ public class RoundTripTests : TestBase
         customControl.Should().NotBeNull();
         customControl.Name.Should().Be("This is custom component");
         customControl.ComponentName.Should().Be("ComponentDefinition_1");
+        customControl.ComponentLibraryUniqueName.Should().Be("MyComponentLibrary");
 
         // Act II: Serialize the object back into yaml.
         var serializer = CreateSerializer(isControlIdentifiers);

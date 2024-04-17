@@ -112,12 +112,7 @@ internal class ControlConverter : IYamlTypeConverter
         // Create control instance
         var control = _controlFactory.Create(
             string.IsNullOrWhiteSpace(controlName) ? templateName : controlName,
-            templateName, componentInstanceName, controlDefinition);
-
-        if (!string.IsNullOrWhiteSpace(componentLibraryUniqueName) && control is ComponentInstance componentInstance)
-        {
-            componentInstance.ComponentLibraryUniqueName = componentLibraryUniqueName;
-        }
+            templateName, componentInstanceName, componentLibraryUniqueName, controlDefinition);
 
         return control.AfterDeserialize(_controlFactory);
     }
