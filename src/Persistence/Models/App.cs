@@ -34,13 +34,8 @@ public record App : Control
     [YamlIgnore]
     public IList<Screen> Screens { get; set; } = new List<Screen>();
 
-    public Settings Settings { get; set; } = new Settings();
-
     internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
-        if (controlDefinition.TryGetValue<Settings>(nameof(Settings), out var settings) && settings != null)
-            Settings = settings;
-
         if (controlDefinition.TryGetValue<List<Screen>>(nameof(Screens), out var screens))
         {
             if (screens != null)
