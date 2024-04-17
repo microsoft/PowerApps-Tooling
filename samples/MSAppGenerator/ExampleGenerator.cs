@@ -110,7 +110,7 @@ public class ExampleGenerator : IAppGenerator
                 }
             }
 
-            app.Screens.Add(_controlFactory.CreateScreen("Hello from .Net", children: childList.ToArray()));
+            app.Screens.Add(_controlFactory.CreateScreen("Hello from .Net" + i, children: childList.ToArray()));
         }
 
         return app;

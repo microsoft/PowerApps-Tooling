@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace Persistence.Tests.MsApp;
@@ -135,5 +136,38 @@ public class MsappArchiveSaveTests : TestBase
 
         msappArchive.CanonicalEntries.Count.Should().Be(sameNames.Length);
         msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlPaFileExtension}")));
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", "App", "HelloScreen")]
+    public void Msapp_ShouldSaveAs_NewFilePath(string testDirectory, string appName, string screenName)
+    {
+        // Arrange
+        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+
+        // Zip archive in memory from folder
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            var files = Directory.GetFiles(testDirectory, "*", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                zipArchive.CreateEntryFromFile(file, file.Substring(testDirectory.Length + 1));
+            }
+        }
+        using var testApp = MsappArchiveFactory.Update(stream, overwriteOnSave: true);
+
+        // Save the test app to another file
+        testApp.SaveAs(tempFile);
+
+        // Open the app from the file
+        using var msappValidation = MsappArchiveFactory.Open(tempFile);
+
+        // Assert
+        msappValidation.App.Should().NotBeNull();
+        msappValidation.App!.Screens.Count.Should().Be(1);
+        msappValidation.App.Screens.Single().Name.Should().Be(screenName);
+        msappValidation.App.Name.Should().Be(appName);
+        msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
     }
 }

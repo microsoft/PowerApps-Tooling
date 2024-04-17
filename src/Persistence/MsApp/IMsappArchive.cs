@@ -33,6 +33,16 @@ public interface IMsappArchive : IDisposable
     void Save();
 
     /// <summary>
+    /// Saves the archive to the provided file.
+    /// </summary>
+    void SaveAs(string filePath);
+
+    /// <summary>
+    /// Saves the archive to the provided stream.
+    /// </summary>
+    void SaveAs(Stream stream);
+
+    /// <summary>
     /// Total sum of decompressed sizes of all entries in the archive.
     /// </summary>
     long DecompressedSize { get; }
