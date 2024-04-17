@@ -277,28 +277,6 @@ public class DeserializerValidTests : TestBase
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }
 
-
-    [TestMethod]
-    [DataRow(@"_TestData/ValidYaml{0}/App-with-settings.pa.yaml", true, "Test App Name", 1)]
-    [DataRow(@"_TestData/ValidYaml{0}/App-with-settings.pa.yaml", false, "Test App Name", 1)]
-    public void Deserialize_App_WithSettings_ShouldSucceed(string path, bool isControlIdentifiers, string expectedName, int propertiesCount)
-    {
-        // Arrange
-        var deserializer = CreateDeserializer(isControlIdentifiers);
-        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
-        using var yamlReader = new StreamReader(yamlStream);
-
-        // Act
-        var app = deserializer.Deserialize<App>(yamlReader);
-        if (app == null)
-            throw new InvalidOperationException(nameof(app));
-
-        app.Settings.Should().NotBeNull();
-        app.Settings!.Name.Should().NotBeNull().And.Be(expectedName);
-        app.Settings!.Layout.Should().Be(Settings.AppLayout.Landscape);
-        app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
-    }
-
     [TestMethod]
     [DataRow(@"_TestData/ValidYaml{0}/Screen-with-unmatched-field.pa.yaml", true)]
     [DataRow(@"_TestData/ValidYaml{0}/Screen-with-unmatched-field.pa.yaml", false)]
