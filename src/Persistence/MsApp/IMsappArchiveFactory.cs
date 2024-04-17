@@ -31,10 +31,10 @@ public interface IMsappArchiveFactory
     /// <summary>
     /// Opens existing msapp archive for update (read/write).
     /// </summary>
-    IMsappArchive Update(string path, bool overwriteOnSave = false);
+    IMsappArchive Update(string path);
 
     /// <summary>
     /// Opens existing msapp archive for update (read/write).
     /// </summary>
-    IMsappArchive Update(Stream stream, bool leaveOpen = false, bool overwriteOnSave = false);
+    IMsappArchive Update(Stream stream, bool leaveOpen = false);
 }

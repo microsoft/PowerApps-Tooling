@@ -143,7 +143,7 @@ public class MsappArchiveSaveTests : TestBase
     public void Msapp_ShouldSaveAs_NewFilePath(string testDirectory, string appName, string screenName)
     {
         // Arrange
-        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
+        var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.ChangeExtension(Path.GetRandomFileName(), MsappArchive.MsappFileExtension));
 
         // Zip archive in memory from folder
         using var stream = new MemoryStream();
@@ -155,9 +155,9 @@ public class MsappArchiveSaveTests : TestBase
                 zipArchive.CreateEntryFromFile(file, file.Substring(testDirectory.Length + 1));
             }
         }
-        using var testApp = MsappArchiveFactory.Update(stream, overwriteOnSave: true);
+        using var testApp = MsappArchiveFactory.Open(stream);
 
-        // Save the test app to another file
+        // Act: Save the test app to another file
         testApp.SaveAs(tempFile);
 
         // Open the app from the file
@@ -168,6 +168,6 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.App!.Screens.Count.Should().Be(1);
         msappValidation.App.Screens.Single().Name.Should().Be(screenName);
         msappValidation.App.Name.Should().Be(appName);
-        msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
+        msappValidation.CanonicalEntries.Keys.Should().BeEquivalentTo(testApp.CanonicalEntries.Keys);
     }
 }
