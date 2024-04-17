@@ -9,7 +9,7 @@ using YamlDotNet.Serialization.BufferedDeserialization.TypeDiscriminators;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ControlTypeDiscriminator : ITypeDiscriminator
+internal sealed class ControlTypeDiscriminator : ITypeDiscriminator
 {
     private readonly IControlTemplateStore _controlTemplateStore;
 

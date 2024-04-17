@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 ///    Property1: Value1
 ///    Property2: Value2
 /// </summary>
-internal class NamedObjectEmitter : ChainedEventEmitter
+internal sealed class NamedObjectEmitter : ChainedEventEmitter
 {
     private readonly Stack<bool> _isNamedObject = new();
     private bool _isName;

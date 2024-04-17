@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
-internal record AppThemes
+internal sealed record AppThemes
 {
     [SetsRequiredMembers]
     public AppThemes()

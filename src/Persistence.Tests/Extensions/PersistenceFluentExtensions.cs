@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using FluentAssertions.Execution;
@@ -256,7 +257,7 @@ internal static class PersistenceFluentExtensions
         var line = reader.ReadLine();
         while (line is not null)
         {
-            sb.AppendLine($"{lineNumber,3}: {line}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"{lineNumber,3}: {line}");
             line = reader.ReadLine();
             lineNumber++;
         }

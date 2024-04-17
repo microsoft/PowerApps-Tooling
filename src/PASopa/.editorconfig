@@ -1,3 +1,8 @@
 [*.cs]
 
+# Category overries:
+# Disabling these categories because the original implementation didn't have them on and we're not making changes to it at this time.
+dotnet_analyzer_diagnostic.category-Globalization.severity    = silent
+dotnet_analyzer_diagnostic.category-Performance.severity      = silent
+
 # Rule overrides:

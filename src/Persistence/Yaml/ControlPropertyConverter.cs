@@ -9,7 +9,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ControlPropertyConverter : IYamlTypeConverter
+internal sealed class ControlPropertyConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type)
     {

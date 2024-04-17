@@ -8,7 +8,7 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class AppConverter : ControlConverter
+internal sealed class AppConverter : ControlConverter
 {
     public AppConverter(IControlFactory controlFactory) : base(controlFactory)
     {

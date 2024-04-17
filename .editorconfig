@@ -134,7 +134,7 @@ csharp_style_expression_bodied_indexers = true:silent
 csharp_style_expression_bodied_accessors = true:silent
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
-csharp_style_var_elsewhere = true:error
+csharp_style_var_elsewhere = true:warning
 csharp_style_var_when_type_is_apparent = true:error
 csharp_style_var_for_built_in_types = true:error
 csharp_space_around_binary_operators = before_and_after
@@ -179,17 +179,17 @@ csharp_style_prefer_extended_property_pattern = true:suggestion
 # Set severity to 'error' when the fix indicates a breaking change or using insecure/unsafe APIs/patterns.
 [*.{cs,vb}]
 
-# dotnet_analyzer_diagnostic.category-Design.severity           = warning
-# dotnet_analyzer_diagnostic.category-Documentation.severity    = none
-# dotnet_analyzer_diagnostic.category-Globalization.severity    = none
-# dotnet_analyzer_diagnostic.category-Interoperability.severity = warning
-# dotnet_analyzer_diagnostic.category-Maintainability.severity  = warning
-# dotnet_analyzer_diagnostic.category-Naming.severity           = warning
-# dotnet_analyzer_diagnostic.category-Performance.severity      = warning
-# dotnet_analyzer_diagnostic.category-Reliability.severity      = warning
-# dotnet_analyzer_diagnostic.category-Security.severity         = error
+dotnet_analyzer_diagnostic.category-Design.severity           = warning
+dotnet_analyzer_diagnostic.category-Documentation.severity    = warning
+dotnet_analyzer_diagnostic.category-Globalization.severity    = warning
+dotnet_analyzer_diagnostic.category-Interoperability.severity = warning
+dotnet_analyzer_diagnostic.category-Maintainability.severity  = warning
+dotnet_analyzer_diagnostic.category-Naming.severity           = warning
+dotnet_analyzer_diagnostic.category-Performance.severity      = warning
+dotnet_analyzer_diagnostic.category-Reliability.severity      = warning
+dotnet_analyzer_diagnostic.category-Security.severity         = error
 dotnet_analyzer_diagnostic.category-Style.severity            = warning
-# dotnet_analyzer_diagnostic.category-Usage.severity            = warning
+dotnet_analyzer_diagnostic.category-Usage.severity            = warning
 
 # *********************************
 # ** Code-style Diagnostic Rules **
@@ -235,23 +235,23 @@ dotnet_diagnostic.IDE1006.severity = none       # These words must begin with up
 [*.{cs,vb}]
 
 dotnet_diagnostic.CA1507.severity = error   # Use nameof in place of string
-dotnet_diagnostic.CA1508.severity = error   # Avoid dead conditional code
+dotnet_diagnostic.CA1508.severity = warning # Avoid dead conditional code
 dotnet_diagnostic.CA1700.severity = error   # Do not name enum values 'Reserved'
-dotnet_diagnostic.CA1707.severity = error   # Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = warning # Identifiers should not contain underscores
 dotnet_diagnostic.CA1708.severity = error   # Identifiers should differ by more than case
 dotnet_diagnostic.CA1710.severity = error   # Identifiers should have correct suffix
 dotnet_diagnostic.CA1712.severity = error   # Do not prefix enum values with type name
 dotnet_diagnostic.CA1720.severity = error   # Identifiers should not contain type names
 dotnet_diagnostic.CA1802.severity = error   # Use Literals Where Appropriate
-dotnet_diagnostic.CA1805.severity = error   # Do not initialize unnecessarily
+dotnet_diagnostic.CA1805.severity = warning # Do not initialize unnecessarily
 dotnet_diagnostic.CA1810.severity = error   # Initialize reference type static fields inline
 dotnet_diagnostic.CA1821.severity = error   # Remove empty finalizers
-dotnet_diagnostic.CA1822.severity = error   # Mark members as static
-dotnet_diagnostic.CA1823.severity = error   # Avoid unused private fields
-dotnet_diagnostic.CA1826.severity = error   # Use property instead of Linq Enumerable method
-dotnet_diagnostic.CA1827.severity = error   # Do not use Count()/LongCount() when Any() can be used
-dotnet_diagnostic.CA1849.severity = error   # Call async methods when in an async method
-dotnet_diagnostic.CA2000.severity = error   # Dispose objects before losing scope
+dotnet_diagnostic.CA1822.severity = warning # Mark members as static
+dotnet_diagnostic.CA1823.severity = warning # Avoid unused private fields
+dotnet_diagnostic.CA1826.severity = warning # Use property instead of Linq Enumerable method
+dotnet_diagnostic.CA1827.severity = warning # Do not use Count()/LongCount() when Any() can be used
+dotnet_diagnostic.CA1849.severity = warning # Call async methods when in an async method
+dotnet_diagnostic.CA2000.severity = warning # Dispose objects before losing scope
 
 
 # *****************************************
@@ -646,6 +646,9 @@ dotnet_diagnostic.SA1648.severity = none
 dotnet_diagnostic.SA1649.severity = none
 
 dotnet_diagnostic.SA1651.severity = none
+
+# SYSLIB1045: Convert to 'GeneratedRegexAttribute'.
+dotnet_diagnostic.SYSLIB1045.severity = none # Seems to be an IDE only rule atm
 
 dotnet_diagnostic.SX1309.severity = none
 

@@ -5,7 +5,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class NamedObjectTypeInspector : ITypeInspector
+internal sealed class NamedObjectTypeInspector : ITypeInspector
 {
     private readonly ITypeInspector _innerTypeInspector;
 
@@ -18,7 +18,7 @@ internal class NamedObjectTypeInspector : ITypeInspector
     {
         var properties = _innerTypeInspector.GetProperties(type, container);
         if (typeof(INamedObject).IsAssignableFrom(type))
-            return properties.Where(p => !p.Name.Equals(nameof(INamedObject.Name)));
+            return properties.Where(p => !p.Name.Equals(nameof(INamedObject.Name), StringComparison.Ordinal));
 
         return properties;
     }

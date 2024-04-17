@@ -10,7 +10,7 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ComponentConverter : ControlConverter
+internal sealed class ComponentConverter : ControlConverter
 {
     public ComponentConverter(IControlFactory controlFactory) : base(controlFactory)
     {
