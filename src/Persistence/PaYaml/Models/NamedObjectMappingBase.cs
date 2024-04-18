@@ -48,6 +48,7 @@ public abstract class NamedObjectMappingBase<TName, TValue, TNamedObject> : INam
         }
     }
 
+    [SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "ByDesign: 'namedObject' is preferred over 'item'")]
     public void Add(TNamedObject namedObject)
     {
         InnerCollection.Add(namedObject.Name, namedObject);
@@ -76,6 +77,7 @@ public abstract class NamedObjectMappingBase<TName, TValue, TNamedObject> : INam
         return InnerCollection.ContainsKey(name);
     }
 
+    [SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "ByDesign: 'namedObject' is preferred over 'item'")]
     public bool Contains(TNamedObject namedObject)
     {
         return InnerCollection.ContainsValue(namedObject);

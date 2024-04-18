@@ -76,19 +76,19 @@ public abstract class NamedItemsCollection<TValue> :
     {
         get
         {
-            if (key is string s)
-                return _items[s];
-            throw new ArgumentException();
+            if (key is not string s)
+                throw new ArgumentException("Key must be a string", nameof(key));
+
+            return _items[s];
         }
         set
         {
-            if (key is string s && value is TValue v)
-            {
-                _items[s] = v;
-                return;
-            }
+            if (key is not string s)
+                throw new ArgumentException("Key must be a string", nameof(key));
+            if (key is not TValue v)
+                throw new ArgumentException($"Value must be of type {typeof(TValue).Name}", nameof(value));
 
-            throw new ArgumentException();
+            _items[s] = v;
         }
     }
 
@@ -112,16 +112,19 @@ public abstract class NamedItemsCollection<TValue> :
         _items.Add(key, value);
     }
 
-    public void Add(KeyValuePair<string, TValue> kv)
+    public void Add(KeyValuePair<string, TValue> item)
     {
-        _items.Add(kv.Key, kv.Value);
+        _items.Add(item.Key, item.Value);
     }
 
     public void Add(object key, object? value)
     {
-        if (key is string s && value is TValue v)
-            Add(s, v);
-        throw new ArgumentException();
+        if (key is not string s)
+            throw new ArgumentException("Key must be a string", nameof(key));
+        if (key is not TValue v)
+            throw new ArgumentException($"Value must be of type {typeof(TValue).Name}", nameof(value));
+
+        Add(s, v);
     }
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
@@ -183,7 +186,7 @@ public abstract class NamedItemsCollection<TValue> :
         if (key is TValue v)
             return ContainsKey(_keySelector(v));
 
-        throw new ArgumentException();
+        throw new ArgumentException($"Key must be a string or of type {typeof(TValue).Name}", nameof(key));
     }
 
     public void Remove(object key)

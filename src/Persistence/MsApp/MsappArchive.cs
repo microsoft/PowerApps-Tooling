@@ -74,7 +74,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <summary>
     /// Helper class for deserializing the top level control editor state.
     /// </summary>
-    private class TopParentJson
+    private sealed class TopParentJson
     {
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         public ControlEditorState? TopParent { get; set; }
@@ -296,7 +296,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             if (entry.Key.EndsWith('/'))
                 continue;
 
-            if (directoryName != string.Empty && !entry.Key.StartsWith(directoryName + '/'))
+            if (directoryName != string.Empty && !entry.Key.StartsWith(directoryName + '/', StringComparison.InvariantCulture))
                 continue;
 
             // If not recursive, skip subdirectories

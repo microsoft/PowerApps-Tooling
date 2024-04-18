@@ -7,7 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 [Serializable]
-internal class PaYamlSerializationException : Exception
+public class PaYamlSerializationException : Exception
 {
     public PaYamlSerializationException(string reason, PaYamlLocation? eventStart)
         : this(reason, eventStart, null)

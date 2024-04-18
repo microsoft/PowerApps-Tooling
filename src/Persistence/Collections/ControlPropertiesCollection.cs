@@ -46,7 +46,7 @@ public class ControlPropertiesCollection : NamedItemsCollection<ControlProperty>
     public void Add(Tuple<string, string> keyValue)
     {
         if (string.IsNullOrWhiteSpace(keyValue.Item1))
-            throw new ArgumentNullException(nameof(keyValue.Item1));
+            throw new ArgumentNullException(nameof(keyValue), "The key cannot be null or whitespace.");
 
         Add(keyValue.Item1, new ControlProperty(keyValue.Item1, keyValue.Item2));
     }

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 [DebuggerDisplay("{Value}")]
+[SuppressMessage("Design", "CA1036:Override methods on comparable types", Justification = "REVIEW: Author of this class should remove this suppression and fix the violation, or update this Justification message.")]
 public sealed record ControlProperty : IComparable<ControlProperty>
 {
     public const char FormulaPrefix = '=';

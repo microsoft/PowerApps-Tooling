@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
@@ -73,7 +74,7 @@ public abstract class TestBase : VSTestBase
 
     public static string GetTestFilePath(string path, bool isControlIdentifiers = false)
     {
-        return string.Format(path, isControlIdentifiers ? "-CI" : string.Empty);
+        return string.Format(CultureInfo.InvariantCulture, path, isControlIdentifiers ? "-CI" : string.Empty);
     }
 
     public static IEnumerable<object[]> ComponentCustomProperties_Data => new List<object[]>()

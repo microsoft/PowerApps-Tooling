@@ -37,6 +37,7 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
 
     public TValue this[TName name] => InnerCollection[name].Value;
 
+    [SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "ByDesign: 'namedObject' is preferred over 'item'")]
     public void Add(TNamedObject namedObject)
     {
         InnerCollection.Add(namedObject);
@@ -65,6 +66,7 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
         return InnerCollection.Contains(name);
     }
 
+    [SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "ByDesign: 'namedObject' is preferred over 'item'")]
     public bool Contains(TNamedObject namedObject)
     {
         return InnerCollection.Contains(namedObject);
@@ -145,7 +147,7 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
         }
     }
 
-    internal class InnerKeyedCollection : KeyedCollection<TName, TNamedObject>
+    internal sealed class InnerKeyedCollection : KeyedCollection<TName, TNamedObject>
     {
         public InnerKeyedCollection(IEqualityComparer<TName>? comparer) : base(comparer)
         {

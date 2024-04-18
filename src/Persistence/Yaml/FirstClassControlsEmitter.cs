@@ -10,7 +10,7 @@ using YamlDotNet.Serialization.EventEmitters;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class FirstClassControlsEmitter : ChainedEventEmitter
+internal sealed class FirstClassControlsEmitter : ChainedEventEmitter
 {
     private readonly IControlTemplateStore _controlTemplateStore;
     private readonly IReadOnlySet<string> _shortNameTypes = new HashSet<string> { "App", "Host", "Screen" };

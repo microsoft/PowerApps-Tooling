@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
@@ -201,7 +202,7 @@ public class ZIndexOrderingTests : TestBase
             properties:
             new()
             {
-                { PropertyNames.ZIndex, i.ToString() },
+                { PropertyNames.ZIndex, i.ToString(CultureInfo.InvariantCulture) },
             });
     }
 }

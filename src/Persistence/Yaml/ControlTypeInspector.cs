@@ -7,7 +7,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ControlTypeInspector : ITypeInspector
+internal sealed class ControlTypeInspector : ITypeInspector
 {
     private readonly ITypeInspector _innerTypeInspector;
     private readonly IControlTemplateStore _controlTemplateStore;
@@ -22,7 +22,7 @@ internal class ControlTypeInspector : ITypeInspector
     {
         var properties = _innerTypeInspector.GetProperties(type, container);
         if (_controlTemplateStore.Contains(type))
-            return properties.Where(p => !p.Name.Equals(YamlFields.Control));
+            return properties.Where(p => !p.Name.Equals(YamlFields.Control, StringComparison.Ordinal));
 
         return properties;
     }
@@ -61,7 +61,7 @@ internal class ControlTypeInspector : ITypeInspector
             // for example
             // App:
             // Name: My Custom Control
-            if (name.Equals(templateName))
+            if (name.Equals(templateName, StringComparison.Ordinal))
                 return new EmptyPropertyDescriptor(name);
         }
 

@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "REVIEW: Consider fixing by renaming parameters or update this Justification.")]
 public interface IControlFactory
 {
     Control Create(string name, string template, string? componentDefinitionName = null, string? componentLibraryUniqueName = null, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);

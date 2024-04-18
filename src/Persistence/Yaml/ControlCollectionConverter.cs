@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Core;
@@ -11,14 +10,13 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ControlCollectionConverter : IYamlTypeConverter
+internal sealed class ControlCollectionConverter : IYamlTypeConverter
 {
     public ControlCollectionConverter()
     {
     }
 
-    [SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily", Justification = "Explicitly setting to false for clarity")]
-    public bool IsTextFirst { get; set; } = false;
+    public bool IsTextFirst { get; set; }
 
     public IValueDeserializer? ValueDeserializer { get; set; }
 

@@ -24,11 +24,11 @@ public abstract class YamlConverter<T> : IYamlTypeConverter
     public PaSerializationContext SerializationContext { get; }
 
     /// <summary>
-    /// The default implementation returns true when <paramref name="typeToConvert"/> equals typeof(<typeparamref name="T"/>).
+    /// The default implementation returns true when <paramref name="type"/> equals typeof(<typeparamref name="T"/>).
     /// </summary>
-    public virtual bool Accepts(Type typeToConvert)
+    public virtual bool Accepts(Type type)
     {
-        return typeToConvert == Type;
+        return type == Type;
     }
 
     public abstract T ReadYaml(IParser parser, Type typeToConvert);

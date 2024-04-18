@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 /// <summary>
 /// App Templates
 /// </summary>
-internal record AppTemplates
+internal sealed record AppTemplates
 {
     [SetsRequiredMembers]
     public AppTemplates()
