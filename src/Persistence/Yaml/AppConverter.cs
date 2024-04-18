@@ -26,12 +26,6 @@ internal class AppConverter : ControlConverter
 
         var app = (App)value;
 
-        if (app.Settings != null)
-        {
-            emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(App.Settings)));
-            ValueSerializer!.SerializeValue(emitter, app.Settings, typeof(Models.Settings));
-        }
-
         if (app.Screens != null)
         {
             emitter.Emit(new YamlDotNet.Core.Events.Scalar(nameof(App.Screens)));
@@ -43,12 +37,6 @@ internal class AppConverter : ControlConverter
 
     public override object? ReadKey(IParser parser, string key)
     {
-        if (key == nameof(App.Settings))
-        {
-            using var serializerState = new SerializerState();
-            return ValueDeserializer!.DeserializeValue(parser, typeof(Models.Settings), serializerState, ValueDeserializer);
-        }
-
         if (key == nameof(App.Screens))
         {
             using var serializerState = new SerializerState();

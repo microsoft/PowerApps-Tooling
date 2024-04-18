@@ -39,7 +39,9 @@ internal class ControlConverter : IYamlTypeConverter
         ReadControlDefinitonHeader(parser, out var controlName, out var templateName);
 
         var controlDefinition = new Dictionary<string, object?>();
-        var componentInstance = string.Empty;
+        var componentInstanceName = string.Empty;
+        var componentLibraryUniqueName = string.Empty;
+
         while (!parser.Accept<MappingEnd>(out _))
         {
             var key = parser.Consume<Scalar>();
@@ -75,18 +77,15 @@ internal class ControlConverter : IYamlTypeConverter
                 if (parser.Current is Scalar)
                 {
                     value = parser.Consume<Scalar>().Value;
-                    if (Options.IsControlIdentifiers)
-                    {
-                        if (key.Value == nameof(Control))
-                            templateName = (string)value;
-                        else if (key.Value == nameof(ComponentInstance.ComponentName))
-                            componentInstance = (string)value;
-                    }
-                    else
-                    {
-                        if (key.Value == nameof(Control.Name))
-                            controlName = (string)value;
-                    }
+
+                    if (key.Value == nameof(Control))
+                        templateName = (string)value;
+                    else if (key.Value == nameof(ComponentInstance.ComponentName))
+                        componentInstanceName = (string)value;
+                    else if (key.Value == nameof(ComponentInstance.ComponentLibraryUniqueName))
+                        componentLibraryUniqueName = (string)value;
+                    else if (key.Value == nameof(Control.Name))
+                        controlName = (string)value;
                 }
                 else
                     value = ReadKey(parser, key.Value);
@@ -97,7 +96,7 @@ internal class ControlConverter : IYamlTypeConverter
 
         if (Options.IsControlIdentifiers)
         {
-            if (string.IsNullOrWhiteSpace(templateName) && string.IsNullOrWhiteSpace(componentInstance))
+            if (string.IsNullOrWhiteSpace(templateName) && string.IsNullOrWhiteSpace(componentInstanceName))
                 throw new YamlException(parser.Current!.Start, parser.Current.End, $"Control '{controlName}' doesn't have template name");
         }
 
@@ -108,7 +107,8 @@ internal class ControlConverter : IYamlTypeConverter
         // Create control instance
         var control = _controlFactory.Create(
             string.IsNullOrWhiteSpace(controlName) ? templateName : controlName,
-            templateName, componentInstance, controlDefinition);
+            templateName, componentInstanceName, componentLibraryUniqueName, controlDefinition);
+
         return control.AfterDeserialize(_controlFactory);
     }
 

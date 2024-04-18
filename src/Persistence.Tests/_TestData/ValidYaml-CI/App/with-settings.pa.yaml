@@ -1,7 +1,0 @@
-App:
-  Settings:
-    Name: Test App Name
-    Layout: Landscape
-  Control: App 
-  Properties:
-    OnStart: =Set(foo, 123)
