@@ -83,15 +83,13 @@ public class RoundTripTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act I: Deserialize the yaml into an object.
-        var screen = deserializer.Deserialize<Control>(yamlReader) as Screen;
-        if (screen == null)
-            throw new InvalidOperationException("Failed to deserialize screen");
+        var screen = deserializer.Deserialize<Control>(yamlReader) as Screen
+            ?? throw new InvalidOperationException("Failed to deserialize screen");
 
         // Assert
         screen.Children!.Count.Should().Be(1);
-        var customControl = screen.Children[0] as ComponentInstance;
-        if (customControl == null)
-            throw new InvalidOperationException("Failed to deserialize component instance");
+        var customControl = screen.Children[0] as ComponentInstance
+            ?? throw new InvalidOperationException("Failed to deserialize component instance");
         customControl.Should().NotBeNull();
         customControl.Name.Should().Be("This is custom component");
         customControl.ComponentName.Should().Be("ComponentDefinition_1");

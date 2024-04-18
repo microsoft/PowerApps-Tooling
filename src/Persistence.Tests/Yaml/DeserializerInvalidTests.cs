@@ -21,31 +21,13 @@ public class DeserializerInvalidTests : TestBase
         // Uncomment to test single file
         // var files = new string[] { @"_TestData/InvalidYaml/Screen-with-host.pa.yaml" };
 
-        var failedFiles = 0;
-        Parallel.ForEach(files, file =>
+        foreach (var filePath in files)
         {
-            using var yamlStream = File.OpenRead(file);
-            using var yamlReader = new StreamReader(yamlStream);
-
-            // Act
-            try
-            {
-                var result = deserializer.Deserialize<Control>(yamlReader);
-                if (result is not Control)
-                    throw new InvalidOperationException("Expected a control");
-
-                Assert.Fail($"Expected exception for file {file}");
-            }
-            catch (Exception ex) when (ex is not AssertFailedException)
-            {
-                // Assert exceptions are thrown
-                Interlocked.Increment(ref failedFiles);
-            }
-        });
-
-        // Assert
-        failedFiles.Should().BeGreaterThan(0);
-        failedFiles.Should().Be(files.Length, "all files should fail");
+            var yaml = File.ReadAllText(filePath);
+            using var yamlReader = new StringReader(yaml);
+            var act = () => deserializer.Deserialize<Control>(yamlReader);
+            act.Should().ThrowExactly<YamlException>("deserializing file '{0}' is expected to be invalid", filePath);
+        }
     }
 
     [TestMethod]

@@ -134,7 +134,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             foreach (var entry in ZipArchive.Entries)
             {
                 if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
-                    _logger?.LogInformation($"Duplicate entry found in archive: {entry.FullName}");
+                    _logger?.LogInformation("Duplicate entry found in archive: {EntryFullName}", entry.FullName);
             }
             return canonicalEntries;
         });
@@ -527,10 +527,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var entry = GetRequiredEntry(HeaderFileName);
         using var entryStream = entry.Open();
 
-        var header = JsonSerializer.Deserialize<Header>(entryStream);
-        if (header == null)
-            throw new PersistenceException("Failed to deserialize header.") { FileName = entry.FullName };
-
+        var header = JsonSerializer.Deserialize<Header>(entryStream)
+            ?? throw new PersistenceException("Failed to deserialize header.") { FileName = entry.FullName };
         return header;
     }
 
