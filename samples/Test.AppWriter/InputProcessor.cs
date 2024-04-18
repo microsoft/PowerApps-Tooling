@@ -6,7 +6,7 @@ using MSAppGenerator;
 
 namespace Test.AppWriter;
 
-internal class InputProcessor
+internal sealed class InputProcessor
 {
     /// <summary>
     /// Validate that the provided filepath is accessible and not an existing file

@@ -61,23 +61,12 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<PackageReference Include="YamlDotNet" Version="15.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\MSAppGenerator\MSAppGenerator.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-      <!-- This reference will be replaced with Nuget package reference -->
-	  <Reference Include="Microsoft.PowerPlatform.PowerApps.Persistence">
-	    <HintPath>..\..\bin\Debug\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
+    <ProjectReference Include="..\..\src\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+  </ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="CreatePage.xaml.cs">
