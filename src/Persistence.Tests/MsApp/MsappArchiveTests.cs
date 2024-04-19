@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
+using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace Persistence.Tests.MsApp;
@@ -72,8 +73,8 @@ public class MsappArchiveTests : TestBase
         }
 
         // Get the required entry should throw if it doesn't exist
-        var action = () => msappArchive.GetRequiredEntry("not-exist");
-        action.Invoking(a => a()).Should().Throw<FileNotFoundException>();
+        msappArchive.Invoking(a => a.GetRequiredEntry("not-exist")).Should().Throw<PersistenceException>()
+            .WithErrorCode(PersistenceErrorCode.MsappArchiveError);
     }
 
     private static IEnumerable<object[]> AddEntryTestsData()

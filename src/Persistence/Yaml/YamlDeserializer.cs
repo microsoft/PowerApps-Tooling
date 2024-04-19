@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
@@ -14,18 +15,36 @@ public class YamlDeserializer : IYamlDeserializer
         _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
     }
 
-    public T Deserialize<T>(string yaml)
+    public T? Deserialize<T>(string yaml) where T : notnull
     {
-        if (string.IsNullOrWhiteSpace(yaml))
-            throw new ArgumentNullException(nameof(yaml));
+        _ = yaml ?? throw new ArgumentNullException(nameof(yaml));
 
-        return _deserializer.Deserialize<T>(yaml);
+        using var reader = new StringReader(yaml);
+        return DeserializeCore<T>(reader);
     }
 
-    public T Deserialize<T>(TextReader reader)
+    public T? Deserialize<T>(TextReader reader) where T : notnull
     {
         _ = reader ?? throw new ArgumentNullException(nameof(reader));
 
-        return _deserializer.Deserialize<T>(reader);
+        return DeserializeCore<T>(reader);
+    }
+
+    private T? DeserializeCore<T>(TextReader reader) where T : notnull
+    {
+        try
+        {
+            return _deserializer.Deserialize<T>(reader);
+        }
+        catch (YamlException ex)
+        {
+            throw ex.Start.Equals(Mark.Empty)
+                ? new PersistenceException(PersistenceErrorCode.DeserializationError, ex.Message, ex)
+                : new PersistenceException(PersistenceErrorCode.DeserializationError, ex.Message, ex)
+                {
+                    LineNumber = ex.Start.Line,
+                    Column = ex.Start.Column,
+                };
+        }
     }
 }

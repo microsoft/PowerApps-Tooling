@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Compression;
 using System.Text;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
@@ -12,14 +13,20 @@ public class RoundTripWriter : TextWriter
 {
     private const char NewLineChar = '\n';
     private readonly TextReader _input;
-    private readonly string _inputFileName;
+    private readonly string _entryFullPath;
     private int _lineNumber = 1;
     private int _columnNumber;
+    private bool _exThrown;
 
-    public RoundTripWriter(TextReader input, string inputFileName)
+    public RoundTripWriter(ZipArchiveEntry entry)
+        : this(new StreamReader(entry.Open()), entry.FullName)
+    {
+    }
+
+    public RoundTripWriter(TextReader input, string entryFullPath)
     {
         _input = input;
-        _inputFileName = inputFileName;
+        _entryFullPath = entryFullPath;
     }
 
     public override Encoding Encoding => Encoding.Default;
@@ -39,10 +46,11 @@ public class RoundTripWriter : TextWriter
 
         if (inputValue == -1 || inputValue != value)
         {
-            throw new PersistenceException($"Round trip serialization failed")
+            _exThrown = true;
+            throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed")
             {
-                FileName = _inputFileName,
-                Line = _lineNumber,
+                MsappEntryFullPath = _entryFullPath,
+                LineNumber = _lineNumber,
                 Column = _columnNumber
             };
         }
@@ -58,16 +66,19 @@ public class RoundTripWriter : TextWriter
 
     protected override void Dispose(bool disposing)
     {
-        // We need to make sure that we have read all the input.
-        var inputValue = _input.Read();
-        if (inputValue != -1)
+        if (!_exThrown) // Don't throw a new exception in finally block if an exception was already thrown
         {
-            throw new PersistenceException($"Round trip serialization failed")
+            // We need to make sure that we have read all the input.
+            var inputValue = _input.Read();
+            if (inputValue != -1)
             {
-                FileName = _inputFileName,
-                Line = _lineNumber,
-                Column = _columnNumber
-            };
+                throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed. Additional input not read when disposing.")
+                {
+                    MsappEntryFullPath = _entryFullPath,
+                    LineNumber = _lineNumber,
+                    Column = _columnNumber
+                };
+            }
         }
         _input.Dispose();
         base.Dispose(disposing);

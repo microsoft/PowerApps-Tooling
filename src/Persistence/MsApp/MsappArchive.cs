@@ -191,7 +191,6 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             _app ??= LoadApp();
             return _app;
         }
-
         set
         {
             _app = value;
@@ -244,25 +243,19 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             throw new ArgumentNullException(nameof(entryName));
 
         var entry = GetRequiredEntry(entryName);
-        if (!entry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException($"Entry {entryName} is not a yaml file.");
+        var result = Deserialize<T>(entry);
 
-        T result;
-        using (var reader = new StreamReader(entry.Open()))
+        if (ensureRoundTrip)
         {
-            result = _yamlDeserializer.Deserialize<T>(reader);
-            if (!ensureRoundTrip)
-                return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = entry.FullName };
-        }
-
 #if DEBUG
-        // Expected round trip serialization
-        using var stringWriter = new StringWriter();
-        _yamlSerializer.SerializeControl(stringWriter, result);
+            // Expected round trip serialization
+            using var stringWriter = new StringWriter();
+            _yamlSerializer.SerializeControl(stringWriter, result);
 #endif
-        // Ensure round trip serialization
-        using var roundTripWriter = new RoundTripWriter(new StreamReader(entry.Open()), entryName);
-        _yamlSerializer.SerializeControl(roundTripWriter, result);
+            // Ensure round trip serialization
+            using var roundTripWriter = new RoundTripWriter(entry);
+            _yamlSerializer.SerializeControl(roundTripWriter, result);
+        }
 
         return result;
     }
@@ -270,16 +263,13 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : Control
     {
         _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
+
+        if (!archiveEntry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
+            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry {archiveEntry} is not a yaml file.") { MsappEntryFullPath = archiveEntry.FullName };
+
         using var textReader = new StreamReader(archiveEntry.Open());
-        try
-        {
-            var result = _yamlDeserializer.Deserialize<T>(textReader);
-            return result ?? throw new PersistenceException($"Failed to deserialize archive entry.") { FileName = archiveEntry.FullName };
-        }
-        catch (Exception ex)
-        {
-            throw new PersistenceException("Failed to deserialize archive entry.", ex) { FileName = archiveEntry.FullName };
-        }
+        return _yamlDeserializer.Deserialize<T>(textReader)
+            ?? throw new PersistenceException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of file resulted in null object.") { MsappEntryFullPath = archiveEntry.FullName };
     }
 
     /// <summary>
@@ -329,20 +319,18 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <param name="entryName"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="FileNotFoundException"></exception>
+    /// <exception cref="PersistenceException"></exception>
     public ZipArchiveEntry GetRequiredEntry(string entryName)
     {
-        var entry = GetEntry(entryName) ??
-            throw new FileNotFoundException($"Entry '{entryName}' not found in msapp archive.");
-
-        return entry;
+        return GetEntry(entryName) ??
+            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry with name '{entryName}' not found in msapp archive.");
     }
 
     /// <inheritdoc/>
     public ZipArchiveEntry CreateEntry(string entryName)
     {
         if (string.IsNullOrWhiteSpace(entryName))
-            throw new ArgumentException("Entry name cannot be null or whitespace.", nameof(entryName));
+            throw new ArgumentNullException(nameof(entryName));
 
         var canonicalEntryName = NormalizePath(entryName);
         if (_canonicalEntries.Value.ContainsKey(canonicalEntryName))
@@ -431,19 +419,12 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private App? LoadApp()
     {
-        App app;
-        try
-        {
-            // For app entry name is always "App.pa.yaml" now 
-            var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
-            if (appEntry == null)
-                return null;
-            app = Deserialize<App>(appEntry.FullName, ensureRoundTrip: false);
-        }
-        catch (Exception ex)
-        {
-            throw new PersistenceException("Failed to deserialize app.", ex) { FileName = AppFileName };
-        }
+        // For app entry name is always "App.pa.yaml" now
+        var appEntry = GetEntry(Path.Combine(Directories.Src, AppFileName));
+        if (appEntry == null)
+            return null;
+
+        var app = Deserialize<App>(appEntry.FullName, ensureRoundTrip: false);
 
         app.Screens = LoadScreens();
 
@@ -469,15 +450,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var controlEditorStates = new Dictionary<string, ControlEditorState>();
         foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
         {
-            try
-            {
-                var topParentJson = JsonSerializer.Deserialize<TopParentJson>(editorStateEntry.Open());
-                controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
-            }
-            catch (Exception ex)
-            {
-                throw new PersistenceException("Failed to deserialize control editor state file.", ex) { FileName = editorStateEntry.FullName };
-            }
+            var topParentJson = DeseraializeMsappJsonFile<TopParentJson>(editorStateEntry);
+            controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
         }
 
         // Merge the editor state into the controls
@@ -525,10 +499,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private Header LoadHeader()
     {
         var entry = GetRequiredEntry(HeaderFileName);
-        using var entryStream = entry.Open();
-
-        var header = JsonSerializer.Deserialize<Header>(entryStream)
-            ?? throw new PersistenceException("Failed to deserialize header.") { FileName = entry.FullName };
+        var header = DeseraializeMsappJsonFile<Header>(entry);
         return header;
     }
 
@@ -594,6 +565,26 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         writer.WriteLine("/[Cc]hecksum.json");
         writer.WriteLine("/[Hh]eader.json");
         writer.WriteLine("/[Aa]pp[Cc]hecker[Rr]esult.sarif");
+    }
+
+    private static T DeseraializeMsappJsonFile<T>(ZipArchiveEntry entry)
+        where T : notnull
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(entry.Open())
+                 ?? throw new PersistenceException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of json file resulted in null object.") { MsappEntryFullPath = entry.FullName };
+        }
+        catch (JsonException ex)
+        {
+            throw new PersistenceException(PersistenceErrorCode.InvalidEditorStateJson, $"Failed to deserialize json file to an instance of {typeof(T).Name}.", ex)
+            {
+                MsappEntryFullPath = entry.FullName,
+                LineNumber = ex.LineNumber,
+                Column = ex.BytePositionInLine,
+                JsonPath = ex.Path,
+            };
+        }
     }
 
     #endregion
