@@ -15,6 +15,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 internal class ControlConverter : IYamlTypeConverter
 {
+    public const string ClassicScalar = "Classic";
+
     private readonly NullNodeDeserializer _nullNodeDeserializer = new();
     protected IControlFactory _controlFactory;
 
@@ -41,6 +43,7 @@ internal class ControlConverter : IYamlTypeConverter
         var controlDefinition = new Dictionary<string, object?>();
         var componentInstanceName = string.Empty;
         var componentLibraryUniqueName = string.Empty;
+        var isClassic = false;
 
         while (!parser.Accept<MappingEnd>(out _))
         {
@@ -80,6 +83,11 @@ internal class ControlConverter : IYamlTypeConverter
 
                     if (key.Value == nameof(Control))
                         templateName = (string)value;
+                    else if (key.Value == ClassicScalar)
+                    {
+                        templateName = (string)value;
+                        isClassic = true;
+                    }
                     else if (key.Value == nameof(ComponentInstance.ComponentName))
                         componentInstanceName = (string)value;
                     else if (key.Value == nameof(ComponentInstance.ComponentLibraryUniqueName))
@@ -107,7 +115,7 @@ internal class ControlConverter : IYamlTypeConverter
         // Create control instance
         var control = _controlFactory.Create(
             string.IsNullOrWhiteSpace(controlName) ? templateName : controlName,
-            templateName, componentInstanceName, componentLibraryUniqueName, controlDefinition);
+            templateName, isClassic, componentInstanceName, componentLibraryUniqueName, controlDefinition);
 
         return control.AfterDeserialize(_controlFactory);
     }
@@ -178,12 +186,18 @@ internal class ControlConverter : IYamlTypeConverter
             emitter.Emit(new MappingStart(AnchorName.Empty, TagName.Empty, isImplicit: true, MappingStyle.Block));
             emitter.Emit(new Scalar(null, null, control.Name, control.Name.DetermineScalarStyleForProperty(), true, false));
             emitter.Emit(new MappingStart());
-            emitter.Emit(nameof(Control), GetControlTemplateName(control));
+            if (control.Template.IsClassic)
+                emitter.Emit(ClassicScalar, GetControlTemplateName(control));
+            else
+                emitter.Emit(nameof(Control), GetControlTemplateName(control));
         }
         else
         {
             emitter.Emit(new MappingStart());
-            emitter.Emit(nameof(Control), GetControlTemplateName(control));
+            if (control.Template.IsClassic)
+                emitter.Emit(ClassicScalar, GetControlTemplateName(control));
+            else
+                emitter.Emit(nameof(Control), GetControlTemplateName(control));
             emitter.Emit(nameof(Control.Name), control.Name);
         }
 

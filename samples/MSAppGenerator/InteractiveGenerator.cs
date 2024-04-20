@@ -59,7 +59,7 @@ public class InteractiveGenerator : IAppGenerator
                         var controltemplate = Prompt("    Input control template: ");
                         //input = Prompt("Specify properties? (y/n): ");
 
-                        childlist.Add(_controlFactory.Create(controlname, template: controltemplate,
+                        childlist.Add(_controlFactory.Create(controlname, templateNameOrId: controltemplate,
                             properties: new()
                         ));
                     }

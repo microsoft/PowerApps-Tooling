@@ -9,6 +9,10 @@ public class BuiltInTemplates
     public static readonly (string Name, string Id) Host = ("HostControl", "http://microsoft.com/appmagic/hostcontrol");
     public static readonly (string Name, string Id) Screen = ("Screen", "http://microsoft.com/appmagic/screen");
 
+    public static readonly (string Name, string Id) AppTest = ("AppTest", "http://microsoft.com/appmagic/apptest");
+    public static readonly (string Name, string Id) TestSuite = ("AppTest", "http://microsoft.com/appmagic/testsuite");
+    public static readonly (string Name, string Id) TestCase = ("AppTest", "http://microsoft.com/appmagic/testcase");
+
     public static readonly (string Name, string Id) Component = ("Component", "http://microsoft.com/appmagic/Component");
     public static readonly (string Name, string Id) FunctionComponent = ("FunctionComponent", "http://microsoft.com/appmagic/FunctionComponent");
     public static readonly (string Name, string Id) DataComponent = ("DataComponent", "http://microsoft.com/appmagic/DataComponent");

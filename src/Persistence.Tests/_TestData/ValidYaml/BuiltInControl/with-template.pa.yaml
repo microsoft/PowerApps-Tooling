@@ -1,4 +1,4 @@
-Button:
+ButtonCanvas:
 Name: button with template
 Properties:
   Text: ="button text"

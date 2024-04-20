@@ -7,7 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-[DebuggerDisplay("{Name}")]
+[DebuggerDisplay("{FullName} c:{IsClassic} id:{Id}")]
 public record ControlTemplate
 {
     public ControlTemplate()
@@ -22,22 +22,45 @@ public record ControlTemplate
     public ControlTemplate(string id)
     {
         Id = id;
-        _name = id;
+        _invariantName = id;
     }
 
+    /// <summary>
+    /// Id of the template. For example, 'http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas', etc.
+    /// </summary>
     public required string Id { get; init; }
 
-    private string _name = string.Empty;
+    private string _invariantName = string.Empty;
 
-    public string Name
+    /// <summary>
+    /// Name used to persist in YAML. For example, 'Button', 'ButtonCanvas', etc.
+    /// </summary>
+    public string InvariantName
     {
-        get => _name;
+        get => _invariantName;
         init
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException(nameof(Name));
+                throw new ArgumentException(nameof(InvariantName));
 
-            _name = value.Trim().FirstCharToUpper();
+            _invariantName = value.Trim().FirstCharToUpper();
+        }
+    }
+
+    private string _fullName = string.Empty;
+
+    /// <summary>
+    /// Name in the template store. For example, 'button', 'PowerApps_CoreControls_ButtonCanvas', etc.
+    /// </summary>
+    public string FullName
+    {
+        get => !string.IsNullOrWhiteSpace(_fullName) ? _fullName : _invariantName;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException(nameof(FullName));
+
+            _fullName = value.Trim().FirstCharToUpper();
         }
     }
 
@@ -45,7 +68,7 @@ public record ControlTemplate
 
     public string DisplayName
     {
-        get => string.IsNullOrWhiteSpace(_displayName) ? _name : _displayName;
+        get => string.IsNullOrWhiteSpace(_displayName) ? _invariantName : _displayName;
         init
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -56,6 +79,11 @@ public record ControlTemplate
     }
 
     public bool HasDisplayName => !string.IsNullOrWhiteSpace(_displayName);
+
+    /// <summary>
+    /// True for classic controls, false for modern controls and all other control types.
+    /// </summary>
+    public bool IsClassic { get; init; }
 
     public bool AddPropertiesToParent { get; init; }
 

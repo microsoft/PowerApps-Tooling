@@ -1,10 +1,10 @@
 - Label1:
-    Control: Text
+    Control: ButtonCanvas
 - Label3:
-    Control: Text
+    Control: ButtonCanvas
 - Label2:
-    Control: Text
+    Control: ButtonCanvas
 - Label5:
-    Control: Text
+    Control: ButtonCanvas
 - Label4:
-    Control: Text
+    Control: ButtonCanvas

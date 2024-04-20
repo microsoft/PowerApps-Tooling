@@ -3,13 +3,13 @@ Name: Screen1
 Properties:
   Text: ="I am a screen"
 Children:
-- Control: Text
+- Control: ButtonCanvas
   Name: Label5
-- Control: Text
+- Control: ButtonCanvas
   Name: Label4
-- Control: Text
+- Control: ButtonCanvas
   Name: Label3
-- Control: Text
+- Control: ButtonCanvas
   Name: Label2
-- Control: Text
+- Control: ButtonCanvas
   Name: Label1

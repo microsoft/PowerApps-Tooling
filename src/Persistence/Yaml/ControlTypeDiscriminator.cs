@@ -34,7 +34,7 @@ internal sealed class ControlTypeDiscriminator : ITypeDiscriminator
             if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
             {
                 // It can be one of the built-in types.
-                if (_controlTemplateStore.TryGetControlTypeByName(controlTemplate.Name, out var controlType))
+                if (_controlTemplateStore.TryGetControlTypeByName(controlTemplate.InvariantName, out var controlType))
                 {
                     suggestedType = controlType;
                     return true;

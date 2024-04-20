@@ -1,10 +1,10 @@
-- Control: Text
+- Control: ButtonCanvas
   Name: Label1
-- Control: Text
+- Control: ButtonCanvas
   Name: Label3
-- Control: Text
+- Control: ButtonCanvas
   Name: Label2
-- Control: Text
+- Control: ButtonCanvas
   Name: Label5
-- Control: Text
+- Control: ButtonCanvas
   Name: Label4

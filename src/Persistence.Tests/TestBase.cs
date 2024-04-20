@@ -48,7 +48,7 @@ public abstract class TestBase : VSTestBase
         return services.BuildServiceProvider();
     }
 
-    public static IYamlDeserializer CreateDeserializer(bool isControlIdentifiers = false, bool isTextFirst = false)
+    public static IYamlDeserializer CreateDeserializer(bool isControlIdentifiers = true, bool isTextFirst = false)
     {
         return ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer
         (
@@ -60,7 +60,7 @@ public abstract class TestBase : VSTestBase
         );
     }
 
-    public static IYamlSerializer CreateSerializer(bool isControlIdentifiers = false, bool isTextFirst = false)
+    public static IYamlSerializer CreateSerializer(bool isControlIdentifiers = true, bool isTextFirst = false)
     {
         return ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateSerializer
         (

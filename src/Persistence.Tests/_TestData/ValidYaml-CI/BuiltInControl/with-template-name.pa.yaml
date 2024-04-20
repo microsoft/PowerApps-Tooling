@@ -1,4 +1,4 @@
 button with template name:
-  Control: Button 
+  Classic: Button 
   Properties:
     Text: ="button text"

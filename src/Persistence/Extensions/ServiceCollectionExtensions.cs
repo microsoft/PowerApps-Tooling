@@ -37,22 +37,27 @@ public static class ServiceCollectionExtensions
 
     private static void AddMinimalTemplates(ControlTemplateStore store)
     {
-        store.Add(new() { Name = "hostControl", DisplayName = "host", Id = BuiltInTemplates.Host.Id });
-        store.Add(new() { Name = "appinfo", DisplayName = "app", Id = BuiltInTemplates.App.Id });
-        store.Add(new() { Name = "screen", Id = BuiltInTemplates.Screen.Id });
-        store.Add(new() { Name = "component", Id = BuiltInTemplates.Component.Id });
-        store.Add(new() { Name = "group", Id = BuiltInTemplates.Group.Id });
+        store.Add(new() { InvariantName = "hostControl", DisplayName = "host", Id = BuiltInTemplates.Host.Id });
+        store.Add(new() { InvariantName = "appinfo", DisplayName = "app", Id = BuiltInTemplates.App.Id });
+
+        store.Add(new() { InvariantName = "AppTest", DisplayName = "AppTest", Id = BuiltInTemplates.AppTest.Id });
+        store.Add(new() { InvariantName = "TestSuite", DisplayName = "TestSuite", Id = BuiltInTemplates.TestSuite.Id });
+        store.Add(new() { InvariantName = "TestCase", DisplayName = "TestCase", Id = BuiltInTemplates.TestCase.Id });
+
+        store.Add(new() { InvariantName = "screen", Id = BuiltInTemplates.Screen.Id });
+        store.Add(new() { InvariantName = "component", Id = BuiltInTemplates.Component.Id });
+        store.Add(new() { InvariantName = "group", Id = BuiltInTemplates.Group.Id });
 
         // Gallery
         store.Add(new()
         {
-            Name = "gallery",
+            InvariantName = "gallery",
             Id = "http://microsoft.com/appmagic/gallery",
             NestedTemplates = new ControlTemplate[]
             {
                 new()
                 {
-                    Name = "galleryTemplate",
+                    InvariantName = "galleryTemplate",
                     Id = "http://microsoft.com/appmagic/galleryTemplate",
                     AddPropertiesToParent = true,
                     InputProperties =
@@ -64,7 +69,7 @@ public static class ServiceCollectionExtensions
                 }
             }
         });
-        store.Add(new() { Name = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
+        store.Add(new() { InvariantName = "commandComponent", Id = "http://microsoft.com/appmagic/CommandComponent" });
     }
 
     /// <summary>
@@ -73,16 +78,20 @@ public static class ServiceCollectionExtensions
     /// <param name="store"></param>
     private static void AddDefaultTemplates(ControlTemplateStore store)
     {
-        store.Add(new() { Name = "text", Id = "http://microsoft.com/appmagic/text" });
-        store.Add(new() { Name = "button", Id = "http://microsoft.com/appmagic/button" });
-        store.Add(new() { Name = "label", Id = "http://microsoft.com/appmagic/label" });
+        // Classic templates
+        store.Add(new() { InvariantName = "text", Id = "http://microsoft.com/appmagic/text", IsClassic = true });
+        store.Add(new() { InvariantName = "button", Id = "http://microsoft.com/appmagic/button", IsClassic = true });
+        store.Add(new() { InvariantName = "label", Id = "http://microsoft.com/appmagic/label", IsClassic = true });
 
-        store.Add(new() { Name = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
-        store.Add(new() { Name = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
+        store.Add(new() { InvariantName = "button", Id = "http://microsoft.com/appmagic/powercontrol/Microsoft_CoreControls_Button" });
 
-        store.Add(new() { Name = "DataCard", Id = "http://microsoft.com/appmagic/card" });
-        store.Add(new() { Name = "TypedDataCard", Id = "http://microsoft.com/appmagic/card" });
+        // Modern/PCF templates
+        store.Add(new() { InvariantName = "TextCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_TextCanvas" });
+        store.Add(new() { InvariantName = "ButtonCanvas", Id = "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas" });
 
-        store.Add(new() { Name = "groupContainer", Id = "http://microsoft.com/appmagic/groupContainer" });
+        store.Add(new() { InvariantName = "DataCard", Id = "http://microsoft.com/appmagic/card" });
+        store.Add(new() { InvariantName = "TypedDataCard", Id = "http://microsoft.com/appmagic/card" });
+
+        store.Add(new() { InvariantName = "groupContainer", Id = "http://microsoft.com/appmagic/groupContainer" });
     }
 }

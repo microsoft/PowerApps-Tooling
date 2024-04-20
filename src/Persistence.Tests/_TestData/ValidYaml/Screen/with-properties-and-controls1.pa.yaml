@@ -3,11 +3,11 @@ Name: Screen1
 Properties:
   Text: ="I am a screen"
 Children:
-- Control: Text
+- Classic: Text
   Name: Label1
   Properties:
     Text: ="lorem ipsum"
-- Control: Button
+- Classic: Button
   Name: Button1
   Properties:
     Text: ="click me"

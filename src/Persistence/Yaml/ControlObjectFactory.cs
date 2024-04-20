@@ -27,7 +27,7 @@ public class ControlObjectFactory : IObjectFactory
         if (_controlTemplateStore.TryGetByType(type, out var controlTemplate))
         {
             // all fields will be overwritten by the deserializer
-            return _controlFactory.Create(controlTemplate.Name, controlTemplate);
+            return _controlFactory.Create(controlTemplate.InvariantName, controlTemplate);
         }
 
         // Control is abstract, so we'll try to create a concrete custom control type.

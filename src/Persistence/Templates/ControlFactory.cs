@@ -17,18 +17,24 @@ public class ControlFactory : IControlFactory
         _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
     }
 
-    public Control Create(string name, string template,
+    public Control Create(string name, string templateNameOrId)
+    {
+        return Create(name, templateNameOrId, isClassic: false, componentDefinitionName: null, componentLibraryUniqueName: null, variant: null, properties: null, children: null);
+    }
+
+    public Control Create(string name, string templateNameOrId,
+        bool isClassic = false,
         string? componentDefinitionName = null,
         string? componentLibraryUniqueName = null,
         string? variant = null,
         ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
+        if (TryCreateComponent(name, templateNameOrId, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
             return control;
 
-        if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
+        if (_controlTemplateStore.TryGetByIdOrName(templateNameOrId, out var controlTemplate, isClassic))
         {
-            if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
+            if (TryCreateFirstClassControl(name, controlTemplate.InvariantName, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
                 return control;
 
             return new BuiltInControl(name, variant ?? string.Empty, controlTemplate)
@@ -38,17 +44,46 @@ public class ControlFactory : IControlFactory
             };
         }
 
-        return new CustomControl(name, variant ?? string.Empty, new ControlTemplate(template))
+        return new CustomControl(name, variant ?? string.Empty, new ControlTemplate(templateNameOrId))
         {
             Properties = properties ?? new(),
             Children = children
         };
     }
 
-    public Control Create(string name, string template,
-        string componentDefinitionName,
-        string componentLibraryUniqueName,
-        Dictionary<string, object?>? controlDefinition)
+    public Control Create(string name, string templateId,
+    string? componentDefinitionName = null,
+    string? componentLibraryUniqueName = null,
+    string? variant = null,
+    ControlPropertiesCollection? properties = null, IList<Control>? children = null)
+    {
+        // If the templateId is not found in the store, create a custom control
+        if (!_controlTemplateStore.TryGetById(templateId, out var template))
+        {
+            return new CustomControl(name, variant ?? string.Empty, new ControlTemplate(templateId))
+            {
+                Properties = properties ?? new(),
+                Children = children
+            };
+        }
+
+        if (TryCreateComponent(name, template.InvariantName, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
+            return control;
+
+        if (TryCreateFirstClassControl(name, template.InvariantName, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
+            return control;
+
+        return new BuiltInControl(name, variant ?? string.Empty, template)
+        {
+            Properties = properties ?? new(),
+            Children = children
+        };
+    }
+
+    public Control Create(string name, string template, bool isClassic = false,
+        string? componentDefinitionName = null,
+        string? componentLibraryUniqueName = null,
+        Dictionary<string, object?>? controlDefinition = null)
     {
         string? variant = null;
         ControlPropertiesCollection? properties = null;
@@ -64,9 +99,9 @@ public class ControlFactory : IControlFactory
         if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition, out var control))
             return control;
 
-        if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate))
+        if (_controlTemplateStore.TryGetByIdOrName(template, out var controlTemplate, isClassic))
         {
-            if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition, out control))
+            if (TryCreateFirstClassControl(name, controlTemplate.InvariantName, variant ?? string.Empty, properties, children, controlDefinition, out control))
             {
                 return control;
             }
@@ -94,7 +129,7 @@ public class ControlFactory : IControlFactory
         if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition: null, out var control))
             return control;
 
-        if (TryCreateFirstClassControl(name, template.Name, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
+        if (TryCreateFirstClassControl(name, template.InvariantName, variant ?? string.Empty, properties, children, controlDefinition: null, out control))
             return control;
 
         return new BuiltInControl(name, variant ?? string.Empty, template)
@@ -133,7 +168,7 @@ public class ControlFactory : IControlFactory
         if (!string.IsNullOrWhiteSpace(componentDefinitionName))
         {
             control = new ComponentInstance(name, variant ?? string.Empty,
-                new ControlTemplate(ComponentInstance.ComponentInstanceTemplateId) { Name = componentDefinitionName })
+                new ControlTemplate(ComponentInstance.ComponentInstanceTemplateId) { InvariantName = componentDefinitionName })
             {
                 ComponentName = componentDefinitionName,
                 ComponentLibraryUniqueName = componentLibraryUniqueName,
@@ -191,10 +226,10 @@ public class ControlFactory : IControlFactory
     public ControlTemplate CreateControlTemplate(string name, Dictionary<string, object?>? controlDefinition)
     {
         if (controlDefinition == null || !controlDefinition.TryGetValue<string>(nameof(ComponentDefinition.Type), out var componentType))
-            return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
+            return new ControlTemplate(BuiltInTemplates.Component.Id) { InvariantName = name };
 
         if (!Enum.TryParse<ComponentType>(componentType, out var componentTypeEnum))
-            return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
+            return new ControlTemplate(BuiltInTemplates.Component.Id) { InvariantName = name };
 
         return CreateControlTemplate(name, componentTypeEnum);
     }
@@ -204,15 +239,15 @@ public class ControlFactory : IControlFactory
         switch (componentType)
         {
             case ComponentType.Canvas:
-                return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
+                return new ControlTemplate(BuiltInTemplates.Component.Id) { InvariantName = name };
             case ComponentType.Data:
-                return new ControlTemplate(BuiltInTemplates.DataComponent.Id) { Name = name };
+                return new ControlTemplate(BuiltInTemplates.DataComponent.Id) { InvariantName = name };
             case ComponentType.Function:
-                return new ControlTemplate(BuiltInTemplates.FunctionComponent.Id) { Name = name };
+                return new ControlTemplate(BuiltInTemplates.FunctionComponent.Id) { InvariantName = name };
             case ComponentType.Command:
-                return new ControlTemplate(BuiltInTemplates.CommandComponent.Id) { Name = name };
+                return new ControlTemplate(BuiltInTemplates.CommandComponent.Id) { InvariantName = name };
             default:
-                return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
+                return new ControlTemplate(BuiltInTemplates.Component.Id) { InvariantName = name };
         }
     }
 

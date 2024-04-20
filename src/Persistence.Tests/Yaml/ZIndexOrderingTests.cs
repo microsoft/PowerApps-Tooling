@@ -203,7 +203,7 @@ public class ZIndexOrderingTests : TestBase
 
     private Control MakeLabelWithZIndex(int i)
     {
-        return ControlFactory.Create($"Label{i}", template: "text",
+        return ControlFactory.Create($"Label{i}", templateNameOrId: "ButtonCanvas",
             properties:
             new()
             {

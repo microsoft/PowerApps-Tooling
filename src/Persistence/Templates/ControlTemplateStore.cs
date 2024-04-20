@@ -13,6 +13,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 /// </summary>
 public class ControlTemplateStore : IControlTemplateStore
 {
+    private readonly Dictionary<string, ControlTemplate> _classicTemplatesByName = new();
     private readonly Dictionary<string, ControlTemplate> _controlTemplatesByName = new();
     private readonly Dictionary<string, List<ControlTemplate>> _controlTemplatesById = new();
     private readonly Dictionary<string, Type> _nameToType = new();
@@ -36,11 +37,11 @@ public class ControlTemplateStore : IControlTemplateStore
             {
                 var controlTemplate = _controlTemplatesByName[firstClassAttribute.TemplateName];
 
-                _nameToType.Add(controlTemplate.Name, type);
+                _nameToType.Add(controlTemplate.InvariantName, type);
                 if (controlTemplate.HasDisplayName)
                     _nameToType.Add(controlTemplate.DisplayName, type);
 
-                _typeToName.Add(type, controlTemplate.Name);
+                _typeToName.Add(type, controlTemplate.InvariantName);
                 _typeToTemplate.Add(type, controlTemplate);
             }
         }
@@ -50,18 +51,10 @@ public class ControlTemplateStore : IControlTemplateStore
     {
         _ = controlTemplate ?? throw new ArgumentNullException(nameof(controlTemplate));
 
-        var templateName = controlTemplate.Name.FirstCharToUpper();
-        if (_controlTemplatesByName.ContainsKey(templateName))
-            return;
-
-        _controlTemplatesByName.Add(templateName, controlTemplate);
-        if (controlTemplate.HasDisplayName)
-        {
-            if (_controlTemplatesByName.ContainsKey(controlTemplate.DisplayName))
-                return;
-
-            _controlTemplatesByName.Add(controlTemplate.DisplayName, controlTemplate);
-        }
+        if (controlTemplate.IsClassic)
+            AddToTameDictionary(_classicTemplatesByName, controlTemplate);
+        else
+            AddToTameDictionary(_controlTemplatesByName, controlTemplate);
 
         // There can be multiple control templates with the same id, so we store them in a list.
         if (!_controlTemplatesById.TryGetValue(controlTemplate.Id, out var controlTemplates))
@@ -81,13 +74,35 @@ public class ControlTemplateStore : IControlTemplateStore
         }
     }
 
+    private static void AddToTameDictionary(Dictionary<string, ControlTemplate> nameDictionary, ControlTemplate controlTemplate)
+    {
+        if (nameDictionary.TryGetValue(controlTemplate.InvariantName, out var existingTemplate))
+        {
+            if (controlTemplate.Id != existingTemplate.Id || controlTemplate.IsClassic != controlTemplate.IsClassic)
+                throw new InvalidOperationException($"Control template with name '{controlTemplate.InvariantName}' already exists.");
+            return;
+        }
+
+        nameDictionary.Add(controlTemplate.InvariantName, controlTemplate);
+        if (controlTemplate.HasDisplayName)
+        {
+            if (nameDictionary.ContainsKey(controlTemplate.DisplayName))
+                return;
+
+            nameDictionary.Add(controlTemplate.DisplayName, controlTemplate);
+        }
+    }
+
     /// <summary>
     /// Returns the control template with the given name.
     /// </summary>
-    public bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
+    public bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate, bool isClassic = false)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentNullException(nameof(name));
+
+        if (isClassic)
+            return _classicTemplatesByName.TryGetValue(name.FirstCharToUpper(), out controlTemplate);
 
         return _controlTemplatesByName.TryGetValue(name.FirstCharToUpper(), out controlTemplate);
     }
@@ -127,12 +142,12 @@ public class ControlTemplateStore : IControlTemplateStore
     /// <summary>
     /// Returns the control template with the given id or name.
     /// </summary>
-    public bool TryGetByIdOrName(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate)
+    public bool TryGetByIdOrName(string idOrName, [MaybeNullWhen(false)] out ControlTemplate controlTemplate, bool isClassic = false)
     {
-        if (TryGetTemplateByName(id, out controlTemplate))
+        if (TryGetTemplateByName(idOrName, out controlTemplate, isClassic))
             return true;
 
-        if (TryGetById(id, out controlTemplate))
+        if (TryGetById(idOrName, out controlTemplate))
             return true;
 
         return false;

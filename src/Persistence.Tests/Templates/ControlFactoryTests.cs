@@ -47,7 +47,7 @@ public class ControlFactoryTests : TestBase
     {
         var sut = new ControlFactory(ControlTemplateStore);
 
-        var result = sut.Create("Screen1", "Screen", properties: null);
+        var result = sut.Create("Screen1", "Screen");
         result.Should().NotBeNull().And.BeOfType<Screen>();
         result.Properties.Should().NotBeNull().And.BeEmpty();
         result.Children.Should().BeNull();
@@ -64,7 +64,7 @@ public class ControlFactoryTests : TestBase
         result.Name.Should().Be(componentName);
         result.Template.Should().NotBeNull();
         result.Template.Id.Should().Be(expectedTemplateId);
-        result.Template.Name.Should().Be(componentName);
+        result.Template.InvariantName.Should().Be(componentName);
         result.Properties.Should().NotBeNull().And.BeEmpty();
         result.Children.Should().BeNull();
     }

@@ -4,12 +4,12 @@ Screen1:
     Text: ="I am a screen"
   Children:
   - Label5:
-      Control: Text
+      Control: ButtonCanvas
   - Label4:
-      Control: Text
+      Control: ButtonCanvas
   - Label3:
-      Control: Text
+      Control: ButtonCanvas
   - Label2:
-      Control: Text
+      Control: ButtonCanvas
   - Label1:
-      Control: Text
+      Control: ButtonCanvas

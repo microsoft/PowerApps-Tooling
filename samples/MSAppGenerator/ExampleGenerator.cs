@@ -28,7 +28,7 @@ public class ExampleGenerator : IAppGenerator
 
         for (var i = 0; i < numScreens; i++)
         {
-            var label1 = _controlFactory.Create("Label1", template: "Label",
+            var label1 = _controlFactory.Create("Label1", templateNameOrId: "Label", isClassic: true,
                 properties: new()
                 {
                 { "Align", "Align.Center" },
@@ -44,7 +44,7 @@ public class ExampleGenerator : IAppGenerator
                 { "Width", "Parent.Width" }
                 }
             );
-            var button1 = _controlFactory.Create("Button1", template: "Button",
+            var button1 = _controlFactory.Create("Button1", templateNameOrId: "Button", isClassic: true,
                 properties: new()
                 {
                 { "DisabledBorderColor", "RGBA(166, 166, 166, 1)" },
@@ -61,7 +61,7 @@ public class ExampleGenerator : IAppGenerator
                 }
             );
 
-            var groupContainer = _controlFactory.Create("GroupContainer", template: "GroupContainer",
+            var groupContainer = _controlFactory.Create("GroupContainer", templateNameOrId: "GroupContainer", isClassic: true,
                 properties: new()
                 {
                 { "DropShadow", "DropShadow.Light" },
@@ -104,7 +104,7 @@ public class ExampleGenerator : IAppGenerator
             {
                 foreach (var control in controls)
                 {
-                    childList.Add(_controlFactory.Create(control + childList.Count.ToString(), template: control,
+                    childList.Add(_controlFactory.Create($"{control}{childList.Count}", templateNameOrId: control,
                        properties: new()
                    ));
                 }

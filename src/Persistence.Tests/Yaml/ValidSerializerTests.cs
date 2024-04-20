@@ -75,20 +75,20 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-properties-and-controls1.pa.yaml", false)]
     public void Serialize_ShouldCreateValidYamlWithChildNodes(string expectedPath, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.Create("Screen1", "Screen",
+        var graph = ControlFactory.Create("Screen1", templateNameOrId: "Screen",
             properties: new()
             {
                 { "Text", "\"I am a screen\"" },
             },
             children: new Control[]
             {
-                ControlFactory.Create("Label1", template: "text",
+                ControlFactory.Create("Label1", templateNameOrId: "text", isClassic: true,
                     properties: new()
                     {
                         { "Text", "\"lorem ipsum\"" },
                     }
                 ),
-                ControlFactory.Create("Button1", template: "button",
+                ControlFactory.Create("Button1", templateNameOrId: "button", isClassic: true,
                     properties: new()
                     {
                         { "Text", "\"click me\"" },
@@ -111,7 +111,7 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/CustomControls/with-property.pa.yaml", false)]
     public void Serialize_ShouldCreateValidYamlForCustomControl(string expectedPath, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
+        var graph = ControlFactory.Create("CustomControl1", templateNameOrId: "http://localhost/#customcontrol",
             properties: new()
             {
                 { "Text", "\"I am a custom control\"" }
@@ -144,7 +144,7 @@ public class ValidSerializerTests : TestBase
     [DataRow("ButtonCanvas", "\"Text containing PFX \"\"Double-Double-Quote\"\" escape sequence\"", @"_TestData/ValidYaml{0}/BuiltInControl8.pa.yaml", true)]
     public void Serialize_ShouldCreateValidYaml_ForBuiltInControl(string templateName, string controlText, string expectedPath, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
+        var graph = ControlFactory.Create("BuiltIn Control1", templateNameOrId: templateName,
             properties: new()
             {
                 { "Text", controlText }
@@ -170,20 +170,20 @@ public class ValidSerializerTests : TestBase
             },
             children: new Control[]
             {
-                ControlFactory.Create("Gallery1", template: "gallery",
+                ControlFactory.Create("Gallery1", templateNameOrId: "gallery",
                     properties: new()
                     {
                         { "Items", "Accounts" },
                     },
                     children: new List<Control>()
                     {
-                        ControlFactory.Create("galleryTemplate1", template: "galleryTemplate",
+                        ControlFactory.Create("galleryTemplate1", templateNameOrId: "galleryTemplate",
                             properties: new()
                             {
                                 { "TemplateFill", "RGBA(0, 0, 0, 0)" },
                             }
                         ),
-                        ControlFactory.Create("button12", template: "button",
+                        ControlFactory.Create("button12", templateNameOrId: "button",
                             properties: new()
                             {
                                 { "Fill", "RGBA(0, 0, 0, 0)" },
@@ -208,7 +208,7 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-layout.pa.yaml", "SuperButton", "vertical", false)]
     public void Valid_Variant(string expectedPath, string expectedVariant, string expectedLayout, bool isControlIdentifiers)
     {
-        var graph = ControlFactory.Create("built in", "Button", variant: expectedVariant,
+        var graph = ControlFactory.Create("built in", templateNameOrId: "Button", variant: expectedVariant,
             properties: new()
             {
                 { "Text", "\"button text\"" },
@@ -228,7 +228,7 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-sorted-properties.pa.yaml", false, "SuperButton", "Some value")]
     public void Should_SortBy_Category(string expectedPath, bool isControlIdentifiers, string templateName, string expectedValue)
     {
-        var graph = ControlFactory.Create("BuiltIn Control1", template: templateName,
+        var graph = ControlFactory.Create("BuiltIn Control1", templateNameOrId: templateName,
             properties: new Dictionary<string, ControlProperty>()
             {
                 { "a2_Data", new("a2_Data", expectedValue) { Category = PropertyCategory.Data } },
@@ -255,13 +255,13 @@ public class ValidSerializerTests : TestBase
     {
         var graph = new List<Control>()
         {
-            ControlFactory.Create("BuiltIn Control1", template: templateName,
+            ControlFactory.Create("BuiltIn Control1", templateNameOrId: templateName,
                 properties: new()
                 {
                     { "Text", "Just text" },
                 }
             ),
-            ControlFactory.Create("BuiltIn Label", template: "Label",
+            ControlFactory.Create("BuiltIn Label", templateNameOrId: "Label",
                 properties: new()
                 {
                     { "Text", "Just label text" },
@@ -296,10 +296,10 @@ public class ValidSerializerTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(ComponentType.Canvas, "lorem ipsum dolor", false, "Control: Component\nName: Component1\nDescription: lorem ipsum dolor\n")]
-    [DataRow(ComponentType.Canvas, "lorem ipsum dolor", true, "Control: Component\nName: Component1\nDescription: lorem ipsum dolor\nAccessAppScope: true\n")]
-    [DataRow(ComponentType.Canvas, "", true, "Control: Component\nName: Component1\nAccessAppScope: true\n")]
-    [DataRow(ComponentType.Command, "", true, "Control: Component\nName: Component1\nType: Command\nAccessAppScope: true\n")]
+    [DataRow(ComponentType.Canvas, "lorem ipsum dolor", false, "Component1:\n  Control: Component\n  Description: lorem ipsum dolor\n")]
+    [DataRow(ComponentType.Canvas, "lorem ipsum dolor", true, "Component1:\n  Control: Component\n  Description: lorem ipsum dolor\n  AccessAppScope: true\n")]
+    [DataRow(ComponentType.Canvas, "", true, "Component1:\n  Control: Component\n  AccessAppScope: true\n")]
+    [DataRow(ComponentType.Command, "", true, "Component1:\n  Control: Component\n  Type: Command\n  AccessAppScope: true\n")]
     public void Serialize_ShouldCreateValidYamlForComponentDefinitions(ComponentType componentType, string description, bool accessAppScope, string expectedYaml)
     {
         var component = (ComponentDefinition)ControlFactory.Create("Component1", "Component");

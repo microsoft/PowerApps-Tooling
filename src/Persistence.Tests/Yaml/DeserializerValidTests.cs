@@ -73,13 +73,13 @@ public class DeserializerValidTests : TestBase
             },
             children: new Control[]
             {
-                ControlFactory.Create("Label1", template: "text",
+                ControlFactory.Create("Label1", templateNameOrId: "text", isClassic: true,
                     properties:
                     new ()
                     {
                         { "Text", "\"lorem ipsum\"" },
                     }),
-                ControlFactory.Create("Button1", template: "button",
+                ControlFactory.Create("Button1", templateNameOrId: "button", isClassic: true,
                     properties : new ()
                     {
                         { "Text", "\"click me\"" },
@@ -128,9 +128,7 @@ public class DeserializerValidTests : TestBase
 
 
     [TestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
-    public void Deserialize_GroupContainersShouldOrderZIndexInverse(bool isControlIdentifiers)
+    public void Deserialize_GroupContainersShouldOrderZIndexInverse()
     {
         var graph = ControlFactory.CreateScreen("Screen1",
             properties: new()
@@ -139,14 +137,14 @@ public class DeserializerValidTests : TestBase
             },
             children: new Control[]
             {
-                ControlFactory.Create("group", template: "groupContainer", children: new Control[] {
-                    ControlFactory.Create("Label1", template: "text",
+                ControlFactory.Create("group", templateNameOrId: "groupContainer", children: new Control[] {
+                    ControlFactory.Create("Label1", templateNameOrId: "text", isClassic: true,
                         properties:
                         new ()
                         {
                             { "Text", "\"lorem ipsum\"" },
                         }),
-                    ControlFactory.Create("Button1", template: "button",
+                    ControlFactory.Create("Button1", templateNameOrId: "button", isClassic: true,
                         properties : new ()
                         {
                             { "Text", "\"click me\"" },
@@ -157,10 +155,10 @@ public class DeserializerValidTests : TestBase
             }
         );
 
-        var serializer = CreateSerializer(isControlIdentifiers);
+        var serializer = CreateSerializer();
         var yaml = serializer.SerializeControl(graph);
 
-        var deserializer = CreateDeserializer(isControlIdentifiers);
+        var deserializer = CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
         sut.ShouldNotBeNull();
@@ -199,7 +197,7 @@ public class DeserializerValidTests : TestBase
     [TestMethod]
     public void Deserialize_ShouldParseYamlForCustomControl()
     {
-        var graph = ControlFactory.Create("CustomControl1", template: "http://localhost/#customcontrol",
+        var graph = ControlFactory.Create("CustomControl1", templateNameOrId: "http://localhost/#customcontrol",
             properties: new()
             {
                 { "Text", "\"I am a custom control\"" },
@@ -250,12 +248,11 @@ public class DeserializerValidTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-id.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-name.pa.yaml", true, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-template-name.pa.yaml", false, typeof(Screen), "http://microsoft.com/appmagic/screen", "Hello", 0, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/powercontrol/PowerApps_CoreControls_ButtonCanvas", "button with template", 0, 1)]
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template", 0, 1)]
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-id.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-id.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template id", 0, 1)]
     [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-name.pa.yaml", true, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
-    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-template-name.pa.yaml", false, typeof(BuiltInControl), "http://microsoft.com/appmagic/button", "button with template name", 0, 1)]
     public void Deserialize_ShouldSucceed(string path, bool isControlIdentifiers, Type expectedType, string expectedTemplateId, string expectedName, int controlCount, int propertiesCount)
     {
         // Arrange
@@ -370,7 +367,7 @@ public class DeserializerValidTests : TestBase
         component.Description.Should().Be(expectedDescription);
         component.AccessAppScope.Should().Be(expectedAccessAppScope);
         component.Template.Should().NotBeNull();
-        component.Template!.Name.Should().Be(expectedName);
+        component.Template!.InvariantName.Should().Be(expectedName);
         component.Template.Id.Should().Be(expectedTemplateId);
     }
 
@@ -396,7 +393,7 @@ public class DeserializerValidTests : TestBase
         control.ShouldNotBeNull();
         control.Name.Should().Be(expectedName);
         control.Template.Should().NotBeNull();
-        control.Template!.Name.Should().Be(expectedTemplateName);
+        control.Template!.InvariantName.Should().Be(expectedTemplateName);
         control.Variant.Should().Be(expectedVariant);
     }
 
@@ -419,14 +416,14 @@ public class DeserializerValidTests : TestBase
         screen.Children.Should().NotBeNull().And.HaveCount(1);
         var gallery = screen.Children[0];
         gallery.Should().NotBeNull().And.BeOfType<BuiltInControl>();
-        gallery.Template.Name.Should().Be("Gallery");
+        gallery.Template.InvariantName.Should().Be("Gallery");
         gallery.Children.ShouldNotBeNull();
 
         // Check properties got moved to the gallery template
         gallery.Children.Should().HaveCount(2);
         gallery.Properties.Should().NotBeNull().And.HaveCount(2);
         gallery.Properties.Should().NotContainKeys("TemplateFill", "OnSelect");
-        var galleryTemplate = gallery.Children.FirstOrDefault(c => c.Template.Name == "GalleryTemplate");
+        var galleryTemplate = gallery.Children.FirstOrDefault(c => c.Template.InvariantName == "GalleryTemplate");
         galleryTemplate.ShouldNotBeNull();
         galleryTemplate.Properties.Should().NotBeNull().And.HaveCount(1);
         galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
@@ -455,6 +452,7 @@ public class DeserializerValidTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/Group/with-two-children.pa.yaml", false, 2, "My Small Group")]
     [DataRow(@"_TestData/ValidYaml{0}/Group/with-nested-children.pa.yaml", true, 2, "My Nested Group")]
     [DataRow(@"_TestData/ValidYaml{0}/Group/with-nested-children.pa.yaml", false, 2, "My Nested Group")]
+    [DataRow(@"_TestData/ValidYaml{0}/Group/inside-screen-with-nested-children.pa.yaml", true, 1, "My Screen")]
     public void Deserialize_ShouldParseYamlForGroupWithChildren(string path, bool isControlIdentifiers, int expectedChildrenCount, string expectedName)
     {
         // Arrange
@@ -463,7 +461,7 @@ public class DeserializerValidTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         // Act
-        var group = deserializer.Deserialize<GroupControl>(yamlReader);
+        var group = deserializer.Deserialize<Control>(yamlReader);
 
         // Assert
         group.ShouldNotBeNull();

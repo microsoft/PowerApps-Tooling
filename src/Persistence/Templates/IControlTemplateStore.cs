@@ -11,7 +11,7 @@ public interface IControlTemplateStore
 
     void DiscoverBuiltInTemplateTypes();
 
-    bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
+    bool TryGetTemplateByName(string name, [MaybeNullWhen(false)] out ControlTemplate controlTemplate, bool isClassic = false);
 
     bool TryGetControlTypeByName(string name, [MaybeNullWhen(false)] out Type controlType);
 
@@ -19,7 +19,7 @@ public interface IControlTemplateStore
 
     bool TryGetById(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 
-    bool TryGetByIdOrName(string id, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
+    bool TryGetByIdOrName(string idOrName, [MaybeNullWhen(false)] out ControlTemplate controlTemplate, bool isClassic = false);
 
     bool TryGetByType(Type type, [MaybeNullWhen(false)] out ControlTemplate controlTemplate);
 

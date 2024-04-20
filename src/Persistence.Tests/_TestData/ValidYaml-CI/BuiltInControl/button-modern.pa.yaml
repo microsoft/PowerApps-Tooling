@@ -1,0 +1,4 @@
+built in modern button:
+  Control: Button
+  Properties:
+    Text: ="modern/pcf button text"

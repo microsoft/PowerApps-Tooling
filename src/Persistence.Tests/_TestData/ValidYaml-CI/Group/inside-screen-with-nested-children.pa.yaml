@@ -1,0 +1,15 @@
+My Screen:
+  Control: Screen
+  Children:
+  - My Nested Group:
+      Control: Group
+      Children:
+      - My Button:
+          Control: Button
+      - My Gallery:
+          Control: Gallery
+          Children:
+          - My Nested Label:
+              Control: Text
+          - My Nested Button:
+              Control: Button

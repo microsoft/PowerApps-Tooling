@@ -4,11 +4,11 @@ Screen1:
     Text: ="I am a screen"
   Children:
   - Label1:
-      Control: Text
+      Classic: Text
       Properties:
         Text: ="lorem ipsum"
   - Button1:
-      Control: Button
+      Classic: Button
       Properties:
         Text: ="click me"
         X: =100
