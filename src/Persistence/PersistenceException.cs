@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text;
+using YamlDotNet.Core;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
@@ -20,14 +21,13 @@ public class PersistenceException : Exception
     {
     }
 
-    public PersistenceException(PersistenceErrorCode errorCode, Exception? innerException)
+    public PersistenceException(PersistenceErrorCode errorCode, Exception innerException)
         : this(errorCode, null, innerException)
     {
     }
 
     public PersistenceException(PersistenceErrorCode errorCode, string? reason, Exception? innerException)
-        // Convert reason to non-null so base.Message doesn't get set to the default ex message.
-        : base(reason ?? string.Empty, innerException)
+        : base(reason ?? string.Empty, innerException) // Convert reason to non-null so base.Message doesn't get set to the default ex message.
     {
         ErrorCode = errorCode.CheckArgumentInRange();
     }
@@ -48,7 +48,7 @@ public class PersistenceException : Exception
 
     public override string Message => ComposeMessage();
 
-    public string Reason => base.Message; // we get the storage of a string for free
+    public string? Reason => base.Message.Length == 0 ? null : base.Message; // we get the storage of a string for free
 
     public PersistenceErrorCode ErrorCode { get; }
 
@@ -74,7 +74,7 @@ public class PersistenceException : Exception
         sb.Append("] ");
         sb.Append(ErrorCode.GetDefaultExceptionMessage());
 
-        if (!string.IsNullOrWhiteSpace(Reason))
+        if (Reason != null)
         {
             sb.Append(' ');
             sb.Append(Reason);
@@ -112,5 +112,16 @@ public class PersistenceException : Exception
         info.AddValue(nameof(Column), Column ?? -1);
 
         base.GetObjectData(info, context);
+    }
+
+    internal static PersistenceException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)
+    {
+        return ex.Start.Equals(Mark.Empty)
+            ? new PersistenceException(errorCode, ex.Message, ex)
+            : new PersistenceException(errorCode, ex.Message, ex)
+            {
+                LineNumber = ex.Start.Line,
+                Column = ex.Start.Column,
+            };
     }
 }

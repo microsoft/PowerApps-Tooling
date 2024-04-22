@@ -450,7 +450,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         var controlEditorStates = new Dictionary<string, ControlEditorState>();
         foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
         {
-            var topParentJson = DeseraializeMsappJsonFile<TopParentJson>(editorStateEntry);
+            var topParentJson = DeserializeMsappJsonFile<TopParentJson>(editorStateEntry);
             controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
         }
 
@@ -499,7 +499,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private Header LoadHeader()
     {
         var entry = GetRequiredEntry(HeaderFileName);
-        var header = DeseraializeMsappJsonFile<Header>(entry);
+        var header = DeserializeMsappJsonFile<Header>(entry);
         return header;
     }
 
@@ -567,7 +567,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         writer.WriteLine("/[Aa]pp[Cc]hecker[Rr]esult.sarif");
     }
 
-    private static T DeseraializeMsappJsonFile<T>(ZipArchiveEntry entry)
+    private static T DeserializeMsappJsonFile<T>(ZipArchiveEntry entry)
         where T : notnull
     {
         try

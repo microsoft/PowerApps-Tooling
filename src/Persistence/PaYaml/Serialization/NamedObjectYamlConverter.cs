@@ -24,8 +24,8 @@ public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue
 
         // The default representation is expected to represent a single-item mapping
         var start = parser.Current.Start;
-        var name = (string?)nestedObjectDeserializer(typeof(string)) ?? throw new PaYamlSerializationException($"Named object key cannot be null.", start.ToYamlLocation());
-        var value = (TValue?)nestedObjectDeserializer(typeof(TValue)) ?? throw new PaYamlSerializationException($"Named object value cannot be null.", start.ToYamlLocation());
+        var name = (string?)nestedObjectDeserializer(typeof(string)) ?? throw new YamlException(start, parser.Current.End, $"Named object key cannot be null.");
+        var value = (TValue?)nestedObjectDeserializer(typeof(TValue)) ?? throw new YamlException(start, parser.Current.End, $"Named object value cannot be null.");
 
         return new NamedObject<TValue>(name, value) { Start = start.ToYamlLocation() };
     }

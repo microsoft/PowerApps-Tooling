@@ -14,7 +14,7 @@ public class PersistenceExceptionTests
     {
         ThrowAndVerify(new PersistenceException(PersistenceErrorCode.DeserializationError))
             .WithErrorCode(PersistenceErrorCode.DeserializationError)
-            .WithReason(string.Empty, "Reason is defaulted to empty string to avoid it returning the default Exception.Message string.");
+            .WithReason(null);
         ThrowAndVerify(new PersistenceException(PersistenceErrorCode.SerializationError, "A test reason."))
             .WithErrorCode(PersistenceErrorCode.SerializationError)
             .WithReason("A test reason.");

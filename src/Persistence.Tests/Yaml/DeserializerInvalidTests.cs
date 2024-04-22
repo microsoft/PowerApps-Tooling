@@ -80,7 +80,7 @@ public class DeserializerInvalidTests : TestBase
         // Assert
         act.Should().Throw<PersistenceException>()
             .WithErrorCode(PersistenceErrorCode.DeserializationError)
-            .WithMessage("Duplicate control property*")
+            .WithReason("Duplicate control property*")
             .WithInnerExceptionExactly<YamlException>();
     }
 }

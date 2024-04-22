@@ -46,13 +46,7 @@ public class YamlSerializer : IYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw ex.Start.Equals(Mark.Empty)
-                ? new PersistenceException(PersistenceErrorCode.SerializationError, ex.Message, ex)
-                : new PersistenceException(PersistenceErrorCode.SerializationError, ex.Message, ex)
-                {
-                    LineNumber = ex.Start.Line,
-                    Column = ex.Start.Column,
-                };
+            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
         }
     }
 
@@ -64,13 +58,7 @@ public class YamlSerializer : IYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw ex.Start.Equals(Mark.Empty)
-                ? new PersistenceException(PersistenceErrorCode.SerializationError, ex.Message, ex)
-                : new PersistenceException(PersistenceErrorCode.SerializationError, ex.Message, ex)
-                {
-                    LineNumber = ex.Start.Line,
-                    Column = ex.Start.Column,
-                };
+            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
         }
     }
 }
