@@ -1,0 +1,8 @@
+App:
+  Control: App
+  Properties:
+    Theme: =PowerAppsTheme
+  Children:
+  - Host:
+      Control: Host
+      Variant: DefaultHostControlVariant

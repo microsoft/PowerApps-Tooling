@@ -1,0 +1,44 @@
+ClassicControlsScreen:
+  Control: Screen
+  Children:
+  - IconDown4:
+      Control: Icon
+      Variant: ChevronDown
+      Properties:
+        Icon: =Icon.ChevronDown
+        X: =27
+        Y: =346
+  - IconText2:
+      Control: Icon
+      Variant: Text
+      Properties:
+        Icon: =Icon.Text
+        X: =27
+        Y: =282
+  - IconAdd1:
+      Control: Icon
+      Variant: Add
+      Properties:
+        Icon: =Icon.Add
+        X: =27
+        Y: =210
+  - Slider1:
+      Control: Slider
+      Properties:
+        X: =27
+        Y: =154
+  - Button1:
+      Control: Button
+      Properties:
+        X: =27
+        Y: =114
+  - TextInput1:
+      Control: Text
+      Properties:
+        X: =27
+        Y: =60
+  - Label1:
+      Control: Label
+      Properties:
+        X: =27
+        Y: =20

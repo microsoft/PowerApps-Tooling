@@ -1,0 +1,40 @@
+ModernControlsScreen:
+  Control: Screen
+  Children:
+  - IconTextCaseTitle8:
+      Control: PowerApps_CoreControls_Icon
+      Properties:
+        Icon: ="TextCaseTitle"
+        X: =40
+        Y: =391
+  - IconChevronDown7:
+      Control: PowerApps_CoreControls_Icon
+      Properties:
+        Icon: ="ChevronDown"
+        X: =40
+        Y: =311
+  - IconAdd6:
+      Control: PowerApps_CoreControls_Icon
+      Properties:
+        X: =40
+        Y: =248
+  - Slider3:
+      Control: PowerApps_CoreControls_Slider
+      Properties:
+        X: =40
+        Y: =182
+  - ButtonCanvas1:
+      Control: PowerApps_CoreControls_ButtonCanvas
+      Properties:
+        X: =40
+        Y: =139
+  - TextInputCanvas1:
+      Control: PowerApps_CoreControls_TextInputCanvas
+      Properties:
+        X: =40
+        Y: =89
+  - TextCanvas1:
+      Control: PowerApps_CoreControls_TextCanvas
+      Properties:
+        X: =40
+        Y: =40
