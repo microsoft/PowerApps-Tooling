@@ -25,6 +25,7 @@ internal class MsAppTest
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public static bool MergeStressTest(string pathToMsApp1, string pathToMsApp2)
     {
         try
@@ -142,6 +143,7 @@ internal class MsAppTest
     }
 
     // Given an msapp (original source of truth), stress test the conversions
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public static bool StressTest(string pathToMsApp)
     {
         try
@@ -283,7 +285,7 @@ internal class MsAppTest
                                     JsonDocument.Parse(originalContents);
                                     JsonDocument.Parse(newContents);
                                 }
-                                catch
+                                catch (JsonException)
                                 {
                                     isJson = false;
                                 }

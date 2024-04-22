@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using MSAppGenerator;
 
 namespace MauiMsApp;
@@ -13,9 +12,8 @@ public partial class CreatePage : ContentPage
         InitializeComponent();
     }
 
-#pragma warning disable CA1822 // Mark members as static
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "REVIEW")]
     private async void OnCreateClicked(object sender, EventArgs e)
-#pragma warning restore CA1822 // Mark members as static
     {
         try
         {

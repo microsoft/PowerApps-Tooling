@@ -13,7 +13,7 @@ using static SimpleExec.Command;
 
 namespace targets
 {
-    class Options
+    internal sealed class Options
     {
         [Value(0, MetaName = "target", HelpText = "build target to run; see available with: '--list", Default = "rebuild")]
         public string Target { get; set; }
@@ -25,7 +25,7 @@ namespace targets
         public IEnumerable<string> Projects { get; set; }
     }
 
-    class Program
+    public sealed class Program
     {
         static Options options;
 
@@ -34,6 +34,7 @@ namespace targets
 
             string RootDir = "", gitHash = "";
             bool gitExists = true;
+#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 RootDir = Read("git", "rev-parse --show-toplevel", noEcho: true).Trim();
@@ -45,6 +46,7 @@ namespace targets
                 Console.WriteLine("Unable to find root directory using git, assuming this script is being run from root = " + RootDir);
                 gitExists = false;
             }
+#pragma warning restore CA1031 // Do not catch general exception types
 
             string BinDir = Path.Combine(RootDir, "bin");
             string ObjDir = Path.Combine(RootDir, "obj");
@@ -87,7 +89,7 @@ namespace targets
             Target("pack",
                 () =>
                 {
-                    var projects = (options.Projects.Any()) ? options.Projects : new[]{ defaultPackProject };
+                    var projects = (options.Projects.Any()) ? options.Projects : new[] { defaultPackProject };
 
                     foreach (var project in projects)
                         RunDotnet("pack", $"{EscapePath(project)} --configuration {options.Configuration} --output {EscapePath(Path.Combine(PkgDir, "PackResult"))} --no-build -p:Packing=true", gitExists, LogDir);

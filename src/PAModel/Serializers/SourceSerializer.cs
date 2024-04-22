@@ -479,7 +479,7 @@ internal static partial class SourceSerializer
         _ = Path.GetFileName(filePath);
         try
         {
-            var parser = new Parser.Parser(filePath, fileContents, errors);
+            using var parser = new Parser.Parser(filePath, fileContents, errors);
             var controlIR = parser.ParseControl(isComponent);
             if (controlIR == null)
             {
@@ -1061,6 +1061,7 @@ internal static partial class SourceSerializer
 
     private static BuildVerJson GetBuildDetails()
     {
+#pragma warning disable CA1031 // Do not catch general exception types
         try
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -1078,6 +1079,7 @@ internal static partial class SourceSerializer
         {
             return null;
         }
+#pragma warning restore CA1031 // Do not catch general exception types
     }
 
     /// <summary>

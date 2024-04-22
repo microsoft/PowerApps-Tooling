@@ -80,6 +80,7 @@ internal static class MsAppSerializer
         var screenOrder = new Dictionary<string, double>();
 
         ZipArchive zipOpen;
+#pragma warning disable CA1031 // Do not catch general exception types
         try
         {
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -92,6 +93,7 @@ internal static class MsAppSerializer
             errors.MsAppFormatError(e.Message);
             return null;
         }
+#pragma warning restore CA1031 // Do not catch general exception types
 
         using (var z = zipOpen)
         {

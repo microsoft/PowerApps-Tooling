@@ -651,7 +651,7 @@ internal class YamlLexer : IDisposable
         {
             if (disposing)
             {
-                _reader?.Dispose();
+                _reader.Dispose();
             }
 
             _isDisposed = true;
