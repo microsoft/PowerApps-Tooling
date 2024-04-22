@@ -5,7 +5,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public interface IYamlDeserializer
 {
-    public T Deserialize<T>(string yaml);
+    /// <exception cref="PersistenceException">Thrown when an error occurs while deserializing.</exception>
+    public T? Deserialize<T>(string yaml) where T : notnull;
 
-    public T Deserialize<T>(TextReader reader);
+    /// <exception cref="PersistenceException">Thrown when an error occurs while deserializing.</exception>
+    public T? Deserialize<T>(TextReader reader) where T : notnull;
 }

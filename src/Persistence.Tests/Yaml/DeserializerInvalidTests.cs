@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using YamlDotNet.Core;
 
@@ -26,7 +27,9 @@ public class DeserializerInvalidTests : TestBase
             var yaml = File.ReadAllText(filePath);
             using var yamlReader = new StringReader(yaml);
             var act = () => deserializer.Deserialize<Control>(yamlReader);
-            act.Should().ThrowExactly<YamlException>("deserializing file '{0}' is expected to be invalid", filePath);
+            act.Should().ThrowExactly<PersistenceException>("deserializing file '{0}' is expected to be invalid", filePath)
+                .WithErrorCode(PersistenceErrorCode.DeserializationError)
+                .WithInnerExceptionExactly<YamlException>();
         }
     }
 
@@ -42,25 +45,14 @@ public class DeserializerInvalidTests : TestBase
 
         // Act
         // Explicitly using the wrong type BuiltInControl
-        Action act = () => { deserializer.Deserialize<BuiltInControl>(yamlReader); }; // Explicitly using the wrong type BuiltInControl
+        Action act = () => { deserializer.Deserialize<BuiltInControl>(yamlReader); };
 
         // Assert
-        act.Should().Throw<YamlException>()
+        act.Should().Throw<PersistenceException>()
+            .WithErrorCode(PersistenceErrorCode.DeserializationError)
+            .WithInnerExceptionExactly<YamlException>()
             .WithInnerException<NotSupportedException>()
             .WithMessage("Cannot covert Screen to BuiltInControl");
-    }
-
-    [TestMethod]
-    public void Deserialize_EmptyString()
-    {
-        // Arrange
-        var deserializer = CreateDeserializer();
-
-        // Act
-        Action act = () => deserializer.Deserialize<Control>(string.Empty);
-
-        // Assert
-        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'yaml')");
     }
 
     public record TestSchema
@@ -86,7 +78,9 @@ public class DeserializerInvalidTests : TestBase
         };
 
         // Assert
-        act.Should().Throw<YamlException>()
-            .WithMessage("Duplicate control property*");
+        act.Should().Throw<PersistenceException>()
+            .WithErrorCode(PersistenceErrorCode.DeserializationError)
+            .WithReason("Duplicate control property*")
+            .WithInnerExceptionExactly<YamlException>();
     }
 }

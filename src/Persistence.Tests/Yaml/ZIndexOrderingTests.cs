@@ -46,6 +46,7 @@ public class ZIndexOrderingTests : TestBase
 
         var sut = deserializer.Deserialize<Screen>(yamlReader);
 
+        sut.ShouldNotBeNull();
         sut.Children.Should()
             .HaveCount(5)
             .And.BeEquivalentTo(new List<Control>
@@ -70,6 +71,7 @@ public class ZIndexOrderingTests : TestBase
 
         var result = deserializer.Deserialize<List<Control>>(yamlReader);
 
+        result.ShouldNotBeNull();
         result.Should().HaveCount(3);
         for (var i = 0; i < result.Count; i++)
         {
@@ -95,6 +97,7 @@ public class ZIndexOrderingTests : TestBase
 
         var result = deserializer.Deserialize<List<Control>>(yamlReader);
 
+        result.ShouldNotBeNull();
         result.Should().HaveCount(3);
         for (var i = 0; i < result.Count; i++)
         {
@@ -119,6 +122,7 @@ public class ZIndexOrderingTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         var result = deserializer.Deserialize<Screen>(yamlReader);
+        result.ShouldNotBeNull();
         if (result.Children == null)
         {
             Assert.Fail("Children should not be null");
@@ -185,6 +189,7 @@ public class ZIndexOrderingTests : TestBase
         using var yamlReader = new StreamReader(yamlStream);
 
         var result = deserializer.Deserialize<Control>(yamlReader);
+        result.ShouldNotBeNull();
         if (result.Children == null)
         {
             Assert.Fail("Children should not be null");

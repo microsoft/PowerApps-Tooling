@@ -48,23 +48,21 @@ public class RoundTripWriterTests
         var inputReader = new StringReader(input);
 
         // Act
-        try
+        Action act = () =>
         {
             using var roundTripWriter = new RoundTripWriter(inputReader, "test");
             foreach (var c in output)
             {
                 roundTripWriter.Write(c);
             };
-        }
-        catch (PersistenceException e)
-        {
-            // Assert
-            e.FileName.Should().Be("test");
-            e.Line.Should().Be(line, nameof(line));
-            e.Column.Should().Be(column, nameof(column));
-            return;
-        }
+        };
 
-        Assert.Fail("Expected PersistenceException was not thrown");
+        // Assert
+        var thrownEx = act.Should().ThrowExactly<PersistenceException>()
+            .WithErrorCode(PersistenceErrorCode.RoundTripValidationFailed)
+            .Which;
+        thrownEx.MsappEntryFullPath.Should().Be("test");
+        thrownEx.LineNumber.Should().Be(line);
+        thrownEx.Column.Should().Be(column);
     }
 }

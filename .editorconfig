@@ -235,6 +235,7 @@ dotnet_diagnostic.IDE1006.severity = none       # These words must begin with up
 [*.{cs,vb}]
 
 dotnet_diagnostic.CA1507.severity = error   # Use nameof in place of string
+dotnet_diagnostic.CS1573.severity = silent  # Parameter has no matching param tag in the XML comment (but other parameters do). Justification: Don't require unneccessary comments. Only add comments for parameters that need clairification.
 dotnet_diagnostic.CA1508.severity = warning # Avoid dead conditional code
 dotnet_diagnostic.CA1700.severity = error   # Do not name enum values 'Reserved'
 dotnet_diagnostic.CA1707.severity = warning # Identifiers should not contain underscores

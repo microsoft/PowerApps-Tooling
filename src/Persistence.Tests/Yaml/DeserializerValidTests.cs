@@ -10,6 +10,20 @@ namespace Persistence.Tests.Yaml;
 public class DeserializerValidTests : TestBase
 {
     [TestMethod]
+    [DataRow("NULL")]
+    [DataRow("~")]
+    [DataRow("")]
+    [DataRow("  ")]
+    [DataRow("# a comment only")]
+    [DataRow("---")]
+    public void Deserialize_ReturnsNullInSomeCases(string yaml)
+    {
+        var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
+
+        deserializer.Deserialize<IList<string>>(yaml).Should().BeNull();
+    }
+
+    [TestMethod]
     [DataRow(false, "I am a screen with spaces", "42", "71")]
     [DataRow(true, "\"I am a screen with spaces\"", "42", "71")]
     [DataRow(true, "NoSpaces", "-50", "=70")]
@@ -36,7 +50,8 @@ public class DeserializerValidTests : TestBase
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer(new() { IsTextFirst = true });
 
         var sut = deserializer.Deserialize<Control>(yaml);
-        sut.Should().NotBeNull().And.BeOfType<Screen>();
+        sut.ShouldNotBeNull();
+        sut.Should().BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
         sut.Children.Should().BeNull();
@@ -80,7 +95,8 @@ public class DeserializerValidTests : TestBase
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
-        sut.Should().NotBeNull().And.BeOfType<Screen>();
+        sut.ShouldNotBeNull();
+        sut.Should().BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
         sut.Properties.Should().NotBeNull()
@@ -147,7 +163,8 @@ public class DeserializerValidTests : TestBase
         var deserializer = CreateDeserializer(isControlIdentifiers);
 
         var sut = deserializer.Deserialize<Control>(yaml);
-        sut.Should().NotBeNull().And.BeOfType<Screen>();
+        sut.ShouldNotBeNull();
+        sut.Should().BeOfType<Screen>();
         sut.Name.Should().Be("Screen1");
         sut.TemplateId.Should().Be("http://microsoft.com/appmagic/screen");
         sut.Properties.Should().NotBeNull()
@@ -195,7 +212,8 @@ public class DeserializerValidTests : TestBase
         var deserializer = ServiceProvider.GetRequiredService<IYamlSerializationFactory>().CreateDeserializer();
 
         var sut = deserializer.Deserialize<Control>(yaml);
-        sut.Should().NotBeNull().And.BeOfType<CustomControl>();
+        sut.ShouldNotBeNull();
+        sut.Should().BeOfType<CustomControl>();
         sut.Name.Should().Be("CustomControl1");
         sut.TemplateId.Should().Be("http://localhost/#customcontrol");
         sut.Children.Should().BeNull();
@@ -309,7 +327,7 @@ public class DeserializerValidTests : TestBase
         var controlObj = deserializer.Deserialize<BuiltInControl>(yamlReader);
 
         // Assert
-        controlObj.Should().NotBeNull();
+        controlObj.ShouldNotBeNull();
         controlObj.Properties.Should().NotBeNull().And.HaveCount(12);
 
         controlObj.Properties["NormalText"].Value.Should().Be("\"This is a normal text\"");
@@ -347,6 +365,7 @@ public class DeserializerValidTests : TestBase
         var component = deserializer.Deserialize<ComponentDefinition>(yamlReader);
 
         // Assert
+        component.ShouldNotBeNull();
         component.Name.Should().Be(expectedName);
         component.Description.Should().Be(expectedDescription);
         component.AccessAppScope.Should().Be(expectedAccessAppScope);
@@ -374,6 +393,7 @@ public class DeserializerValidTests : TestBase
         var control = deserializer.Deserialize<BuiltInControl>(yamlReader);
 
         // Assert
+        control.ShouldNotBeNull();
         control.Name.Should().Be(expectedName);
         control.Template.Should().NotBeNull();
         control.Template!.Name.Should().Be(expectedTemplateName);
@@ -420,8 +440,8 @@ public class DeserializerValidTests : TestBase
         var deserializer = CreateDeserializer(isControlIdentifiers);
 
         var component = deserializer.Deserialize<ComponentDefinition>(expectedYaml);
-        component.Should().NotBeNull();
-        component!.CustomProperties.Should().NotBeNull()
+        component.ShouldNotBeNull();
+        component.CustomProperties.Should().NotBeNull()
             .And.HaveCount(expectedCustomProperties.Length);
 
         for (var i = 0; i < expectedCustomProperties.Length; i++)
@@ -446,7 +466,7 @@ public class DeserializerValidTests : TestBase
         var group = deserializer.Deserialize<GroupControl>(yamlReader);
 
         // Assert
-        group.Should().NotBeNull();
+        group.ShouldNotBeNull();
         group.Children.Should().NotBeNull().And.HaveCount(expectedChildrenCount);
         group.Name.Should().Be(expectedName);
     }
@@ -463,7 +483,8 @@ public class DeserializerValidTests : TestBase
 
         // Act
         var listObj = deserializer.Deserialize<object>(yamlReader);
-        listObj.Should().NotBeNull().And.BeAssignableTo(typeof(List<Control>));
+        listObj.ShouldNotBeNull();
+        listObj.Should().BeAssignableTo(typeof(List<Control>));
         var list = (List<Control>)listObj;
         list.Should().HaveCount(expectedCount);
         list.First().Should().BeOfType(expectedType);
