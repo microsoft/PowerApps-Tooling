@@ -9,11 +9,12 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
-internal class Parser
+internal class Parser : IDisposable
 {
     public readonly ErrorContainer _errorContainer;
 
     private readonly YamlLexer _yaml;
+    private bool _isDisposed;
 
     public Parser(string fileName, string contents, ErrorContainer errors)
     {
@@ -344,5 +345,25 @@ internal class Parser
             return false;
         line = line.Substring(length).TrimStart();
         return line.StartsWith("As");
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                _yaml.Dispose();
+            }
+
+            _isDisposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

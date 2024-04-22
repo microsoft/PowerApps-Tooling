@@ -12,6 +12,7 @@ internal class ControlTemplateParser
 {
     internal static Regex _reservedIdentifierRegex = new(@"%([a-zA-Z]*)\.RESERVED%");
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
     {
         template = null;

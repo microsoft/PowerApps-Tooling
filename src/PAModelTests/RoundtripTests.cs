@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.PowerPlatform.Formulas.Tools;
 
 namespace PAModelTests;
@@ -11,27 +11,16 @@ namespace PAModelTests;
 [TestClass]
 public class RoundtripTests
 {
+    private static IEnumerable<object[]> TestAppFilePaths => Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "Apps"), "*.msapp").Select(p => new[] { p });
+
     // Apps live in the "Apps" folder, and should have a build action of "Copy to output"
     [TestMethod]
-    public void StressTestApps()
+    [DynamicData(nameof(TestAppFilePaths))]
+    public void StressTestApps(string msappPath)
     {
-        var directory = Path.Combine(Environment.CurrentDirectory, "Apps");
+        MsAppTest.StressTest(msappPath).Should().BeTrue();
 
-        Parallel.ForEach(Directory.GetFiles(directory), root =>
-        {
-            try
-            {
-                var ok = MsAppTest.StressTest(root);
-                Assert.IsTrue(ok);
-
-                var cloneOk = MsAppTest.TestClone(root);
-                // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
-                cloneOk.Should().BeTrue(root);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.ToString());
-            }
-        });
+        // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
+        MsAppTest.TestClone(msappPath).Should().BeTrue();
     }
 }

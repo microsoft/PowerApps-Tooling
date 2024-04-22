@@ -48,7 +48,7 @@ internal class Program
             var msAppCommon = Path.Combine(msAppPathDir, "empty.msapp");
             foreach (var msAppPath in Directory.EnumerateFiles(msAppPathDir, "*.msapp", SearchOption.TopDirectoryOnly))
             {
-                // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item. 
+                // Merge test requires a 2nd app. Could do a full NxN matrix. But here, just pick the first item.
                 msAppCommon ??= msAppPath;
 
                 var sw = Stopwatch.StartNew();
@@ -267,6 +267,7 @@ internal class Program
                 ");
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ByDesign - The exceptions are collected")]
     private static (CanvasDocument, ErrorContainer) TryOperation(Func<(CanvasDocument, ErrorContainer)> operation)
     {
         CanvasDocument app = null;
@@ -283,6 +284,7 @@ internal class Program
         return (app, errors);
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ByDesign - The exceptions are collected")]
     private static ErrorContainer TryOperation(Func<ErrorContainer> operation)
     {
         var errors = new ErrorContainer();
