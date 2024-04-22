@@ -43,6 +43,7 @@ internal sealed class InputProcessor
     /// <summary>
     /// Function to bind to the Create command and call App Creation code
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "REVIEW")]
     private static void CreateFunction(bool interactive, string fullPathToMsApp, int numScreens, IList<string>? controlsinfo)
     {
         var creator = new AppCreator();

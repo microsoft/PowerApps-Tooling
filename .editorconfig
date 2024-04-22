@@ -234,25 +234,32 @@ dotnet_diagnostic.IDE1006.severity = none       # These words must begin with up
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/?view=vs-2022
 [*.{cs,vb}]
 
-dotnet_diagnostic.CA1507.severity = error   # Use nameof in place of string
-dotnet_diagnostic.CS1573.severity = silent  # Parameter has no matching param tag in the XML comment (but other parameters do). Justification: Don't require unneccessary comments. Only add comments for parameters that need clairification.
-dotnet_diagnostic.CA1508.severity = warning # Avoid dead conditional code
-dotnet_diagnostic.CA1700.severity = error   # Do not name enum values 'Reserved'
-dotnet_diagnostic.CA1707.severity = warning # Identifiers should not contain underscores
-dotnet_diagnostic.CA1708.severity = error   # Identifiers should differ by more than case
-dotnet_diagnostic.CA1710.severity = error   # Identifiers should have correct suffix
-dotnet_diagnostic.CA1712.severity = error   # Do not prefix enum values with type name
-dotnet_diagnostic.CA1720.severity = error   # Identifiers should not contain type names
-dotnet_diagnostic.CA1802.severity = error   # Use Literals Where Appropriate
-dotnet_diagnostic.CA1805.severity = warning # Do not initialize unnecessarily
-dotnet_diagnostic.CA1810.severity = error   # Initialize reference type static fields inline
-dotnet_diagnostic.CA1821.severity = error   # Remove empty finalizers
-dotnet_diagnostic.CA1822.severity = warning # Mark members as static
-dotnet_diagnostic.CA1823.severity = warning # Avoid unused private fields
-dotnet_diagnostic.CA1826.severity = warning # Use property instead of Linq Enumerable method
-dotnet_diagnostic.CA1827.severity = warning # Do not use Count()/LongCount() when Any() can be used
-dotnet_diagnostic.CA1849.severity = warning # Call async methods when in an async method
-dotnet_diagnostic.CA2000.severity = warning # Dispose objects before losing scope
+dotnet_diagnostic.CA1031.severity = error      # Do not catch general exception types
+dotnet_diagnostic.CA1063.severity = error      # Implement IDisposable correctly
+dotnet_diagnostic.CA1001.severity = error      # Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1507.severity = error      # Use nameof in place of string
+dotnet_diagnostic.CS1573.severity = silent     # Parameter has no matching param tag in the XML comment (but other parameters do). Justification: Don't require unneccessary comments. Only add comments for parameters that need clairification.
+dotnet_diagnostic.CA1508.severity = warning    # Avoid dead conditional code
+dotnet_diagnostic.CA1700.severity = error      # Do not name enum values 'Reserved'
+dotnet_diagnostic.CA1707.severity = warning    # Identifiers should not contain underscores
+dotnet_diagnostic.CA1708.severity = error      # Identifiers should differ by more than case
+dotnet_diagnostic.CA1710.severity = error      # Identifiers should have correct suffix
+dotnet_diagnostic.CA1712.severity = error      # Do not prefix enum values with type name
+dotnet_diagnostic.CA1720.severity = error      # Identifiers should not contain type names
+dotnet_diagnostic.CA1802.severity = error      # Use Literals Where Appropriate
+dotnet_diagnostic.CA1805.severity = warning    # Do not initialize unnecessarily
+dotnet_diagnostic.CA1810.severity = error      # Initialize reference type static fields inline
+dotnet_diagnostic.CA1816.severity = error      # Call GC.SuppressFinalize correctly
+dotnet_diagnostic.CA1821.severity = error      # Remove empty finalizers
+dotnet_diagnostic.CA1822.severity = warning    # Mark members as static
+dotnet_diagnostic.CA1823.severity = warning    # Avoid unused private fields
+dotnet_diagnostic.CA1826.severity = warning    # Use property instead of Linq Enumerable method
+dotnet_diagnostic.CA1827.severity = warning    # Do not use Count()/LongCount() when Any() can be used
+dotnet_diagnostic.CA1849.severity = warning    # Call async methods when in an async method
+dotnet_diagnostic.CA2000.severity = error      # Dispose objects before losing scope
+dotnet_diagnostic.CA2213.severity = error      # Disposable fields should be disposed
+dotnet_diagnostic.CA2215.severity = error      # Dispose methods should call base class dispose
+dotnet_diagnostic.CA2216.severity = warning    # Disposable types should declare finalizer
 
 
 # *****************************************
