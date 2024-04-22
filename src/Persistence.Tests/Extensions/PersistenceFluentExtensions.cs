@@ -133,6 +133,12 @@ internal static class PersistenceFluentExtensions
 
                 actualMapping.Tag.Should().Be(expectedMapping.Tag, BecauseFormat_PropertyName_NodePath_NodeStart, nameof(actualNode.Tag), nodePath, actualNode.Start);
 
+                // Report mising/extra keys first
+                var actualMappingKeys = actualMapping.Children.Keys.Select(k => k.ToString()).ToArray();
+                var expectedMappingKeys = expectedMapping.Children.Keys.Select(k => k.ToString()).ToArray();
+                actualMappingKeys.Should().BeEquivalentTo(expectedMappingKeys, BecauseFormat_PropertyName_NodePath_NodeStart, nameof(actualMapping.Children), nodePath, actualNode.Start);
+
+                // Then dig down into each key expected
                 foreach (var (expectedKey, expectedValue) in expectedMapping.Children)
                 {
                     // Note: technically, YAML mapping keys can be any yaml node type (e.g. scalar, sequence, mapping, etc.)
@@ -142,13 +148,12 @@ internal static class PersistenceFluentExtensions
                         throw new NotSupportedException($"Non-scalar key found in expected mapping at path '{nodePath}'.");
                     }
 
-                    var actualValue = actualMapping[expectedKey];
                     var valueNodePath = $"{nodePath}{((YamlScalarNode)expectedKey).ToBreadcrumbPathSegment()}";
-                    CompareYamlTree(actualValue, expectedValue, valueNodePath);
+                    if (actualMapping.Children.TryGetValue(expectedKey, out var actualValue))
+                    {
+                        CompareYamlTree(actualValue, expectedValue, valueNodePath);
+                    }
                 }
-
-                // Zip will only validate items that are in each list
-                actualMapping.Children.Should().HaveSameCount(expectedMapping.Children, BecauseFormat_PropertyName_NodePath_NodeStart, nameof(actualMapping.Children), nodePath, actualNode.Start);
             }
             else if (actualNode.NodeType == YamlNodeType.Alias)
             {
