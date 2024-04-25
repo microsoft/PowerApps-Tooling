@@ -402,6 +402,33 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
+    public void SaveAs(string filePath, bool overwrite = false)
+    {
+        if (File.Exists(filePath))
+        {
+            if (!overwrite)
+                throw new IOException($"File {filePath} already exists but overwrite is not allowed");
+
+            File.Delete(filePath);
+        }
+
+        using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        SaveAs(fileStream);
+    }
+
+    public void SaveAs(Stream stream)
+    {
+        using var zipArchiveForSaveAs = new ZipArchive(stream, ZipArchiveMode.Create, false);
+
+        foreach (var entry in CanonicalEntries)
+        {
+            var newEntry = zipArchiveForSaveAs.CreateEntry(entry.Value.FullName);
+            using var entryStream = newEntry.Open();
+            using var sourceStream = entry.Value.Open();
+            sourceStream.CopyTo(entryStream);
+        }
+    }
+
     public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
