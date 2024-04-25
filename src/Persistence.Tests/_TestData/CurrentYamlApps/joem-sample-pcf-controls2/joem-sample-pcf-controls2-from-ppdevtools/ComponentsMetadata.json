@@ -1,0 +1,11 @@
+{
+  "Components": [
+    {
+      "Name": "Label",
+      "TemplateName": "9895109e97834dc08d5a8d630aca10f7",
+      "Description": "",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": false
+    }
+  ]
+}
