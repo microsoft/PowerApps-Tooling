@@ -38,23 +38,18 @@ public class YamlSerializer : IYamlSerializer
         SerializeCore(writer, graph);
     }
 
+    private string SerializeCore<T>(T graph)
+    {
+        using var stringWriter = new StringWriter();
+        SerializeCore(stringWriter, graph);
+        return stringWriter.ToString();
+    }
+
     private void SerializeCore<T>(TextWriter writer, T graph)
     {
         try
         {
             _serializer.Serialize(writer, graph);
-        }
-        catch (YamlException ex)
-        {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
-        }
-    }
-
-    private string SerializeCore<T>(T graph)
-    {
-        try
-        {
-            return _serializer.Serialize(graph);
         }
         catch (YamlException ex)
         {

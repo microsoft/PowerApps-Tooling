@@ -117,7 +117,7 @@ public static class PaYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax);
+            throw PaDiagnosticsException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax, originToolOrFilePath: null);
         }
 
         // TODO: Consider using FluentValidation nuget package to validate the deserialized object

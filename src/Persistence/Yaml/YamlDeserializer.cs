@@ -38,7 +38,7 @@ public class YamlDeserializer : IYamlDeserializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.DeserializationError);
+            throw PaDiagnosticsException.FromYamlException(ex, PersistenceErrorCode.DeserializationError, originToolOrFilePath: null);
         }
     }
 }

@@ -292,11 +292,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
 
         if (!archiveEntry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
-            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry is not a yaml file.") { MsappEntryFullPath = archiveEntry.FullName };
+            throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.MsappArchiveError, $"Entry is not a yaml file.") { Origin = new(archiveEntry.FullName) });
 
         using var textReader = new StreamReader(archiveEntry.Open());
         return _yamlDeserializer.Deserialize<T>(textReader)
-            ?? throw new PersistenceException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of file resulted in null object.") { MsappEntryFullPath = archiveEntry.FullName };
+            ?? throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of file resulted in null object.") { Origin = new(archiveEntry.FullName) });
     }
 
     /// <summary>
@@ -349,8 +349,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <exception cref="PersistenceException"></exception>
     public ZipArchiveEntry GetRequiredEntry(string entryName)
     {
-        return GetEntry(entryName) ??
-            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry not found in msapp archive.") { MsappEntryFullPath = entryName };
+        return GetEntry(entryName)
+            ?? throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.MsappArchiveError, "Entry not found in msapp archive.") { Origin = new(entryName) });
     }
 
     /// <inheritdoc/>
@@ -632,17 +632,18 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         try
         {
             return JsonSerializer.Deserialize<T>(entry.Open())
-                 ?? throw new PersistenceException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of json file resulted in null object.") { MsappEntryFullPath = entry.FullName };
+                ?? throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.EditorStateJsonEmptyOrNull, $"Deserialization of json file resulted in null object.") { Origin = new(entry.FullName) });
         }
         catch (JsonException ex)
         {
-            throw new PersistenceException(PersistenceErrorCode.InvalidEditorStateJson, $"Failed to deserialize json file to an instance of {typeof(T).Name}.", ex)
+            throw new PaDiagnosticsException(ex, new PaDiagnostic(PersistenceErrorCode.InvalidEditorStateJson, $"Failed to deserialize json file to an instance of {typeof(T).Name}.")
             {
-                MsappEntryFullPath = entry.FullName,
-                LineNumber = ex.LineNumber,
-                Column = ex.BytePositionInLine,
-                JsonPath = ex.Path,
-            };
+                Origin = new(entry.FullName)
+                {
+                    Start = ex.LineNumber.HasValue ? (ex.LineNumber.Value, ex.BytePositionInLine) : null,
+                },
+                //JsonPath = ex.Path,
+            });
         }
     }
 

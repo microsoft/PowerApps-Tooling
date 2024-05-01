@@ -47,12 +47,13 @@ public class RoundTripWriter : TextWriter
         if (inputValue == -1 || inputValue != value)
         {
             _exThrown = true;
-            throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed")
+            throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.RoundTripValidationFailed, "Round trip serialization failed")
             {
-                MsappEntryFullPath = _entryFullPath,
-                LineNumber = _lineNumber,
-                Column = _columnNumber
-            };
+                Origin = new(_entryFullPath)
+                {
+                    Start = (_lineNumber, _columnNumber),
+                },
+            });
         }
 
         if (value == NewLineChar)
@@ -72,12 +73,13 @@ public class RoundTripWriter : TextWriter
             var inputValue = _input.Read();
             if (inputValue != -1)
             {
-                throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed. Additional input not read when disposing.")
+                throw new PaDiagnosticsException(new PaDiagnostic(PersistenceErrorCode.RoundTripValidationFailed, "Round trip serialization failed. Additional input not read when disposing")
                 {
-                    MsappEntryFullPath = _entryFullPath,
-                    LineNumber = _lineNumber,
-                    Column = _columnNumber
-                };
+                    Origin = new(_entryFullPath)
+                    {
+                        Start = (_lineNumber, _columnNumber),
+                    },
+                });
             }
         }
         _input.Dispose();
