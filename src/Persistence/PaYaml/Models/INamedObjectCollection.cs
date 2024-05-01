@@ -44,7 +44,7 @@ public interface INamedObjectCollection<TName, TValue, TNamedObject> : ICollecti
         throw new NotSupportedException("Remove of a named object instance is not supported. Use Remove overload that takes the name of the item you want to remove instead.");
     }
 
-    // CONSIDER: Also use default implementation for ICollection<T>.Contains(T) to discurage usage.
+    // CONSIDER: Also use default implementation for ICollection<T>.Contains(T) to discourage usage.
 }
 
 /// <summary>

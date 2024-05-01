@@ -292,7 +292,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
 
         if (!archiveEntry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
-            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry {archiveEntry} is not a yaml file.") { MsappEntryFullPath = archiveEntry.FullName };
+            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry is not a yaml file.") { MsappEntryFullPath = archiveEntry.FullName };
 
         using var textReader = new StreamReader(archiveEntry.Open());
         return _yamlDeserializer.Deserialize<T>(textReader)
@@ -350,7 +350,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public ZipArchiveEntry GetRequiredEntry(string entryName)
     {
         return GetEntry(entryName) ??
-            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry with name '{entryName}' not found in msapp archive.");
+            throw new PersistenceException(PersistenceErrorCode.MsappArchiveError, $"Entry not found in msapp archive.") { MsappEntryFullPath = entryName };
     }
 
     /// <inheritdoc/>
