@@ -170,6 +170,7 @@ public abstract class NamedObjectMappingBase<TName, TValue, TNamedObject> : INam
             if (!TryAdd(namedObject))
             {
                 var existingNamedObject = GetNamedObject(namedObject.Name);
+                // BUG: namedObject.Name is likely considered user personal data. If so, we need to remove it from exception messages so they can be logged w/o a privacy incident
                 throw new YamlException(itemStartEvent.Start, itemStartEvent.End, $"Duplicate name '{namedObject.Name}' used at {itemStartEvent}. First use is located at {existingNamedObject.Start}.");
             }
         }

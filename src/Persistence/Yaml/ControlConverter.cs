@@ -46,7 +46,10 @@ internal class ControlConverter : IYamlTypeConverter
         {
             var key = parser.Consume<Scalar>();
             if (controlDefinition.TryGetValue(key.Value, out var _))
+            {
+                // BUG: Privacy incident: controlName is considered user personal data. Exception messages should not contain user personal data in order to allow logging.
                 throw new YamlException(key.Start, key.End, $"Duplicate control property '{key.Value}' in control '{controlName}'");
+            }
 
             // Check if the value is null
             object? value = null;
@@ -97,7 +100,10 @@ internal class ControlConverter : IYamlTypeConverter
         if (Options.IsControlIdentifiers)
         {
             if (string.IsNullOrWhiteSpace(templateName) && string.IsNullOrWhiteSpace(componentInstanceName))
+            {
+                // BUG: Privacy incident: controlName is considered user personal data. Exception messages should not contain user personal data in order to allow logging.
                 throw new YamlException(parser.Current!.Start, parser.Current.End, $"Control '{controlName}' doesn't have template name");
+            }
         }
 
         parser.MoveNext();

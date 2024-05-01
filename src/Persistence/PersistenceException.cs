@@ -116,6 +116,8 @@ public class PersistenceException : Exception
 
     internal static PersistenceException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)
     {
+        // REVIEW: if YamlException.Message MAY have yaml values, then this could be a privacy incident.
+        // TODO: Change PersistenceException to never emit the Reason in the ToString logic (or in PowerApp's custom Logger.LogException()) since it may contain user personal data.
         return ex.Start.Equals(Mark.Empty)
             ? new PersistenceException(errorCode, ex.Message, ex)
             : new PersistenceException(errorCode, ex.Message, ex)
