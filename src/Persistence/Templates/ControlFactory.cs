@@ -130,6 +130,7 @@ public class ControlFactory : IControlFactory
         [MaybeNullWhen(false)] out Control control)
     {
         control = null;
+
         if (!string.IsNullOrWhiteSpace(componentDefinitionName))
         {
             control = new ComponentInstance(name, variant ?? string.Empty,
@@ -141,9 +142,23 @@ public class ControlFactory : IControlFactory
                 Children = children
             };
         }
-        else if (template.Equals(BuiltInTemplates.Component.Name, StringComparison.OrdinalIgnoreCase))
+        else if (template.Equals(BuiltInTemplates.Component.Name, StringComparison.OrdinalIgnoreCase) ||
+                template.Equals(BuiltInTemplates.CommandComponent.Name, StringComparison.OrdinalIgnoreCase) ||
+                template.Equals(BuiltInTemplates.DataComponent.Name, StringComparison.OrdinalIgnoreCase) ||
+                template.Equals(BuiltInTemplates.FunctionComponent.Name, StringComparison.OrdinalIgnoreCase))
         {
-            control = new ComponentDefinition(name, variant ?? string.Empty, CreateControlTemplate(name, controlDefinition))
+            controlDefinition ??= new();
+            if (!controlDefinition.ContainsKey(nameof(ComponentDefinition.Type)))
+                controlDefinition[nameof(ComponentDefinition.Type)] = template switch
+                {
+                    BuiltInTemplateNames.Component => nameof(ComponentType.Canvas),
+                    BuiltInTemplateNames.CommandComponent => nameof(ComponentType.Command),
+                    BuiltInTemplateNames.DataComponent => nameof(ComponentType.Data),
+                    BuiltInTemplateNames.FunctionComponent => nameof(ComponentType.Function),
+                    _ => ""
+                };
+
+            control = new ComponentDefinition(name, variant ?? string.Empty, CreateComponentTemplate(name, controlDefinition))
             {
                 Properties = properties ?? new(),
                 Children = children
@@ -163,24 +178,35 @@ public class ControlFactory : IControlFactory
         ControlPropertiesCollection? properties, IList<Control>? children, Dictionary<string, object?>? controlDefinition,
         [MaybeNullWhen(false)] out Control control)
     {
-        if (!string.IsNullOrWhiteSpace(componentDefinitionName))
+        control = null;
+
+#pragma warning disable CA1031 // Do not catch general exception types
+        try
         {
-            control = new ComponentInstance(name, variant ?? string.Empty, template)
+            if (!string.IsNullOrWhiteSpace(componentDefinitionName))
             {
-                ComponentName = componentDefinitionName,
-                ComponentLibraryUniqueName = componentLibraryUniqueName,
-                Properties = properties ?? new(),
-                Children = children
-            };
+                control = new ComponentInstance(name, variant ?? string.Empty, template)
+                {
+                    ComponentName = componentDefinitionName,
+                    ComponentLibraryUniqueName = componentLibraryUniqueName,
+                    Properties = properties ?? new(),
+                    Children = children
+                };
+            }
+            else
+            {
+                control = new ComponentDefinition(name, variant ?? string.Empty, template)
+                {
+                    Properties = properties ?? new(),
+                    Children = children
+                };
+            }
         }
-        else
+        catch
         {
-            control = new ComponentDefinition(name, variant ?? string.Empty, template)
-            {
-                Properties = properties ?? new(),
-                Children = children
-            };
+            return false;
         }
+#pragma warning restore CA1031 // Do not catch general exception types
 
         if (controlDefinition != null)
             control.AfterCreate(controlDefinition);
@@ -188,7 +214,7 @@ public class ControlFactory : IControlFactory
         return true;
     }
 
-    public ControlTemplate CreateControlTemplate(string name, Dictionary<string, object?>? controlDefinition)
+    public ControlTemplate CreateComponentTemplate(string name, Dictionary<string, object?>? controlDefinition)
     {
         if (controlDefinition == null || !controlDefinition.TryGetValue<string>(nameof(ComponentDefinition.Type), out var componentType))
             return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
@@ -196,10 +222,10 @@ public class ControlFactory : IControlFactory
         if (!Enum.TryParse<ComponentType>(componentType, out var componentTypeEnum))
             return new ControlTemplate(BuiltInTemplates.Component.Id) { Name = name };
 
-        return CreateControlTemplate(name, componentTypeEnum);
+        return CreateComponentTemplate(name, componentTypeEnum);
     }
 
-    public ControlTemplate CreateControlTemplate(string name, ComponentType componentType)
+    public ControlTemplate CreateComponentTemplate(string name, ComponentType componentType)
     {
         switch (componentType)
         {

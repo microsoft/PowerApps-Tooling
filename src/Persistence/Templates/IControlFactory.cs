@@ -19,7 +19,7 @@ public interface IControlFactory
 
     Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
 
-    ControlTemplate CreateControlTemplate(string name, Dictionary<string, object?>? controlDefinition);
+    ControlTemplate CreateComponentTemplate(string name, Dictionary<string, object?>? controlDefinition);
 
-    ControlTemplate CreateControlTemplate(string name, ComponentType componentType);
+    ControlTemplate CreateComponentTemplate(string name, ComponentType componentType);
 }

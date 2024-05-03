@@ -3,20 +3,20 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-public class BuiltInTemplates
+public static class BuiltInTemplates
 {
-    public static readonly (string Name, string Id) App = ("Appinfo", "http://microsoft.com/appmagic/appinfo");
-    public static readonly (string Name, string Id) Host = ("HostControl", "http://microsoft.com/appmagic/hostcontrol");
-    public static readonly (string Name, string Id) Screen = ("Screen", "http://microsoft.com/appmagic/screen");
+    public static readonly (string Name, string Id) App = (BuiltInTemplateNames.App, BuiltInTemplateIds.App);
+    public static readonly (string Name, string Id) Host = (BuiltInTemplateNames.Host, BuiltInTemplateIds.Host);
+    public static readonly (string Name, string Id) Screen = (BuiltInTemplateNames.Screen, BuiltInTemplateIds.Screen);
 
-    public static readonly (string Name, string Id) Component = ("Component", "http://microsoft.com/appmagic/Component");
-    public static readonly (string Name, string Id) FunctionComponent = ("FunctionComponent", "http://microsoft.com/appmagic/FunctionComponent");
-    public static readonly (string Name, string Id) DataComponent = ("DataComponent", "http://microsoft.com/appmagic/DataComponent");
-    public static readonly (string Name, string Id) CommandComponent = ("CommandComponent", "http://microsoft.com/appmagic/CommandComponent");
+    public static readonly (string Name, string Id) Component = (BuiltInTemplateNames.Component, BuiltInTemplateIds.Component);
+    public static readonly (string Name, string Id) FunctionComponent = (BuiltInTemplateNames.FunctionComponent, BuiltInTemplateIds.FunctionComponent);
+    public static readonly (string Name, string Id) DataComponent = (BuiltInTemplateNames.DataComponent, BuiltInTemplateIds.DataComponent);
+    public static readonly (string Name, string Id) CommandComponent = (BuiltInTemplateNames.CommandComponent, BuiltInTemplateIds.CommandComponent);
 
     // Group is the legacy group container template
-    public static readonly (string Name, string Id) Group = ("Group", "http://microsoft.com/appmagic/group");
+    public static readonly (string Name, string Id) Group = (BuiltInTemplateNames.Group, BuiltInTemplateIds.Group);
 
     // Group Container is the newer layout container template
-    public static readonly (string Name, string Id) GroupContainer = ("GroupContainer", "http://microsoft.com/appmagic/groupContainer");
+    public static readonly (string Name, string Id) GroupContainer = (BuiltInTemplateNames.GroupContainer, BuiltInTemplateIds.Group);
 }

@@ -37,4 +37,21 @@ public class DeserializeComponentDefinitionTests : TestBase
         component.CustomProperties[0].Parameters[0].Name.Should().Be(firstCustomProperyParameterName);
         component.CustomProperties[0].Parameters[0].Description.Should().Be(firstCustomProperyParameterDescription);
     }
+
+    [TestMethod]
+    public void Deserialize_CommandComponentDefinition_Should_Succeed()
+    {
+        // Arrange
+        var yaml = "Component1:\n  Control: Component\n  Type: Command";
+        var deserializer = CreateDeserializer(true);
+        using var reader = new StringReader(yaml);
+
+        // Act
+        var component = deserializer.Deserialize<Control>(reader) as ComponentDefinition;
+
+        // Assert
+        component.Should().NotBeNull();
+        component!.Name.Should().Be("Component1");
+        component!.Type.Should().Be(ComponentType.Command);
+    }
 }
