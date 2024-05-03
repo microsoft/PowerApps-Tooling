@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-public sealed class BuiltInTemplateNames
+public static class BuiltInTemplateNames
 {
     public const string App = "Appinfo";
     public const string Host = "HostControl";

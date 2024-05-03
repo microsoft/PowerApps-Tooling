@@ -3,7 +3,7 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-public sealed class BuiltInTemplateIds
+public static class BuiltInTemplateIds
 {
     public const string App = "http://microsoft.com/appmagic/appinfo";
     public const string Host = "http://microsoft.com/appmagic/hostcontrol";
