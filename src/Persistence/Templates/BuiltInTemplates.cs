@@ -3,7 +3,7 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-public class BuiltInTemplates
+public static class BuiltInTemplates
 {
     public static readonly (string Name, string Id) App = (BuiltInTemplateNames.App, BuiltInTemplateIds.App);
     public static readonly (string Name, string Id) Host = (BuiltInTemplateNames.Host, BuiltInTemplateIds.Host);
