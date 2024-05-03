@@ -51,7 +51,7 @@ public class DeserializeComponentDefinitionTests : TestBase
 
         // Assert
         component.Should().NotBeNull();
-        component.Name.Should().Be("Component1");
-        component.Type.Should().Be(ComponentType.Command);
+        component!.Name.Should().Be("Component1");
+        component!.Type.Should().Be(ComponentType.Command);
     }
 }
