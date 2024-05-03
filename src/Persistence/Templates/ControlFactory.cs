@@ -202,7 +202,7 @@ public class ControlFactory : IControlFactory
                 };
             }
         }
-        catch 
+        catch
         {
             return false;
         }
