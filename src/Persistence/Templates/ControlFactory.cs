@@ -155,6 +155,7 @@ public class ControlFactory : IControlFactory
                     BuiltInTemplateNames.CommandComponent => nameof(ComponentType.Command),
                     BuiltInTemplateNames.DataComponent => nameof(ComponentType.Data),
                     BuiltInTemplateNames.FunctionComponent => nameof(ComponentType.Function),
+                    _ => ""
                 };
 
             control = new ComponentDefinition(name, variant ?? string.Empty, CreateComponentTemplate(name, controlDefinition))
@@ -179,6 +180,7 @@ public class ControlFactory : IControlFactory
     {
         control = null;
 
+#pragma warning disable CA1031 // Do not catch general exception types
         try
         {
             if (!string.IsNullOrWhiteSpace(componentDefinitionName))
@@ -200,10 +202,11 @@ public class ControlFactory : IControlFactory
                 };
             }
         }
-        catch (Exception _)
+        catch 
         {
             return false;
         }
+#pragma warning restore CA1031 // Do not catch general exception types
 
         if (controlDefinition != null)
             control.AfterCreate(controlDefinition);
