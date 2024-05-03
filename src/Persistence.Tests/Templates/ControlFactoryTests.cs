@@ -54,18 +54,24 @@ public class ControlFactoryTests : TestBase
     }
 
     [TestMethod]
-    [DataRow("Component", "MyComponent1", "http://microsoft.com/appmagic/Component")]
-    public void CreateComponent_ShouldCreateValidInstance(string componentType, string componentName, string expectedTemplateId)
+    [DataRow("Component", "MyComponent1", "http://microsoft.com/appmagic/Component", ComponentType.Canvas)]
+    [DataRow("CommandComponent", "MyComponent1", "http://microsoft.com/appmagic/CommandComponent", ComponentType.Command)]
+    [DataRow("DataComponent", "MyComponent1", "http://microsoft.com/appmagic/DataComponent", ComponentType.Data)]
+    [DataRow("FunctionComponent", "MyComponent1", "http://microsoft.com/appmagic/FunctionComponent", ComponentType.Function)]
+    public void CreateComponent_ShouldCreateValidInstance(string componentType, string componentName, string expectedTemplateId, ComponentType expectedType)
     {
         var sut = new ControlFactory(ControlTemplateStore);
 
         var result = sut.Create(componentName, componentType);
         result.Should().NotBeNull().And.BeAssignableTo<ComponentDefinition>();
-        result.Name.Should().Be(componentName);
-        result.Template.Should().NotBeNull();
-        result.Template.Id.Should().Be(expectedTemplateId);
-        result.Template.Name.Should().Be(componentName);
-        result.Properties.Should().NotBeNull().And.BeEmpty();
-        result.Children.Should().BeNull();
+
+        var componendDef = (ComponentDefinition)result;
+        componendDef.Name.Should().Be(componentName);
+        componendDef.Template.Should().NotBeNull();
+        componendDef.Template.Id.Should().Be(expectedTemplateId);
+        componendDef.Template.Name.Should().Be(componentName);
+        componendDef.Properties.Should().NotBeNull().And.BeEmpty();
+        componendDef.Children.Should().BeNull();
+        componendDef.Type.Should().Be(expectedType);
     }
 }

@@ -23,6 +23,14 @@ public record ComponentDefinition : Control
     public ComponentDefinition(string name, string variant, ControlTemplate template)
         : base(name, variant, template)
     {
+        Type = template.Id switch
+        {
+            BuiltInTemplateIds.Component => ComponentType.Canvas,
+            BuiltInTemplateIds.CommandComponent => ComponentType.Command,
+            BuiltInTemplateIds.DataComponent => ComponentType.Data,
+            BuiltInTemplateIds.FunctionComponent => ComponentType.Function,
+            _ => throw new NotSupportedException($"Component type {template.Id} is not supported.")
+        };
     }
 
     [YamlMember(Order = 97)]
