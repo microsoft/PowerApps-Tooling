@@ -11,7 +11,7 @@ public interface IMsappArchiveFactory
     /// <summary>
     /// Creates a new msapp archive.
     /// </summary>
-    IMsappArchive Create(string path);
+    IMsappArchive Create(string path, bool overwrite = false);
 
     /// <summary>
     /// Creates a new msapp archive with the provided stream.

@@ -16,6 +16,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 [YamlSerializable]
 public record App : Control
 {
+    // App control has a special name.
+    public const string ControlName = "App";
+
     public App()
     {
     }

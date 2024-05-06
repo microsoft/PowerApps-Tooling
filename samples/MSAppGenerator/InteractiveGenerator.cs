@@ -35,16 +35,16 @@ public class InteractiveGenerator : IAppGenerator
     /// <summary>
     /// Performs interactive commandline session to specify parameters for an app
     /// </summary>
-    public App GenerateApp(string filePath, int numScreens, IList<string>? controls)
+    public App GenerateApp(int numScreens, IList<string>? controls)
     {
-        var app = _controlFactory.CreateApp(filePath);
+        var app = _controlFactory.CreateApp();
 
         string input;
         var continueApp = true;
         while (continueApp)
         {
             input = Prompt("Create new Screen? (y/n): ");
-            if (input?.ToLower()[0] == 'y')
+            if (input?.ToLowerInvariant()[0] == 'y')
             {
                 var screenname = Prompt("  Input screen name: ");
 
@@ -53,7 +53,7 @@ public class InteractiveGenerator : IAppGenerator
                 while (continueScreen)
                 {
                     input = Prompt("  Create new Control? (y/n): ");
-                    if (input?.ToLower()[0] == 'y')
+                    if (input?.ToLowerInvariant()[0] == 'y')
                     {
                         var controlname = Prompt("    Input control name: ");
                         var controltemplate = Prompt("    Input control template: ");
@@ -63,18 +63,18 @@ public class InteractiveGenerator : IAppGenerator
                             properties: new()
                         ));
                     }
-                    else if (input?.ToLower()[0] == 'n')
+                    else if (input?.ToLowerInvariant()[0] == 'n')
                     {
                         continueScreen = false;
                         app.Screens.Add(_controlFactory.CreateScreen(screenname, children: childlist.ToArray()));
                     }
                 }
             }
-            else if (input?.ToLower()[0] == 'n')
+            else if (input?.ToLowerInvariant()[0] == 'n')
             {
                 input = Prompt("End app creation? (y/n): ");
 
-                if (input?.ToLower()[0] == 'y')
+                if (input?.ToLowerInvariant()[0] == 'y')
                 {
                     continueApp = false;
                 }

@@ -278,9 +278,9 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", true, "Test app 1", 1, 0)]
-    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", false, "Test app 1", 1, 0)]
-    public void Deserialize_App_ShouldSucceed(string path, bool isControlIdentifiers, string expectedName, int controlCount, int propertiesCount)
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", true, 1, 0)]
+    [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", false, 1, 0)]
+    public void Deserialize_App_ShouldSucceed(string path, bool isControlIdentifiers, int controlCount, int propertiesCount)
     {
         // Arrange
         var deserializer = CreateDeserializer(isControlIdentifiers);
@@ -290,7 +290,7 @@ public class DeserializerValidTests : TestBase
         // Act
         var app = deserializer.Deserialize<Control>(yamlReader);
 
-        app!.Name.Should().NotBeNull().And.Be(expectedName);
+        app!.Name.Should().NotBeNull().And.Be(App.ControlName);
         app.Children.Should().NotBeNull().And.HaveCount(controlCount);
         app.Properties.Should().NotBeNull().And.HaveCount(propertiesCount);
     }

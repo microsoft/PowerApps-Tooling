@@ -22,9 +22,9 @@ public class ExampleGenerator : IAppGenerator
     /// This produces a simple example app including the specified number of screens and a few generic controls
     /// This is intended for testing purposes only
     /// </summary>
-    public App GetExampleApp(string appName, int numScreens)
+    public App GetExampleApp(int numScreens)
     {
-        var app = _controlFactory.CreateApp(appName);
+        var app = _controlFactory.CreateApp();
 
         for (var i = 0; i < numScreens; i++)
         {
@@ -92,9 +92,9 @@ public class ExampleGenerator : IAppGenerator
     /// <summary>
     /// Creates MSApp based on input parameters
     /// </summary>
-    public App GenerateApp(string appName, int numScreens, IList<string>? controls)
+    public App GenerateApp(int numScreens, IList<string>? controls)
     {
-        var app = _controlFactory.CreateApp(appName);
+        var app = _controlFactory.CreateApp();
 
         for (var i = 0; i < numScreens; i++)
         {

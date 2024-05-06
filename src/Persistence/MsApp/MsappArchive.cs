@@ -38,6 +38,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public const string PropertiesFileName = "Properties.json";
     public const string TemplatesFileName = $"{Directories.References}/Templates.json";
     public const string ThemesFileName = $"{Directories.References}/Themes.json";
+    public const string DataSourcesFileName = $"{Directories.References}/DataSources.json";
 
     #endregion
 
@@ -49,6 +50,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private AppProperties? _appProperties;
     private AppTemplates? _appTemplates;
     private AppThemes? _appThemes;
+    private DataSources? _dataSources;
 
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
@@ -65,7 +67,10 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         WriteIndented = true
     };
-    private static readonly JsonWriterOptions JsonWriterOptions = new() { Indented = true };
+    private static readonly JsonWriterOptions JsonWriterOptions = new()
+    {
+        Indented = true
+    };
 
     #endregion
 
@@ -219,6 +224,28 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
             return _header.DocVersion;
         }
+    }
+    public AppProperties? Properties
+    {
+        get
+        {
+            _appProperties ??= LoadProperties();
+
+            return _appProperties;
+        }
+        set => _appProperties = value;
+    }
+
+    public DataSources? DataSources
+    {
+        get
+        {
+            _dataSources ??= LoadDataSources();
+
+            return _dataSources;
+        }
+
+        set => _dataSources = value;
     }
 
     public bool AddGitIgnore { get; init; } = true;
@@ -389,6 +416,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         SaveProperties();
         SaveTemplates();
         SaveThemes();
+        SaveDataSources();
 
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
@@ -503,6 +531,26 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return header;
     }
 
+    private AppProperties? LoadProperties()
+    {
+        var entry = GetEntry(PropertiesFileName);
+        if (entry == null)
+            return null;
+
+        var appProperties = DeserializeMsappJsonFile<AppProperties>(entry);
+        return appProperties;
+    }
+
+    private DataSources? LoadDataSources()
+    {
+        var entry = GetEntry(DataSourcesFileName);
+        if (entry == null)
+            return null;
+
+        var dataSources = DeserializeMsappJsonFile<DataSources>(entry);
+        return dataSources;
+    }
+
     private void SaveProperties()
     {
         var entry = CreateEntry(PropertiesFileName);
@@ -525,6 +573,17 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var entryStream = entry.Open();
         using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
         JsonSerializer.Serialize(writer, _appThemes, JsonSerializerOptions);
+    }
+
+    private void SaveDataSources()
+    {
+        if (_dataSources == null || _dataSources.Items == null || _dataSources.Items.Count == 0)
+            return;
+
+        var entry = CreateEntry(DataSourcesFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _dataSources, JsonSerializerOptions);
     }
 
     private void SaveEditorState(Control control)

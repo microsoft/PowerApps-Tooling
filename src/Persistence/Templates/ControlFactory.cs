@@ -104,18 +104,18 @@ public class ControlFactory : IControlFactory
         };
     }
 
-    public App CreateApp(string name, ControlPropertiesCollection? properties = null)
+    public App CreateApp(ControlPropertiesCollection? properties = null)
     {
-        return new App(name, string.Empty, _controlTemplateStore)
+        return new App(App.ControlName, string.Empty, _controlTemplateStore)
         {
             Properties = properties ?? new(),
             Children = new Control[] { Create("Host", BuiltInTemplates.Host.Name) }
         };
     }
 
-    public Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, IList<Control>? children = null)
+    public Screen CreateScreen(string name, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null)
     {
-        return new Screen(name, string.Empty, _controlTemplateStore)
+        return new Screen(name, variant ?? string.Empty, _controlTemplateStore)
         {
             Properties = properties ?? new(),
             Children = children

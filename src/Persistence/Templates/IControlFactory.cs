@@ -15,9 +15,9 @@ public interface IControlFactory
 
     Control Create(string name, string template, string componentDefinitionName, string componentLibraryUniqueName, Dictionary<string, object?>? controlDefinition);
 
-    App CreateApp(string name, ControlPropertiesCollection? properties = null);
+    App CreateApp(ControlPropertiesCollection? properties = null);
 
-    Screen CreateScreen(string name, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
+    Screen CreateScreen(string name, string? variant = null, ControlPropertiesCollection? properties = null, IList<Control>? children = null);
 
     ControlTemplate CreateComponentTemplate(string name, Dictionary<string, object?>? controlDefinition);
 

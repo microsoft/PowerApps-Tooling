@@ -12,7 +12,7 @@ public class AppCreator
     /// <summary>
     /// Configures default services for generating the MSApp representation
     /// </summary>
-    private static IServiceProvider ConfigureServiceProvider()
+    private static ServiceProvider ConfigureServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPowerAppsPersistence(true);
@@ -21,7 +21,7 @@ public class AppCreator
         return serviceProvider;
     }
 
-    IServiceProvider _serviceProvider { get; set; }
+    private IServiceProvider _serviceProvider { get; set; }
 
     public AppCreator(IServiceProvider serviceProvider)
     {
@@ -45,8 +45,7 @@ public class AppCreator
         var generator = _serviceProvider.GetRequiredService<IAppGeneratorFactory>().Create(interactive);
 
         // Generate the app
-        msapp.App = generator.GenerateApp(Path.GetFileNameWithoutExtension(fullPathToMsApp),
-                numScreens, controlsinfo);
+        msapp.App = generator.GenerateApp(numScreens, controlsinfo);
 
         // Output the MSApp to the path provided
         msapp.Save();

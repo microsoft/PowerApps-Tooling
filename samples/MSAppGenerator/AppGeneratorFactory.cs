@@ -14,7 +14,7 @@ public class AppGeneratorFactory : IAppGeneratorFactory
 
     public AppGeneratorFactory(IControlFactory controlFactory)
     {
-        _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(_controlFactory));
+        _controlFactory = controlFactory ?? throw new ArgumentNullException(null, nameof(_controlFactory));
     }
 
     /// <summary>

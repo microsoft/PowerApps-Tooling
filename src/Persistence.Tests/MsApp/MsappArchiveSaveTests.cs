@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
 namespace Persistence.Tests.MsApp;
@@ -88,8 +89,8 @@ public class MsappArchiveSaveTests : TestBase
 
 
     [TestMethod]
-    [DataRow("HelloWorld", "HelloScreen")]
-    public void Msapp_ShouldSave_App(string appName, string screenName)
+    [DataRow("HelloScreen")]
+    public void Msapp_ShouldSave_App(string screenName)
     {
         // Arrange
         var tempFile = Path.Combine(TestContext.DeploymentDirectory!, Path.GetRandomFileName());
@@ -98,7 +99,7 @@ public class MsappArchiveSaveTests : TestBase
             msappArchive.App.Should().BeNull();
 
             // Act
-            var app = ControlFactory.CreateApp(appName);
+            var app = ControlFactory.CreateApp();
             app.Screens.Add(ControlFactory.CreateScreen(screenName));
             msappArchive.App = app;
 
@@ -110,7 +111,7 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.App.Should().NotBeNull();
         msappValidation.App!.Screens.Count.Should().Be(1);
         msappValidation.App.Screens.Single().Name.Should().Be(screenName);
-        msappValidation.App.Name.Should().Be(appName);
+        msappValidation.App.Name.Should().Be(App.ControlName);
         msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
     }
 
