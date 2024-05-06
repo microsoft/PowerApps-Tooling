@@ -20,6 +20,10 @@ public interface IMsappArchive : IDisposable
 
     Version DocVersion { get; }
 
+    AppProperties? Properties { get; set; }
+
+    DataSources? DataSources { get; set; }
+
     T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control;
 
     /// <summary>

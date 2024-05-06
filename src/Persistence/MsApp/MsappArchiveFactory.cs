@@ -18,12 +18,12 @@ public class MsappArchiveFactory : IMsappArchiveFactory
         _yamlSerializationFactory = yamlSerializationFactory ?? throw new ArgumentNullException(nameof(yamlSerializationFactory));
     }
 
-    public IMsappArchive Create(string path)
+    public IMsappArchive Create(string path, bool overwrite = false)
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentNullException(nameof(path));
 
-        var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
         return new MsappArchive(fileStream, ZipArchiveMode.Create, _yamlSerializationFactory);
     }

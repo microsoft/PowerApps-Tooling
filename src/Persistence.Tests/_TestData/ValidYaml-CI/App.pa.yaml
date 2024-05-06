@@ -1,4 +1,4 @@
-Test app 1:
+App:
   Control: App
   Children:
   - Host:

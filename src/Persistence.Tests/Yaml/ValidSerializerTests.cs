@@ -27,7 +27,7 @@ public class ValidSerializerTests : TestBase
     [DataRow(@"_TestData/ValidYaml{0}/App.pa.yaml", false)]
     public void Serialize_ShouldCreateValidYamlForApp(string expectedPath, bool isControlIdentifiers)
     {
-        var app = ControlFactory.CreateApp("Test app 1");
+        var app = ControlFactory.CreateApp();
 
         app.Screens = new Screen[]
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -13,6 +14,20 @@ public record AppProperties
     [SetsRequiredMembers]
     public AppProperties()
     {
+        // Default values for AppPreviewFlags
+        PreviewFlags = new() {
+            { "datatablev2control", true },
+            { "delayloadscreens", true },
+            { "enableonstart", true },
+            { "enablepcfmoderndatasets", true },
+            { "enablesaveloadcleardataonweb", true },
+            { "errorhandling", true },
+            { "expandedsavedatasupport", true },
+            { "fluentv9controlspreview", true },
+            { "formuladataprefetch", true },
+            { "reactformulabar", true },
+            { "usenonblockingonstartrule", true },
+        };
     }
 
     public required string Author { get; init; } = string.Empty;
@@ -23,7 +38,8 @@ public record AppProperties
     public required string LocalDatabaseReferences { get; init; } = string.Empty;
     public string? LibraryDependencies { get; init; }
     public string[] AppPreviewFlagsKey { get; init; } = Array.Empty<string>();
-    public required Dictionary<string, bool> AppPreviewFlagsMap { get; init; } = new();
+    [JsonPropertyName("AppPreviewFlagsMap")]
+    public required Dictionary<string, bool> PreviewFlags { get; init; }
     public double? DocumentLayoutWidth { get; init; }
     public double? DocumentLayoutHeight { get; init; }
     public string? DocumentLayoutOrientation { get; init; }
@@ -32,8 +48,8 @@ public record AppProperties
     public bool? DocumentLayoutLockOrientation { get; init; }
     public bool? ShowStatusBar { get; init; }
     public string? OriginatingVersion { get; init; }
-    public string? DocumentAppType { get; init; }
-    public string? DocumentType { get; init; }
+    public string DocumentAppType { get; init; } = "DesktopOrTablet";
+    public string DocumentType { get; init; } = "App";
     public string? AppCreationSource { get; init; } = "AppFromScratch";
     public string? AppDescription { get; init; }
     public double? LastControlUniqueId { get; init; }

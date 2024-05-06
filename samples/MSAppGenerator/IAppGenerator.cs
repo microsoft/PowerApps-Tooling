@@ -13,5 +13,5 @@ public interface IAppGenerator
     /// <summary>
     /// Function to create a MSApp from a set of parameters
     /// </summary>
-    App GenerateApp(string appName, int numScreens = 1, IList<string>? controls = null);
+    App GenerateApp(int numScreens = 1, IList<string>? controls = null);
 }
