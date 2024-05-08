@@ -29,6 +29,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         public const string Resources = "Resources";
     }
 
+    /// <summary>
+    /// The separator char that should be used in zip archive entry paths.
+    /// </summary>
+    public const char EntryPathSeparatorChar = '/';
+
     public const string MsappFileExtension = ".msapp";
     public const string YamlFileExtension = ".yaml";
     public const string YamlPaFileExtension = ".pa.yaml";
@@ -132,15 +137,18 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
         (() =>
         {
-            var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
+            var canonicalEntries = new Dictionary<string, ZipArchiveEntry>(StringComparer.InvariantCultureIgnoreCase);
+
             // If we're creating a new archive, there are no entries to canonicalize.
-            if (mode == ZipArchiveMode.Create)
-                return canonicalEntries;
-            foreach (var entry in ZipArchive.Entries)
+            if (mode != ZipArchiveMode.Create)
             {
-                if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
-                    _logger?.LogInformation("Duplicate entry found in archive: {EntryFullName}", entry.FullName);
+                foreach (var entry in ZipArchive.Entries)
+                {
+                    if (!canonicalEntries.TryAdd(NormalizeEntryPathUsingCanonicalStrategy(entry.FullName), entry))
+                        _logger?.LogInformation("Duplicate entry found in archive: {EntryFullName}", entry.FullName);
+                }
             }
+
             return canonicalEntries;
         });
     }
@@ -172,7 +180,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     #region Properties
 
     /// <summary>
-    /// Canonical entries in the archive.  Keys are normalized paths (lowercase, forward slashes, no trailing slash).
+    /// Canonical entries in the archive.  Keys are normalized paths (lowercase, forward slashes, no trailing slash) using <see cref="NormalizeEntryPathUsingCanonicalStrategy(string)"/>.
     /// </summary>
     public IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries => _canonicalEntries.Value.AsReadOnly();
 
@@ -369,6 +377,53 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return entry;
     }
 
+    /// <summary>
+    /// Creates a new entry with a unique file name based on the <paramref name="nameNoExt"/>.
+    /// If an entry already exists in the target directory with the same effective fileName, a number will be appended to the filename in such a way
+    /// to make the new entry unique.
+    /// </summary>
+    /// <param name="directoryPath">
+    /// The optional directory path within which the new entry should be created. May be null/empty.
+    /// This path will get normalized to use the correct directory separators for entries (i.e. '/').
+    /// </param>
+    /// <param name="nameNoExt">
+    /// The desired file name for the entry but with no extenaion. Specify the extension via <paramref name="extension"/>.
+    /// </param>
+    /// <param name="extension">The file extension to append to the file name for the entry. May be null or empty when the file shouldn't have an extension.</param>
+    /// <returns>A new <see cref="ZipArchiveEntry"/> that has a file name which is guaranteed to be unique in the same folder.</returns>
+    public ZipArchiveEntry CreateUniqueEntry(string? directoryPath, string nameNoExt, string? extension)
+    {
+        directoryPath ??= string.Empty;
+        ArgumentException.ThrowIfNullOrEmpty(nameNoExt, nameof(nameNoExt));
+        extension ??= string.Empty;
+
+        var fullPathNoExt = string.IsNullOrEmpty(directoryPath) ? nameNoExt : Path.Combine(directoryPath, nameNoExt);
+        fullPathNoExt = NormalizePath(fullPathNoExt);
+
+        var fullPath = $"{fullPathNoExt}{extension}";
+        if (!CanonicalEntries.ContainsKey(NormalizePath(fullPathNoExt)))
+    }
+
+    /// <summary>
+    /// Replaces all unsafe zip entry filename characters with the specified <paramref name="replacement"/>.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="replacement">The replacement. Default is an empty string.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is null or empty.</exception>
+    /// <exception cref="ArgumentException"
+    public static string ReplaceUnsafeFileNameChars(string fileName, string? replacement = null)
+    {
+        if (string.IsNullOrEmpty(fileName))
+            throw new ArgumentNullException(nameof(fileName));
+
+        var safeName = SafeFileNameRegex().Replace(fileName, replacement ?? string.Empty);
+
+        if (string.IsNullOrWhiteSpace(safeName))
+            throw new ArgumentException("The resulting safe filename is empty or all whitespace, which is an invalid filename entry. Consider specifying a replacement which is not the empty string.");
+
+        return safeName;
+    }
+
     /// <inheritdoc/>
     public void Save(Control control, string? directory = null)
     {
@@ -430,12 +485,29 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
-    public static string NormalizePath(string path)
+    // BUG: This function should be internal and only accessabile via tests.
+    /// <summary>
+    /// DO NOT use this function to fix entry paths for entry into the archive. It should only be used internally to test and detect duplicate entries.<br/>
+    /// Normalizes an entry path to an invariant key that is used to identify duplicate entries.
+    /// It does this by first trimming, replaces '\' chars with '/', and removes all '/' chars at the start and then converts to the LowerInvariant.
+    /// </summary>
+    public static string NormalizeEntryPathUsingCanonicalStrategy(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
             return string.Empty;
 
-        return path.Trim().Replace('\\', '/').TrimStart('/').ToLowerInvariant();
+        return NormalizeEntryPath(path).ToLowerInvariant();
+    }
+
+    // BUG: This should be internal.
+    /// <summary>
+    /// Normalizes an entry path to ensure Trims the path, replaces '\' chars with '/', and removes all '/' chars at the start and converts to the LowerInvariant.
+    /// </summary>
+    public static string NormalizeEntryPath(string path)
+    {
+        _ = path ?? throw new ArgumentNullException(path);
+
+        var normalized = path.Trim().Replace('\\', EntryPathSeparatorChar).TrimStart(EntryPathSeparatorChar);
     }
 
     [GeneratedRegex("[^a-zA-Z0-9_\\- ]")]
