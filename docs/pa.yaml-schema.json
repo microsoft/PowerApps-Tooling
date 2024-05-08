@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/microsoft/PowerApps-Language-Tooling/blob/master/docs/pa.yaml-schema.json",
+  "title": "Microsoft Power Apps canvas screen schema",
+  "description": "A schema for describing the structure of a Microsoft Power Apps Yaml.",
+  "$ref": "#/$defs/ControlDef",
+  "additionalProperties": false,
+  "$defs": {
+    "ControlDef": {
+      "type": "object",
+      "patternProperties": {
+        "^[^\\\\]*$": {
+          "type": "object",
+          "properties": {
+            "Control": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_/:#\\.]*$"
+            },
+            "Variant": { "type": "string" },
+            "Layout": { "type": "string" },
+            "Description": { "type": "string" },
+            "Type": { "type": "string" },
+            "Screens": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ControlDef" }
+            },
+            "AccessAppScope": { "type": "string" },
+            "Settings": { "type": "object" },
+            "Style": { "type": "string" },
+            "Properties": { "type": "object" },
+            "CustomProperties": {
+              "type": "array"
+            },
+            "ComponentName": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_/]*$"
+            },
+            "ComponentLibraryUniqueName": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_/]*$"
+            },
+            "Children": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ControlDef" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
