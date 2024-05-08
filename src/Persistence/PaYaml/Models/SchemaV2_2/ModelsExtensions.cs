@@ -5,21 +5,41 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2
 
 public static class ModelsExtensions
 {
-    public static int GetDescendantsCount(this ScreenInstance screen)
+    public static IEnumerable<NamedObject<ControlInstance>> DescendantControlInstances<TContainer>(this NamedObject<TContainer> namedContainer)
+        where TContainer : IPaControlInstanceContainer
     {
-        _ = screen ?? throw new ArgumentNullException(nameof(screen));
+        _ = namedContainer ?? throw new ArgumentNullException(nameof(namedContainer));
 
-        return screen.Children?.Count > 0
-            ? screen.Children.Count + screen.Children.Sum(namedControl => namedControl.Value.GetDescendantsCount())
-            : 0;
+        return namedContainer.Value.DescendantControlInstances();
     }
 
-    public static int GetDescendantsCount(this ControlInstance control)
+    public static IEnumerable<NamedObject<ControlInstance>> DescendantControlInstances(this IPaControlInstanceContainer container)
     {
-        _ = control ?? throw new ArgumentNullException(nameof(control));
+        _ = container ?? throw new ArgumentNullException(nameof(container));
 
-        return control.Children?.Count > 0
-            ? control.Children.Count + control.Children.Sum(namedControl => namedControl.Value.GetDescendantsCount())
-            : 0;
+        // Preorder Traverse of tree using a loop
+        var stack = new Stack<NamedObject<ControlInstance>>();
+
+        // Load up with top-level children first
+        foreach (var child in container.Children.Reverse())
+        {
+            stack.Push(child);
+        }
+
+        while (stack.Count != 0)
+        {
+            var topNamedObject = stack.Pop();
+            foreach (var child in topNamedObject.Value.Children.Reverse())
+            {
+                stack.Push(child);
+            }
+            yield return topNamedObject;
+        }
+    }
+
+    public static IEnumerable<string> SelectNames<TValue>(this IEnumerable<NamedObject<TValue>> namedObjects)
+        where TValue : notnull
+    {
+        return namedObjects.Select(o => o.Name);
     }
 }

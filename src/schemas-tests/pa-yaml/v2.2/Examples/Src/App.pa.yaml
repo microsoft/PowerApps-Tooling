@@ -5,12 +5,3 @@ App:
     StartScreen: =Screen1
     Theme: =PowerAppsTheme
     Foo: =anything
-
-  Children:
-    Host:
-      Properties:
-        OnCancel: =false
-        OnEdit: =false
-        OnNew: =false
-        OnSave: =false
-        OnView: =false

@@ -16,7 +16,7 @@ public enum ComponentPropertyKind
     Action,
 }
 
-public class ComponentDefinition
+public class ComponentDefinition : IPaControlInstanceContainer
 {
     public string? Description { get; init; }
 
@@ -25,6 +25,8 @@ public class ComponentDefinition
     public NamedObjectMapping<ComponentCustomPropertyUnion> CustomProperties { get; init; } = new();
 
     public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
+
+    public NamedObjectMapping<ControlGroup> Groups { get; init; } = new();
 
     public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
 }

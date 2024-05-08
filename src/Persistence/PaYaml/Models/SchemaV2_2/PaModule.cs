@@ -3,9 +3,12 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2;
 
-public record PaFileRoot
+/// <summary>
+/// Represents a Power Apps Yaml module file.
+/// </summary>
+public record PaModule
 {
     public AppInstance? App { get; init; }
-    public NamedObjectMapping<ScreenInstance> Screens { get; init; } = new();
     public NamedObjectMapping<ComponentDefinition> ComponentDefinitions { get; init; } = new();
+    public NamedObjectMapping<ScreenInstance> Screens { get; init; } = new();
 }
