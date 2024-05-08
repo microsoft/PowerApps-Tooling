@@ -9,30 +9,30 @@ using YamlDotNet.Core;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
 [Serializable]
-public class PersistenceException : Exception
+public class PaPersistenceException : Exception
 {
-    public PersistenceException(PersistenceErrorCode errorCode)
+    public PaPersistenceException(PersistenceErrorCode errorCode)
         : this(errorCode, null, null)
     {
     }
 
-    public PersistenceException(PersistenceErrorCode errorCode, string reason)
+    public PaPersistenceException(PersistenceErrorCode errorCode, string reason)
         : this(errorCode, reason, null)
     {
     }
 
-    public PersistenceException(PersistenceErrorCode errorCode, Exception innerException)
+    public PaPersistenceException(PersistenceErrorCode errorCode, Exception innerException)
         : this(errorCode, null, innerException)
     {
     }
 
-    public PersistenceException(PersistenceErrorCode errorCode, string? reason, Exception? innerException)
+    public PaPersistenceException(PersistenceErrorCode errorCode, string? reason, Exception? innerException)
         : base(reason ?? string.Empty, innerException) // Convert reason to non-null so base.Message doesn't get set to the default ex message.
     {
         ErrorCode = errorCode.CheckArgumentInRange();
     }
 
-    protected PersistenceException(SerializationInfo info, StreamingContext context)
+    protected PaPersistenceException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
         ErrorCode = ((PersistenceErrorCode)info.GetInt32(nameof(ErrorCode))).CheckArgumentInRange();
@@ -114,11 +114,11 @@ public class PersistenceException : Exception
         base.GetObjectData(info, context);
     }
 
-    internal static PersistenceException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)
+    internal static PaPersistenceException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)
     {
         return ex.Start.Equals(Mark.Empty)
-            ? new PersistenceException(errorCode, ex.Message, ex)
-            : new PersistenceException(errorCode, ex.Message, ex)
+            ? new PaPersistenceException(errorCode, ex.Message, ex)
+            : new PaPersistenceException(errorCode, ex.Message, ex)
             {
                 LineNumber = ex.Start.Line,
                 Column = ex.Start.Column,

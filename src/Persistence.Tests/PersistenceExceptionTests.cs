@@ -12,13 +12,13 @@ public class PersistenceExceptionTests
     [TestMethod]
     public void ConstructTest()
     {
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.DeserializationError))
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.DeserializationError))
             .WithErrorCode(PersistenceErrorCode.DeserializationError)
             .WithReason(null);
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.SerializationError, "A test reason."))
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.SerializationError, "A test reason."))
             .WithErrorCode(PersistenceErrorCode.SerializationError)
             .WithReason("A test reason.");
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
         {
             MsappEntryFullPath = "src/entry1.txt",
             LineNumber = 5,
@@ -32,17 +32,17 @@ public class PersistenceExceptionTests
     [TestMethod]
     public void MessageTest()
     {
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.DeserializationError))
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.DeserializationError))
             .WithMessage("[3000:DeserializationError] An error occurred during deserialization.");
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.SerializationError, "A test reason."))
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.SerializationError, "A test reason."))
             .WithMessage("[2000:SerializationError] An error occurred during serialization. A test reason.");
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.YamlInvalidSyntax)
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.YamlInvalidSyntax)
         {
             LineNumber = 5,
             Column = 3,
         })
             .WithMessage("[3001:YamlInvalidSyntax] Invalid YAML syntax was encountered during deserialization. Line: 5; Column: 3;");
-        ThrowAndVerify(new PersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
+        ThrowAndVerify(new PaPersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
         {
             MsappEntryFullPath = "src/entry1.txt",
             LineNumber = 5,
@@ -55,9 +55,9 @@ public class PersistenceExceptionTests
     [TestMethod]
     public void IsSerializableTests()
     {
-        new PersistenceException(PersistenceErrorCode.DeserializationError).Should().BeBinarySerializable();
-        new PersistenceException(PersistenceErrorCode.SerializationError, "A test reason.").Should().BeBinarySerializable();
-        new PersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
+        new PaPersistenceException(PersistenceErrorCode.DeserializationError).Should().BeBinarySerializable();
+        new PaPersistenceException(PersistenceErrorCode.SerializationError, "A test reason.").Should().BeBinarySerializable();
+        new PaPersistenceException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
         {
             MsappEntryFullPath = "src/entry1.txt",
             LineNumber = 5,
