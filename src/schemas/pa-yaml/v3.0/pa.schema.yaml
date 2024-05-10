@@ -1,9 +1,11 @@
 # Unfortunately, it also seems to make it so that schema cache doesn't get updated if the schema file updates.
 # WORKAROUND: Close the VSCode window and reopen.
+#
+# How to add snippets for use in VS Code: https://code.visualstudio.com/docs/languages/json#_define-snippets-in-json-schemas
 
 $schema: http://json-schema.org/draft-07/schema#
-$id: http://powerapps.com/schemas/pa-yaml/v2.2/pa.schema
-title: Microsoft Power Apps schema for app source yaml files (v2.2).
+$id: http://powerapps.com/schemas/pa-yaml/v3.0/pa.schema
+title: Microsoft Power Apps schema for app source yaml files (v3.0).
 description: >-
   The schema for all *.pa.yaml files which are used to describe a Power Apps canvas app.
   All *.pa.yaml files in an *.msapp are logically combined into a single *.pa.yaml file.
@@ -17,6 +19,18 @@ properties:
     $ref: "#/definitions/Screens-name-instance-map"
   ComponentDefinitions:
     $ref: "#/definitions/ComponentDefinitions-name-instance-map"
+defaultSnippets:
+  - label: App
+    body:
+      App:
+        Properties:
+          StartScreen: =${1:Screen1}
+  - label: Screens
+    body:
+      Screens:
+        ${1:Screen1}:
+          Children:
+            - $0
 
 definitions:
   App-instance:
@@ -25,20 +39,7 @@ definitions:
     additionalProperties: false
     properties:
       Properties: { $ref: "#/definitions/Properties-formula-map" }
-
-      # Note: App children is fixed.
-      Children:
-        description: The App currently only supports the 'Host' child.
-        type: object
-        additionalProperties: false
-        properties:
-          Host:
-            type: object
-            additionalProperties: false
-            properties:
-              # Currently, the Control identifier is static, but may need to be exposed in order to support variants
-              #Control: { $ref: "#/definitions/Control-type-identifier" }
-              Properties: { $ref: "#/definitions/Properties-formula-map" }
+      # NOTE: App children is removed for now until the design for the AppHost controls is completed
 
   Screens-name-instance-map:
     description: |-
@@ -46,14 +47,24 @@ definitions:
     type: object
     propertyNames: { $ref: "#/definitions/Screen-name" }
     additionalProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        Properties: { $ref: "#/definitions/Properties-formula-map" }
-        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      $ref: "#/definitions/Screen-instance"
+    defaultSnippets:
+      - label: Add a Screen
+        body:
+          ${1:Screen1}:
+            Children:
+              - $0
 
   Screen-name:
     $ref: "#/definitions/entity-name"
+
+  Screen-instance:
+    type: object
+    additionalProperties: false
+    properties:
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+      Groups: { $ref: "#/definitions/Groups-of-controls" }
+      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   Children-Control-instance-sequence:
     description: >-
@@ -67,73 +78,195 @@ definitions:
       propertyNames: { $ref: "#/definitions/Control-instance-name" }
       additionalProperties:
         $ref: "#/definitions/Control-instance"
+      defaultSnippets:
+        - label: Add Control
+          # Note: In order to get intellisense for the Control property, we can't use the ${1} in the
+          # default value for ${2} as vscode will put the intellisense for the first reference of the replacement.
+          body:
+            '${2:Control1}':
+              Control: ${1:Label}
+              Properties:
+                X: =10
+                Y: =10$0
+        - label: Add custom `Component` instance
+          body:
+            '${2:${1}1}':
+              Control: Component
+              ComponentName: ${1:MyComponent}
+              Properties:
+                X: =10
+                Y: =10$0
+        - label: Add `CodeComponent` instance (aka PCF control)
+          body:
+            '${2:${1}1}':
+              Control: CodeComponent
+              ComponentName: ${1:MyComponent}
+              Properties:
+                X: =10
+                Y: =10$0
 
   Control-instance-name:
     $ref: "#/definitions/entity-name"
 
-  Control-instance:
-    type: object
-    required: [Control]
-    properties:
-      Control: { $ref: "#/definitions/Control-type-identifier" }
-      Variant: { $ref: "#/definitions/Control-variant-name" }
-      Properties: { $ref: "#/definitions/Properties-formula-map" }
-      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
-    if:
-      required: [Control]
-      properties:
-        Control: { $ref: "#/definitions/Control-type-component" }
-    then:
-      required: [ComponentName]
-      properties:
-        Control: true
-        ComponentLibraryUniqueName: { $ref: "#/definitions/ComponentLibrary-unique-name" }
-        ComponentName: { $ref: "#/definitions/ComponentDefinition-name" }
-        Properties: true
-        # Note: Component instances do not support Variants or Children.
-      additionalProperties: false
-    else:
-      # Expected to be a built-in control library template
-      properties:
-        Control: true
-        Variant: true
-        Properties: true
-        Children: true
-      additionalProperties: false
-
-  Control-type-identifier:
-    description: The invariant type of control being instantiated.
-    type: string
+  ControlTypeId:
+    description: The invariant identifier for the type of control being instantiated.
+    allOf:
+      - $ref: "#/definitions/ControlTypeId-pattern"
+    not:
+      anyOf:
+        - $ref: "#/definitions/ControlTypeId-disallowed-types"
+        - $ref: "#/definitions/ControlTypeId-not-yet-supported"
     oneOf:
-      - $ref: "#/definitions/control-library-template-name"
-      - $ref: "#/definitions/Control-type-component"
+      - $ref: "#/definitions/ControlTypeId-oneOf-3P-types"
+      - $ref: "#/definitions/ControlTypeId-1P-controls"
 
-  Control-type-component:
+  ControlTypeId-pattern:
+    $comment: Defines reusable schema for validating the pattern allowed for control type identifiers.
+    type: string
+    # The value of this identifier takes the format:
+    #   ( <invariantFamily> '/' )? <invariantName>
+    #   Where the set of allowed characters is limited.
+    pattern: |-
+      ^([A-Z][a-zA-Z0-9]*/)?[A-Z][a-zA-Z0-9]*$
+
+  ControlTypeId-disallowed-types:
+    enum:
+      - AppInfo
+      - HostControl
+      - Screen
+      - AppTest
+      - TestCase
+      - TestSuite
+
+  ControlTypeId-not-yet-supported:
+    enum:
+      - CommandComponent
+      - DataComponent
+      - FunctionComponent
+
+  ControlTypeId-oneOf-3P-types:
+    $comment: The set of ControlTypeIds that represent third-party controls.
+    oneOf:
+      - $ref: "#/definitions/ControlTypeId-Component"
+      - $ref: "#/definitions/ControlTypeId-CodeComponent"
+
+      # TODO: Imlpement a way that some controls may define a limited subset of child control types
+      # e.g. The 'Form' control's children must be of type 'TypedDataCard':
+      # - $ref: "#/definitions/ControlTypeId-TypedDataCard"
+
+  ControlTypeId-Component:
     description: |-
       Identifies a custom component instance. This control type requires additional properties to be specified.
     type: string
-    const: component
+    const: Component
 
-  control-library-template-name:
-    description: The invariant name of a control template published by Power Apps (aka the 'Control Library').
+  ControlTypeId-CodeComponent:
+    description: |-
+      Identifies a custom code component (aka PCF control) instance. This control type requires additional properties to be specified.
     type: string
-    minimum: 1
-    # NOTE: The pattern here is more restrictive than a DName, to represent the actual set of chars used.
-    # By doing this, we can catch invalid uses. We can always expand the char set in the future iif needed.
-    pattern: |-
-      ^[a-zA-Z0-9][a-zA-Z0-9]*$
+    const: CodeComponent
+
+  ControlTypeId-1P-controls:
+    description: The invariant identifier of a first-party control published by Power Apps (aka the 'Control Library').
+    allOf:
+      - $ref: "#/definitions/ControlTypeId-pattern"
+      - $ref: "#/definitions/ControlTypeId-1P-controls-enum"
     not:
-      $comment: Exclude 1st class control type names which are not defined in the 'Control Library'.
-      enum: [component]
-    examples:
-      # TODO: Add additional well-known control types here for usability
-      - label
-      - gallery
+      $comment: Exclude built-in control identifiers as these are not defined in the 'Control Library'.
+      $ref: "#/definitions/ControlTypeId-oneOf-3P-types"
+
+  ControlTypeId-1P-controls-enum:
+    # [schema-build-remove-next-line]
+    $ref: "ControlLibraryVDev/ControlTypeId-1P-controls-enum.schema.yaml"
+    # [schema-build-uncomment-next-line]
+    #true
 
   Control-variant-name:
     description: The variant of a control template being instantiated.
     allOf:
       - $ref: "#/definitions/entity-name"
+
+  Control-instance:
+    type: object
+    required: [Control]
+    properties:
+      Control: { $ref: "#/definitions/ControlTypeId" }
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+    if:
+      required: [Control]
+      properties:
+        Control: { $ref: "#/definitions/ControlTypeId-oneOf-3P-types" }
+    then:
+      allOf:
+        - if:
+            properties:
+              Control: { $ref: "#/definitions/ControlTypeId-Component" }
+          then:
+            required: [ComponentName]
+            additionalProperties: false
+            properties:
+              Control: true
+              ComponentLibraryUniqueName: { $ref: "#/definitions/ComponentLibrary-unique-name" }
+              ComponentName: { $ref: "#/definitions/ComponentDefinition-name" }
+              Properties: true
+              # Note: Component instances do not support Variants or Children.
+        - if:
+            properties:
+              Control: { $ref: "#/definitions/ControlTypeId-CodeComponent" }
+          then:
+            required: [ComponentName]
+            additionalProperties: false
+            properties:
+              Control: true
+              ComponentName: { $ref: "#/definitions/CodeComponent-name" }
+              Properties: true
+              # Note: CodeComponent instances do not support Variants or Children.
+    else:
+      # Expected to be a built-in control library template
+      additionalProperties: false
+      properties:
+        Control: true
+        Variant: { $ref: "#/definitions/Control-variant-name" }
+        Properties: true
+        # Depending on the ControlTypeId, it may or may not actually support Groups
+        Groups: { $ref: "#/definitions/Groups-of-controls" }
+        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+
+  Groups-of-controls:
+    description: |-
+      A mapping of groups of controls under this container. The keys of this object represent the name of the Group.
+      
+      Groups do not impact the behavior of an app, but are used in the Studio to organize controls when editing.
+    type: object
+    propertyNames: { $ref: "#/definitions/Control-instance-name" }
+    additionalProperties:
+      type: object
+      required: [ControlNames]
+      additionalProperties: false
+      properties:
+        ControlNames:
+          description: |-
+            An array of the names of controls that are part of this group.
+            A group must have at least two (2) controls in it.
+          type: array
+          minItems: 2
+          items: { $ref: "#/definitions/Control-instance-name" }
+    defaultSnippets:
+      - label: Add Group
+        body:
+          ${1:Group1}:
+            ControlNames:
+              - ${2:ControlName1}
+              - ${3:ControlName2}
+
+  CodeComponent-name:
+    description: |-
+      The unique name of the Code Component (aka PCF control) as it occurs in Dataverse.
+      The format is: <publisher-prefix> '_' <JS-Namespace> '.' <JS-ClassName>
+    type: string
+    # TODO: The JS regex pattern doesn't easily support unicode chars which are valid JS identifiers.
+    pattern: |-
+      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+*$
 
   ComponentDefinitions-name-instance-map:
     type: object
@@ -169,6 +302,7 @@ definitions:
                   - Height
                   - Width
                   - OnReset
+        Groups: { $ref: "#/definitions/Groups-of-controls" }
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   ComponentDefinition-name:

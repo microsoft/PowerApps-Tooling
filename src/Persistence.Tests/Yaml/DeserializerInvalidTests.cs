@@ -27,7 +27,7 @@ public class DeserializerInvalidTests : TestBase
             var yaml = File.ReadAllText(filePath);
             using var yamlReader = new StringReader(yaml);
             var act = () => deserializer.Deserialize<Control>(yamlReader);
-            act.Should().ThrowExactly<PersistenceException>("deserializing file '{0}' is expected to be invalid", filePath)
+            act.Should().ThrowExactly<PersistenceLibraryException>("deserializing file '{0}' is expected to be invalid", filePath)
                 .WithErrorCode(PersistenceErrorCode.DeserializationError)
                 .WithInnerExceptionExactly<YamlException>();
         }
@@ -48,7 +48,7 @@ public class DeserializerInvalidTests : TestBase
         Action act = () => { deserializer.Deserialize<BuiltInControl>(yamlReader); };
 
         // Assert
-        act.Should().Throw<PersistenceException>()
+        act.Should().Throw<PersistenceLibraryException>()
             .WithErrorCode(PersistenceErrorCode.DeserializationError)
             .WithInnerExceptionExactly<YamlException>()
             .WithInnerException<NotSupportedException>()
@@ -78,7 +78,7 @@ public class DeserializerInvalidTests : TestBase
         };
 
         // Assert
-        act.Should().Throw<PersistenceException>()
+        act.Should().Throw<PersistenceLibraryException>()
             .WithErrorCode(PersistenceErrorCode.DeserializationError)
             .WithReason("Duplicate control property*")
             .WithInnerExceptionExactly<YamlException>();

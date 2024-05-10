@@ -60,7 +60,7 @@ public static class PaYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
+            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
         }
     }
     #endregion
@@ -117,7 +117,7 @@ public static class PaYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax);
+            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax);
         }
 
         // TODO: Consider using FluentValidation nuget package to validate the deserialized object

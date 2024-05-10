@@ -46,7 +46,7 @@ public class YamlSerializer : IYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
+            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
         }
     }
 
@@ -58,7 +58,7 @@ public class YamlSerializer : IYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
+            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.SerializationError);
         }
     }
 }

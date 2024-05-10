@@ -1,13 +1,22 @@
 {
   "cSpell.words": [
     "Dataverse",
+    "msapp",
     "PPUX",
-    "msapp"
+    "RGBA"
   ],
   "[yaml]": {},
   "yaml.schemaStore.enable": true,
   "yaml.validate": true,
-  "yaml.schemas": {           
-    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "*.pa.yaml" 
-  },
+  "yaml.schemas": {
+    "http://json-schema.org/draft-07/schema#": "*.schema.yaml",
+    "src/schemas/pa-yaml/v3.0/pa.schema.yaml": [
+      //"*.pa.yaml",
+      "src/schemas-tests/pa-yaml/v3.0/**/*.pa.yaml"
+    ],
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/schemas/pa-yaml/v3.0/pa.schema.yaml": [
+      "src/schemas-tests/**/*.pa.yaml"
+    ],
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "src/Persistence.Tests/**/*.pa.yaml"
+  }
 }

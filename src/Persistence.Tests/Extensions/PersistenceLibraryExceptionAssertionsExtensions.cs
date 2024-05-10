@@ -8,14 +8,14 @@ using Microsoft.PowerPlatform.PowerApps.Persistence;
 
 namespace Persistence.Tests.Extensions;
 
-public static class PersistenceExceptionAssertionsExtensions
+public static class PersistenceLibraryExceptionAssertionsExtensions
 {
     public static ExceptionAssertions<TException> WithErrorCode<TException>(
         this ExceptionAssertions<TException> assertion,
         PersistenceErrorCode errorCode,
         string? because = null,
         params object[] becauseArgs)
-        where TException : PersistenceException
+        where TException : PersistenceLibraryException
     {
         _ = assertion ?? throw new ArgumentNullException(nameof(assertion));
 
@@ -36,7 +36,7 @@ public static class PersistenceExceptionAssertionsExtensions
         string? wildcardPattern,
         string? because = null,
         params object[] becauseArgs)
-        where TException : PersistenceException
+        where TException : PersistenceLibraryException
     {
         _ = assertion ?? throw new ArgumentNullException(nameof(assertion));
 

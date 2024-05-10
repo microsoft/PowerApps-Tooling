@@ -1,0 +1,22 @@
+Screens:
+  screenName1:
+    Properties:
+      Prop2: =screen1Prop2
+      Prop1: =screen1Prop1
+
+    Children:
+      - ctrlB:
+          Control: Component
+          ComponentName: myComponent1
+          Properties:
+            Prop2: =ctrlBProp2
+            Prop1: =ctrlBProp1
+
+      # Purposesly set out of name sorting order to ensure ordering is maintained
+      - ctrlA:
+          Control: Component
+          ComponentName: externComponent2
+          ComponentLibraryUniqueName: pubpref_libraryName1
+          Properties:
+            Prop2: =ctrlAProp2
+            Prop1: =ctrlAProp1

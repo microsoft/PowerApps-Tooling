@@ -58,7 +58,7 @@ public class RoundTripWriterTests
         };
 
         // Assert
-        var thrownEx = act.Should().ThrowExactly<PersistenceException>()
+        var thrownEx = act.Should().ThrowExactly<PersistenceLibraryException>()
             .WithErrorCode(PersistenceErrorCode.RoundTripValidationFailed)
             .Which;
         thrownEx.MsappEntryFullPath.Should().Be("test");

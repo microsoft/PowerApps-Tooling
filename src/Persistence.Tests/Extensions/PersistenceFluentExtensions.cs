@@ -30,6 +30,28 @@ internal static class PersistenceFluentExtensions
         }
     }
 
+    public static AndConstraint<TAssertions> NotDefineMember<TSubject, TAssertions>(this ObjectAssertions<TSubject, TAssertions> assertions, string memberName, string because = "", params object[] becauseArgs)
+        where TAssertions : ObjectAssertions<TSubject, TAssertions>
+        where TSubject : class
+    {
+        _ = assertions ?? throw new ArgumentNullException(nameof(assertions));
+
+        assertions.Subject.ShouldNotBeNull();
+        if (assertions.Subject is not null)
+        {
+            var subjectType = assertions.Subject.GetType();
+            var matchingMembers = subjectType.GetMembers().Where(m => m.Name == memberName).ToArray();
+
+            Execute.Assertion
+                .ForCondition(matchingMembers!.Length == 0)
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected {context:Type} with Type name {0} to not have a member with name {1}{reason}, but does.",
+                    subjectType.Name, memberName);
+        }
+
+        return new AndConstraint<TAssertions>((TAssertions)assertions);
+    }
+
     public static AndConstraint<TAssertions> BeYamlEquivalentTo<TAssertions>(this StringAssertions<TAssertions> assertions, string expectedYaml, string because = "", params object[] becauseArgs)
         where TAssertions : StringAssertions<TAssertions>
     {
