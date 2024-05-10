@@ -2,7 +2,7 @@ Screens:
   ComponentsScreen4:
     Children:
       - MyHeaderComponent_2:
-          Control: component
+          Control: Component
           ComponentName: MyHeaderComponent
           Properties:
             Height: =77
@@ -10,21 +10,21 @@ Screens:
             Width: =1366
 
       - MyHeaderComponent_3:
-          Control: component
+          Control: Component
           ComponentName: MyHeaderComponent
           Properties:
             ScreenTitle: ="Screen B"
             Y: =98
 
       - MyHeaderComponent_4:
-          Control: component
+          Control: Component
           ComponentName: MyHeaderComponent
           Properties:
             ScreenTitle: ="Screen C"
             Y: =197
 
       - CommonHeader_1:
-          Control: component
+          Control: Component
           ComponentName: CommonHeader
           ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
           Properties:
@@ -36,7 +36,7 @@ Screens:
             Y: =294
 
       - MenuTemplate_1:
-          Control: component
+          Control: Component
           ComponentName: MenuTemplate
           ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
           Properties:
@@ -49,7 +49,7 @@ Screens:
             Y: =294
 
       - selectedMenuItemLabel:
-          Control: label
+          Control: Label
           Properties:
             Text: =$"{MenuTemplate_1.Selected.Title} ({MenuTemplate_1.Selected.Tag})"
             Width: =218

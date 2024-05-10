@@ -88,7 +88,7 @@ ComponentDefinitions:
 
     Children:
       - Label4:
-          Control: label
+          Control: Label
           Properties:
             Align: =Align.Center
             BorderColor: =RGBA(0, 18, 107, 1)

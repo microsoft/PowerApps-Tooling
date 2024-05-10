@@ -1,0 +1,51 @@
+# This file showcases how we resolve when 3rd party controls can cause invariant name conflicts.
+# Namely, the 'Control' property on all control instances MUST be a 1P ControlTypeId, which are
+# owned by Power Apps and use a strict naming convention.
+# All 3P names required to disambiguate control type instances must be in a separate property, which
+# in combination with the 'Control' property will identify a unique control instance.
+App:
+  Properties:
+    BackEnabled: =true
+    Theme: =PowerAppsTheme
+
+ComponentDefinitions:
+  Slider:
+    Description: A local custom Component with the same name as a 1P ControlTypeId.
+  slicer:
+    Description: A local custom Component with the same name as a 1P ControlTypeId, that differs by case only
+
+Screens:
+  1PControlsScreen:
+    Children:
+      - 1P-Slider:
+          Control: Slider
+          Properties:
+            X: =20
+
+  3PComponentInstancesScreen:
+    Children:
+      - 3P-local-Slider1:
+          Control: Component
+          ComponentName: Slider
+          Properties:
+            X: =20
+      - 3P-local-slider1:
+          Control: Component
+          ComponentName: slider
+          Properties:
+            X: =20
+      - 3P-external-Slider1:
+          Control: Component
+          ComponentName: Slider
+          ComponentLibraryUniqueName: pubpref_orgcomponentslibrary_1e112
+          Properties:
+            X: =20
+
+  # CodeComponents: aka 3P PCF controls
+  3PCodeComponentsScreen:
+    Children:
+      - 3P-pcf-Slider1:
+          Control: CodeComponent
+          ComponentName: pubpref_Org.Namespace.Slider
+          Properties:
+            X: =20

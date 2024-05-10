@@ -1,15 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 using YamlDotNet.Serialization;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0;
 
 public record ControlInstance
 {
+    public ControlInstance() { }
+
+    [SetsRequiredMembers]
+    public ControlInstance(string controlTypeId)
+    {
+        ControlTypeId = controlTypeId ?? throw new ArgumentNullException(nameof(controlTypeId));
+    }
+
     [property: YamlMember(Alias = "Control")]
-    public required string ControlType { get; init; }
+    public required string ControlTypeId { get; init; }
 
     public string? Variant { get; init; }
 
@@ -18,6 +27,8 @@ public record ControlInstance
     public string? ComponentLibraryUniqueName { get; init; }
 
     public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
+
+    public NamedObjectMapping<ControlGroup> Groups { get; init; } = new();
 
     public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
 }

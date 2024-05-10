@@ -1,0 +1,72 @@
+# Unfortunately, it also seems to make it so that schema cache doesn't get updated if the schema file updates.
+# WORKAROUND: Close the VSCode window and reopen.
+#
+# How to add snippets for use in VS Code: https://code.visualstudio.com/docs/languages/json#_define-snippets-in-json-schemas
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://powerapps.com/schemas/pa-yaml/v3.0/ControlTypeId-1P-controls-enum.schema
+description: >-
+  The schema object representing the enum of ControlTypeIds for the current version of the controls library.
+
+enum:
+  - AddMedia
+  - Attachments
+  - Audio
+  - Button
+  - Camera
+  - CheckBox
+  - Circle
+  - ComboBox
+  - DatePicker
+  - DropDown
+  - Form
+  - TypedDataCard
+  - DataCard
+  - Gallery
+  - GroupContainer
+  - Icon
+  - Image
+  - Label
+  - ListBox
+  - Microphone
+  - PDFViewer
+  - PowerBI
+  - Radio
+  - Rating
+  - Rectangle
+  - Slider
+  - StreamVideo
+  - TextInput
+  - Timer
+  - Toggle
+  - Video
+  - FluentV8/Button
+  - FluentV8/CheckBox
+  - FluentV8/ComboBox
+  - FluentV8/DatePicker
+  - FluentV8/Label
+  - FluentV8/Radio
+  - FluentV8/Rating
+  - FluentV8/Slider
+  - FluentV8/TextBox
+  - FluentV8/Toggle
+  - FluentV9/Badge
+  - FluentV9/Button
+  - FluentV9/CheckBox
+  - FluentV9/ComboBox
+  - FluentV9/DatePicker
+  - FluentV9/DropDown
+  - FluentV9/Header
+  - FluentV9/InfoButton
+  - FluentV9/Link
+  - FluentV9/NumberInput
+  - FluentV9/Progress
+  - FluentV9/Radio
+  - FluentV9/Slider
+  - FluentV9/Spinner
+  - FluentV9/StreamVideo
+  - FluentV9/TabList
+  - FluentV9/Text
+  - FluentV9/TextInput
+  - FluentV9/Toggle
+  - FluentV9/Grid

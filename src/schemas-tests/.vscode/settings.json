@@ -18,8 +18,8 @@
   ],
   "yaml.schemas": {
     "http://json-schema.org/draft-07/schema#": "*.schema.yaml",
-    "../schemas/pa-yaml/v2.2/pa.schema.yaml": [
-      "pa-yaml/v2.2/**/*.pa.yaml"
+    "../schemas/pa-yaml/v3.0/pa.schema.yaml": [
+      "pa-yaml/v3.0/**/*.pa.yaml"
     ]
   }
 }

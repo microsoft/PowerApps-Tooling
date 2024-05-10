@@ -1,0 +1,7 @@
+App:
+  Properties:
+    BackEnabled: =true
+    OnStart: =Set(var1, "hello world!")
+    StartScreen: =Screen1
+    Theme: =PowerAppsTheme
+    Foo: =anything

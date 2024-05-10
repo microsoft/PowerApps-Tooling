@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

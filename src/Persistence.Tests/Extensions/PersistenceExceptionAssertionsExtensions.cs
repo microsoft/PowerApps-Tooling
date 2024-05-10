@@ -15,7 +15,7 @@ public static class PersistenceExceptionAssertionsExtensions
         PersistenceErrorCode errorCode,
         string? because = null,
         params object[] becauseArgs)
-        where TException : PersistenceException
+        where TException : PaPersistenceException
     {
         _ = assertion ?? throw new ArgumentNullException(nameof(assertion));
 
@@ -36,7 +36,7 @@ public static class PersistenceExceptionAssertionsExtensions
         string? wildcardPattern,
         string? because = null,
         params object[] becauseArgs)
-        where TException : PersistenceException
+        where TException : PaPersistenceException
     {
         _ = assertion ?? throw new ArgumentNullException(nameof(assertion));
 
