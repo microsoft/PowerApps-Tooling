@@ -1,10 +1,27 @@
 ![image](https://img.shields.io/github/actions/workflow/status/microsoft/PowerApps-Language-Tooling/CI.yml?branch=master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools) [![Build Status](https://dev.azure.com/dynamicscrm/OneCRM/_apis/build/status%2FPowerPlatform.PowerApps.Tools%2Fmicrosoft.PowerApps-Tooling?branchName=master)](https://dev.azure.com/dynamicscrm/OneCRM/_build/latest?definitionId=21051&branchName=master)
 
-# Power Apps Source File Pack and Unpack Utility
-
-**This project is still in Experimental - format may change**
+# Power Apps tools for professional developers
+- 🆕 C#/.Net library for working with Power Apps msapp files
+- Legacy Source File Pack and Unpack Utility (PASopa)
 
 **We welcome feedback on the project, file format, and capabilities.**
+
+## Prerequisites
+- [VS 2022](https://visualstudio.microsoft.com/downloads/) or [VSCode](https://code.visualstudio.com/Download)
+- [YAML Language Support by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) (recommended)
+
+## Usage
+- Configure VSCode YAML extension to use the schema file in the repo. Add the following to your settings.json:
+![alt text](assets/images/yaml-redhat-settings.png)
+```json
+"yaml.schemas": {
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "*.pa.yaml" 
+}
+```
+
+- For advamced C#/.Net library usage, please explore the [Microsoft.PowerPlatform.PowerApps.Persistence](https://github.com/microsoft/PowerApps-Tooling/tree/master/src/Persistence) library.
+
+## Legacy Source File Pack and Unpack Utility (PASopa)
 
 This tool enables Canvas apps to be edited outside of Power Apps Studio and managed in a source control tool such as GitHub.  The basic work flow is:
 1. Download an existing Canvas app as a .msapp file, using **File** > **Save as** > **This computer** in Power Apps Studio.

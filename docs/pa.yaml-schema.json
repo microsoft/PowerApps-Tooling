@@ -1,22 +1,34 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/microsoft/PowerApps-Language-Tooling/blob/master/docs/pa.yaml-schema.json",
-  "title": "Microsoft Power Apps canvas screen schema",
-  "description": "A schema for describing the structure of a Microsoft Power Apps Yaml.",
-  "$ref": "#/$defs/ControlDef",
-  "additionalProperties": false,
+  "$id": "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json",
+  "title": "Microsoft Power Apps",
+  "description": "Canvas YAML",
+  "oneOf": [
+    {
+      "description": "A single control",
+      "$ref": "#/$defs/ControlDef"
+    },
+    {
+      "description": "An array of controls",
+      "type": "array",
+      "items": { "$ref": "#/$defs/ControlDef" }
+    }
+  ],
   "$defs": {
     "ControlDef": {
       "type": "object",
       "patternProperties": {
         "^[^\\\\]*$": {
+          "description": "The control name",
           "type": "object",
           "properties": {
             "Control": {
-              "type": "string",
-              "pattern": "^[0-9A-Za-z_/:#\\.]*$"
+              "$ref": "control-type-schema.json#"
             },
-            "Variant": { "type": "string" },
+            "Variant": {
+              "description": "The variant of the control",
+              "type": "string"
+            },
             "Layout": { "type": "string" },
             "Description": { "type": "string" },
             "Type": { "type": "string" },
@@ -27,7 +39,9 @@
             "AccessAppScope": { "type": "string" },
             "Settings": { "type": "object" },
             "Style": { "type": "string" },
-            "Properties": { "type": "object" },
+            "Properties": {
+              "$ref": "control-property-schema.json#"
+            },
             "CustomProperties": {
               "type": "array"
             },
@@ -40,10 +54,12 @@
               "pattern": "^[0-9A-Za-z_/]*$"
             },
             "Children": {
+              "description": "The children of the control",
               "type": "array",
               "items": { "$ref": "#/$defs/ControlDef" }
             }
           },
+          "required": [ "Control" ],
           "additionalProperties": false
         }
       },
