@@ -4,7 +4,9 @@
 - 🆕 C#/.Net library for working with Power Apps msapp files
 - Legacy Source File Pack and Unpack Utility (PASopa)
 
-**We welcome feedback on the project, file format, and capabilities.**
+> [!TIP]
+> We welcome feedback on the project, file format, and capabilities. Start [discussion or vote for ideas](discussions)
+
 
 ## Prerequisites
 - [VS 2022](https://visualstudio.microsoft.com/downloads/) or [VSCode](https://code.visualstudio.com/Download)
