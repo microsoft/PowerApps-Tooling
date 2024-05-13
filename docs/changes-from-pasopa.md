@@ -4,10 +4,12 @@ The Power Apps Source Packager (PASopa) generates a YAML file format decribed in
 
 ## Removed "As" operator
 "As" operator is replaced with a separate line `Control: Button` for example. This is to make the format more readable and to avoid the need to escape the colon in the name of the control.
+
 ![Removed As](images/removed-as.png)
 
 ## Added ordering of controls
 Controls are ordered in the order they appear in the source file.
+
 ![Added Order](images/added-order.png)
 
 ## Removed ZIndex
