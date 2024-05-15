@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Version number in namespace.", Scope = "namespace", Target = "~N:Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2")]
+[assembly: SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Version number in namespace.", Scope = "namespace", Target = "~N:Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0")]

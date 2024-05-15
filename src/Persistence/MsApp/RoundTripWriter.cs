@@ -47,7 +47,7 @@ public class RoundTripWriter : TextWriter
         if (inputValue == -1 || inputValue != value)
         {
             _exThrown = true;
-            throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed")
+            throw new PersistenceLibraryException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed")
             {
                 MsappEntryFullPath = _entryFullPath,
                 LineNumber = _lineNumber,
@@ -72,7 +72,7 @@ public class RoundTripWriter : TextWriter
             var inputValue = _input.Read();
             if (inputValue != -1)
             {
-                throw new PersistenceException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed. Additional input not read when disposing.")
+                throw new PersistenceLibraryException(PersistenceErrorCode.RoundTripValidationFailed, $"Round trip serialization failed. Additional input not read when disposing.")
                 {
                     MsappEntryFullPath = _entryFullPath,
                     LineNumber = _lineNumber,

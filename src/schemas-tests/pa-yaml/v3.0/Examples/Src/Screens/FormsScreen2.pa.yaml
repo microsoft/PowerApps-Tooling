@@ -3,7 +3,7 @@ Screens:
     # Variant: "autoLayout_SplitScreen_ver1.0"
     Children:
       - ScreenContainer1:
-          Control: groupContainer
+          Control: GroupContainer
           Variant: horizontalAutoLayoutContainer
           Properties:
             Fill: =RGBA(245, 245, 245, 1)
@@ -20,7 +20,7 @@ Screens:
 
           Children:
             - LeftContainer1:
-                Control: groupContainer
+                Control: GroupContainer
                 Variant: verticalAutoLayoutContainer
                 Properties:
                   Fill: =RGBA(255, 255, 255, 1)
@@ -35,7 +35,7 @@ Screens:
 
                 Children:
                   - Form1:
-                      Control: form
+                      Control: Form
                       Properties:
                         DataSource: =Contacts
                         LayoutMinHeight: =250
@@ -44,7 +44,7 @@ Screens:
 
                       Children:
                         - "First Name_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -63,7 +63,7 @@ Screens:
 
                             Children:
                               - DataCardKey7:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -74,7 +74,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue7:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -92,7 +92,7 @@ Screens:
                                     Y: =DataCardKey7.Y + DataCardKey7.Height + 5
 
                               - ErrorMessage5:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -108,7 +108,7 @@ Screens:
                                     Y: =DataCardValue7.Y + DataCardValue7.Height
 
                               - StarVisible5:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey7.Height
@@ -119,7 +119,7 @@ Screens:
                                     Y: =DataCardKey7.Y
 
                         - "Last Name_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -138,7 +138,7 @@ Screens:
 
                             Children:
                               - DataCardKey9:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -149,7 +149,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue9:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -167,7 +167,7 @@ Screens:
                                     Y: =DataCardKey9.Y + DataCardKey9.Height + 5
 
                               - ErrorMessage7:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -183,7 +183,7 @@ Screens:
                                     Y: =DataCardValue9.Y + DataCardValue9.Height
 
                               - StarVisible7:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey9.Height
@@ -194,7 +194,7 @@ Screens:
                                     Y: =DataCardKey9.Y
 
                         - "Company Name_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: blankPolymorphicEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -210,7 +210,7 @@ Screens:
                               Y: =2
 
                         - "Job Title_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -229,7 +229,7 @@ Screens:
 
                             Children:
                               - DataCardKey8:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -240,7 +240,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue8:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -258,7 +258,7 @@ Screens:
                                     Y: =DataCardKey8.Y + DataCardKey8.Height + 5
 
                               - ErrorMessage6:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -274,7 +274,7 @@ Screens:
                                     Y: =DataCardValue8.Y + DataCardValue8.Height
 
                               - StarVisible6:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey8.Height
@@ -285,7 +285,7 @@ Screens:
                                     Y: =DataCardKey8.Y
 
                         - "Mobile Phone_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -304,7 +304,7 @@ Screens:
 
                             Children:
                               - DataCardKey10:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -315,7 +315,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue10:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -333,7 +333,7 @@ Screens:
                                     Y: =DataCardKey10.Y + DataCardKey10.Height + 5
 
                               - ErrorMessage8:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -349,7 +349,7 @@ Screens:
                                     Y: =DataCardValue10.Y + DataCardValue10.Height
 
                               - StarVisible8:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey10.Height
@@ -360,7 +360,7 @@ Screens:
                                     Y: =DataCardKey10.Y
 
                         - "User Name_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -379,7 +379,7 @@ Screens:
 
                             Children:
                               - DataCardKey12:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -390,7 +390,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue12:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -408,7 +408,7 @@ Screens:
                                     Y: =DataCardKey12.Y + DataCardKey12.Height + 5
 
                               - ErrorMessage10:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -424,7 +424,7 @@ Screens:
                                     Y: =DataCardValue12.Y + DataCardValue12.Height
 
                               - StarVisible10:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey12.Height
@@ -435,7 +435,7 @@ Screens:
                                     Y: =DataCardKey12.Y
 
                         - "Address 1_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualViewCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -452,7 +452,7 @@ Screens:
 
                             Children:
                               - DataCardKey4:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -463,7 +463,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue4:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     DisplayMode: =Parent.DisplayMode
@@ -477,7 +477,7 @@ Screens:
                                     Y: =DataCardKey4.Y + DataCardKey4.Height + 5
 
                         - Website_DataCard1:
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: urlEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -495,7 +495,7 @@ Screens:
 
                             Children:
                               - DataCardKey11:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -506,7 +506,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue11:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -523,7 +523,7 @@ Screens:
                                     Y: =DataCardKey11.Y + DataCardKey11.Height + 5
 
                               - ErrorMessage9:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -539,7 +539,7 @@ Screens:
                                     Y: =DataCardValue11.Y + DataCardValue11.Height
 
                               - StarVisible9:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey11.Height
@@ -550,7 +550,7 @@ Screens:
                                     Y: =DataCardKey11.Y
 
                         - Birthday_DataCard1:
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: dateEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -568,7 +568,7 @@ Screens:
 
                             Children:
                               - DataCardKey5:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -579,7 +579,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue5:
-                                  Control: datepicker
+                                  Control: DatePicker
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     DefaultDate: =Parent.Default
@@ -595,7 +595,7 @@ Screens:
                                     Y: =DataCardKey5.Y + DataCardKey5.Height + 5
 
                               - ErrorMessage3:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -611,7 +611,7 @@ Screens:
                                     Y: =DataCardValue5.Y + DataCardValue5.Height
 
                               - StarVisible3:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey5.Height
@@ -622,7 +622,7 @@ Screens:
                                     Y: =DataCardKey5.Y
 
                         - Description_DataCard1:
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualMultiLineEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -640,7 +640,7 @@ Screens:
 
                             Children:
                               - DataCardKey6:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -651,7 +651,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue6:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -670,7 +670,7 @@ Screens:
                                     Y: =DataCardKey6.Y + DataCardKey6.Height + 5
 
                               - ErrorMessage4:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -686,7 +686,7 @@ Screens:
                                     Y: =DataCardValue6.Y + DataCardValue6.Height
 
                               - StarVisible4:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey6.Height
@@ -697,7 +697,7 @@ Screens:
                                     Y: =DataCardKey6.Y
 
                         - "Full Name_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualViewCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -714,7 +714,7 @@ Screens:
 
                             Children:
                               - DataCardKey1:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -725,7 +725,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue1:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     DisplayMode: =Parent.DisplayMode
@@ -739,7 +739,7 @@ Screens:
                                     Y: =DataCardKey1.Y + DataCardKey1.Height + 5
 
                         - Email_DataCard1:
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -758,7 +758,7 @@ Screens:
 
                             Children:
                               - DataCardKey2:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -769,7 +769,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue2:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -787,7 +787,7 @@ Screens:
                                     Y: =DataCardKey2.Y + DataCardKey2.Height + 5
 
                               - ErrorMessage1:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -803,7 +803,7 @@ Screens:
                                     Y: =DataCardValue2.Y + DataCardValue2.Height
 
                               - StarVisible1:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey2.Height
@@ -814,7 +814,7 @@ Screens:
                                     Y: =DataCardKey2.Y
 
                         - "Business Phone_DataCard1":
-                            Control: typedDataCard
+                            Control: TypedDataCard
                             Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
@@ -833,7 +833,7 @@ Screens:
 
                             Children:
                               - DataCardKey3:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -844,7 +844,7 @@ Screens:
                                     Y: =10
 
                               - DataCardValue3:
-                                  Control: text
+                                  Control: TextInput
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -862,7 +862,7 @@ Screens:
                                     Y: =DataCardKey3.Y + DataCardKey3.Height + 5
 
                               - ErrorMessage2:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -878,7 +878,7 @@ Screens:
                                     Y: =DataCardValue3.Y + DataCardValue3.Height
 
                               - StarVisible2:
-                                  Control: label
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey3.Height
@@ -889,7 +889,7 @@ Screens:
                                     Y: =DataCardKey3.Y
 
             - RightContainer1:
-                Control: groupContainer
+                Control: GroupContainer
                 Variant: verticalAutoLayoutContainer
                 Properties:
                   Fill: =RGBA(255, 255, 255, 1)
@@ -904,7 +904,8 @@ Screens:
 
                 Children:
                   - MyHeaderComponent_1:
-                      Control: MyHeaderComponent
+                      Control: Component
+                      ComponentName: MyHeaderComponent
                       Properties:
                         LayoutMinHeight: =640
                         Width: =Parent.Width

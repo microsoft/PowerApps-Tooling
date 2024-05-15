@@ -1,0 +1,152 @@
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      OnVisible: |-
+        =Set(var1, "hello world!")
+    Groups:
+      Group1:
+        ControlNames:
+          - Text Input 1
+          - "Control name with special '*&:/\\\" chars"
+      BasicControlsCopyGroup:
+        ControlNames:
+          - Label1_2
+          - TextInput1_2
+          - Button1_2
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="A label"
+            X: =40
+            Y: =40
+      - Text Input 1:
+          Control: TextInput
+          Properties:
+            Default: ="Default input"
+            X: =40
+            Y: =80
+      - "Control name with special '*&:/\\\" chars":
+          Control: Button
+          Properties:
+            Text: ="A Button"
+            X: =40
+            Y: =138
+      - Gallery1:
+          Control: Gallery
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            DelayItemLoading: =true
+            Height: =479
+            Items: =CustomGallerySample
+          Groups:
+            TitleSubTitleGroup:
+              ControlNames:
+                - Title1
+                - Subtitle1
+          Children:
+            - Image1:
+                Control: Image
+                Properties:
+                  Height: =61
+                  OnSelect: =Select(Parent)
+            - NextArrow1:
+                Control: Icon
+                Variant: ChevronRight
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  Color: =RGBA(166, 166, 166, 1)
+                  Height: =50
+                  Icon: =Icon.ChevronRight
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="View item details"
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator1:
+                Control: Rectangle
+                Properties:
+                  Height: =8
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Rectangle1:
+                Control: Rectangle
+                Properties:
+                  Height: =Parent.TemplateHeight - Separator1.Height
+                  OnSelect: =Select(Parent)
+                  Visible: =ThisItem.IsSelected
+                  Width: =4
+            - Title1:
+                Control: Label
+                Properties:
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Text: =ThisItem.SampleHeading
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =345
+                  X: =103
+                  Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle1.Size * 1.8)) / 2
+            - Subtitle1:
+                Control: Label
+                Properties:
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =35
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Text: =ThisItem.SampleText
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title1.Width
+                  X: =Title1.X
+                  Y: =Title1.Y + Title1.Height
+
+      - GalleryTitleLabel:
+          Control: Label
+          Properties:
+            Text: ="A gallery example"
+            Width: =322
+            X: =726
+            Y: =40
+
+      - Label1_2:
+          Control: Label
+          Properties:
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(232, 244, 217, 1)
+            Text: ="A label"
+            Tooltip: ="This is a copy of some other controls."
+            X: =40
+            Y: =444
+
+      - TextInput1_2:
+          Control: TextInput
+          Properties:
+            Default: ="Default input"
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(232, 244, 217, 1)
+            Tooltip: ="This is a copy of some other controls."
+            X: =40
+            Y: =484
+
+      - Button1_2:
+          Control: Button
+          Properties:
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(232, 244, 217, 1)
+            Text: ="A Button"
+            Tooltip: ="This is a copy of some other controls."
+            X: =40
+            Y: =542

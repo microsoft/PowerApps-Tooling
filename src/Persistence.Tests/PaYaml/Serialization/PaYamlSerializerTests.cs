@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV2_2;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 namespace Persistence.Tests.PaYaml.Serialization;
@@ -12,10 +12,10 @@ public class PaYamlSerializerTests : VSTestBase
     #region Deserialize Examples
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/App.pa.yaml", 5, 5)]
-    public void DeserializeExamplePaYamlApp(string path, int expectedAppPropertiesCount, int? expectedHostPropertiesCount)
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/App.pa.yaml", 5)]
+    public void DeserializeExamplePaYamlApp(string path, int expectedAppPropertiesCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaFileRoot>(File.ReadAllText(path));
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -25,24 +25,16 @@ public class PaYamlSerializerTests : VSTestBase
 
         paFileRoot.App.Properties.Should().NotBeNull()
             .And.HaveCount(expectedAppPropertiesCount);
-        if (expectedHostPropertiesCount == null)
-        {
-            paFileRoot.App.Children?.Host.Should().BeNull();
-        }
-        else
-        {
-            paFileRoot.App.Children?.Host.Should().NotBeNull();
-            paFileRoot.App.Children?.Host?.Properties.Should().HaveCount(expectedHostPropertiesCount.Value);
-        }
+        paFileRoot.App.Should().NotDefineMember("Children", "App.Children is still under design review");
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/Screen1.pa.yaml", 2, 6, 16)]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/FormsScreen2.pa.yaml", 0, 1, 62)]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/ComponentsScreen4.pa.yaml", 0, 6, 6)]
-    public void DeserializeExamplePaYamlScreen(string path, int expectedScreenPropertiesCount, int expectedScreenChildrenCount, int expectedDescendantsCount)
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml", 2, 8, 14, 2, 3)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml", 0, 1, 62, 0, 0)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml", 0, 6, 6, 0, 0)]
+    public void DeserializeExamplePaYamlScreen(string path, int expectedScreenPropertiesCount, int expectedScreenChildrenCount, int expectedDescendantsCount, int expectedScreenGroupsCount, int expectedTotalGroupsCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaFileRoot>(File.ReadAllText(path));
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -55,14 +47,17 @@ public class PaYamlSerializerTests : VSTestBase
         var screen = paFileRoot.Screens.First().Value;
         screen.Properties.Should().HaveCount(expectedScreenPropertiesCount);
         screen.Children.Should().HaveCount(expectedScreenChildrenCount);
-        screen.GetDescendantsCount().Should().Be(expectedDescendantsCount);
+        screen.DescendantControlInstances().Should().HaveCount(expectedDescendantsCount);
+
+        screen.Groups.Should().HaveCount(expectedScreenGroupsCount);
+        screen.DescendantControlInstances().SelectMany(nc => nc.Value.Groups).Should().HaveCount(expectedTotalGroupsCount - expectedScreenGroupsCount);
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 6, 1)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 6, 1)]
     public void DeserializeExamplePaYamlComponentDefinition(string path, int expectedCustomPropertiesCount, int expectedPropertiesCount, int expectedChildrenCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaFileRoot>(File.ReadAllText(path));
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -81,8 +76,8 @@ public class PaYamlSerializerTests : VSTestBase
     [TestMethod]
     public void DeserializeExamplePaYamlSingleFileApp()
     {
-        var path = @"_TestData/SchemaV2_2/Examples/Single-File-App.pa.yaml";
-        var paFileRoot = PaYamlSerializer.Deserialize<PaFileRoot>(File.ReadAllText(path));
+        var path = @"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml";
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -104,16 +99,20 @@ public class PaYamlSerializerTests : VSTestBase
     #region RoundTrip from yaml
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/App.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/Screen1.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/FormsScreen2.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV2_2/Examples/Single-File-App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/AmbiguousComponentNames.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);
-        var paFileRoot = PaYamlSerializer.Deserialize<PaFileRoot>(originalYaml);
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(originalYaml);
         paFileRoot.ShouldNotBeNull();
 
         var roundTrippedYaml = PaYamlSerializer.Serialize(paFileRoot);
