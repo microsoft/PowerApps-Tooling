@@ -12,7 +12,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue>>
     where TValue : notnull
 {
-    public NamedObjectYamlConverter(PaSerializationContext serializationContext)
+    public NamedObjectYamlConverter(SerializationContext serializationContext)
         : base(serializationContext)
     {
     }

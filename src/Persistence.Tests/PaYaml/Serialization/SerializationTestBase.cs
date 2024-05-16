@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
@@ -15,7 +15,7 @@ public abstract class SerializationTestBase : VSTestBase
     {
         options ??= DefaultOptions;
 
-        using var serializationContext = new PaSerializationContext();
+        using var serializationContext = new SerializationContext();
         var builder = new SerializerBuilder();
         ConfigureYamlDotNetSerializer(builder, options, serializationContext);
         serializationContext.ValueSerializer = builder.BuildValueSerializer();
@@ -24,7 +24,7 @@ public abstract class SerializationTestBase : VSTestBase
         return serializer.Serialize(testObject);
     }
 
-    protected virtual void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    protected virtual void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
     {
         DefaultOptions.TESTONLY_ApplySerializerFormatting(builder);
     }
@@ -34,7 +34,7 @@ public abstract class SerializationTestBase : VSTestBase
     {
         options ??= DefaultOptions;
 
-        using var serializationContext = new PaSerializationContext();
+        using var serializationContext = new SerializationContext();
         var builder = new DeserializerBuilder();
         ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
         serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
@@ -45,7 +45,7 @@ public abstract class SerializationTestBase : VSTestBase
         return value;
     }
 
-    protected virtual void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    protected virtual void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
     {
         // This should usually sync up with the default configuration in PaYamlSerializerOptions.ApplyToDeserializerBuilder but without type converters
         builder

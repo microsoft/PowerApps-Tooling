@@ -20,7 +20,7 @@ public record PaYamlSerializerOptions
 
     public Action<SerializerBuilder>? AdditionalSerializerConfiguration { get; init; }
 
-    internal void ApplyToDeserializerBuilder(DeserializerBuilder builder, PaSerializationContext serializationContext)
+    internal void ApplyToDeserializerBuilder(DeserializerBuilder builder, SerializationContext serializationContext)
     {
         builder
             .WithDuplicateKeyChecking()
@@ -29,7 +29,7 @@ public record PaYamlSerializerOptions
         AdditionalDeserializerConfiguration?.Invoke(builder);
     }
 
-    internal void ApplyToSerializerBuilder(SerializerBuilder builder, PaSerializationContext serializationContext)
+    internal void ApplyToSerializerBuilder(SerializerBuilder builder, SerializationContext serializationContext)
     {
         ApplySerializerFormatting(builder);
         AddTypeConverters(builder, serializationContext);
@@ -49,7 +49,7 @@ public record PaYamlSerializerOptions
             ;
     }
 
-    private void AddTypeConverters<TBuilder>(BuilderSkeleton<TBuilder> builder, PaSerializationContext serializationContext)
+    private void AddTypeConverters<TBuilder>(BuilderSkeleton<TBuilder> builder, SerializationContext serializationContext)
         where TBuilder : BuilderSkeleton<TBuilder>
     {
         builder.WithTypeConverter(new PFxExpressionYamlConverter(PFxExpressionYamlFormatting));

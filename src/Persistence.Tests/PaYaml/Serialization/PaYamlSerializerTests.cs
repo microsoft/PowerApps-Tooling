@@ -15,7 +15,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/App.pa.yaml", 5)]
     public void DeserializeExamplePaYamlApp(string path, int expectedAppPropertiesCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
+        var paFileRoot = YamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -34,7 +34,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml", 0, 6, 6, 0, 0)]
     public void DeserializeExamplePaYamlScreen(string path, int expectedScreenPropertiesCount, int expectedScreenChildrenCount, int expectedDescendantsCount, int expectedScreenGroupsCount, int expectedTotalGroupsCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
+        var paFileRoot = YamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -57,7 +57,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 6, 1)]
     public void DeserializeExamplePaYamlComponentDefinition(string path, int expectedCustomPropertiesCount, int expectedPropertiesCount, int expectedChildrenCount)
     {
-        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
+        var paFileRoot = YamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -77,7 +77,7 @@ public class PaYamlSerializerTests : VSTestBase
     public void DeserializeExamplePaYamlSingleFileApp()
     {
         var path = @"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml";
-        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
+        var paFileRoot = YamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
         paFileRoot.ShouldNotBeNull();
 
         // Top level properties
@@ -112,10 +112,10 @@ public class PaYamlSerializerTests : VSTestBase
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);
-        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(originalYaml);
+        var paFileRoot = YamlSerializer.Deserialize<PaModule>(originalYaml);
         paFileRoot.ShouldNotBeNull();
 
-        var roundTrippedYaml = PaYamlSerializer.Serialize(paFileRoot);
+        var roundTrippedYaml = YamlSerializer.Serialize(paFileRoot);
         TestContext.WriteTextWithLineNumbers(roundTrippedYaml, "roundTrippedYaml:");
         roundTrippedYaml.Should().BeYamlEquivalentTo(originalYaml);
     }

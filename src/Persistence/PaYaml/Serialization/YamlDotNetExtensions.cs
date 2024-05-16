@@ -9,7 +9,7 @@ using YamlDotNet.Serialization.Schemas;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-internal static class PaYamlDotNetExtensions
+internal static class YamlDotNetExtensions
 {
     private static readonly NullNodeDeserializer _nullNodeDeserializer = new();
     private static readonly Type _typeofObject = typeof(object);
@@ -32,13 +32,13 @@ internal static class PaYamlDotNetExtensions
         emitter.Emit(_nullImplicitPlainScalar);
     }
 
-    public static PaYamlLocation? ToYamlLocation(this Mark mark)
+    public static YamlLocation? ToYamlLocation(this Mark mark)
     {
         if (mark.Equals(Mark.Empty))
         {
             return null;
         }
 
-        return new PaYamlLocation(mark.Line, mark.Column);
+        return new YamlLocation(mark.Line, mark.Column);
     }
 }
