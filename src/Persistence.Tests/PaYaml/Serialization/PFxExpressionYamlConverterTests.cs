@@ -23,13 +23,13 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
         };
     }
 
-    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
     {
         base.ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
         builder.WithTypeConverter(new PFxExpressionYamlConverter(options.PFxExpressionYamlFormatting));
     }
 
-    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, PaSerializationContext serializationContext)
+    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
     {
         base.ConfigureYamlDotNetSerializer(builder, options, serializationContext);
         builder.WithTypeConverter(new PFxExpressionYamlConverter(options.PFxExpressionYamlFormatting));

@@ -10,18 +10,18 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 public abstract class YamlConverter<T> : IYamlTypeConverter
 {
     protected YamlConverter()
-        : this(new PaSerializationContext())
+        : this(new SerializationContext())
     {
     }
 
-    protected YamlConverter(PaSerializationContext serializationContext)
+    protected YamlConverter(SerializationContext serializationContext)
     {
         SerializationContext = serializationContext ?? throw new ArgumentNullException(nameof(serializationContext));
     }
 
     public Type Type { get; } = typeof(T);
 
-    public PaSerializationContext SerializationContext { get; }
+    public SerializationContext SerializationContext { get; }
 
     /// <summary>
     /// The default implementation returns true when <paramref name="type"/> equals typeof(<typeparamref name="T"/>).

@@ -20,5 +20,5 @@ public record NamedObject<TName, TValue>(TName Name, TValue Value) : INamedObjec
     where TName : notnull
     where TValue : notnull
 {
-    public PaYamlLocation? Start { get; init; }
+    public YamlLocation? Start { get; init; }
 }

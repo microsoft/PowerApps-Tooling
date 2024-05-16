@@ -5,9 +5,9 @@ using YamlDotNet.Core;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
-public record PaYamlLocation(int Line, int Column)
+public record YamlLocation(int Line, int Column)
 {
-    internal static PaYamlLocation? FromMark(Mark mark)
+    internal static YamlLocation? FromMark(Mark mark)
     {
         if (mark.Equals(Mark.Empty))
         {

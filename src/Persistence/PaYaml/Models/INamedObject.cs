@@ -9,5 +9,5 @@ public interface INamedObject<TName, TValue>
 {
     TName Name { get; }
     TValue Value { get; }
-    PaYamlLocation? Start { get; }
+    YamlLocation? Start { get; }
 }

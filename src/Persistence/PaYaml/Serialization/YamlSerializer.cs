@@ -8,7 +8,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-public static class PaYamlSerializer
+public static class YamlSerializer
 {
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
@@ -48,7 +48,7 @@ public static class PaYamlSerializer
         var targetType = typeof(TValue);
 
         // Configure the YamlDotNet serializer
-        using var serializationContext = new PaSerializationContext();
+        using var serializationContext = new SerializationContext();
         var builder = new SerializerBuilder();
         options.ApplyToSerializerBuilder(builder, serializationContext);
         serializationContext.ValueSerializer = builder.BuildValueSerializer();
@@ -100,7 +100,7 @@ public static class PaYamlSerializer
         options ??= PaYamlSerializerOptions.Default;
 
         // Configure the YamlDotNet serializer
-        using var serializationContext = new PaSerializationContext();
+        using var serializationContext = new SerializationContext();
         var builder = new DeserializerBuilder();
         options.ApplyToDeserializerBuilder(builder, serializationContext);
         serializationContext.ValueDeserializer = builder.BuildValueDeserializer();

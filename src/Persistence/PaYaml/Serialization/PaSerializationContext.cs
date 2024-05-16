@@ -7,7 +7,7 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-public class PaSerializationContext : IDisposable
+public class SerializationContext : IDisposable
 {
     private readonly SerializerState _serializerState = new();
     private bool _isDisposed;
