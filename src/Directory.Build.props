@@ -7,11 +7,12 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
-        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
+    <PropertyGroup>
+        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>        
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     </PropertyGroup>

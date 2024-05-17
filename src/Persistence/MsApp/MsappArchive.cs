@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -25,6 +26,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         public const string Controls = "Controls";
         public const string Components = "Components";
         public const string AppTests = "AppTests";
+        public const string Assets = "Assets";
+        public const string Images = "Images";
         public const string References = "References";
         public const string Resources = "Resources";
     }
@@ -39,6 +42,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     public const string TemplatesFileName = $"{Directories.References}/Templates.json";
     public const string ThemesFileName = $"{Directories.References}/Themes.json";
     public const string DataSourcesFileName = $"{Directories.References}/DataSources.json";
+    public const string ResourcesFileName = $"{Directories.References}/Resources.json";
 
     #endregion
 
@@ -51,6 +55,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     private AppTemplates? _appTemplates;
     private AppThemes? _appThemes;
     private DataSources? _dataSources;
+    private Resources? _resources;
 
     private bool _isDisposed;
     private readonly ILogger<MsappArchive>? _logger;
@@ -139,7 +144,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             foreach (var entry in ZipArchive.Entries)
             {
                 if (!canonicalEntries.TryAdd(NormalizePath(entry.FullName), entry))
-                    _logger?.LogInformation("Duplicate entry found in archive: {EntryFullName}", entry.FullName);
+                    _logger?.DuplicateEntry(entry.FullName);
             }
             return canonicalEntries;
         });
@@ -248,11 +253,56 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         set => _dataSources = value;
     }
 
+    public Resources? Resources
+    {
+        get
+        {
+            _resources ??= LoadResources();
+
+            return _resources;
+        }
+
+        set => _resources = value;
+    }
+
+
     public bool AddGitIgnore { get; init; } = true;
 
     #endregion
 
     #region Methods
+
+    /// <inheritdoc/>
+    public string AddImage(string fileName, Stream imageStream)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+            throw new ArgumentNullException(nameof(fileName));
+        ArgumentNullException.ThrowIfNull(imageStream);
+
+        var imagePath = Path.Combine(Directories.Assets, Directories.Images, Path.GetFileName(fileName));
+        if (TryGetEntry(imagePath, out _))
+            throw new InvalidOperationException($"Image {fileName} already exists in the archive.");
+
+        var imageEntry = CreateEntry(imagePath);
+        using (var entryStream = imageEntry.Open())
+        {
+            imageStream.CopyTo(entryStream);
+        }
+
+        // Register the image as a resource
+        var resourceName = Path.GetFileNameWithoutExtension(fileName);
+        _resources ??= new Resources();
+        _resources.Items.Add(new Resource
+        {
+            Name = resourceName,
+            Schema = "i",
+            FileName = fileName,
+            Path = imagePath,
+            Content = "Image",
+        });
+
+        return resourceName;
+    }
 
     /// <summary>
     /// Deserializes the entry with the given name into an object of type T.
@@ -340,6 +390,21 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return null;
     }
 
+    /// <inheritdoc/>
+    public bool TryGetEntry(string entryName, [MaybeNullWhen(false)] out ZipArchiveEntry zipArchiveEntry)
+    {
+        zipArchiveEntry = null;
+
+        if (string.IsNullOrWhiteSpace(entryName))
+            return false;
+
+        entryName = NormalizePath(entryName);
+        if (CanonicalEntries.TryGetValue(entryName, out zipArchiveEntry))
+            return true;
+
+        return false;
+    }
+
     /// <summary>
     /// Returns the entry in the archive with the given name or throws if it does not exist.
     /// </summary>
@@ -417,6 +482,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         SaveTemplates();
         SaveThemes();
         SaveDataSources();
+        SaveResources();
 
         var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
         using (var appWriter = new StreamWriter(appEntry.Open()))
@@ -461,7 +527,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private List<Screen> LoadScreens()
     {
-        _logger?.LogInformation("Loading top level screens from Yaml.");
+        _logger?.InfoMessage("Loading top level screens from Yaml.");
 
         var screens = new Dictionary<string, Screen>();
         foreach (var yamlEntry in GetDirectoryEntries(Directories.Src, YamlFileExtension, recursive: false))
@@ -474,7 +540,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             screens.Add(screen.Name, screen);
         }
 
-        _logger?.LogInformation("Loading top level controls editor state.");
+        _logger?.InfoMessage("Loading top level controls editor state.");
         var controlEditorStates = new Dictionary<string, ControlEditorState>();
         foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
         {
@@ -551,6 +617,16 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return dataSources;
     }
 
+    private Resources? LoadResources()
+    {
+        var entry = GetEntry(ResourcesFileName);
+        if (entry == null)
+            return null;
+
+        var resources = DeserializeMsappJsonFile<Resources>(entry);
+        return resources;
+    }
+
     private void SaveProperties()
     {
         var entry = CreateEntry(PropertiesFileName);
@@ -584,6 +660,17 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         using var entryStream = entry.Open();
         using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
         JsonSerializer.Serialize(writer, _dataSources, JsonSerializerOptions);
+    }
+
+    private void SaveResources()
+    {
+        if (_resources == null || _resources.Items == null || _resources.Items.Count == 0)
+            return;
+
+        var entry = CreateEntry(ResourcesFileName);
+        using var entryStream = entry.Open();
+        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
+        JsonSerializer.Serialize(writer, _resources, JsonSerializerOptions);
     }
 
     private void SaveEditorState(Control control)

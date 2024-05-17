@@ -120,7 +120,7 @@ dotnet_code_quality_unused_parameters = all:suggestion
 [*.cs]
 csharp_indent_labels = one_less_than_current
 csharp_using_directive_placement = outside_namespace:error
-csharp_prefer_simple_using_statement = true:suggestion
+csharp_prefer_simple_using_statement = true:error
 csharp_prefer_braces = true:silent
 csharp_style_namespace_declarations = file_scoped:error
 csharp_style_prefer_method_group_conversion = true:silent
@@ -188,7 +188,7 @@ dotnet_analyzer_diagnostic.category-Naming.severity           = warning
 dotnet_analyzer_diagnostic.category-Performance.severity      = warning
 dotnet_analyzer_diagnostic.category-Reliability.severity      = warning
 dotnet_analyzer_diagnostic.category-Security.severity         = error
-dotnet_analyzer_diagnostic.category-Style.severity            = warning
+dotnet_analyzer_diagnostic.category-Style.severity            = error
 dotnet_analyzer_diagnostic.category-Usage.severity            = warning
 
 # *********************************
@@ -198,9 +198,9 @@ dotnet_analyzer_diagnostic.category-Usage.severity            = warning
 # These all have the 'IDE' prefix
 [*.{cs,vb}]
 
-dotnet_diagnostic.IDE0003.severity = warning    # this and Me preferences
-dotnet_diagnostic.IDE0007.severity = warning    # Use 'var' instead of explicit type
-dotnet_diagnostic.IDE0005.severity = warning    # Remove unnecessary using directives
+dotnet_diagnostic.IDE0003.severity = error      # this and Me preferences
+dotnet_diagnostic.IDE0007.severity = error      # Use 'var' instead of explicit type
+dotnet_diagnostic.IDE0005.severity = error      # Remove unnecessary using directives
 dotnet_diagnostic.IDE0010.severity = none       # Add missing cases to switch statement
 dotnet_diagnostic.IDE0011.severity = none       # Add braces
 dotnet_diagnostic.IDE0028.severity = none       # Use collection initializers or expressions
@@ -219,11 +219,11 @@ dotnet_diagnostic.IDE0063.severity = none       # Use simple 'using' statement
 dotnet_diagnostic.IDE0066.severity = none       # Use switch expression
 dotnet_diagnostic.IDE0064.severity = warning    # Make struct fields writable
 dotnet_diagnostic.IDE0070.severity = none       # Use 'System.HashCode.Combine'
-dotnet_diagnostic.IDE0073.severity = warning    # Require file header
+dotnet_diagnostic.IDE0073.severity = error      # Require file header
 dotnet_diagnostic.IDE0078.severity = none       # Use pattern matching
 dotnet_diagnostic.IDE0090.severity = warning    # expression can be simplified
 dotnet_diagnostic.IDE0130.severity = none       # Namespace does not match folder structure
-dotnet_diagnostic.IDE0161.severity = warning    # Namespace declaration preferences
+dotnet_diagnostic.IDE0161.severity = error      # Namespace declaration preferences
 dotnet_diagnostic.IDE0210.severity = none       # Convert to top-level statements
 dotnet_diagnostic.IDE1006.severity = none       # These words must begin with upper case characters
 

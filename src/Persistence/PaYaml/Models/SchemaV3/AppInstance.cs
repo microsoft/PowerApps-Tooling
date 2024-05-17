@@ -3,7 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public record AppInstance
 {

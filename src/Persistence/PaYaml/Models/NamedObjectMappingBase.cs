@@ -3,10 +3,10 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 

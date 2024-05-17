@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
@@ -23,6 +24,8 @@ public interface IMsappArchive : IDisposable
     AppProperties? Properties { get; set; }
 
     DataSources? DataSources { get; set; }
+
+    Resources? Resources { get; set; }
 
     T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control;
 
@@ -47,6 +50,12 @@ public interface IMsappArchive : IDisposable
     long CompressedSize { get; }
 
     /// <summary>
+    /// Adds an image to the archive and registers it as a resource.
+    /// </summary>
+    /// <returns>the name of the resource</returns>
+    string AddImage(string fileName, Stream imageStream);
+
+    /// <summary>
     /// Creates a new entry in the archive with the given name.
     /// </summary>
     /// <param name="entryName"></param>
@@ -61,6 +70,14 @@ public interface IMsappArchive : IDisposable
     /// <param name="entryName"></param>
     /// <returns>the entry or null when not found.</returns>
     ZipArchiveEntry? GetEntry(string entryName);
+
+    /// <summary>
+    /// Returns the entry in the archive with the given name or null when not found.
+    /// </summary>
+    /// <param name="entryName"></param>
+    /// <param name="zipArchiveEntry"></param>
+    /// <returns></returns>
+    bool TryGetEntry(string entryName, [MaybeNullWhen(false)] out ZipArchiveEntry zipArchiveEntry);
 
     /// <summary>
     /// Returns the entry in the archive with the given name.

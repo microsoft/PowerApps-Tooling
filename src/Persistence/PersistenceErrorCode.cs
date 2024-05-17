@@ -52,33 +52,22 @@ public static class PersistenceErrorCodeExtensions
 
         // note: Please make sure the message returned is a complete sentence that ends with a period.
         // The 'PersistenceException.Reason' will get appended to it as additional information.
-        switch (errorCode)
+        return errorCode switch
         {
-            case PersistenceErrorCode.SystemError:
-                return "An error occurred in the persistence library.";
-            case PersistenceErrorCode.SerializationError:
-                return "An error occurred during serialization.";
-            case PersistenceErrorCode.InvalidObjectGraph:
-                return "An invalid object graph was detected.";
-            case PersistenceErrorCode.DeserializationError:
-                return "An error occurred during deserialization.";
-            case PersistenceErrorCode.YamlInvalidSyntax:
-                return "Invalid YAML syntax was encountered during deserialization.";
-            case PersistenceErrorCode.YamlInvalidSchema:
-                return "The YAML does not comply with the supported schema.";
-            case PersistenceErrorCode.EditorStateJsonEmptyOrNull:
-                return "An editor state json file was empty or had a null value.";
-            case PersistenceErrorCode.InvalidEditorStateJson:
-                return "An editor state json file could not be deserialized due to being invalid.";
-            case PersistenceErrorCode.ControlInstanceInvalid:
-                return "A control instance object in YAML has an invalid state.";
-            case PersistenceErrorCode.RoundTripValidationFailed:
-                return "Round trip yaml validation failed.";
-            case PersistenceErrorCode.MsappArchiveError:
-                return "An error was detected in an msapp file.";
-            default:
-                return "An exception occurred in the persistence library.";
-        }
+            PersistenceErrorCode.SystemError => "An error occurred in the persistence library.",
+            PersistenceErrorCode.SerializationError => "An error occurred during serialization.",
+            PersistenceErrorCode.InvalidObjectGraph => "An invalid object graph was detected.",
+            PersistenceErrorCode.DeserializationError => "An error occurred during deserialization.",
+            PersistenceErrorCode.YamlInvalidSyntax => "Invalid YAML syntax was encountered during deserialization.",
+            PersistenceErrorCode.YamlInvalidSchema => "The YAML does not comply with the supported schema.",
+            PersistenceErrorCode.EditorStateJsonEmptyOrNull => "An editor state json file was empty or had a null value.",
+            PersistenceErrorCode.InvalidEditorStateJson => "An editor state json file could not be deserialized due to being invalid.",
+            PersistenceErrorCode.ControlInstanceInvalid => "A control instance object in YAML has an invalid state.",
+            PersistenceErrorCode.RoundTripValidationFailed => "Round trip yaml validation failed.",
+            PersistenceErrorCode.MsappArchiveError => "An error was detected in an msapp file.",
+            PersistenceErrorCode._LastErrorExclusive => throw new InvalidOperationException("The error code is out of range."),
+            _ => "An exception occurred in the persistence library.",
+        };
     }
 
     /// <summary>
@@ -93,10 +82,6 @@ public static class PersistenceErrorCodeExtensions
         else if (errorCode < PersistenceErrorCode.SerializationError)
         {
             return PersistenceErrorCode.SystemError;
-        }
-        else if (errorCode < PersistenceErrorCode.DeserializationError)
-        {
-            return PersistenceErrorCode.SerializationError;
         }
         else if (errorCode < PersistenceErrorCode.DeserializationError)
         {

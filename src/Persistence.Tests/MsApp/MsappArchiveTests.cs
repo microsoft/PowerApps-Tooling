@@ -75,6 +75,7 @@ public class MsappArchiveTests : TestBase
         // Get the required entry should throw if it doesn't exist
         msappArchive.Invoking(a => a.GetRequiredEntry("not-exist")).Should().Throw<PersistenceLibraryException>()
             .WithErrorCode(PersistenceErrorCode.MsappArchiveError);
+        msappArchive.TryGetEntry("not-exist", out var _).Should().BeFalse();
     }
 
     private static IEnumerable<object[]> AddEntryTestsData()

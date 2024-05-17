@@ -1,6 +1,0 @@
-[*.cs]
-
-# Rule overrides:
-
-# CA1848: Use the LoggerMessage delegates
-dotnet_diagnostic.CA1848.severity = silent # Not implementing LoggerMessage pattern yet
