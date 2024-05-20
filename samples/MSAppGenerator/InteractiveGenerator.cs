@@ -9,15 +9,8 @@ namespace MSAppGenerator;
 /// <summary>
 /// Generates an MSApp using input from interactive commandline session
 /// </summary>
-public class InteractiveGenerator : IAppGenerator
+public class InteractiveGenerator(IControlFactory ControlFactory) : IAppGenerator
 {
-    private readonly IControlFactory _controlFactory;
-
-    public InteractiveGenerator(IControlFactory controlFactory)
-    {
-        _controlFactory = controlFactory;
-    }
-
     /// <summary>
     /// Simple function to shorthand the 'console write, console read' paradigm
     /// </summary>
@@ -37,7 +30,7 @@ public class InteractiveGenerator : IAppGenerator
     /// </summary>
     public App GenerateApp(int numScreens, IList<string>? controls)
     {
-        var app = _controlFactory.CreateApp();
+        var app = ControlFactory.CreateApp();
 
         string input;
         var continueApp = true;
@@ -59,14 +52,14 @@ public class InteractiveGenerator : IAppGenerator
                         var controltemplate = Prompt("    Input control template: ");
                         //input = Prompt("Specify properties? (y/n): ");
 
-                        childlist.Add(_controlFactory.Create(controlname, template: controltemplate,
+                        childlist.Add(ControlFactory.Create(controlname, template: controltemplate,
                             properties: new()
                         ));
                     }
                     else if (input?.ToLowerInvariant()[0] == 'n')
                     {
                         continueScreen = false;
-                        app.Screens.Add(_controlFactory.CreateScreen(screenname, children: childlist.ToArray()));
+                        app.Screens.Add(ControlFactory.CreateScreen(screenname, children: childlist.ToArray()));
                     }
                 }
             }

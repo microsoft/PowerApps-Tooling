@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3_0;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 namespace Persistence.Tests.PaYaml.Models;
 
