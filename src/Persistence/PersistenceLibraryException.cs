@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Text;
 using YamlDotNet.Core;
 
@@ -30,20 +29,6 @@ public class PersistenceLibraryException : Exception
         : base(reason ?? string.Empty, innerException) // Convert reason to non-null so base.Message doesn't get set to the default ex message.
     {
         ErrorCode = errorCode.CheckArgumentInRange();
-    }
-
-    protected PersistenceLibraryException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
-        ErrorCode = ((PersistenceErrorCode)info.GetInt32(nameof(ErrorCode))).CheckArgumentInRange();
-        MsappEntryFullPath = info.GetString(nameof(MsappEntryFullPath));
-        JsonPath = info.GetString(nameof(JsonPath));
-
-        // Normalize null numbers to make serialization easier. -1 isn't valid values for LineNumber or Column.
-        var lineNumber = info.GetInt64(nameof(LineNumber));
-        LineNumber = lineNumber < 0 ? null : lineNumber;
-        var column = info.GetInt64(nameof(Column));
-        Column = column < 0 ? null : column;
     }
 
     public override string Message => ComposeMessage();
@@ -101,17 +86,6 @@ public class PersistenceLibraryException : Exception
         }
 
         return sb.ToString();
-    }
-
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        info.AddValue(nameof(ErrorCode), ErrorCode);
-        info.AddValue(nameof(MsappEntryFullPath), MsappEntryFullPath);
-        info.AddValue(nameof(JsonPath), JsonPath);
-        info.AddValue(nameof(LineNumber), LineNumber ?? -1);
-        info.AddValue(nameof(Column), Column ?? -1);
-
-        base.GetObjectData(info, context);
     }
 
     internal static PersistenceLibraryException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)

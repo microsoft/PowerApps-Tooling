@@ -52,20 +52,6 @@ public class PersistenceLibraryExceptionTests
             .WithMessage("[5000:MsappArchiveError] An error was detected in an msapp file. A test reason2. Line: 5; Column: 3; MsappEntry: src/entry1.txt; JsonPath: some.json.path[0].value;");
     }
 
-    [TestMethod]
-    public void IsSerializableTests()
-    {
-        new PersistenceLibraryException(PersistenceErrorCode.DeserializationError).Should().BeBinarySerializable();
-        new PersistenceLibraryException(PersistenceErrorCode.SerializationError, "A test reason.").Should().BeBinarySerializable();
-        new PersistenceLibraryException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
-        {
-            MsappEntryFullPath = "src/entry1.txt",
-            LineNumber = 5,
-            Column = 3,
-            JsonPath = "some.json.path[0].value",
-        }.Should().BeBinarySerializable();
-    }
-
     /// <summary>
     /// Throws the specified exception and then asserts it was thrown,
     /// returning the <see cref="ExceptionAssertions{TException}"/> allowing caller to

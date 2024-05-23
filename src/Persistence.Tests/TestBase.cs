@@ -33,7 +33,7 @@ public abstract class TestBase : VSTestBase
         ControlFactory = ServiceProvider.GetRequiredService<IControlFactory>();
     }
 
-    private static IServiceProvider BuildServiceProvider()
+    private static ServiceProvider BuildServiceProvider()
     {
         var serviceCollection = new ServiceCollection();
         var serviceProvider = ConfigureServices(serviceCollection);
@@ -41,7 +41,7 @@ public abstract class TestBase : VSTestBase
         return serviceProvider;
     }
 
-    private static IServiceProvider ConfigureServices(IServiceCollection services)
+    private static ServiceProvider ConfigureServices(IServiceCollection services)
     {
         services.AddPowerAppsPersistence(useDefaultTemplates: true);
 
