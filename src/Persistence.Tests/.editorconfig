@@ -1,3 +1,4 @@
 ﻿[*.cs]
 
-# Rule overrides:
+dotnet_diagnostic.CA1861.severity = silent # Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array
+dotnet_diagnostic.CA1859.severity = silent # Change return type of method

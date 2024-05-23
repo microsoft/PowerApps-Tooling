@@ -225,6 +225,10 @@ dotnet_diagnostic.IDE0090.severity = warning    # expression can be simplified
 dotnet_diagnostic.IDE0130.severity = none       # Namespace does not match folder structure
 dotnet_diagnostic.IDE0161.severity = error      # Namespace declaration preferences
 dotnet_diagnostic.IDE0210.severity = none       # Convert to top-level statements
+dotnet_diagnostic.IDE0290.severity = suggestion # Use primary constructor
+dotnet_diagnostic.IDE0300.severity = suggestion # Collection initialization can be simplified
+dotnet_diagnostic.IDE0301.severity = suggestion # Collection initialization can be simplified
+dotnet_diagnostic.IDE0305.severity = suggestion # Collection initialization can be simplified
 dotnet_diagnostic.IDE1006.severity = none       # These words must begin with upper case characters
 
 

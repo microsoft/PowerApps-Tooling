@@ -13,7 +13,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 internal sealed class FirstClassControlsEmitter : ChainedEventEmitter
 {
     private readonly IControlTemplateStore _controlTemplateStore;
-    private readonly IReadOnlySet<string> _shortNameTypes = new HashSet<string> { "App", "Host", "Screen" };
+    private readonly HashSet<string> _shortNameTypes = new() { "App", "Host", "Screen" };
 
     public FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
        : base(nextEmitter)

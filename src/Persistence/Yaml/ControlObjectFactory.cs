@@ -11,7 +11,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 public class ControlObjectFactory : IObjectFactory
 {
-    private readonly IObjectFactory _defaultObjectFactory;
+    private readonly DefaultObjectFactory _defaultObjectFactory;
     private readonly IControlTemplateStore _controlTemplateStore;
     private readonly IControlFactory _controlFactory;
 
