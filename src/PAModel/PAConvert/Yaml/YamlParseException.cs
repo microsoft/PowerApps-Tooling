@@ -3,13 +3,8 @@
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
-public class YamlParseException : Exception
+public class YamlParseException(string message, int line = 0, Exception innerException = null)
+    : Exception(message, innerException)
 {
-    public YamlParseException(string message, int line = 0, Exception innerException = null)
-        : base(message, innerException)
-    {
-        Line = line;
-    }
-
-    public int Line { get; init; }
+    public int Line { get; init; } = line;
 }

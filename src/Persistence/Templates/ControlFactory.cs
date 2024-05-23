@@ -8,14 +8,9 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 
-public class ControlFactory : IControlFactory
+public class ControlFactory(IControlTemplateStore controlTemplateStore) : IControlFactory
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-
-    public ControlFactory(IControlTemplateStore controlTemplateStore)
-    {
-        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
-    }
+    private readonly IControlTemplateStore _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
 
     public Control Create(string name, string template,
         string? componentDefinitionName = null,

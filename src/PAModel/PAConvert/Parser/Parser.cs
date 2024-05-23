@@ -9,19 +9,12 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
-internal class Parser : IDisposable
+internal class Parser(string fileName, string contents, ErrorContainer errors) : IDisposable
 {
-    public readonly ErrorContainer _errorContainer;
+    public readonly ErrorContainer _errorContainer = errors;
 
-    private readonly YamlLexer _yaml;
+    private readonly YamlLexer _yaml = new(new StringReader(contents), fileName);
     private bool _isDisposed;
-
-    public Parser(string fileName, string contents, ErrorContainer errors)
-    {
-        _errorContainer = errors;
-
-        _yaml = new YamlLexer(new StringReader(contents), fileName);
-    }
 
     // Parse the control definition line. Something like:
     //   Screen1 as Screen
@@ -192,7 +185,7 @@ internal class Parser : IDisposable
                     return block;
 
                 case YamlTokenKind.Property:
-                    // Yaml parser only gives back a single span for property name and value. 
+                    // Yaml parser only gives back a single span for property name and value.
                     block.Properties.Add(new PropertyNode
                     {
                         SourceSpan = p.Span,
@@ -293,7 +286,7 @@ internal class Parser : IDisposable
                 case YamlTokenKind.EndObj:
                     return functionNode;
 
-                // Expecting N+1 child objs where one is ThisProperty and the others N are the args 
+                // Expecting N+1 child objs where one is ThisProperty and the others N are the args
                 case YamlTokenKind.StartObj:
                     functionNode.Metadata.Add(ParseArgMetadataBlock(p));
                     break;

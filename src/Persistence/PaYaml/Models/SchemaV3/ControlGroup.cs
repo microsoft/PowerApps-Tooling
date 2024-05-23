@@ -8,5 +8,5 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 /// </summary>
 public record ControlGroup
 {
-    public string[] ControlNames { get; init; } = Array.Empty<string>();
+    public string[] ControlNames { get; init; } = [];
 }

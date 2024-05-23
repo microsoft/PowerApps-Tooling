@@ -9,31 +9,23 @@ using YamlDotNet.Serialization.ObjectFactories;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-public class ControlObjectFactory : IObjectFactory
+public class ControlObjectFactory(IControlTemplateStore controlTemplateStore, IControlFactory controlFactory)
+    : IObjectFactory
 {
-    private readonly IObjectFactory _defaultObjectFactory;
-    private readonly IControlTemplateStore _controlTemplateStore;
-    private readonly IControlFactory _controlFactory;
-
-    public ControlObjectFactory(IControlTemplateStore controlTemplateStore, IControlFactory controlFactory)
-    {
-        _defaultObjectFactory = new DefaultObjectFactory();
-        _controlTemplateStore = controlTemplateStore;
-        _controlFactory = controlFactory;
-    }
+    private readonly DefaultObjectFactory _defaultObjectFactory = new();
 
     public object Create(Type type)
     {
-        if (_controlTemplateStore.TryGetByType(type, out var controlTemplate))
+        if (controlTemplateStore.TryGetByType(type, out var controlTemplate))
         {
             // all fields will be overwritten by the deserializer
-            return _controlFactory.Create(controlTemplate.Name, controlTemplate);
+            return controlFactory.Create(controlTemplate.Name, controlTemplate);
         }
 
         // Control is abstract, so we'll try to create a concrete custom control type.
         if (type == typeof(Control))
         {
-            return _controlFactory.Create(nameof(CustomControl), nameof(Control));
+            return controlFactory.Create(nameof(CustomControl), nameof(Control));
         }
 
         return _defaultObjectFactory.Create(type);
@@ -88,7 +80,7 @@ public class ControlObjectFactory : IObjectFactory
             if (!nestedTemplate.AddPropertiesToParent)
                 continue;
 
-            var nestedControl = _controlFactory.Create(Guid.NewGuid().ToString(), nestedTemplate);
+            var nestedControl = controlFactory.Create(Guid.NewGuid().ToString(), nestedTemplate);
             control.Children ??= new List<Control>();
             control.Children.Add(nestedControl);
 

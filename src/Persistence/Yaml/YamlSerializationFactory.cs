@@ -7,16 +7,11 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-public class YamlSerializationFactory : IYamlSerializationFactory
+public class YamlSerializationFactory(IControlTemplateStore controlTemplateStore, IControlFactory controlFactory)
+    : IYamlSerializationFactory
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-    private readonly IControlFactory _controlFactory;
-
-    public YamlSerializationFactory(IControlTemplateStore controlTemplateStore, IControlFactory controlFactory)
-    {
-        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
-        _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
-    }
+    private readonly IControlTemplateStore _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
+    private readonly IControlFactory _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
 
     public IYamlSerializer CreateSerializer(YamlSerializationOptions? options = null)
     {

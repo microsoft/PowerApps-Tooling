@@ -54,7 +54,8 @@ internal static class TransformResourceJson
                 localFileResourceJsonEntries.Add(GenerateResourceJsonEntryFromAssetFile(file.Key));
             }
         }
-        app._resourcesJson.Resources = app._resourcesJson.Resources.Concat(localFileResourceJsonEntries).ToArray();
+
+        app._resourcesJson.Resources = [.. app._resourcesJson.Resources.Concat(localFileResourceJsonEntries)];
 
         // Bring the order of resourceJson back to avoid checksum violation.
         if (app._entropy?.ResourcesJsonIndices != null && app._entropy.ResourcesJsonIndices.Count > 0)
@@ -70,7 +71,7 @@ internal static class TransformResourceJson
 
             // Handle the cases when some new files were added to the asset folder offline. The entries for the new assets would go at the end, after all the ordered resources have been added.
             orderedResourcesList.AddRange(app._resourcesJson.Resources.Where(x => !app._entropy.ResourcesJsonIndices.ContainsKey(Entropy.GetResourcesJsonIndicesKey(x))));
-            app._resourcesJson.Resources = orderedResourcesList.ToArray();
+            app._resourcesJson.Resources = [.. orderedResourcesList];
         }
     }
 

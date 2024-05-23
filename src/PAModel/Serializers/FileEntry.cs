@@ -10,7 +10,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
-// Raw kinds of files we recognize in the .msapp 
+// Raw kinds of files we recognize in the .msapp
 public enum FileKind
 {
     Unknown,
@@ -26,25 +26,25 @@ public enum FileKind
     DataComponentTemplates,
 
 
-    // If this file is present, it's an older format. 
+    // If this file is present, it's an older format.
     OldEntityJSon,
 
-    // Resources 
+    // Resources
     PublishInfo,
 
-    // References 
+    // References
     DataSources,
     Themes,
     Templates,
     Resources,
     Asset,
 
-    // Category so 
+    // Category so
     ControlSrc,
     ComponentSrc,
     TestSrc,
 
-    // Unique to source format. 
+    // Unique to source format.
     Entropy,
     CanvasManifest,
     Connections,
@@ -56,14 +56,14 @@ public enum FileKind
     // AppTest parent control source file
     AppTestParentControl,
 
-    // Schema.yaml describing app's parameters at top level. 
+    // Schema.yaml describing app's parameters at top level.
     Defines,
 
     // Custom page inputs for outbound custom page navigate calls.
     CustomPageInputs,
 }
 
-// Represent a file from disk or a Zip archive. 
+// Represent a file from disk or a Zip archive.
 [DebuggerDisplay("{Name}")]
 internal class FileEntry
 {
@@ -77,7 +77,7 @@ internal class FileEntry
     public FileEntry(FileEntry other)
     {
         Name = other.Name;
-        RawBytes = other.RawBytes.ToArray(); // ToArray clones byte arrays
+        RawBytes = [.. other.RawBytes]; // ToArray clones byte arrays
     }
 
     public const string CustomPagesMetadataFileName = "CustomPagesMetadata.json";
@@ -100,7 +100,7 @@ internal class FileEntry
         {
             name = z.FullName;
             // Some paths mistakenly start with DirectorySepChar in the msapp,
-            // We add _ to it when writing so that windows can handle it correctly. 
+            // We add _ to it when writing so that windows can handle it correctly.
             if (z.FullName.StartsWith(Path.DirectorySeparatorChar.ToString()))
                 name = FilenameLeadingUnderscore + z.FullName;
         }
@@ -113,7 +113,7 @@ internal class FileEntry
 
     public const char FilenameLeadingUnderscore = '_';
 
-    // Map from path in .msapp to type. 
+    // Map from path in .msapp to type.
     internal static Dictionary<string, FileKind> _fileKinds = new(StringComparer.OrdinalIgnoreCase)
     {
         {"Entities.json", FileKind.OldEntityJSon },
@@ -160,7 +160,7 @@ internal class FileEntry
             return kind;
         }
 
-        // Source? 
+        // Source?
         if (fullname.StartsWith(@"Controls", StringComparison.OrdinalIgnoreCase))
         {
             return FileKind.ControlSrc;
@@ -175,7 +175,7 @@ internal class FileEntry
             return FileKind.TestSrc;
         }
 
-        // Resource 
+        // Resource
         if (fullname.StartsWith(@"Assets", StringComparison.OrdinalIgnoreCase))
         {
             return FileKind.Asset;

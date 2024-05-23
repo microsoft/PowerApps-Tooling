@@ -10,16 +10,11 @@ using YamlDotNet.Serialization.EventEmitters;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal sealed class FirstClassControlsEmitter : ChainedEventEmitter
+internal sealed class FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
+    : ChainedEventEmitter(nextEmitter)
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-    private readonly IReadOnlySet<string> _shortNameTypes = new HashSet<string> { "App", "Host", "Screen" };
-
-    public FirstClassControlsEmitter(IEventEmitter nextEmitter, IControlTemplateStore controlTemplateStore)
-       : base(nextEmitter)
-    {
-        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
-    }
+    private readonly IControlTemplateStore _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
+    private readonly HashSet<string> _shortNameTypes = new() { "App", "Host", "Screen" };
 
     public override void Emit(MappingStartEventInfo eventInfo, IEmitter emitter)
     {

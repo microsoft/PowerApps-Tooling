@@ -32,15 +32,8 @@ public static class ListExtensions
 /// Wraps a generic Comparison delegate in an IComparer
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ComparisonComparer<T> : IComparer<T>, IComparer
+public class ComparisonComparer<T>(Comparison<T> comparison) : IComparer<T>, IComparer
 {
-    private readonly Comparison<T> _comparison;
-
-    public ComparisonComparer(Comparison<T> comparison)
-    {
-        _comparison = comparison;
-    }
-
     public int Compare(T? x, T? y)
     {
         if (x == null && y == null)
@@ -50,7 +43,7 @@ public class ComparisonComparer<T> : IComparer<T>, IComparer
         if (y == null)
             return 1;
 
-        return _comparison(x, y);
+        return comparison(x, y);
     }
 
     public int Compare(object? x, object? y)
@@ -62,6 +55,6 @@ public class ComparisonComparer<T> : IComparer<T>, IComparer
         if (y == null)
             return 1;
 
-        return _comparison((T)x, (T)y);
+        return comparison((T)x, (T)y);
     }
 }

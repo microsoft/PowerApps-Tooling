@@ -9,18 +9,13 @@ using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 [DebuggerDisplay("{ToPlatformPath()}")]
-public class FilePath
+public class FilePath(params string[] segments)
 {
     public const int MaxFileNameLength = 60;
     public const int MaxNameLength = 50;
     private const string yamlExtension = ".fx.yaml";
     private const string editorStateExtension = ".editorstate.json";
-    private readonly string[] _pathSegments;
-
-    public FilePath(params string[] segments)
-    {
-        _pathSegments = segments ?? (new string[] { });
-    }
+    private readonly string[] _pathSegments = segments ?? ([]);
 
     public static bool IsYamlFile(FilePath path)
     {
@@ -52,7 +47,7 @@ public class FilePath
         var path = string.Join("\\", _pathSegments);
 
         // Some paths mistakenly start with DirectorySepChar in the msapp,
-        // We replaced it with `_/` when writing, remove that now. 
+        // We replaced it with `_/` when writing, remove that now.
         if (path.StartsWith(FileEntry.FilenameLeadingUnderscore.ToString()))
         {
             path = path.TrimStart(FileEntry.FilenameLeadingUnderscore);
@@ -103,7 +98,7 @@ public class FilePath
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="relativeTo"/> or path is <c>null</c> or an empty string.</exception>
     /// <remarks>
     /// Want to use Path.GetRelativePath() from Net 2.1. But since we target netstandard 2.0, we need to shim it.
-    /// Convert to URIs and make the relative path. 
+    /// Convert to URIs and make the relative path.
     /// see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
     /// For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
     /// </remarks>
@@ -330,14 +325,13 @@ public class FilePath
     {
         var segments = new List<string>() { root };
         segments.AddRange(remainder._pathSegments);
-        return new FilePath(segments.ToArray());
+        return new FilePath([.. segments]);
     }
 
     public FilePath Append(string segment)
     {
-        var newSegments = new List<string>(_pathSegments);
-        newSegments.Add(segment);
-        return new FilePath(newSegments.ToArray());
+        var newSegments = new List<string>(_pathSegments) { segment };
+        return new FilePath([.. newSegments]);
     }
 
     public bool StartsWith(string root, StringComparison stringComparison)

@@ -9,14 +9,9 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-public class PFxExpressionYamlConverter : IYamlTypeConverter
+public class PFxExpressionYamlConverter(PFxExpressionYamlFormattingOptions formattingOptions) : IYamlTypeConverter
 {
-    private readonly PFxExpressionYamlFormattingOptions _formattingOptions;
-
-    public PFxExpressionYamlConverter(PFxExpressionYamlFormattingOptions formattingOptions)
-    {
-        _formattingOptions = formattingOptions ?? throw new ArgumentNullException(nameof(formattingOptions));
-    }
+    private readonly PFxExpressionYamlFormattingOptions _formattingOptions = formattingOptions ?? throw new ArgumentNullException(nameof(formattingOptions));
 
     public bool Accepts(Type type)
     {

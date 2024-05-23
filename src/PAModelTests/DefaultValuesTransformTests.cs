@@ -79,7 +79,7 @@ public class DefaultValuesTransformTests
     private static Theme getTheme()
     {
         var CustomTheme = new CustomThemeJson() { name = "SomeCustomTheme" };
-        var themeJson = new ThemesJson() { CurrentTheme = "SomeTheme", CustomThemes = new[] { CustomTheme } };
+        var themeJson = new ThemesJson() { CurrentTheme = "SomeTheme", CustomThemes = [CustomTheme] };
 
         return new Theme(themeJson);
     }

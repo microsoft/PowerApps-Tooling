@@ -7,18 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 [DebuggerDisplay("Count = {Count}")]
-public abstract class NamedItemsCollection<TValue> :
+public abstract class NamedItemsCollection<TValue>(Func<TValue, string> keySelector) :
     IDictionary<string, TValue>,
-    IDictionary where
+    IDictionary
+    where
     TValue : notnull
 {
     private readonly Dictionary<string, TValue> _items = new();
-    private readonly Func<TValue, string> _keySelector;
-
-    protected NamedItemsCollection(Func<TValue, string> keySelector)
-    {
-        _keySelector = keySelector ?? throw new ArgumentNullException(nameof(keySelector));
-    }
+    private readonly Func<TValue, string> _keySelector = keySelector ?? throw new ArgumentNullException(nameof(keySelector));
 
     protected NamedItemsCollection(IEnumerable<TValue> values, Func<TValue, string> keySelector) : this(keySelector)
     {

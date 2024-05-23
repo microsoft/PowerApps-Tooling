@@ -6,14 +6,9 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-public class EmptyPropertyDescriptor : IPropertyDescriptor
+public class EmptyPropertyDescriptor(string name) : IPropertyDescriptor
 {
-    public EmptyPropertyDescriptor(string name)
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
+    public string Name { get; } = name;
 
     public Type Type => typeof(object);
 

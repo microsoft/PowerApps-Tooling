@@ -11,51 +11,38 @@ using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 /// <summary>
-/// Abstraction over file system. 
+/// Abstraction over file system.
 /// Helps organize full path, relative paths
 /// </summary>
-internal class DirectoryReader
+internal class DirectoryReader(string directory)
 {
-    private readonly string _directory;
-
-    public DirectoryReader(string directory)
+    // A file that can be read.
+    public class Entry(string fullPath)
     {
-        _directory = directory;
-    }
-
-    // A file that can be read. 
-    public class Entry
-    {
-        private readonly string _fullpath;
         public FileKind Kind;
         internal string _relativeName;
 
-        public Entry(string fullPath)
-        {
-            _fullpath = fullPath;
-        }
+        public SourceLocation SourceSpan => SourceLocation.FromFile(fullPath);
 
-        public SourceLocation SourceSpan => SourceLocation.FromFile(_fullpath);
-
-        // FileEntry is the same structure we get back from a Zip file. 
+        // FileEntry is the same structure we get back from a Zip file.
         public FileEntry ToFileEntry()
         {
             // Some paths mistakenly start with DirectorySepChar in the msapp,
-            // We replaced it with `_/` when writing, remove that now. 
+            // We replaced it with `_/` when writing, remove that now.
             if (_relativeName.StartsWith(FileEntry.FilenameLeadingUnderscore.ToString()))
                 _relativeName = _relativeName.TrimStart(FileEntry.FilenameLeadingUnderscore);
             return new FileEntry
             {
                 Name = FilePath.FromPlatformPath(_relativeName),
-                RawBytes = File.ReadAllBytes(_fullpath)
+                RawBytes = File.ReadAllBytes(fullPath)
             };
         }
 
         public T ToObject<T>()
         {
-            if (FilePath.IsYamlFile(_fullpath))
+            if (FilePath.IsYamlFile(fullPath))
             {
-                using (var textReader = new StreamReader(_fullpath))
+                using (var textReader = new StreamReader(fullPath))
                 {
                     var obj = YamlPocoSerializer.Read<T>(textReader);
                     return obj;
@@ -63,25 +50,25 @@ internal class DirectoryReader
             }
             else
             {
-                var str = File.ReadAllText(_fullpath);
+                var str = File.ReadAllText(fullPath);
                 return JsonSerializer.Deserialize<T>(str, JsonExtensions._jsonOpts);
             }
         }
 
         public string GetContents()
         {
-            return File.ReadAllText(_fullpath);
+            return File.ReadAllText(fullPath);
         }
     }
 
-    // Returns file entries. 
+    // Returns file entries.
     public Entry[] EnumerateFiles(string subdir, string pattern = "*", bool searchSubdirectories = true)
     {
-        var root = Path.Combine(_directory, subdir);
+        var root = Path.Combine(directory, subdir);
 
         if (!Directory.Exists(root))
         {
-            return new Entry[0];
+            return [];
         }
 
         var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -94,17 +81,17 @@ internal class DirectoryReader
                           Kind = FileEntry.TriageKind(FilePath.FromPlatformPath(relativePath))
                       };
 
-        return entries.ToArray();
+        return [.. entries];
     }
 
-    // Returns subdirectories. 
+    // Returns subdirectories.
     public DirectoryReader[] EnumerateDirectories(string subdir, string pattern = "*", bool searchSubdirectories = false)
     {
-        var root = Path.Combine(_directory, subdir);
+        var root = Path.Combine(directory, subdir);
 
         if (!Directory.Exists(root))
         {
-            return new DirectoryReader[0];
+            return [];
         }
 
         var fullPaths = Directory.EnumerateDirectories(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -113,6 +100,6 @@ internal class DirectoryReader
                       let relativePath = FilePath.GetRelativePath(root, fullPath)
                       select new DirectoryReader(fullPath);
 
-        return entries.ToArray();
+        return [.. entries];
     }
 }

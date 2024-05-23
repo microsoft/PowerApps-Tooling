@@ -45,7 +45,7 @@ public class ReadTransformTests
         doc._assetFiles.Add(new FilePath("Images", "Image.png"), new FileEntry());
 
         // passing null resource in resourcesJson
-        doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, null } };
+        doc._resourcesJson = new ResourcesJson() { Resources = [resource1, null] };
 
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);

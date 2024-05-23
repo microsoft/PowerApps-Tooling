@@ -16,7 +16,7 @@ public static class CollectionsExtensions
 
     public static IEnumerable<T> NullOk<T>(this IEnumerable<T> list)
     {
-        if (list == null) return Enumerable.Empty<T>();
+        if (list == null) return [];
         return list;
     }
 

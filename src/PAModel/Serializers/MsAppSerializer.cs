@@ -16,7 +16,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
-// Read/Write to an .msapp file. 
+// Read/Write to an .msapp file.
 internal static class MsAppSerializer
 {
     public const string ConnectionInstanceIDPropertyName = "connectionInstanceId";
@@ -57,13 +57,10 @@ internal static class MsAppSerializer
 
     public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
     {
-        if (streamToMsapp == null)
-        {
-            throw new ArgumentNullException(nameof(streamToMsapp));
-        }
+        ArgumentNullException.ThrowIfNull(streamToMsapp);
 
-        // Read raw files. 
-        // Apply transforms. 
+        // Read raw files.
+        // Apply transforms.
         var app = new CanvasDocument
         {
             _checksum = new ChecksumJson(), // default empty. Will get overwritten if the file is present.
@@ -288,7 +285,7 @@ internal static class MsAppSerializer
             var isNullOrOlderChecksum = app._checksum.ServerStampedChecksum == null || ChecksumMaker.GetChecksumVersion(app._checksum.ServerStampedChecksum) < ChecksumMaker.Version;
             if (!isNullOrOlderChecksum && app._checksum.ServerStampedChecksum != currentChecksum.wholeChecksum)
             {
-                // The server checksum doesn't match the actual contents. 
+                // The server checksum doesn't match the actual contents.
                 // likely has been tampered.
                 errors.ChecksumMismatch("Checksum doesn't match on extract.");
                 if (app._checksum.ServerPerFileChecksums != null)
@@ -316,7 +313,7 @@ internal static class MsAppSerializer
 
             app._checksum.ClientStampedChecksum = currentChecksum.wholeChecksum;
             app._checksum.ClientPerFileChecksums = currentChecksum.perFileChecksum;
-            // Normalize logo filename. 
+            // Normalize logo filename.
             app.TransformLogoOnLoad();
 
             if (!string.IsNullOrEmpty(app._properties.LibraryDependencies))
@@ -339,7 +336,7 @@ internal static class MsAppSerializer
                         {
                             var serializedID = JsonSerializer.Serialize(connectionInstanceID);
 
-                            // Mapping the connection key to the serializedID and adding it to _entropy                                
+                            // Mapping the connection key to the serializedID and adding it to _entropy
                             app._entropy.LocalConnectionIDReferences.Add(connectionJson.Key, serializedID);
 
                             // Basically making sure conn instance id is not added to app._connections
@@ -422,8 +419,8 @@ internal static class MsAppSerializer
 
             if (dcSources?.DataSources != null)
             {
-                // Component Data sources only appear if the data component is actually 
-                // used as a data source in this app. 
+                // Component Data sources only appear if the data component is actually
+                // used as a data source in this app.
                 foreach (var x in dcSources.DataSources)
                 {
                     if (x.Type != DataComponentSourcesJson.NativeCDSDataSourceInfo)
@@ -461,7 +458,7 @@ internal static class MsAppSerializer
         app._assetFiles.Add(entry.Name, entry);
     }
 
-    // Write back out to a msapp file. 
+    // Write back out to a msapp file.
     public static void SaveAsMsApp(CanvasDocument app, string fullPathToMsApp, ErrorContainer errors, bool isValidation = false)
     {
         try
@@ -665,11 +662,10 @@ internal static class MsAppSerializer
         // "DataComponent" data sources are not part of DataSource.json, and instead in their own file
         var dataSources = new DataSourcesJson
         {
-            DataSources = app.GetDataSources()
+            DataSources = [.. app.GetDataSources()
                 .SelectMany(x => x.Value)
                 .Where(x => !x.IsDataComponent)
-                .OrderBy(app._entropy.GetOrder)
-                .ToArray()
+                .OrderBy(app._entropy.GetOrder)]
         };
         yield return ToFile(FileKind.DataSources, dataSources);
 
@@ -746,12 +742,12 @@ internal static class MsAppSerializer
             }
         }
 
-        var pcfTemplates = app._templates.PcfTemplates ?? Array.Empty<PcfTemplateJson>();
-        app._templates = new TemplatesJson()
+        var pcfTemplates = app._templates.PcfTemplates ?? [];
+        app._templates = new TemplatesJson
         {
-            ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(app._entropy.GetComponentOrder).ToArray() : null,
-            UsedTemplates = app._templates.UsedTemplates.OrderBy(app._entropy.GetOrder).ToArray(),
-            PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(app._entropy.GetPcfVersioning).ToArray() : null
+            ComponentTemplates = componentTemplates.Any() ? [.. componentTemplates.OrderBy(app._entropy.GetComponentOrder)] : null,
+            UsedTemplates = [.. app._templates.UsedTemplates.OrderBy(app._entropy.GetOrder)],
+            PcfTemplates = pcfTemplates.Any() ? [.. pcfTemplates.OrderBy(app._entropy.GetPcfVersioning)] : null
         };
 
         yield return ToFile(FileKind.Templates, app._templates);
@@ -787,7 +783,7 @@ internal static class MsAppSerializer
                     DataComponentDefinitionKey = manifest.DataComponentDefinitionKey
                 };
 
-                // Rehydrate fields. 
+                // Rehydrate fields.
                 template.DataComponentDefinitionKey.ControlUniqueId = controlId;
 
                 dcTemplate.Add(template);
@@ -796,12 +792,10 @@ internal static class MsAppSerializer
 
         if (componentsMetadata.Count > 0)
         {
-            // If the components file is present, then write out all files. 
+            // If the components file is present, then write out all files.
             yield return ToFile(FileKind.ComponentsMetadata, new ComponentsMetadataJson
             {
-                Components = componentsMetadata
-                        .OrderBy(app._entropy.GetOrder)
-                        .ToArray()
+                Components = [.. componentsMetadata.OrderBy(app._entropy.GetOrder)]
             });
         }
 
@@ -809,14 +803,12 @@ internal static class MsAppSerializer
         {
             yield return ToFile(FileKind.DataComponentTemplates, new DataComponentTemplatesJson
             {
-                ComponentTemplates = dcTemplate
-                    .OrderBy(app._entropy.GetOrder)
-                    .ToArray()
+                ComponentTemplates = [.. dcTemplate.OrderBy(app._entropy.GetOrder)]
             });
         }
 
 
-        // Rehydrate the DataComponent DataSource file. 
+        // Rehydrate the DataComponent DataSource file.
         {
             var ds =
                from item in app.GetDataSources().SelectMany(x => x.Value).Where(x => x.IsDataComponent)

@@ -10,12 +10,8 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal sealed class ComponentConverter : ControlConverter
+internal sealed class ComponentConverter(IControlFactory controlFactory) : ControlConverter(controlFactory)
 {
-    public ComponentConverter(IControlFactory controlFactory) : base(controlFactory)
-    {
-    }
-
     public override bool Accepts(Type type)
     {
         return type == typeof(ComponentDefinition) || type == typeof(ComponentInstance);

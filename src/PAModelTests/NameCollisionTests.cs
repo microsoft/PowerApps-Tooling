@@ -51,7 +51,7 @@ public class NameCollisionTests
 
         doc._assetFiles.Add(new FilePath("Images", "image_1.png"), new FileEntry());
 
-        doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2, resource3 } };
+        doc._resourcesJson = new ResourcesJson() { Resources = [resource1, resource2, resource3] };
 
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
@@ -197,7 +197,7 @@ public class NameCollisionTests
         };
         doc._assetFiles.Add(new FilePath("Images", "Image2.png"), new FileEntry());
 
-        doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2 } };
+        doc._resourcesJson = new ResourcesJson() { Resources = [resource1, resource2] };
 
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
@@ -262,7 +262,7 @@ public class NameCollisionTests
         // Second Asset file
         doc._assetFiles.Add(new FilePath("Images", "0012.png"), f2);
 
-        doc._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { resource1, resource2 } };
+        doc._resourcesJson = new ResourcesJson() { Resources = [resource1, resource2] };
 
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);

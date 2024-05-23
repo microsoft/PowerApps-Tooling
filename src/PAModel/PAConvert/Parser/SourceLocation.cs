@@ -5,23 +5,15 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
-internal readonly struct SourceLocation
+internal readonly struct SourceLocation(int startLine, int startChar, int endLine, int endChar, string fileName)
 {
-    public readonly int StartLine;
-    public readonly int StartChar;
-    public readonly int EndLine;
-    public readonly int EndChar;
-    public readonly string FileName;
+    public readonly int StartLine = startLine;
+    public readonly int StartChar = startChar;
+    public readonly int EndLine = endLine;
+    public readonly int EndChar = endChar;
+    public readonly string FileName = fileName;
 
     // Indices into file are 1-based.
-    public SourceLocation(int startLine, int startChar, int endLine, int endChar, string fileName)
-    {
-        StartLine = startLine;
-        StartChar = startChar;
-        EndLine = endLine;
-        EndChar = endChar;
-        FileName = fileName;
-    }
 
     public static SourceLocation FromFile(string filename)
     {

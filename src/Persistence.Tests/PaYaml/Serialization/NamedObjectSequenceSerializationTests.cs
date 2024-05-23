@@ -8,6 +8,7 @@ using YamlDotNet.Serialization;
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array", Justification = "Obfuscates tests")]
 public class NamedObjectSequenceSerializationTests : SerializationTestBase
 {
     protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
@@ -75,7 +76,7 @@ public class NamedObjectSequenceSerializationTests : SerializationTestBase
         var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         testObject.TheSequence.ShouldNotBeNull();
-        testObject.TheSequence.Names.Should().Equal(new[] { "n1", "n3", "n2" }, "ordering of a sequence is by code order");
+        testObject.TheSequence.Names.Should().Equal(["n1", "n3", "n2"], "ordering of a sequence is by code order");
         testObject.TheSequence.GetNamedObject("n1").Should()
             .HaveValueEqual("v1")
             .And.HaveStartEqual(2, 5);

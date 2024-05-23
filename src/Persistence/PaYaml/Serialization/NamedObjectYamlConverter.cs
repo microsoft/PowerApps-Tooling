@@ -9,14 +9,10 @@ using YamlDotNet.Serialization;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-public class NamedObjectYamlConverter<TValue> : YamlConverter<NamedObject<TValue>>
+public class NamedObjectYamlConverter<TValue>(SerializationContext serializationContext)
+    : YamlConverter<NamedObject<TValue>>(serializationContext)
     where TValue : notnull
 {
-    public NamedObjectYamlConverter(SerializationContext serializationContext)
-        : base(serializationContext)
-    {
-    }
-
     internal static NamedObject<TValue> ReadNameAndValueEventsCore(IParser parser, ObjectDeserializer nestedObjectDeserializer)
     {
         _ = parser.Current ?? throw new InvalidOperationException("The parser has not been started or has nothing to read.");

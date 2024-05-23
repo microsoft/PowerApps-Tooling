@@ -7,58 +7,50 @@ using Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
-internal class AddControl : IDelta
+internal class AddControl(
+    ControlPath parentControlPath,
+    BlockNode control,
+    Dictionary<string, ControlState> controlStates,
+    bool isInComponent)
+    : IDelta
 {
-    private readonly bool _isInComponent;
-    private readonly ControlPath _parentControlPath;
-    private readonly BlockNode _control;
-    private readonly Dictionary<string, ControlState> _controlStates;
-
-    public string ControlName => _control.Name.Identifier;
-
-    public AddControl(ControlPath parentControlPath, BlockNode control, Dictionary<string, ControlState> controlStates, bool isInComponent)
-    {
-        _isInComponent = isInComponent;
-        _parentControlPath = parentControlPath;
-        _control = control;
-        _controlStates = controlStates;
-    }
+    public string ControlName => control.Name.Identifier;
 
     public void Apply(CanvasDocument document)
     {
-        var controlSet = _isInComponent ? document._components : document._screens;
+        var controlSet = isInComponent ? document._components : document._screens;
 
         // Top level addition
-        if (_parentControlPath == ControlPath.Empty)
+        if (parentControlPath == ControlPath.Empty)
         {
-            var repairedTopParent = MakeControlTreeCollisionFree(_control, _controlStates, document._editorStateStore);
+            var repairedTopParent = MakeControlTreeCollisionFree(control, controlStates, document._editorStateStore);
             if (repairedTopParent == null)
                 return;
 
             AddControlStates(repairedTopParent, document._editorStateStore);
 
-            controlSet.Add(_control.Name.Identifier, repairedTopParent);
+            controlSet.Add(control.Name.Identifier, repairedTopParent);
 
             // Add screen to order set to avoid confusing diffs
-            if (!_isInComponent && !document._screenOrder.Contains(ControlName))
+            if (!isInComponent && !document._screenOrder.Contains(ControlName))
                 document._screenOrder.Add(ControlName);
 
             return;
         }
 
         // Top Parent was removed
-        if (!controlSet.TryGetValue(_parentControlPath.Current, out var control))
+        if (!controlSet.TryGetValue(parentControlPath.Current, out var value))
             return;
 
-        var path = _parentControlPath.Next();
+        var path = parentControlPath.Next();
         while (path.Current != null)
         {
             var found = false;
-            foreach (var child in control.Children)
+            foreach (var child in value.Children)
             {
                 if (child.Name.Identifier == path.Current)
                 {
-                    control = child;
+                    value = child;
                     path = path.Next();
                     found = true;
                     break;
@@ -71,12 +63,12 @@ internal class AddControl : IDelta
             }
         }
 
-        var repairedControl = MakeControlTreeCollisionFree(_control, _controlStates, document._editorStateStore);
+        var repairedControl = MakeControlTreeCollisionFree(control, controlStates, document._editorStateStore);
         if (repairedControl == null)
             return;
         AddControlStates(repairedControl, document._editorStateStore);
 
-        control.Children.Add(repairedControl);
+        value.Children.Add(repairedControl);
     }
 
     private static BlockNode MakeControlTreeCollisionFree(BlockNode root, Dictionary<string, ControlState> states, EditorStateStore stateStore)
@@ -121,7 +113,7 @@ internal class AddControl : IDelta
         var name = root.Name.Identifier;
 
         // If the state exists, add to merged document
-        if (_controlStates.TryGetValue(name, out var state))
+        if (controlStates.TryGetValue(name, out var state))
         {
             stateStore.TryAddControl(state);
         }

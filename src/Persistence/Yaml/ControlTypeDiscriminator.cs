@@ -9,14 +9,9 @@ using YamlDotNet.Serialization.BufferedDeserialization.TypeDiscriminators;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal sealed class ControlTypeDiscriminator : ITypeDiscriminator
+internal sealed class ControlTypeDiscriminator(IControlTemplateStore controlTemplateStore) : ITypeDiscriminator
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-
-    public ControlTypeDiscriminator(IControlTemplateStore controlTemplateStore)
-    {
-        _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
-    }
+    private readonly IControlTemplateStore _controlTemplateStore = controlTemplateStore ?? throw new ArgumentNullException(nameof(controlTemplateStore));
 
     public Type BaseType => typeof(object);
 

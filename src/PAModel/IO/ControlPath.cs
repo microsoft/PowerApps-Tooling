@@ -10,10 +10,10 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 /// Each segment is a control name
 /// </summary>
 [DebuggerDisplay("{string.Join('.', _segments)}")]
-internal class ControlPath
+internal class ControlPath(List<string> segments)
 {
     // switch this to be a queue?
-    private readonly List<string> _segments;
+    private readonly List<string> _segments = segments;
     public string Current => _segments.Any() ? _segments[0] : null;
     public static ControlPath Empty => new(new List<string>());
 
@@ -34,11 +34,6 @@ internal class ControlPath
             controlName
         };
         return new ControlPath(newPath);
-    }
-
-    public ControlPath(List<string> segments)
-    {
-        _segments = segments;
     }
 
     public static bool operator ==(ControlPath left, ControlPath right)

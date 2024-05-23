@@ -47,6 +47,8 @@ public class NamedObjectMappingSerializationTests : SerializationTestBase
         }
     }
 
+    private static readonly string[] expected = ["n1", "n2", "n3"];
+
     [TestMethod]
     public void ReadYamlMappingSetsNamedObjectStart()
     {
@@ -60,7 +62,7 @@ public class NamedObjectMappingSerializationTests : SerializationTestBase
         var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         testObject.TheMapping.ShouldNotBeNull();
-        testObject.TheMapping.Names.Should().Equal(new[] { "n1", "n2", "n3" }, "ordering of a mapping is by name");
+        testObject.TheMapping.Names.Should().Equal(expected, "ordering of a mapping is by name");
         testObject.TheMapping.GetNamedObject("n1").Should()
             .HaveValueEqual("v1")
             .And.HaveStartEqual(2, 3);

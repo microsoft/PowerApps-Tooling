@@ -93,7 +93,7 @@ public class EntropyTests
         errors.ThrowOnErrors();
 
         // passing null resource in resourcesJson
-        msapp._resourcesJson = new ResourcesJson() { Resources = new ResourceJson[] { null } };
+        msapp._resourcesJson = new ResourcesJson() { Resources = [null] };
 
         TransformResourceJson.PersistOrderingOfResourcesJsonEntries(msapp);
     }

@@ -8,9 +8,10 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 namespace Persistence.Tests.MsApp;
 
 [TestClass]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array", Justification = "Obfuscates tests")]
 public class MsappArchiveTests : TestBase
 {
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, null, 0, 0)]
+    [DataRow(new[] { "abc.txt" }, MsappArchive.Directories.Resources, null, 0, 0)]
     [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, null, 1, 2)]
     [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 1, 2)]
     [DataRow(new string[] { "abc.txt", "def.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 2, 3)]
@@ -78,26 +79,27 @@ public class MsappArchiveTests : TestBase
         msappArchive.TryGetEntry("not-exist", out var _).Should().BeFalse();
     }
 
-    private static IEnumerable<object[]> AddEntryTestsData()
+    private static string[][][] AddEntryTestsData()
     {
-        return new[] {
-            new [] {
-                new[] { "abc.txt" },
-                new[] { "abc.txt" }
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant() },
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant() },
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
-            }
-        };
+        return
+        [
+            [
+                ["abc.txt"],
+                ["abc.txt"]
+            ],
+            [
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt"],
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant()]
+            ],
+            [
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt"],
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant()]
+            ],
+            [
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json"],
+                ["abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json"]
+            ]
+        ];
     }
 
     [TestMethod]

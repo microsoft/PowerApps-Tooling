@@ -9,7 +9,7 @@ internal static class YamlDeserializerExtensions
 {
     internal static object? DeserializeControl(this IYamlDeserializer deserializer, TextReader yamlReader, Type controlType)
     {
-        var deserializeMethod = typeof(IYamlDeserializer).GetMethod(nameof(IYamlDeserializer.Deserialize), types: new[] { typeof(TextReader) })!.MakeGenericMethod(controlType);
-        return deserializeMethod.Invoke(deserializer, new object[] { yamlReader });
+        var deserializeMethod = typeof(IYamlDeserializer).GetMethod(nameof(IYamlDeserializer.Deserialize), types: [typeof(TextReader)])!.MakeGenericMethod(controlType);
+        return deserializeMethod.Invoke(deserializer, [yamlReader]);
     }
 }

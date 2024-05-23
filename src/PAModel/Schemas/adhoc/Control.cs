@@ -158,7 +158,7 @@ internal class ControlInfoJson
         {
             var defaultCtrl = new Item();
             var rules = new List<RuleEntry>();
-            defaultCtrl.Rules = rules.ToArray();
+            defaultCtrl.Rules = [.. rules];
             defaultCtrl.PublishOrderIndex = 0;
 
             defaultCtrl.ExtensionData = CreateDefaultExtensionData();

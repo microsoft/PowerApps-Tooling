@@ -63,7 +63,7 @@ internal class ChangeProperty : IDelta
                     customProps[PropertyName] = _customProperty;
                 else
                     return;
-                updatableTemplate.CustomProperties = customProps.Values.ToArray();
+                updatableTemplate.CustomProperties = [.. customProps.Values];
             }
         }
     }

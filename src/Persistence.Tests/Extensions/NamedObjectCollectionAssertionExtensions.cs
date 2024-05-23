@@ -21,31 +21,21 @@ public static class NamedObjectCollectionAssertionExtensions
 /// Contains a number of methods to assert that a <see cref="NamedObjectMapping{TValue}"/> is in the expected state.
 /// </summary>
 [DebuggerNonUserCode]
-public class NamedObjectCollectionAssertions<TValue>
-    : NamedObjectCollectionAssertions<IReadOnlyNamedObjectCollection<TValue>?, TValue, NamedObjectCollectionAssertions<TValue>>
-    where TValue : notnull
-{
-    public NamedObjectCollectionAssertions(IReadOnlyNamedObjectCollection<TValue>? actualValue)
-        : base(actualValue)
-    {
-    }
-}
+public class NamedObjectCollectionAssertions<TValue>(IReadOnlyNamedObjectCollection<TValue>? actualValue)
+    : NamedObjectCollectionAssertions<IReadOnlyNamedObjectCollection<TValue>?, TValue,
+        NamedObjectCollectionAssertions<TValue>>(actualValue)
+    where TValue : notnull;
 
 /// <summary>
 /// Contains a number of methods to assert that a <see cref="NamedObjectMapping{TValue}"/> is in the expected state.
 /// </summary>
 [DebuggerNonUserCode]
-public class NamedObjectCollectionAssertions<TCollection, TValue, TAssertions>
-    : GenericCollectionAssertions<TCollection, NamedObject<TValue>, TAssertions>
+public class NamedObjectCollectionAssertions<TCollection, TValue, TAssertions>(TCollection actualValue)
+    : GenericCollectionAssertions<TCollection, NamedObject<TValue>, TAssertions>(actualValue)
     where TCollection : IReadOnlyNamedObjectCollection<TValue>?
     where TValue : notnull
     where TAssertions : NamedObjectCollectionAssertions<TCollection, TValue, TAssertions>
 {
-    public NamedObjectCollectionAssertions(TCollection actualValue)
-        : base(actualValue)
-    {
-    }
-
     public AndConstraint<TAssertions> ContainNames(params string[] expected)
     {
         return ContainNames(expected, string.Empty);
@@ -98,16 +88,14 @@ public class NamedObjectCollectionAssertions<TCollection, TValue, TAssertions>
 }
 
 [DebuggerNonUserCode]
-public class WhoseNamedObjectConstraint<TCollection, TValue, TAssertions> : AndConstraint<TAssertions>
+public class WhoseNamedObjectConstraint<TCollection, TValue, TAssertions>(
+    TAssertions parentConstraint,
+    NamedObject<TValue> namedObject)
+    : AndConstraint<TAssertions>(parentConstraint)
     where TCollection : IReadOnlyNamedObjectCollection<TValue>?
     where TValue : notnull
     where TAssertions : NamedObjectCollectionAssertions<TCollection, TValue, TAssertions>
 {
-    public WhoseNamedObjectConstraint(TAssertions parentConstraint, NamedObject<TValue> namedObject) : base(parentConstraint)
-    {
-        WhoseNamedObject = namedObject;
-    }
-
-    public NamedObject<TValue> WhoseNamedObject { get; }
+    public NamedObject<TValue> WhoseNamedObject { get; } = namedObject;
     public TValue WhoseValue => WhoseNamedObject.Value;
 }

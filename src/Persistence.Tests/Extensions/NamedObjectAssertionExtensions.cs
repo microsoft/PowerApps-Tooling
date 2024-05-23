@@ -21,32 +21,21 @@ public static class NamedObjectAssertionExtensions
 /// Contains a number of methods to assert that a <see cref="NamedObjectMapping{TValue}"/> is in the expected state.
 /// </summary>
 [DebuggerNonUserCode]
-public class NamedObjectAssertions<TValue>
-    : NamedObjectAssertions<NamedObject<TValue>?, string, TValue, NamedObjectAssertions<TValue>>
-    where TValue : notnull
-{
-    public NamedObjectAssertions(NamedObject<TValue>? actualValue)
-        : base(actualValue)
-    {
-    }
-}
+public class NamedObjectAssertions<TValue>(NamedObject<TValue>? actualValue)
+    : NamedObjectAssertions<NamedObject<TValue>?, string, TValue, NamedObjectAssertions<TValue>>(actualValue)
+    where TValue : notnull;
 
 /// <summary>
 /// Contains a number of methods to assert that a <see cref="NamedObjectMapping{TValue}"/> is in the expected state.
 /// </summary>
 [DebuggerNonUserCode]
-public class NamedObjectAssertions<TNamedObject, TName, TValue, TAssertions>
-    : ReferenceTypeAssertions<TNamedObject, TAssertions>
+public class NamedObjectAssertions<TNamedObject, TName, TValue, TAssertions>(TNamedObject actualValue)
+    : ReferenceTypeAssertions<TNamedObject, TAssertions>(actualValue)
     where TNamedObject : INamedObject<TName, TValue>?
     where TName : notnull
     where TValue : notnull
     where TAssertions : NamedObjectAssertions<TNamedObject, TName, TValue, TAssertions>
 {
-    public NamedObjectAssertions(TNamedObject actualValue)
-        : base(actualValue)
-    {
-    }
-
     protected override string Identifier => "NamedObject";
 
     public AndConstraint<TAssertions> HaveValueEqual(TValue expected, string because = "", params object[] becauseArgs)

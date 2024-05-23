@@ -192,7 +192,7 @@ internal class Entropy
     // Removing the 'ContentKind-' gives the resource name
     public static string GetResourceNameFromKey(string key)
     {
-        var prefix = key.Split(new char[] { '-' }).First();
+        var prefix = key.Split(['-']).First();
         return key.Substring(prefix.Length + 1);
     }
 

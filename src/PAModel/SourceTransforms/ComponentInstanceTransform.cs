@@ -5,18 +5,12 @@ using Microsoft.PowerPlatform.Formulas.Tools.IR;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 
-internal class ComponentInstanceTransform : IControlTemplateTransform
+internal class ComponentInstanceTransform(ErrorContainer errors) : IControlTemplateTransform
 {
     // Key is name in source, value is name in target
     // For AfterRead, that's ComponentID => ComponentName
     // For BeforeWrite, that's ComponentName => ComponentID
     internal Dictionary<string, string> ComponentRenames = new();
-    private readonly ErrorContainer _errors;
-
-    public ComponentInstanceTransform(ErrorContainer errors)
-    {
-        _errors = errors;
-    }
 
     public IEnumerable<string> TargetTemplates => ComponentRenames.Keys;
 
@@ -39,7 +33,7 @@ internal class ComponentInstanceTransform : IControlTemplateTransform
         }
         else
         {
-            _errors.ValidationWarning("Renaming component instance but unable to find target name");
+            errors.ValidationWarning("Renaming component instance but unable to find target name");
         }
     }
 }

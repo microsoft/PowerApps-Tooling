@@ -61,7 +61,7 @@ internal static class IRStateHelpers
                     if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                     {
                         var argKey = $"{control.Name}.{arg.Name}";
-                        entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                        entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, [arg.ScopeVariableInfo.DefaultRule, invariantScript]);
                     }
                 }
             }
@@ -111,7 +111,7 @@ internal static class IRStateHelpers
                         if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                         {
                             var argKey = $"{control.Name}.{arg.Name}";
-                            entropy.FunctionParamsInvariantScripts.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                            entropy.FunctionParamsInvariantScripts.Add(argKey, [arg.ScopeVariableInfo.DefaultRule, invariantScript]);
                         }
 
                         arg.ScopeVariableInfo.DefaultRule = null;
@@ -225,7 +225,7 @@ internal static class IRStateHelpers
             };
             var templateName = templateState.TemplateDisplayName ?? templateState.Name;
             // Template values could be different for each host control instances.
-            // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol. 
+            // Considering that, we need to store each of these template values separately in templatestore, rather than once for hostcontrol.
             // This enables Storing Template HostType and HostService details for each host control instances.
             // Example Scenarios:
             // Host Control Instance 1 -> template1 -> HostType1
@@ -378,7 +378,7 @@ internal static class IRStateHelpers
                 }
 
                 // Reorder to preserve roundtripping
-                dynamicProperties = dynamicProperties.OrderBy(prop => state.DynamicProperties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.PropertyName)).ToList();
+                dynamicProperties = [.. dynamicProperties.OrderBy(prop => state.DynamicProperties.Select(propState => propState.PropertyName).ToList().IndexOf(prop.PropertyName))];
             }
 
             if (blockNode.Functions.Any())
@@ -423,15 +423,15 @@ internal static class IRStateHelpers
 
             // Preserve ordering from serialized IR
             // Required for roundtrip checks
-            properties = properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1).ToList();
+            properties = [.. properties.OrderBy(prop => state.Properties?.Select(propState => propState.PropertyName).ToList().IndexOf(prop.Property) ?? -1)];
             resultControlInfo = new Item()
             {
                 Parent = parent,
                 Name = controlName,
                 ControlUniqueId = uniqueId.ToString(),
                 VariantName = variantName ?? string.Empty,
-                Rules = properties.ToArray(),
-                DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any()) ? dynamicProperties.ToArray() : null,
+                Rules = [.. properties],
+                DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any()) ? [.. dynamicProperties] : null,
                 HasDynamicProperties = state.HasDynamicProperties,
                 StyleName = state.StyleName,
                 ExtensionData = state.ExtensionData,
@@ -480,9 +480,9 @@ internal static class IRStateHelpers
                     properties.Add(CombinePropertyIRAndState(propIR, errors));
                 }
             }
-            resultControlInfo.Rules = properties.ToArray();
+            resultControlInfo.Rules = [.. properties];
             var hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
-            resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
+            resultControlInfo.DynamicProperties = hasDynamicProperties ? [.. dynamicProperties] : null;
             resultControlInfo.HasDynamicProperties = hasDynamicProperties;
             resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;
         }

@@ -7,6 +7,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 namespace Persistence.Tests.PaYaml.Models;
 
 [TestClass]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array", Justification = "Obfuscates tests")]
 public class PaControlInstanceContainerTests : TestBase
 {
     [TestMethod]

@@ -15,23 +15,15 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 /// The reverse is true for writing to msapp
 /// This must always be run before the ComponentInstanceTransform in both directions
 /// </summary>
-internal class ComponentDefinitionTransform
+internal class ComponentDefinitionTransform(
+    ErrorContainer errors,
+    TemplateStore templateStore,
+    ComponentInstanceTransform componentInstanceTransform)
 {
-    private readonly TemplateStore _templateStore;
-    private readonly ComponentInstanceTransform _componentInstanceTransform;
-    private readonly ErrorContainer _errors;
-
-    public ComponentDefinitionTransform(ErrorContainer errors, TemplateStore templateStore, ComponentInstanceTransform componentInstanceTransform)
-    {
-        _templateStore = templateStore;
-        _componentInstanceTransform = componentInstanceTransform;
-        _errors = errors;
-    }
-
     public void AfterRead(BlockNode control)
     {
         var templateName = control.Name?.Kind?.TypeName ?? string.Empty;
-        if (!_templateStore.TryGetTemplate(templateName, out var componentTemplate) ||
+        if (!templateStore.TryGetTemplate(templateName, out var componentTemplate) ||
             !(componentTemplate.IsComponentTemplate ?? false))
         {
             return;
@@ -52,10 +44,10 @@ internal class ComponentDefinitionTransform
         }
 
         var controlName = control.Name.Identifier;
-        if (!_templateStore.TryRenameTemplate(templateName, controlName))
+        if (!templateStore.TryRenameTemplate(templateName, controlName))
             return;
 
-        _componentInstanceTransform.ComponentRenames.Add(templateName, controlName);
+        componentInstanceTransform.ComponentRenames.Add(templateName, controlName);
         control.Name.Kind.TypeName = kindName;
     }
 
@@ -70,21 +62,21 @@ internal class ComponentDefinitionTransform
             return;
         }
 
-        if (!_templateStore.TryGetTemplate(controlName, out var componentTemplate) ||
+        if (!templateStore.TryGetTemplate(controlName, out var componentTemplate) ||
             !(componentTemplate.IsComponentTemplate ?? false))
         {
-            _errors.ValidationError($"Unable to find template for component {controlName}");
+            errors.ValidationError($"Unable to find template for component {controlName}");
             throw new DocumentException();
         }
 
         var originalTemplateName = componentTemplate.Name;
-        if (!_templateStore.TryRenameTemplate(controlName, originalTemplateName))
+        if (!templateStore.TryRenameTemplate(controlName, originalTemplateName))
         {
-            _errors.ValidationError($"Unable to update template for component {controlName}, id {originalTemplateName}");
+            errors.ValidationError($"Unable to update template for component {controlName}, id {originalTemplateName}");
             throw new DocumentException();
         }
 
-        _componentInstanceTransform.ComponentRenames.Add(controlName, originalTemplateName);
+        componentInstanceTransform.ComponentRenames.Add(controlName, originalTemplateName);
         control.Name.Kind.TypeName = originalTemplateName;
     }
 }

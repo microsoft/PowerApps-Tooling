@@ -16,20 +16,9 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 /// since the transform deals with controls that are peers within the IR.
 /// As such, it needs to be run on the Parent of the group control, not on the group control itself.
 /// </summary>
-internal class GroupControlTransform
+internal class GroupControlTransform(ErrorContainer errors, EditorStateStore editorStateStore, Entropy entropy)
 {
     private const string GroupControlTemplateName = "group";
-
-    private readonly EditorStateStore _editorStateStore;
-    private readonly ErrorContainer _errors;
-    private readonly Entropy _entropy;
-
-    public GroupControlTransform(ErrorContainer errors, EditorStateStore editorStateStore, Entropy entropy)
-    {
-        _editorStateStore = editorStateStore;
-        _errors = errors;
-        _entropy = entropy;
-    }
 
     public void AfterRead(BlockNode control)
     {
@@ -41,18 +30,18 @@ internal class GroupControlTransform
         foreach (var groupControl in groupControls)
         {
             var groupControlName = groupControl.Name.Identifier;
-            if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
+            if (!editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
             {
-                _errors.ValidationError($"Group control state is missing for {groupControlName}");
+                errors.ValidationError($"Group control state is missing for {groupControlName}");
                 throw new DocumentException();
             }
 
             if (groupControlState.GroupedControlsKey.Count == 0)
             {
-                _errors.ValidationWarning($"Group control state is empty for {groupControlName}");
+                errors.ValidationWarning($"Group control state is empty for {groupControlName}");
             }
 
-            _entropy.AddGroupControl(groupControlState);
+            entropy.AddGroupControl(groupControlState);
 
             foreach (var childKey in groupControlState.GroupedControlsKey)
             {
@@ -63,7 +52,7 @@ internal class GroupControlTransform
                 }
                 else
                 {
-                    _errors.ValidationWarning($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
+                    errors.ValidationWarning($"Group control {groupControlName}'s state refers to non-existent child {childKey}");
                 }
             }
             groupControlState.GroupedControlsKey = null;
@@ -80,7 +69,7 @@ internal class GroupControlTransform
         foreach (var groupControl in groupControls)
         {
             var groupControlName = groupControl.Name.Identifier;
-            if (!_editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
+            if (!editorStateStore.TryGetControlState(groupControlName, out var groupControlState))
             {
                 // There may not be editorstate present for this. Create a fake state to use
                 groupControlState = new ControlState()
@@ -91,19 +80,19 @@ internal class GroupControlTransform
                     IsGroupControl = true,
                     ExtensionData = ControlInfoJson.Item.CreateDefaultExtensionData()
                 };
-                _editorStateStore.TryAddControl(groupControlState);
+                editorStateStore.TryAddControl(groupControlState);
             }
 
             var groupedControlNames = groupControl.Children
                 .Select(child => child.Name.Identifier)
-                .OrderBy(childName => _entropy.GetGroupControlOrder(groupControlName, childName));
+                .OrderBy(childName => entropy.GetGroupControlOrder(groupControlName, childName));
             // Add the group controls to the parent's children instead
             foreach (var child in groupControl.Children)
             {
                 control.Children.Add(child);
             }
             groupControl.Children = new List<BlockNode>();
-            groupControlState.GroupedControlsKey = groupedControlNames.ToList();
+            groupControlState.GroupedControlsKey = [.. groupedControlNames];
         }
     }
 

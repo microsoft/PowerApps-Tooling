@@ -39,7 +39,7 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
 
     private IEnumerable<ControlState> GetSubtreeStatesImpl(BlockNode node)
     {
-        var childstates = node.Children?.SelectMany(GetSubtreeStatesImpl) ?? Enumerable.Empty<ControlState>();
+        var childstates = node.Children?.SelectMany(GetSubtreeStatesImpl) ?? [];
 
         if (!_childStateStore.TryGetControlState(node.Name.Identifier, out var state))
             return childstates;
@@ -200,16 +200,9 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
     }
 }
 
-internal class ControlDiffContext
+internal class ControlDiffContext(ControlPath path, IRNode theirs, bool isInComponent)
 {
-    public IRNode Theirs { get; }
-    public ControlPath Path { get; }
-    public bool IsInComponent { get; }
-
-    public ControlDiffContext(ControlPath path, IRNode theirs, bool isInComponent)
-    {
-        Theirs = theirs;
-        Path = path;
-        IsInComponent = isInComponent;
-    }
+    public IRNode Theirs { get; } = theirs;
+    public ControlPath Path { get; } = path;
+    public bool IsInComponent { get; } = isInComponent;
 }

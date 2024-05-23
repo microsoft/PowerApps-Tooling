@@ -43,7 +43,7 @@ internal class AddTemplate : IDelta
             }
             else if (_jsonTemplate != null)
             {
-                document._templates.UsedTemplates = document._templates.UsedTemplates.Concat(new[] { _jsonTemplate }).ToArray();
+                document._templates.UsedTemplates = [.. document._templates.UsedTemplates.Concat(new[] { _jsonTemplate })];
             }
         }
     }

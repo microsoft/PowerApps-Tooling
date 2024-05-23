@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
-// Helpers for creating checksums. 
+// Helpers for creating checksums.
 internal interface IHashMaker : IDisposable
 {
     void AppendStartObj();
@@ -24,11 +24,11 @@ internal interface IHashMaker : IDisposable
     void AppendData(bool value);
     void AppendNull();
 
-    // Called after all Appends(). 
+    // Called after all Appends().
     byte[] GetFinalValue();
 }
 
-// Create a checksum using an incremental hash.    
+// Create a checksum using an incremental hash.
 internal class Sha256HashMaker : IHashMaker, IDisposable
 {
     private readonly IncrementalHash _hash;
@@ -37,11 +37,11 @@ internal class Sha256HashMaker : IHashMaker, IDisposable
     private static readonly byte[] _endObj = "}"u8.ToArray();
     private static readonly byte[] _startArray = "["u8.ToArray();
     private static readonly byte[] _endArray = "]"u8.ToArray();
-    private static readonly byte[] _null = new byte[] { 254 };
-    private static readonly byte[] _true = new byte[] { 1 };
-    private static readonly byte[] _false = new byte[] { 0 };
+    private static readonly byte[] _null = [254];
+    private static readonly byte[] _true = [1];
+    private static readonly byte[] _false = [0];
 
-    private static readonly byte[] _marker = new byte[] { 255 };
+    private static readonly byte[] _marker = [255];
 
     public Sha256HashMaker()
     {
@@ -120,7 +120,7 @@ internal class Sha256HashMaker : IHashMaker, IDisposable
 
 
 // A debug version of the checksum maker that captures the full raw normalized input.
-// If a checksum doesn't match, re-run it with this algorithm and you can see and diff the raw inputs. 
+// If a checksum doesn't match, re-run it with this algorithm and you can see and diff the raw inputs.
 internal class DebugTextHashMaker : IHashMaker
 {
     private readonly Utf8JsonWriter _writer;

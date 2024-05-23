@@ -8,17 +8,11 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-public class TemplatePropertyDescriptor : IPropertyDescriptor
+public class TemplatePropertyDescriptor(
+    IControlTemplateStore controlTemplateStore,
+    ControlTemplate? controlTemplate = null)
+    : IPropertyDescriptor
 {
-    private readonly IControlTemplateStore _controlTemplateStore;
-    private readonly ControlTemplate? _controlTemplate;
-
-    public TemplatePropertyDescriptor(IControlTemplateStore controlTemplateStore, ControlTemplate? controlTemplate = null)
-    {
-        _controlTemplateStore = controlTemplateStore;
-        _controlTemplate = controlTemplate;
-    }
-
     public string Name => nameof(Control.Template);
 
     public Type Type => typeof(object);
@@ -37,18 +31,18 @@ public class TemplatePropertyDescriptor : IPropertyDescriptor
             return;
 
         var templateProperty = target.GetType().GetProperty(nameof(Control.Template)) ?? throw new InvalidOperationException($"Target does not have a {nameof(Control.Template)} property.");
-        if (_controlTemplate == null)
+        if (controlTemplate == null)
         {
             if (value is not string val)
                 throw new InvalidOperationException("Value is not a string.");
 
-            if (_controlTemplateStore.TryGetByIdOrName(val, out var controlTemplate))
+            if (controlTemplateStore.TryGetByIdOrName(val, out var controlTemplate))
                 templateProperty.SetValue(target, controlTemplate);
             else
                 templateProperty.SetValue(target, new ControlTemplate(val));
         }
         else
-            templateProperty.SetValue(target, _controlTemplate);
+            templateProperty.SetValue(target, controlTemplate);
     }
 
     public T? GetCustomAttribute<T>() where T : Attribute

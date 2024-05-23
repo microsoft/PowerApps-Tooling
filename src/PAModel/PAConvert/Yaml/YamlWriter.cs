@@ -32,7 +32,7 @@ public class YamlWriter : IDisposable
     {
         WriteIndent();
 
-        var needsEscape = propertyName.IndexOfAny(new char[] { '\"', '\'' }) != -1;
+        var needsEscape = propertyName.IndexOfAny(['\"', '\'']) != -1;
         if (needsEscape)
             propertyName = $"\"{propertyName.Replace("\"", "\\\"")}\"";
 
@@ -89,7 +89,7 @@ public class YamlWriter : IDisposable
 
     /// <summary>
     /// Safely write a property. Based on the value, will chose whether single-line (and prefix with an '=')
-    /// or multi-line and pick the right the escape. 
+    /// or multi-line and pick the right the escape.
     /// </summary>
     /// <param name="propertyName"></param>
     /// <param name="value"></param>
@@ -106,7 +106,7 @@ public class YamlWriter : IDisposable
 
         value = NormalizeNewlines(value);
 
-        var isSingleLine = value.IndexOfAny(new char[] { '#', '\n', ':' }) == -1;
+        var isSingleLine = value.IndexOfAny(['#', '\n', ':']) == -1;
 
         // For consistency, both single and multiline PA properties prefix with '='.
         // Only single-line actually needs this - to avoid yaml's regular expression escaping.
@@ -177,7 +177,7 @@ public class YamlWriter : IDisposable
     }
 
     // Write a newline, for aesthics. since this is inbetween properties,
-    // it should get ignored on parse. 
+    // it should get ignored on parse.
     public void WriteNewline()
     {
         _textWriter.WriteLine();

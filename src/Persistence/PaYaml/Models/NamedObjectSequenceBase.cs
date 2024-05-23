@@ -147,12 +147,9 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
         }
     }
 
-    internal sealed class InnerKeyedCollection : KeyedCollection<TName, TNamedObject>
+    internal sealed class InnerKeyedCollection(IEqualityComparer<TName>? comparer)
+        : KeyedCollection<TName, TNamedObject>(comparer)
     {
-        public InnerKeyedCollection(IEqualityComparer<TName>? comparer) : base(comparer)
-        {
-        }
-
         protected override TName GetKeyForItem(TNamedObject namedObject)
         {
             return namedObject.Name;

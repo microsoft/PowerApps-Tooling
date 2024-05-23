@@ -3,24 +3,15 @@
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 
-internal sealed class ControlTemplate
+internal sealed class ControlTemplate(string name, string version, string id)
 {
-    public string Name { get; }
-    public string Version { get; }
-    public string Id { get; }
+    public string Name { get; } = name;
+    public string Version { get; } = version;
+    public string Id { get; } = id;
 
     // Property Name -> Default Expression
-    public Dictionary<string, string> InputDefaults { get; }
+    public Dictionary<string, string> InputDefaults { get; } = new();
 
     // Variant name => property name => default expresion
-    public Dictionary<string, Dictionary<string, string>> VariantDefaultValues { get; }
-
-    public ControlTemplate(string name, string version, string id)
-    {
-        Name = name;
-        Version = version;
-        Id = id;
-        InputDefaults = new Dictionary<string, string>();
-        VariantDefaultValues = new Dictionary<string, Dictionary<string, string>>();
-    }
+    public Dictionary<string, Dictionary<string, string>> VariantDefaultValues { get; } = new();
 }

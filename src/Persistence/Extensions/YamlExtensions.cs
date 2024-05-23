@@ -8,7 +8,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 public static class YamlExtensions
 {
-    static internal readonly char[] LineTerminators = new char[] { '\r', '\n', '\x85', '\x2028', '\x2029' };
+    static internal readonly char[] LineTerminators = ['\r', '\n', '\x85', '\x2028', '\x2029'];
 
     public static ScalarStyle DetermineScalarStyleForProperty(this string? property)
     {

@@ -6,35 +6,25 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.MergeTool.Deltas;
 
-internal class RemoveControl : IDelta
+internal class RemoveControl(ControlPath parentControlPath, string controlName, bool isInComponent)
+    : IDelta
 {
-    private readonly ControlPath _parentControlPath;
-    private readonly string _controlName;
-    private readonly bool _isInComponent;
-
-    public RemoveControl(ControlPath parentControlPath, string controlName, bool isInComponent)
-    {
-        _parentControlPath = parentControlPath;
-        _controlName = controlName;
-        _isInComponent = isInComponent;
-    }
-
     public void Apply(CanvasDocument document)
     {
-        var controlSet = _isInComponent ? document._components : document._screens;
+        var controlSet = isInComponent ? document._components : document._screens;
 
         // Screen removal
-        if (_parentControlPath == ControlPath.Empty)
+        if (parentControlPath == ControlPath.Empty)
         {
-            controlSet.Remove(_controlName);
+            controlSet.Remove(controlName);
             return;
         }
 
         // error case?
-        if (!controlSet.TryGetValue(_parentControlPath.Current, out var control))
+        if (!controlSet.TryGetValue(parentControlPath.Current, out var control))
             return;
 
-        var path = _parentControlPath.Next();
+        var path = parentControlPath.Next();
         while (path.Current != null)
         {
             var found = false;
@@ -54,7 +44,7 @@ internal class RemoveControl : IDelta
 
         // Remove the control
         // maybe add error checks here too?
-        control.Children = control.Children.Where(child => child.Name.Identifier != _controlName).ToList();
-        document._editorStateStore.Remove(_controlName);
+        control.Children = control.Children.Where(child => child.Name.Identifier != controlName).ToList();
+        document._editorStateStore.Remove(controlName);
     }
 }

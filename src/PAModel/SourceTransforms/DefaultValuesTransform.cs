@@ -10,19 +10,11 @@ using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.SourceTransforms;
 
-internal class DefaultValuesTransform
+internal class DefaultValuesTransform(
+    Dictionary<string, ControlTemplate> templateStore,
+    Theme theme,
+    EditorStateStore stateStore)
 {
-    private readonly EditorStateStore _controlStore;
-    private readonly Theme _theme;
-    private readonly Dictionary<string, ControlTemplate> _templateStore;
-
-    public DefaultValuesTransform(Dictionary<string, ControlTemplate> templateStore, Theme theme, EditorStateStore stateStore)
-    {
-        _controlStore = stateStore;
-        _templateStore = templateStore;
-        _theme = theme;
-    }
-
     public void AfterRead(BlockNode node, bool inResponsiveContext)
     {
         var controlName = node.Name.Identifier;
@@ -31,13 +23,13 @@ internal class DefaultValuesTransform
 
         var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
-        if (_controlStore.TryGetControlState(controlName, out var controlState))
+        if (stateStore.TryGetControlState(controlName, out var controlState))
             styleName = controlState.StyleName;
 
-        if (!_templateStore.TryGetValue(templateName, out var template))
+        if (!templateStore.TryGetValue(templateName, out var template))
             template = null;
 
-        var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext);
+        var defaultHelper = new DefaultRuleHelper(styleName, template, templateName, variantName, theme, inResponsiveContext);
         foreach (var property in node.Properties.ToList())
         {
             var propName = property.Identifier;
@@ -55,17 +47,17 @@ internal class DefaultValuesTransform
         var styleName = $"default{templateName.FirstCharToUpper()}Style";
 
         HashSet<string> propNames = null;
-        if (_controlStore.TryGetControlState(controlName, out var controlState) && controlState.Properties != null)
+        if (stateStore.TryGetControlState(controlName, out var controlState) && controlState.Properties != null)
         {
             styleName = controlState.StyleName;
             propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName)
-                .Concat(controlState.DynamicProperties?.Where(state => state.Property != null).Select(state => state.PropertyName) ?? Enumerable.Empty<string>()));
+                .Concat(controlState.DynamicProperties?.Where(state => state.Property != null).Select(state => state.PropertyName) ?? []));
         }
 
-        if (!_templateStore.TryGetValue(templateName, out var template))
+        if (!templateStore.TryGetValue(templateName, out var template))
             template = null;
 
-        var defaults = new DefaultRuleHelper(styleName, template, templateName, variantName, _theme, inResponsiveContext).GetDefaultRules();
+        var defaults = new DefaultRuleHelper(styleName, template, templateName, variantName, theme, inResponsiveContext).GetDefaultRules();
         foreach (var property in node.Properties)
         {
             defaults.Remove(property.Identifier);

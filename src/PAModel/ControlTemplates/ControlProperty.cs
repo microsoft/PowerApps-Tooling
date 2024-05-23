@@ -5,20 +5,12 @@ using Microsoft.AppMagic.Authoring.Persistence;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 
-internal sealed class ControlProperty
+internal sealed class ControlProperty(string name, string defaultVal, string phoneDefault, string webDefault)
 {
-    public string Name { get; }
-    public string DefaultValue { get; }
-    public string PhoneDefaultValue { get; }
-    public string WebDefaultValue { get; }
-
-    public ControlProperty(string name, string defaultVal, string phoneDefault, string webDefault)
-    {
-        Name = name;
-        DefaultValue = defaultVal;
-        PhoneDefaultValue = phoneDefault;
-        WebDefaultValue = webDefault;
-    }
+    public string Name { get; } = name;
+    public string DefaultValue { get; } = defaultVal;
+    public string PhoneDefaultValue { get; } = phoneDefault;
+    public string WebDefaultValue { get; } = webDefault;
 
     public string GetDefaultValue(AppType type)
     {

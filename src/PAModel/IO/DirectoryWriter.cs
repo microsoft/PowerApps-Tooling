@@ -12,35 +12,28 @@ using Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 
 /// <summary>
-/// Abstraction over file system. 
+/// Abstraction over file system.
 /// Helps organize full path, relative paths
 /// </summary>
-public class DirectoryWriter
+public class DirectoryWriter(string directory)
 {
-    private readonly string _directory;
-
-    public DirectoryWriter(string directory)
-    {
-        _directory = directory;
-    }
-
     // Remove all subdirectories. This is important to avoid have previous
     // artifacts in the directories that we then pull back when round-tripping.
     public void DeleteAllSubdirs(ErrorContainer errors)
     {
-        if (!Directory.Exists(_directory))
+        if (!Directory.Exists(directory))
         {
-            Directory.CreateDirectory(_directory);
+            Directory.CreateDirectory(directory);
         }
         if (ValidateSafeToDelete(errors))
         {
-            foreach (var dir in Directory.EnumerateDirectories(_directory))
+            foreach (var dir in Directory.EnumerateDirectories(directory))
             {
                 if (dir.EndsWith(".git"))
                     continue;
                 Directory.Delete(dir, recursive: true);
             }
-            foreach (var file in Directory.EnumerateFiles(_directory))
+            foreach (var file in Directory.EnumerateFiles(directory))
             {
                 if (file.StartsWith(".git"))
                     continue;
@@ -100,7 +93,7 @@ public class DirectoryWriter
 
     public void WriteAllText(string subdir, FilePath filename, string text)
     {
-        var path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+        var path = Path.Combine(directory, subdir, filename.ToPlatformPath());
         EnsureFileDirExists(path);
         File.WriteAllText(path, text);
     }
@@ -108,7 +101,7 @@ public class DirectoryWriter
     // Use this if the filename is already escaped.
     public void WriteAllText(string subdir, string filename, string text)
     {
-        var path = Path.Combine(_directory, subdir, filename);
+        var path = Path.Combine(directory, subdir, filename);
 
         // Check for collision so that we don't overwrite an existing file.
         if (File.Exists(path))
@@ -122,13 +115,13 @@ public class DirectoryWriter
 
     public void WriteAllBytes(string subdir, FilePath filename, byte[] bytes)
     {
-        var path = Path.Combine(_directory, subdir, filename.ToPlatformPath());
+        var path = Path.Combine(directory, subdir, filename.ToPlatformPath());
         EnsureFileDirExists(path);
         File.WriteAllBytes(path, bytes);
     }
 
-    // System.IO.File's built in functions fail if the directory doesn't already exist. 
-    // Must pre-create it before writing. 
+    // System.IO.File's built in functions fail if the directory doesn't already exist.
+    // Must pre-create it before writing.
     public static void EnsureFileDirExists(string path)
     {
         var errors = new ErrorContainer();
@@ -151,7 +144,7 @@ public class DirectoryWriter
     /// <returns>True if the file exists.</returns>
     public bool FileExists(string subdir, string filename)
     {
-        var path = Path.Combine(_directory, subdir, filename);
+        var path = Path.Combine(directory, subdir, filename);
         return File.Exists(path);
     }
 
@@ -161,7 +154,7 @@ public class DirectoryWriter
     /// <returns></returns>
     private bool ValidateSafeToDelete(ErrorContainer errors)
     {
-        if (Directory.EnumerateFiles(_directory).Any() && !File.Exists(Path.Combine(_directory, "CanvasManifest.json")))
+        if (Directory.EnumerateFiles(directory).Any() && !File.Exists(Path.Combine(directory, "CanvasManifest.json")))
         {
             errors.BadParameter("Must provide path to either empty directory or a directory where the app was previously unpacked.");
             throw new DocumentException();

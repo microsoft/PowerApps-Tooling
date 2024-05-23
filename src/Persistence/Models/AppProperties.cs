@@ -37,7 +37,7 @@ public record AppProperties
     public required string LocalConnectionReferences { get; init; } = string.Empty;
     public required string LocalDatabaseReferences { get; init; } = string.Empty;
     public string? LibraryDependencies { get; init; }
-    public string[] AppPreviewFlagsKey { get; init; } = Array.Empty<string>();
+    public string[] AppPreviewFlagsKey { get; init; } = [];
     [JsonPropertyName("AppPreviewFlagsMap")]
     public required Dictionary<string, bool> PreviewFlags { get; init; }
     public double? DocumentLayoutWidth { get; init; }

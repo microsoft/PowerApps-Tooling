@@ -48,7 +48,7 @@ internal class SourceFile
 
     private IEnumerable<ControlInfoJson.Item> Flatten(ControlInfoJson.Item control)
     {
-        return control.Children?.Concat(control.Children.SelectMany(Flatten)) ?? Enumerable.Empty<ControlInfoJson.Item>();
+        return control.Children?.Concat(control.Children.SelectMany(Flatten)) ?? [];
     }
 
     public IEnumerable<ControlInfoJson.Item> Flatten()

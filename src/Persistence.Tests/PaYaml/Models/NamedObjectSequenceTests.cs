@@ -6,6 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 namespace Persistence.Tests.PaYaml.Models;
 
 [TestClass]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array", Justification = "Obfuscates tests")]
 public class NamedObjectSequenceTests : TestBase
 {
     [TestMethod]
@@ -22,7 +23,7 @@ public class NamedObjectSequenceTests : TestBase
         };
 
         namedObjectMapping.Should().HaveCount(3);
-        namedObjectMapping.Names.Should().BeEquivalentTo(new[] { "name1", "name2", "name3" });
+        namedObjectMapping.Names.Should().BeEquivalentTo(["name1", "name2", "name3"]);
         namedObjectMapping["name1"].Should().Be("value1");
         namedObjectMapping["name2"].Should().Be("value2");
         namedObjectMapping["name3"].Should().Be("value3");

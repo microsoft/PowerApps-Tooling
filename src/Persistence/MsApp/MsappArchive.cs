@@ -558,7 +558,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             }
         }
 
-        return screens.Values.ToList();
+        return [.. screens.Values];
     }
 
     private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)

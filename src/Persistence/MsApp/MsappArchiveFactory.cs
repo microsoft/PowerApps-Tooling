@@ -9,14 +9,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// <summary>
 /// Msapp archive factory.
 /// </summary>
-public class MsappArchiveFactory : IMsappArchiveFactory
+public class MsappArchiveFactory(IYamlSerializationFactory yamlSerializationFactory) : IMsappArchiveFactory
 {
-    private readonly IYamlSerializationFactory _yamlSerializationFactory;
-
-    public MsappArchiveFactory(IYamlSerializationFactory yamlSerializationFactory)
-    {
-        _yamlSerializationFactory = yamlSerializationFactory ?? throw new ArgumentNullException(nameof(yamlSerializationFactory));
-    }
+    private readonly IYamlSerializationFactory _yamlSerializationFactory = yamlSerializationFactory ?? throw new ArgumentNullException(nameof(yamlSerializationFactory));
 
     public IMsappArchive Create(string path, bool overwrite = false)
     {

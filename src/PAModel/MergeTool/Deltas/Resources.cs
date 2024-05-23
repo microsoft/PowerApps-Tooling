@@ -40,7 +40,7 @@ internal class AddResource : IDelta
             document.AddAssetFile(_file);
         }
 
-        document._resourcesJson.Resources = resources.Values.ToArray();
+        document._resourcesJson.Resources = [.. resources.Values];
     }
 }
 
@@ -65,7 +65,7 @@ internal class RemoveResource : IDelta
     {
         var resources = document._resourcesJson.Resources.ToDictionary(res => res.Name);
         resources.Remove(_name);
-        document._resourcesJson.Resources = resources.Values.ToArray();
+        document._resourcesJson.Resources = [.. resources.Values];
 
         if (_assetKey != null)
             document._assetFiles.Remove(_assetKey);
@@ -75,7 +75,7 @@ internal class RemoveResource : IDelta
 internal class UpdateResource : IDelta
 {
     private readonly string _name;
-    private readonly FileEntry _file; // null if no contents. 
+    private readonly FileEntry _file; // null if no contents.
     private readonly ResourceJson _resource;
     private readonly FilePath _assetKey; // needed for deletion (in case file is missing)
 
@@ -94,7 +94,7 @@ internal class UpdateResource : IDelta
     {
         var resources = document._resourcesJson.Resources.ToDictionary(res => res.Name);
         resources[_name] = _resource;
-        document._resourcesJson.Resources = resources.Values.ToArray();
+        document._resourcesJson.Resources = [.. resources.Values];
 
         document._assetFiles.Remove(_assetKey);
 

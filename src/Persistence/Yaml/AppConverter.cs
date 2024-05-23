@@ -8,12 +8,8 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal sealed class AppConverter : ControlConverter
+internal sealed class AppConverter(IControlFactory controlFactory) : ControlConverter(controlFactory)
 {
-    public AppConverter(IControlFactory controlFactory) : base(controlFactory)
-    {
-    }
-
     public override bool Accepts(Type type)
     {
         return type == typeof(App);

@@ -27,8 +27,8 @@ internal class DocumentPropertiesJson
     public string Id { get; set; }
     public string FileID { get; set; }
 
-    // Stores the connections 
-    // Dictionary-->Connection object 
+    // Stores the connections
+    // Dictionary-->Connection object
     public string LocalConnectionReferences { get; set; }
 
     public string LocalDatabaseReferences { get; set; }
@@ -96,8 +96,7 @@ internal class DocumentPropertiesJson
 
     private static string[] GetAppPreviewFlagDefault()
     {
-        return new string[]
-        {
+        return [
           "delayloadscreens",
           "blockmovingcontrol",
           "projectionmapping",
@@ -116,7 +115,7 @@ internal class DocumentPropertiesJson
           "aibuilderserviceenrollment",
           "enablesummerlandgeospatialfeatures",
           "enablesummerlandmixedrealityfeatures"
-        };
+        ];
     }
 }
 

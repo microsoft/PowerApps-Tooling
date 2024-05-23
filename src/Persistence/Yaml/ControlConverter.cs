@@ -13,15 +13,10 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
-internal class ControlConverter : IYamlTypeConverter
+internal class ControlConverter(IControlFactory controlFactory) : IYamlTypeConverter
 {
     private readonly NullNodeDeserializer _nullNodeDeserializer = new();
-    protected IControlFactory _controlFactory;
-
-    public ControlConverter(IControlFactory controlFactory)
-    {
-        _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
-    }
+    protected IControlFactory _controlFactory = controlFactory ?? throw new ArgumentNullException(nameof(controlFactory));
 
     public required YamlSerializationOptions Options { get; set; }
 

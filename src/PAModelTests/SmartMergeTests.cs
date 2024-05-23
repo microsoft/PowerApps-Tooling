@@ -489,7 +489,7 @@ public class SmartMergeTests
         (branchBDoc) =>
         {
             branchBDoc._properties.DocumentLayoutWidth = 2222;
-            branchBDoc._properties.AppPreviewFlagsKey = branchBDoc._properties.AppPreviewFlagsKey.Concat(new List<string>() { "NewFlag" }).ToArray();
+            branchBDoc._properties.AppPreviewFlagsKey = [.. branchBDoc._properties.AppPreviewFlagsKey.Concat(new List<string>() { "NewFlag" })];
         },
         (resultDoc) =>
         {
