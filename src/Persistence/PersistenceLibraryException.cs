@@ -32,9 +32,7 @@ public class PersistenceLibraryException : Exception
         ErrorCode = errorCode.CheckArgumentInRange();
     }
 
-    [Obsolete("Obsolete")]
     protected PersistenceLibraryException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     {
         ErrorCode = ((PersistenceErrorCode)info.GetInt32(nameof(ErrorCode))).CheckArgumentInRange();
         MsappEntryFullPath = info.GetString(nameof(MsappEntryFullPath));
@@ -102,18 +100,6 @@ public class PersistenceLibraryException : Exception
         }
 
         return sb.ToString();
-    }
-
-    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", DiagnosticId = "SYSLIB0051", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        info.AddValue(nameof(ErrorCode), ErrorCode);
-        info.AddValue(nameof(MsappEntryFullPath), MsappEntryFullPath);
-        info.AddValue(nameof(JsonPath), JsonPath);
-        info.AddValue(nameof(LineNumber), LineNumber ?? -1);
-        info.AddValue(nameof(Column), Column ?? -1);
-
-        base.GetObjectData(info, context);
     }
 
     internal static PersistenceLibraryException FromYamlException(YamlException ex, PersistenceErrorCode errorCode)
