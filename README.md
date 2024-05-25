@@ -7,6 +7,9 @@
 > [!TIP]
 > We welcome feedback on the project, file format, and capabilities. Start [discussion or vote for ideas](https://github.com/microsoft/PowerApps-Tooling/discussions?discussions_q=is%3Aopen+sort%3Atop)
 
+## Demo
+[![Enable every developer to collaborate with low code + pro code](http://img.youtube.com/vi/jH0QE9bQz5U/0.jpg)](http://www.youtube.com/watch?v=jH0QE9bQz5U "Enable every developer to collaborate with low code + pro code")
+
 
 ## Prerequisites
 - [VS 2022](https://visualstudio.microsoft.com/downloads/) or [VSCode](https://code.visualstudio.com/Download)
