@@ -11,4 +11,4 @@ pptx2msapp '.\Track Sales Leads Power Apps Canvas App.pptx'
 
 ## Demo
 
-<video src="demo/PowerPoint 2 Canvas.mp4" Width=800></video>
+<video src="https://github.com/microsoft/PowerApps-Tooling/raw/master/samples/pptx2msapp/demo/PowerPoint%202%20Canvas.mp4" Width=800></video>
