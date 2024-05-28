@@ -401,6 +401,31 @@ public class DeserializerValidTests : TestBase
     }
 
     [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-layout.pa.yaml", true, "built in", "Button", "vertical")]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-layout.pa.yaml", false, "built in", "Button", "vertical")]
+    public void Layout_ShouldSucceed(
+        string path, bool isControlIdentifiers,
+        string expectedName,
+        string expectedTemplateName,
+        string expectedLayout)
+    {
+        // Arrange
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var control = deserializer.Deserialize<BuiltInControl>(yamlReader);
+
+        // Assert
+        control.ShouldNotBeNull();
+        control.Name.Should().Be(expectedName);
+        control.Template.Should().NotBeNull();
+        control.Template!.Name.Should().Be(expectedTemplateName);
+        control.Layout.Should().Be(expectedLayout);
+    }
+
+    [TestMethod]
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", true)]
     [DataRow(@"_TestData/ValidYaml{0}/Screen/with-gallery.pa.yaml", false)]
     public void Deserialize_Should_AddGalleryTemplate(string path, bool isControlIdentifiers)

@@ -51,6 +51,7 @@ public class ControlFactory : IControlFactory
         Dictionary<string, object?>? controlDefinition)
     {
         string? variant = null;
+        string? layout = null;
         ControlPropertiesCollection? properties = null;
         IList<Control>? children = null;
 
@@ -59,6 +60,7 @@ public class ControlFactory : IControlFactory
             controlDefinition.TryGetValue(nameof(Control.Variant), out variant);
             controlDefinition.TryGetValue(nameof(Control.Properties), out properties);
             controlDefinition.TryGetValue(nameof(Control.Children), out children);
+            controlDefinition.TryGetValue(nameof(Control.Layout), out layout);
         }
 
         if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition, out var control))
@@ -74,14 +76,16 @@ public class ControlFactory : IControlFactory
             return new BuiltInControl(name, variant ?? string.Empty, controlTemplate)
             {
                 Properties = properties ?? new(),
-                Children = children
+                Children = children,
+                Layout = layout ?? string.Empty
             };
         }
 
         return new CustomControl(name, variant ?? string.Empty, new ControlTemplate(template))
         {
             Properties = properties ?? new(),
-            Children = children
+            Children = children,
+            Layout = layout ?? string.Empty
         };
     }
 
