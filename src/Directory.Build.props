@@ -15,6 +15,8 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>        
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <!-- https://github.com/dotnet/core/blob/main/release-notes/8.0/known-issues.md#802xx-sdk-is-not-compatible-with-178-for-some-scenarios -->
+        <BuildWithNetFrameworkHostedCompiler>true</BuildWithNetFrameworkHostedCompiler>
     </PropertyGroup>
 
     <ItemGroup>
