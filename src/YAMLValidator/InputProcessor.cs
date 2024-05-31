@@ -1,24 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-//using System.CommandLine;
-//using System.IO;
-
 using System.CommandLine;
 
 namespace YAMLValidator;
 internal sealed class InputProcessor
 {
-
     public static RootCommand GetRootCommand()
     {
 
         const string FileTypeName = "file";
         const string FolderTypeName = "folder";
-        const string yamlFileExtension = ".yaml";
+        const string YamlFileExtension = ".yaml";
+        const string JsonFileExtension = ".json";
 
-        // windows handles edge case where file and folder have same name
         var pathOption = new Option<string>(
             name: "--path",
             description: "The path to the input yaml file or directory of yaml files"
@@ -41,14 +36,14 @@ internal sealed class InputProcessor
             }
             else if (Directory.Exists(inputFilePath))
             {
-                if (Directory.GetFiles(inputFilePath, $"*{yamlFileExtension}").Length == 0)
+                if (Directory.GetFiles(inputFilePath, $"*{YamlFileExtension}").Length == 0)
                 {
                     result.ErrorMessage = "The input folder does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != yamlFileExtension)
+                if (Path.GetExtension(inputFilePath) != YamlFileExtension)
                 {
                     result.ErrorMessage = "The input file must be a yaml file";
                 }
@@ -57,8 +52,9 @@ internal sealed class InputProcessor
 
         var schemaOption = new Option<string>(
             name: "--schema",
-            description: "The path to the schema yaml file",
-            getDefaultValue: () => @"..\schemas\pa-yaml\v3.0\pa.schema.yaml"
+            description: "The path to the schema json file",
+            // assume local schema file exists in nuget package, use relative filepath for now
+            getDefaultValue: () => @"..\schemas\pa-yaml\v3.0\pa.yaml-schema.json"
         );
 
         schemaOption.AddValidator(result =>
@@ -68,13 +64,21 @@ internal sealed class InputProcessor
             {
                 result.ErrorMessage = "Schema option selected, but no schema was provided";
             }
+            else if (Path.GetExtension(schemaPath) != JsonFileExtension)
+            {
+                result.ErrorMessage = "The schema file must be a json file";
+            }
+            else if (!File.Exists(schemaPath))
+            {
+                result.ErrorMessage = "The schema file does not exist";
+            }
+
         });
 
         // define root
         var rootCommand = new RootCommand("YAML validator cli-tool");
 
-        // commands
-        // validate
+        // validate command
         var validateCommand = new Command("validate", "Validate the input yaml file")
         {
             pathOption,
@@ -85,10 +89,12 @@ internal sealed class InputProcessor
         {
             // validation has completed, we either have a file or folder
             var fileType = File.Exists(pathOptionVal) ? FileTypeName : FolderTypeName;
-            Console.WriteLine($@"Validating
-                                 Path: {pathOptionVal}
-                                 Filetype: {fileType}
-                                 Schema: {schemaOptionVal}");
+            Console.WriteLine($"ValidatingPath: {pathOptionVal}");
+            Console.WriteLine($"Path type: {fileType}");
+            Console.WriteLine($"Schema: {schemaOptionVal}");
+
+            // to do -> add handler to validate all yaml files in a folder are actually parseable as yaml
+            //         or add handler to validate a single yaml file is parseable as yaml
         }, pathOption, schemaOption);
 
         rootCommand.AddCommand(validateCommand);
