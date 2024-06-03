@@ -11,14 +11,14 @@ Samples for creating, reading, and updating files containing Power Apps (*.msapp
 - First build the PASopa Solution prior to building the samples.
 
 ### Test.AppWriter
-- To build the Test.AppWriter, you may build through Visual Studio or on commandline with `dotnet build` in the root Test.AppWriter folder
-- To run the Test.AppWriter to generate MSApp files, the exe should be located in `\Test.AppWriter\bin\Debug\net8.0`. Invoke the exe from the commandline with no arguments for a list of commands, or invoke a specific command for a list of specific options for that command.
-Commandline arguments can also be supplied in Visual Studio debugger in the debug profile properties.
+- To build the Test.AppWriter, you may build through Visual Studio or on commandline with `dotnet build` in the root Test.AppWriter folder.
+- To run the Test.AppWriter, the executable should be located in `\Test.AppWriter\bin\Debug\net8.0`.  Invoke the .exe from the commandline with no arguments for a list of commands, or invoke a specific command for a list of specific options for that command.  Commandline arguments can also be supplied in Visual Studio debugger in the debug profile properties.
 - A typical usage may look something like:
 `.\Test.AppWriter.exe create --filepath my\output\path --numscreens 2 --controls Button Label`
 
-### MAUI App
-- To build the Test.AppWriter, you may build through Visual Studio or on commandline with `dotnet build` in the root Test.AppWriter folder
+### MauiMsApp
+- To build the MauiMsApp, you may build through Visual Studio or on commandline with `dotnet build` in the root MauiMsApp folder.
+- To run the MauiMsApp, select the MauiMsApp as the startup project in the Visual Studio debugger and select the Windows Machine debug profile, then you can start with or without debugging from Visual Studio
 
 ## Screenshots
 MauiMsApp sample app shows how to open and create MsApp files using `Microsoft.PowerPlatform.PowerApps.Persistence` library.
