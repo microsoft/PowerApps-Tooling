@@ -3,7 +3,7 @@
 
 using System.CommandLine;
 
-namespace YAMLValidator;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
 internal sealed class Program
 {

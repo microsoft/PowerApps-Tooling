@@ -3,7 +3,7 @@
 
 using System.CommandLine;
 
-namespace YAMLValidator;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class InputProcessor
 {
     public static RootCommand GetRootCommand()
@@ -55,7 +55,7 @@ internal sealed class InputProcessor
             description: "The path to the schema json file",
             // assume local schema file exists in nuget package, use relative filepath for now
             getDefaultValue: () => @"..\schemas\pa-yaml\v3.0\pa.yaml-schema.json"
-        );
+            );
 
         schemaOption.AddValidator(result =>
         {
@@ -72,7 +72,6 @@ internal sealed class InputProcessor
             {
                 result.ErrorMessage = "The schema file does not exist";
             }
-
         });
 
         // define root
