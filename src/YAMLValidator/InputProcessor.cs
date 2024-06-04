@@ -50,10 +50,10 @@ internal sealed class InputProcessor
             }
         });
 
+        // assume local schema file exists in nuget package, use relative filepath for now
         var schemaOption = new Option<string>(
             name: "--schema",
             description: "The path to the schema json file",
-            // assume local schema file exists in nuget package, use relative filepath for now
             getDefaultValue: () => @"..\schemas\pa-yaml\v3.0\pa.yaml-schema.json"
             );
 
