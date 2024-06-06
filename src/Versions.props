@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
-        <YamlDotNetVersion>15.1.2</YamlDotNetVersion>
+        <YamlDotNetVersion>15.1.6</YamlDotNetVersion>
         <MicrosoftNETTestSdkVersion>17.7.1</MicrosoftNETTestSdkVersion>
         <MSTestTestAdapterVersion>3.2.2</MSTestTestAdapterVersion>
         <MSTestTestFrameworkVersion>3.2.2</MSTestTestFrameworkVersion>
