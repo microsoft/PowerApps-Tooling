@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pa.yaml-schema.json",
+  "title": "Microsoft Power Apps",
+  "description": "Canvas YAML",
+  "oneOf": [
+    {
+      "description": "A single control",
+      "$ref": "#/$defs/ControlDef"
+    },
+    {
+      "description": "An array of controls",
+      "type": "array",
+      "items": { "$ref": "#/$defs/ControlDef" }
+    }
+  ],
+  "$defs": {
+    "ControlDef": {
+      "type": "object",
+      "patternProperties": {
+        "^[^\\\\]*$": {
+          "description": "The control name",
+          "type": "object",
+          "properties": {
+            "Control": {
+              "$ref": "subschemas/control-type-schema.json"
+            },
+            "Variant": {
+              "description": "The variant of the control",
+              "type": "string"
+            },
+            "Layout": { "type": "string" },
+            "Description": { "type": "string" },
+            "Type": { "type": "string" },
+            "Screens": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ControlDef" }
+            },
+            "AccessAppScope": { "type": "string" },
+            "Settings": { "type": "object" },
+            "Style": { "type": "string" },
+            "Properties": {
+              "$ref": "subschemas/control-property-schema.json"
+            },
+            "CustomProperties": {
+              "type": "array"
+            },
+            "ComponentName": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_/]*$"
+            },
+            "ComponentLibraryUniqueName": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_/]*$"
+            },
+            "Children": {
+              "description": "The children of the control",
+              "type": "array",
+              "items": { "$ref": "#/$defs/ControlDef" }
+            }
+          },
+          "required": [ "Control" ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
