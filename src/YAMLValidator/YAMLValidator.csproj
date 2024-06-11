@@ -1,26 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="JsonSchema.Net" Version="7.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="JsonSchema.Net" Version="7.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="\schema">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\..\docs\pa.yaml-schema.json" Link="schema\pa.yaml-schema.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\..\docs\control-type-schema.json" Link="schema\subschemas\control-type-schema.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\..\docs\control-property-schema.json" Link="schema\subschemas\control-property-schema.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
 
 </Project>

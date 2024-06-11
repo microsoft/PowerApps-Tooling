@@ -54,7 +54,7 @@ internal sealed class InputProcessor
         var schemaOption = new Option<string>(
             name: "--schema",
             description: "The path to the schema json file",
-            getDefaultValue: () => @"..\schemas\pa-yaml\v3.0\pa.yaml-schema.json"
+            getDefaultValue: () => @".\schema\pa.yaml-schema.json"
             );
 
         schemaOption.AddValidator(result =>
