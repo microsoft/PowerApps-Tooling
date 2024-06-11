@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/control-type-schema.json",
+  "$id": "control-property-schema.json",
   "title": "Microsoft Power Apps Properties",
   "description": "The properties of the control",
   "type": "object",
