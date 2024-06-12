@@ -2,10 +2,20 @@
 // Licensed under the MIT License.
 
 using System.CommandLine;
+using YAMLValidator;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class InputProcessor
 {
+
+    private static void ProcessFiles(string path, string schema, string pathType)
+    {
+        // Orchestrator class to handle the processing of the input files
+        var filePathInfo = new FilePathData(path, schema, pathType);
+        var orchestrator = new Orchestrator(filePathInfo.FilePath,
+            filePathInfo.SchemaPath, filePathInfo.filePathType);
+        orchestrator.runValidation();
+    }
     public static RootCommand GetRootCommand()
     {
 
@@ -87,13 +97,9 @@ internal sealed class InputProcessor
         validateCommand.SetHandler((pathOptionVal, schemaOptionVal) =>
         {
             // validation has completed, we either have a file or folder
-            var fileType = File.Exists(pathOptionVal) ? FileTypeName : FolderTypeName;
-            Console.WriteLine($"ValidatingPath: {pathOptionVal}");
-            Console.WriteLine($"Path type: {fileType}");
-            Console.WriteLine($"Schema: {schemaOptionVal}");
+            var pathType = File.Exists(pathOptionVal) ? FileTypeName : FolderTypeName;
+            ProcessFiles(pathOptionVal, schemaOptionVal, pathType);
 
-            // to do -> add handler to validate all yaml files in a folder are actually parseable as yaml
-            //         or add handler to validate a single yaml file is parseable as yaml
         }, pathOption, schemaOption);
 
         rootCommand.AddCommand(validateCommand);
