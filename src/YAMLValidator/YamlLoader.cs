@@ -6,10 +6,10 @@ using System.Collections.ObjectModel;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class YamlLoader
 {
-    public ReadOnlyDictionary<string, string> _yamlData { get; }
+    public IReadOnlyDictionary<string, string> _yamlData { get; }
     // move this and all occurences of it to a utility class and make it static
-    private const string _yamlFileExtension = ".yaml";
-    private const string FileTypeName = "file";
+    //private const string _yamlFileExtension = ".yaml";
+    //private const string _fileTypeName = "file";
     // private const string FolderTypeName = "folder";
 
     public YamlLoader(string filePath, string pathType)
@@ -20,7 +20,7 @@ internal sealed class YamlLoader
     private static Dictionary<string, string> LoadFilePathData(string filePath, string pathType)
     {
         var deserializedYaml = new Dictionary<string, string>();
-        if (pathType == FileTypeName)
+        if (pathType == YamlValidatorConstants.FileTypeName)
         {
             var fileName = Path.GetFileName(filePath);
             var yamlText = YamlValidatorUtility.ReadFileData(filePath);
@@ -28,7 +28,8 @@ internal sealed class YamlLoader
             return deserializedYaml;
         }
 
-        var files = Directory.GetFiles(filePath, $"*{_yamlFileExtension}");
+        // to do: address edge case of .yml files
+        var files = Directory.GetFiles(filePath, $"*{YamlValidatorConstants.YamlFileExtension}");
         foreach (var file in files)
         {
             var fileName = Path.GetFileName(file);

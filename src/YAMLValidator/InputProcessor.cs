@@ -19,11 +19,6 @@ internal sealed class InputProcessor
     public static RootCommand GetRootCommand()
     {
 
-        const string FileTypeName = "file";
-        const string FolderTypeName = "folder";
-        const string YamlFileExtension = ".yaml";
-        const string JsonFileExtension = ".json";
-
         var pathOption = new Option<string>(
             name: "--path",
             description: "The path to the input yaml file or directory of yaml files"
@@ -38,7 +33,8 @@ internal sealed class InputProcessor
             var pathType = string.Empty;
             if (string.IsNullOrEmpty(inputFilePath))
             {
-                result.ErrorMessage = "The input is invalid, input must be a filepath to a yaml file or a folder path to a folder of yaml files";
+                result.ErrorMessage = "The input is invalid, input must be a filepath to a yaml file \\" +
+                "or a folder path to a folder of yaml files";
             }
             else if (!Directory.Exists(inputFilePath) && !File.Exists(inputFilePath))
             {
@@ -46,14 +42,14 @@ internal sealed class InputProcessor
             }
             else if (Directory.Exists(inputFilePath))
             {
-                if (Directory.GetFiles(inputFilePath, $"*{YamlFileExtension}").Length == 0)
+                if (Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YamlFileExtension}").Length == 0)
                 {
                     result.ErrorMessage = "The input folder does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != YamlFileExtension)
+                if (Path.GetExtension(inputFilePath) != YamlValidatorConstants.YamlFileExtension)
                 {
                     result.ErrorMessage = "The input file must be a yaml file";
                 }
@@ -74,7 +70,7 @@ internal sealed class InputProcessor
             {
                 result.ErrorMessage = "Schema option selected, but no schema was provided";
             }
-            else if (Path.GetExtension(schemaPath) != JsonFileExtension)
+            else if (Path.GetExtension(schemaPath) != YamlValidatorConstants.JsonFileExtension)
             {
                 result.ErrorMessage = "The schema file must be a json file";
             }
@@ -97,7 +93,8 @@ internal sealed class InputProcessor
         validateCommand.SetHandler((pathOptionVal, schemaOptionVal) =>
         {
             // validation has completed, we either have a file or folder
-            var pathType = File.Exists(pathOptionVal) ? FileTypeName : FolderTypeName;
+            var pathType = File.Exists(pathOptionVal) ? YamlValidatorConstants.FileTypeName :
+                                                        YamlValidatorConstants.FolderTypeName;
             ProcessFiles(pathOptionVal, schemaOptionVal, pathType);
 
         }, pathOption, schemaOption);

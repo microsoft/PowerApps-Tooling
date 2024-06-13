@@ -17,7 +17,7 @@ internal sealed class Orchestrator
 
     public void runValidation()
     {
-        _validator._schema = _schemaLoader._schema;
+        _validator._schema = _schemaLoader.Schema;
         foreach (var yamlFileData in _fileLoader._yamlData)
         {
             Console.WriteLine($"Validation for {yamlFileData.Key}");
