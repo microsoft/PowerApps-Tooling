@@ -350,7 +350,7 @@ public class CanvasDocument
         var templateDefaults = new Dictionary<string, ControlTemplate>();
         foreach (var template in _templates.UsedTemplates)
         {
-            if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _))
+            if (!ControlTemplateParser.TryParseTemplate(_templateStore, template.Template, _properties.DocumentAppType, templateDefaults, out _, out _, template.Name))
             {
                 errors.GenericError($"Unable to parse template file {template.Name}");
                 throw new DocumentException();

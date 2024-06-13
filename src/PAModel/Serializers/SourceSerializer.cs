@@ -523,7 +523,7 @@ internal static partial class SourceSerializer
         {
             var filename = $"{template.Name}_{template.Version}.xml";
             dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
-            if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
+            if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _, template.Name))
                 throw new NotSupportedException($"Unable to parse template file {template.Name}");
         }
 
