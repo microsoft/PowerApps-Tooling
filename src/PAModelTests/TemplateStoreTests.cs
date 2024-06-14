@@ -44,4 +44,31 @@ public class TemplateStoreTests
             Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
         }
     }
+
+    // Validate a modern control that has a dynamic template.
+    // The template has a valid template name, but makes reference to another template.
+    // This example app has two modern controls (combobox and dropdown) that make reference to the same template.
+    [DataTestMethod]
+    [DataRow("ComboboxDropdown.msapp")]
+    public void TestModernControlWithDynamicTemplate(string appName)
+    {
+        //arrange
+        var root = Path.Combine(Environment.CurrentDirectory, "Apps", appName);
+        Assert.IsTrue(File.Exists(root), "MSAPP not found");
+
+        //act
+        (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
+        errors.ThrowOnErrors();
+
+        //assert
+        Assert.IsTrue(msapp._templateStore.Contents.ContainsKey("PowerApps_CoreControls_DropdownCanvasTemplate_dataField"));
+        Assert.IsTrue(msapp._templateStore.Contents.ContainsKey("PowerApps_CoreControls_ComboboxCanvasTemplate_dataField"));
+
+        // Repack the app and validate it matches the initial msapp
+        using (var tempFile = new TempFile())
+        {
+            MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
+            Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+        }
+    }
 }

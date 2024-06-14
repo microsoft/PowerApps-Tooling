@@ -310,7 +310,8 @@ internal static partial class SourceSerializer
         foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false))
         {
             var xmlContents = file.GetContents();
-            if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
+            var templateNameFromFile = file._relativeName.Substring(0, file._relativeName.LastIndexOf('_'));
+            if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName, templateNameFromFile))
             {
                 errors.GenericError($"Unable to parse template file {file._relativeName}");
                 throw new DocumentException();
@@ -523,7 +524,7 @@ internal static partial class SourceSerializer
         {
             var filename = $"{template.Name}_{template.Version}.xml";
             dir.WriteAllXML(PackagesDir, new FilePath(filename), template.Template);
-            if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _))
+            if (!ControlTemplateParser.TryParseTemplate(app._templateStore, template.Template, app._properties.DocumentAppType, templateDefaults, out _, out _, template.Name))
                 throw new NotSupportedException($"Unable to parse template file {template.Name}");
         }
 

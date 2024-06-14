@@ -13,10 +13,10 @@ internal class ControlTemplateParser
     internal static Regex _reservedIdentifierRegex = new(@"%([a-zA-Z]*)\.RESERVED%");
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
-    internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name)
+    internal static bool TryParseTemplate(TemplateStore templateStore, string templateString, AppType type, Dictionary<string, ControlTemplate> loadedTemplates, out ControlTemplate template, out string name, string templateName = null)
     {
         template = null;
-        name = string.Empty;
+        name = templateName;
         try
         {
             var manifest = XDocument.Parse(templateString);
@@ -26,7 +26,8 @@ internal class ControlTemplateParser
             if (widget.Name != ControlMetadataXNames.WidgetTag)
                 return false;
 
-            name = widget.Attribute(ControlMetadataXNames.NameAttribute).Value;
+            name ??= widget.Attribute(ControlMetadataXNames.NameAttribute).Value;
+
             var id = widget.Attribute(ControlMetadataXNames.IdAttribute).Value;
             var version = widget.Attribute(ControlMetadataXNames.VersionAttribute).Value;
 
