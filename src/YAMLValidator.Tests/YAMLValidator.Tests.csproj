@@ -12,7 +12,13 @@
     <PublicSign>true</PublicSign>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+        <None Include="_TestData\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0-preview.5.24306.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -24,13 +30,9 @@
     <ProjectReference Include="..\YAMLValidator\YAMLValidator.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
-  </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="_TestData\InvalidYaml\" />
-    <Folder Include="_TestData\ValidYaml\" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
 </Project>
