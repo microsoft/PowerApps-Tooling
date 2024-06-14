@@ -17,13 +17,13 @@ internal sealed class Orchestrator
 
     public void runValidation()
     {
-        _validator._schema = _schemaLoader.Schema;
-        foreach (var yamlFileData in _fileLoader._yamlData)
+        _validator.Schema = _schemaLoader.Schema;
+        foreach (var yamlFileData in _fileLoader.YamlData)
         {
             Console.WriteLine($"Validation for {yamlFileData.Key}");
-            _validator._yaml = yamlFileData.Value;
+            _validator.Yaml = yamlFileData.Value;
             var result = _validator.Validate();
-            Console.WriteLine(result);
+            Console.WriteLine($"Is valid: {result}");
         }
     }
 

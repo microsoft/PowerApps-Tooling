@@ -4,12 +4,13 @@
 using Json.Schema;
 using Yaml2JsonNode;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
 internal sealed class Validator
 {
-    public JsonSchema? _schema { get; set; }
-    public string? _yaml { get; set; }
+    public JsonSchema? Schema { get; set; }
+    public string? Yaml { get; set; }
 
     private readonly EvaluationOptions _verbosityOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -31,7 +32,7 @@ internal sealed class Validator
 
     public bool Validate()
     {
-        if (_schema == null || _yaml == null)
+        if (Schema == null || Yaml == null)
         {
             Console.WriteLine("Schema or Yaml is not set");
             throw new InvalidOperationException();
@@ -39,14 +40,13 @@ internal sealed class Validator
 
         try
         {
-            var yamlStream = YamlValidatorUtility.MakeYamlStream(_yaml);
-            if (yamlStream.Documents.Count == 0)
-            {
-                Console.WriteLine("The given file is empty");
-                return true;
-            }
-            var jsonData = yamlStream.Documents[0].ToJsonNode();
-            var results = _schema.Evaluate(jsonData, _verbosityOptions);
+            var yamlStream = YamlValidatorUtility.MakeYamlStream(Yaml);
+
+            // handle empty yaml?
+            var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() :
+                JsonNode.Parse("{}");
+
+            var results = Schema.Evaluate(jsonData, _verbosityOptions);
             var output = JsonSerializer.Serialize(results, _serializerOptions);
             Console.WriteLine(output);
             return results.IsValid;

@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class YamlLoader
 {
-    public IReadOnlyDictionary<string, string> _yamlData { get; }
+    public IReadOnlyDictionary<string, string> YamlData { get; }
     // move this and all occurences of it to a utility class and make it static
     //private const string _yamlFileExtension = ".yaml";
     //private const string _fileTypeName = "file";
@@ -15,7 +15,7 @@ internal sealed class YamlLoader
     public YamlLoader(string filePath, string pathType)
     {
         var loadedYaml = LoadFilePathData(filePath, pathType);
-        _yamlData = new ReadOnlyDictionary<string, string>(loadedYaml);
+        YamlData = new ReadOnlyDictionary<string, string>(loadedYaml);
     }
     private static Dictionary<string, string> LoadFilePathData(string filePath, string pathType)
     {
