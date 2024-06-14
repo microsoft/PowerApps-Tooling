@@ -1,0 +1,10 @@
+Gallery1:
+  Control: Gallery
+  Properties:
+    Items: =Accounts
+    TemplateFill: =RGBA(0, 0, 0, 0)
+  Children:
+  - Button1:
+      Control: Button
+      Properties:
+        Fill: =RGBA(0, 0, 0, 0)

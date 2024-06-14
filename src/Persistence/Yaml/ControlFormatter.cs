@@ -20,7 +20,7 @@ public static class ControlFormatter
         _ = control ?? throw new ArgumentNullException(nameof(control));
 
         var childrenToRemove = (control.Children ?? Enumerable.Empty<Control>()).Where(c => c.Template.AddPropertiesToParent).ToList();
-        var propertiesToMerge = childrenToRemove.SelectMany(c => c.Properties).ToList();
+        var propertiesToMerge = childrenToRemove.SelectMany(c => c.Properties.Where(p => p.Key != PropertyNames.ZIndex)).ToList();
 
         var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer.Name;
 
