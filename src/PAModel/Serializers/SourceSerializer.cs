@@ -310,7 +310,8 @@ internal static partial class SourceSerializer
         foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false))
         {
             var xmlContents = file.GetContents();
-            if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName))
+            var templateNameFromFile = file._relativeName.Substring(0, file._relativeName.LastIndexOf('_'));
+            if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName, templateNameFromFile))
             {
                 errors.GenericError($"Unable to parse template file {file._relativeName}");
                 throw new DocumentException();
