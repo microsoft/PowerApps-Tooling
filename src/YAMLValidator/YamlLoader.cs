@@ -7,10 +7,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class YamlLoader
 {
     public IReadOnlyDictionary<string, string> YamlData { get; }
-    // move this and all occurences of it to a utility class and make it static
-    //private const string _yamlFileExtension = ".yaml";
-    //private const string _fileTypeName = "file";
-    // private const string FolderTypeName = "folder";
 
     public YamlLoader(string filePath, string pathType)
     {

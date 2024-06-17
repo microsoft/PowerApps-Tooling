@@ -3,4 +3,4 @@
 
 
 namespace YAMLValidator;
-internal readonly record struct FilePathData(string FilePath, string SchemaPath, string filePathType);
+internal readonly record struct FilePathData(string FilePath, string SchemaPath, string FilePathType);

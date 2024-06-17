@@ -14,6 +14,9 @@ public class ValidatorTest
 
     private readonly Validator _yamlValidator = new();
 
+    // to do make validator object computation into a function -> clean up code
+
+    // invalid schemas where yaml or schema is missing
     [TestMethod]
     [ExpectedException(typeof(InvalidOperationException))]
     public void TestSchemaAndJsonEmpty()
@@ -26,7 +29,7 @@ public class ValidatorTest
     [ExpectedException(typeof(InvalidOperationException))]
     public void TestSchemaEmpty()
     {
-        _yamlValidator.Yaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\Simple.yaml");
+        _yamlValidator.Yaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\SimpleNoRecursiveDefinition.yaml");
         _yamlValidator.Validate();
 
     }
@@ -56,6 +59,7 @@ public class ValidatorTest
 
     }
 
+    // This yaml fails the schema oneOf clause, it is simply a key with no value
     [TestMethod]
     public void TestScreenWithNameNoValue()
     {
@@ -93,6 +97,7 @@ public class ValidatorTest
         Assert.IsFalse(result);
     }
 
+    // a control with an invalid property (not in the schema)
     [TestMethod]
     public void ControlWithInvalidProperty()
     {
@@ -104,15 +109,26 @@ public class ValidatorTest
         Assert.IsFalse(result);
     }
 
+    [TestMethod]
+    public void ControlWithAdditionalProperty()
+    {
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ControlObjectWithAdditionalProperty.yaml");
+        SchemaLoader _schemaLoader = new(_schemaPath);
+        _yamlValidator.Schema = _schemaLoader.Schema;
+        _yamlValidator.Yaml = rawYaml;
+        var result = _yamlValidator.Validate();
+        Assert.IsFalse(result);
+    }
+
 
     // valid yaml
     // note powerapps studio wont allow you to have a screen without a name
-    // we may want to modify this as an edge case to return false
+    // This is a runtime error, but not a syntax error
 
     [TestMethod]
     public void TestEmptyYaml()
     {
-        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\Empty.yaml");
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\Empty.yaml");
         SchemaLoader _schemaLoader = new(_schemaPath);
         _yamlValidator.Schema = _schemaLoader.Schema;
         _yamlValidator.Yaml = rawYaml;
@@ -120,8 +136,41 @@ public class ValidatorTest
         Assert.IsTrue(result);
     }
 
+    // syntactically correct -> an app which matches the regex for a screen and has a control
+    [TestMethod]
+    public void TestNameLessObjectWithControl()
+    {
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\NamelessObjectWithControl.yaml");
+        SchemaLoader _schemaLoader = new(_schemaPath);
+        _yamlValidator.Schema = _schemaLoader.Schema;
+        _yamlValidator.Yaml = rawYaml;
+        var result = _yamlValidator.Validate();
+        Assert.IsTrue(result);
+    }
 
+    // a working screen on powerapps studio
+    [TestMethod]
+    public void TestStudioMadeApp()
+    {
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\ValidScreen1.yaml");
+        SchemaLoader _schemaLoader = new(_schemaPath);
+        _yamlValidator.Schema = _schemaLoader.Schema;
+        _yamlValidator.Yaml = rawYaml;
+        var result = _yamlValidator.Validate();
+        Assert.IsTrue(result);
+    }
 
+    // a simple app without any recursive definitions
+    [TestMethod]
+    public void TestSimpleNoRecursiveDefinition()
+    {
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\SimpleNoRecursiveDefinition.yaml");
+        SchemaLoader _schemaLoader = new(_schemaPath);
+        _yamlValidator.Schema = _schemaLoader.Schema;
+        _yamlValidator.Yaml = rawYaml;
+        var result = _yamlValidator.Validate();
+        Assert.IsTrue(result);
 
+    }
 
 }

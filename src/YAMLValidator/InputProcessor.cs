@@ -13,7 +13,7 @@ internal sealed class InputProcessor
         // Orchestrator class to handle the processing of the input files
         var filePathInfo = new FilePathData(path, schema, pathType);
         var orchestrator = new Orchestrator(filePathInfo.FilePath,
-            filePathInfo.SchemaPath, filePathInfo.filePathType);
+            filePathInfo.SchemaPath, filePathInfo.FilePathType);
         orchestrator.runValidation();
     }
     public static RootCommand GetRootCommand()
