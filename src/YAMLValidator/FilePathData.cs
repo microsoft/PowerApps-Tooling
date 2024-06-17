@@ -2,5 +2,5 @@
 // Licensed under the MIT License.
 
 
-namespace YAMLValidator;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal readonly record struct FilePathData(string FilePath, string SchemaPath, string FilePathType);

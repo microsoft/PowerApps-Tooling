@@ -9,4 +9,6 @@ internal class YamlValidatorConstants
     public const string YamlFileExtension = ".yaml";
     public const string YmlFileExtension = ".yml";
     public const string JsonFileExtension = ".json";
+
+    public const string verbose = "verbose";
 }

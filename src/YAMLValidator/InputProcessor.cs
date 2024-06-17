@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.CommandLine;
-using YAMLValidator;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class InputProcessor
@@ -10,11 +9,17 @@ internal sealed class InputProcessor
 
     private static void ProcessFiles(string path, string schema, string pathType)
     {
-        // Orchestrator class to handle the processing of the input files
+        // read only records
         var filePathInfo = new FilePathData(path, schema, pathType);
-        var orchestrator = new Orchestrator(filePathInfo.FilePath,
-            filePathInfo.SchemaPath, filePathInfo.FilePathType);
-        orchestrator.runValidation();
+        // to do: add verbosity flag and configure this as a paramter pass after
+        // validation to ensure that only certain values are passed to it
+        var verbosityInfo = new VerbosityData(YamlValidatorConstants.verbose);
+
+        var validator = new Validator(verbosityInfo.EvalOptions, verbosityInfo.JsonOutputOptions);
+        var schemaLoader = new SchemaLoader();
+        var fileLoader = new YamlLoader();
+        var orchestrator = new Orchestrator(fileLoader, schemaLoader, validator);
+        orchestrator.RunValidation(filePathInfo);
     }
     public static RootCommand GetRootCommand()
     {

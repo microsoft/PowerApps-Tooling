@@ -6,14 +6,8 @@ using System.Collections.ObjectModel;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal sealed class YamlLoader
 {
-    public IReadOnlyDictionary<string, string> YamlData { get; }
 
-    public YamlLoader(string filePath, string pathType)
-    {
-        var loadedYaml = LoadFilePathData(filePath, pathType);
-        YamlData = new ReadOnlyDictionary<string, string>(loadedYaml);
-    }
-    private static Dictionary<string, string> LoadFilePathData(string filePath, string pathType)
+    public IReadOnlyDictionary<string, string> Load(string filePath, string pathType)
     {
         var deserializedYaml = new Dictionary<string, string>();
         if (pathType == YamlValidatorConstants.FileTypeName)
@@ -21,7 +15,7 @@ internal sealed class YamlLoader
             var fileName = Path.GetFileName(filePath);
             var yamlText = YamlValidatorUtility.ReadFileData(filePath);
             deserializedYaml.Add(fileName, yamlText);
-            return deserializedYaml;
+            return new ReadOnlyDictionary<string, string>(deserializedYaml);
         }
 
         // to do: address edge case of .yml files
@@ -32,7 +26,8 @@ internal sealed class YamlLoader
             var yamlText = YamlValidatorUtility.ReadFileData(file);
             deserializedYaml.Add(fileName, yamlText);
         }
-        return deserializedYaml;
+
+        return new ReadOnlyDictionary<string, string>(deserializedYaml);
     }
 
 }

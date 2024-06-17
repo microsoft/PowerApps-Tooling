@@ -8,21 +8,27 @@ internal sealed class Orchestrator
     private readonly SchemaLoader _schemaLoader;
     private readonly Validator _validator;
 
-    public Orchestrator(string filePath, string schemaPath, string pathType)
+    public Orchestrator(YamlLoader fileLoader, SchemaLoader schemaLoader, Validator validator)
     {
-        _fileLoader = new YamlLoader(filePath, pathType);
-        _schemaLoader = new SchemaLoader(schemaPath);
-        _validator = new Validator();
+        _fileLoader = fileLoader;
+        _schemaLoader = schemaLoader;
+        _validator = validator;
     }
 
-    public void runValidation()
+    public void RunValidation(FilePathData inputData)
     {
-        _validator.Schema = _schemaLoader.Schema;
-        foreach (var yamlFileData in _fileLoader.YamlData)
+        var schemaPath = inputData.SchemaPath;
+        var path = inputData.FilePath;
+        var pathType = inputData.FilePathType;
+
+        var yamlData = _fileLoader.Load(path, pathType);
+        var serializedSchema = _schemaLoader.Load(schemaPath);
+
+
+        foreach (var yamlFileData in yamlData)
         {
             Console.WriteLine($"Validation for {yamlFileData.Key}");
-            _validator.Yaml = yamlFileData.Value;
-            var result = _validator.Validate();
+            var result = _validator.Validate(serializedSchema, yamlFileData.Value);
             Console.WriteLine($"Is valid: {result}");
         }
     }
