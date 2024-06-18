@@ -24,12 +24,18 @@ internal sealed class Orchestrator
         var yamlData = _fileLoader.Load(path, pathType);
         var serializedSchema = _schemaLoader.Load(schemaPath);
 
-
         foreach (var yamlFileData in yamlData)
         {
             Console.WriteLine($"Validation for {yamlFileData.Key}");
             var result = _validator.Validate(serializedSchema, yamlFileData.Value);
-            Console.WriteLine($"Is valid: {result}");
+            var valid = result.Count == 0 ? "Valid" : "Invalid";
+
+            Console.WriteLine($"Validation Result: {valid}");
+            foreach (var error in result)
+            {
+                Console.WriteLine($"{error}");
+            }
+            Console.WriteLine();
         }
     }
 

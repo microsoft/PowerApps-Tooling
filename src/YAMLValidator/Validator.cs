@@ -21,13 +21,27 @@ internal sealed class Validator
 
     }
 
-    public bool Validate(JsonSchema schema, string yamlFileData)
+    public IReadOnlyList<YamlValidatorError> Validate(JsonSchema schema, string yamlFileData)
     {
         var yamlStream = YamlValidatorUtility.MakeYamlStream(yamlFileData);
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : JsonNode.Parse("{}");
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
-        Console.WriteLine(output);
-        return results.IsValid;
+
+        // filter actual errors versus false positives
+        // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
+        IReadOnlyList<EvaluationResults> traceList = results.Details.Where(
+            node => !node.IsValid &&
+                    !string.IsNullOrEmpty(node.InstanceLocation.ToString()) &&
+                     node.HasErrors).ToList();
+        var yamlValidatorErrors = new List<YamlValidatorError>();
+        foreach (var trace in traceList)
+        {
+            yamlValidatorErrors.Add(new YamlValidatorError(trace));
+
+        }
+        IReadOnlyList<YamlValidatorError> fileErrors = yamlValidatorErrors;
+        return fileErrors;
+
     }
 }

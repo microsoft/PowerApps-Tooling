@@ -16,7 +16,7 @@ internal readonly record struct VerbosityData
 
         if (verbosityLevel == YamlValidatorConstants.verbose)
         {
-            EvalOptions.OutputFormat = OutputFormat.Hierarchical;
+            EvalOptions.OutputFormat = OutputFormat.List;
             return;
         }
         EvalOptions.OutputFormat = OutputFormat.Flag;
