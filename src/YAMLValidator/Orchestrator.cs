@@ -15,7 +15,7 @@ internal sealed class Orchestrator
         _validator = validator;
     }
 
-    public void RunValidation(FilePathData inputData)
+    public void RunValidation(ValidationRequest inputData)
     {
         var schemaPath = inputData.SchemaPath;
         var path = inputData.FilePath;

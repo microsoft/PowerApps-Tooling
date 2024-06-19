@@ -3,4 +3,4 @@
 
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal readonly record struct FilePathData(string FilePath, string SchemaPath, string FilePathType);
+internal readonly record struct ValidationRequest(string FilePath, string SchemaPath, string FilePathType);
