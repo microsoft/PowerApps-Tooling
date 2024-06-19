@@ -5,6 +5,7 @@ using Json.Schema;
 using Yaml2JsonNode;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Micorosoft.PowerPlatform.PowerApps.Persistence;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
 internal sealed class Validator
@@ -21,27 +22,31 @@ internal sealed class Validator
 
     }
 
-    public IReadOnlyList<YamlValidatorError> Validate(JsonSchema schema, string yamlFileData)
+    public YamlValidatorResults Validate(JsonSchema schema, string yamlFileData)
     {
         var yamlStream = YamlValidatorUtility.MakeYamlStream(yamlFileData);
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : JsonNode.Parse("{}");
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
+        Console.WriteLine(output);
 
+        var schemaValidity = results.IsValid;
         // filter actual errors versus false positives
         // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
-        IReadOnlyList<EvaluationResults> traceList = results.Details.Where(
-            node => !node.IsValid &&
-                    !string.IsNullOrEmpty(node.InstanceLocation.ToString()) &&
-                     node.HasErrors).ToList();
         var yamlValidatorErrors = new List<YamlValidatorError>();
-        foreach (var trace in traceList)
+        if (!schemaValidity)
         {
-            yamlValidatorErrors.Add(new YamlValidatorError(trace));
-
+            IReadOnlyList<EvaluationResults> traceList = results.Details.Where(
+             node => !node.IsValid &&
+             node.HasErrors).ToList();
+            foreach (var trace in traceList)
+            {
+                yamlValidatorErrors.Add(new YamlValidatorError(trace));
+            }
         }
         IReadOnlyList<YamlValidatorError> fileErrors = yamlValidatorErrors;
-        return fileErrors;
+        var finalResults = new YamlValidatorResults(results.IsValid, fileErrors);
+        return finalResults;
 
     }
 }

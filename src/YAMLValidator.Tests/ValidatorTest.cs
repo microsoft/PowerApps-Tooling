@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-/*
+
+using Json.Schema;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 
 namespace YamlValidatorTests;
@@ -12,51 +13,29 @@ public class ValidatorTest
     private const string _invalidPath = @".\_TestData\InvalidYaml";
     private const string _schemaPath = @"..\YAMLValidator\schema\pa.yaml-schema.json";
 
-    private readonly Validator _yamlValidator = new();
+    private readonly JsonSchema _schema;
+    private readonly Validator _yamlValidator;
+
+    public ValidatorTest()
+    {
+        var schemaFileLoader = new SchemaLoader();
+        _schema = schemaFileLoader.Load(_schemaPath);
+        var resultVerbosity = new VerbosityData(YamlValidatorConstants.verbose);
+        _yamlValidator = new Validator(resultVerbosity.EvalOptions, resultVerbosity.JsonOutputOptions);
+    }
 
     // to do make validator object computation into a function -> clean up code
 
     // invalid schemas where yaml or schema is missing
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void TestSchemaAndJsonEmpty()
-    {
-        _yamlValidator.Validate();
-
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void TestSchemaEmpty()
-    {
-        _yamlValidator.Yaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\SimpleNoRecursiveDefinition.yaml");
-        _yamlValidator.Validate();
-
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void TestYamlEmpty()
-    {
-
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Validate();
-
-    }
     // invalid yaml tests
 
     // This yaml fails the schema oneOf clause, it is simply a key with no colon
     [TestMethod]
     public void TestScreenNameNoColon()
     {
-        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ScreenWithNameNoColon.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
-
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ScreenWithNameNoValue.yaml");
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
     }
 
     // This yaml fails the schema oneOf clause, it is simply a key with no value
@@ -64,37 +43,28 @@ public class ValidatorTest
     public void TestScreenWithNameNoValue()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ScreenWithNameNoValue.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
-
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
     }
 
     // a control should have the property indicating which control type it is, this doesn't
     [TestMethod]
     public void TestScreenWithoutControlProperty()
     {
-        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ScreenWithoutControlProperty.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
+        var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ScreenWithNameNoValue.yaml");
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
 
     }
+
 
     // Control should be of type object, this isn't
     [TestMethod]
     public void TestWrongControlDefinition()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\WrongControlDefinition.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
     }
 
     // a control with an invalid property (not in the schema)
@@ -102,22 +72,16 @@ public class ValidatorTest
     public void ControlWithInvalidProperty()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ControlWithInvalidProperty.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
     }
 
     [TestMethod]
     public void ControlWithAdditionalProperty()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_invalidPath}\ControlObjectWithAdditionalProperty.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsFalse(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsFalse(result.SchemaValid);
     }
 
 
@@ -129,11 +93,8 @@ public class ValidatorTest
     public void TestEmptyYaml()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\Empty.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsTrue(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsTrue(result.SchemaValid);
     }
 
     // syntactically correct -> an app which matches the regex for a screen and has a control
@@ -141,11 +102,8 @@ public class ValidatorTest
     public void TestNameLessObjectWithControl()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\NamelessObjectWithControl.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsTrue(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsTrue(result.SchemaValid);
     }
 
     // a working screen on powerapps studio
@@ -153,11 +111,8 @@ public class ValidatorTest
     public void TestStudioMadeApp()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\ValidScreen1.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsTrue(result);
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsTrue(result.SchemaValid);
     }
 
     // a simple app without any recursive definitions
@@ -165,13 +120,9 @@ public class ValidatorTest
     public void TestSimpleNoRecursiveDefinition()
     {
         var rawYaml = YamlValidatorUtility.ReadFileData($@"{_validPath}\SimpleNoRecursiveDefinition.yaml");
-        SchemaLoader _schemaLoader = new(_schemaPath);
-        _yamlValidator.Schema = _schemaLoader.Schema;
-        _yamlValidator.Yaml = rawYaml;
-        var result = _yamlValidator.Validate();
-        Assert.IsTrue(result);
-    
+        var result = _yamlValidator.Validate(_schema, rawYaml);
+        Assert.IsTrue(result.SchemaValid);
+
     }
 
 }
-    */

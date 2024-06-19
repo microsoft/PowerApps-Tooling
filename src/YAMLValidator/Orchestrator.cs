@@ -28,10 +28,8 @@ internal sealed class Orchestrator
         {
             Console.WriteLine($"Validation for {yamlFileData.Key}");
             var result = _validator.Validate(serializedSchema, yamlFileData.Value);
-            var valid = result.Count == 0 ? "Valid" : "Invalid";
-
-            Console.WriteLine($"Validation Result: {valid}");
-            foreach (var error in result)
+            Console.WriteLine($"Validation Result: {result.SchemaValid}");
+            foreach (var error in result.TraversalResults)
             {
                 Console.WriteLine($"{error}");
             }
