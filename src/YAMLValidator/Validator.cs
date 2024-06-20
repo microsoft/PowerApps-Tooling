@@ -28,10 +28,12 @@ public class Validator
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : JsonNode.Parse("{}");
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
+
+        // TBD: remove, placeholder to view output for debugging
         Console.WriteLine(output);
 
         var schemaValidity = results.IsValid;
-        // filter actual errors versus false positives
+        // TBD: filter actual errors versus false positives
         // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
         var yamlValidatorErrors = new List<YamlValidatorError>();
         if (!schemaValidity)
