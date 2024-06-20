@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class Orchestrator
+public class Orchestrator
 {
     private readonly YamlLoader _fileLoader;
     private readonly SchemaLoader _schemaLoader;

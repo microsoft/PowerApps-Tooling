@@ -4,7 +4,7 @@
 using System.Collections.ObjectModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class YamlLoader
+public class YamlLoader
 {
 
     public IReadOnlyDictionary<string, string> Load(string filePath, string pathType)

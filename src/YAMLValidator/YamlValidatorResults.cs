@@ -5,7 +5,7 @@
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 
 namespace Micorosoft.PowerPlatform.PowerApps.Persistence;
-internal class YamlValidatorResults
+public class YamlValidatorResults
 {
     public bool SchemaValid { get; }
     public IReadOnlyList<YamlValidatorError> TraversalResults { get; }

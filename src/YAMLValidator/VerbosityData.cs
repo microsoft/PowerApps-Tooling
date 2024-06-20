@@ -4,7 +4,7 @@ using System.Text.Json;
 using Json.Schema;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal readonly record struct VerbosityData
+public readonly record struct VerbosityData
 {
     public EvaluationOptions EvalOptions { get; }
     public JsonSerializerOptions JsonOutputOptions { get; }

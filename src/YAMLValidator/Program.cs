@@ -5,7 +5,7 @@ using System.CommandLine;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
-internal sealed class Program
+public class Program
 {
     private static void Main(string[] args)
     {

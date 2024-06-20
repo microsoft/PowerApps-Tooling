@@ -5,7 +5,7 @@
 using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class YamlValidatorUtility
+public class YamlValidatorUtility
 {
     public static string ReadFileData(string filePath)
     {

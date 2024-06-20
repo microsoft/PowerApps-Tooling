@@ -4,7 +4,7 @@
 using Json.Schema;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class SchemaLoader
+public class SchemaLoader
 {
     private const string _schemaFolderPath = "subschemas";
 

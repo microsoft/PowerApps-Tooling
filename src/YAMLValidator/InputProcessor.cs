@@ -4,7 +4,7 @@
 using System.CommandLine;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class InputProcessor
+public class InputProcessor
 {
 
     private static void ProcessFiles(string path, string schema, string pathType)

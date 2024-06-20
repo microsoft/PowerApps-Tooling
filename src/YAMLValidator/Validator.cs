@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 using Micorosoft.PowerPlatform.PowerApps.Persistence;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
-internal sealed class Validator
+public class Validator
 {
     private readonly EvaluationOptions _verbosityOptions;
     private readonly JsonSerializerOptions _serializerOptions;
