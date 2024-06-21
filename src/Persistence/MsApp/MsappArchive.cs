@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
@@ -176,9 +177,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     #region Properties
 
-    /// <summary>
-    /// Canonical entries in the archive.  Keys are normalized paths (lowercase, forward slashes, no trailing slash).
-    /// </summary>
+    /// <inheritdoc/>
     public IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries => _canonicalEntries.Value.AsReadOnly();
 
     /// <inheritdoc/>
@@ -265,12 +264,19 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         set => _resources = value;
     }
 
-
     public bool AddGitIgnore { get; init; } = true;
 
     #endregion
 
     #region Methods
+
+    /// <inheritdoc/>
+    public bool DoesEntryExist(string entryPath)
+    {
+        _ = entryPath ?? throw new ArgumentNullException(nameof(entryPath));
+
+        return CanonicalEntries.ContainsKey(NormalizePath(entryPath));
+    }
 
     /// <inheritdoc/>
     public string AddImage(string fileName, Stream imageStream)
@@ -380,42 +386,39 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <inheritdoc/>
     public ZipArchiveEntry? GetEntry(string entryName)
     {
-        if (string.IsNullOrWhiteSpace(entryName))
+        if (!TryGetEntry(entryName, out var entry))
+        {
             return null;
+        }
 
-        entryName = NormalizePath(entryName);
-        if (CanonicalEntries.TryGetValue(entryName, out var entry))
-            return entry;
-
-        return null;
+        return entry;
     }
 
     /// <inheritdoc/>
     public bool TryGetEntry(string entryName, [MaybeNullWhen(false)] out ZipArchiveEntry zipArchiveEntry)
     {
+        _ = entryName ?? throw new ArgumentNullException(nameof(entryName));
+
         zipArchiveEntry = null;
 
         if (string.IsNullOrWhiteSpace(entryName))
             return false;
 
-        entryName = NormalizePath(entryName);
-        if (CanonicalEntries.TryGetValue(entryName, out zipArchiveEntry))
+        if (CanonicalEntries.TryGetValue(NormalizePath(entryName), out zipArchiveEntry))
             return true;
 
         return false;
     }
 
-    /// <summary>
-    /// Returns the entry in the archive with the given name or throws if it does not exist.
-    /// </summary>
-    /// <param name="entryName"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="PersistenceLibraryException"></exception>
+    /// <inheritdoc/>
     public ZipArchiveEntry GetRequiredEntry(string entryName)
     {
-        return GetEntry(entryName) ??
+        if (!TryGetEntry(entryName, out var entry))
+        {
             throw new PersistenceLibraryException(PersistenceErrorCode.MsappArchiveError, $"Entry with name '{entryName}' not found in msapp archive.");
+        }
+
+        return entry;
     }
 
     /// <inheritdoc/>
@@ -452,24 +455,49 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     private string GetSafeEntryPath(string directory, string name, string extension)
     {
-        var safeName = SafeFileNameRegex().Replace(name, "").Trim();
-        if (string.IsNullOrWhiteSpace(safeName))
+        if (!TryMakeSafeForEntryPathSegment(name, out var safeName, unsafeCharReplacementText: ""))
             throw new ArgumentException("Control name is not valid.", nameof(name));
 
-        var entryPath = Path.Combine(directory, $"{safeName}{extension}");
-        if (!CanonicalEntries.ContainsKey(NormalizePath(entryPath)))
-            return entryPath;
-
-        // If file with the same name already exists, add a number to the end of the name
-        for (var i = 1; i < int.MaxValue; i++)
+        if (!TryGenerateUniqueEntryPath(directory.WhiteSpaceToNull(), safeName, extension, out var entryPath))
         {
-            var nextSafeName = $"{safeName}{i}";
-            entryPath = Path.Combine(directory, $"{nextSafeName}{extension}");
-            if (!CanonicalEntries.ContainsKey(NormalizePath(entryPath)))
-                return entryPath;
+            throw new InvalidOperationException("Failed to find a unique name for the control.");
         }
 
-        throw new InvalidOperationException("Failed to find a unique name for the control.");
+        return entryPath;
+    }
+
+    /// <inheritdoc/>
+    public bool TryGenerateUniqueEntryPath(
+        string? directory,
+        string fileNameNoExtension,
+        string? extension,
+        [NotNullWhen(true)] out string? entryPath,
+        string uniqueSuffixSeparator = "")
+    {
+        if (directory != null && string.IsNullOrWhiteSpace(directory))
+        {
+            throw new ArgumentException("The directory can be null, but cannot be empty or whitespace only.", nameof(directory));
+        }
+        _ = !string.IsNullOrEmpty(fileNameNoExtension) ? fileNameNoExtension : throw new ArgumentNullException(nameof(fileNameNoExtension));
+
+        var entryPathPrefix = directory == null ? fileNameNoExtension : Path.Combine(directory, fileNameNoExtension);
+
+        // First see if we can use the name as is
+        entryPath = $"{entryPathPrefix}{extension}";
+        if (!DoesEntryExist(entryPath))
+            return true;
+
+        // If file with the same name already exists, add a number to the end of the name
+        entryPathPrefix += uniqueSuffixSeparator;
+        for (var i = 1; i < int.MaxValue; i++)
+        {
+            entryPath = $"{entryPathPrefix}{i}{extension}";
+            if (!DoesEntryExist(entryPath))
+                return true;
+        }
+
+        entryPath = null;
+        return false;
     }
 
     public void Save()
@@ -496,6 +524,10 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
+    /// <summary>
+    /// Normalizes an entry path to a value used in the canonical entries dictionary (<see cref="IMsappArchive.CanonicalEntries"/>).
+    /// It removes leading and trailing slashes, converts backslashes to forward slashes, and makes the path lowercase.
+    /// </summary>
     public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -504,8 +536,36 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         return path.Trim().Replace('\\', '/').TrimStart('/').ToLowerInvariant();
     }
 
-    [GeneratedRegex("[^a-zA-Z0-9_\\- ]")]
-    private static partial Regex SafeFileNameRegex();
+    /// <summary>
+    /// Makes a user-provided name safe for use as an entry path segment in the archive.
+    /// After making the name safe, it will be trimmed and empty strings will result in a false return value.
+    /// </summary>
+    /// <param name="unsafeName">An unsafe name which may contain invalid chars for usage in an entry path segment (e.g. directory name or file name).</param>
+    /// <param name="unsafeCharReplacementText">Unsafe characters in the name will be replaced with this string. Default is empty string.</param>
+    /// <returns>true, when <paramref name="unsafeName"/> was converted to a safe, non-empty string; otherwise, false indicates that input could not be turned into a safe, non-empty string.</returns>
+    public static bool TryMakeSafeForEntryPathSegment(
+        string unsafeName,
+        [NotNullWhen(true)]
+        out string? safeName,
+        string unsafeCharReplacementText = "")
+    {
+        _ = unsafeName ?? throw new ArgumentNullException(nameof(unsafeName));
+        _ = unsafeCharReplacementText ?? throw new ArgumentNullException(nameof(unsafeCharReplacementText));
+
+        safeName = UnsafeFileNameCharactersRegex()
+            .Replace(unsafeName, unsafeCharReplacementText)
+            .Trim()
+            .EmptyToNull();
+
+        return safeName != null;
+    }
+
+    /// <summary>
+    /// Regular expression that matches any characters that are unsafe for entry filenames.<br/>
+    /// Note: we don't allow any sort of directory separator chars for filenames to remove cross-platform issues.
+    /// </summary>
+    [GeneratedRegex("[^a-zA-Z0-9 ._-]")]
+    private static partial Regex UnsafeFileNameCharactersRegex();
 
     #endregion
 

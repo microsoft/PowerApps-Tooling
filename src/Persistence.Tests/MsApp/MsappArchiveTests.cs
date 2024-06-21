@@ -4,12 +4,25 @@
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using Moq;
 
 namespace Persistence.Tests.MsApp;
 
 [TestClass]
 public class MsappArchiveTests : TestBase
 {
+    private readonly Mock<IYamlSerializationFactory> _mockYamlSerializationFactory;
+
+    public MsappArchiveTests()
+    {
+        _mockYamlSerializationFactory = new(MockBehavior.Strict);
+        _mockYamlSerializationFactory.Setup(f => f.CreateSerializer(It.IsAny<YamlSerializationOptions>()))
+            .Returns(new Mock<IYamlSerializer>(MockBehavior.Strict).Object);
+        _mockYamlSerializationFactory.Setup(f => f.CreateDeserializer(It.IsAny<YamlSerializationOptions>()))
+            .Returns(new Mock<IYamlDeserializer>(MockBehavior.Strict).Object);
+    }
+
     [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, null, 0, 0)]
     [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, null, 1, 2)]
     [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 1, 2)]
@@ -65,11 +78,12 @@ public class MsappArchiveTests : TestBase
 
         // Assert
         msappArchive.CanonicalEntries.Count.Should().Be(entries.Length);
-        for (var i = 0; i != expectedEntries.Length; ++i)
+        foreach (var expectedEntry in expectedEntries)
         {
-            msappArchive.CanonicalEntries.ContainsKey(expectedEntries[i])
+            msappArchive.CanonicalEntries.ContainsKey(expectedEntry)
                 .Should()
-                .BeTrue($"Expected entry {expectedEntries[i]} to exist in the archive");
+                .BeTrue($"Expected entry {expectedEntry} to exist in the archive");
+            msappArchive.DoesEntryExist(expectedEntry).Should().BeTrue();
         }
 
         // Get the required entry should throw if it doesn't exist
@@ -80,23 +94,21 @@ public class MsappArchiveTests : TestBase
 
     private static IEnumerable<object[]> AddEntryTestsData()
     {
-        return new[] {
-            new [] {
-                new[] { "abc.txt" },
-                new[] { "abc.txt" }
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant() },
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant() },
-            },
-            new[]{
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" },
-                new [] { "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" },
-            }
+        yield return new string[][] {
+            [ "abc.txt" ],
+            [ "abc.txt" ]
+        };
+        yield return new string[][] {
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" ],
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant() ],
+        };
+        yield return new string[][] {
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" ],
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant() ],
+        };
+        yield return new string[][] {
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" ],
+            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" ],
         };
     }
 
@@ -127,5 +139,147 @@ public class MsappArchiveTests : TestBase
         msappArchive.Version.Should().Be(Version.Parse("2.2"));
 
         var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
+    }
+
+    [TestMethod]
+    public void DoesEntryExistTests()
+    {
+        // Setup test archive with a couple entries in it already
+        using var archiveMemStream = new MemoryStream();
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        archive.CreateEntry("entryA");
+        archive.CreateEntry("entryB");
+        archive.CreateEntry("dir1/entryA");
+        archive.CreateEntry("dir1/entryB");
+        archive.CreateEntry("dir2/entryA");
+        archive.CreateEntry("dir2/entryC");
+
+        // Test for entries that should exist, exact case
+        archive.DoesEntryExist("entryA").Should().BeTrue();
+        archive.DoesEntryExist("entryB").Should().BeTrue();
+        archive.DoesEntryExist("dir1/entryA").Should().BeTrue();
+        archive.DoesEntryExist("dir1/entryB").Should().BeTrue();
+        archive.DoesEntryExist("dir2/entryA").Should().BeTrue();
+        archive.DoesEntryExist("dir2/entryC").Should().BeTrue();
+
+        // Should exist, but not exact case or may use non-normalized path
+        archive.DoesEntryExist("ENTRYa").Should().BeTrue();
+        archive.DoesEntryExist("entryB").Should().BeTrue();
+        archive.DoesEntryExist("dir1/entryA").Should().BeTrue();
+        archive.DoesEntryExist("Dir1\\ENTRYa").Should().BeTrue();
+        archive.DoesEntryExist("dir1/entryb").Should().BeTrue();
+        archive.DoesEntryExist("dir1\\entryb").Should().BeTrue();
+
+        // Test for entries that should not exist
+        archive.DoesEntryExist("entryC").Should().BeFalse();
+        archive.DoesEntryExist("entryC").Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void DoesEntryExistWorksWithNewEntriesCreated()
+    {
+        // Setup test archive with a couple entries in it already
+        using var archiveMemStream = new MemoryStream();
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        archive.CreateEntry("entryA");
+        archive.CreateEntry("entryB");
+        archive.CreateEntry("dir2/entryA");
+        archive.CreateEntry("dir2/entryC");
+
+        // Make sure our new entry does not exist, can be created, and then exists
+        archive.DoesEntryExist("dir1/newEntryD").Should().BeFalse();
+        archive.CreateEntry("dir1/newEntryD");
+        archive.DoesEntryExist("dir1/newEntryD").Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void TryGenerateUniqueEntryPathTests()
+    {
+        // Setup test archive with a couple entries in it already
+        using var archiveMemStream = new MemoryStream();
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        archive.CreateEntry("entryA.pa.yaml");
+        archive.CreateEntry("entryB.pa.yaml");
+        archive.CreateEntry("dir1/entryC.pa.yaml");
+        archive.CreateEntry("dir1/entryD.pa.yaml");
+
+        //
+        string? actualEntryPath;
+        archive.TryGenerateUniqueEntryPath(null, "entryA", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("entryA1.pa.yaml");
+        archive.TryGenerateUniqueEntryPath(null, "entryC", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("entryC.pa.yaml");
+        archive.TryGenerateUniqueEntryPath("dir1", "entryA", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("dir1\\entryA.pa.yaml");
+        archive.TryGenerateUniqueEntryPath("dir1", "entryC", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("dir1\\entryC1.pa.yaml");
+
+        // Verify repeated calls will keep incrementing the suffix
+        archive.TryGenerateUniqueEntryPath(null, "entryA", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("entryA1.pa.yaml");
+        archive.CreateEntry(actualEntryPath!);
+
+        archive.TryGenerateUniqueEntryPath(null, "entryA", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("entryA2.pa.yaml");
+        archive.CreateEntry(actualEntryPath!);
+
+        archive.TryGenerateUniqueEntryPath(null, "entryA", ".pa.yaml", out actualEntryPath).Should().BeTrue();
+        actualEntryPath.Should().Be("entryA3.pa.yaml");
+
+        // Verify when using a custom separator
+        archive.TryGenerateUniqueEntryPath(null, "entryA", ".pa.yaml", out actualEntryPath, uniqueSuffixSeparator: "_").Should().BeTrue();
+        actualEntryPath.Should().Be("entryA_1.pa.yaml");
+        archive.TryGenerateUniqueEntryPath("dir1", "entryA", ".pa.yaml", out actualEntryPath, uniqueSuffixSeparator: "_").Should().BeTrue();
+        actualEntryPath.Should().Be("dir1\\entryA.pa.yaml");
+    }
+
+    [TestMethod]
+    [DataRow(":%/\\?!", false, DisplayName = "Unsafe chars only")]
+    [DataRow("  :%/\\  ?!  ", false, DisplayName = "Unsafe and whitespace chars only")]
+    [DataRow("", false, DisplayName = "empty string")]
+    [DataRow("      ", false, DisplayName = "whitespace chars only")]
+    [DataRow("Foo.Bar", true, "Foo.Bar")]
+    [DataRow("  Foo Bar  ", true, "Foo Bar", DisplayName = "with leading/trailing whitespace")]
+    [DataRow("Foo:%/\\-?!Bar", true, "Foo-Bar")]
+    public void TryMakeSafeForEntryPathSegmentWithDefaultReplacementTests(string unsafeName, bool expectedReturn, string? expectedSafeName = null)
+    {
+        MsappArchive.TryMakeSafeForEntryPathSegment(unsafeName, out var safeName).Should().Be(expectedReturn);
+        if (expectedReturn)
+        {
+            safeName.ShouldNotBeNull();
+            if (expectedSafeName != null)
+            {
+                safeName.Should().Be(expectedSafeName);
+            }
+        }
+        else
+        {
+            safeName.Should().BeNull();
+        }
+    }
+
+    [TestMethod]
+    [DataRow(":%/\\?!", true, "______", DisplayName = "Unsafe chars only")]
+    [DataRow("  :%/\\  ?!  ", true, "____  __", DisplayName = "Unsafe and whitespace chars only")]
+    [DataRow("", false, DisplayName = "empty string")]
+    [DataRow("      ", false, DisplayName = "whitespace chars only")]
+    [DataRow("Foo.Bar", true, "Foo.Bar")]
+    [DataRow("  Foo Bar  ", true, "Foo Bar", DisplayName = "with leading/trailing whitespace")]
+    [DataRow("Foo:%/\\-?!Bar", true, "Foo____-__Bar")]
+    public void TryMakeSafeForEntryPathSegmentWithUnderscoreReplacementTests(string unsafeName, bool expectedReturn, string? expectedSafeName = null)
+    {
+        MsappArchive.TryMakeSafeForEntryPathSegment(unsafeName, out var safeName, unsafeCharReplacementText: "_").Should().Be(expectedReturn);
+        if (expectedReturn)
+        {
+            safeName.ShouldNotBeNull();
+            if (expectedSafeName != null)
+            {
+                safeName.Should().Be(expectedSafeName);
+            }
+        }
+        else
+        {
+            safeName.Should().BeNull();
+        }
     }
 }

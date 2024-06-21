@@ -11,9 +11,9 @@ public class MsappArchiveSaveTests : TestBase
 {
     [TestMethod]
     [DataRow(@"  Hello   ", $"src/Hello.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello1.pa.yaml")]
-    [DataRow(@"..\..\Hello", $"src/Hello.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello2.pa.yaml")]
-    [DataRow(@"c:\win\..\..\Hello", $"src/cWinHello.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello3.pa.yaml")]
-    [DataRow(@"//..?HelloScreen", $"src/HelloScreen.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello4.pa.yaml")]
+    [DataRow(@"..\..\Hello", $"src/....Hello.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello2.pa.yaml")]
+    [DataRow(@"c:\win\..\..\Hello", $"src/cWin....Hello.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello3.pa.yaml")]
+    [DataRow(@"//..?HelloScreen", $"src/..HelloScreen.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello4.pa.yaml")]
     [DataRow(@"Hello Space", $"src/Hello Space.pa.yaml", @"_TestData/ValidYaml-CI/Screen-Hello5.pa.yaml")]
     public void Msapp_ShouldSave_Screen(string screenName, string screenEntryName, string expectedYamlPath)
     {
@@ -32,6 +32,7 @@ public class MsappArchiveSaveTests : TestBase
         using var msappValidation = MsappArchiveFactory.Open(tempFile);
         msappValidation.App.Should().BeNull();
         msappValidation.CanonicalEntries.Count.Should().Be(2);
+        msappValidation.DoesEntryExist(screenEntryName).Should().BeTrue();
         var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
         screenEntry.Should().NotBeNull();
         using var streamReader = new StreamReader(msappValidation.GetRequiredEntry(screenEntryName).Open());
