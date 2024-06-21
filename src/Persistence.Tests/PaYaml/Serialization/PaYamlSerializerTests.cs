@@ -13,6 +13,14 @@ namespace Persistence.Tests.PaYaml.Serialization;
 public class PaYamlSerializerTests : VSTestBase
 {
     [TestMethod]
+    public void DeserializeAppInstanceSetsLocationInfo()
+    {
+        PaYamlSerializer.Deserialize<PaModule>("App: {}")!.App!.Start.Should().Be(new(1, 6));
+        PaYamlSerializer.Deserialize<PaModule>("\nApp: {}")!.App!.Start.Should().Be(new(2, 6));
+        PaYamlSerializer.Deserialize<PaModule>("\nApp:\n Properties: {}")!.App!.Start.Should().Be(new(3, 2));
+    }
+
+    [TestMethod]
     public void DeserializeNamedObjectSetsLocationInfo()
     {
         // Since App.Properties is a NamedObjectMapping, the location info should be set on the NamedObject
@@ -27,6 +35,7 @@ public class PaYamlSerializerTests : VSTestBase
         paModule.App.Properties.ShouldNotBeNull();
         paModule.App.Properties.Should().ContainName("Foo").WhoseNamedObject.Start.Should().Be(new(3, 9));
         paModule.App.Properties.Should().ContainName("Bar").WhoseNamedObject.Start.Should().Be(new(4, 9));
+        paModule.App.Start.Should().Be(new(2, 5), "`App.Start` location info should now be set correctly");
     }
 
     [TestMethod]

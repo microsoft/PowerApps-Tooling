@@ -3,6 +3,7 @@
 
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization.NodeDeserializers;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
@@ -29,6 +30,7 @@ public class PaYamlSerializationContext : IDisposable
         builder
             .WithDuplicateKeyChecking()
             .IgnoreFields()
+            .WithSetNodeLocationNodeDeserializerWrapper<ObjectNodeDeserializer>()
             ;
 
         if (Options.MaximumRecursion.HasValue)
