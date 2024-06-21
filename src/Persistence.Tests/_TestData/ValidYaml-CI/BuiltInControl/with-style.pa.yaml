@@ -1,0 +1,3 @@
+myControl1:
+  Control: Button
+  StyleName: this is my style

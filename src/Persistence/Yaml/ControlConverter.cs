@@ -203,6 +203,7 @@ internal class ControlConverter : IYamlTypeConverter
     {
         emitter.Emit(nameof(Control.Variant), control.Variant);
         emitter.Emit(nameof(Control.Layout), control.Layout);
+        emitter.Emit(nameof(Control.StyleName), control.StyleName);
 
         if (control.Properties != null && control.Properties.Count > 0)
         {

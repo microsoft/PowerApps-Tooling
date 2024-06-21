@@ -52,6 +52,7 @@ public class ControlFactory : IControlFactory
     {
         string? variant = null;
         string? layout = null;
+        string? styleName = null;
         ControlPropertiesCollection? properties = null;
         IList<Control>? children = null;
 
@@ -61,6 +62,7 @@ public class ControlFactory : IControlFactory
             controlDefinition.TryGetValue(nameof(Control.Properties), out properties);
             controlDefinition.TryGetValue(nameof(Control.Children), out children);
             controlDefinition.TryGetValue(nameof(Control.Layout), out layout);
+            controlDefinition.TryGetValue(nameof(Control.StyleName), out styleName);
         }
 
         if (TryCreateComponent(name, template, componentDefinitionName, componentLibraryUniqueName, variant, properties, children, controlDefinition, out var control))
@@ -70,6 +72,7 @@ public class ControlFactory : IControlFactory
         {
             if (TryCreateFirstClassControl(name, controlTemplate.Name, variant ?? string.Empty, properties, children, controlDefinition, out control))
             {
+                control.StyleName = styleName ?? string.Empty;
                 return control;
             }
 
@@ -77,7 +80,8 @@ public class ControlFactory : IControlFactory
             {
                 Properties = properties ?? new(),
                 Children = children,
-                Layout = layout ?? string.Empty
+                Layout = layout ?? string.Empty,
+                StyleName = styleName ?? string.Empty,
             };
         }
 
@@ -85,7 +89,8 @@ public class ControlFactory : IControlFactory
         {
             Properties = properties ?? new(),
             Children = children,
-            Layout = layout ?? string.Empty
+            Layout = layout ?? string.Empty,
+            StyleName = styleName ?? string.Empty,
         };
     }
 

@@ -515,4 +515,25 @@ public class DeserializerValidTests : TestBase
         list.First().Should().BeOfType(expectedType);
         list.First().Name.Should().Be(expectedName);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", true, "this is my style")]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", false, "this is my style")]
+    public void Deserialize_ShouldParse_StyleName(
+            string path,
+            bool isControlIdentifiers,
+            string expectedStyleName)
+    {
+        // Arrange
+        var deserializer = CreateDeserializer(isControlIdentifiers);
+        using var yamlStream = File.OpenRead(GetTestFilePath(path, isControlIdentifiers));
+        using var yamlReader = new StreamReader(yamlStream);
+
+        // Act
+        var control = deserializer.Deserialize<BuiltInControl>(yamlReader);
+
+        // Assert
+        control.ShouldNotBeNull();
+        control.StyleName.Should().Be(expectedStyleName);
+    }
 }
