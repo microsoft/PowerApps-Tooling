@@ -385,4 +385,19 @@ public class ValidSerializerTests : TestBase
         var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         serializedGraph.Should().Be(expectedYaml);
     }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", false)]
+    public void Serialize_ShouldWriteStyle(string expectedPath, bool isControlIdentifiers)
+    {
+        var graph = ControlFactory.Create("myControl1", template: "Button");
+        graph.StyleName = "this is my style";
+
+        var serializer = CreateSerializer(isControlIdentifiers);
+
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
 }
