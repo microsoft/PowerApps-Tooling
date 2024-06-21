@@ -6,6 +6,9 @@ using YamlDotNet.Serialization;
 
 namespace Persistence.Tests.PaYaml.Serialization;
 
+/// <summary>
+/// Base class for tests that involve serialization and deserialization of objects using PaYaml.
+/// </summary>
 public abstract class SerializationTestBase : VSTestBase
 {
     protected PaYamlSerializerOptions DefaultOptions { get; set; } = PaYamlSerializerOptions.Default;
@@ -15,18 +18,18 @@ public abstract class SerializationTestBase : VSTestBase
     {
         options ??= DefaultOptions;
 
-        using var serializationContext = new SerializationContext();
+        using var serializationContext = new PaYamlSerializationContext(options);
         var builder = new SerializerBuilder();
-        ConfigureYamlDotNetSerializer(builder, options, serializationContext);
+        ConfigureYamlDotNetSerializer(builder, serializationContext);
         serializationContext.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
         return serializer.Serialize(testObject);
     }
 
-    protected virtual void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
+    protected virtual void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializationContext context)
     {
-        DefaultOptions.TESTONLY_ApplySerializerFormatting(builder);
+        context.TESTONLY_ApplySerializerFormatting(builder);
     }
 
     protected T? DeserializeViaYamlDotNet<T>(string yaml, PaYamlSerializerOptions? options = null)
@@ -34,9 +37,9 @@ public abstract class SerializationTestBase : VSTestBase
     {
         options ??= DefaultOptions;
 
-        using var serializationContext = new SerializationContext();
+        using var serializationContext = new PaYamlSerializationContext(options);
         var builder = new DeserializerBuilder();
-        ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
+        ConfigureYamlDotNetDeserializer(builder, serializationContext);
         serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
         var deserializer = builder.Build();
 
@@ -45,7 +48,7 @@ public abstract class SerializationTestBase : VSTestBase
         return value;
     }
 
-    protected virtual void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
+    protected virtual void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializationContext context)
     {
         // This should usually sync up with the default configuration in PaYamlSerializerOptions.ApplyToDeserializerBuilder but without type converters
         builder

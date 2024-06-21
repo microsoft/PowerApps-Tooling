@@ -8,7 +8,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-public static class YamlSerializer
+public static class PaYamlSerializer
 {
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
@@ -48,10 +48,10 @@ public static class YamlSerializer
         var targetType = typeof(TValue);
 
         // Configure the YamlDotNet serializer
-        using var serializationContext = new SerializationContext();
+        using var context = new PaYamlSerializationContext(options);
         var builder = new SerializerBuilder();
-        options.ApplyToSerializerBuilder(builder, serializationContext);
-        serializationContext.ValueSerializer = builder.BuildValueSerializer();
+        context.ApplyToSerializerBuilder(builder);
+        context.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
         try
@@ -100,10 +100,10 @@ public static class YamlSerializer
         options ??= PaYamlSerializerOptions.Default;
 
         // Configure the YamlDotNet serializer
-        using var serializationContext = new SerializationContext();
+        using var context = new PaYamlSerializationContext(options);
         var builder = new DeserializerBuilder();
-        options.ApplyToDeserializerBuilder(builder, serializationContext);
-        serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
+        context.ApplyToDeserializerBuilder(builder);
+        context.ValueDeserializer = builder.BuildValueDeserializer();
         var serializer = builder.Build();
 
         try
@@ -111,7 +111,7 @@ public static class YamlSerializer
             var value = serializer.Deserialize<TValue>(reader);
 
             // Must call OnDeserialization to invoke any post-deserialization callbacks on the deserialized object tree.
-            serializationContext.OnDeserialization();
+            context.OnDeserialization();
 
             return value;
         }

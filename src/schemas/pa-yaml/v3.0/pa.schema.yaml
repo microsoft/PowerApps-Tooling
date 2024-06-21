@@ -62,6 +62,7 @@ definitions:
     type: object
     additionalProperties: false
     properties:
+      Variant: { $ref: "#/definitions/Control-variant-name" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
       Groups: { $ref: "#/definitions/Groups-of-controls" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }

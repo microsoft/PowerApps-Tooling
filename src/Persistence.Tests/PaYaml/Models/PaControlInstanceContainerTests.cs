@@ -14,12 +14,11 @@ public class PaControlInstanceContainerTests : TestBase
     {
         var screen = new NamedObject<ScreenInstance>("Screen1", new()
         {
-            Children =
-            {
+            Children = [
                 new("Ctrl0", new("GroupContainer")),
                 new("Ctrl1", new("GroupContainer")),
                 new("Ctrl2", new("GroupContainer")),
-            },
+                ],
         });
 
         screen.DescendantControlInstances().SelectNames().Should().Equal(new[]
@@ -35,22 +34,17 @@ public class PaControlInstanceContainerTests : TestBase
     {
         var screen = new NamedObject<ScreenInstance>("Screen1", new()
         {
-            Children =
-            {
+            Children = [
                 new("Ctrl0", new("GroupContainer")
                 {
-                    Children =
-                    {
+                    Children = [
                         new("Ctrl0.0", new("GroupContainer")
                         {
-                            Children =
-                            {
-                                new("Ctrl0.0.0", new("GroupContainer")),
-                            }
+                            Children = [new("Ctrl0.0.0", new("GroupContainer"))]
                         }),
-                    }
+                        ]
                 }),
-            },
+                ],
         });
 
         screen.DescendantControlInstances().SelectNames().Should().Equal(new[]
@@ -66,41 +60,36 @@ public class PaControlInstanceContainerTests : TestBase
     {
         var screen = new NamedObject<ScreenInstance>("Screen1", new()
         {
-            Children =
-            {
+            Children = [
                 new("Ctrl0", new("GroupContainer")
                 {
-                    Children =
-                    {
+                    Children = [
                         new("Ctrl0.0", new("Label")),
                         new("Ctrl0.1", new("Label")),
-                    },
+                        ],
                 }),
                 new("Ctrl1", new("GroupContainer")
                 {
-                    Children =
-                    {
+                    Children = [
                         new("Ctrl1.0", new("Label")),
                         new("Ctrl1.1", new("GroupContainer")
                         {
-                            Children =
-                            {
+                            Children = [
                                 new("Ctrl1.1.0", new("Label")),
                                 new("Ctrl1.1.1", new("Label")),
-                            },
+                                ],
                         }),
                         new("Ctrl1.2", new("Label")),
-                    },
+                        ],
                 }),
                 new("Ctrl2", new("GroupContainer")
                 {
-                    Children =
-                    {
+                    Children = [
                         new("Ctrl2.0", new("Label")),
                         new("Ctrl2.1", new("Label")),
-                    },
+                        ],
                 }),
-            },
+                ],
         });
 
         screen.DescendantControlInstances().SelectNames().Should().Equal(new[]
