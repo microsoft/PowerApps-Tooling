@@ -7,10 +7,19 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <NoWarn>1591, CA1822</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <NoWarn>1591, CA1822</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="JsonSchema.Net" Version="7.0.3" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
         <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="Yaml2JsonNode" Version="2.1.0" />
     </ItemGroup>
 
     <ItemGroup>

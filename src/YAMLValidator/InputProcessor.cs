@@ -4,15 +4,25 @@
 using System.CommandLine;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-internal sealed class InputProcessor
+public class InputProcessor
 {
+
+    private static void ProcessFiles(string path, string schema, string pathType)
+    {
+        // read only records
+        var filePathInfo = new ValidationRequest(path, schema, pathType);
+        // to do: add verbosity flag and configure this as a paramter pass after
+        // validation to ensure that only certain values are passed to it
+        var verbosityInfo = new VerbosityData(YamlValidatorConstants.verbose);
+
+        var validator = new Validator(verbosityInfo.EvalOptions, verbosityInfo.JsonOutputOptions);
+        var schemaLoader = new SchemaLoader();
+        var fileLoader = new YamlLoader();
+        var orchestrator = new Orchestrator(fileLoader, schemaLoader, validator);
+        orchestrator.RunValidation(filePathInfo);
+    }
     public static RootCommand GetRootCommand()
     {
-
-        const string FileTypeName = "file";
-        const string FolderTypeName = "folder";
-        const string YamlFileExtension = ".yaml";
-        const string JsonFileExtension = ".json";
 
         var pathOption = new Option<string>(
             name: "--path",
@@ -28,7 +38,8 @@ internal sealed class InputProcessor
             var pathType = string.Empty;
             if (string.IsNullOrEmpty(inputFilePath))
             {
-                result.ErrorMessage = "The input is invalid, input must be a filepath to a yaml file or a folder path to a folder of yaml files";
+                result.ErrorMessage = "The input is invalid, input must be a filepath to a yaml file \\" +
+                "or a folder path to a folder of yaml files";
             }
             else if (!Directory.Exists(inputFilePath) && !File.Exists(inputFilePath))
             {
@@ -36,14 +47,14 @@ internal sealed class InputProcessor
             }
             else if (Directory.Exists(inputFilePath))
             {
-                if (Directory.GetFiles(inputFilePath, $"*{YamlFileExtension}").Length == 0)
+                if (Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YamlFileExtension}").Length == 0)
                 {
                     result.ErrorMessage = "The input folder does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != YamlFileExtension)
+                if (Path.GetExtension(inputFilePath) != YamlValidatorConstants.YamlFileExtension)
                 {
                     result.ErrorMessage = "The input file must be a yaml file";
                 }
@@ -64,7 +75,7 @@ internal sealed class InputProcessor
             {
                 result.ErrorMessage = "Schema option selected, but no schema was provided";
             }
-            else if (Path.GetExtension(schemaPath) != JsonFileExtension)
+            else if (Path.GetExtension(schemaPath) != YamlValidatorConstants.JsonFileExtension)
             {
                 result.ErrorMessage = "The schema file must be a json file";
             }
@@ -87,13 +98,10 @@ internal sealed class InputProcessor
         validateCommand.SetHandler((pathOptionVal, schemaOptionVal) =>
         {
             // validation has completed, we either have a file or folder
-            var fileType = File.Exists(pathOptionVal) ? FileTypeName : FolderTypeName;
-            Console.WriteLine($"ValidatingPath: {pathOptionVal}");
-            Console.WriteLine($"Path type: {fileType}");
-            Console.WriteLine($"Schema: {schemaOptionVal}");
+            var pathType = File.Exists(pathOptionVal) ? YamlValidatorConstants.FileTypeName :
+                                                        YamlValidatorConstants.FolderTypeName;
+            ProcessFiles(pathOptionVal, schemaOptionVal, pathType);
 
-            // to do -> add handler to validate all yaml files in a folder are actually parseable as yaml
-            //         or add handler to validate a single yaml file is parseable as yaml
         }, pathOption, schemaOption);
 
         rootCommand.AddCommand(validateCommand);
