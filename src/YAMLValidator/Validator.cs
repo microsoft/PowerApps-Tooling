@@ -4,7 +4,6 @@
 using Json.Schema;
 using Yaml2JsonNode;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Micorosoft.PowerPlatform.PowerApps.Persistence;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 
@@ -25,7 +24,14 @@ public class Validator
     public YamlValidatorResults Validate(JsonSchema schema, string yamlFileData)
     {
         var yamlStream = YamlValidatorUtility.MakeYamlStream(yamlFileData);
-        var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : JsonNode.Parse("{}");
+        // tbd: inquire about empty edge case handling -> error or valid?
+        var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
+        // tbd: inquire about empty edge case handling -> error or valid?
+        // here we say that empty yaml is serialized as null json
+        if (jsonData == null)
+        {
+            return new YamlValidatorResults(false, new List<YamlValidatorError> { new("Empty YAML file") });
+        }
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
 

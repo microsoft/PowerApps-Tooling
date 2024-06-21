@@ -16,6 +16,12 @@ public class YamlValidatorError
         SchemaPath = results.EvaluationPath.ToString();
         Errors = results.Errors;
     }
+    public YamlValidatorError(string error)
+    {
+        InstanceLocation = "";
+        SchemaPath = "";
+        Errors = new Dictionary<string, string> { { "", error } };
+    }
 
     public override string ToString()
     {
