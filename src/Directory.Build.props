@@ -7,16 +7,26 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>        
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <!-- https://github.com/dotnet/core/blob/main/release-notes/8.0/known-issues.md#802xx-sdk-is-not-compatible-with-178-for-some-scenarios -->
         <BuildWithNetFrameworkHostedCompiler>true</BuildWithNetFrameworkHostedCompiler>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Code Analysis config">
+        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+    When building in VS IDE, we don't want to treat warnings as errors, because they randomize developer progress.
+    Warnings will be treated as errors at command line and in build pipelines
+    -->
+  <PropertyGroup Label="Code Analysis config for VS IDE"
+                 Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

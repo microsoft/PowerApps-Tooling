@@ -20,6 +20,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.Pow
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.Tests", "Persistence.Tests\Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7361DB16-D534-4E0E-8597-BE22317DEF47}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Versions.props = Versions.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +59,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8AD94CC0-7330-4880-A8E0-177B37CDB27B} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
+		{7361DB16-D534-4E0E-8597-BE22317DEF47} = {794D8C68-BF6F-49C8-BCA5-AA52D8F45EF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C936F8B1-DE7A-4401-95D5-5E199210F960}

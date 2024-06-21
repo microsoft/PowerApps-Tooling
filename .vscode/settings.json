@@ -10,7 +10,15 @@
   "yaml.validate": true,
   "yaml.schemas": {
     // This schema registration is the 'default' for any *.pa.yaml files
-    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "*.pa.yaml",
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": [
+      "*.pa.yaml",
+      // Need to exclude these files which use the PaYamlV3 schema
+      "!src/schemas-tests/pa-yaml/v3.0/**/*.pa.yaml"
+    ],
+    // This schema registration ensures development of *.pa.yaml files which should map to PaYamlV3 will work
+    "src/schemas/pa-yaml/v3.0/pa.schema.yaml": [
+      "src/schemas-tests/pa-yaml/v3.0/**/*.pa.yaml"
+    ],
     // *.schema.yaml files should use JSON schema:
     "http://json-schema.org/draft-07/schema#": "*.schema.yaml"
   }
