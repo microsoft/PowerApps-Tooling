@@ -84,6 +84,8 @@ public abstract record Control : IConvertible
         }
     }
 
+    [YamlMember(Order = 60)]
+    public string StyleName { get; set; } = string.Empty;
 
     internal virtual void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
