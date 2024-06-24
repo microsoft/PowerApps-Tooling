@@ -19,8 +19,13 @@ public class YamlLoader
         }
 
         // to do: address edge case of .yml files
-        var files = Directory.GetFiles(filePath, $"*{YamlValidatorConstants.YamlFileExtension}");
-        foreach (var file in files)
+        var directoryPath = new DirectoryInfo(filePath);
+        var files = directoryPath.EnumerateFiles();
+        var yamlFiles = files.Where(file => file.Extension == YamlValidatorConstants.YamlFileExtension ||
+                                            file.Extension == YamlValidatorConstants.YmlFileExtension);
+        var fileNames = yamlFiles.Select(file => file.FullName).ToList();
+
+        foreach (var file in fileNames)
         {
             var fileName = Path.GetFileName(file);
             var yamlText = YamlValidatorUtility.ReadFileData(file);

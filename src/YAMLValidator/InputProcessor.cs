@@ -47,16 +47,20 @@ public class InputProcessor
             }
             else if (Directory.Exists(inputFilePath))
             {
-                if (Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YamlFileExtension}").Length == 0)
+                if (Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YamlFileExtension}").Length == 0 ||
+                    Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YmlFileExtension}").Length == 0)
                 {
                     result.ErrorMessage = "The input folder does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != YamlValidatorConstants.YamlFileExtension)
+                var fileExtension = Path.GetExtension(inputFilePath);
+
+                if (fileExtension != YamlValidatorConstants.YamlFileExtension &&
+                    fileExtension != YamlValidatorConstants.YmlFileExtension)
                 {
-                    result.ErrorMessage = "The input file must be a yaml file";
+                    result.ErrorMessage = "The input file must be a yaml or yml file";
                 }
             }
         });
@@ -89,7 +93,7 @@ public class InputProcessor
         var rootCommand = new RootCommand("YAML validator cli-tool");
 
         // validate command
-        var validateCommand = new Command("validate", "Validate the input yaml file")
+        var validateCommand = new Command("validate", "Validate the input yaml or yml file")
         {
             pathOption,
             schemaOption
