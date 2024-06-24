@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-public class YamlValidatorConstants
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+public class Constants
 {
     public const string FileTypeName = "file";
     public const string FolderTypeName = "folder";

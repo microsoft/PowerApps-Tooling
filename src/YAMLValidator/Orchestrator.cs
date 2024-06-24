@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class Orchestrator
 {
     private readonly YamlLoader _fileLoader;

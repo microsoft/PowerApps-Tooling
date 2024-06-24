@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YAMLValidator\YAMLValidator.csproj" />
+    <ProjectReference Include="..\YamlValidator\YamlValidator.csproj" />
   </ItemGroup>
 
 

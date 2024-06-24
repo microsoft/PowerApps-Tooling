@@ -3,20 +3,20 @@
 
 using Json.Schema;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
-public class YamlValidatorError
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+public class ValidatorError
 {
     public string InstanceLocation { get; }
     public string SchemaPath { get; }
     public IReadOnlyDictionary<string, string>? Errors { get; }
 
-    public YamlValidatorError(EvaluationResults results)
+    public ValidatorError(EvaluationResults results)
     {
         InstanceLocation = results.InstanceLocation.ToString();
         SchemaPath = results.EvaluationPath.ToString();
         Errors = results.Errors;
     }
-    public YamlValidatorError(string error)
+    public ValidatorError(string error)
     {
         InstanceLocation = "";
         SchemaPath = "";

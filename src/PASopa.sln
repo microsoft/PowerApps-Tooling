@@ -20,9 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.Pow
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.Tests", "Persistence.Tests\Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YAMLValidator", "YAMLValidator\YAMLValidator.csproj", "{F0AD11CE-E634-4945-A6B1-7866CDE0059C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YamlValidator", "YAMLValidator\YamlValidator.csproj", "{F0AD11CE-E634-4945-A6B1-7866CDE0059C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YAMLValidator.Tests", "YAMLValidator.Tests\YAMLValidator.Tests.csproj", "{8BA5DD4B-9423-4827-AF37-540E0300DB9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YamlValidator.Tests", "YAMLValidator.Tests\YamlValidator.Tests.csproj", "{8BA5DD4B-9423-4827-AF37-540E0300DB9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

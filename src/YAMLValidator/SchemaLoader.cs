@@ -3,7 +3,7 @@
 
 using Json.Schema;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class SchemaLoader
 {
     private const string _schemaFolderPath = "subschemas";
@@ -13,7 +13,7 @@ public class SchemaLoader
         var node = JsonSchema.FromFile(schemaPath);
         var schemaFolder = Path.GetDirectoryName(schemaPath);
         var subschemaPaths = Directory.GetFiles($@"{schemaFolder}\{_schemaFolderPath}",
-            $"*{YamlValidatorConstants.JsonFileExtension}");
+            $"*{Constants.JsonFileExtension}");
 
         foreach (var path in subschemaPaths)
         {

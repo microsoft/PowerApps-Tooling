@@ -3,7 +3,7 @@
 
 using System.CommandLine;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 public class Program
 {

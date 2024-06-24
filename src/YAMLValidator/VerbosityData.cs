@@ -3,7 +3,7 @@
 using System.Text.Json;
 using Json.Schema;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public readonly record struct VerbosityData
 {
     public EvaluationOptions EvalOptions { get; }
@@ -14,7 +14,7 @@ public readonly record struct VerbosityData
         EvalOptions = new EvaluationOptions();
         JsonOutputOptions = new JsonSerializerOptions { Converters = { new EvaluationResultsJsonConverter() } };
 
-        if (verbosityLevel == YamlValidatorConstants.verbose)
+        if (verbosityLevel == Constants.verbose)
         {
             EvalOptions.OutputFormat = OutputFormat.List;
             return;

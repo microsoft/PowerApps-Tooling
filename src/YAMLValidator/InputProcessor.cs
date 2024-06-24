@@ -3,7 +3,7 @@
 
 using System.CommandLine;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class InputProcessor
 {
 
@@ -13,7 +13,7 @@ public class InputProcessor
         var filePathInfo = new ValidationRequest(path, schema, pathType);
         // to do: add verbosity flag and configure this as a paramter pass after
         // validation to ensure that only certain values are passed to it
-        var verbosityInfo = new VerbosityData(YamlValidatorConstants.verbose);
+        var verbosityInfo = new VerbosityData(Constants.verbose);
 
         var validator = new Validator(verbosityInfo.EvalOptions, verbosityInfo.JsonOutputOptions);
         var schemaLoader = new SchemaLoader();
@@ -47,14 +47,14 @@ public class InputProcessor
             }
             else if (Directory.Exists(inputFilePath))
             {
-                if (Directory.GetFiles(inputFilePath, $"*{YamlValidatorConstants.YamlFileExtension}").Length == 0)
+                if (Directory.GetFiles(inputFilePath, $"*{Constants.YamlFileExtension}").Length == 0)
                 {
                     result.ErrorMessage = "The input folder does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != YamlValidatorConstants.YamlFileExtension)
+                if (Path.GetExtension(inputFilePath) != Constants.YamlFileExtension)
                 {
                     result.ErrorMessage = "The input file must be a yaml file";
                 }
@@ -75,7 +75,7 @@ public class InputProcessor
             {
                 result.ErrorMessage = "Schema option selected, but no schema was provided";
             }
-            else if (Path.GetExtension(schemaPath) != YamlValidatorConstants.JsonFileExtension)
+            else if (Path.GetExtension(schemaPath) != Constants.JsonFileExtension)
             {
                 result.ErrorMessage = "The schema file must be a json file";
             }
@@ -98,8 +98,8 @@ public class InputProcessor
         validateCommand.SetHandler((pathOptionVal, schemaOptionVal) =>
         {
             // validation has completed, we either have a file or folder
-            var pathType = File.Exists(pathOptionVal) ? YamlValidatorConstants.FileTypeName :
-                                                        YamlValidatorConstants.FolderTypeName;
+            var pathType = File.Exists(pathOptionVal) ? Constants.FileTypeName :
+                                                        Constants.FolderTypeName;
             ProcessFiles(pathOptionVal, schemaOptionVal, pathType);
 
         }, pathOption, schemaOption);

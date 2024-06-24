@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Json.Schema;
-using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-namespace YamlValidatorTests;
+namespace Persistence.Tests.YamlValidator;
 
 [TestClass]
 public class ValidatorTest
@@ -20,7 +20,7 @@ public class ValidatorTest
     {
         var schemaFileLoader = new SchemaLoader();
         _schema = schemaFileLoader.Load(_schemaPath);
-        var resultVerbosity = new VerbosityData(YamlValidatorConstants.verbose);
+        var resultVerbosity = new VerbosityData(Constants.verbose);
         _yamlValidator = new Validator(resultVerbosity.EvalOptions, resultVerbosity.JsonOutputOptions);
     }
 
@@ -39,7 +39,7 @@ public class ValidatorTest
 
     public void TestValidation(string filepath, bool expectedResult)
     {
-        var rawYaml = YamlValidatorUtility.ReadFileData($@"{filepath}");
+        var rawYaml = Utility.ReadFileData($@"{filepath}");
         var result = _yamlValidator.Validate(_schema, rawYaml);
         Assert.IsTrue(result.SchemaValid == expectedResult);
     }

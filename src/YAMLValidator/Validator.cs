@@ -4,8 +4,8 @@
 using Json.Schema;
 using Yaml2JsonNode;
 using System.Text.Json;
-using Micorosoft.PowerPlatform.PowerApps.Persistence;
-namespace Microsoft.PowerPlatform.PowerApps.Persistence;
+
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 public class Validator
 {
@@ -21,16 +21,16 @@ public class Validator
 
     }
 
-    public YamlValidatorResults Validate(JsonSchema schema, string yamlFileData)
+    public ValidatorResults Validate(JsonSchema schema, string yamlFileData)
     {
-        var yamlStream = YamlValidatorUtility.MakeYamlStream(yamlFileData);
+        var yamlStream = Utility.MakeYamlStream(yamlFileData);
         // tbd: inquire about empty edge case handling -> error or valid?
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
         // tbd: inquire about empty edge case handling -> error or valid?
         // here we say that empty yaml is serialized as null json
         if (jsonData == null)
         {
-            return new YamlValidatorResults(false, new List<YamlValidatorError> { new("Empty YAML file") });
+            return new ValidatorResults(false, new List<ValidatorError> { new("Empty YAML file") });
         }
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
@@ -41,7 +41,7 @@ public class Validator
         var schemaValidity = results.IsValid;
         // TBD: filter actual errors versus false positives
         // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
-        var yamlValidatorErrors = new List<YamlValidatorError>();
+        var yamlValidatorErrors = new List<ValidatorError>();
         if (!schemaValidity)
         {
             IReadOnlyList<EvaluationResults> traceList = results.Details.Where(
@@ -49,11 +49,11 @@ public class Validator
              node.HasErrors).ToList();
             foreach (var trace in traceList)
             {
-                yamlValidatorErrors.Add(new YamlValidatorError(trace));
+                yamlValidatorErrors.Add(new ValidatorError(trace));
             }
         }
-        IReadOnlyList<YamlValidatorError> fileErrors = yamlValidatorErrors;
-        var finalResults = new YamlValidatorResults(results.IsValid, fileErrors);
+        IReadOnlyList<ValidatorError> fileErrors = yamlValidatorErrors;
+        var finalResults = new ValidatorResults(results.IsValid, fileErrors);
         return finalResults;
 
     }
