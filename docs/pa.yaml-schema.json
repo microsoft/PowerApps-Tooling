@@ -23,7 +23,7 @@
           "type": "object",
           "properties": {
             "Control": {
-              "$ref": "control-type-schema.json#"
+              "$ref": "subschemas/control-type-schema.json"
             },
             "Variant": {
               "description": "The variant of the control",
@@ -40,7 +40,7 @@
             "Settings": { "type": "object" },
             "Style": { "type": "string" },
             "Properties": {
-              "$ref": "control-property-schema.json#"
+              "$ref": "subschemas/control-property-schema.json"
             },
             "CustomProperties": {
               "type": "array"
