@@ -56,6 +56,11 @@ public interface IMsappArchive : IDisposable
     string AddImage(string fileName, Stream imageStream);
 
     /// <summary>
+    /// Determine whether an entry with the given path exists in the archive.
+    /// </summary>
+    bool DoesEntryExist(string entryPath);
+
+    /// <summary>
     /// Creates a new entry in the archive with the given name.
     /// </summary>
     /// <param name="entryName"></param>
@@ -65,7 +70,23 @@ public interface IMsappArchive : IDisposable
     ZipArchiveEntry CreateEntry(string entryName);
 
     /// <summary>
-    /// Returns the entry in the archive with the given name.
+    /// Attempts to generate a unique entry path in the specified directory, based on a starter file name and extension.
+    /// </summary>
+    /// <param name="directory">The directory path for the entry; or null. Note: Directory path is expected to already be safe, as it is expected to not contain customer data.</param>
+    /// <param name="fileNameNoExtension">The name of the file, without an extension. This file name should already have been made 'safe' by the caller. If needed, use <see cref="MsappArchive.TryMakeSafeForEntryPathSegment"/> to make it safe.</param>
+    /// <param name="extension">The file extension to add for the file path or null for no extension. Note: This should already contain only safe chars, as it is expected to not contain customer data.</param>
+    /// <param name="uniqueSuffixSeparator">The string added just before the unique file number and extension. Default is empty string.</param>
+    /// <returns>The entry path which is unique in the specified <paramref name="directory"/>.</returns>
+    /// <exception cref="ArgumentException">directory is empty or whitespace.</exception>
+    /// <exception cref="InvalidOperationException">A unique filename entry could not be generated.</exception>
+    string GenerateUniqueEntryPath(
+        string? directory,
+        string fileNameNoExtension,
+        string? extension,
+        string uniqueSuffixSeparator = "");
+
+    /// <summary>
+    /// Returns the entry in the archive with the given name or null when not found.
     /// </summary>
     /// <param name="entryName"></param>
     /// <returns>the entry or null when not found.</returns>
@@ -80,7 +101,7 @@ public interface IMsappArchive : IDisposable
     bool TryGetEntry(string entryName, [MaybeNullWhen(false)] out ZipArchiveEntry zipArchiveEntry);
 
     /// <summary>
-    /// Returns the entry in the archive with the given name.
+    /// Returns the entry in the archive with the given name or throws if it does not exist.
     /// </summary>
     ZipArchiveEntry GetRequiredEntry(string entryName);
 
@@ -91,6 +112,7 @@ public interface IMsappArchive : IDisposable
 
     /// <summary>
     /// Dictionary of all entries in the archive.
+    /// The keys are normalized paths for the entry computed using <see cref="MsappArchive.CanonicalizePath"/>.
     /// </summary>
     IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries { get; }
 

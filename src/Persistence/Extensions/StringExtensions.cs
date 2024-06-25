@@ -4,6 +4,7 @@
 using System.Globalization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+
 public static class StringExtensions
 {
     public static string FirstCharToUpper(this string input)
@@ -28,5 +29,21 @@ public static class StringExtensions
         _ = input ?? throw new ArgumentNullException(nameof(input));
 
         return input.StartsWith(value, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Converts a string to null if it is empty or whitespace.
+    /// </summary>
+    public static string? WhiteSpaceToNull(this string? source)
+    {
+        return string.IsNullOrWhiteSpace(source) ? null : source;
+    }
+
+    /// <summary>
+    /// Converts a string to null if it is empty.
+    /// </summary>
+    public static string? EmptyToNull(this string? source)
+    {
+        return string.IsNullOrEmpty(source) ? null : source;
     }
 }
