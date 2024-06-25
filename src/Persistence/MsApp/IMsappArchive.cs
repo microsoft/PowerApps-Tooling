@@ -76,14 +76,13 @@ public interface IMsappArchive : IDisposable
     /// <param name="fileNameNoExtension">The name of the file, without an extension. This file name should already have been made 'safe' by the caller. If needed, use <see cref="MsappArchive.TryMakeSafeForEntryPathSegment"/> to make it safe.</param>
     /// <param name="extension">The file extension to add for the file path or null for no extension. Note: This should already contain only safe chars, as it is expected to not contain customer data.</param>
     /// <param name="uniqueSuffixSeparator">The string added just before the unique file number and extension. Default is empty string.</param>
-    /// <param name="entryPath">The entry path which is unique in the specified <paramref name="directory"/>.</param>
-    /// <returns>A value indicating whether a unique entry was able to be created. If true, then <paramref name="entryPath"/> will contain the unique path.</returns>
+    /// <returns>The entry path which is unique in the specified <paramref name="directory"/>.</returns>
     /// <exception cref="ArgumentException">directory is empty or whitespace.</exception>
-    bool TryGenerateUniqueEntryPath(
+    /// <exception cref="InvalidOperationException">A unique filename entry could not be generated.</exception>
+    string GenerateUniqueEntryPath(
         string? directory,
         string fileNameNoExtension,
         string? extension,
-        [NotNullWhen(true)] out string? entryPath,
         string uniqueSuffixSeparator = "");
 
     /// <summary>
@@ -113,7 +112,7 @@ public interface IMsappArchive : IDisposable
 
     /// <summary>
     /// Dictionary of all entries in the archive.
-    /// The keys are normalized paths for the entry computed using <see cref="MsappArchive.NormalizePath"/>.
+    /// The keys are normalized paths for the entry computed using <see cref="MsappArchive.CanonicalizePath"/>.
     /// </summary>
     IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries { get; }
 

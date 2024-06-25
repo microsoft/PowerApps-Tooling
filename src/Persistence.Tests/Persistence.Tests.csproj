@@ -31,7 +31,7 @@
         <PackageReference Include="MSTest" Version="$(MSTest)" />
         <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
         <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
-        <PackageReference Include="Moq" Version="4.16.0" />
+        <PackageReference Include="Moq" Version="$(MoqVersion)" />
     </ItemGroup>
 
     <ItemGroup Label="Global usings">

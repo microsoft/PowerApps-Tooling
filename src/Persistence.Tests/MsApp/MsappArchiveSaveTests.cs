@@ -33,8 +33,6 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.App.Should().BeNull();
         msappValidation.CanonicalEntries.Count.Should().Be(2);
         msappValidation.DoesEntryExist(screenEntryName).Should().BeTrue();
-        var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
-        screenEntry.Should().NotBeNull();
         using var streamReader = new StreamReader(msappValidation.GetRequiredEntry(screenEntryName).Open());
         var yaml = streamReader.ReadToEnd().NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedYamlPath).NormalizeNewlines();
@@ -70,17 +68,15 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.CanonicalEntries.Count.Should().Be(2);
 
         // Validate screen
-        var screenEntry = msappValidation.CanonicalEntries[MsappArchive.NormalizePath(screenEntryName)];
-        screenEntry.Should().NotBeNull();
+        msappValidation.DoesEntryExist(screenEntryName).Should().BeTrue();
         using var streamReader = new StreamReader(msappValidation.GetRequiredEntry(screenEntryName).Open());
         var yaml = streamReader.ReadToEnd().NormalizeNewlines();
         var expectedYaml = File.ReadAllText(expectedYamlPath).NormalizeNewlines();
         yaml.Should().Be(expectedYaml);
 
         // Validate editor state
-        if (msappValidation.CanonicalEntries.TryGetValue(MsappArchive.NormalizePath(editorStateName), out var editorStateEntry))
+        if (msappValidation.DoesEntryExist(editorStateName))
         {
-            editorStateEntry.Should().NotBeNull();
             using var editorStateReader = new StreamReader(msappValidation.GetRequiredEntry(editorStateName).Open());
             var json = editorStateReader.ReadToEnd().ReplaceLineEndings();
             var expectedJson = File.ReadAllText(expectedJsonPath).ReplaceLineEndings().TrimEnd();
@@ -113,7 +109,7 @@ public class MsappArchiveSaveTests : TestBase
         msappValidation.App!.Screens.Count.Should().Be(1);
         msappValidation.App.Screens.Single().Name.Should().Be(screenName);
         msappValidation.App.Name.Should().Be(App.ControlName);
-        msappValidation.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(MsappArchive.HeaderFileName));
+        msappValidation.DoesEntryExist(MsappArchive.HeaderFileName).Should().BeTrue();
     }
 
     [TestMethod]
@@ -136,6 +132,6 @@ public class MsappArchiveSaveTests : TestBase
         }
 
         msappArchive.CanonicalEntries.Count.Should().Be(sameNames.Length);
-        msappArchive.CanonicalEntries.Keys.Should().Contain(MsappArchive.NormalizePath(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}{MsappArchive.YamlPaFileExtension}")));
+        msappArchive.DoesEntryExist(Path.Combine(MsappArchive.Directories.Src, @$"SameName{sameNames.Length + 1}.pa.yaml")).Should().BeTrue();
     }
 }
