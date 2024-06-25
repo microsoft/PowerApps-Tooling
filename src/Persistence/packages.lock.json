@@ -14,6 +14,12 @@
           "Microsoft.Extensions.Options": "7.0.0"
         }
       },
+      "Microsoft.Net.Compilers.Toolset.Framework": {
+        "type": "Direct",
+        "requested": "[4.10.0-3.24216.12, )",
+        "resolved": "4.10.0-3.24216.12",
+        "contentHash": "Y1T1ZN3cHWToRYZHhRs8xby1tMCkF23Jb//zK+Tdf4ourzwbMQ4GiTRVVFAlWvmA10iVNUyCZucAeLt5XeiDqA=="
+      },
       "Microsoft.PowerFx.Core": {
         "type": "Direct",
         "requested": "[1.2.0, )",
@@ -27,9 +33,9 @@
       },
       "YamlDotNet": {
         "type": "Direct",
-        "requested": "[15.1.2, )",
-        "resolved": "15.1.2",
-        "contentHash": "qeX0XhzOIcQEvnI5JxnPaIwcINwyY4Qy/LXhSfsdHkFrl9F41AT52UFfy2nIE7kgrhMg+cP7xuS+GtPJhmHmTA=="
+        "requested": "[15.1.6, )",
+        "resolved": "15.1.6",
+        "contentHash": "T/cQEK/KHK96Q8kytJ4iUGDXg1/fj2Qtk6rCQeIlHYU1zTeyGVHW0QNZgREQyxZpygGMDMmrXNWt0sj5TsQnjA=="
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",

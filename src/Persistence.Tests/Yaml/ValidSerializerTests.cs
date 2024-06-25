@@ -181,18 +181,56 @@ public class ValidSerializerTests : TestBase
                             properties: new()
                             {
                                 { "TemplateFill", "RGBA(0, 0, 0, 0)" },
+                                { "ZIndex", "1" },
                             }
                         ),
                         ControlFactory.Create("button12", template: "button",
                             properties: new()
                             {
                                 { "Fill", "RGBA(0, 0, 0, 0)" },
+                                { "ZIndex", "1" },
                             }
                         )
                     }
                 )
             }
         );
+
+        var serializer = CreateSerializer(isControlIdentifiers);
+
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/ZIndexOrdering/with-addpropertiestoparents-control.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/ZIndexOrdering/with-addpropertiestoparents-control.pa.yaml", false)]
+    public void Serialize_Should_FlattenGalleryTemplateWithoutZIndex(string expectedPath, bool isControlIdentifiers)
+    {
+        var graph = ControlFactory.Create("Gallery1", template: "gallery",
+                   properties: new()
+                    {
+                        { "Items", "Accounts" },
+                    },
+                    children: new List<Control>()
+                    {
+                        ControlFactory.Create("GalleryTemplate1", template: "galleryTemplate",
+                            properties: new()
+                            {
+                                { "TemplateFill", "RGBA(0, 0, 0, 0)" },
+                                { "ZIndex", "1" },
+                            }
+                        ),
+                        ControlFactory.Create("Button1", template: "button",
+                            properties: new()
+                            {
+                                { "Fill", "RGBA(0, 0, 0, 0)" },
+                                { "ZIndex", "1" },
+                            }
+                        )
+                    }
+               );
 
         var serializer = CreateSerializer(isControlIdentifiers);
 
@@ -346,5 +384,20 @@ public class ValidSerializerTests : TestBase
 
         var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
         serializedGraph.Should().Be(expectedYaml);
+    }
+
+    [TestMethod]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", true)]
+    [DataRow(@"_TestData/ValidYaml{0}/BuiltInControl/with-style.pa.yaml", false)]
+    public void Serialize_ShouldWriteStyle(string expectedPath, bool isControlIdentifiers)
+    {
+        var graph = ControlFactory.Create("myControl1", template: "Button");
+        graph.StyleName = "this is my style";
+
+        var serializer = CreateSerializer(isControlIdentifiers);
+
+        var sut = serializer.SerializeControl(graph).NormalizeNewlines();
+        var expectedYaml = File.ReadAllText(GetTestFilePath(expectedPath, isControlIdentifiers)).NormalizeNewlines();
+        sut.Should().Be(expectedYaml);
     }
 }

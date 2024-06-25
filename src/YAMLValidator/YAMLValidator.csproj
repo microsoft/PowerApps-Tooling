@@ -28,8 +28,8 @@
 
     <ItemGroup>
         <Content Include="..\..\docs\pa.yaml-schema.json" Link="schema\pa.yaml-schema.json" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="..\..\docs\control-type-schema.json" Link="schema\subschemas\control-type-schema.json" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="..\..\docs\control-property-schema.json" Link="schema\subschemas\control-property-schema.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\..\docs\subschemas\control-type-schema.json" Link="schema\subschemas\control-type-schema.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\..\docs\subschemas\control-property-schema.json" Link="schema\subschemas\control-property-schema.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
