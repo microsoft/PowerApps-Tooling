@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json",
+  "$id": "pa.yaml-schema.json",
   "title": "Microsoft Power Apps",
   "description": "Canvas YAML",
   "oneOf": [
