@@ -32,6 +32,9 @@ public class Validator
             return new ValidatorResults(false, new List<ValidatorError> { new("Empty YAML file") });
         }
         var results = schema.Evaluate(jsonData, _verbosityOptions);
+
+        // not used but may help if we ever need to serialize the evaluation results into json format to feed into
+        // a vscode extension or other tool
         var output = JsonSerializer.Serialize(results, _serializerOptions);
 
         var schemaValidity = results.IsValid;
