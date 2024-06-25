@@ -35,7 +35,8 @@ Screens:
             Y: =138
       - Gallery1:
           Control: Gallery
-          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          CreationParameters:
+            Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
           Properties:
             DelayItemLoading: =true
             Height: =479
@@ -53,7 +54,8 @@ Screens:
                   OnSelect: =Select(Parent)
             - NextArrow1:
                 Control: Icon
-                Variant: ChevronRight
+                CreationParameters:
+                  Variant: ChevronRight
                 Properties:
                   AccessibleLabel: =Self.Tooltip
                   Color: =RGBA(166, 166, 166, 1)

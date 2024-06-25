@@ -20,11 +20,11 @@ public record ControlInstance : IPaControlInstanceContainer
     [property: YamlMember(Alias = "Control")]
     public required string ControlTypeId { get; init; }
 
-    public string? Variant { get; init; }
-
     public string? ComponentName { get; init; }
 
     public string? ComponentLibraryUniqueName { get; init; }
+
+    public InstanceCreationParameters? CreationParameters { get; init; }
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 

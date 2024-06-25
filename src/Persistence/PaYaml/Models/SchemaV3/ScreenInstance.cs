@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public record ScreenInstance : IPaControlInstanceContainer
 {
-    public string? Variant { get; init; }
+    public InstanceCreationParameters? CreationParameters { get; init; }
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
