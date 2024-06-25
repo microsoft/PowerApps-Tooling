@@ -10,5 +10,5 @@ public class Constants
     public const string YmlFileExtension = ".yml";
     public const string JsonFileExtension = ".json";
 
-    public const string verbose = "verbose";
+    public const string Verbose = "verbose";
 }

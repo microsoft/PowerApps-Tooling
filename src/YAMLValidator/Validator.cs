@@ -24,9 +24,8 @@ public class Validator
     public ValidatorResults Validate(JsonSchema schema, string yamlFileData)
     {
         var yamlStream = Utility.MakeYamlStream(yamlFileData);
-        // tbd: inquire about empty edge case handling -> error or valid?
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
-        // tbd: inquire about empty edge case handling -> error or valid?
+
         // here we say that empty yaml is serialized as null json
         if (jsonData == null)
         {
@@ -34,9 +33,6 @@ public class Validator
         }
         var results = schema.Evaluate(jsonData, _verbosityOptions);
         var output = JsonSerializer.Serialize(results, _serializerOptions);
-
-        // TBD: remove, placeholder to view output for debugging
-        Console.WriteLine(output);
 
         var schemaValidity = results.IsValid;
         // TBD: filter actual errors versus false positives

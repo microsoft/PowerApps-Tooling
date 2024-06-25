@@ -14,7 +14,7 @@ public readonly record struct VerbosityData
         EvalOptions = new EvaluationOptions();
         JsonOutputOptions = new JsonSerializerOptions { Converters = { new EvaluationResultsJsonConverter() } };
 
-        if (verbosityLevel == Constants.verbose)
+        if (verbosityLevel == Constants.Verbose)
         {
             EvalOptions.OutputFormat = OutputFormat.List;
             return;

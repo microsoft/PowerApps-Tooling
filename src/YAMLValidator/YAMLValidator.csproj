@@ -6,7 +6,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
+    
+    <!-- Supressed CA1822: Mark members as static to have stateless classes -->
+    <!-- Supressed 1591 from Directory.build.props -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <NoWarn>1591, CA1822</NoWarn>
     </PropertyGroup>

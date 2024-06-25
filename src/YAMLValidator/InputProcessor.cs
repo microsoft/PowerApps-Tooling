@@ -11,9 +11,7 @@ public class InputProcessor
     {
         // read only records
         var filePathInfo = new ValidationRequest(path, schema, pathType);
-        // to do: add verbosity flag and configure this as a paramter pass after
-        // validation to ensure that only certain values are passed to it
-        var verbosityInfo = new VerbosityData(Constants.verbose);
+        var verbosityInfo = new VerbosityData(Constants.Verbose);
 
         var validator = new Validator(verbosityInfo.EvalOptions, verbosityInfo.JsonOutputOptions);
         var schemaLoader = new SchemaLoader();
