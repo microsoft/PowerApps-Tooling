@@ -95,9 +95,8 @@ public class InputProcessor
 
         validateCommand.SetHandler((pathOptionVal, schemaOptionVal) =>
         {
-            // validation has completed, we either have a file or folder
-            var pathType = File.Exists(pathOptionVal) ? Constants.FileTypeName :
-                                                        Constants.FolderTypeName;
+            var pathType = File.GetAttributes(pathOptionVal).HasFlag(FileAttributes.Directory) ? Constants.FolderTypeName :
+                                                                                                 Constants.FileTypeName;
             ProcessFiles(pathOptionVal, schemaOptionVal, pathType);
 
         }, pathOption, schemaOption);
