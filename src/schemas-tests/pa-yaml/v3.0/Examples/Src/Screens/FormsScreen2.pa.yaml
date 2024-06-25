@@ -4,7 +4,8 @@ Screens:
     Children:
       - ScreenContainer1:
           Control: GroupContainer
-          Variant: horizontalAutoLayoutContainer
+          CreationParameters:
+            Variant: horizontalAutoLayoutContainer
           Properties:
             Fill: =RGBA(245, 245, 245, 1)
             Height: =Parent.Height
@@ -21,7 +22,8 @@ Screens:
           Children:
             - LeftContainer1:
                 Control: GroupContainer
-                Variant: verticalAutoLayoutContainer
+                CreationParameters:
+                  Variant: verticalAutoLayoutContainer
                 Properties:
                   Fill: =RGBA(255, 255, 255, 1)
                   LayoutDirection: =LayoutDirection.Vertical
@@ -45,7 +47,8 @@ Screens:
                       Children:
                         - "First Name_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="firstname"
@@ -120,7 +123,8 @@ Screens:
 
                         - "Last Name_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="lastname"
@@ -195,7 +199,8 @@ Screens:
 
                         - "Company Name_DataCard1":
                             Control: TypedDataCard
-                            Variant: blankPolymorphicEditCard
+                            CreationParameters:
+                              Variant: blankPolymorphicEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="_parentcustomerid_value"
@@ -211,7 +216,8 @@ Screens:
 
                         - "Job Title_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="jobtitle"
@@ -286,7 +292,8 @@ Screens:
 
                         - "Mobile Phone_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="mobilephone"
@@ -361,7 +368,8 @@ Screens:
 
                         - "User Name_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="adx_identity_username"
@@ -436,7 +444,8 @@ Screens:
 
                         - "Address 1_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualViewCard
+                            CreationParameters:
+                              Variant: textualViewCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="address1_composite"
@@ -478,7 +487,8 @@ Screens:
 
                         - Website_DataCard1:
                             Control: TypedDataCard
-                            Variant: urlEditCard
+                            CreationParameters:
+                              Variant: urlEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="websiteurl"
@@ -551,7 +561,8 @@ Screens:
 
                         - Birthday_DataCard1:
                             Control: TypedDataCard
-                            Variant: dateEditCard
+                            CreationParameters:
+                              Variant: dateEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="birthdate"
@@ -623,7 +634,8 @@ Screens:
 
                         - Description_DataCard1:
                             Control: TypedDataCard
-                            Variant: textualMultiLineEditCard
+                            CreationParameters:
+                              Variant: textualMultiLineEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="description"
@@ -698,7 +710,8 @@ Screens:
 
                         - "Full Name_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualViewCard
+                            CreationParameters:
+                              Variant: textualViewCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="fullname"
@@ -740,7 +753,8 @@ Screens:
 
                         - Email_DataCard1:
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="emailaddress1"
@@ -815,7 +829,8 @@ Screens:
 
                         - "Business Phone_DataCard1":
                             Control: TypedDataCard
-                            Variant: textualEditCard
+                            CreationParameters:
+                              Variant: textualEditCard
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="telephone1"
@@ -890,7 +905,8 @@ Screens:
 
             - RightContainer1:
                 Control: GroupContainer
-                Variant: verticalAutoLayoutContainer
+                CreationParameters:
+                  Variant: verticalAutoLayoutContainer
                 Properties:
                   Fill: =RGBA(255, 255, 255, 1)
                   LayoutDirection: =LayoutDirection.Vertical

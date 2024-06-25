@@ -62,7 +62,7 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      Variant: { $ref: "#/definitions/Control-variant-name" }
+      CreationParameters: { $ref: "#/definitions/InstanceCreationParameters" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
       Groups: { $ref: "#/definitions/Groups-of-controls" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
@@ -182,11 +182,6 @@ definitions:
     # [schema-build-uncomment-next-line]
     #true
 
-  Control-variant-name:
-    description: The variant of a control template being instantiated.
-    allOf:
-      - $ref: "#/definitions/entity-name"
-
   Control-instance:
     type: object
     required: [Control]
@@ -227,11 +222,42 @@ definitions:
       additionalProperties: false
       properties:
         Control: true
-        Variant: { $ref: "#/definitions/Control-variant-name" }
+        CreationParameters: { $ref: "#/definitions/InstanceCreationParameters" }
         Properties: true
         # Depending on the ControlTypeId, it may or may not actually support Groups
         Groups: { $ref: "#/definitions/Groups-of-controls" }
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+
+  InstanceCreationParameters:
+    description: A set of optional internal creation parameters coming from the Maker.
+    type: object
+    additionalProperties: false
+    properties:
+      Variant:
+        type: string
+        minLength: 1
+      Layout:
+        type: string
+        minLength: 1
+      ParentTemplate:
+        description: Metadata needed to identify the parent template that originally created this instance.
+        type: object
+        additionalProperties: false
+        properties:
+          CompositionName:
+            description: The name of the composition template that originally created this instance.
+            type: string
+            minLength: 1
+          Variant:
+            description: The variant of the parent template that originally created this instance.
+            type: string
+            minLength: 1
+      MetadataId:
+        type: string
+        minLength: 1
+      StyleName:
+        type: string
+        minLength: 1
 
   Groups-of-controls:
     description: |-
@@ -460,10 +486,12 @@ definitions:
     # aka: DName
     description: The base requirements for a named entity in an app.
     type: string
+    minLength: 1
 
   entity-property-name:
     description: The base requirements for a property of an entity in an app.
     type: string
+    minLength: 1
 
   pfx-function-parameters:
     type: array

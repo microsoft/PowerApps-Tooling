@@ -13,7 +13,8 @@ Screens:
     Children:
       - ctrlB:
           Control: Label
-          Variant: variantB
+          CreationParameters:
+            Variant: variantB
           Properties:
             Prop2: =ctrlBProp2
             Prop1: =ctrlBProp1
@@ -21,16 +22,32 @@ Screens:
       # Purposely set out of name sorting order to ensure ordering is maintained
       - ctrlA:
           Control: Label
-          Variant: variantA
+          CreationParameters:
+            Variant: variantA
           Properties:
             Prop2: =ctrlAProp2
             Prop1: =ctrlAProp1
 
   screenName1:
+    CreationParameters:
+      Variant: variant1
+      Layout: layout1
+      MetadataId: metadataId1
+      StyleName: styleName1
+      ParentTemplate:
+        CompositionName: compositionName1
+        Variant: compositionTemplateVariant1
     Children:
       - ctrlC:
           Control: fooWithChildren
-          Variant: variantC
+          CreationParameters:
+            Variant: variant2
+            Layout: layout2
+            MetadataId: metadataId2
+            StyleName: styleName2
+            ParentTemplate:
+              CompositionName: compositionName2
+              Variant: compositionTemplateVariant2
           Properties:
             Prop2: =ctrlAProp2
             Prop1: =ctrlAProp1
@@ -42,21 +59,25 @@ Screens:
           Children:
             - ctrlC0:
                 Control: bar
-                Variant: variantC0
+                CreationParameters:
+                  Variant: variantC0
                 Properties:
                   Prop2: =ctrlC0Prop2
                   Prop1: =ctrlC0Prop1
                 Children:
                   - ctrlC00:
                       Control: car
-                      Variant: variantC00
+                      CreationParameters:
+                        Variant: variantC00
             - ctrlC1:
                 Control: bar
-                Variant: variantC1
+                CreationParameters:
+                  Variant: variantC1
                 Properties:
                   Prop2: =ctrlC1Prop2
                   Prop1: =ctrlC1Prop1
                 Children:
                   - ctrlC10:
                       Control: dog
-                      Variant: variantC10
+                      CreationParameters:
+                        Variant: variantC10
