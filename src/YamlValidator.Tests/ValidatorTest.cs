@@ -11,7 +11,7 @@ public class ValidatorTest
 {
     private const string _validPath = @".\_TestData\ValidYaml";
     private const string _invalidPath = @".\_TestData\InvalidYaml";
-    private const string _schemaPath = @"..\YAMLValidator\schema\pa.yaml-schema.json";
+    private const string _schemaPath = @"..\YamlValidator\schema\pa.yaml-schema.json";
 
     private readonly JsonSchema _schema;
     private readonly Validator _yamlValidator;
