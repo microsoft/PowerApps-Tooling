@@ -20,7 +20,7 @@ public class ValidatorTest
     {
         var schemaFileLoader = new SchemaLoader();
         _schema = schemaFileLoader.Load(_schemaPath);
-        var resultVerbosity = new VerbosityData(Constants.verbose);
+        var resultVerbosity = new VerbosityData(Constants.Verbose);
         _yamlValidator = new Validator(resultVerbosity.EvalOptions, resultVerbosity.JsonOutputOptions);
     }
 
