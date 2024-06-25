@@ -7,9 +7,11 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public record ScreenInstance : IPaControlInstanceContainer
 {
-    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
+    public string? Variant { get; init; }
 
-    public NamedObjectMapping<ControlGroup> Groups { get; init; } = new();
+    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
+    public NamedObjectMapping<ControlGroup>? Groups { get; init; }
+
+    public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }

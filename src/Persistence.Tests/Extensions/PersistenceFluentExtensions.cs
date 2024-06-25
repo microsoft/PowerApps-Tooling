@@ -30,6 +30,10 @@ internal static class PersistenceFluentExtensions
         }
     }
 
+    /// <summary>
+    /// Asserts that the specified object does not define a member with the specified name.
+    /// This is useful to document tests which are written given that some future expected member is not yet defined.
+    /// </summary>
     public static AndConstraint<TAssertions> NotDefineMember<TSubject, TAssertions>(this ObjectAssertions<TSubject, TAssertions> assertions, string memberName, string because = "", params object[] becauseArgs)
         where TAssertions : ObjectAssertions<TSubject, TAssertions>
         where TSubject : class

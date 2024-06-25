@@ -10,16 +10,16 @@ namespace Persistence.Tests.PaYaml.Serialization;
 [TestClass]
 public class NamedObjectSequenceSerializationTests : SerializationTestBase
 {
-    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
+    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializationContext context)
     {
-        base.ConfigureYamlDotNetDeserializer(builder, options, serializationContext);
-        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(serializationContext));
+        base.ConfigureYamlDotNetDeserializer(builder, context);
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(context));
     }
 
-    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializerOptions options, SerializationContext serializationContext)
+    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializationContext context)
     {
-        base.ConfigureYamlDotNetSerializer(builder, options, serializationContext);
-        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(serializationContext));
+        base.ConfigureYamlDotNetSerializer(builder, context);
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(context));
     }
 
     [TestMethod]

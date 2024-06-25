@@ -17,6 +17,11 @@ public static class ModelsExtensions
     {
         _ = container ?? throw new ArgumentNullException(nameof(container));
 
+        if (container.Children == null || container.Children.Count == 0)
+        {
+            yield break;
+        }
+
         // Preorder Traverse of tree using a loop
         var stack = new Stack<NamedObject<ControlInstance>>();
 
@@ -29,9 +34,12 @@ public static class ModelsExtensions
         while (stack.Count != 0)
         {
             var topNamedObject = stack.Pop();
-            foreach (var child in topNamedObject.Value.Children.Reverse())
+            if (topNamedObject.Value.Children?.Count > 0)
             {
-                stack.Push(child);
+                foreach (var child in topNamedObject.Value.Children.Reverse())
+                {
+                    stack.Push(child);
+                }
             }
             yield return topNamedObject;
         }

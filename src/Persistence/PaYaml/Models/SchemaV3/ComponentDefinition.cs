@@ -16,22 +16,22 @@ public enum ComponentPropertyKind
     Action,
 }
 
-public class ComponentDefinition : IPaControlInstanceContainer
+public record ComponentDefinition : IPaControlInstanceContainer
 {
     public string? Description { get; init; }
 
     public bool AccessAppScope { get; init; }
 
-    public NamedObjectMapping<ComponentCustomPropertyUnion> CustomProperties { get; init; } = new();
+    public NamedObjectMapping<ComponentCustomPropertyUnion>? CustomProperties { get; init; }
 
-    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
+    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public NamedObjectMapping<ControlGroup> Groups { get; init; } = new();
+    public NamedObjectMapping<ControlGroup>? Groups { get; init; }
 
-    public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
+    public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }
 
-public abstract class ComponentCustomPropertyBase
+public abstract record ComponentCustomPropertyBase
 {
     [YamlMember(DefaultValuesHandling = DefaultValuesHandling.Preserve)]
     public required ComponentPropertyKind PropertyKind { get; init; }
@@ -44,7 +44,7 @@ public abstract class ComponentCustomPropertyBase
 /// <summary>
 /// Represents the union of all possible properties available on any custom property.
 /// </summary>
-public class ComponentCustomPropertyUnion : ComponentCustomPropertyBase
+public record ComponentCustomPropertyUnion : ComponentCustomPropertyBase
 {
     public PFxDataType? DataType { get; init; }
 

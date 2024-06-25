@@ -24,7 +24,7 @@ enum:
   - DataCard
   - Gallery
   - GroupContainer
-  - Icon
+  - Classic/Icon
   - Image
   - Label
   - ListBox

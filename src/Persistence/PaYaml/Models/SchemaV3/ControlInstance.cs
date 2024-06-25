@@ -7,7 +7,7 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
-public record ControlInstance
+public record ControlInstance : IPaControlInstanceContainer
 {
     public ControlInstance() { }
 
@@ -26,9 +26,9 @@ public record ControlInstance
 
     public string? ComponentLibraryUniqueName { get; init; }
 
-    public NamedObjectMapping<PFxExpressionYaml> Properties { get; init; } = new();
+    public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public NamedObjectMapping<ControlGroup> Groups { get; init; } = new();
+    public NamedObjectMapping<ControlGroup>? Groups { get; init; }
 
-    public NamedObjectSequence<ControlInstance> Children { get; init; } = new();
+    public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }
