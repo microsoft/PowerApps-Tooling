@@ -4,6 +4,7 @@
 using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class Utility
 {
     public static string ReadFileData(string filePath)

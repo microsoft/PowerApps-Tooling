@@ -9,8 +9,7 @@
         <CoverletCollectorVersion>6.0.0</CoverletCollectorVersion>
         <FluentAssertionsVersion>6.12.0</FluentAssertionsVersion>
         <MinVerVersion>4.3.0</MinVerVersion>
-        <MicrosoftExtensionsLoggingVersion>7.0.0</MicrosoftExtensionsLoggingVersion>
-
+        <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
         <!-- WARNING: Do not update Moq library past 4.20.0 due to privacy issues: https://github.com/devlooped/moq/issues/1372 -->
         <MoqVersion>4.16.0</MoqVersion>
     </PropertyGroup>

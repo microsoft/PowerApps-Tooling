@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class Orchestrator
 {
     private readonly YamlLoader _fileLoader;
@@ -26,9 +27,10 @@ public class Orchestrator
 
         foreach (var yamlFileData in yamlData)
         {
-            Console.WriteLine($"Validation for {yamlFileData.Key}");
+            Console.WriteLine($"Validating '{yamlFileData.Key}'");
             var result = _validator.Validate(serializedSchema, yamlFileData.Value);
-            Console.WriteLine($"Validation Result: {result.SchemaValid}");
+            Console.WriteLine($"Validation {(result.SchemaValid ? "Passed" : "Failed")}");
+
             foreach (var error in result.TraversalResults)
             {
                 Console.WriteLine($"{error}");
@@ -36,7 +38,4 @@ public class Orchestrator
             Console.WriteLine();
         }
     }
-
-
-
 }

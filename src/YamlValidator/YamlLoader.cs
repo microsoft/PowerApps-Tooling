@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class YamlLoader
 {
-
     public IReadOnlyDictionary<string, string> Load(string filePath, string pathType)
     {
         var deserializedYaml = new Dictionary<string, string>();
@@ -29,5 +28,4 @@ public class YamlLoader
 
         return new ReadOnlyDictionary<string, string>(deserializedYaml);
     }
-
 }

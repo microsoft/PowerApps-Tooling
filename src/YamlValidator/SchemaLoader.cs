@@ -4,6 +4,7 @@
 using Json.Schema;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class SchemaLoader
 {
     private const string _schemaFolderPath = "subschemas";
@@ -23,6 +24,5 @@ public class SchemaLoader
 
         return node;
     }
-
 }
 
