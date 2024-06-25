@@ -16,6 +16,7 @@ public class ValidatorError
         SchemaPath = results.EvaluationPath.ToString();
         Errors = results.Errors;
     }
+
     public ValidatorError(string error)
     {
         InstanceLocation = "";

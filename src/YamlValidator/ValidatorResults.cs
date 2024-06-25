@@ -11,6 +11,5 @@ public class ValidatorResults
     {
         SchemaValid = schemaValid;
         TraversalResults = traversalResults;
-
     }
 }

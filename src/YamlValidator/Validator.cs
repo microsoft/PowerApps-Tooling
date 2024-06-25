@@ -12,13 +12,11 @@ public class Validator
     private readonly EvaluationOptions _verbosityOptions;
     private readonly JsonSerializerOptions _serializerOptions;
 
-
     public Validator(EvaluationOptions options, JsonSerializerOptions resultSerializeOptions)
     {
         // to do: add verbosity flag and allow users to choose verbosity of evaluation
         _verbosityOptions = options;
         _serializerOptions = resultSerializeOptions;
-
     }
 
     public ValidatorResults Validate(JsonSchema schema, string yamlFileData)
@@ -34,7 +32,7 @@ public class Validator
         var results = schema.Evaluate(jsonData, _verbosityOptions);
 
         // not used but may help if we ever need to serialize the evaluation results into json format to feed into
-        // a vscode extension or other tool
+        // a VSCode extension or other tool
         var output = JsonSerializer.Serialize(results, _serializerOptions);
 
         var schemaValidity = results.IsValid;
@@ -51,9 +49,9 @@ public class Validator
                 yamlValidatorErrors.Add(new ValidatorError(trace));
             }
         }
+
         IReadOnlyList<ValidatorError> fileErrors = yamlValidatorErrors;
         var finalResults = new ValidatorResults(results.IsValid, fileErrors);
         return finalResults;
-
     }
 }

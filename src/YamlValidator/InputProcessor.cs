@@ -4,9 +4,9 @@
 using System.CommandLine;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class InputProcessor
 {
-
     private static void ProcessFiles(string path, string schema, string pathType)
     {
         // read only records
@@ -19,6 +19,7 @@ public class InputProcessor
         var orchestrator = new Orchestrator(fileLoader, schemaLoader, validator);
         orchestrator.RunValidation(filePathInfo);
     }
+
     public static RootCommand GetRootCommand()
     {
 
@@ -33,33 +34,32 @@ public class InputProcessor
             var inputFilePath = result.GetValueForOption(pathOption);
 
             // either file or folder must be passed
-            var pathType = string.Empty;
-            if (string.IsNullOrEmpty(inputFilePath))
+            if (string.IsNullOrWhiteSpace(inputFilePath))
             {
                 result.ErrorMessage = "The input is invalid, input must be a filepath to a yaml file \\" +
                 "or a folder path to a folder of yaml files";
             }
             else if (!Directory.Exists(inputFilePath) && !File.Exists(inputFilePath))
             {
-                result.ErrorMessage = "The input path does not exist";
+                result.ErrorMessage = $"The path '{inputFilePath}' does not exist";
             }
             else if (Directory.Exists(inputFilePath))
             {
                 if (Directory.GetFiles(inputFilePath, $"*{Constants.YamlFileExtension}").Length == 0)
                 {
-                    result.ErrorMessage = "The input folder does not contain any yaml files";
+                    result.ErrorMessage = $"The folder '{inputFilePath}' does not contain any yaml files";
                 }
             }
             else if (File.Exists(inputFilePath))
             {
-                if (Path.GetExtension(inputFilePath) != Constants.YamlFileExtension)
+                if (!inputFilePath.EndsWith(Constants.YamlFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
-                    result.ErrorMessage = "The input file must be a yaml file";
+                    result.ErrorMessage = $"The file '{inputFilePath}' must be a '{Constants.YamlFileExtension}' file";
                 }
             }
         });
 
-        // assume local schema file exists in nuget package, use relative filepath for now
+        // assume local schema file exists in NuGet package, use relative filepath for now
         var schemaOption = new Option<string>(
             name: "--schema",
             description: "The path to the schema json file",
@@ -79,15 +79,15 @@ public class InputProcessor
             }
             else if (!File.Exists(schemaPath))
             {
-                result.ErrorMessage = "The schema file does not exist";
+                result.ErrorMessage = $"The schema file '{schemaPath}' does not exist";
             }
         });
 
         // define root
-        var rootCommand = new RootCommand("YAML validator cli-tool");
+        var rootCommand = new RootCommand("Power Apps YAML validator command line tool");
 
         // validate command
-        var validateCommand = new Command("validate", "Validate the input yaml file")
+        var validateCommand = new Command("validate", "Validate the input Power Apps YAML file")
         {
             pathOption,
             schemaOption
@@ -104,6 +104,5 @@ public class InputProcessor
         rootCommand.AddCommand(validateCommand);
 
         return rootCommand;
-
     }
 }
