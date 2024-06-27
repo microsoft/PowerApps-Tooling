@@ -16,6 +16,7 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
+      PERSISTENCE_TEST_YAML_FILES: "src/Persistence.Tests/_TestData/"
 
     steps:
     - uses: actions/checkout@v4
@@ -48,6 +49,16 @@ jobs:
 
     - name: Test - PAModel
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
+
+    - name: Test - Persistence Test Yaml Files (ubuntu & macos)
+      run: |
+        result=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll -validate ${{ env.PERSISTENCE_TEST_YAML_FILES }})
+        echo "$result"
+        if [ "$result" == *"Validation Failed"* ]; then
+          echo "Invalid yaml files found"
+          exit 1
+        fi
+      if: ${{ runner.os != 'Windows' }}
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
