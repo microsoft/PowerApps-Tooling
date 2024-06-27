@@ -12,11 +12,11 @@ public class ValidatorResults
     public ValidatorResults(bool schemaValid, IReadOnlyList<ValidatorError> traversalResults)
     {
         SchemaValid = schemaValid;
-        TraversalResults = filterErrors(traversalResults);
+        TraversalResults = FilterErrors(traversalResults);
     }
 
     //  This will filter out the false positives that are not relevant to the error output, when the validation is false
-    private ReadOnlyCollection<ValidatorError> filterErrors(IReadOnlyList<ValidatorError> traversalResults)
+    private ReadOnlyCollection<ValidatorError> FilterErrors(IReadOnlyList<ValidatorError> traversalResults)
     {
         var maxSchemaArraySuffixSize = 0;
         var maxSchemaObjectSuffixSize = 0;
