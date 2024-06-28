@@ -14,5 +14,5 @@ public static class Constants
 
     // runtime constants
     // default schema path
-    public static readonly string[] DefaultSchemaPath = [".", "schema", "pa.yaml-schema.json"];
+    public static readonly string DefaultSchemaPath = Path.Combine(".", "schema", "pa.yaml-schema.json");
 }
