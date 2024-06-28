@@ -16,6 +16,8 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
+      PERSISTENCE_TEST_YAML_APP_VALID: "../../src/Persistence.Tests/_TestData/AppsWithYaml/Src"
+      PERSISTENCE_TEST_YAML_FILES_VALID: "../../src/Persistence.Tests/_TestData/ValidYaml-CI"
 
     steps:
     - uses: actions/checkout@v4
@@ -43,8 +45,27 @@ jobs:
     - name: Test - Persistence
       run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
 
+    - name: Test - YamlValidator
+      run: dotnet bin/Debug/YamlValidator.Tests/YamlValidator.Tests.dll
+
     - name: Test - PAModel
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
+
+    - name: Test - Persistence Test Yaml Files (ubuntu & macos)
+      run: |
+        resultApp=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path ${{ env.PERSISTENCE_TEST_YAML_APP_VALID }})
+        echo "$resultApp"
+        if [ "$resultApp" == *"Validation Failed"* ]; then
+          echo "Invalid Yaml Files found in ${{ env.PERSISTENCE_TEST_YAML_APP_VALID }}"
+          exit 1
+        fi
+        resultFiles=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path ${{ env.PERSISTENCE_TEST_YAML_FILES_VALID }})
+        echo "$resultFiles"
+        if [ "$resultFiles" == *"Validation Failed"* ]; then
+          echo "Invalid Yaml Files found in ${{ env.PERSISTENCE_TEST_YAML_FILES_VALID }}"
+          exit 1
+        fi
+      if: ${{ runner.os != 'Windows' }}
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
