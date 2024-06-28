@@ -35,6 +35,10 @@
     <NoWarn>$(NoWarn);NU1601</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup Label="Global usings">
+      <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerFx.Core" Version="1.2.0" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />

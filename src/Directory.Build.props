@@ -39,7 +39,6 @@
         <Using Include="System" />
         <Using Include="System.Collections.Generic" />
         <Using Include="System.Diagnostics" />
-        <Using Include="Microsoft.Extensions.DependencyInjection" />
     </ItemGroup>
 
     <!-- If not otherwise specified, the project is building for Debug -->
