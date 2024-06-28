@@ -16,8 +16,8 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
-      PERSISTENCE_TEST_YAML_APP_VALID: "src/Persistence.Tests/_TestData/AppsWithYaml/Src"
-      PERSISTENCE_TEST_YAML_FILES_VALID: "src/Persistence.Tests/_TestData/ValidYaml-CI"
+      PERSISTENCE_TEST_YAML_APP_VALID: "../../src/Persistence.Tests/_TestData/AppsWithYaml/Src"
+      PERSISTENCE_TEST_YAML_FILES_VALID: "../../src/Persistence.Tests/_TestData/ValidYaml-CI"
 
     steps:
     - uses: actions/checkout@v4
