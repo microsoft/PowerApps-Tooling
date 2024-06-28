@@ -10,8 +10,7 @@ namespace Persistence.Tests.YamlValidator;
 public class ValidatorTest
 {
 
-    private static readonly string _validPath = Path.Combine(
-        [".", "_TestData", "ValidYaml"]) + Path.DirectorySeparatorChar;
+    private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidYaml") + Path.DirectorySeparatorChar;
 
     private static readonly string _invalidPath = Path.Combine(
         [".", "_TestData", "InvalidYaml"]) + Path.DirectorySeparatorChar;
