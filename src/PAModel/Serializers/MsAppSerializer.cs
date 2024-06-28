@@ -57,7 +57,10 @@ internal static class MsAppSerializer
 
     public static CanvasDocument Load(Stream streamToMsapp, ErrorContainer errors)
     {
-        ArgumentNullException.ThrowIfNull(streamToMsapp);
+        if (streamToMsapp == null)
+        {
+            throw new ArgumentNullException(nameof(streamToMsapp));
+        }
 
         // Read raw files. 
         // Apply transforms. 

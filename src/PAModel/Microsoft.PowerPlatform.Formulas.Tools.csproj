@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
     <AssemblyName>Microsoft.PowerPlatform.Formulas.Tools</AssemblyName>
     <RootNamespace>Microsoft.PowerPlatform.Formulas.Tools</RootNamespace>
   </PropertyGroup>
@@ -48,9 +50,5 @@
     <PackageReference Include="System.Text.Json" Version="[6.0,)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
   </ItemGroup>
 </Project>

@@ -513,7 +513,7 @@ internal class YamlLexer : IDisposable
         {
             while (true)
             {
-                if (sb.Length > 0 && sb[^1] == '\n')
+                if (sb.Length > 0 && sb[sb.Length - 1] == '\n')
                 {
                     sb.Length--;
                 }
@@ -521,7 +521,7 @@ internal class YamlLexer : IDisposable
                 {
                     break;
                 }
-                if (sb.Length > 0 && sb[^1] == '\r')
+                if (sb.Length > 0 && sb[sb.Length - 1] == '\r')
                 {
                     sb.Length--;
                 }

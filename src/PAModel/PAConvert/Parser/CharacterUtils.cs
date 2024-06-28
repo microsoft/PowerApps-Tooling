@@ -123,7 +123,7 @@ internal static class CharacterUtils
     {
         if (IsIdentDelimiter(name[0]))
         {
-            if (!IsIdentDelimiter(name[^1]))
+            if (!IsIdentDelimiter(name[name.Length - 1]))
             {
                 // Must match
                 errors.ParseError(default, $"Unmatched escape delimeter in {name}");

@@ -247,7 +247,7 @@ public class ChecksumMaker
             }
         }
         // Don't include trailing whitespace
-        while ((sb.Length > 1) && sb[^1] == ' ') { sb.Length--; }
+        while ((sb.Length > 1) && sb[sb.Length - 1] == ' ') { sb.Length--; }
 
         return sb.ToString();
     }
