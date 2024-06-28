@@ -13,7 +13,7 @@ public class SchemaLoader
     {
         var node = JsonSchema.FromFile(schemaPath);
         var schemaFolder = Path.GetDirectoryName(schemaPath);
-        var subschemaPaths = Directory.GetFiles($@"{schemaFolder}\{_schemaFolderPath}",
+        var subschemaPaths = Directory.GetFiles($@"{schemaFolder}{Path.DirectorySeparatorChar}{_schemaFolderPath}",
             $"*{Constants.JsonFileExtension}");
 
         foreach (var path in subschemaPaths)
