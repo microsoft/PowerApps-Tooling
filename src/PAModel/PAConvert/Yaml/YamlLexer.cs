@@ -473,6 +473,7 @@ internal class YamlLexer : IDisposable
 
     // https://yaml-multiline.info/
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Not available in netstandard2.0")]
     private string ReadMultiline(int multilineMode)
     {
         var sb = new StringBuilder();
