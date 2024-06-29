@@ -24,6 +24,9 @@
 }
 ```
 
+- To get syntax highlighting for Power Fx in VS Code, you can install the [YAML Embedded Languages](https://marketplace.visualstudio.com/items?itemName=harrydowning.yaml-embedded-languages) extension.  By applying the `# powerfx`language hint within your `*.pa.yaml` file, you will see syntax highlighting within the YAML:
+![alt text](assets/images/power-fx-highligting-yaml.png)
+
 - For advanced C#/.Net library usage, please explore the [Microsoft.PowerPlatform.PowerApps.Persistence](https://github.com/microsoft/PowerApps-Tooling/tree/master/src/Persistence) library.
 
 ## Contributing
