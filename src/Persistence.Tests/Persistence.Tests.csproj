@@ -38,6 +38,7 @@
         <Using Include="FluentAssertions" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
         <Using Include="Persistence.Tests.Extensions" />
+        <Using Include="Microsoft.Extensions.DependencyInjection" />
     </ItemGroup>
 
     <ItemGroup>

@@ -119,11 +119,12 @@ internal static class CharacterUtils
         return false;
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Not available in netstandard2.0")]
     public static string UnEscapeName(string name, ErrorContainer errors)
     {
         if (IsIdentDelimiter(name[0]))
         {
-            if (!IsIdentDelimiter(name[^1]))
+            if (!IsIdentDelimiter(name[name.Length - 1]))
             {
                 // Must match
                 errors.ParseError(default, $"Unmatched escape delimeter in {name}");

@@ -225,6 +225,7 @@ public class ChecksumMaker
     // Formula whitespace can differ between platforms, and leading whitespace
     // is affected by writing to .pa format. Normalize so checksums are
     // platform independent
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Not available in netstandard2.0")]
     internal static string NormFormulaWhitespace(string s)
     {
         var sb = new StringBuilder();
@@ -247,7 +248,7 @@ public class ChecksumMaker
             }
         }
         // Don't include trailing whitespace
-        while ((sb.Length > 1) && sb[^1] == ' ') { sb.Length--; }
+        while ((sb.Length > 1) && sb[sb.Length - 1] == ' ') { sb.Length--; }
 
         return sb.ToString();
     }
