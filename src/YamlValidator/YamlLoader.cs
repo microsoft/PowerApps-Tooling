@@ -19,10 +19,11 @@ public class YamlLoader
         }
         else if (pathType == Constants.FolderTypeName)
         {
-            // TODO: Determine if flag should be required to specify recursive folder search
+            // TODO: Determine if argument flag should be required to specify recursive folder search
             try
             {
-                foreach (var filename in Directory.EnumerateFiles(filePath, "*" + Constants.YamlFileExtension, SearchOption.AllDirectories))
+                var yamlFiles = Directory.EnumerateFiles(filePath, "*" + Constants.YamlFileExtension, SearchOption.AllDirectories);
+                foreach (var filename in yamlFiles)
                 {
                     var fileName = Path.GetFileName(filename);
                     var yamlText = Utility.ReadFileData(filename);
@@ -32,6 +33,10 @@ public class YamlLoader
             catch (UnauthorizedAccessException ex)
             {
                 Console.WriteLine($"Unauthorized access exception: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"IO exception: {ex.Message}");
             }
         }
         else
