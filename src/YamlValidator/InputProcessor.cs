@@ -63,7 +63,7 @@ public class InputProcessor
         var schemaOption = new Option<string>(
             name: "--schema",
             description: "The path to the schema json file",
-            getDefaultValue: () => @".\schema\pa.yaml-schema.json"
+            getDefaultValue: () => Constants.DefaultSchemaPath
             );
 
         schemaOption.AddValidator(result =>
