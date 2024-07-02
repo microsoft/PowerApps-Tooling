@@ -16,8 +16,6 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     env:
       DOTNET_NOLOGO: true
-      PERSISTENCE_TEST_YAML_APP_VALID: "../../src/Persistence.Tests/_TestData/AppsWithYaml/Src"
-      PERSISTENCE_TEST_YAML_FILES_VALID: "../../src/Persistence.Tests/_TestData/ValidYaml-CI"
 
     steps:
     - uses: actions/checkout@v4
@@ -53,16 +51,16 @@ jobs:
 
     - name: Test - Persistence Test Yaml Files (ubuntu & macos)
       run: |
-        resultApp=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path ${{ env.PERSISTENCE_TEST_YAML_APP_VALID }})
+        resultApp=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "../Persistence.Tests/_TestData/AppsWithYaml")
         echo "$resultApp"
         if [ "$resultApp" == *"Validation Failed"* ]; then
-          echo "Invalid Yaml Files found in ${{ env.PERSISTENCE_TEST_YAML_APP_VALID }}"
+          echo "Invalid Yaml Files found in ../../src/Persistence.Tests/_TestData/AppsWithYaml"
           exit 1
         fi
-        resultFiles=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path ${{ env.PERSISTENCE_TEST_YAML_FILES_VALID }})
+        resultFiles=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "../Persistence.Tests/_TestData/ValidYaml-CI")
         echo "$resultFiles"
         if [ "$resultFiles" == *"Validation Failed"* ]; then
-          echo "Invalid Yaml Files found in ${{ env.PERSISTENCE_TEST_YAML_FILES_VALID }}"
+          echo "Invalid Yaml Files found in ../../src/Persistence.Tests/_TestData/ValidYaml-CI"
           exit 1
         fi
       if: ${{ runner.os != 'Windows' }}

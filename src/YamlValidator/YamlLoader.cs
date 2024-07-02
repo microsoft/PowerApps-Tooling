@@ -25,7 +25,7 @@ public class YamlLoader
                 var yamlFiles = Directory.EnumerateFiles(filePath, "*" + Constants.YamlFileExtension, SearchOption.AllDirectories);
                 foreach (var filename in yamlFiles)
                 {
-                    var fileName = Path.GetFileName(filename);
+                    var fileName = Path.GetRelativePath(filePath, filename);
                     var yamlText = Utility.ReadFileData(filename);
                     deserializedYaml.Add(fileName, yamlText);
                 }
