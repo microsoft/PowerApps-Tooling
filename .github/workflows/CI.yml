@@ -51,13 +51,13 @@ jobs:
 
     - name: Test - Persistence Test Yaml Files (ubuntu & macos)
       run: |
-        resultApp=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "bin/Debug/Persistence.Tests/_TestData/AppsWithYaml")
+        resultApp=$(sudo dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "bin/Debug/Persistence.Tests/_TestData/AppsWithYaml")
         echo "$resultApp"
         if [ "$resultApp" == *"Validation Failed"* ]; then
           echo "Invalid Yaml Files found in AppsWithYaml"
           exit 1
         fi
-        resultFiles=$(dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "bin/Debug/Persistence.Tests/_TestData/ValidYaml-CI")
+        resultFiles=$(sudo dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "bin/Debug/Persistence.Tests/_TestData/ValidYaml-CI")
         echo "$resultFiles"
         if [ "$resultFiles" == *"Validation Failed"* ]; then
           echo "Invalid Yaml Files found in ValidYaml-CI"

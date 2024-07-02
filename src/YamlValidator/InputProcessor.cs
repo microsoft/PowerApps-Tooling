@@ -43,13 +43,6 @@ public class InputProcessor
             {
                 result.ErrorMessage = $"The path '{inputFilePath}' does not exist";
             }
-            else if (Directory.Exists(inputFilePath))
-            {
-                if (Directory.GetFiles(inputFilePath, $"*{Constants.YamlFileExtension}").Length == 0)
-                {
-                    result.ErrorMessage = $"The folder '{inputFilePath}' does not contain any yaml files";
-                }
-            }
             else if (File.Exists(inputFilePath))
             {
                 if (!inputFilePath.EndsWith(Constants.YamlFileExtension, StringComparison.OrdinalIgnoreCase))
