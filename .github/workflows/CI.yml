@@ -51,7 +51,7 @@ jobs:
 
     - name: Test - Persistence Test Yaml Files (ubuntu & macos)
       run: |
-        echo $(ls -d bin/Debug/YamlValidator)
+        echo $(ls bin/Debug/YamlValidator)
         resultApp=$(sudo dotnet bin/Debug/YamlValidator/YamlValidator.dll validate --path "bin/Debug/Persistence.Tests/_TestData/AppsWithYaml")
         echo "$resultApp"
         if [ "$resultApp" == *"Validation Failed"* ]; then
