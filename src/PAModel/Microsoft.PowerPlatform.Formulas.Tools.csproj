@@ -1,8 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>12</LangVersion>
     <AssemblyName>Microsoft.PowerPlatform.Formulas.Tools</AssemblyName>
     <RootNamespace>Microsoft.PowerPlatform.Formulas.Tools</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Override Directory.Build.props Settings">
+    <!-- Clear the singular TargetFramework set by Directory.Build.props, so that it doesn't take precedence over the plural TargetFrameworks set above. -->
+    <TargetFramework></TargetFramework> 
+    <!-- Directory.Build.props sets paths assuming a single Target Framework.  Add the framework to the path to prevent overwriting one with the other -->
+    <OutDir>$(OutDir)\$(TargetFramework)</OutDir>
   </PropertyGroup>
 
   <!-- Nuget Properties -->
@@ -48,9 +57,5 @@
     <PackageReference Include="System.Text.Json" Version="[6.0,)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
   </ItemGroup>
 </Project>
