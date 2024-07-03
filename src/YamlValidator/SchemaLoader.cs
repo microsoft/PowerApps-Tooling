@@ -11,6 +11,8 @@ public class SchemaLoader
 
     public JsonSchema Load(string schemaPath)
     {
+        Console.WriteLine(Environment.CurrentDirectory);
+        Console.WriteLine(schemaPath);
         var node = JsonSchema.FromFile(schemaPath);
         var schemaFolder = Path.GetDirectoryName(schemaPath);
         var subschemaPaths = Directory.GetFiles($@"{schemaFolder}{Path.DirectorySeparatorChar}{_schemaFolderPath}",
