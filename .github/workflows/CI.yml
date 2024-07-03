@@ -53,6 +53,10 @@ jobs:
       run: ./scripts/PersistenceValidate.sh
       if: ${{ runner.os != 'Windows' }}
 
+    - name: Test - Persistence Test Yaml Files (windows)
+      run: ./scripts/PersistenceValidate.ps1
+      if: ${{ runner.os == 'Windows' }}
+
     #- name: Restore workloads for samples
     #  run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
 
