@@ -40,9 +40,6 @@ jobs:
       run: ./build ci
       if: ${{ runner.os != 'Windows' }}
 
-    - name: Test - Persistence
-      run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
-
     - name: Test - YamlValidator
       run: dotnet bin/Debug/YamlValidator.Tests/YamlValidator.Tests.dll
 
@@ -56,6 +53,9 @@ jobs:
     - name: Test - Persistence.Tests Yaml Files (windows)
       run: ./scripts/PersistenceValidate.ps1
       if: ${{ runner.os == 'Windows' }}
+
+    - name: Test - Persistence
+      run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
