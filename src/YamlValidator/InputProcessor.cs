@@ -49,14 +49,14 @@ public class InputProcessor
                 {
                     result.ErrorMessage = $"The folder '{inputFilePath}' does not contain any yaml files";
                 }
-            }
+            }*/
             else if (File.Exists(inputFilePath))
             {
                 if (!inputFilePath.EndsWith(Constants.YamlFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
                     result.ErrorMessage = $"The file '{inputFilePath}' must be a '{Constants.YamlFileExtension}' file";
                 }
-            }*/
+            }
         });
 
         // assume local schema file exists in NuGet package, use relative filepath for now
@@ -77,10 +77,10 @@ public class InputProcessor
             {
                 result.ErrorMessage = "The schema file must be a json file";
             }
-            else if (!File.Exists(schemaPath))
+            /*else if (!File.Exists(schemaPath))
             {
                 result.ErrorMessage = $"The schema file '{schemaPath}' does not exist";
-            }
+            }*/
         });
 
         // define root
