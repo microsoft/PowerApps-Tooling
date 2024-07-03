@@ -49,11 +49,11 @@ jobs:
     - name: Test - PAModel
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
 
-    - name: Test - Persistence Test Yaml Files (ubuntu & macos)
+    - name: Test - Persistence.Tests Yaml Files (ubuntu & macos)
       run: ./scripts/PersistenceValidate.sh
       if: ${{ runner.os != 'Windows' }}
 
-    - name: Test - Persistence Test Yaml Files (windows)
+    - name: Test - Persistence.Tests Yaml Files (windows)
       run: ./scripts/PersistenceValidate.ps1
       if: ${{ runner.os == 'Windows' }}
 
