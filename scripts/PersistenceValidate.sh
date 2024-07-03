@@ -3,6 +3,10 @@
 # This script is used to validate whether persistence has valid tests
 
 echo $(pwd)
+cd ..
+echo $(ls)
+cd ./bin
+echo $(ls)
 cd ../bin/Debug/YamlValidator
 
 appTestResults=$(dotnet YamlValidator.dll validate --path "../Persistence.Tests/_TestData/AppsWithYaml")
