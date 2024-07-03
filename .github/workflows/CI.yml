@@ -50,20 +50,7 @@ jobs:
     #  run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
 
     - name: Test - Persistence Test Yaml Files (ubuntu & macos)
-      run: |
-        cd bin/Debug/YamlValidator
-        resultApp=$(dotnet YamlValidator.dll validate --path "../Persistence.Tests/_TestData/AppsWithYaml")
-        echo "$resultApp"
-        if [ "$resultApp" == *"Validation Failed"* ]; then
-          echo "Invalid Yaml Files found in AppsWithYaml"
-          exit 1
-        fi
-        resultFiles=$(dotnet YamlValidator.dll validate --path "../Persistence.Tests/_TestData/ValidYaml-CI")
-        echo "$resultFiles"
-        if [ "$resultFiles" == *"Validation Failed"* ]; then
-          echo "Invalid Yaml Files found in ValidYaml-CI"
-          exit 1
-        fi
+      run: ./scripts/PersistenceValidate.sh
       if: ${{ runner.os != 'Windows' }}
 
     #- name: Restore workloads for samples
