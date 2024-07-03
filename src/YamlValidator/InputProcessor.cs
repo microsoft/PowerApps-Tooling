@@ -70,10 +70,10 @@ public class InputProcessor
             {
                 result.ErrorMessage = "The schema file must be a json file";
             }
-            else if (!File.Exists(schemaPath))
-            {
-                result.ErrorMessage = $"The schema file '{schemaPath}' does not exist";
-            }
+            //else if (!File.Exists(schemaPath))
+            //{
+            //    result.ErrorMessage = $"The schema file '{schemaPath}' does not exist";
+            //}
         });
 
         // define root
