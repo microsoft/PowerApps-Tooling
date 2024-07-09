@@ -1,0 +1,30 @@
+Screen2:
+  Control: Screen
+  Children:
+  - ButtonCanvas2:
+      Control: Button
+      Properties:
+        OnSelect: =Navigate(Screen1)
+        Text: ="Back"
+        Height: =53
+        Width: =172
+        X: =632
+        Y: =550
+  - TextCanvas1:
+      Control: Text
+      Properties:
+        Align: ='TextCanvas.Align'.Center
+        Size: =50
+        Text: ="Hello"
+        Height: =91
+        Width: =368
+        X: =517
+        Y: =44
+  - Image1:
+      Control: Image
+      Properties:
+        Image: ='pexels-pixabay-417173'
+        Height: =361
+        Width: =466
+        X: =447
+        Y: =135

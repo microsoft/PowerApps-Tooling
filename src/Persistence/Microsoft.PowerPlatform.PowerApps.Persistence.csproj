@@ -32,7 +32,7 @@
     <PublicSign>true</PublicSign>
     <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <NoWarn>$(NoWarn);NU1601</NoWarn>
+    <NoWarn>$(NoWarn);NU1601;CA1822</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Label="Global usings">
@@ -43,6 +43,14 @@
     <PackageReference Include="Microsoft.PowerFx.Core" Version="1.2.0" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+    <PackageReference Include="JsonSchema.Net" Version="7.1.0" />
+    <PackageReference Include="Yaml2JsonNode" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\docs\pa.yaml-schema.json" Link="YamlValidator\schema\pa.yaml-schema.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\docs\subschemas\control-type-schema.json" Link="YamlValidator\schema\subschemas\control-type-schema.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\docs\subschemas\control-property-schema.json" Link="YamlValidator\schema\subschemas\control-property-schema.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

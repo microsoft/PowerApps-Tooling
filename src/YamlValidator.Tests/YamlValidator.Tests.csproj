@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -22,10 +22,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestTestAdapterVersion)" />
     <PackageReference Include="MSTest" Version="$(MSTest)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\YamlValidator\YamlValidator.csproj" />
   </ItemGroup>
 
 
