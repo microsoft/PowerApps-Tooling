@@ -59,9 +59,9 @@ public static class ControlFormatter
         var isGroupContainer = control.Template.Name == BuiltInTemplates.GroupContainer.Name;
         var originalChildCount = control.Children.Count;
 
-        var children = control.Children
-            .Select(addZIndex)
-            .Concat(childrenToAdd)
+        var children = childrenToAdd
+            .Concat(control.Children
+            .Select(addZIndex))
             .ToList();
 
         var properties = propertiesToRemove.Count > 0
