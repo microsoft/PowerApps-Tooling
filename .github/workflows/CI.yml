@@ -46,6 +46,17 @@ jobs:
     - name: Test - PAModel
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
 
+    - name: Test - YamlValidator
+      run: dotnet bin/Debug/YamlValidator.Tests/YamlValidator.Tests.dll
+
+    - name: Test - Persistence.Tests Yaml Files (ubuntu & macos)
+      run: ./scripts/PersistenceValidate.sh
+      if: ${{ runner.os != 'Windows' }}
+
+    - name: Test - Persistence.Tests Yaml Files (windows)
+      run: ./scripts/PersistenceValidate.ps1
+      if: ${{ runner.os == 'Windows' }}
+
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
 
