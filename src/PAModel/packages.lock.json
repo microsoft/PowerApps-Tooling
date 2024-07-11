@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.0": {
       "Microsoft.Net.Compilers.Toolset.Framework": {
         "type": "Direct",
-        "requested": "[4.10.0-3.24216.12, )",
-        "resolved": "4.10.0-3.24216.12",
-        "contentHash": "Y1T1ZN3cHWToRYZHhRs8xby1tMCkF23Jb//zK+Tdf4ourzwbMQ4GiTRVVFAlWvmA10iVNUyCZucAeLt5XeiDqA=="
+        "requested": "[4.10.0-3.24314.14, )",
+        "resolved": "4.10.0-3.final",
+        "contentHash": "KcCRFC4deDiDSHDIecwJ0sdNOD+xD0nowN2OwHaIAxVornmRIBk16HPHBei7tux1Ez4e2C67FS+RKDwyRDqHiw=="
       },
       "NETStandard.Library": {
         "type": "Direct",
@@ -105,9 +105,9 @@
     "net8.0": {
       "Microsoft.Net.Compilers.Toolset.Framework": {
         "type": "Direct",
-        "requested": "[4.10.0-3.24216.12, )",
-        "resolved": "4.10.0-3.24216.12",
-        "contentHash": "Y1T1ZN3cHWToRYZHhRs8xby1tMCkF23Jb//zK+Tdf4ourzwbMQ4GiTRVVFAlWvmA10iVNUyCZucAeLt5XeiDqA=="
+        "requested": "[4.10.0-3.24314.14, )",
+        "resolved": "4.10.0-3.final",
+        "contentHash": "KcCRFC4deDiDSHDIecwJ0sdNOD+xD0nowN2OwHaIAxVornmRIBk16HPHBei7tux1Ez4e2C67FS+RKDwyRDqHiw=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
