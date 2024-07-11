@@ -18,12 +18,11 @@ public class ValidationProcessor
 
     public void RunValidation(ValidationRequest inputData)
     {
-        var schemaPath = inputData.SchemaPath;
         var path = inputData.FilePath;
         var pathType = inputData.FilePathType;
 
         var yamlData = _fileLoader.Load(path, pathType);
-        var serializedSchema = _schemaLoader.Load(schemaPath);
+        var serializedSchema = _schemaLoader.Load();
 
         foreach (var yamlFileData in yamlData)
         {

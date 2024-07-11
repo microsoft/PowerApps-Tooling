@@ -16,15 +16,13 @@ public class ValidatorTest
     private static readonly string _invalidPath = Path.Combine(".", "_TestData", "ValidatorTests", "InvalidYaml") +
         Path.DirectorySeparatorChar;
 
-    private static readonly string schemaDir = Path.Combine(".", "YamlValidator", "schema", "pa.yaml-schema.json");
-
     private readonly JsonSchema _schema;
     private readonly Validator _yamlValidator;
 
     public ValidatorTest()
     {
         var schemaFileLoader = new SchemaLoader();
-        _schema = schemaFileLoader.Load(schemaDir);
+        _schema = schemaFileLoader.Load();
         var resultVerbosity = new VerbosityData(Constants.Verbose);
         _yamlValidator = new Validator(resultVerbosity.EvalOptions, resultVerbosity.JsonOutputOptions);
     }
