@@ -16,6 +16,7 @@ public class ValidatorResults
     }
 
     //  This will filter out the false positives that are not relevant to the error output, when the validation is false
+    //  see: https://github.com/microsoft/PowerApps-Tooling/pull/682 for context
     private ReadOnlyCollection<ValidatorError> FilterErrors(IReadOnlyList<ValidatorError> traversalResults)
     {
         var maxSchemaArraySuffixSize = 0;

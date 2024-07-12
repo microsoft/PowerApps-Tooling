@@ -1,0 +1,15 @@
+{ 
+ features => [
+  {
+    name => lorem ipsum,
+    points => [
+      "bullet 1",
+      "bullet 2"
+    ]
+  },
+  {
+    name => lorem ipsum 2,
+    description => lorem ipsum 3
+  }
+]
+}

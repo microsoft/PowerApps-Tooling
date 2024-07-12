@@ -4,6 +4,8 @@
 using Json.Schema;
 using Yaml2JsonNode;
 using System.Text.Json;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
@@ -21,7 +23,16 @@ public class Validator
 
     public ValidatorResults Validate(JsonSchema schema, string yamlFileData)
     {
-        var yamlStream = Utility.MakeYamlStream(yamlFileData);
+        YamlStream yamlStream;
+        try
+        {
+            yamlStream = Utility.MakeYamlStream(yamlFileData);
+        }
+        catch (YamlException)
+        {
+            return new ValidatorResults(false, new List<ValidatorError> { new("File is not yaml") });
+        }
+
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
 
         // here we say that empty yaml is serialized as null json
@@ -36,8 +47,6 @@ public class Validator
         var output = JsonSerializer.Serialize(results, _serializerOptions);
 
         var schemaValidity = results.IsValid;
-        // TBD: filter actual errors versus false positives
-        // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
         var yamlValidatorErrors = new List<ValidatorError>();
         if (!schemaValidity)
         {

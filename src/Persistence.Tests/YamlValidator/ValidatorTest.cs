@@ -48,6 +48,7 @@ public class ValidatorTest
     [DataRow("EmptyArray.yaml")]
     [DataRow("Empty.yaml")]
     [DataRow("NamelessObjectNoControl.yaml")]
+    [DataRow("NotYaml.yaml")]
     public void TestValidationInvalidYaml(string filename)
     {
         var rawYaml = Utility.ReadFileData($@"{_invalidPath}{filename}");
