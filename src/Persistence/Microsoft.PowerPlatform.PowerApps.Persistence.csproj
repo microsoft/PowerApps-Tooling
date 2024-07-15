@@ -32,7 +32,8 @@
     <PublicSign>true</PublicSign>
     <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <NoWarn>$(NoWarn);NU1601;CA1822</NoWarn>
+    <!-- YamlValidator Supressions: CA1822, IDE0052 (unused json serializer) -->
+    <NoWarn>$(NoWarn);NU1601;CA1822;IDE0052</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Label="Global usings">
