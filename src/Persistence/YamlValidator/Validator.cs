@@ -8,6 +8,7 @@ using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class Validator
 {
     private readonly EvaluationOptions _verbosityOptions;
@@ -20,7 +21,6 @@ public class Validator
         _serializerOptions = resultSerializeOptions;
         _schema = schema;
     }
-
     public ValidatorResults Validate(string yamlFileData)
     {
         YamlStream yamlStream;

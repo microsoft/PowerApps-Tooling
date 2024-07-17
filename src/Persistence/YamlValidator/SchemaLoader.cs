@@ -23,17 +23,19 @@ public class SchemaLoader
             using var streamReader = new StreamReader(fileStream);
             var jsonSchemaString = streamReader.ReadToEnd();
             var schema = JsonSchema.FromText(jsonSchemaString);
-            if (file.StartsWith($"{assemblyName}.{_subschemaFolderPath}", StringComparison.Ordinal))
+
+            // assembly name is Microsoft.PowerPlatform.PowerApps.Persistence
+            // subNamespace is YamlValidator, schemas live in the linked schema folder
+            var rootFileName = $"{assemblyName}.{Constants.subNamespace}.{_schemaFolderPath}";
+
+            if (file.StartsWith($"{rootFileName}.{_subschemaFolderPath}.", StringComparison.Ordinal))
             {
-                var subschemaNameLength = $"{assemblyName}.{_subschemaFolderPath}.".Length;
-                var subschemaName = file.Substring(subschemaNameLength);
+                // these virtual uri's are used to resolve $ref's in the schema, they aren't
+                // represented like this in the dll
                 schema.BaseUri = new Uri($"file://{_schemaFolderPath}/{_subschemaFolderPath}/");
                 SchemaRegistry.Global.Register(schema);
                 continue;
-
             }
-            var schemaNameLength = $"{assemblyName}.".Length;
-            var schemaName = file.Substring(schemaNameLength);
             schema.BaseUri = new Uri($"file://{_schemaFolderPath}");
             node = schema;
         }

@@ -10,4 +10,6 @@ public static class Constants
 
     public const string notYamlError = "File is not YAML";
     public const string emptyYamlError = "Empty YAML file";
+
+    public const string subNamespace = "YamlValidator";
 }

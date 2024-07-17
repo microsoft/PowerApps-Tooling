@@ -4,6 +4,7 @@
 using Json.Schema;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
+
 public class ValidatorError
 {
     public string InstanceLocation { get; }
