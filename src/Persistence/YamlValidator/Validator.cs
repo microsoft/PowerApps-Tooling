@@ -12,6 +12,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class Validator
 {
     private readonly EvaluationOptions _verbosityOptions;
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private member",
+    Justification = "Suppress serializing the raw validator errors into json will be useful for future use")]
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly JsonSchema _schema;
     public Validator(EvaluationOptions options, JsonSerializerOptions resultSerializeOptions, JsonSchema schema)
