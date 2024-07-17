@@ -16,6 +16,10 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <!-- Warning treated as error for dotnet compiler, see Pr #660 and this for context
+            https://github.com/dotnet/core/blob/main/release-notes/8.0/known-issues.md#802xx-sdk-is-not-compatible-with-178-for-some-scenarios
+        -->
+        <WarningsNotAsErrors>NU1603</WarningsNotAsErrors>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     </PropertyGroup>
 
