@@ -10,10 +10,10 @@ namespace Persistence.Tests.YamlValidator;
 public class ValidatorTest
 {
 
-    private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidYaml") +
+    private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidatorTests", "ValidYaml") +
         Path.DirectorySeparatorChar;
 
-    private static readonly string _invalidPath = Path.Combine(".", "_TestData", "InvalidYaml") +
+    private static readonly string _invalidPath = Path.Combine(".", "_TestData", "ValidatorTests", "InvalidYaml") +
         Path.DirectorySeparatorChar;
 
     private readonly JsonSchema _schema;
@@ -22,7 +22,7 @@ public class ValidatorTest
     public ValidatorTest()
     {
         var schemaFileLoader = new SchemaLoader();
-        _schema = schemaFileLoader.Load(Constants.DefaultSchemaPath);
+        _schema = schemaFileLoader.Load();
         var resultVerbosity = new VerbosityData(Constants.Verbose);
         _yamlValidator = new Validator(resultVerbosity.EvalOptions, resultVerbosity.JsonOutputOptions);
     }

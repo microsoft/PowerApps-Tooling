@@ -7,8 +7,6 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
-        <!-- https://github.com/dotnet/core/blob/main/release-notes/8.0/known-issues.md#802xx-sdk-is-not-compatible-with-178-for-some-scenarios -->
-        <BuildWithNetFrameworkHostedCompiler>true</BuildWithNetFrameworkHostedCompiler>
     </PropertyGroup>
 
     <PropertyGroup Label="Code Analysis config">

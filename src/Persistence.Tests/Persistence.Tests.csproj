@@ -18,6 +18,7 @@
         <None Include="_TestData\**\*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        
       <None Include="..\schemas-tests\pa-yaml\v3.0\Examples\**\*.yaml" LinkBase="_TestData\SchemaV3_0\Examples\">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
