@@ -3,13 +3,13 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-public class Orchestrator
+public class ValidationProcessor
 {
     private readonly YamlLoader _fileLoader;
     private readonly SchemaLoader _schemaLoader;
     private readonly Validator _validator;
 
-    public Orchestrator(YamlLoader fileLoader, SchemaLoader schemaLoader, Validator validator)
+    public ValidationProcessor(YamlLoader fileLoader, SchemaLoader schemaLoader, Validator validator)
     {
         _fileLoader = fileLoader;
         _schemaLoader = schemaLoader;
@@ -18,12 +18,11 @@ public class Orchestrator
 
     public void RunValidation(ValidationRequest inputData)
     {
-        var schemaPath = inputData.SchemaPath;
         var path = inputData.FilePath;
         var pathType = inputData.FilePathType;
 
         var yamlData = _fileLoader.Load(path, pathType);
-        var serializedSchema = _schemaLoader.Load(schemaPath);
+        var serializedSchema = _schemaLoader.Load();
 
         foreach (var yamlFileData in yamlData)
         {
