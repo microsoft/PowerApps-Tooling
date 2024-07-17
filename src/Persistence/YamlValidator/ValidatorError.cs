@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Json.Schema;
-
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 public class ValidatorError
@@ -11,11 +9,11 @@ public class ValidatorError
     public string SchemaPath { get; }
     public IReadOnlyDictionary<string, string>? Errors { get; }
 
-    public ValidatorError(EvaluationResults results)
+    public ValidatorError(string instancePath, string schemaPath, IReadOnlyDictionary<string, string>? errors)
     {
-        InstanceLocation = results.InstanceLocation.ToString();
-        SchemaPath = results.EvaluationPath.ToString();
-        Errors = results.Errors;
+        InstanceLocation = instancePath;
+        SchemaPath = schemaPath;
+        Errors = errors;
     }
 
     public ValidatorError(string error)

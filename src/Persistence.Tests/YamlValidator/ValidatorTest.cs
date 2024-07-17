@@ -15,7 +15,7 @@ public class ValidatorTest
     private static readonly string _invalidPath = Path.Combine(".", "_TestData", "ValidatorTests", "InvalidYaml") +
         Path.DirectorySeparatorChar;
 
-    private readonly Validator _yamlValidator;
+    private readonly IValidator _yamlValidator;
 
     public ValidatorTest()
     {

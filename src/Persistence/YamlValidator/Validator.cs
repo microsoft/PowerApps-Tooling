@@ -9,7 +9,7 @@ using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-public class Validator
+internal class Validator : IValidator
 {
     private readonly EvaluationOptions _verbosityOptions;
     [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private member",
@@ -53,7 +53,10 @@ public class Validator
              node.HasErrors).ToList();
             foreach (var trace in traceList)
             {
-                yamlValidatorErrors.Add(new ValidatorError(trace));
+                var instanceLocation = trace.InstanceLocation.ToString();
+                var schemaPath = trace.EvaluationPath.ToString();
+                var errors = trace.Errors;
+                yamlValidatorErrors.Add(new ValidatorError(instanceLocation, schemaPath, errors));
             }
         }
 
