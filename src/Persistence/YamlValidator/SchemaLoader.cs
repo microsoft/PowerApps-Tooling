@@ -11,9 +11,12 @@ public class SchemaLoader
     private const string _schemaFolderPath = "schema";
     private const string _subschemaFolderPath = "subschemas";
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+    Justification = "Suppress to make classes stateless")]
     public JsonSchema Load()
     {
-        var assembly = Assembly.GetExecutingAssembly();
+        var assembly = typeof(SchemaLoader).Assembly;
+
         JsonSchema? node = null;
         foreach (var file in assembly.GetManifestResourceNames())
         {
