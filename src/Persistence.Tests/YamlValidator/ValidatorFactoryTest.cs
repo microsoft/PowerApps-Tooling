@@ -15,6 +15,6 @@ public class ValidatorFactoryTest
         var validator = factory.GetValidator();
 
         Assert.IsNotNull(validator);
-        Assert.IsInstanceOfType(validator, typeof(Validator));
+        Assert.IsInstanceOfType(validator, typeof(IValidator));
     }
 }
