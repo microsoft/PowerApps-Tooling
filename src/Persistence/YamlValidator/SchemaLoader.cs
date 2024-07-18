@@ -6,7 +6,7 @@ using Json.Schema;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-public class SchemaLoader
+internal class SchemaLoader
 {
     private const string _schemaFolderPath = "schema";
     private const string _subschemaFolderPath = "subschemas";
