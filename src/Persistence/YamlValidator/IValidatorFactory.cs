@@ -5,5 +5,5 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 public interface IValidatorFactory
 {
-    IValidator GetValidator();
+    IValidator CreateValidator();
 }

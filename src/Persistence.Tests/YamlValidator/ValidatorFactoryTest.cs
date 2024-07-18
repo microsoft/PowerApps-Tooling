@@ -6,13 +6,13 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 namespace Persistence.Tests.YamlValidator;
 
 [TestClass]
-public class ValidatorFactoryTest
+public class ValidatorFactoryTest : TestBase
 {
     [TestMethod]
     public void GetValidatorTest()
     {
         var factory = new ValidatorFactory();
-        var validator = factory.GetValidator();
+        var validator = factory.CreateValidator();
 
         Assert.IsNotNull(validator);
         Assert.IsInstanceOfType(validator, typeof(IValidator));

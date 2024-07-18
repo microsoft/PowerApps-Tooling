@@ -11,8 +11,7 @@ internal class SchemaLoader
     private const string _schemaFolderPath = "schema";
     private const string _subschemaFolderPath = "subschemas";
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-    Justification = "Suppress to make classes stateless")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Suppress to make classes stateless")]
     public JsonSchema Load()
     {
         var assembly = typeof(SchemaLoader).Assembly;
@@ -21,7 +20,7 @@ internal class SchemaLoader
         foreach (var file in assembly.GetManifestResourceNames())
         {
             var fileStream = assembly.GetManifestResourceStream(file);
-            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+            var assemblyName = assembly.GetName().Name;
             if (fileStream == null)
             {
                 throw new IOException($"Resource {file} could not found in assembly {assemblyName}");

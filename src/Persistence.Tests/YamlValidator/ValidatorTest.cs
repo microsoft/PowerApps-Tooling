@@ -6,7 +6,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 namespace Persistence.Tests.YamlValidator;
 
 [TestClass]
-public class ValidatorTest
+public class ValidatorTest : TestBase
 {
 
     private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidatorTests", "ValidYaml") +
@@ -19,8 +19,7 @@ public class ValidatorTest
 
     public ValidatorTest()
     {
-        var validatorFactory = new ValidatorFactory();
-        _yamlValidator = validatorFactory.GetValidator();
+        _yamlValidator = ValidatorFactory.CreateValidator();
     }
 
     [TestMethod]

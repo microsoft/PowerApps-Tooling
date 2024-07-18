@@ -3,7 +3,6 @@
 
 using Json.Schema;
 using Yaml2JsonNode;
-using System.Text.Json;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
@@ -12,15 +11,11 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 internal class Validator : IValidator
 {
     private readonly EvaluationOptions _verbosityOptions;
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private member",
-    Justification = "Suppress serializing the raw validator errors into json will be useful for future use")]
-    private readonly JsonSerializerOptions _serializerOptions;
     private readonly JsonSchema _schema;
-    public Validator(EvaluationOptions options, JsonSerializerOptions resultSerializeOptions, JsonSchema schema)
+    public Validator(EvaluationOptions options, JsonSchema schema)
     {
         // to do: add verbosity flag and allow users to choose verbosity of evaluation
         _verbosityOptions = options;
-        _serializerOptions = resultSerializeOptions;
         _schema = schema;
     }
     public ValidatorResults Validate(string yamlFileData)
