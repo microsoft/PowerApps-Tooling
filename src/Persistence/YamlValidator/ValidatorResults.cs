@@ -15,8 +15,7 @@ public class ValidatorResults
         TraversalResults = FilterErrors(traversalResults);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-    Justification = "Suppress to make classes stateless")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Suppress to make classes stateless")]
     //  This will filter out the false positives that are not relevant to the error output, when the validation is false
     private ReadOnlyCollection<ValidatorError> FilterErrors(IReadOnlyList<ValidatorError> traversalResults)
     {

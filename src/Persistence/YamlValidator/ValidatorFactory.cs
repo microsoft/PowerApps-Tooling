@@ -7,8 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 internal class ValidatorFactory : IValidatorFactory
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-        Justification = "Suppress to make classes stateless")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "required by IValidatorFactory interface")]
     public IValidator CreateValidator()
     {
         // register schema in from memory into global schema registry
