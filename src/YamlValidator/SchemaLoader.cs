@@ -30,7 +30,7 @@ internal class SchemaLoader
 
             // assembly name is Microsoft.PowerPlatform.PowerApps.Persistence
             // subNamespace is YamlValidator, schemas live in the linked schema folder
-            var rootFileName = $"{assemblyName}.{Constants.subNamespace}.{_schemaFolderPath}";
+            var rootFileName = $"{assemblyName}.{_schemaFolderPath}";
 
             if (file.StartsWith($"{rootFileName}.{_subschemaFolderPath}.", StringComparison.Ordinal))
             {

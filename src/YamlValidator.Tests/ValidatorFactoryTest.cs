@@ -3,7 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-namespace Persistence.Tests.YamlValidator;
+namespace Persistence.YamlValidator.Tests;
 
 [TestClass]
 public class ValidatorFactoryTest : TestBase

@@ -3,16 +3,16 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-namespace Persistence.Tests.YamlValidator;
+namespace Persistence.YamlValidator.Tests;
 
 [TestClass]
 public class ValidatorTest : TestBase
 {
 
-    private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidatorTests", "ValidYaml") +
+    private static readonly string _validPath = Path.Combine(".", "_TestData", "ValidYaml") +
         Path.DirectorySeparatorChar;
 
-    private static readonly string _invalidPath = Path.Combine(".", "_TestData", "ValidatorTests", "InvalidYaml") +
+    private static readonly string _invalidPath = Path.Combine(".", "_TestData", "InvalidYaml") +
         Path.DirectorySeparatorChar;
 
     private readonly IValidator _yamlValidator;

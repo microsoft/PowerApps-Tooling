@@ -4,7 +4,6 @@
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
@@ -34,11 +33,6 @@ public static class ServiceCollectionExtensions
 
             return store;
         });
-    }
-
-    public static void AddPowerAppsPersistenceYamlValidator(this IServiceCollection services)
-    {
-        services.AddSingleton<IValidatorFactory, ValidatorFactory>();
     }
 
     private static void AddMinimalTemplates(ControlTemplateStore store)

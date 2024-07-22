@@ -7,7 +7,6 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
 namespace Persistence.Tests;
 
@@ -21,8 +20,6 @@ public abstract class TestBase : VSTestBase
 
     public IControlFactory ControlFactory { get; private set; }
 
-    public IValidatorFactory ValidatorFactory { get; private set; }
-
     static TestBase()
     {
         ServiceProvider = BuildServiceProvider();
@@ -34,7 +31,6 @@ public abstract class TestBase : VSTestBase
         ControlTemplateStore = ServiceProvider.GetRequiredService<IControlTemplateStore>();
         MsappArchiveFactory = ServiceProvider.GetRequiredService<IMsappArchiveFactory>();
         ControlFactory = ServiceProvider.GetRequiredService<IControlFactory>();
-        ValidatorFactory = ServiceProvider.GetRequiredService<IValidatorFactory>();
     }
 
     private static ServiceProvider BuildServiceProvider()
@@ -48,7 +44,6 @@ public abstract class TestBase : VSTestBase
     private static ServiceProvider ConfigureServices(IServiceCollection services)
     {
         services.AddPowerAppsPersistence(useDefaultTemplates: true);
-        services.AddPowerAppsPersistenceYamlValidator();
 
         return services.BuildServiceProvider();
     }
