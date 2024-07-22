@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YamlValidator\YamlValidator.csproj" />
+    <ProjectReference Include="..\YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj" />
   </ItemGroup>
 
 
