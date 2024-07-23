@@ -5,6 +5,16 @@
     <LangVersion>Latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Override Directory.Build.props Settings">
+    <!-- Clear the singular TargetFramework set by Directory.Build.props, so that it doesn't take precedence over the plural TargetFrameworks set above. -->
+    <TargetFramework></TargetFramework> 
+    <!-- Directory.Build.props sets paths assuming a single Target Framework.  Add the framework to the path to prevent overwriting one with the other -->
+    <OutDir>$(OutDir)\$(TargetFramework)</OutDir>
   </PropertyGroup>
 
   <ItemGroup Label="Global usings">
