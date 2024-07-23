@@ -3,41 +3,43 @@
 
 using Json.Schema;
 using Yaml2JsonNode;
-using System.Text.Json;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-public class Validator
+internal class Validator : IValidator
 {
     private readonly EvaluationOptions _verbosityOptions;
-    private readonly JsonSerializerOptions _serializerOptions;
-
-    public Validator(EvaluationOptions options, JsonSerializerOptions resultSerializeOptions)
+    private readonly JsonSchema _schema;
+    public Validator(EvaluationOptions options, JsonSchema schema)
     {
         // to do: add verbosity flag and allow users to choose verbosity of evaluation
         _verbosityOptions = options;
-        _serializerOptions = resultSerializeOptions;
+        _schema = schema;
     }
-
-    public ValidatorResults Validate(JsonSchema schema, string yamlFileData)
+    public ValidatorResults Validate(string yamlFileData)
     {
-        var yamlStream = Utility.MakeYamlStream(yamlFileData);
+        YamlStream yamlStream;
+        try
+        {
+            yamlStream = Utility.MakeYamlStream(yamlFileData);
+        }
+        catch (YamlException)
+        {
+            return new ValidatorResults(false, new List<ValidatorError> { new(Constants.notYamlError) });
+        }
+
         var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
 
         // here we say that empty yaml is serialized as null json
         if (jsonData == null)
         {
-            return new ValidatorResults(false, new List<ValidatorError> { new("Empty YAML file") });
+            return new ValidatorResults(false, new List<ValidatorError> { new(Constants.emptyYamlError) });
         }
-        var results = schema.Evaluate(jsonData, _verbosityOptions);
-
-        // not used but may help if we ever need to serialize the evaluation results into json format to feed into
-        // a VSCode extension or other tool
-        var output = JsonSerializer.Serialize(results, _serializerOptions);
+        var results = _schema.Evaluate(jsonData, _verbosityOptions);
 
         var schemaValidity = results.IsValid;
-        // TBD: filter actual errors versus false positives
-        // we look for errors that are not valid, have errors, and have an instance location (i.e are not oneOf errors)
         var yamlValidatorErrors = new List<ValidatorError>();
         if (!schemaValidity)
         {
@@ -46,7 +48,10 @@ public class Validator
              node.HasErrors).ToList();
             foreach (var trace in traceList)
             {
-                yamlValidatorErrors.Add(new ValidatorError(trace));
+                var instanceLocation = trace.InstanceLocation.ToString();
+                var schemaPath = trace.EvaluationPath.ToString();
+                var errors = trace.Errors;
+                yamlValidatorErrors.Add(new ValidatorError(instanceLocation, schemaPath, errors));
             }
         }
 

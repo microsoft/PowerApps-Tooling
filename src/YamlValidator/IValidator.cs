@@ -3,4 +3,7 @@
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 
-public readonly record struct ValidationRequest(string FilePath, string FilePathType);
+public interface IValidator
+{
+    ValidatorResults Validate(string yamlString);
+}

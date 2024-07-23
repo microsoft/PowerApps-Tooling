@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
+  </PropertyGroup>
+
+  <ItemGroup>
+     <None Include="_TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+     <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestTestAdapterVersion)" />
+     <PackageReference Include="MSTest" Version="$(MSTest)" />
+     <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Label="Global usings">
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj" />
+  </ItemGroup>
+
+
+</Project>
