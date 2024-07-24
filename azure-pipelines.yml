@@ -63,6 +63,12 @@ jobs:
     inputs:
       command: 'custom'
       custom: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/PAModelTests/PAModelTests.dll'
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Test Yaml Validator'
+    inputs:
+      command: 'custom'
+      custom: '$(Build.SourcesDirectory)/bin/$(BuildConfiguration)/YamlValidator.Tests/YamlValidator.Tests.dll'
 
   - task: CodeQL3000Finalize@0
 
@@ -82,6 +88,8 @@ jobs:
       Pattern: |
         /PAModel/Microsoft.PowerPlatform.Formulas.Tools.dll
         /Persistence/Microsoft.PowerPlatform.PowerApps.Persistence.dll
+        /YamlValidator/netstandard2.0/Microsoft.PowerPlatform.PowerApps.YamlValidator.dll
+        /YamlValidator/net8.0/Microsoft.PowerPlatform.PowerApps.YamlValidator.dll
       UseMinimatch: true
       signConfigType: inlineSignParams
       inlineOperation: |
@@ -133,7 +141,7 @@ jobs:
     inputs:
       command: 'run'
       projects: '$(Build.SourcesDirectory)/targets/targets.csproj'
-      arguments: '-- pack -c $(BuildConfiguration) -p .\src\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj .\src\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj'
+      arguments: '-- pack -c $(BuildConfiguration) -p .\src\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj .\src\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj .\src\YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj'
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@3
     displayName: 'ESRP sign nuget packages'
