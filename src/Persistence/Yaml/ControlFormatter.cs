@@ -60,8 +60,7 @@ public static class ControlFormatter
         var originalChildCount = control.Children.Count;
 
         var children = childrenToAdd
-            .Concat(control.Children
-            .Select(addZIndex))
+            .Concat(control.Children.Select(addZIndex))
             .ToList();
 
         var properties = propertiesToRemove.Count > 0
