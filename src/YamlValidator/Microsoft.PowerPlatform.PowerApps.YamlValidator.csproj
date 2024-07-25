@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Override Directory.Build.props Settings">
+    <!-- Clear the singular TargetFramework set by Directory.Build.props, so that it doesn't take precedence over the plural TargetFrameworks set above. -->
+    <TargetFramework></TargetFramework> 
+    <!-- Directory.Build.props sets paths assuming a single Target Framework.  Add the framework to the path to prevent overwriting one with the other -->
+    <OutDir>$(OutDir)\$(TargetFramework)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup Label="Global usings">
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="7.1.0" />
+    <PackageReference Include="Yaml2JsonNode" Version="2.1.0" />
+    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+  </ItemGroup>
+
+  <!-- Link schemas and build them into the assembly for the YamlValidator -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\**\*.json">
+        <Link>schema\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
