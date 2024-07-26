@@ -22,7 +22,7 @@ internal class SchemaLoader
             var assemblyName = assembly.GetName().Name;
             if (fileStream == null)
             {
-                throw new IOException($"Resource {file} could not found in assembly {assemblyName}");
+                throw new YamlValidatorLibraryException($"The schema could not be loaded from assembly.");
             }
             using var streamReader = new StreamReader(fileStream);
             var jsonSchemaString = streamReader.ReadToEnd();
@@ -45,7 +45,7 @@ internal class SchemaLoader
         }
         if (node == null)
         {
-            throw new InvalidDataException("Schema was not able to be read into memory");
+            throw new YamlValidatorLibraryException("The schema could not be serialized from the assembly.");
         }
         return node;
     }
