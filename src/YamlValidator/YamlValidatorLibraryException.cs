@@ -4,9 +4,7 @@
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.YamlValidator;
 public class YamlValidatorLibraryException : Exception
 {
-    public string Reason { get; }
-    public YamlValidatorLibraryException(string reason)
+    public YamlValidatorLibraryException(string reason) : base(message: reason)
     {
-        Reason = reason;
     }
 }
