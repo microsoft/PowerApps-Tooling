@@ -451,8 +451,9 @@ public class DeserializerValidTests : TestBase
         gallery.Children.Should().HaveCount(2);
         gallery.Properties.Should().NotBeNull().And.HaveCount(2);
         gallery.Properties.Should().NotContainKeys("TemplateFill", "OnSelect");
-        var galleryTemplate = gallery.Children.FirstOrDefault(c => c.Template.Name == "GalleryTemplate");
+        var galleryTemplate = gallery.Children.ElementAt(0);
         galleryTemplate.ShouldNotBeNull();
+        galleryTemplate.Template.Name.Should().Be("GalleryTemplate");
         galleryTemplate.Properties.Should().NotBeNull().And.HaveCount(1);
         galleryTemplate.Properties.Should().ContainKeys("TemplateFill");
     }
