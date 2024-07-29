@@ -31,9 +31,9 @@ public class ValidatorError
             foreach (var error in Errors)
             {
                 var errType = string.IsNullOrEmpty(error.Key) ? "Error" : error.Key;
-                errString += $"\t{errType}: {error.Value}\n";
+                errString += $"\t\t- {errType}: {error.Value}\n";
             }
         }
-        return $"InstanceLocation: {InstanceLocation}\nSchemaPath: {SchemaPath}\nErrors:\n{errString}";
+        return $"\t- InstanceLocation: {InstanceLocation}\n\t- SchemaPath: {SchemaPath}\n\t- Errors:\n{errString}";
     }
 }
