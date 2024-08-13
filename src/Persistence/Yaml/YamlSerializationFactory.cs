@@ -26,6 +26,7 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         var controlConverter = new ControlConverter(_controlFactory) { Options = options };
         var customPropertiesCollectionConverter = new NamedObjectsCollectionConverter<CustomProperty>() { Options = options };
         var customPropertyParametersCollectionConverter = new NamedObjectsCollectionConverter<CustomPropertyParameter>() { Options = options };
+     
 
         var builder = new SerializerBuilder()
             .WithTypeConverter(new ControlPropertiesCollectionConverter() { Options = options })
@@ -78,6 +79,9 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             IsTextFirst = options.IsTextFirst
         };
 
+        var dataSourceCollectionConverter = new NamedObjectsCollectionConverter<DataSource>() { Options = new YamlSerializationOptions() };
+
+        var dataSourceConverter = new DataSourceConverter();
         // Order of type converters is important
         builder
             .WithTypeConverter(new ControlPropertyConverter())
@@ -86,7 +90,9 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             .WithTypeConverter(appConverter)
             .WithTypeConverter(customPropertiesCollectionConverter)
             .WithTypeConverter(customPropertyParametersCollectionConverter)
-            .WithTypeConverter(controlCollectionConverter);
+            .WithTypeConverter(controlCollectionConverter)
+            .WithTypeConverter(dataSourceCollectionConverter);
+           // .WithTypeConverter(dataSourceConverter);
 
         // We need to build the value deserializer after adding the converters
         var valueDeserializer = builder.BuildValueDeserializer();
@@ -96,6 +102,8 @@ public class YamlSerializationFactory : IYamlSerializationFactory
         customPropertiesCollectionConverter.ValueDeserializer = valueDeserializer;
         customPropertyParametersCollectionConverter.ValueDeserializer = valueDeserializer;
         controlCollectionConverter.ValueDeserializer = valueDeserializer;
+        dataSourceCollectionConverter.ValueDeserializer = valueDeserializer;
+        dataSourceConverter.ValueDeserializer = valueDeserializer;
 
         return new YamlDeserializer(builder.Build());
     }

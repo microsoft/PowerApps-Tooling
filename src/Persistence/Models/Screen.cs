@@ -23,3 +23,17 @@ public record Screen : Control
         Template = controlTemplateStore.GetByName(BuiltInTemplates.Screen.Name);
     }
 }
+
+
+// [FirstClass(templateName: "Datasource")]
+// [YamlSerializable]
+// public record Datasource : Control
+// {
+//     [SetsRequiredMembers]
+//     public Datasource(string name, string variant, IControlTemplateStore controlTemplateStore)
+//     {
+//         Name = name;
+//         Variant = variant;
+//         Template = controlTemplateStore.GetByName(BuiltInTemplates.Screen.Name);
+//     }
+// }

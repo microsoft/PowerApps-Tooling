@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Attributes;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Serialization;
 
@@ -37,6 +38,9 @@ public record App : Control
     [YamlIgnore]
     public IList<Screen> Screens { get; set; } = new List<Screen>();
 
+    // [YamlMember(Alias = "Datasources")]
+    public List<DataSource> DataSources { get; set; }// = new List<DataSource>();
+
     internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
         if (controlDefinition.TryGetValue<List<Screen>>(nameof(Screens), out var screens))
@@ -46,5 +50,18 @@ public record App : Control
             else
                 Screens = new List<Screen>();
         }
+
+        if (controlDefinition.TryGetValue<List<DataSource>>(nameof(DataSources), out var datasources))
+        {
+            if (datasources != null)
+                DataSources = datasources;
+        }
     }
+
+  //  public DataSources1 Datasources { get; set; }
 }
+
+//public record DataSources1
+//{
+//    public string? Type { get; set; }
+//}

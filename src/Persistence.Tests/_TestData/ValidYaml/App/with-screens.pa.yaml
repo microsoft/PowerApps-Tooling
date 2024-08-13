@@ -1,19 +1,33 @@
 App:
-Properties:
-  OnStart: =Set(foo, 123)
-Screens:
-- Screen:
-  Name: Screen1
+  Control: App
   Properties:
-    OnStart: =Set(bar, 456)
-  Children:
-  - ButtonCanvas:
-    Name: My control
-- Screen:
-  Name: Screen2
-  Properties:
-    OnStart: =Set(bar, 456)
-  Children:
-  - ButtonCanvas:
-    Name: My control
-  
+    Theme: =PowerAppsTheme
+  Screens:
+    - Screen1:
+        Control: Screen
+        Children:
+          - TextCanvas1:
+              Control: Text
+              Properties:
+                Text: =First(Accounts).'Account Name'
+                Height: =25
+                Width: =347
+                X: =252
+                Y: =207
+  DataSources:
+    - Name: Accounts
+      Type: DataverseTable
+      EntitySetName: "accounts"
+      LogicalName: "account"
+      Dataset: "default.cds"
+      InstanceUrl: "https://microsoftdefault.crmtest.dynamics.com"
+      WebApiVersion: "v9.0"
+      State: "Configured"
+    - Name: Contacts
+      Type: DataverseTable
+      EntitySetName: "contacts"
+      LogicalName: "contact"
+      Dataset: "default.cds"
+      InstanceUrl: "https://microsoftdefault.crmtest.dynamics.com"
+      WebApiVersion: "v9.0"
+      State: "Configured"

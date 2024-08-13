@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Templates;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization.Utilities;
@@ -41,6 +42,11 @@ internal sealed class AppConverter : ControlConverter
         {
             using var serializerState = new SerializerState();
             return ValueDeserializer!.DeserializeValue(parser, typeof(List<Screen>), serializerState, ValueDeserializer);
+        }
+        if (key == nameof(App.DataSources))
+        {
+            using var serializerState = new SerializerState();
+            return ValueDeserializer!.DeserializeValue(parser, typeof(List<DataSource>), serializerState, ValueDeserializer);
         }
 
         return base.ReadKey(parser, key);
