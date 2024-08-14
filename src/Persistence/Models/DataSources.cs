@@ -23,13 +23,13 @@ public interface IDataSource
 }
 public class DataverseTableDataSource : IDataSource
 {
-    public string Type { get; set; }
-    public string EntitySetName { get; set; }
-    public string LogicalName { get; set; }
-    public string Dataset { get; set; }
-    public string InstanceUrl { get; set; }
-    public string WebApiVersion { get; set; }
-    public string State { get; set; }
+    public string Type { get; set; } // optional by defaul -dataverse
+    public string EntitySetName { get; set; } // derived from logical name
+    public string LogicalName { get; set; } // required
+    public string Dataset { get; set; } // renamed env id 
+    public string InstanceUrl { get; set; } // derived from dataset/env id 
+    public string WebApiVersion { get; set; } // not required
+    public string State { get; set; } // not required
 }
 
 public class SQLTableDataSource : IDataSource
