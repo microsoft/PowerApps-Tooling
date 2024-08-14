@@ -91,8 +91,8 @@ public class YamlSerializationFactory : IYamlSerializationFactory
             .WithTypeConverter(customPropertiesCollectionConverter)
             .WithTypeConverter(customPropertyParametersCollectionConverter)
             .WithTypeConverter(controlCollectionConverter)
-            .WithTypeConverter(dataSourceCollectionConverter);
-           // .WithTypeConverter(dataSourceConverter);
+            .WithTypeConverter(dataSourceCollectionConverter)
+            .WithTypeConverter(dataSourceConverter);
 
         // We need to build the value deserializer after adding the converters
         var valueDeserializer = builder.BuildValueDeserializer();

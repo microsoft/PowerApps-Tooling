@@ -21,5 +21,6 @@
     ],
     // *.schema.yaml files should use JSON schema:
     "http://json-schema.org/draft-07/schema#": "*.schema.yaml"
-  }
+  },
+  "github.copilot.preferredAccount": "jamevaa_microsoft"
 }

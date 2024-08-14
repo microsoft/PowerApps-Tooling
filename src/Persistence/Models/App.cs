@@ -39,7 +39,7 @@ public record App : Control
     public IList<Screen> Screens { get; set; } = new List<Screen>();
 
     // [YamlMember(Alias = "Datasources")]
-    public List<DataSource> DataSources { get; set; }// = new List<DataSource>();
+    public DataSourcesMap DataSources { get; set; }// = new List<DataSource>();
 
     internal override void AfterCreate(Dictionary<string, object?> controlDefinition)
     {
@@ -51,7 +51,7 @@ public record App : Control
                 Screens = new List<Screen>();
         }
 
-        if (controlDefinition.TryGetValue<List<DataSource>>(nameof(DataSources), out var datasources))
+        if (controlDefinition.TryGetValue<DataSourcesMap>(nameof(DataSources), out var datasources))
         {
             if (datasources != null)
                 DataSources = datasources;

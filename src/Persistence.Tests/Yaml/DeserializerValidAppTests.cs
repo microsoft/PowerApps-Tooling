@@ -10,7 +10,7 @@ public class DeserializerValidAppTests : TestBase
 {
     [TestMethod]
     //[DataRow(@"_TestData/ValidYaml{0}/App/with-screens.pa.yaml", true, typeof(App), "http://microsoft.com/appmagic/appinfo", "App", 2, 0, 1)]
-    [DataRow(@"_TestData/ValidYaml{0}/App/with-screens.pa.yaml", false, typeof(App), "http://microsoft.com/appmagic/appinfo", "App", 2, 0, 1)]
+    [DataRow(@"_TestData/ValidYaml{0}/App/with-screens.pa.yaml", true, typeof(App), "http://microsoft.com/appmagic/appinfo", "App", 2, 0, 1)]
     public void Deserialize_App_Should_Succeed(string path, bool isControlIdentifiers, Type expectedType, string expectedTemplateId,
         string expectedName, int screenCount, int controlCount, int propertiesCount)
     {

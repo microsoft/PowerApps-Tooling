@@ -46,7 +46,7 @@ internal sealed class AppConverter : ControlConverter
         if (key == nameof(App.DataSources))
         {
             using var serializerState = new SerializerState();
-            return ValueDeserializer!.DeserializeValue(parser, typeof(List<DataSource>), serializerState, ValueDeserializer);
+            return ValueDeserializer!.DeserializeValue(parser, typeof(DataSourcesMap), serializerState, ValueDeserializer);
         }
 
         return base.ReadKey(parser, key);
