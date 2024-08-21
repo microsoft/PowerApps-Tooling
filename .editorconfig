@@ -36,6 +36,7 @@ trim_trailing_whitespace = true
 file_header_template = Copyright (c) Microsoft Corporation.\nLicensed under the MIT License.
 
 # Naming rules
+dotnet_diagnostic.IDE0036.severity = none
 
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
