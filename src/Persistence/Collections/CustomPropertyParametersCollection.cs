@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 public class CustomPropertyParametersCollection : NamedItemsCollection<CustomPropertyParameter>
 {
-    private readonly static Func<CustomPropertyParameter, string> _keySelector = v => v.Name;
+    private static readonly Func<CustomPropertyParameter, string> _keySelector = v => v.Name;
 
     public CustomPropertyParametersCollection() : base(_keySelector)
     {

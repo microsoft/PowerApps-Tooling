@@ -13,7 +13,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 public class NamedObjectMapping<TValue> : NamedObjectMappingBase<string, TValue, NamedObject<TValue>>, INamedObjectCollection<TValue>
     where TValue : notnull
 {
-    private readonly static StringComparer DefaultComparer = StringComparer.Ordinal;
+    private static readonly StringComparer DefaultComparer = StringComparer.Ordinal;
 
     public NamedObjectMapping()
         : this(DefaultComparer)

@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Collections;
 
 public class ControlPropertiesCollection : NamedItemsCollection<ControlProperty>
 {
-    private readonly static Func<ControlProperty, string> _keySelector = v => v.Name;
+    private static readonly Func<ControlProperty, string> _keySelector = v => v.Name;
 
     public ControlPropertiesCollection() : base(_keySelector)
     {
