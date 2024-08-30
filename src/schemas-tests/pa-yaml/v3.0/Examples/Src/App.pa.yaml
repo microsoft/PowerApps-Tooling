@@ -5,3 +5,21 @@ App:
     StartScreen: =Screen1
     Theme: =PowerAppsTheme
     Foo: =anything
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(200, 200, 200, 1)
+      OnVisible: |-
+        =Set(var1, "hello world!")
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="A label"
+            X: =40
+            Y: =40
+DataSources:
+  Accounts:
+    Type: Dataverse
+    EnvironmentId: value1
+    TableLogicalName: accounts
