@@ -1,0 +1,10 @@
+DataSources:
+  Accounts:
+    Type: DataverseTable
+    TableLogicalName: account
+  Contacts:
+    Type: DataverseTable
+    TableLogicalName: contact
+  Users:
+    Type: DataverseTable
+    TableLogicalName: systemuser
