@@ -11,4 +11,5 @@ public record PaModule
     public AppInstance? App { get; init; }
     public NamedObjectMapping<ComponentDefinition> ComponentDefinitions { get; init; } = new();
     public NamedObjectMapping<ScreenInstance> Screens { get; init; } = new();
+    public NamedObjectMapping<DataSourceInstance> DataSources { get; init; } = new();
 }

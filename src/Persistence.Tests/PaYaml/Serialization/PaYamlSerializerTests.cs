@@ -46,6 +46,22 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     [TestMethod]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataSources1.pa.yaml")]
+    public void DeserializeExamplePaYamlDataSources(string path)
+    {
+        var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
+        paFileRoot.ShouldNotBeNull();
+
+        // Top level properties
+        paFileRoot.DataSources.ShouldNotBeNull();
+        paFileRoot.App.Should().BeNull();
+        paFileRoot.ComponentDefinitions.Should().BeNullOrEmpty();
+        paFileRoot.Screens.Should().BeNullOrEmpty();
+
+        paFileRoot.DataSources.Should().HaveCount(3);
+    }
+
+    [TestMethod]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml", 2, 8, 14, 2, 3)]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml", 0, 1, 62, 0, 0)]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml", 0, 6, 6, 0, 0)]
@@ -140,6 +156,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataSources1.pa.yaml")]
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);
