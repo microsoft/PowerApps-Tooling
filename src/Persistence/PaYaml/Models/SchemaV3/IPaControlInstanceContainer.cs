@@ -5,6 +5,5 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public interface IPaControlInstanceContainer
 {
-    NamedObjectMapping<ControlGroup>? Groups { get; }
     NamedObjectSequence<ControlInstance>? Children { get; }
 }
