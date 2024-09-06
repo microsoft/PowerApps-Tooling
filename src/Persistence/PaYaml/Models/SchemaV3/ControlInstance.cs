@@ -20,15 +20,20 @@ public record ControlInstance : IPaControlInstanceContainer
     [property: YamlMember(Alias = "Control")]
     public required string ControlTypeId { get; init; }
 
+    public string? Variant { get; init; }
+
     public string? ComponentName { get; init; }
 
     public string? ComponentLibraryUniqueName { get; init; }
 
-    public InstanceCreationParameters? CreationParameters { get; init; }
+    /// <summary>
+    /// The name of the group of controls that this control should be grouped with.
+    /// This does not impact the visual layout of the control or behavior, but is used to group controls together for organizational purposes from within the Studio.
+    /// </summary>
+    [property: YamlMember(Alias = "Group")]
+    public string? GroupName { get; init; }
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
-
-    public NamedObjectMapping<ControlGroup>? Groups { get; init; }
 
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }

@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETStandard,Version=v2.0": {
-      "Microsoft.Net.Compilers.Toolset.Framework": {
-        "type": "Direct",
-        "requested": "[4.10.0-3.24216.12, )",
-        "resolved": "4.10.0-3.24216.12",
-        "contentHash": "Y1T1ZN3cHWToRYZHhRs8xby1tMCkF23Jb//zK+Tdf4ourzwbMQ4GiTRVVFAlWvmA10iVNUyCZucAeLt5XeiDqA=="
-      },
       "NETStandard.Library": {
         "type": "Direct",
         "requested": "[2.0.3, )",
@@ -103,12 +97,6 @@
       }
     },
     "net8.0": {
-      "Microsoft.Net.Compilers.Toolset.Framework": {
-        "type": "Direct",
-        "requested": "[4.10.0-3.24216.12, )",
-        "resolved": "4.10.0-3.24216.12",
-        "contentHash": "Y1T1ZN3cHWToRYZHhRs8xby1tMCkF23Jb//zK+Tdf4ourzwbMQ4GiTRVVFAlWvmA10iVNUyCZucAeLt5XeiDqA=="
-      },
       "Newtonsoft.Json": {
         "type": "Direct",
         "requested": "[13.0.1, )",

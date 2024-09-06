@@ -26,8 +26,6 @@ public record ComponentDefinition : IPaControlInstanceContainer
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public NamedObjectMapping<ControlGroup>? Groups { get; init; }
-
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }
 

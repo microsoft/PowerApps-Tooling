@@ -4,16 +4,6 @@ Screens:
       Fill: =RGBA(200, 200, 200, 1)
       OnVisible: |-
         =Set(var1, "hello world!")
-    Groups:
-      Group1:
-        ControlNames:
-          - Text Input 1
-          - "Control name with special '*&:/\\\" chars"
-      BasicControlsCopyGroup:
-        ControlNames:
-          - Label1_2
-          - TextInput1_2
-          - Button1_2
     Children:
       - Label1:
           Control: Label
@@ -23,29 +13,25 @@ Screens:
             Y: =40
       - Text Input 1:
           Control: TextInput
+          Group: Group1
           Properties:
             Default: ="Default input"
             X: =40
             Y: =80
       - "Control name with special '*&:/\\\" chars":
           Control: Button
+          Group: Group1
           Properties:
             Text: ="A Button"
             X: =40
             Y: =138
       - Gallery1:
           Control: Gallery
-          CreationParameters:
-            Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
           Properties:
             DelayItemLoading: =true
             Height: =479
             Items: =CustomGallerySample
-          Groups:
-            TitleSubTitleGroup:
-              ControlNames:
-                - Title1
-                - Subtitle1
           Children:
             - Image1:
                 Control: Image
@@ -53,9 +39,8 @@ Screens:
                   Height: =61
                   OnSelect: =Select(Parent)
             - NextArrow1:
-                Control: Icon
-                CreationParameters:
-                  Variant: ChevronRight
+                Control: Classic/Icon
+                Variant: ChevronRight
                 Properties:
                   AccessibleLabel: =Self.Tooltip
                   Color: =RGBA(166, 166, 166, 1)
@@ -86,6 +71,7 @@ Screens:
                   Width: =4
             - Title1:
                 Control: Label
+                Group: TitleSubTitleGroup
                 Properties:
                   FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
                   Height: =25
@@ -101,6 +87,7 @@ Screens:
                   Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle1.Size * 1.8)) / 2
             - Subtitle1:
                 Control: Label
+                Group: TitleSubTitleGroup
                 Properties:
                   FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
                   Height: =35
@@ -125,6 +112,7 @@ Screens:
 
       - Label1_2:
           Control: Label
+          Group: BasicControlsCopyGroup
           Properties:
             DisplayMode: =DisplayMode.View
             Fill: =RGBA(232, 244, 217, 1)
@@ -135,6 +123,7 @@ Screens:
 
       - TextInput1_2:
           Control: TextInput
+          Group: BasicControlsCopyGroup
           Properties:
             Default: ="Default input"
             DisplayMode: =DisplayMode.View
@@ -145,6 +134,7 @@ Screens:
 
       - Button1_2:
           Control: Button
+          Group: BasicControlsCopyGroup
           Properties:
             DisplayMode: =DisplayMode.View
             Fill: =RGBA(232, 244, 217, 1)

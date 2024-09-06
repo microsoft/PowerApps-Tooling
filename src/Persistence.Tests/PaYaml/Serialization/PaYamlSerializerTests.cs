@@ -86,18 +86,29 @@ public class PaYamlSerializerTests : VSTestBase
         if (expectedScreenChildrenCount == 0)
             screen.Children.Should().BeNull();
         else
+        {
             screen.Children.Should().HaveCount(expectedScreenChildrenCount);
+            GetGroupCount(screen).Should().Be(expectedScreenGroupsCount);
+        }
 
         if (expectedDescendantsCount == 0)
             screen.Properties.Should().BeNull();
         else
             screen.DescendantControlInstances().Should().HaveCount(expectedDescendantsCount);
 
-        if (expectedScreenGroupsCount == 0)
-            screen.Properties.Should().BeNull();
-        else
-            screen.Groups.Should().HaveCount(expectedScreenGroupsCount);
-        screen.DescendantControlInstances().SelectMany(nc => nc.Value.Groups ?? []).Should().HaveCount(expectedTotalGroupsCount - expectedScreenGroupsCount);
+        screen.DescendantControlInstances().Sum(nc => GetGroupCount(nc.Value)).Should().Be(expectedTotalGroupsCount - expectedScreenGroupsCount);
+
+        static int GetGroupCount(IPaControlInstanceContainer container)
+        {
+            if (container.Children is null)
+                return 0;
+
+            return container.Children
+                .Select(c => c.Value.GroupName)
+                .Where(g => g != null)
+                .Distinct()
+                .Count();
+        }
     }
 
     [TestMethod]

@@ -19,6 +19,9 @@ properties:
     $ref: "#/definitions/Screens-name-instance-map"
   ComponentDefinitions:
     $ref: "#/definitions/ComponentDefinitions-name-instance-map"
+  DataSources:
+    $ref: "#/definitions/DataSources-name-instance-map"
+
 defaultSnippets:
   - label: App
     body:
@@ -62,9 +65,7 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      CreationParameters: { $ref: "#/definitions/InstanceCreationParameters" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
-      Groups: { $ref: "#/definitions/Groups-of-controls" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   Children-Control-instance-sequence:
@@ -187,6 +188,7 @@ definitions:
     required: [Control]
     properties:
       Control: { $ref: "#/definitions/ControlTypeId" }
+      Group: { $ref: "#/definitions/Control-Group-name" }
       Properties: { $ref: "#/definitions/Properties-formula-map" }
     if:
       required: [Control]
@@ -204,6 +206,7 @@ definitions:
               Control: true
               ComponentLibraryUniqueName: { $ref: "#/definitions/ComponentLibrary-unique-name" }
               ComponentName: { $ref: "#/definitions/ComponentDefinition-name" }
+              Group: true
               Properties: true
               # Note: Component instances do not support Variants or Children.
         - if:
@@ -215,6 +218,7 @@ definitions:
             properties:
               Control: true
               ComponentName: { $ref: "#/definitions/CodeComponent-name" }
+              Group: true
               Properties: true
               # Note: CodeComponent instances do not support Variants or Children.
     else:
@@ -222,69 +226,20 @@ definitions:
       additionalProperties: false
       properties:
         Control: true
-        CreationParameters: { $ref: "#/definitions/InstanceCreationParameters" }
+        Variant:
+          type: string
+          minLength: 1
+        Group: true
         Properties: true
-        # Depending on the ControlTypeId, it may or may not actually support Groups
-        Groups: { $ref: "#/definitions/Groups-of-controls" }
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
-  InstanceCreationParameters:
-    description: A set of optional internal creation parameters coming from the Maker.
-    type: object
-    additionalProperties: false
-    properties:
-      Variant:
-        type: string
-        minLength: 1
-      Layout:
-        type: string
-        minLength: 1
-      ParentTemplate:
-        description: Metadata needed to identify the parent template that originally created this instance.
-        type: object
-        additionalProperties: false
-        properties:
-          CompositionName:
-            description: The name of the composition template that originally created this instance.
-            type: string
-            minLength: 1
-          Variant:
-            description: The variant of the parent template that originally created this instance.
-            type: string
-            minLength: 1
-      MetadataId:
-        type: string
-        minLength: 1
-      StyleName:
-        type: string
-        minLength: 1
-
-  Groups-of-controls:
+  Control-Group-name:
     description: |-
-      A mapping of groups of controls under this container. The keys of this object represent the name of the Group.
+      The name of the group of controls to associate this control with.
       
       Groups do not impact the behavior of an app, but are used in the Studio to organize controls when editing.
-    type: object
-    propertyNames: { $ref: "#/definitions/Control-instance-name" }
-    additionalProperties:
-      type: object
-      required: [ControlNames]
-      additionalProperties: false
-      properties:
-        ControlNames:
-          description: |-
-            An array of the names of controls that are part of this group.
-            A group must have at least two (2) controls in it.
-          type: array
-          minItems: 2
-          items: { $ref: "#/definitions/Control-instance-name" }
-    defaultSnippets:
-      - label: Add Group
-        body:
-          ${1:Group1}:
-            ControlNames:
-              - ${2:ControlName1}
-              - ${3:ControlName2}
+    allOf:
+      - { $ref: "#/definitions/Control-instance-name" }
 
   CodeComponent-name:
     description: |-
@@ -329,7 +284,6 @@ definitions:
                   - Height
                   - Width
                   - OnReset
-        Groups: { $ref: "#/definitions/Groups-of-controls" }
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   ComponentDefinition-name:
@@ -470,6 +424,35 @@ definitions:
         Cannot contain any of the following invalid chars `.\/:*?"<>|`.
       pattern: |-
         [.\\/:*?"<>|]
+
+
+  DataSources-name-instance-map:
+    type: object
+    propertyNames: { $ref: "#/definitions/DataSource-name" }
+    additionalProperties:
+      $ref: "#/definitions/DataSource-instance"
+
+  DataSource-name:
+    $ref: "#/definitions/entity-name"
+
+  DataSource-Type:
+    enum:
+      - DataverseTable
+
+  DataSource-instance:
+    type: object
+    required: [Type]
+    properties:
+      Type: { $ref: "#/definitions/DataSource-Type" }
+    oneOf:
+      - required: [Type]
+        additionalProperties: false
+        properties:
+          Type:
+            const: DataverseTable
+          TableLogicalName:
+            type: string
+            minLength: 1
 
   Properties-formula-map:
     description: >-
