@@ -1,0 +1,10 @@
+- Label1:
+    Control: Label
+    Properties:
+      X: =40
+      Y: =40
+- Label1:
+    Control: Label
+    Properties:
+      X: =60
+      Y: =60

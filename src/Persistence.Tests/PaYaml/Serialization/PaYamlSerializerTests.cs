@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
@@ -150,6 +152,14 @@ public class PaYamlSerializerTests : VSTestBase
         screen.Properties.Should().BeNullOrEmpty();
         screen.Children.Should().HaveCount(2)
             .And.ContainNames("Label1", "TextInput1");
+    }
+
+    [TestMethod]
+    public void DeserializeDuplicateControlNamesShouldFail()
+    {
+        var path = @"_TestData/InvalidYaml-CI/duplicate-control-in-sequence.pa.yaml";
+        var ex = Assert.ThrowsException<PersistenceLibraryException>(() => PaYamlSerializer.Deserialize<NamedObjectSequence<ControlInstance>>(File.ReadAllText(path)));
+        ex.ErrorCode.Should().Be(PersistenceErrorCode.DuplicateNameInSequence);
     }
 
     #endregion

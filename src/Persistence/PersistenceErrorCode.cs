@@ -26,6 +26,7 @@ public enum PersistenceErrorCode
     InvalidEditorStateJson = 3300,
     ControlInstanceInvalid = 3501,
     RoundTripValidationFailed = 3502,
+    DuplicateNameInSequence = 3503,
 
     //
     MsappArchiveError = 5000,
@@ -64,6 +65,7 @@ public static class PersistenceErrorCodeExtensions
             PersistenceErrorCode.InvalidEditorStateJson => "An editor state json file could not be deserialized due to being invalid.",
             PersistenceErrorCode.ControlInstanceInvalid => "A control instance object in YAML has an invalid state.",
             PersistenceErrorCode.RoundTripValidationFailed => "Round trip yaml validation failed.",
+            PersistenceErrorCode.DuplicateNameInSequence => "An item name was duplicated.",
             PersistenceErrorCode.MsappArchiveError => "An error was detected in an msapp file.",
             PersistenceErrorCode._LastErrorExclusive => throw new InvalidOperationException("The error code is out of range."),
             _ => "An exception occurred in the persistence library.",

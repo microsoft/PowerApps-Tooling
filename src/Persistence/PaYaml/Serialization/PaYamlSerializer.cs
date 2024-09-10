@@ -117,7 +117,11 @@ public static class PaYamlSerializer
         }
         catch (YamlException ex)
         {
-            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax);
+            var errorCode = PersistenceErrorCode.YamlInvalidSyntax;
+            if (ex.InnerException is ArgumentException && ex.InnerException.Message.Contains("An item with the same key has already been added"))
+                errorCode = PersistenceErrorCode.DuplicateNameInSequence;
+
+            throw PersistenceLibraryException.FromYamlException(ex, errorCode);
         }
 
         // TODO: Consider using FluentValidation nuget package to validate the deserialized object
