@@ -115,6 +115,10 @@ public static class PaYamlSerializer
 
             return value;
         }
+        catch (YamlException ex) when (ex.InnerException is ArgumentException && ex.InnerException.Message.Contains("An item with the same key has already been added"))
+        {
+            throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.DuplicateNameInSequence);
+        }
         catch (YamlException ex)
         {
             throw PersistenceLibraryException.FromYamlException(ex, PersistenceErrorCode.YamlInvalidSyntax);
