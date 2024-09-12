@@ -5,14 +5,14 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
-public enum DataSourceInstanceType
+public enum DataSourceType
 {
-    DataverseTable,
+    Table,
+    Actions
 }
-
 public record DataSourceInstance
 {
     [YamlMember(DefaultValuesHandling = DefaultValuesHandling.Preserve)]
-    public required DataSourceInstanceType Type { get; init; }
-    public string? TableLogicalName { get; init; }
+    public required DataSourceType Type { get; init; }
+    public NamedObjectMapping<string>? Parameters { get; init; }
 }
