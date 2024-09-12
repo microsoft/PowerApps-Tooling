@@ -1,10 +1,13 @@
 DataSources:
   Accounts:
-    Type: DataverseTable
-    TableLogicalName: account
+    Type: Table
+    Parameters:
+      TableLogicalName: account
   Contacts:
-    Type: DataverseTable
-    TableLogicalName: contact
+    Type: Table
+    Parameters:
+      TableLogicalName: contact
   Users:
-    Type: DataverseTable
-    TableLogicalName: systemuser
+    Type: Table
+    Parameters:
+      TableLogicalName: systemuser
