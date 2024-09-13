@@ -448,7 +448,6 @@ definitions:
           - Actions
       ConnectorId:
         type: string
-        nullable: true
       Parameters:
         type: object
         additionalProperties:
@@ -461,6 +460,7 @@ definitions:
             const: Table
           Parameters:
             type: object
+            required: [TableLogicalName]
             additionalProperties: false
             properties:
               TableLogicalName:
