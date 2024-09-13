@@ -439,6 +439,7 @@ definitions:
     type: object
     required:
       - Type
+    additionalProperties: false
     properties:
       Type:
         type: string
@@ -451,8 +452,7 @@ definitions:
       Parameters:
         type: object
         additionalProperties:
-          type: string
-    additionalProperties: false
+          type: string 
     oneOf:
       - required: [Type]
         additionalProperties: false
@@ -461,16 +461,15 @@ definitions:
             const: Table
           Parameters:
             type: object
+            additionalProperties: false
             properties:
               TableLogicalName:
                 type: string
-            additionalProperties: false
       - required: [Type]
         additionalProperties: false
         properties:
           Type:
             const: Actions
-          additionalProperties: false
 
   Properties-formula-map:
     description: >-
