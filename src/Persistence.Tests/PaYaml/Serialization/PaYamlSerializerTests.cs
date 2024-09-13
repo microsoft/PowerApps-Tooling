@@ -48,7 +48,7 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataSources1.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataverseDataSources.pa.yaml")]
     public void DeserializeExamplePaYamlDataSources(string path)
     {
         var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
@@ -60,7 +60,17 @@ public class PaYamlSerializerTests : VSTestBase
         paFileRoot.ComponentDefinitions.Should().BeNullOrEmpty();
         paFileRoot.Screens.Should().BeNullOrEmpty();
 
-        paFileRoot.DataSources.Should().HaveCount(3);
+        paFileRoot.DataSources.Should().HaveCount(4);
+ 
+        paFileRoot.DataSources.Should().AllSatisfy(ds => ds.Value.ConnectorId.Should().BeNull());
+        paFileRoot.DataSources.GetValue("DataverseActions").Type.Should().Be(DataSourceType.Actions);
+
+        // Assert all DataSources except DataverseActions are of type Table
+        paFileRoot.DataSources
+            .Where(ds => ds.Name != "DataverseActions")
+            .Select(ds => ds.Value)
+            .Should()
+            .AllSatisfy(ds => ds.Type.Should().Be(DataSourceType.Table));
     }
 
     [TestMethod]
@@ -177,7 +187,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataSources1.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataverseDataSources.pa.yaml")]
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);
