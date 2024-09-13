@@ -59,9 +59,7 @@ public class PaYamlSerializerTests : VSTestBase
         paFileRoot.App.Should().BeNull();
         paFileRoot.ComponentDefinitions.Should().BeNullOrEmpty();
         paFileRoot.Screens.Should().BeNullOrEmpty();
-
         paFileRoot.DataSources.Should().HaveCount(4);
- 
         paFileRoot.DataSources.Should().AllSatisfy(ds => ds.Value.ConnectorId.Should().BeNull());
         paFileRoot.DataSources.GetValue("DataverseActions").Type.Should().Be(DataSourceType.Actions);
 
