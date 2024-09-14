@@ -15,7 +15,7 @@ Screens:
 
       # Purposely set out of name sorting order to ensure ordering is maintained
       - ctrlA:
-          Control: Label
+          Control: Label@1.2.3
           Variant: variantA
           Group: Group1
           Properties:

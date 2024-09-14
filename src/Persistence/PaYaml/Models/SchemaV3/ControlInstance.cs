@@ -12,13 +12,13 @@ public record ControlInstance : IPaControlInstanceContainer
     public ControlInstance() { }
 
     [SetsRequiredMembers]
-    public ControlInstance(string controlTypeId)
+    public ControlInstance(string controlType)
     {
-        ControlTypeId = controlTypeId ?? throw new ArgumentNullException(nameof(controlTypeId));
+        ControlType = controlType ?? throw new ArgumentNullException(nameof(controlType));
     }
 
     [property: YamlMember(Alias = "Control")]
-    public required string ControlTypeId { get; init; }
+    public required string ControlType { get; init; }
 
     public string? Variant { get; init; }
 

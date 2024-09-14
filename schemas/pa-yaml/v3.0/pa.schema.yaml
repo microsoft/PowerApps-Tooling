@@ -118,7 +118,7 @@ definitions:
     $comment: Defines reusable schema for validating the pattern allowed for control type identifiers.
     type: string
     pattern: |-
-      ^([A-Z][a-zA-Z0-9]*/)?[A-Z][a-zA-Z0-9]*$
+      ^([A-Z][a-zA-Z0-9]*/)?[A-Z][a-zA-Z0-9]*(@\d+\.\d+\.\d+)?$
 
   ControlTypeId-disallowed-types:
     enum:
