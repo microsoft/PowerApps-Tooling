@@ -11,3 +11,5 @@ DataSources:
     Type: Table
     Parameters:
       TableLogicalName: systemuser
+  DataverseActions:
+    Type: Actions
