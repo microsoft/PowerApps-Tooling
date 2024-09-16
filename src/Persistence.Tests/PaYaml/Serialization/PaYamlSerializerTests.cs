@@ -48,7 +48,7 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataversedataSources1.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]
     public void DeserializeExamplePaYamlDataSources(string path)
     {
         var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
@@ -185,7 +185,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/DataversedataSources1.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]
     public void RoundTripFromYaml(string path)
     {
         var originalYaml = File.ReadAllText(path);
