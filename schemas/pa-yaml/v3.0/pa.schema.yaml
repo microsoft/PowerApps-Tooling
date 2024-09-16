@@ -401,24 +401,41 @@ definitions:
   DataSource-name:
     $ref: "#/definitions/entity-name"
 
-  DataSource-Type:
-    enum:
-      - DataverseTable
-
   DataSource-instance:
     type: object
-    required: [Type]
+    required:
+      - Type
+    additionalProperties: false
     properties:
-      Type: { $ref: "#/definitions/DataSource-Type" }
+      Type:
+        type: string
+        enum:
+          - Table
+          - Actions
+      ConnectorId:
+        type: string
+      Parameters:
+        type: object
+        additionalProperties:
+          type: string 
     oneOf:
       - required: [Type]
         additionalProperties: false
         properties:
           Type:
-            const: DataverseTable
-          TableLogicalName:
-            type: string
-            minLength: 1
+            const: Table
+          Parameters:
+            type: object
+            required: [TableLogicalName]
+            additionalProperties: false
+            properties:
+              TableLogicalName:
+                type: string
+      - required: [Type]
+        additionalProperties: false
+        properties:
+          Type:
+            const: Actions
 
   Properties-formula-map:
     description: >-
