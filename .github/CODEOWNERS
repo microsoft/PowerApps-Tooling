@@ -3,7 +3,7 @@
 # the repo. Unless a later match takes precedence,
 # @global-owner1 and @global-owner2 will be requested for
 # review when someone opens a pull request.
-*         @microsoft/powerapps-isv-tools-contrib
+*         @microsoft/powerapps-isv-tools-contrib @microsoft/powerapps-tools-contrib
 docs/     @microsoft/powerapps-isv-tools-contrib @microsoft/powerapps-tools-contrib
 samples/  @microsoft/powerapps-isv-tools-contrib @microsoft/powerapps-tools-contrib
 src/      @microsoft/powerapps-isv-tools-contrib @microsoft/powerapps-tools-contrib
