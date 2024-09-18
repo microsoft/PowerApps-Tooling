@@ -198,4 +198,21 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     #endregion
+
+    #region Is Sequence checks
+
+    [TestMethod]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/App.pa.yaml", false)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml", false)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", false)]
+    [DataRow(@"_TestData/ValidYaml-CI/With-list-of-controls.pa.yaml", true)]
+    [DataRow(@"_TestData/InvalidYaml/Dupliacte-Keys.pa.yaml", false)]
+    public void IsSequenceCheckShouldWorkAsExpected(string path, bool expected)
+    {
+        var yaml = File.ReadAllText(path);
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().Be(expected);
+    }
+
+    #endregion
 }
