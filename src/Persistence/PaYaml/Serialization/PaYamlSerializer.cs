@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Text;
 using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
@@ -153,14 +154,15 @@ public static class PaYamlSerializer
     {
         ArgumentNullException.ThrowIfNull(reader);
 
-        var builder = new DeserializerBuilder()
-            .IgnoreUnmatchedProperties()
-            .WithTypeConverter(new YamlSequenceTesterConverter());
-        var deserializer = builder.Build();
         try
         {
-            var results = deserializer.Deserialize<object[]>(reader);
-            return results is not null;
+            var parser = new Parser(reader);
+
+            // Need to consume the StreamStart and DocumentStart events to get to the root sequence
+            parser.TryConsume<StreamStart>(out _);
+            parser.TryConsume<DocumentStart>(out _);
+
+            return parser.TryConsume<SequenceStart>(out _);
         }
         catch (YamlException)
         {
