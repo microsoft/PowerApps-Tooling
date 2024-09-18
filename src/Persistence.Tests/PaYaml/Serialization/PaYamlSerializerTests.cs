@@ -240,6 +240,20 @@ public class PaYamlSerializerTests : VSTestBase
         var yaml = """
             # comment
             - name: control1
+            - name: control2
+            """;
+
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void IsSequenceCheckShouldReturnTrueWhenSequenceInFragmentBeginsWithDocumentStart()
+    {
+        var yaml = """
+            ---
+            - name: control1
+            - name: control2
             """;
 
         var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
