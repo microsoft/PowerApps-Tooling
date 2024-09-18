@@ -214,5 +214,51 @@ public class PaYamlSerializerTests : VSTestBase
         isSequence.Should().Be(expected);
     }
 
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("   ")]
+    [DataRow("not yaml")]
+    [DataRow("{ prop1: str2 }")]
+    public void IsSequenceCheckShouldReturnFalseForInvalidSequences(string yaml)
+    {
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeFalse();
+    }
+
+    [TestMethod]
+    [DataRow("[]")]
+    [DataRow("['str',333]")]
+    public void IsSequenceCheckShouldReturnTrueForInlineSequences(string yaml)
+    {
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void IsSequenceCheckShouldReturnTrueWhenSequenceInFragmentStartsWithComments()
+    {
+        var yaml = """
+            # comment
+            - name: control1
+            - name: control2
+            """;
+
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void IsSequenceCheckShouldReturnTrueWhenSequenceInFragmentBeginsWithDocumentStart()
+    {
+        var yaml = """
+            ---
+            - name: control1
+            - name: control2
+            """;
+
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeTrue();
+    }
+
     #endregion
 }
