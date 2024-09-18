@@ -133,12 +133,15 @@ public static class PaYamlSerializer
     /// <summary>
     /// checks the input source is a sequence of YAML items.
     /// </summary>
-    /// <param name="yaml">The YAML text to check.</param>
+    /// <remarks>
+    /// This method does not perform validation on the input fragment.
+    /// </remarks>
+    /// <param name="yaml"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentNullException">thrown when <paramref name="yaml"/> is null.</exception>
     public static bool CheckIsSequence(string yaml)
     {
-        _ = yaml ?? throw new ArgumentNullException(nameof(yaml));
+        ArgumentNullException.ThrowIfNull(yaml);
 
         using var reader = new StringReader(yaml);
         return CheckIsSequence(reader);
@@ -147,9 +150,12 @@ public static class PaYamlSerializer
     /// <summary>
     /// checks the input source is a sequence of YAML items.
     /// </summary>
+    /// <remarks>
+    /// This method does not perform validation on the input fragment.
+    /// </remarks>
     /// <param name="reader"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentNullException">thrown when <paramref name="reader"/> is null.</exception>
     public static bool CheckIsSequence(StringReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
