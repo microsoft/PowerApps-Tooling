@@ -214,5 +214,15 @@ public class PaYamlSerializerTests : VSTestBase
         isSequence.Should().Be(expected);
     }
 
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("   ")]
+    [DataRow("not yaml")]
+    public void IsSequenceCheckShouldReturnFalseWhenYamlInvalid(string yaml)
+    {
+        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
+        isSequence.Should().BeFalse();
+    }
+
     #endregion
 }
