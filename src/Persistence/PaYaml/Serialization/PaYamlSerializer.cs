@@ -160,20 +160,13 @@ public static class PaYamlSerializer
     {
         ArgumentNullException.ThrowIfNull(reader);
 
-        try
-        {
-            var parser = new Parser(reader);
+        var parser = new Parser(reader);
 
-            // Need to consume the StreamStart and DocumentStart events to get to the root sequence
-            parser.TryConsume<StreamStart>(out _);
-            parser.TryConsume<DocumentStart>(out _);
+        // Need to consume the StreamStart and DocumentStart events to get to the root sequence
+        parser.TryConsume<StreamStart>(out _);
+        parser.TryConsume<DocumentStart>(out _);
 
-            return parser.TryConsume<SequenceStart>(out _);
-        }
-        catch (YamlException)
-        {
-            return false;
-        }
+        return parser.TryConsume<SequenceStart>(out _);
     }
 
     #endregion
