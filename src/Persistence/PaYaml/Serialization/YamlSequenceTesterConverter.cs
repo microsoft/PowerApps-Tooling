@@ -15,9 +15,7 @@ internal sealed class YamlSequenceTesterConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type)
     {
-        return type == typeof(List<object>) || type.IsSubclassOf(typeof(List<object>)) ||
-            type == typeof(IList<object>) || type.IsSubclassOf(typeof(IList<object>)) ||
-            type == typeof(IEnumerable) || type.IsSubclassOf(typeof(IEnumerable)) ||
+        return type == typeof(IEnumerable) || type.IsSubclassOf(typeof(IEnumerable)) ||
             type == typeof(IEnumerable<object>) || type.IsSubclassOf(typeof(IEnumerable<object>)) ||
             type == typeof(object[]);
     }
