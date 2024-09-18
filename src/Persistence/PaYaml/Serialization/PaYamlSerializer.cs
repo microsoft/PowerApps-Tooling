@@ -128,5 +128,45 @@ public static class PaYamlSerializer
         // See: fluentvalidation.net
         // See: https://www.youtube.com/watch?v=jblRYDMTtvg
     }
+
+    /// <summary>
+    /// checks the input source is a sequence of YAML items.
+    /// </summary>
+    /// <param name="yaml">The YAML text to check.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static bool CheckIsSequence(string yaml)
+    {
+        _ = yaml ?? throw new ArgumentNullException(nameof(yaml));
+
+        using var reader = new StringReader(yaml);
+        return CheckIsSequence(reader);
+    }
+
+    /// <summary>
+    /// checks the input source is a sequence of YAML items.
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static bool CheckIsSequence(StringReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var builder = new DeserializerBuilder()
+            .IgnoreUnmatchedProperties()
+            .WithTypeConverter(new YamlSequenceTesterConverter());
+        var deserializer = builder.Build();
+        try
+        {
+            var results = deserializer.Deserialize<object[]>(reader);
+            return results is not null;
+        }
+        catch (YamlException)
+        {
+            return false;
+        }
+    }
+
     #endregion
 }
