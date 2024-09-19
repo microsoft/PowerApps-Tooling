@@ -156,7 +156,7 @@ public static class PaYamlSerializer
     /// <param name="reader"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">thrown when <paramref name="reader"/> is null.</exception>
-    public static bool CheckIsSequence(StringReader reader)
+    public static bool CheckIsSequence(TextReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
