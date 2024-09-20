@@ -36,6 +36,7 @@ Screens:
                 Children:
                   - Form1:
                       Control: Form
+                      Layout: vertical
                       Properties:
                         DataSource: =Contacts
                         LayoutMinHeight: =250

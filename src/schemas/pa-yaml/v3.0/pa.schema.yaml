@@ -230,6 +230,9 @@ definitions:
         Variant:
           type: string
           minLength: 1
+        Layout:
+          type: string
+          minLength: 1
         Group: true
         Properties: true
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
