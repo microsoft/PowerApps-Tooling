@@ -8,6 +8,7 @@ Screens:
       - ctrlB:
           Control: Label
           Variant: variantB
+          Layout: layoutB
           Group: Group1
           Properties:
             Prop2: =ctrlBProp2
@@ -17,6 +18,7 @@ Screens:
       - ctrlA:
           Control: Label@1.2.3
           Variant: variantA
+          Layout: layoutA
           Group: Group1
           Properties:
             Prop2: =ctrlAProp2
@@ -27,6 +29,7 @@ Screens:
       - ctrlC:
           Control: FooWithChildren
           Variant: variant2
+          Layout: layout2
           Properties:
             Prop2: =ctrlAProp2
             Prop1: =ctrlAProp1
@@ -34,6 +37,7 @@ Screens:
             - ctrlC0:
                 Control: Bar
                 Variant: variantC0
+                Layout: layoutC0
                 Group: Group1
                 Properties:
                   Prop2: =ctrlC0Prop2
@@ -42,9 +46,11 @@ Screens:
                   - ctrlC00:
                       Control: Car
                       Variant: variantC00
+                      Layout: layoutC00
             - ctrlC1:
                 Control: Bar
                 Variant: variantC1
+                Layout: layoutC1
                 Group: Group1
                 Properties:
                   Prop2: =ctrlC1Prop2
@@ -53,3 +59,4 @@ Screens:
                   - ctrlC10:
                       Control: Dog
                       Variant: variantC10
+                      Layout: layoutC10

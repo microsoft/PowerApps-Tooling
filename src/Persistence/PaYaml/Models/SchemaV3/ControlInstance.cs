@@ -26,6 +26,8 @@ public record ControlInstance : IPaControlInstanceContainer
 
     public string? ComponentLibraryUniqueName { get; init; }
 
+    public string? Layout { get; init; }
+
     /// <summary>
     /// The name of the group of controls that this control should be grouped with.
     /// This does not impact the visual layout of the control or behavior, but is used to group controls together for organizational purposes from within the Studio.
