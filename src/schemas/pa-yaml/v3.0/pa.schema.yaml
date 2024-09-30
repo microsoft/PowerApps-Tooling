@@ -252,7 +252,7 @@ definitions:
     type: string
     # TODO: The JS regex pattern doesn't easily support unicode chars which are valid JS identifiers.
     pattern: |-
-      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+*$
+      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+$
 
   ComponentDefinitions-name-instance-map:
     type: object
