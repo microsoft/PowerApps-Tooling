@@ -230,7 +230,7 @@ definitions:
       The format is: <publisher-prefix> '_' <JS-Namespace> '.' <JS-ClassName>
     type: string
     pattern: |-
-      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+*$
+      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+$
 
   ComponentDefinitions-name-instance-map:
     type: object
