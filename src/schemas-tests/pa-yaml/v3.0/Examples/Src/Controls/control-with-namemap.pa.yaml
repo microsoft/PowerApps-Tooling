@@ -1,0 +1,11 @@
+Screens:
+  Screen1:
+    Children:
+      - Dropdown1:
+          Control: Classic/DropDown
+          Properties:
+            Items: |-
+              =[{Id: 1, Title: "Item 1", Desc: "desc1"}, {Id: 2, Title: "Item 2", Desc: "desc2"}, {Id: 3, Title: "Item 3", Desc: "desc3"}]
+          PropertiesNameMaps:
+            Items:
+              Value: Title
