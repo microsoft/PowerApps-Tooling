@@ -37,7 +37,7 @@ public record ControlInstance : IPaControlInstanceContainer
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
-    public NamedObjectMapping<IDictionary<string, string>>? PropertiesNameMaps { get; init; }
+    public NamedObjectMapping<NamedObjectMapping<string>>? PropertiesNameMaps { get; init; }
 
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }

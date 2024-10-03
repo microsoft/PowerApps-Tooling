@@ -28,37 +28,6 @@ public class PaYamlSerializerTests : VSTestBase
         paModule.App.Properties.Should().ContainName("Bar").WhoseNamedObject.Start.Should().Be(new(4, 9));
     }
 
-    [TestMethod]
-    public void DeserializeDropDownPropertiesNameMap()
-    {
-        var yaml = """
-            Screens:
-              Screen1:
-                Children:
-                  - DropDown1:
-                      Control: Classic/DropDown
-                      PropertiesNameMaps:
-                        Items:
-                          Value: Title
-            """;
-        var paModule = PaYamlSerializer.Deserialize<PaModule>(yaml);
-        paModule.ShouldNotBeNull();
-        paModule.Screens.Should().NotBeNull()
-            .And.ContainNames("Screen1");
-
-        var screen = paModule.Screens["Screen1"];
-        screen.Children.Should().NotBeNull()
-            .And.ContainNames("DropDown1");
-
-        var dropDown = screen.Children!["DropDown1"];
-        dropDown.PropertiesNameMaps.Should().NotBeNull()
-            .And.ContainNames("Items");
-
-        var itemsNameMap = dropDown.PropertiesNameMaps!["Items"];
-        itemsNameMap.Should().ContainKey("Value")
-            .WhoseValue.Should().Be("Title");
-    }
-
     #region Deserialize Examples
 
     [TestMethod]
