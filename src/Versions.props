@@ -2,10 +2,6 @@
     <PropertyGroup>
         <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
         <YamlDotNetVersion>15.1.6</YamlDotNetVersion>
-        <MicrosoftNETTestSdkVersion>17.7.1</MicrosoftNETTestSdkVersion>
-        <MSTestTestAdapterVersion>3.2.2</MSTestTestAdapterVersion>
-        <MSTestTestFrameworkVersion>3.2.2</MSTestTestFrameworkVersion>
-        <MSTest>3.2.2</MSTest>
         <CoverletCollectorVersion>6.0.0</CoverletCollectorVersion>
         <FluentAssertionsVersion>6.12.0</FluentAssertionsVersion>
         <MinVerVersion>4.3.0</MinVerVersion>
