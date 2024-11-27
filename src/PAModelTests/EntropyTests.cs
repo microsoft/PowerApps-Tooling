@@ -11,7 +11,7 @@ namespace PAModelTests;
 [TestClass]
 public class EntropyTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ComponentTest.msapp", true)]
     [DataRow("ComponentWithSameParam.msapp", false)]
     public void TestFunctionParameters(string filename, bool invariantScriptsOnInstancesExist)
@@ -38,7 +38,7 @@ public class EntropyTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestControlIdGuidParsing(string filename)
     {
@@ -52,7 +52,7 @@ public class EntropyTests
         Assert.AreEqual(msapp._entropy.ControlUniqueIds.Count, 0);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     public void TestControlIdIntParsing(string filename)
     {
@@ -68,7 +68,7 @@ public class EntropyTests
 
     // Validate that the control template fields OverridaleProperties and PCFDynamicSchemaForIRRetrieval are stored in entropy while unpacking
     // The test app contains control instances with same template but different fields
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ControlInstancesWithDifferentTemplateFields.msapp")]
     public void TestControlInstancesWithSameTemplateDifferentFields(string appName)
     {
@@ -82,7 +82,7 @@ public class EntropyTests
         Assert.IsTrue(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry.Count > 0);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestGetResourcesJSONIndicesKeyNullException(string filename)
     {
@@ -100,7 +100,7 @@ public class EntropyTests
 
     // Validate that the pcf control template is stored in entropy while unpacking
     // The test app contains control instances with same template but different fields
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PcfTemplates.msapp")]
     public void TestPCFControlInstancesWithSameTemplateDifferentFields(string appName)
     {
@@ -113,7 +113,7 @@ public class EntropyTests
         Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestAppWithNoPCFControlInstances(string appName)
     {
@@ -128,7 +128,7 @@ public class EntropyTests
 
     // Validate that a PCF control will still resolve its template by falling back to
     // the template store if the control's specific template isn't in Entropy.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PcfTemplates.msapp")]
     public void TestPCFControlWillFallBackToControlTemplate(string appName)
     {

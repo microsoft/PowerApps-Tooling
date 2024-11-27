@@ -14,7 +14,7 @@ public class SourceDecoderTests
     // Compare actual source output. This catches things like:
     // - are we removing default properties, from both Theme Json and Template xmL?
     // - canonical ordering and stable output 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MyWeather.msapp", "", "Screen1.fx.yaml", "Weather_Screen1.fx.yaml")]
     [DataRow("GroupControlTest.msapp", "", "Screen1.fx.yaml", "GroupControl_Test.fx.yaml")]
     [DataRow("GalleryTestApp.msapp", "", "Screen1.fx.yaml", "Gallery_ScreenTest.fx.yaml")]

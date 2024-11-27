@@ -64,7 +64,7 @@ public class MsappArchiveTests : TestBase
         msappArchive.GetDirectoryEntries(directoryName, extension, true).Count().Should().Be(expectedRecursiveCount);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(AddEntryTestsData), DynamicDataSourceType.Method)]
     public void AddEntryTests(string[] entries, string[] expectedEntries)
     {

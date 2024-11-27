@@ -17,7 +17,7 @@ namespace PAModelTests;
 public class DataSourceTests
 {
     // Validates that the TableDefinitions are being added at the end of the DataSources.json when the entropy file is deleted.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("GalleryTestApp.msapp")]
     [DataRow("AccountPlanReviewerMaster.msapp")]
     public void TestTableDefinitionsAreLastEntriesWhenEntropyDeleted(string appName)
@@ -78,7 +78,7 @@ public class DataSourceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("EmptyLocalDBRefsHashMismatchProperties.msapp")]
     public void TestNoLocalDatabaseRefsWhenLocalDatabaseReferencesPropertyWasEmptyJson(string appName)
     {
@@ -98,7 +98,7 @@ public class DataSourceTests
         Assert.IsTrue(loadedMsApp._dataSourceReferences.Count == 0);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("EmptyLocalDBRefsHashMismatchProperties.msapp")]
     public void TestConnectionInstanceIDHandling(string appName)
     {
@@ -117,7 +117,7 @@ public class DataSourceTests
         errorsCaptured.ThrowOnErrors();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
     public void TestUnusedDataSourcesArePreserved(string appName)
     {
@@ -152,7 +152,7 @@ public class DataSourceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
     public void TestUnusedDataSourcesAreNotPreservedWhenNotTracked(string appName)
     {
@@ -187,7 +187,7 @@ public class DataSourceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
     public void TestWhenDataSourcesAreNotPresent(string appName)
     {
@@ -213,7 +213,7 @@ public class DataSourceTests
         Assert.IsNull(msApp._dataSourceReferences.First().Value.dataSources);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MultipleDataSourcesWithOneUnused.msapp")]
     public void TestWhenDataSourcesIsSetToEmptyDictionary(string appName)
     {
@@ -238,7 +238,7 @@ public class DataSourceTests
         Assert.AreEqual(msApp._dataSourceReferences.First().Value.dataSources.Count, 0);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("NoUnusedDataSources.msapp")]
     public void TestAllUsedDataSourcesArePreserved(string appName)
     {
@@ -262,7 +262,7 @@ public class DataSourceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(new string[] { "FileNameOne.txt" }, ".txt")]
     [DataRow(new string[] { "FileNameTwo.tx<t" }, ".tx%3ct")]
     [DataRow(new string[] { "FileNameThr<ee.txt" }, ".txt")]

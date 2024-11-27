@@ -62,7 +62,7 @@ public class NameCollisionTests
         Assert.IsTrue(newFileNames.Contains("image_2"));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     [DataRow("DuplicateScreen.msapp")]
     public void TestScreenRename(string appName)
@@ -115,7 +115,7 @@ public class NameCollisionTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     [DataRow("DuplicateScreen.msapp")]
     [DataRow("ComponentNameCollision.msapp")]
@@ -205,7 +205,7 @@ public class NameCollisionTests
         Assert.IsFalse(errorContainer.HasErrors);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("CollidingFilenames.msapp")]
     public void TestDataSourceNameCollision(string appName)
     {

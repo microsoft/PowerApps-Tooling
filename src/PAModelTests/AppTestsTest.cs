@@ -12,7 +12,7 @@ namespace PAModelTests;
 public class AppTestsTest
 {
     // Validates that the App can be repacked after deleting the EditorState files, when the app contains app tests which refer to screens.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestStudio_Test.msapp")]
     public void TestPackWhenEditorStateIsDeleted(string appName)
     {
@@ -48,7 +48,7 @@ public class AppTestsTest
     }
 
     // Validates that the App can be repacked after deleting the Entropy files, when the app contains app tests which refer to screens.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestStudio_Test.msapp")]
     public void TestPackWhenEntropyIsDeleted(string appName)
     {
