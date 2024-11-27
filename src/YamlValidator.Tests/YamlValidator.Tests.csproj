@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="MSTest.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,12 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <PublicSign>true</PublicSign>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,13 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-     <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestTestAdapterVersion)" />
-     <PackageReference Include="MSTest" Version="$(MSTest)" />
      <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Global usings">
-    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
