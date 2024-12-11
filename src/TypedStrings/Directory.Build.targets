@@ -1,0 +1,6 @@
+<Project>
+  <!-- See: https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2022#directorybuildprops-and-directorybuildtargets -->
+  <!-- NOTE: We don't inherit from parent here because there's too much to undo. For now, we'll treat this directory as a root. -->
+  <!-- <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))" /> -->
+
+</Project>

@@ -1,17 +1,3 @@
-# This inheirits from the root .editorconfig, applying just a few project-specific overrides
+[*.cs]
 
-# *********************************
-# ** Code-style Diagnostic Rules **
-# *********************************
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
-# These all have the 'IDE' prefix
-[*.{cs,vb}]
-
-# ***********************************
-# ** Code Quality Diagnostic Rules **
-# ***********************************
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/?view=vs-2022
-[*.{cs,vb}]
-
-dotnet_diagnostic.CA1000.severity = none       # Do not declare static members on generic types
-dotnet_diagnostic.CA1036.severity = none       # Type should define operator(s) '<, <=, >, >=' since it implements IComparable
+#dotnet_diagnostic.CA1859.severity = silent # Use concrete types when possible for improved performance
