@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
+    <AssemblyName>Microsoft.PowerPlatform.TypedStrings.Tests</AssemblyName>
+    <RootNamespace>Microsoft.PowerPlatform.TypedStrings</RootNamespace>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -8,10 +9,6 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <PublicSign>true</PublicSign>
   </PropertyGroup>
 
   <ItemGroup>
