@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.PowerPlatform.TypedStrings;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 /// <summary>
 /// Simple clas for indicating a validated string. This class is only used for the implementation of strong-typed strings.<br/>

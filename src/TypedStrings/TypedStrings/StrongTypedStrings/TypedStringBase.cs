@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.PowerPlatform.TypedStrings;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 /// <summary>
 /// The base record for typed strings which implements the common shared logic.<br/>

@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace Microsoft.PowerPlatform.TypedStrings;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 /// <summary>
 /// A strong-typed string that is guaranteed to not be empty (i.e. <see cref="string.Empty"/>).

@@ -1,7 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.TypedStrings;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 /// <summary>
 /// Defines the required implementation for creating a strong-typed string based on a pre-validated value.<br/>

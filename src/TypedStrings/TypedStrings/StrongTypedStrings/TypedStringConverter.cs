@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-namespace Microsoft.PowerPlatform.TypedStrings;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 /// <summary>
 /// A type converter which uses the target type's <see cref="IParsable{TSelf}"/> implementation.
