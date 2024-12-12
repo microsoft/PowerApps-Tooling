@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using FluentAssertions.Execution;
 
-namespace Microsoft.PowerPlatform.TypedStrings.Tests;
+namespace Microsoft.PowerPlatform.TypedStrings.StrongTypedStrings;
 
 [TestClass]
 public class StrongTypedStringTests
