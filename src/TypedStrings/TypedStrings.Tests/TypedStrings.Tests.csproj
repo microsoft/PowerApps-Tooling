@@ -11,6 +11,24 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup Label="Code generation">
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    
+    <!-- This is our custom property for sharing the base generated folder output -->
+    <BaseGeneratedOutputPath>_generated</BaseGeneratedOutputPath>
+    
+    <!-- By updating this path to be outside of 'obj' folder, we get these files added to source code tracking -->
+    <CompilerGeneratedFilesOutputPath>$(BaseGeneratedOutputPath)/$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup Label="Code generation">
+    <!-- Exclude the output of source generators from the compilation, to avoid duplicate definitions -->
+    <Compile Remove="$(BaseGeneratedOutputPath)/**/*.cs" />
+    
+    <!-- Add the files as None so it's easier to view. Not neccessarily needed for all scenarios -->
+    <None Include="$(BaseGeneratedOutputPath)/**/*.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="MSTest" />
@@ -27,5 +45,4 @@
     <ProjectReference Include="..\TypedStrings.Generator\TypedStrings.Generator.csproj" OutputItemType="Analyzer" />
     <ProjectReference Include="..\TypedStrings\TypedStrings.csproj" />
   </ItemGroup>
-
 </Project>
