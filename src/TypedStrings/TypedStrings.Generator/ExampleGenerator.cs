@@ -87,6 +87,7 @@ public class ExampleSourceGenerator : IIncrementalGenerator
 
             namespace {{recordToGenerate.Namespace}};
 
+            {{generatedCodeAttribute}}
             public partial record {{recordToGenerate.Name}} : ITypedString<{{recordToGenerate.Name}}>
             {
                 public {{recordToGenerate.Name}}(string value)
