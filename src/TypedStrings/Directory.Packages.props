@@ -10,8 +10,13 @@
     -->
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
   <ItemGroup Label="PinnedTransitiveDependenciesForSecurity">
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.12.0" />
     <!--
       Add any transitive package dependency versions to this section to satisfy security requirements.
       Once a package in StandardDependencies has updated its dependency to one of the transitive ones
@@ -23,7 +28,6 @@
     -->
     <PackageVersion Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="StandardDependencies">
     <PackageVersion Include="FluentAssertions" Version="5.10.3" />
     <PackageVersion Include="Moq" Version="4.17.2" />

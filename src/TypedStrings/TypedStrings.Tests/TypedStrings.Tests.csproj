@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Moq" />
@@ -23,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TypedStrings.Generator\TypedStrings.Generator.csproj" OutputItemType="Analyzer" />
     <ProjectReference Include="..\TypedStrings\TypedStrings.csproj" />
   </ItemGroup>
 

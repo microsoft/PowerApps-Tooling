@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{A8403B7D-F
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypedStrings.Generator", "TypedStrings.Generator\TypedStrings.Generator.csproj", "{8F5C5A89-09A2-4639-BC0D-699B8D4A2F79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{5B18016A-65DF-427A-89B2-BEA5C34D6693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B18016A-65DF-427A-89B2-BEA5C34D6693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B18016A-65DF-427A-89B2-BEA5C34D6693}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5C5A89-09A2-4639-BC0D-699B8D4A2F79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5C5A89-09A2-4639-BC0D-699B8D4A2F79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5C5A89-09A2-4639-BC0D-699B8D4A2F79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5C5A89-09A2-4639-BC0D-699B8D4A2F79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
