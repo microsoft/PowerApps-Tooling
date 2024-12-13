@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -14,7 +15,6 @@ public sealed partial record NonEmptyString
 {
     private static bool IsValid([NotNullWhen(true)] string? value) => !string.IsNullOrEmpty(value);
 }
-
 
 
 // Generated code:

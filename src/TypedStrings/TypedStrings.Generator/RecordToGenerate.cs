@@ -3,14 +3,16 @@
 
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
-public readonly record struct RecordToGenerate
+internal readonly record struct RecordToGenerate
 {
     public readonly string Namespace;
     public readonly string Name;
+    public readonly bool HasIsValidMethod;
 
-    public RecordToGenerate(string @namespace, string name)
+    public RecordToGenerate(string @namespace, string name, bool hasIsValidMethod)
     {
         Namespace = @namespace;
         Name = name;
+        HasIsValidMethod = hasIsValidMethod;
     }
 }
