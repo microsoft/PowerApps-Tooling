@@ -1,0 +1,39 @@
+<Project>
+  <!--
+  Include this file in the project to enable the shared code generation output with some common functionality.
+  -->
+  <PropertyGroup Label="Code generation">
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+
+    <!-- This is our custom property for sharing the base generated folder output -->
+    <BaseGeneratedOutputPath Condition="'$(BaseGeneratedOutputPath)' == ''">_generated</BaseGeneratedOutputPath>
+    
+    <!-- By updating this path to be outside of 'obj' folder, we get these files added to source code tracking -->
+    <CompilerGeneratedFilesOutputPath>$(BaseGeneratedOutputPath)/$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup Label="Code generation">
+    <!-- Exclude the output of source generators from the compilation, to avoid duplicate definitions -->
+    <Compile Remove="$(BaseGeneratedOutputPath)/**/*.cs" />
+    
+    <!-- Add the files as None so it's easier to view. Not necessarily needed for all scenarios -->
+    <Folder Include="$(BaseGeneratedOutputPath)\" />
+    <None Include="$(BaseGeneratedOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <!--
+  Target: _ClearGeneratedFilesOutputPath
+  Description: This target is used to clear the generated files output to ensure we remove files no longer being generated.
+  -->
+  <Target Name="_ClearGeneratedFilesOutputPath"
+          AfterTargets="CreateCompilerGeneratedFilesOutputPath"
+          Condition="'$(EmitCompilerGeneratedFiles)' == 'true' AND !('$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true') AND '$(CompilerGeneratedFilesOutputPath)' != ''"
+          >
+    <ItemGroup>
+      <_ExistingGeneratedFile Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+    </ItemGroup>
+
+    <Delete Condition="'@(_ExistingGeneratedFile)' != ''"
+            Files="@(_ExistingGeneratedFile)" />
+  </Target>
+</Project>

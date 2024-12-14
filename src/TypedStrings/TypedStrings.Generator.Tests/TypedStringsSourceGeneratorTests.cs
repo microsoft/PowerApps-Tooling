@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
 [TestClass]
-public class ExampleGeneratorTests
+public class TypedStringsSourceGeneratorTests
 {
     [TestMethod]
     public void DebuggingSourceGeneratorTest()
@@ -15,7 +15,7 @@ public class ExampleGeneratorTests
         // This is not a "test" per se, but rather a way to programmatically execute the source generator,
         // so that breakpoints set in it can be executed.
 
-        var generator = Activator.CreateInstance<ExampleSourceGenerator>();
+        var generator = Activator.CreateInstance<TypedStringsSourceGenerator>();
 
         CSharpGeneratorDriver
             .Create(generator)
