@@ -10,13 +10,18 @@
     -->
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  <ItemGroup Label="PinnedTransitiveDependenciesForSecurity">
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageVersion>
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.12.0" />
+
+  <ItemGroup Label="Direct Dependencies">
+    <PackageVersion Include="FluentAssertions" Version="5.10.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
+    <!-- 4.11 is the latest version for SDK 8.x -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+    <PackageVersion Include="Moq" Version="4.17.2" />
+    <PackageVersion Include="MSTest" Version="3.6.2" />
+  </ItemGroup>
+
+  <ItemGroup Label="Pinned Transitive Dependencies for Security">
     <!--
       Add any transitive package dependency versions to this section to satisfy security requirements.
       Once a package in StandardDependencies has updated its dependency to one of the transitive ones
@@ -26,13 +31,6 @@
       CVE-2021-24112 Component Governance Security Advisory for System.Drawing.Common
       https://nvd.nist.gov/vuln/detail/CVE-2021-24112
     -->
-    <PackageVersion Include="System.Drawing.Common" Version="8.0.0" />
-  </ItemGroup>
-  <ItemGroup Label="StandardDependencies">
-    <PackageVersion Include="FluentAssertions" Version="5.10.3" />
-    <PackageVersion Include="Moq" Version="4.17.2" />
-    <PackageVersion Include="MSTest" Version="3.6.2" />
-    <!-- <PackageVersion Include="System.Text.Json" Version="8.0.5" />
-        <PackageVersion Include="YamlDotNet" Version="15.1.6" /> -->
+    <!--<PackageVersion Include="System.Drawing.Common" Version="8.0.0" />-->
   </ItemGroup>
 </Project>

@@ -1,12 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Microsoft.PowerPlatform.TypedStrings</AssemblyName>
+    <RootNamespace>Microsoft.PowerPlatform.TypedStrings</RootNamespace>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="_generated\**" />
+    <EmbeddedResource Remove="_generated\**" />
+    <None Remove="_generated\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TypedStrings.Generator\TypedStrings.Generator.csproj" OutputItemType="Analyzer" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.PowerPlatform.TypedStrings.Tests" />
   </ItemGroup>
+
+  <Import Project="..\CompilerGeneratedFilesBuildExtensions.targets" />
 </Project>

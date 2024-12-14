@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Microsoft.PowerPlatform.TypedStrings.Tests</AssemblyName>
-    <RootNamespace>Microsoft.PowerPlatform.TypedStrings</RootNamespace>
+    <AssemblyName>Microsoft.PowerPlatform.TypedStrings.Generator.Tests</AssemblyName>
+    <RootNamespace>Microsoft.PowerPlatform.TypedStrings.Generator</RootNamespace>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Moq" />
@@ -23,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TypedStrings.Generator\TypedStrings.Generator.csproj" OutputItemType="Analyzer" />
     <ProjectReference Include="..\TypedStrings\TypedStrings.csproj" />
   </ItemGroup>
+
+  <Import Project="..\CompilerGeneratedFilesBuildExtensions.targets" />
 </Project>
