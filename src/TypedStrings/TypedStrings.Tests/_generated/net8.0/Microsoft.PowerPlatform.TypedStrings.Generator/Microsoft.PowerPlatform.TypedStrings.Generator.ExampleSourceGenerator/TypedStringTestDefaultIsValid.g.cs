@@ -3,11 +3,11 @@
 
 using global::System.Diagnostics.CodeAnalysis;
 using global::System.Runtime.CompilerServices;
-using global::Microsoft.PowerPlatform.TypedStrings;
 
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
-public partial record TypedStringTestDefaultIsValid : ITypedString<TypedStringTestDefaultIsValid>
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.PowerPlatform.TypedStrings.Generator", "1.0.0.0")]
+public partial record TypedStringTestDefaultIsValid : global::Microsoft.PowerPlatform.TypedStrings.ITypedString<TypedStringTestDefaultIsValid>
 {
     public TypedStringTestDefaultIsValid(string value)
     {

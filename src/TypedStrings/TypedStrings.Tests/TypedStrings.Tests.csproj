@@ -25,7 +25,8 @@
     <!-- Exclude the output of source generators from the compilation, to avoid duplicate definitions -->
     <Compile Remove="$(BaseGeneratedOutputPath)/**/*.cs" />
     
-    <!-- Add the files as None so it's easier to view. Not neccessarily needed for all scenarios -->
+    <!-- Add the files as None so it's easier to view. Not necessarily needed for all scenarios -->
+    <Folder Include="$(BaseGeneratedOutputPath)\" />
     <None Include="$(BaseGeneratedOutputPath)/**/*.cs" />
   </ItemGroup>
 
