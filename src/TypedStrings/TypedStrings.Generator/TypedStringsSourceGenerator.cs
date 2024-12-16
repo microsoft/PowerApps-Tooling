@@ -7,10 +7,10 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
 [Generator(LanguageNames.CSharp)]
-public class ExampleSourceGenerator : IIncrementalGenerator
+public class TypedStringsSourceGenerator : IIncrementalGenerator
 {
     private const string TypedStringAttributeFullName = "Microsoft.PowerPlatform.TypedStrings.TypedStringAttribute";
-    private static readonly string generatedCodeAttribute = $@"[global::System.CodeDom.Compiler.GeneratedCodeAttribute(""{typeof(ExampleSourceGenerator).Assembly.GetName().Name}"", ""{typeof(ExampleSourceGenerator).Assembly.GetName().Version}"")]";
+    private static readonly string generatedCodeAttribute = $@"[global::System.CodeDom.Compiler.GeneratedCodeAttribute(""{typeof(TypedStringsSourceGenerator).Assembly.GetName().Name}"", ""{typeof(TypedStringsSourceGenerator).Assembly.GetName().Version}"")]";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
