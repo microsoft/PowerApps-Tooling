@@ -212,6 +212,8 @@ definitions:
         Layout:
           type: string
           minLength: 1
+        Locked:
+          type: boolean
         Group: true
         Properties: true
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
