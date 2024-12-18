@@ -212,7 +212,7 @@ definitions:
         Layout:
           type: string
           minLength: 1
-        Locked:
+        IsLocked:
           type: boolean
         Group: true
         Properties: true

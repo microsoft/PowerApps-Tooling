@@ -28,7 +28,7 @@ public record ControlInstance : IPaControlInstanceContainer
 
     public string? Layout { get; init; }
 
-    public bool? Locked { get; init; }
+    public bool? IsLocked { get; init; }
 
     /// <summary>
     /// The name of the group of controls that this control should be grouped with.
