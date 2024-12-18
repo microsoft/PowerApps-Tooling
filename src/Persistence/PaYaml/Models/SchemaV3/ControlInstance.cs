@@ -28,6 +28,8 @@ public record ControlInstance : IPaControlInstanceContainer
 
     public string? Layout { get; init; }
 
+    public bool? IsLocked { get; init; }
+
     /// <summary>
     /// The name of the group of controls that this control should be grouped with.
     /// This does not impact the visual layout of the control or behavior, but is used to group controls together for organizational purposes from within the Studio.
