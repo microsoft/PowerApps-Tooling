@@ -66,7 +66,6 @@ Screens:
                             Children:
                               - DataCardKey7:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -78,7 +77,6 @@ Screens:
 
                               - DataCardValue7:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -97,7 +95,6 @@ Screens:
 
                               - ErrorMessage5:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -114,7 +111,6 @@ Screens:
 
                               - StarVisible5:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey7.Height
@@ -146,7 +142,6 @@ Screens:
                             Children:
                               - DataCardKey9:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -158,7 +153,6 @@ Screens:
 
                               - DataCardValue9:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -177,7 +171,6 @@ Screens:
 
                               - ErrorMessage7:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -194,7 +187,6 @@ Screens:
 
                               - StarVisible7:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey9.Height
@@ -243,7 +235,6 @@ Screens:
                             Children:
                               - DataCardKey8:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -255,7 +246,6 @@ Screens:
 
                               - DataCardValue8:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -274,7 +264,6 @@ Screens:
 
                               - ErrorMessage6:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -291,7 +280,6 @@ Screens:
 
                               - StarVisible6:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey8.Height
@@ -323,7 +311,6 @@ Screens:
                             Children:
                               - DataCardKey10:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -335,7 +322,6 @@ Screens:
 
                               - DataCardValue10:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -354,7 +340,6 @@ Screens:
 
                               - ErrorMessage8:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -371,7 +356,6 @@ Screens:
 
                               - StarVisible8:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey10.Height
@@ -403,7 +387,6 @@ Screens:
                             Children:
                               - DataCardKey12:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -415,7 +398,6 @@ Screens:
 
                               - DataCardValue12:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -434,7 +416,6 @@ Screens:
 
                               - ErrorMessage10:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -451,7 +432,6 @@ Screens:
 
                               - StarVisible10:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey12.Height
@@ -481,7 +461,6 @@ Screens:
                             Children:
                               - DataCardKey4:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -493,7 +472,6 @@ Screens:
 
                               - DataCardValue4:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     DisplayMode: =Parent.DisplayMode
@@ -527,7 +505,6 @@ Screens:
                             Children:
                               - DataCardKey11:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -539,7 +516,6 @@ Screens:
 
                               - DataCardValue11:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -557,7 +533,6 @@ Screens:
 
                               - ErrorMessage9:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -574,7 +549,6 @@ Screens:
 
                               - StarVisible9:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey11.Height
@@ -605,7 +579,6 @@ Screens:
                             Children:
                               - DataCardKey5:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -617,7 +590,6 @@ Screens:
 
                               - DataCardValue5:
                                   Control: DatePicker
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     DefaultDate: =Parent.Default
@@ -634,7 +606,6 @@ Screens:
 
                               - ErrorMessage3:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -651,7 +622,6 @@ Screens:
 
                               - StarVisible3:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey5.Height
@@ -682,7 +652,6 @@ Screens:
                             Children:
                               - DataCardKey6:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -694,7 +663,6 @@ Screens:
 
                               - DataCardValue6:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -714,7 +682,6 @@ Screens:
 
                               - ErrorMessage4:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -731,7 +698,6 @@ Screens:
 
                               - StarVisible4:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey6.Height
@@ -761,7 +727,6 @@ Screens:
                             Children:
                               - DataCardKey1:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -773,7 +738,6 @@ Screens:
 
                               - DataCardValue1:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     DisplayMode: =Parent.DisplayMode
@@ -808,7 +772,6 @@ Screens:
                             Children:
                               - DataCardKey2:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -820,7 +783,6 @@ Screens:
 
                               - DataCardValue2:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -839,7 +801,6 @@ Screens:
 
                               - ErrorMessage1:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -856,7 +817,6 @@ Screens:
 
                               - StarVisible1:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey2.Height
@@ -888,7 +848,6 @@ Screens:
                             Children:
                               - DataCardKey3:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =34
@@ -900,7 +859,6 @@ Screens:
 
                               - DataCardValue3:
                                   Control: TextInput
-                                  IsLocked: true
                                   Properties:
                                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                                     Default: =Parent.Default
@@ -919,7 +877,6 @@ Screens:
 
                               - ErrorMessage2:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     AutoHeight: =true
                                     Height: =10
@@ -936,7 +893,6 @@ Screens:
 
                               - StarVisible2:
                                   Control: Label
-                                  IsLocked: true
                                   Properties:
                                     Align: =Align.Center
                                     Height: =DataCardKey3.Height
