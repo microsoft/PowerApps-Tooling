@@ -31,11 +31,13 @@ public record ComponentDefinition : IPaControlInstanceContainer
 
 public abstract record ComponentCustomPropertyBase
 {
-    [YamlMember(DefaultValuesHandling = DefaultValuesHandling.Preserve)]
+    [YamlMember(Order = -9, DefaultValuesHandling = DefaultValuesHandling.Preserve)]
     public required ComponentPropertyKind PropertyKind { get; init; }
 
+    [YamlMember(Order = -8)]
     public string? DisplayName { get; init; }
 
+    [YamlMember(Order = -7)]
     public string? Description { get; init; }
 }
 
@@ -44,13 +46,16 @@ public abstract record ComponentCustomPropertyBase
 /// </summary>
 public record ComponentCustomPropertyUnion : ComponentCustomPropertyBase
 {
-    public PFxDataType? DataType { get; init; }
-
     public bool? RaiseOnReset { get; init; }
 
-    public PFxExpressionYaml? Default { get; init; }
+    public PFxDataType? DataType { get; init; }
 
     public PFxFunctionReturnType? ReturnType { get; init; }
 
     public NamedObjectSequence<PFxFunctionParameter> Parameters { get; init; } = new();
+
+    /// <summary>
+    /// The default script for this custom input property.
+    /// </summary>
+    public PFxExpressionYaml? Default { get; init; }
 }
