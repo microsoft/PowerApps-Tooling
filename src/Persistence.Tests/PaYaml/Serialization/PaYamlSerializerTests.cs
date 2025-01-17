@@ -3,6 +3,7 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
@@ -261,4 +262,25 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     #endregion
+
+    [TestMethod]
+    public void SerializeComponentCustomPropertyUnionPropertyOrder()
+    {
+        // Since App.Properties is a NamedObjectMapping, the location info should be set on the NamedObject
+        var actualYaml = PaYamlSerializer.Serialize(new ComponentCustomPropertyUnion()
+        {
+            PropertyKind = ComponentPropertyKind.Input,
+            DisplayName = "My Property",
+            Description = "My Property Description",
+            DataType = PFxDataType.Boolean,
+            Default = new("true"),
+        });
+        actualYaml.TrimEnd().Should().Be("""
+            PropertyKind: Input
+            DisplayName: My Property
+            Description: My Property Description
+            DataType: Boolean
+            Default: =true
+            """.Replace("\r\n", "\n"));
+    }
 }
