@@ -58,16 +58,34 @@ public class PFxExpressionYamlConverter : IYamlTypeConverter
         // Force multi-line scripts to be literal blocks
         forceLiteralBlock |= expression.InvariantScript.Contains('\n')
             || expression.InvariantScript.Contains('\r');
-        if (!forceLiteralBlock && _formattingOptions.ForceLiteralBlockIfContainsAny?.Count > 0)
+        if (!forceLiteralBlock && !_formattingOptions.ForceLiteralBlockIfContainsAny.IsDefaultOrEmpty)
         {
             // e.g. our original code was forcing literal block if the script contained any double quotes (`"`).
             forceLiteralBlock |= _formattingOptions.ForceLiteralBlockIfContainsAny.Any(expression.InvariantScript.Contains);
         }
 
+        ScalarStyle scalarStyle;
+        if (forceLiteralBlock)
+        {
+            scalarStyle = ScalarStyle.Literal;
+        }
+        else
+        {
+            // BUG: YamlDotNet doesn't put single quotes around the value when it ends with a tab character
+            if (expression.InvariantScript.EndsWith('\t'))
+            {
+                scalarStyle = ScalarStyle.SingleQuoted;
+            }
+            else
+            {
+                scalarStyle = ScalarStyle.Any;
+            }
+        }
+
         // Construct the scalar value to emit, which must have the '=' prefix
         var yamlScalarValue = $"{PFxExpressionYamlFormattingOptions.ScalarPrefix}{expression.InvariantScript}";
 
-        emitter.Emit(new Scalar(AnchorName.Empty, TagName.Empty, yamlScalarValue, forceLiteralBlock ? ScalarStyle.Literal : ScalarStyle.Any,
-            isPlainImplicit: true, isQuotedImplicit: !forceLiteralBlock));
+        emitter.Emit(new Scalar(AnchorName.Empty, TagName.Empty, yamlScalarValue, scalarStyle,
+            isPlainImplicit: true, isQuotedImplicit: false));
     }
 }

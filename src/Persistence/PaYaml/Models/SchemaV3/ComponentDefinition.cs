@@ -6,6 +6,12 @@ using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
+public enum ComponentDefinitionType
+{
+    CanvasComponent,
+    CommandComponent,
+}
+
 public enum ComponentPropertyKind
 {
     Input,
@@ -18,6 +24,12 @@ public enum ComponentPropertyKind
 
 public record ComponentDefinition : IPaControlInstanceContainer
 {
+    // WARNING: this property is required, but yamlDotNet doesn't enforce required properties correctly.
+    // The validation here must be done by the compiler, otherwise we'll need to add a custom validator.
+    //[YamlMember(DefaultValuesHandling = DefaultValuesHandling.Preserve)]
+    //public required ComponentDefinitionType DefinitionType { get; init; }
+    public required ComponentDefinitionType? DefinitionType { get; init; }
+
     public string? Description { get; init; }
 
     public bool AccessAppScope { get; init; }

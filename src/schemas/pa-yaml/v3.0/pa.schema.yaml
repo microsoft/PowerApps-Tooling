@@ -261,8 +261,13 @@ definitions:
     propertyNames: { $ref: "#/definitions/ComponentDefinition-name" }
     additionalProperties:
       type: object
+      required: [DefinitionType]
       additionalProperties: false
       properties:
+        DefinitionType:
+          enum:
+            - CanvasComponent
+            - CommandComponent
         Description:
           description: The description for this component definition.
           type: string
@@ -431,7 +436,6 @@ definitions:
       pattern: |-
         [.\\/:*?"<>|]
 
-
   DataSources-name-instance-map:
     type: object
     propertyNames: { $ref: "#/definitions/DataSource-name" }
@@ -514,6 +518,10 @@ definitions:
           Description: { type: string }
           IsRequired: { type: boolean }
           DataType: { $ref: "#/definitions/pfx-data-type" }
+          Default:
+            description: The default formula to use for this parameter when not explicitly specified.
+            allOf:
+              - $ref: "#/definitions/pfx-formula"
 
   pfx-function-parameter-name:
     description: The name of a Power Fx function parameter.

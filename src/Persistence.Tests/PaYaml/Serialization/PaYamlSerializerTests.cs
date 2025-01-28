@@ -184,6 +184,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/AmbiguousComponentNames.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/ComponentDefinitions.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]

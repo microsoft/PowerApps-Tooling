@@ -1,5 +1,6 @@
 ComponentDefinitions:
   MyHeaderComponent:
+    DefinitionType: CanvasComponent
     Description: A header component for all screens in this app.
     AccessAppScope: true # set to true, to override the default
     CustomProperties:
@@ -75,6 +76,7 @@ ComponentDefinitions:
               IsRequired: true
           - parameter3:
               DataType: Text
+              Default: ="Hello"
           - param4:
               DataType: Number
 
