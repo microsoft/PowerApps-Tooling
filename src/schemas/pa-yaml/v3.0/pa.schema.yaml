@@ -153,7 +153,7 @@ definitions:
       - $ref: "#/definitions/ControlTypeId-Component"
       - $ref: "#/definitions/ControlTypeId-CodeComponent"
 
-      # TODO: Imlpement a way that some controls may define a limited subset of child control types
+      # TODO: Implement a way that some controls may define a limited subset of child control types
       # e.g. The 'Form' control's children must be of type 'TypedDataCard':
       # - $ref: "#/definitions/ControlTypeId-TypedDataCard"
 
@@ -260,45 +260,92 @@ definitions:
     type: object
     propertyNames: { $ref: "#/definitions/ComponentDefinition-name" }
     additionalProperties:
-      type: object
-      required: [DefinitionType]
-      additionalProperties: false
-      properties:
-        DefinitionType:
-          enum:
-            - CanvasComponent
-            - CommandComponent
-        Description:
-          description: The description for this component definition.
-          type: string
-        AccessAppScope:
-          description: >
-            Indicates whether this component can access app level information.
-            Not available for components defined in a component library.
-          type: boolean
-        CustomProperties:
-          type: object
-          propertyNames:
-            $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
-          additionalProperties:
-            $ref: "#/definitions/ComponentDefinition-CustomProperty"
-        Properties:
-          allOf:
-            - $ref: "#/definitions/Properties-formula-map"
-            - propertyNames:
-                examples:
-                  # These are the known properties for a component definition, but others may be allowed in the future, along with those defined by custom Output properties.
-                  - ContentLanguage
-                  - ChildTabPriority
-                  - EnableChildFocus
-                  - Fill
-                  - Height
-                  - Width
-                  - OnReset
-        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      $ref: "#/definitions/ComponentDefinition-instance"
 
   ComponentDefinition-name:
     $ref: "#/definitions/entity-name"
+
+  ComponentDefinition-instance:
+    type: object
+    required: [DefinitionType]
+    properties:
+      DefinitionType:
+        enum:
+          - CanvasComponent
+          - CommandComponent
+      Description:
+        description: The description for this component definition.
+        type: string
+      AllowCustomization:
+        description: >
+          Only applicable for components defined in a component library.
+          This keyword should always be specified for component definitions in a component library.
+        type: boolean
+    allOf:
+      - if:
+          properties:
+            DefinitionType: { const: "CanvasComponent" }
+        then:
+          additionalProperties: false
+          properties:
+            DefinitionType: true
+            Description: true
+            AllowCustomization: true
+            AccessAppScope:
+              description: >
+                Indicates whether this component can access app level information.
+                Only applicable for canvas components that are NOT defined in a component library.
+              type: boolean
+            CustomProperties:
+              type: object
+              propertyNames:
+                $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
+              additionalProperties:
+                $ref: "#/definitions/ComponentDefinition-CustomProperty"
+            Properties:
+              type: object
+              # CanvasComponents may also have additional properties coming from CustomProperties.
+              propertyNames:
+                allOf:
+                  - $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
+                  - not:
+                      # Don't allow properties which are only applicable on component instances
+                      enum:
+                        - X
+                        - Y
+                        - Visible
+              additionalProperties: { $ref: "#/definitions/pfx-formula" }
+              properties:
+                # These are the well-known properties for a CanvasComponent definition
+                ContentLanguage: { $ref: "#/definitions/pfx-formula" }
+                ChildTabPriority: { $ref: "#/definitions/pfx-formula" }
+                EnableChildFocus: { $ref: "#/definitions/pfx-formula" }
+                Fill: { $ref: "#/definitions/pfx-formula" }
+                Height: { $ref: "#/definitions/pfx-formula" }
+                OnReset: { $ref: "#/definitions/pfx-formula" }
+                Width: { $ref: "#/definitions/pfx-formula" }
+            Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      - if:
+          properties:
+            DefinitionType: { const: "CommandComponent" }
+        then:
+          additionalProperties: false
+          properties:
+            DefinitionType: true
+            Description: true
+            AllowCustomization: true
+            Properties:
+              type: object
+              # There are no other well-known properties and CommandComponents do not support custom properties.
+              additionalProperties: false
+              properties:
+                AutoSave: { $ref: "#/definitions/pfx-formula" }
+                DataSource: { $ref: "#/definitions/pfx-formula" }
+                Icon: { $ref: "#/definitions/pfx-formula" }
+                OnSelect: { $ref: "#/definitions/pfx-formula" }
+                Title: { $ref: "#/definitions/pfx-formula" }
+                Tooltip: { $ref: "#/definitions/pfx-formula" }
+                Visible: { $ref: "#/definitions/pfx-formula" }
 
   ComponentDefinition-CustomProperty-name:
     $ref: "#/definitions/entity-property-name"

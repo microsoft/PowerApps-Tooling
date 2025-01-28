@@ -32,12 +32,26 @@ public record ComponentDefinition : IPaControlInstanceContainer
 
     public string? Description { get; init; }
 
-    public bool AccessAppScope { get; init; }
+    /// <summary>
+    /// Only applicable for components in Component Libraries.
+    /// </summary>
+    public bool? AllowCustomization { get; init; }
 
+    /// <summary>
+    /// Only applicable for <see cref="ComponentDefinitionType.CanvasComponent"/> that are NOT in a Component Library.
+    /// </summary>
+    public bool? AccessAppScope { get; init; }
+
+    /// <summary>
+    /// Only applicable for <see cref="ComponentDefinitionType.CanvasComponent"/>.
+    /// </summary>
     public NamedObjectMapping<ComponentCustomPropertyUnion>? CustomProperties { get; init; }
 
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
+    /// <summary>
+    /// Only applicable for <see cref="ComponentDefinitionType.CanvasComponent"/>.
+    /// </summary>
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
 }
 
