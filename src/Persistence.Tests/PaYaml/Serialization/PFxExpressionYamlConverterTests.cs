@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions.Execution;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 using YamlDotNet.Serialization;
@@ -12,7 +13,7 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
 {
     private static readonly PFxExpressionYamlFormattingOptions FailSafeOptions = new()
     {
-        ForceLiteralBlockIfContainsAny = null //new[] { "\"" }
+        ForceLiteralBlockIfContainsAny = [],
     };
 
     public PFxExpressionYamlConverterTests()
@@ -81,6 +82,8 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
     [TestMethod]
     public void WriteYamlWithFailSafeOptions()
     {
+        using var _ = new AssertionScope();
+
         // Only the canonical null literal will be written:
         VerifySerialize("", "=");
 
@@ -96,6 +99,37 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
         // Multiline scripts
         VerifySerialize("val1\n & \nfoo", "|-\n  =val1\n   & \n  foo");
         VerifySerialize("val1\n & \nfoo\n", "|\n  =val1\n   & \n  foo");
+    }
+
+    [TestMethod]
+    public void ReadYamlWithTrailingWhitespace()
+    {
+        using var _ = new AssertionScope();
+
+        // Note: YAML ignores trailing spaces for plain scalars, so they are removed from parsed scalar values here:
+        VerifyDeserialize("Expression: =val1 & foo   ", "val1 & foo");
+        VerifyDeserialize("Expression: =val1 & foo\t", "val1 & foo");
+
+        // Property encoded single-line ending with whitespace
+        VerifyDeserialize("Expression: '=val1 & foo   '", "val1 & foo   ");
+        VerifyDeserialize("Expression: '=val1 & foo\t'", "val1 & foo\t");
+        VerifyDeserialize("Expression: \"=val1 & foo   \"", "val1 & foo   ");
+        VerifyDeserialize("Expression: \"=val1 & foo\t\"", "val1 & foo\t");
+        VerifyDeserialize("Expression: |-\n  =val1 & foo   ", "val1 & foo   ");
+        VerifyDeserialize("Expression: |-\n  =val1 & foo\t", "val1 & foo\t");
+    }
+
+    [TestMethod]
+    public void WriteYamlWithTrailingWhitespace()
+    {
+        using var _ = new AssertionScope();
+
+        // single-line ending with whitespace
+        VerifySerialize("val1 & foo   ", "'=val1 & foo   '");
+
+        // BUG: YamlDotNet doesn't put single quotes around the value when it ends with a tab character
+        // So our logic forces the quoting to happen if this is the case.
+        VerifySerialize("val1 & foo  \t", "'=val1 & foo  \t'");
     }
 
     private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
