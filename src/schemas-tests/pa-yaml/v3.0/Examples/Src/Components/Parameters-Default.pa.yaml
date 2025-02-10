@@ -1,0 +1,60 @@
+ComponentDefinitions:
+  MyHeaderComponent:
+    DefinitionType: CanvasComponent
+    Description: A component with input properties.
+    CustomProperties:
+      MyInputFunc1:
+        PropertyKind: InputFunction
+        ReturnType: Number
+        Default: =lhs + rhs
+        Parameters:
+          - lhs:
+              DataType: Number
+              Default: =100
+          - rhs:
+              IsOptional: true
+              DataType: Number
+              Default: =1
+
+      MyOutputFunc1:
+        PropertyKind: OutputFunction
+        ReturnType: Number
+        Parameters:
+          - lhs:
+              DataType: Number
+              Default: =100
+          - rhs:
+              IsOptional: true
+              DataType: Number
+              Default: =1
+
+      OnMyEvent1:
+        PropertyKind: Event
+        ReturnType: None
+        # default for void is no formula
+        Default: =
+        Parameters:
+          - newValue:
+              DataType: Number
+              Default: =100
+          - reason:
+              IsOptional: true
+              DataType: Text
+              Default: ="Text"
+
+      DoMyAction1:
+        PropertyKind: Action
+        ReturnType: None
+        Parameters:
+          - newValue:
+              DataType: Number
+              Default: =100
+          - reason:
+              IsOptional: true
+              DataType: Text
+              Default: ="Text"
+
+    Properties:
+      DoMyAction1: =
+      Fill: =Color.Azure
+      MyOutputFunc1: =lhs + rhs
