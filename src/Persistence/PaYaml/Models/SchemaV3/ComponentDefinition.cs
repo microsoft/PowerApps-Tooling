@@ -74,14 +74,28 @@ public record ComponentCustomPropertyUnion : ComponentCustomPropertyBase
 {
     public bool? RaiseOnReset { get; init; }
 
-    public PFxDataType? DataType { get; init; }
+    public PaYamlPropertyDataType? DataType { get; init; }
 
-    public PFxFunctionReturnType? ReturnType { get; init; }
-
-    public NamedObjectSequence<PFxFunctionParameter> Parameters { get; init; } = new();
+    public PaYamlPropertyDataType? ReturnType { get; init; }
 
     /// <summary>
     /// The default script for this custom input property.
+    /// </summary>
+    public PFxExpressionYaml? Default { get; init; }
+
+    public NamedObjectSequence<ComponentCustomPropertyParameter>? Parameters { get; init; }
+}
+
+public record ComponentCustomPropertyParameter()
+{
+    public string? Description { get; init; }
+
+    public bool IsOptional { get; init; }
+
+    public PaYamlPropertyDataType? DataType { get; init; }
+
+    /// <summary>
+    /// The default script for this optional parameter.
     /// </summary>
     public PFxExpressionYaml? Default { get; init; }
 }

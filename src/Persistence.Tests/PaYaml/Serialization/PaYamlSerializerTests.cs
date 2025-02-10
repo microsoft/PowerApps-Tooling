@@ -3,7 +3,6 @@
 
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
@@ -123,7 +122,7 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 6, 1)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 5, 1)]
     public void DeserializeExamplePaYamlComponentDefinition(string path, int expectedCustomPropertiesCount, int expectedPropertiesCount, int expectedChildrenCount)
     {
         var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
@@ -182,6 +181,9 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyComponentLibrary.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/InputProperties-Default.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/OutputProperties.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/Parameters-Default.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/AmbiguousComponentNames.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
@@ -274,7 +276,7 @@ public class PaYamlSerializerTests : VSTestBase
             PropertyKind = ComponentPropertyKind.Input,
             DisplayName = "My Property",
             Description = "My Property Description",
-            DataType = PFxDataType.Boolean,
+            DataType = PaYamlPropertyDataType.Boolean,
             Default = new("true"),
         });
         actualYaml.TrimEnd().Should().Be("""

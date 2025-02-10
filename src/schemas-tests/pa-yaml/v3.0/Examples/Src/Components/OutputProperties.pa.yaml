@@ -1,0 +1,47 @@
+ComponentDefinitions:
+  MyHeaderComponent:
+    DefinitionType: CanvasComponent
+    Description: A component with input properties.
+    CustomProperties:
+      MyTextProp1:
+        PropertyKind: Output
+        DisplayName: App Title
+        Description: The title of the App
+        DataType: Text
+
+      MyNumberProp1:
+        PropertyKind: Output
+        DataType: Number
+
+      MyOutputFunc1:
+        PropertyKind: OutputFunction
+        ReturnType: Number
+        Parameters:
+          - lhs:
+              DataType: Number
+              Default: =100
+          - rhs:
+              IsOptional: true
+              DataType: Number
+              Default: =1
+
+      DoMyAction1:
+        PropertyKind: Action
+        ReturnType: None
+        Parameters:
+          - newValue:
+              DataType: Number
+              Default: =100
+          - reason:
+              IsOptional: true
+              DataType: Text
+              Default: ="Text"
+
+    # Note: Custom output properties have their rules stored here
+    # because they are internal implementation details of each instance.
+    Properties:
+      DoMyAction1: =
+      Fill: =Color.Azure
+      MyNumberProp1: =100
+      MyOutputFunc1: =lhs + rhs
+      MyTextProp1: ="Text"
