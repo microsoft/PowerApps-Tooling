@@ -7,6 +7,14 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
+
+        <!-- While these are already the defaults when using MSTest.Sdk, we are explicit about that. -->
+        <!-- It can be helpful if some new project is introduced and is not using MSTest.Sdk -->
+        <EnableMSTestRunner>true</EnableMSTestRunner>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+
+        <!-- Currently defaults to false -->
+        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     </PropertyGroup>
 
     <PropertyGroup Label="Code Analysis config">

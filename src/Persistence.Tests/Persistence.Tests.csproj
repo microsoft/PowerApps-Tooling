@@ -4,7 +4,6 @@
         <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <EnableMSTestRunner>true</EnableMSTestRunner>
         <OutputType>Exe</OutputType>
         <IsTestProject>true</IsTestProject>
 
