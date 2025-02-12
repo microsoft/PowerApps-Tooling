@@ -40,11 +40,8 @@ jobs:
       run: ./build ci
       if: ${{ runner.os != 'Windows' }}
 
-    - name: Test - Persistence
-      run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
-
-    - name: Test - PAModel
-      run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
+    - name: Test
+      run: dotnet test --no-build
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
