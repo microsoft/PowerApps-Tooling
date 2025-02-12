@@ -19,10 +19,6 @@
      </None>
   </ItemGroup>
 
-  <ItemGroup>
-     <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
-  </ItemGroup>
-
   <ItemGroup Label="Global usings">
     <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>

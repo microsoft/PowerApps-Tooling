@@ -26,7 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
         <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
         <PackageReference Include="Moq" Version="$(MoqVersion)" />
     </ItemGroup>
