@@ -1,0 +1,32 @@
+ComponentDefinitions:
+  MyHeaderComponent:
+    DefinitionType: CanvasComponent
+    Description: A component with input properties.
+    CustomProperties:
+      MyTextProp1:
+        PropertyKind: Input
+        DisplayName: App Title
+        Description: The title of the App
+        RaiseOnReset: true
+        DataType: Text
+        Default: ="Text"
+
+      MyNumberProp1:
+        PropertyKind: Input
+        DataType: Number
+        Default: =100
+
+      MyInputFunc1:
+        PropertyKind: InputFunction
+        ReturnType: Number
+        Default: =lhs + rhs
+
+      OnMyEvent1:
+        PropertyKind: Event
+        ReturnType: None
+        # default for void is no formula
+        Default: =
+
+    Properties:
+      Fill: =Color.Azure
+      # Note: Custom input properties do not get any rules stored here.

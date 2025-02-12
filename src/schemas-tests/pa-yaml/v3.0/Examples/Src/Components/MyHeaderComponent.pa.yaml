@@ -1,5 +1,6 @@
 ComponentDefinitions:
   MyHeaderComponent:
+    DefinitionType: CanvasComponent
     Description: A header component for all screens in this app.
     AccessAppScope: true # set to true, to override the default
     CustomProperties:
@@ -41,11 +42,10 @@ ComponentDefinitions:
         PropertyKind: InputFunction
         Description: An input function property
         ReturnType: Number
+        Default: =parameter1 + 1
         Parameters:
           - parameter1:
               DataType: Number
-              IsRequired: true
-        Default: =parameter1 + 1
 
       MyOutputFunc2:
         PropertyKind: OutputFunction
@@ -54,16 +54,15 @@ ComponentDefinitions:
         Parameters:
           - parameter1:
               DataType: Number
-              IsRequired: true
 
       MyEvent1None:
         PropertyKind: Event
         Description: An event property
         ReturnType: Number
+        Default: =1 // comment
         Parameters:
           - parameter1:
               DataType: Number
-              IsRequired: true
 
       MyAction1:
         PropertyKind: Action
@@ -72,10 +71,12 @@ ComponentDefinitions:
         Parameters:
           - parameter1:
               DataType: Number
-              IsRequired: true
           - parameter3:
+              IsOptional: true
               DataType: Text
+              Default: ="Hello"
           - param4:
+              IsOptional: true
               DataType: Number
 
     Properties:
@@ -83,8 +84,7 @@ ComponentDefinitions:
       Height: =50
       HeaderTitle: =Concatenate(MyHeaderComponent.AppTitle, " - ", MyHeaderComponent.ScreenTitle)
       Width: =640
-      X: =0
-      Y: =0
+      MyAction1: =Set(myvar, parameter1)
 
     Children:
       - Label4:

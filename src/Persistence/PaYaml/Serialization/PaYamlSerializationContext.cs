@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
@@ -81,7 +80,7 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
     {
         builder.WithTypeConverter(new PFxExpressionYamlConverter(Options.PFxExpressionYamlFormatting));
         builder.WithTypeConverter(new NamedObjectYamlConverter<ControlInstance>(this));
-        builder.WithTypeConverter(new NamedObjectYamlConverter<PFxFunctionParameter>(this));
+        builder.WithTypeConverter(new NamedObjectYamlConverter<ComponentCustomPropertyParameter>(this));
     }
 
     // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.

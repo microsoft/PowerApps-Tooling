@@ -122,7 +122,7 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     [TestMethod]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 6, 1)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml", 9, 5, 1)]
     public void DeserializeExamplePaYamlComponentDefinition(string path, int expectedCustomPropertiesCount, int expectedPropertiesCount, int expectedChildrenCount)
     {
         var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
@@ -180,9 +180,14 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyComponentLibrary.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/InputProperties-Default.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/OutputProperties.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/Parameters-Default.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Single-File-App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/AmbiguousComponentNames.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/App.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/ComponentDefinitions.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]
@@ -261,4 +266,25 @@ public class PaYamlSerializerTests : VSTestBase
     }
 
     #endregion
+
+    [TestMethod]
+    public void SerializeComponentCustomPropertyUnionPropertyOrder()
+    {
+        // Since App.Properties is a NamedObjectMapping, the location info should be set on the NamedObject
+        var actualYaml = PaYamlSerializer.Serialize(new ComponentCustomPropertyUnion()
+        {
+            PropertyKind = ComponentPropertyKind.Input,
+            DisplayName = "My Property",
+            Description = "My Property Description",
+            DataType = PaYamlPropertyDataType.Boolean,
+            Default = new("true"),
+        });
+        actualYaml.TrimEnd().Should().Be("""
+            PropertyKind: Input
+            DisplayName: My Property
+            Description: My Property Description
+            DataType: Boolean
+            Default: =true
+            """.Replace("\r\n", "\n"));
+    }
 }
