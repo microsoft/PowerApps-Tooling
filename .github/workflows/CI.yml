@@ -41,7 +41,7 @@ jobs:
       if: ${{ runner.os != 'Windows' }}
 
     - name: Test
-      run: dotnet test --no-build
+      run: dotnet test src/PASopa.sln --no-build
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
