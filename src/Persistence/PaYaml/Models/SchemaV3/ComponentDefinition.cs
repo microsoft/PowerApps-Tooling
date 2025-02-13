@@ -8,12 +8,22 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public enum ComponentDefinitionType
 {
+    /// <summary>
+    /// Indicates a value which has either not been set or has been determined to be invalid.
+    /// </summary>
+    Invalid = 0,
+
     CanvasComponent,
     CommandComponent,
 }
 
 public enum ComponentPropertyKind
 {
+    /// <summary>
+    /// Indicates a value which has either not been set or has been determined to be invalid.
+    /// </summary>
+    Invalid = 0,
+
     Input,
     Output,
     InputFunction,
@@ -58,7 +68,7 @@ public record ComponentDefinition : IPaControlInstanceContainer
 public abstract record ComponentCustomPropertyBase
 {
     [YamlMember(Order = -9, DefaultValuesHandling = DefaultValuesHandling.Preserve)]
-    public required ComponentPropertyKind PropertyKind { get; init; }
+    public required ComponentPropertyKind? PropertyKind { get; init; }
 
     [YamlMember(Order = -8)]
     public string? DisplayName { get; init; }
@@ -90,7 +100,7 @@ public record ComponentCustomPropertyParameter()
 {
     public string? Description { get; init; }
 
-    public bool IsOptional { get; init; }
+    public bool? IsOptional { get; init; }
 
     public PaYamlPropertyDataType? DataType { get; init; }
 

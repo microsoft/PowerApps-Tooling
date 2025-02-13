@@ -18,7 +18,7 @@ public record ControlInstance : IPaControlInstanceContainer
     }
 
     [property: YamlMember(Alias = "Control")]
-    public required string ControlType { get; init; }
+    public required string? ControlType { get; init; }
 
     public string? Variant { get; init; }
 
