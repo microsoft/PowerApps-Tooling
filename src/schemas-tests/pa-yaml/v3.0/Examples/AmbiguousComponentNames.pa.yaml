@@ -10,8 +10,10 @@ App:
 
 ComponentDefinitions:
   Slider:
+    DefinitionType: CanvasComponent
     Description: A local custom Component with the same name as a 1P ControlTypeId.
   slicer:
+    DefinitionType: CanvasComponent
     Description: A local custom Component with the same name as a 1P ControlTypeId, that differs by case only
 
 Screens:

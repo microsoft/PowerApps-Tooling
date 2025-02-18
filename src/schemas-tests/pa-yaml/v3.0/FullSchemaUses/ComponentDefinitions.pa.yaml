@@ -1,0 +1,28 @@
+ComponentDefinitions:
+  Component1:
+    DefinitionType: CanvasComponent
+    Description: Component1 description.
+    AccessAppScope: true
+    CustomProperties:
+      property1:
+        PropertyKind: Input
+        DisplayName: Property1
+        Description: Property1 description.
+        DataType: Text
+        RaiseOnReset: true
+        Default: =true // comment1
+    Properties:
+      Prop2: =screen1Prop2
+      Prop1: =screen1Prop1
+
+    Children:
+      - ctrlB:
+          Control: Label@1.2.3
+          Properties:
+            Prop2: =ctrlAProp2
+            Prop1: =ctrlAProp1
+
+  Component2:
+    DefinitionType: CommandComponent
+    Description: Component2 description.
+    AccessAppScope: true

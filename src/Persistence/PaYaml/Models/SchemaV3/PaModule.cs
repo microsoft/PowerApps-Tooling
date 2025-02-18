@@ -9,7 +9,10 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 public record PaModule
 {
     public AppInstance? App { get; init; }
-    public NamedObjectMapping<ComponentDefinition> ComponentDefinitions { get; init; } = new();
-    public NamedObjectMapping<ScreenInstance> Screens { get; init; } = new();
-    public NamedObjectMapping<DataSourceInstance> DataSources { get; init; } = new();
+
+    public NamedObjectMapping<ComponentDefinition>? ComponentDefinitions { get; init; }
+
+    public NamedObjectMapping<ScreenInstance>? Screens { get; init; }
+
+    public NamedObjectMapping<DataSourceInstance>? DataSources { get; init; }
 }

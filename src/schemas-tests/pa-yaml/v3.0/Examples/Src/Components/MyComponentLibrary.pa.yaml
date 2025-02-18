@@ -1,0 +1,33 @@
+ComponentDefinitions:
+  MyHeaderComponent:
+    DefinitionType: CanvasComponent
+    Description: A header component for all screens in this app.
+    AllowCustomization: false
+    CustomProperties:
+      HeaderTitle:
+        PropertyKind: Output
+        DisplayName: Full Title
+        Description: The full title of the header
+        DataType: Text
+    Properties:
+      Fill: =RGBA(141, 198, 63, 1)
+      Height: =50
+      HeaderTitle: =Concatenate(MyHeaderComponent.AppTitle, " - ", MyHeaderComponent.ScreenTitle)
+      Width: =640
+    Children:
+      - Label4:
+          Control: Label
+          Properties:
+            Text: =MyHeaderComponent.HeaderTitle
+            Width: =Parent.Width
+            Height: =Parent.Height
+
+  Increment Count_1:
+    DefinitionType: CommandComponent
+    Description: A command for incrementing the `Count` field of the item being edited.
+    AllowCustomization: true
+    Properties:
+      DataSource: =MyLists
+      Icon: =Icon.Add
+      OnSelect: =Patch(MyLists, Self.Selected.Item, {Count:Coalesce(Self.Selected.Item.Count, 0)+1})
+      Visible: =Self.Selected.State = SelectedState.Edit && CountRows(Self.Selected.AllItems) = 1

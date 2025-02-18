@@ -12,7 +12,7 @@ Screens:
             Prop2: =ctrlBProp2
             Prop1: =ctrlBProp1
 
-      # Purposesly set out of name sorting order to ensure ordering is maintained
+      # Purposely set out of name sorting order to ensure ordering is maintained
       - ctrlA:
           Control: Component
           ComponentName: externComponent2

@@ -47,6 +47,7 @@ Screens:
                         - "First Name_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="firstname"
@@ -122,6 +123,7 @@ Screens:
                         - "Last Name_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="lastname"
@@ -197,6 +199,7 @@ Screens:
                         - "Company Name_DataCard1":
                             Control: TypedDataCard
                             Variant: blankPolymorphicEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="_parentcustomerid_value"
@@ -213,6 +216,7 @@ Screens:
                         - "Job Title_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="jobtitle"
@@ -288,6 +292,7 @@ Screens:
                         - "Mobile Phone_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="mobilephone"
@@ -363,6 +368,7 @@ Screens:
                         - "User Name_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="adx_identity_username"
@@ -438,6 +444,7 @@ Screens:
                         - "Address 1_DataCard1":
                             Control: TypedDataCard
                             Variant: textualViewCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="address1_composite"
@@ -480,6 +487,7 @@ Screens:
                         - Website_DataCard1:
                             Control: TypedDataCard
                             Variant: urlEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="websiteurl"
@@ -553,6 +561,7 @@ Screens:
                         - Birthday_DataCard1:
                             Control: TypedDataCard
                             Variant: dateEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="birthdate"
@@ -625,6 +634,7 @@ Screens:
                         - Description_DataCard1:
                             Control: TypedDataCard
                             Variant: textualMultiLineEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="description"
@@ -700,6 +710,7 @@ Screens:
                         - "Full Name_DataCard1":
                             Control: TypedDataCard
                             Variant: textualViewCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="fullname"
@@ -742,6 +753,7 @@ Screens:
                         - Email_DataCard1:
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="emailaddress1"
@@ -817,6 +829,7 @@ Screens:
                         - "Business Phone_DataCard1":
                             Control: TypedDataCard
                             Variant: textualEditCard
+                            IsLocked: true
                             Properties:
                               BorderStyle: =BorderStyle.Solid
                               DataField: ="telephone1"

@@ -212,6 +212,8 @@ definitions:
         Layout:
           type: string
           minLength: 1
+        IsLocked:
+          type: boolean
         Group: true
         Properties: true
         Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
@@ -219,7 +221,7 @@ definitions:
   Control-Group-name:
     description: |-
       The name of the group of controls to associate this control with.
-      
+
       Groups do not impact the behavior of an app, but are used in the Studio to organize controls when editing.
     allOf:
       - { $ref: "#/definitions/Control-instance-name" }
@@ -236,39 +238,88 @@ definitions:
     type: object
     propertyNames: { $ref: "#/definitions/ComponentDefinition-name" }
     additionalProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        Description:
-          description: The description for this component definition.
-          type: string
-        AccessAppScope:
-          description: >
-            Indicates whether this component can access app level information.
-            Not available for components defined in a component library.
-          type: boolean
-        CustomProperties:
-          type: object
-          propertyNames:
-            $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
-          additionalProperties:
-            $ref: "#/definitions/ComponentDefinition-CustomProperty"
-        Properties:
-          allOf:
-            - $ref: "#/definitions/Properties-formula-map"
-            - propertyNames:
-                examples:
-                  - ContentLanguage
-                  - ChildTabPriority
-                  - EnableChildFocus
-                  - Fill
-                  - Height
-                  - Width
-                  - OnReset
-        Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      $ref: "#/definitions/ComponentDefinition-instance"
 
   ComponentDefinition-name:
     $ref: "#/definitions/entity-name"
+
+  ComponentDefinition-instance:
+    type: object
+    required: [DefinitionType]
+    properties:
+      DefinitionType:
+        enum:
+          - CanvasComponent
+          - CommandComponent
+      Description:
+        description: The description for this component definition.
+        type: string
+      AllowCustomization:
+        description: >
+          Only applicable for components defined in a component library.
+          This keyword should always be specified for component definitions in a component library.
+        type: boolean
+    allOf:
+      - if:
+          properties:
+            DefinitionType: { const: "CanvasComponent" }
+        then:
+          additionalProperties: false
+          properties:
+            DefinitionType: true
+            Description: true
+            AllowCustomization: true
+            AccessAppScope:
+              description: >
+                Indicates whether this component can access app level information.
+                Only applicable for canvas components that are NOT defined in a component library.
+              type: boolean
+            CustomProperties:
+              type: object
+              propertyNames:
+                $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
+              additionalProperties:
+                $ref: "#/definitions/ComponentDefinition-CustomProperty"
+            Properties:
+              type: object
+              propertyNames:
+                allOf:
+                  - $ref: "#/definitions/ComponentDefinition-CustomProperty-name"
+                  - not:
+                      enum:
+                        - X
+                        - Y
+                        - Visible
+              additionalProperties: { $ref: "#/definitions/pfx-formula" }
+              properties:
+                ContentLanguage: { $ref: "#/definitions/pfx-formula" }
+                ChildTabPriority: { $ref: "#/definitions/pfx-formula" }
+                EnableChildFocus: { $ref: "#/definitions/pfx-formula" }
+                Fill: { $ref: "#/definitions/pfx-formula" }
+                Height: { $ref: "#/definitions/pfx-formula" }
+                OnReset: { $ref: "#/definitions/pfx-formula" }
+                Width: { $ref: "#/definitions/pfx-formula" }
+            Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      - if:
+          properties:
+            DefinitionType: { const: "CommandComponent" }
+        then:
+          additionalProperties: false
+          properties:
+            DefinitionType: true
+            Description: true
+            AllowCustomization: true
+            Properties:
+              type: object
+              additionalProperties: false
+              properties:
+                AutoSave: { $ref: "#/definitions/pfx-formula" }
+                DataSource: { $ref: "#/definitions/pfx-formula" }
+                Icon: { $ref: "#/definitions/pfx-formula" }
+                OnSelect: { $ref: "#/definitions/pfx-formula" }
+                Title: { $ref: "#/definitions/pfx-formula" }
+                Tooltip: { $ref: "#/definitions/pfx-formula" }
+                Visible: { $ref: "#/definitions/pfx-formula" }
 
   ComponentDefinition-CustomProperty-name:
     $ref: "#/definitions/entity-property-name"
@@ -282,22 +333,26 @@ definitions:
         type: string
         oneOf:
           - const: Input
-            description: An input data property.
+            description: This kind of property can send or receive values between the app and the component. The formula for this property is defined in the app where the component is used.
           - const: Output
-            description: An output data property.
+            description: This kind of property can send or receive values between the app and the component. The formula for this property is defined once in the component.
           - const: InputFunction
-            description: An input function property.
+            description: This kind of property can be called as a function with parameters. The formula for this property is defined in the app where the component is used.
           - const: OutputFunction
-            description: An output function property.
+            description: This kind of property can be called as a function with parameters. The formula for this property is defined once in the component.
           - const: Event
-            description: A property that represents an event.
+            description: This kind of property allows you to create an event that the component can trigger, and then be handled by the app.
           - const: Action
-            description: A property that represents an action.
+            description: This kind of property can be called as a function with parameters, and can contain logic that changes state (side effects).
       DisplayName:
         description: DEPRECATED. This is not used anywhere and will be removed.
         type: string
       Description:
         type: string
+      Default:
+        description: The default formula to use for this property when an instance does not explicitly set it.
+        allOf:
+          - $ref: "#/definitions/pfx-formula"
     allOf:
       - if:
           properties:
@@ -313,10 +368,7 @@ definitions:
             RaiseOnReset:
               description: If turned on, the component's OnReset behavior will run when the input property's value changes.
               type: boolean
-            Default:
-              allOf:
-                - description: The default formula to use for this property when an instance does not explicitly set it.
-                - $ref: "#/definitions/pfx-formula"
+            Default: true
       - if:
           properties:
             PropertyKind: { const: "Output" }
@@ -339,11 +391,8 @@ definitions:
             DisplayName: true
             Description: true
             ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Default: true
             Parameters: { $ref: "#/definitions/pfx-function-parameters" }
-            Default:
-              description: The default formula to use for this property when an instance does not explicitly set it.
-              allOf:
-                - $ref: "#/definitions/pfx-formula"
       - if:
           properties:
             PropertyKind: { const: "OutputFunction" }
@@ -367,6 +416,7 @@ definitions:
             DisplayName: true
             Description: true
             ReturnType: { $ref: "#/definitions/pfx-function-return-type" }
+            Default: true
             Parameters: { $ref: "#/definitions/pfx-function-parameters" }
       - if:
           properties:
@@ -394,7 +444,6 @@ definitions:
       pattern: |-
         [.\\/:*?"<>|]
 
-
   DataSources-name-instance-map:
     type: object
     propertyNames: { $ref: "#/definitions/DataSource-name" }
@@ -420,7 +469,7 @@ definitions:
       Parameters:
         type: object
         additionalProperties:
-          type: string 
+          type: string
     oneOf:
       - required: [Type]
         additionalProperties: false
@@ -474,8 +523,12 @@ definitions:
         additionalProperties: false
         properties:
           Description: { type: string }
-          IsRequired: { type: boolean }
+          IsOptional: { type: boolean }
           DataType: { $ref: "#/definitions/pfx-data-type" }
+          Default:
+            description: The default formula to use for this parameter when not explicitly specified.
+            allOf:
+              - $ref: "#/definitions/pfx-formula"
 
   pfx-function-parameter-name:
     description: The name of a Power Fx function parameter.

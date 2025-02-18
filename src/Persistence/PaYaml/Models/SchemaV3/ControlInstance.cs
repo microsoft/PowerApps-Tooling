@@ -18,7 +18,7 @@ public record ControlInstance : IPaControlInstanceContainer
     }
 
     [property: YamlMember(Alias = "Control")]
-    public required string ControlType { get; init; }
+    public required string? ControlType { get; init; }
 
     public string? Variant { get; init; }
 
@@ -27,6 +27,8 @@ public record ControlInstance : IPaControlInstanceContainer
     public string? ComponentLibraryUniqueName { get; init; }
 
     public string? Layout { get; init; }
+
+    public bool? IsLocked { get; init; }
 
     /// <summary>
     /// The name of the group of controls that this control should be grouped with.
