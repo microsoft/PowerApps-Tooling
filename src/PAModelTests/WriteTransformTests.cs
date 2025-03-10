@@ -12,7 +12,7 @@ namespace PAModelTests;
 [TestClass]
 public class WriteTransformTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("EmptyTestCase.msapp")]
     public void TestResourceNullCase(string filename)
     {
@@ -29,7 +29,7 @@ public class WriteTransformTests
         Assert.IsFalse(errors.HasErrors);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AccountPlanReviewerMaster.msapp")]
     public void TestAssetFilesNullCase(string filename)
     {
@@ -46,7 +46,7 @@ public class WriteTransformTests
         Assert.IsFalse(errors.HasErrors);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AccountPlanReviewerMaster.msapp")]
     public void TestResourcesInResourcesJsonIsNullWhenRestoringAssetFilePaths(string filename)
     {
@@ -62,7 +62,7 @@ public class WriteTransformTests
         Assert.IsFalse(errors.HasErrors);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AccountPlanReviewerMaster.msapp")]
     public void TestNullExceptionInRestoreAssetsFilePathsIsLoggedAsAnInternalError(string filename)
     {
@@ -81,7 +81,7 @@ public class WriteTransformTests
         Assert.IsNotNull(errors.FirstOrDefault(error => error.Code == ErrorCode.InternalError));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AccountPlanReviewerMaster.msapp")]
     public void TestNullExceptionInGetMsAppFilesIsLoggedAsAnInternalError(string filename)
     {

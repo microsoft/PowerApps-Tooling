@@ -8,7 +8,7 @@ namespace PAModelTests;
 [TestClass]
 public class ParserTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo", true, "Foo", 3)]
     [DataRow("'Foo'", true, "Foo", 5)]
     [DataRow("'Foo Bar'", true, "Foo Bar", 9)]
@@ -26,7 +26,7 @@ public class ParserTests
         Assert.AreEqual(expectedLength, length);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo As Bar", true, "Foo", "Bar", null)]
     [DataRow("Foo As Bar.Baz", true, "Foo", "Bar", "Baz")]
     [DataRow("'escaped foo' As Bar", true, "escaped foo", "Bar", null)]
