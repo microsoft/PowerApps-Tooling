@@ -41,10 +41,10 @@ jobs:
       if: ${{ runner.os != 'Windows' }}
 
     - name: Test - Persistence
-      run: ./bin/Debug/Persistence.Tests/Persistence.Tests.exe
+      run: dotnet exec bin/Debug/Persistence.Tests/Persistence.Tests.dll
 
     - name: Test - PAModel
-      run: ./bin/Debug/PAModelTests/PAModelTests.exe
+      run: dotnet exec bin/Debug/PAModelTests/PAModelTests.dll
 
     - name: Restore workloads for samples
       run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
