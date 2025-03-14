@@ -37,6 +37,7 @@ Screens:
             - ctrlC0:
                 Control: Bar
                 Variant: variantC0
+                MetadataKey: metadataKeyC0
                 Layout: layoutC0
                 Group: Group1
                 Properties:
@@ -59,4 +60,5 @@ Screens:
                   - ctrlC10:
                       Control: Dog
                       Variant: variantC10
+                      MetadataKey: metadataKeyC0
                       Layout: layoutC10
