@@ -209,6 +209,9 @@ definitions:
         Variant:
           type: string
           minLength: 1
+        MetadataKey:
+          type: string
+          minLength: 1
         Layout:
           type: string
           minLength: 1

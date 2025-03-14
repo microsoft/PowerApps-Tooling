@@ -26,6 +26,8 @@ public record ControlInstance : IPaControlInstanceContainer
 
     public string? ComponentLibraryUniqueName { get; init; }
 
+    public string? MetadataKey { get; init; }
+
     public string? Layout { get; init; }
 
     public bool? IsLocked { get; init; }
