@@ -7,9 +7,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public record ScreenInstance : IPaControlInstanceContainer
 {
+    public int? DisplayOrder { get; init; }
+
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
-
-    public int? DisplayOrder { get; init; }
 }

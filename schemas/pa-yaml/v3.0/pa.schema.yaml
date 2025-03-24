@@ -59,10 +59,10 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      Properties: { $ref: "#/definitions/Properties-formula-map" }
-      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
       DisplayOrder:
         type: integer
+      Properties: { $ref: "#/definitions/Properties-formula-map" }
+      Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
 
   Children-Control-instance-sequence:
     description: >-
