@@ -10,4 +10,6 @@ public record ScreenInstance : IPaControlInstanceContainer
     public NamedObjectMapping<PFxExpressionYaml>? Properties { get; init; }
 
     public NamedObjectSequence<ControlInstance>? Children { get; init; }
+
+    public int? DisplayOrder { get; init; }
 }

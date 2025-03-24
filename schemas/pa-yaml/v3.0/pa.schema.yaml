@@ -61,6 +61,8 @@ definitions:
     properties:
       Properties: { $ref: "#/definitions/Properties-formula-map" }
       Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
+      DisplayOrder:
+        type: integer
 
   Children-Control-instance-sequence:
     description: >-
