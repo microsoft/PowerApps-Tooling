@@ -544,7 +544,7 @@ definitions:
       $ref: "#/definitions/pfx-formula"
 
   EditorState:
-    description: Represents editor state information that's not part of the app logic but helps with editing experience.
+    description: Represents metadata related to the editor state of the application that enhances the editing experience.
     type: object
     additionalProperties: false
     properties:

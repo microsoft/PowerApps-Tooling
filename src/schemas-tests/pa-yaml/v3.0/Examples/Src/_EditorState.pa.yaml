@@ -1,8 +1,8 @@
 EditorState:
   ScreensOrder:
-    - StartScreen
-    - AScreen1
-    - AnotherScreen2
+    - FirstScreen
+    - SecondScreen
+    - ThirdScreen
   ComponentDefinitionsOrder:
-    - MyComponent2
-    - AnotherComponent1
+    - FirstComponent
+    - SecondComponent
