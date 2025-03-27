@@ -2,7 +2,6 @@ App:
   Properties:
     StartScreen: =Screen1
 
-# Screens listed in arbitrary order (alphabetical)
 Screens:
   Screen1:
     Properties:
@@ -37,7 +36,6 @@ Screens:
             X: =40
             Y: =40
 
-# Components listed in arbitrary order
 ComponentDefinitions:
   Component2:
     DefinitionType: CanvasComponent
@@ -60,15 +58,12 @@ ComponentDefinitions:
           Properties:
             Text: ="Component 1"
 
-# Editor state defines the visual order in the tree view
 EditorState:
-  # Order of screens in the tree view (logical flow of the app)
   ScreensOrder:
-    - Screen1  # First screen (start screen)
-    - Screen2  # Second screen in navigation flow
-    - Screen3  # Third screen in navigation flow
+    - Screen1
+    - Screen2
+    - Screen3
   
-  # Order of components in the tree view
   ComponentDefinitionsOrder:
-    - Component1  # Primary component shown first
-    - Component2  # Secondary component shown second
+    - Component1
+    - Component2

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 
 public record EditorStateInstance
 {
-    public IList<string>? ScreensOrder { get; init; }
+    public ImmutableArray<string>? ScreensOrder { get; init; }
 
-    public IList<string>? ComponentDefinitionsOrder { get; init; }
+    public ImmutableArray<string>? ComponentDefinitionsOrder { get; init; }
 }

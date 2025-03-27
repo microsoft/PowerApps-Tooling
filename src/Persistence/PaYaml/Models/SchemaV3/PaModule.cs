@@ -10,11 +10,11 @@ public record PaModule
 {
     public AppInstance? App { get; init; }
 
-    public EditorStateInstance? EditorState { get; init; }
-
     public NamedObjectMapping<ComponentDefinition>? ComponentDefinitions { get; init; }
 
     public NamedObjectMapping<ScreenInstance>? Screens { get; init; }
 
     public NamedObjectMapping<DataSourceInstance>? DataSources { get; init; }
+    
+    public EditorStateInstance? EditorState { get; init; }
 }

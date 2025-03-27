@@ -17,7 +17,7 @@ properties:
   DataSources:
     $ref: "#/definitions/DataSources-name-instance-map"
   EditorState:
-    $ref: "#/definitions/EditorState-instance"
+    $ref: "#/definitions/EditorState"
 
 defaultSnippets:
   - label: App
@@ -505,7 +505,7 @@ definitions:
     additionalProperties:
       $ref: "#/definitions/pfx-formula"
 
-  EditorState-instance:
+  EditorState:
     description: Represents editor state information that's not part of the app logic but helps with editing experience.
     type: object
     additionalProperties: false
