@@ -1,0 +1,74 @@
+App:
+  Properties:
+    StartScreen: =Screen1
+
+# Screens listed in arbitrary order (alphabetical)
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+    Children:
+      - Button1:
+          Control: Button
+          Properties:
+            Text: ="Navigate to Screen2"
+            OnSelect: =Navigate(Screen2)
+            X: =40
+            Y: =40
+  Screen3:
+    Properties:
+      Fill: =RGBA(240, 240, 240, 1)
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="This is Screen3"
+            X: =40
+            Y: =40
+  Screen2:
+    Properties:
+      Fill: =RGBA(245, 245, 245, 1)
+    Children:
+      - Button2:
+          Control: Button
+          Properties:
+            Text: ="Navigate to Screen3"
+            OnSelect: =Navigate(Screen3)
+            X: =40
+            Y: =40
+
+# Components listed in arbitrary order
+ComponentDefinitions:
+  Component2:
+    DefinitionType: CanvasComponent
+    Properties:
+      Height: =50
+      Width: =200
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="Component 2"
+  Component1:
+    DefinitionType: CanvasComponent
+    Properties:
+      Height: =100
+      Width: =250
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: ="Component 1"
+
+# Editor state defines the visual order in the tree view
+EditorState:
+  # Order of screens in the tree view (logical flow of the app)
+  ScreensOrder:
+    - Screen1  # First screen (start screen)
+    - Screen2  # Second screen in navigation flow
+    - Screen3  # Third screen in navigation flow
+  
+  # Order of components in the tree view
+  ComponentDefinitionsOrder:
+    - Component1  # Primary component shown first
+    - Component2  # Secondary component shown second
