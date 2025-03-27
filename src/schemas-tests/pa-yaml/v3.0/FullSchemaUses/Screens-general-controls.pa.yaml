@@ -1,6 +1,5 @@
 Screens:
   screenName2:
-    DisplayOrder: 2
     Properties:
       Prop2: =screen1Prop2
       Prop1: =screen1Prop1
@@ -26,7 +25,6 @@ Screens:
             Prop1: =ctrlAProp1
 
   screenName1:
-    DisplayOrder: 1
     Children:
       - ctrlC:
           Control: FooWithChildren
