@@ -16,6 +16,8 @@ properties:
     $ref: "#/definitions/ComponentDefinitions-name-instance-map"
   DataSources:
     $ref: "#/definitions/DataSources-name-instance-map"
+  EditorState:
+    $ref: "#/definitions/EditorState"
 
 defaultSnippets:
   - label: App
@@ -502,6 +504,22 @@ definitions:
       $ref: "#/definitions/entity-property-name"
     additionalProperties:
       $ref: "#/definitions/pfx-formula"
+
+  EditorState:
+    description: Represents metadata related to the editor state of the application that enhances the editing experience.
+    type: object
+    additionalProperties: false
+    properties:
+      ScreensOrder:
+        description: Ordered list of screen names representing the order in the editor.
+        type: array
+        items:
+          $ref: "#/definitions/Screen-name"
+      ComponentDefinitionsOrder:
+        description: Ordered list of component definition names representing the order in the editor.
+        type: array
+        items:
+          $ref: "#/definitions/ComponentDefinition-name"
 
   entity-name:
     description: The base requirements for a named entity in an app.

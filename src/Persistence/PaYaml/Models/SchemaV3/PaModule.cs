@@ -15,4 +15,6 @@ public record PaModule
     public NamedObjectMapping<ScreenInstance>? Screens { get; init; }
 
     public NamedObjectMapping<DataSourceInstance>? DataSources { get; init; }
+
+    public EditorStateInstance? EditorState { get; init; }
 }
