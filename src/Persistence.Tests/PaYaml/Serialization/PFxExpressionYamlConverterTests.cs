@@ -163,7 +163,7 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
         Set(gblBar, 42);
         """",
         """
-        "=Set(gblFoo, true);\n// The next line is completely blank:\n  \nSet(gblBar, 42);"
+        "=Set(gblFoo, true);\r\n// The next line is completely blank:\r\n  \r\nSet(gblBar, 42);"
         """
         );
 
