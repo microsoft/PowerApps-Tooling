@@ -137,37 +137,23 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
     {
         using var _ = new AssertionScope();
 
-        VerifySerialize(
-        """" 
-        Set(gblFoo, true);
-        // The next line is completely blank:
+        VerifySerialize("Set(gblFoo, true);\n // The next line is completely blank:\n\nSet(gblBar, 42)",
+            "|-\n  =Set(gblFoo, true);\n   // The next line is completely blank:\n\n  Set(gblBar, 42)");
 
-        Set(gblBar, 42);
-        """",
-        """"
-        |-
-          =Set(gblFoo, true);
-          // The next line is completely blank:
-
-          Set(gblBar, 42);
-        """");
-
-        // BUG: YamlDotNet doesn't serialize string when spaces are added in blank lines and shows escaped string in codeview
+        // BUG:31691580 YamlDotNet doesn't serialize string when spaces are added in blank lines and shows escaped string in codeview
         // LoadingPage.OnVisible with spaces on blank line in the middle, serialization adds \r\n for new lines on windows-os and \n for non-windows os
 
-        VerifySerialize(
-        """"
-        Set(gblFoo, true);
-        // The next line is completely blank:
-          
-        Set(gblBar, 42);
-        """",
-        """
-        "=Set(gblFoo, true);\r\n// The next line is completely blank:\r\n  \r\nSet(gblBar, 42);"
-        """
-        );
+        VerifySerializeWithEscapedStringInCodeView("Set(gblFoo, true);\r\n// The next line has one or more spaces:\r\n    \r\nSet(gblBar, 42);",
+            """=Set(gblFoo, true);\r\n// The next line has one or more spaces:\r\n    \r\nSet(gblBar, 42);""");
+    }
 
-
+    private void VerifySerializeWithEscapedStringInCodeView(string? pfxScript, string expectedExpressionYaml)
+    {
+        var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
+        var testObject = new NamedPFxExpressionYaml(expression);
+        var expectedYaml = expectedExpressionYaml is null ? "Expression:" : $"Expression: \"{expectedExpressionYaml}\"\n";
+        var actualYaml = SerializeViaYamlDotNet(testObject);
+        actualYaml.Should().Be(expectedYaml);
     }
 
     private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
