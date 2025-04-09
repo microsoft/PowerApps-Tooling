@@ -143,17 +143,12 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
         // BUG:31691580 YamlDotNet doesn't serialize string when spaces are added in blank lines and shows escaped string in codeview
         // LoadingPage.OnVisible with spaces on blank line in the middle, serialization adds \r\n for new lines on windows-os and \n for non-windows os
 
-        VerifySerializeWithEscapedStringInCodeView("Set(gblFoo, true);\r\n// The next line has one or more spaces:\r\n    \r\nSet(gblBar, 42);",
-            """=Set(gblFoo, true);\r\n// The next line has one or more spaces:\r\n    \r\nSet(gblBar, 42);""");
-    }
 
-    private void VerifySerializeWithEscapedStringInCodeView(string? pfxScript, string expectedExpressionYaml)
-    {
-        var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
-        var testObject = new NamedPFxExpressionYaml(expression);
-        var expectedYaml = expectedExpressionYaml is null ? "Expression:" : $"Expression: \"{expectedExpressionYaml}\"\n";
-        var actualYaml = SerializeViaYamlDotNet(testObject);
-        actualYaml.Should().Be(expectedYaml);
+        VerifySerialize("Set(gblFoo,\n   \n   \"Hello world!\");",
+            "\"=Set(gblFoo,\\n   \\n   \\\"Hello world!\\\");\"");
+
+        VerifySerialize("Set(gblFoo, true);\n// The next line has one or more spaces:\n    \nSet(gblBar, 42);",
+            "\"=Set(gblFoo, true);\\n// The next line has one or more spaces:\\n    \\nSet(gblBar, 42);\"");
     }
 
     private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
