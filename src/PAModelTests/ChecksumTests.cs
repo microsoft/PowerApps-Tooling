@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.Reflection;
 using System.Text;
 using Microsoft.PowerPlatform.Formulas.Tools;
