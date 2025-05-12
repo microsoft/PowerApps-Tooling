@@ -7,6 +7,7 @@ using global::Microsoft.PowerPlatform.TypedStrings;
 
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.PowerPlatform.TypedStrings.Generator", "1.0.0.0")]
 public partial record TypedStringTestCustomIsValid : ITypedString<TypedStringTestCustomIsValid>
 {
     public TypedStringTestCustomIsValid(string value)

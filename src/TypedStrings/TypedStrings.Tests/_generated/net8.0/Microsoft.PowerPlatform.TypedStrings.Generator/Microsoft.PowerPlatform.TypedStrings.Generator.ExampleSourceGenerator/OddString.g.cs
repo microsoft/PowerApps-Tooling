@@ -8,21 +8,18 @@ using global::Microsoft.PowerPlatform.TypedStrings;
 namespace Microsoft.PowerPlatform.TypedStrings.Generator;
 
 [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.PowerPlatform.TypedStrings.Generator", "1.0.0.0")]
-public partial record TypedStringTestDefaultIsValid : ITypedString<TypedStringTestDefaultIsValid>
+public partial record OddString : ITypedString<OddString>
 {
-    public TypedStringTestDefaultIsValid(string value)
+    public OddString(string value)
     {
         Value = ValidateArgument(value);
     }
 
     public string Value { get; }
 
-    public static implicit operator string(TypedStringTestDefaultIsValid name) => name.Value;
+    public static implicit operator string(OddString name) => name.Value;
 
-    // Default implementation of IsValid will simply verify the value is not null.
-// You may implement your own method as long as it's static, and has the same argument signature.
-// You should be able to override the access modifier as needed for your usage.
-private static bool IsValid([NotNullWhen(true)] string? value) => value != null;
+    
 
     public override string ToString() => Value;
 
@@ -30,7 +27,7 @@ private static bool IsValid([NotNullWhen(true)] string? value) => value != null;
     {
         if (!TryValidate(value, out var validated))
         {
-            throw new ArgumentException($"Invalid value for a {nameof(TypedStringTestDefaultIsValid)}.", argumentName);
+            throw new ArgumentException($"Invalid value for a {nameof(OddString)}.", argumentName);
         }
         return validated;
     }
@@ -52,13 +49,13 @@ private static bool IsValid([NotNullWhen(true)] string? value) => value != null;
         return false;
     }
 
-    static TypedStringTestDefaultIsValid IParsable<TypedStringTestDefaultIsValid>.Parse(string s, IFormatProvider? provider)
+    static OddString IParsable<OddString>.Parse(string s, IFormatProvider? provider)
     {
         // TODO
         throw new NotImplementedException();
     }
 
-    static bool IParsable<TypedStringTestDefaultIsValid>.TryParse(string? s, IFormatProvider? provider, out TypedStringTestDefaultIsValid result)
+    static bool IParsable<OddString>.TryParse(string? s, IFormatProvider? provider, out OddString result)
     {
         // TODO
         throw new NotImplementedException();
