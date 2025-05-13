@@ -26,6 +26,8 @@
     <PackageReference Include="Yaml2JsonNode" Version="2.1.1" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+    <!-- System.Text.Json is a transitive dependency of Yaml2JsonNode for netstandard2.0.  Pinning to 8.0.5 for CVE-2024-43485, but can be removed on update of Yaml2JsonNode -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <!-- Link schemas and build them into the assembly for the YamlValidator -->
