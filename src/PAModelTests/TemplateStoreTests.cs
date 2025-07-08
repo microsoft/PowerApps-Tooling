@@ -15,7 +15,7 @@ public class TemplateStoreTests
 {
     // Validate that the host control template hostType value is stored in entropy while unpacking
     // This example app has different host control instances with different template values like HostType
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("SharepointAppWithHostControls.msapp")]
     public void TestHostControlInstancesWithHostType(string appName)
     {
@@ -48,7 +48,7 @@ public class TemplateStoreTests
     // Validate a modern control that has a dynamic template.
     // The template has a valid template name, but makes reference to another template.
     // This example app has two modern controls (combobox and dropdown) that make reference to the same template.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ComboboxDropdown.msapp")]
     public void TestModernControlWithDynamicTemplate(string appName)
     {
