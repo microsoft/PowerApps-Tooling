@@ -151,6 +151,48 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
             "\"=Set(gblFoo, true);\\n// The next line has one or more spaces:\\n    \\nSet(gblBar, 42);\"");
     }
 
+    [TestMethod]
+    public void WriteYamlWithUnicodeCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Test Unicode characters in PowerFx expressions are preserved
+        VerifySerialize("Set(用户名, \"John\")", "|-\n  =Set(用户名, \"John\")");
+        VerifySerialize("Text(\"こんにちは世界\")", "|-\n  =Text(\"こんにちは世界\")");
+        VerifySerialize("Format(价格, \"$#,##0.00\")", "|-\n  =Format(价格, \"$#,##0.00\")");
+
+        // Test mixed Unicode and ASCII
+        VerifySerialize("Concatenate(\"Hello \", 世界, \"!\")", "|-\n  =Concatenate(\"Hello \", 世界, \"!\")");
+
+        // Test emoji and special Unicode characters
+        VerifySerialize("Set(Status, \"✅ Complete\")", "|-\n  =Set(Status, \"✅ Complete\")");
+        VerifySerialize("Text(\"温度: \" & Temp & \"℃\")", "|-\n  =Text(\"温度: \" & Temp & \"℃\")");
+
+        // Test Unicode in variable names and strings
+        VerifySerialize("Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")", "|-\n  =Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")");
+    }
+
+    [TestMethod]
+    public void ReadYamlWithUnicodeCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Test Unicode characters can be deserialized from literal blocks
+        VerifyDeserialize("Expression: |-\n  =Set(用户名, \"John\")", "Set(用户名, \"John\")");
+        VerifyDeserialize("Expression: |-\n  =Text(\"こんにちは世界\")", "Text(\"こんにちは世界\")");
+        VerifyDeserialize("Expression: |-\n  =Format(价格, \"$#,##0.00\")", "Format(价格, \"$#,##0.00\")");
+
+        // Test mixed Unicode and ASCII
+        VerifyDeserialize("Expression: |-\n  =Concatenate(\"Hello \", 世界, \"!\")", "Concatenate(\"Hello \", 世界, \"!\")");
+
+        // Test emoji and special Unicode characters
+        VerifyDeserialize("Expression: |-\n  =Set(Status, \"✅ Complete\")", "Set(Status, \"✅ Complete\")");
+        VerifyDeserialize("Expression: |-\n  =Text(\"温度: \" & Temp & \"℃\")", "Text(\"温度: \" & Temp & \"℃\")");
+
+        // Test complex Unicode strings
+        VerifyDeserialize("Expression: |-\n  =Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")", "Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")");
+    }
+
     private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
     {
         var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
