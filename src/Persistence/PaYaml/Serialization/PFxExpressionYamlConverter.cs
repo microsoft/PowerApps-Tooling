@@ -59,7 +59,7 @@ public class PFxExpressionYamlConverter : IYamlTypeConverter
         forceLiteralBlock |= expression.InvariantScript.Contains('\n')
             || expression.InvariantScript.Contains('\r');
         // Force literal block for Unicode characters to preserve them without escaping
-        forceLiteralBlock |= expression.InvariantScript.Any(c => c > 127 && !char.IsControl(c));
+        forceLiteralBlock |= expression.InvariantScript.Any(char.IsSurrogate);
         if (!forceLiteralBlock && !_formattingOptions.ForceLiteralBlockIfContainsAny.IsDefaultOrEmpty)
         {
             // e.g. our original code was forcing literal block if the script contained any double quotes (`"`).
