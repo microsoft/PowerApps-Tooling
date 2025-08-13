@@ -151,6 +151,100 @@ public class PFxExpressionYamlConverterTests : SerializationTestBase
             "\"=Set(gblFoo, true);\\n// The next line has one or more spaces:\\n    \\nSet(gblBar, 42);\"");
     }
 
+    [TestMethod]
+    public void WriteYamlWithUnicodeCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Test Unicode characters in PowerFx expressions are preserved - most now use plain scalar format with high threshold
+        VerifySerialize("""Set(用户名, "John")""", """=Set(用户名, "John")""");
+        VerifySerialize("""Text("こんにちは世界")""", """=Text("こんにちは世界")""");
+        VerifySerialize("""Format(价格, "$#,##0.00")""", """=Format(价格, "$#,##0.00")""");
+
+        // Test mixed Unicode and ASCII
+        VerifySerialize("""Concatenate("Hello ", 世界, "!")""", """=Concatenate("Hello ", 世界, "!")""");
+
+        // Test emoji and special Unicode characters
+        VerifySerialize("""Set(Status, "✅ Complete")""", """=Set(Status, "✅ Complete")""");
+        VerifySerialize("""Text("温度: " & Temp & "℃")""", "|-\n  =Text(\"温度: \" & Temp & \"℃\")");
+
+        // Test Unicode in variable names and strings - high Unicode characters above 0x20CD0 use literal block to preserve them
+        VerifySerialize("""Set(变量_测试, "龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂")""", "|-\n  =Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")");
+    }
+
+    [TestMethod]
+    public void WriteYamlWithLatin1SupplementCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Currency symbols that should be preserved without escaping
+        VerifySerialize("""Set(BritishPrice, "£50.00")""", """=Set(BritishPrice, "£50.00")""");
+        VerifySerialize("""Set(JapanesePrice, "¥1000")""", """=Set(JapanesePrice, "¥1000")""");
+        VerifySerialize("""Set(EuroPrice, "€75.50")""", """=Set(EuroPrice, "€75.50")""");
+
+        // Accented characters commonly found in European languages
+        VerifySerialize("""Set(Français, true)""", """=Set(Français, true)""");
+        VerifySerialize("""Set(Español, "Niño")""", """=Set(Español, "Niño")""");
+        VerifySerialize("""Set(Deutsch, "Mädchen")""", """=Set(Deutsch, "Mädchen")""");
+        VerifySerialize("""Set(Português, "São")""", """=Set(Português, "São")""");
+
+        // Mathematical and typographical symbols
+        VerifySerialize("""Set(Temperature, "±23°C")""", """=Set(Temperature, "±23°C")""");
+        VerifySerialize("""Set(Fraction, "½ cup")""", """=Set(Fraction, "½ cup")""");
+        VerifySerialize("""Set(Multiplication, "5×3")""", """=Set(Multiplication, "5×3")""");
+
+        // Legal and business symbols
+        VerifySerialize("""Set(Copyright, "© 2024")""", """=Set(Copyright, "© 2024")""");
+        VerifySerialize("""Set(Registered, "®")""", """=Set(Registered, "®")""");
+    }
+
+    [TestMethod]
+    public void ReadYamlWithUnicodeCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Test Unicode characters can be deserialized from literal blocks
+        VerifyDeserialize("Expression: |-\n  =Set(用户名, \"John\")", """Set(用户名, "John")""");
+        VerifyDeserialize("Expression: |-\n  =Text(\"こんにちは世界\")", """Text("こんにちは世界")""");
+        VerifyDeserialize("Expression: |-\n  =Format(价格, \"$#,##0.00\")", """Format(价格, "$#,##0.00")""");
+
+        // Test mixed Unicode and ASCII
+        VerifyDeserialize("Expression: |-\n  =Concatenate(\"Hello \", 世界, \"!\")", """Concatenate("Hello ", 世界, "!")""");
+
+        // Test emoji and special Unicode characters
+        VerifyDeserialize("Expression: |-\n  =Set(Status, \"✅ Complete\")", """Set(Status, "✅ Complete")""");
+        VerifyDeserialize("Expression: |-\n  =Text(\"温度: \" & Temp & \"℃\")", """Text("温度: " & Temp & "℃")""");
+
+        // Test complex Unicode strings
+        VerifyDeserialize("Expression: |-\n  =Set(变量_测试, \"龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂\")", """Set(变量_测试, "龭唉𫓧G㐁A𫟦D𠳐ⅷ𫇭C丂")""");
+    }
+
+    [TestMethod]
+    public void ReadYamlWithLatin1SupplementCharacters()
+    {
+        using var _ = new AssertionScope();
+
+        // Currency symbols that should be preserved when reading from plain scalar format
+        VerifyDeserialize("""Expression: =Set(BritishPrice, "£50.00")""", """Set(BritishPrice, "£50.00")""");
+        VerifyDeserialize("""Expression: =Set(JapanesePrice, "¥1000")""", """Set(JapanesePrice, "¥1000")""");
+        VerifyDeserialize("""Expression: =Set(EuroPrice, "€75.50")""", """Set(EuroPrice, "€75.50")""");
+
+        // Accented characters from European languages
+        VerifyDeserialize("""Expression: =Set(Français, true)""", """Set(Français, true)""");
+        VerifyDeserialize("""Expression: =Set(Español, "Niño")""", """Set(Español, "Niño")""");
+        VerifyDeserialize("""Expression: =Set(Deutsch, "Mädchen")""", """Set(Deutsch, "Mädchen")""");
+        VerifyDeserialize("""Expression: =Set(Português, "São")""", """Set(Português, "São")""");
+
+        // Mathematical and typographical symbols
+        VerifyDeserialize("""Expression: =Set(Temperature, "±23°C")""", """Set(Temperature, "±23°C")""");
+        VerifyDeserialize("""Expression: =Set(Fraction, "½ cup")""", """Set(Fraction, "½ cup")""");
+        VerifyDeserialize("""Expression: =Set(Multiplication, "5×3")""", """Set(Multiplication, "5×3")""");
+
+        // Legal and business symbols
+        VerifyDeserialize("""Expression: =Set(Copyright, "© 2024")""", """Set(Copyright, "© 2024")""");
+        VerifyDeserialize("""Expression: =Set(Registered, "®")""", """Set(Registered, "®")""");
+    }
+
     private void VerifySerialize(string? pfxScript, string expectedExpressionYaml)
     {
         var expression = pfxScript is null ? null : new PFxExpressionYaml(pfxScript);
