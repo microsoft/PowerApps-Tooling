@@ -39,7 +39,7 @@ Obj1:
     }
 
     // These values should get automatically multiline escaped. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Hi #There")] // Yaml comments are dangerous
     [DataRow("abc\r\ndef")]
     [DataRow("Patched({a : b})")]
@@ -57,7 +57,7 @@ Obj1:
     }
 
     // Different ending newlines will have different escapes. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("  1")] // leading whitespace
     [DataRow("  1\n2\n3")] // leading whitespace with multiline
     [DataRow("  1\r2\r3")] // leading whitespace with Mac style multiline
@@ -107,7 +107,7 @@ Obj1:
     }
 
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void WriteBool(bool value)
@@ -155,7 +155,7 @@ Obj1:
     }
 
     // Error on 1st token read
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo: 12")] // missing =
     [DataRow("Foo: |\r\n=12")] // missing = in newline
     [DataRow("Foo: =x #comment")] // comments not allowed in single line.
@@ -173,7 +173,7 @@ Obj1:
     }
 
     // Error on 2nd token read. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo:\r\n  val\r\n")] // Must have escape if there's a newline
     public void ExpectedError2(string expr)
     {
