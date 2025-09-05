@@ -162,11 +162,20 @@ public static class PaYamlSerializer
 
         var parser = new Parser(reader);
 
-        // Need to consume the StreamStart and DocumentStart events to get to the root sequence
-        parser.TryConsume<StreamStart>(out _);
-        parser.TryConsume<DocumentStart>(out _);
+        try
+        {
+            // Need to consume the StreamStart and DocumentStart events to get to the root sequence
+            parser.TryConsume<StreamStart>(out _);
+            parser.TryConsume<DocumentStart>(out _);
 
-        return parser.TryConsume<SequenceStart>(out _);
+            return parser.TryConsume<SequenceStart>(out _);
+        }
+        catch (YamlException)
+        {
+            // If we hit a YamlException, the input is not well-formed YAML, which means it can't be a sequence.
+            // This also prevents the exception from propagating to the caller.
+            return false;
+        }
     }
 
     #endregion

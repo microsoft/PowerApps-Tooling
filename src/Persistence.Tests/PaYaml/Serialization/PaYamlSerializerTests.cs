@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions.Execution;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
@@ -216,19 +217,35 @@ public class PaYamlSerializerTests : VSTestBase
     public void IsSequenceCheckShouldWorkAsExpected(string path, bool expected)
     {
         var yaml = File.ReadAllText(path);
-        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
-        isSequence.Should().Be(expected);
+        PaYamlSerializer.CheckIsSequence(yaml).Should().Be(expected);
     }
 
     [TestMethod]
-    [DataRow("")]
-    [DataRow("   ")]
-    [DataRow("not yaml")]
-    [DataRow("{ prop1: str2 }")]
-    public void IsSequenceCheckShouldReturnFalseForInvalidSequences(string yaml)
+    public void IsSequenceCheckShouldReturnFalseForInvalidSequences()
     {
-        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
-        isSequence.Should().BeFalse();
+        using var _ = new AssertionScope();
+        PaYamlSerializer.CheckIsSequence("").Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("   ").Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("a yaml literal string").Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("{ prop1: str2 }").Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("https://somedomain.com/path/resource?param1=foo").Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("""
+            <html>
+                <body>
+                    <h1>Hello World!</h1>
+                </body>
+            </html>
+            """).Should().BeFalse();
+
+        // The following two examples cause a YamlException to be thrown because they aren't valid yaml.
+        // But we need to ensure that CheckIsSequence returns false rather than throwing.
+        PaYamlSerializer.CheckIsSequence("""
+            &sdf=[]{ - not a sequence html: some invalid yaml
+            """).Should().BeFalse();
+        PaYamlSerializer.CheckIsSequence("""
+            * md list item 1
+            * md list item 2
+            """).Should().BeFalse();
     }
 
     [TestMethod]
@@ -236,8 +253,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow("['str',333]")]
     public void IsSequenceCheckShouldReturnTrueForInlineSequences(string yaml)
     {
-        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
-        isSequence.Should().BeTrue();
+        PaYamlSerializer.CheckIsSequence(yaml).Should().BeTrue();
     }
 
     [TestMethod]
@@ -249,8 +265,7 @@ public class PaYamlSerializerTests : VSTestBase
             - name: control2
             """;
 
-        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
-        isSequence.Should().BeTrue();
+        PaYamlSerializer.CheckIsSequence(yaml).Should().BeTrue();
     }
 
     [TestMethod]
@@ -262,8 +277,7 @@ public class PaYamlSerializerTests : VSTestBase
             - name: control2
             """;
 
-        var isSequence = PaYamlSerializer.CheckIsSequence(yaml);
-        isSequence.Should().BeTrue();
+        PaYamlSerializer.CheckIsSequence(yaml).Should().BeTrue();
     }
 
     #endregion
