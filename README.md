@@ -1,14 +1,16 @@
 ![image](https://img.shields.io/github/actions/workflow/status/microsoft/PowerApps-Language-Tooling/CI.yml?branch=master)  ![image](https://img.shields.io/nuget/vpre/Microsoft.PowerPlatform.Formulas.Tools) [![Build Status](https://dev.azure.com/dynamicscrm/OneCRM/_apis/build/status%2FPowerPlatform.PowerApps.Tools%2Fmicrosoft.PowerApps-Tooling?branchName=master)](https://dev.azure.com/dynamicscrm/OneCRM/_build/latest?definitionId=21051&branchName=master)
 
+> **⚠️ IMPORTANT NOTICE**
+>
+> This repo contains the legacy PASopa tool to unpack a .msapp and is no longer supported.
+> The `pac solution` command with the `--processCanvasApps` parameter also uses this tool and will be deprecated.
+> To source control your canvas app, please use the [Power Platform git integration](https://learn.microsoft.com/power-platform/alm/git-integration/canvas-apps-git-integration).
+>
+> More information about the [YAML serialization format](https://learn.microsoft.com/power-apps/maker/canvas-apps/power-apps-yaml#power-apps-yaml-schema-versions) is available in the documentation.
+
 # Power Apps tools for professional developers
 - 🆕 C#/.Net library for working with Power Apps msapp files
 - Legacy Source File Pack and Unpack Utility (PASopa)
-
-> [!TIP]
-> We welcome feedback on the project, file format, and capabilities. Start [discussion or vote for ideas](https://github.com/microsoft/PowerApps-Tooling/discussions?discussions_q=is%3Aopen+sort%3Atop)
-
-## Demo
-[![Enable every developer to collaborate with low code + pro code](http://img.youtube.com/vi/jH0QE9bQz5U/0.jpg)](http://www.youtube.com/watch?v=jH0QE9bQz5U "Enable every developer to collaborate with low code + pro code")
 
 
 ## Prerequisites
