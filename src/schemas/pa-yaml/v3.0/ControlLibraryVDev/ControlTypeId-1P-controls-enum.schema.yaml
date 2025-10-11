@@ -9,6 +9,7 @@ description: >-
   The schema object representing the enum of ControlTypeIds for the current version of the controls library.
 
 enum:
+  - DataField
   - AddMedia
   - Attachments
   - Audio

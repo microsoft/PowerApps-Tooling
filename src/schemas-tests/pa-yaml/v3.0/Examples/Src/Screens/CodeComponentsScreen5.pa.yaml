@@ -1,0 +1,75 @@
+Screens:
+  CodeComponentsScreen5:
+    Children:
+      - MyHeaderComponent_2:
+          Control: CodeComponent
+          ComponentName: MyHeaderComponent
+          Properties:
+            Height: =77
+            Width: =1366
+
+      - Spinner1_1:
+          Control: CodeComponent
+          ComponentName: cat_PowerCAT.Spinner
+          Properties:
+            Height: =64
+            Width: =67
+            X: =40
+            Y: =40
+
+      - TagList1_1:
+          Control: CodeComponent
+          ComponentName: cat_PowerCAT.TagList
+          Properties:
+            Height: =126
+            Items: =Accounts
+            Width: =302
+            X: =30
+            Y: =125
+          Children:
+            - Account Name1_1:
+                Control: DataField
+                Variant: textualColumn
+                IsLocked: true
+                Properties:
+                  FieldDisplayName: ="Account Name"
+                  FieldName: ="name"
+                  FieldType: ="s"
+                  Order: =1
+            - Main Phone1_1:
+                Control: DataField
+                Variant: textualColumn
+                IsLocked: true
+                Properties:
+                  FieldDisplayName: ="Main Phone"
+                  FieldName: ="telephone1"
+                  FieldType: ="s"
+                  Order: =2
+
+      - PeoplePicker1_1:
+          Control: CodeComponent
+          ComponentName: cat_PowerCAT.PeoplePicker
+          Properties:
+            Items: =Contacts
+            Width: =373
+            X: =494
+            Y: =88
+          Children:
+            - Full Name1_1:
+                Control: DataField
+                Variant: textualColumn
+                IsLocked: true
+                Properties:
+                  FieldDisplayName: ="Full Name"
+                  FieldName: ="fullname"
+                  FieldType: ="s"
+                  Order: =1
+            - Email1_1:
+                Control: DataField
+                Variant: textualColumn
+                IsLocked: true
+                Properties:
+                  FieldDisplayName: ="Email"
+                  FieldName: ="emailaddress1"
+                  FieldType: ="s"
+                  Order: =2

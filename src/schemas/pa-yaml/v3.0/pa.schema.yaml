@@ -152,18 +152,18 @@ definitions:
   ControlTypeId-oneOf-3P-types:
     $comment: The set of ControlTypeIds that represent third-party controls.
     oneOf:
-      - $ref: "#/definitions/ControlTypeId-Component"
+      - $ref: "#/definitions/ControlTypeId-CanvasComponent"
       - $ref: "#/definitions/ControlTypeId-CodeComponent"
 
       # TODO: Implement a way that some controls may define a limited subset of child control types
       # e.g. The 'Form' control's children must be of type 'TypedDataCard':
       # - $ref: "#/definitions/ControlTypeId-TypedDataCard"
 
-  ControlTypeId-Component:
+  ControlTypeId-CanvasComponent:
     description: |-
-      Identifies a custom component instance. This control type requires additional properties to be specified.
+      Identifies a canvas component instance. This control type requires additional properties to be specified.
     type: string
-    const: Component
+    const: CanvasComponent
 
   ControlTypeId-CodeComponent:
     description: |-
@@ -201,7 +201,7 @@ definitions:
       allOf:
         - if:
             properties:
-              Control: { $ref: "#/definitions/ControlTypeId-Component" }
+              Control: { $ref: "#/definitions/ControlTypeId-CanvasComponent" }
           then:
             required: [ComponentName]
             additionalProperties: false
@@ -220,10 +220,10 @@ definitions:
             additionalProperties: false
             properties:
               Control: true
-              ComponentName: { $ref: "#/definitions/CodeComponent-name" }
+              ComponentName: { $ref: "#/definitions/CodeComponent-ComponentName" }
               Group: true
               Properties: true
-              # Note: CodeComponent instances do not support Variants or Children.
+              Children: { $ref: "#/definitions/Children-Control-instance-sequence" }
     else:
       # Expected to be a built-in control library template
       additionalProperties: false
@@ -252,14 +252,14 @@ definitions:
     allOf:
       - { $ref: "#/definitions/Control-instance-name" }
 
-  CodeComponent-name:
+  CodeComponent-ComponentName:
     description: |-
       The unique name of the Code Component (aka PCF control) as it occurs in Dataverse.
-      The format is: <publisher-prefix> '_' <JS-Namespace> '.' <JS-ClassName>
+      The format is: ( <publisher-prefix> '_' )? ( <JS-Namespace> '.' )+ <JS-ClassName> ( '(' <GUID> ')' )?
     type: string
     # TODO: The JS regex pattern doesn't easily support unicode chars which are valid JS identifiers.
     pattern: |-
-      ^([a-z][a-z0-9]{1,7})_([a-zA-Z0-9]\.)+[a-zA-Z0-9]+$
+      ^([a-zA-Z][a-zA-Z0-9]{1,7})_)?(\w+\.)+(\w+)(\([0-9a-f-]{36}\))?$
 
   ComponentDefinitions-name-instance-map:
     type: object

@@ -2,7 +2,7 @@ Screens:
   ComponentsScreen4:
     Children:
       - MyHeaderComponent_2:
-          Control: Component
+          Control: CanvasComponent
           ComponentName: MyHeaderComponent
           Properties:
             Height: =77
@@ -10,21 +10,21 @@ Screens:
             Width: =1366
 
       - MyHeaderComponent_3:
-          Control: Component
+          Control: CanvasComponent
           ComponentName: MyHeaderComponent
           Properties:
             ScreenTitle: ="Screen B"
             Y: =98
 
       - MyHeaderComponent_4:
-          Control: Component
+          Control: CanvasComponent
           ComponentName: MyHeaderComponent
           Properties:
             ScreenTitle: ="Screen C"
             Y: =197
 
       - CommonHeader_1:
-          Control: Component
+          Control: CanvasComponent
           ComponentName: CommonHeader
           ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
           Properties:
@@ -36,7 +36,7 @@ Screens:
             Y: =294
 
       - MenuTemplate_1:
-          Control: Component
+          Control: CanvasComponent
           ComponentName: MenuTemplate
           ComponentLibraryUniqueName: joem_joemcomponentlibraryserialization_1e112
           Properties:
