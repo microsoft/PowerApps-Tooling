@@ -359,13 +359,9 @@ internal static class IRStateHelpers
             var dynamicProperties = new List<DynamicPropertyJson>();
             foreach (var propIR in blockNode.Properties)
             {
-                // Dynamic properties could be null for the galleryTemplateTemplate                
-                var isDynamicProperty = state.DynamicProperties != null &&
-                    ((isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier)) ||
-                    // Check if property is dynamic (responsive layout or has metadata)
-                    state.DynamicProperties.Any(dp => dp.PropertyName == propIR.Identifier));
-
-                if (isDynamicProperty)
+                // Dynamic properties could be null for the galleryTemplateTemplate
+                // Check if property is dynamic (responsive layout or has metadata)               
+                if (state.DynamicProperties != null && ((isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier)) || state.DynamicProperties.Any(dp => dp.PropertyName == propIR.Identifier)))
                 {
                     dynamicProperties.Add(CombineDynamicPropertyIRAndState(propIR, state));
                 }
