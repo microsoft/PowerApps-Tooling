@@ -362,7 +362,7 @@ internal static class IRStateHelpers
                 // Dynamic properties could be null for the galleryTemplateTemplate                
                 var isDynamicProperty = state.DynamicProperties != null &&
                     ((isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier)) ||
-                    // Check if property is dynamic (responsive layout or has metadata like ControlPropertyState)
+                    // Check if property is dynamic (responsive layout or has metadata)
                     state.DynamicProperties.Any(dp => dp.PropertyName == propIR.Identifier));
 
                 if (isDynamicProperty)
