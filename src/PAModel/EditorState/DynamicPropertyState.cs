@@ -15,6 +15,9 @@ public class DynamicPropertyState
 
     public PropertyState Property { get; set; }
 
+    // Object with additional properties like AFDDataSourceName, etc.
+    public object ControlPropertyState { get; set; }
+
     [JsonExtensionData]
     public Dictionary<string, object> ExtensionData { get; set; }
 }

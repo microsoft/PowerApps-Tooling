@@ -5,6 +5,7 @@ using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
@@ -292,14 +293,14 @@ internal static class IRStateHelpers
     {
         var script = rule.InvariantScript;
         var prop = new PropertyNode() { Expression = new ExpressionNode() { Expression = script }, Identifier = rule.Property };
-        var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType };
+        var state = new PropertyState() { PropertyName = rule.Property, ExtensionData = rule.ExtensionData, NameMap = rule.NameMap, RuleProviderType = rule.RuleProviderType, Category = rule.Category };
         return (prop, state);
     }
 
     private static (PropertyNode prop, DynamicPropertyState state) SplitDynamicProperty(DynamicPropertyJson dynamicProperty)
     {
         var (prop, propertyState) = SplitProperty(dynamicProperty.Rule);
-        var state = new DynamicPropertyState() { PropertyName = propertyState.PropertyName, Property = propertyState, ExtensionData = dynamicProperty.ExtensionData };
+        var state = new DynamicPropertyState() { PropertyName = propertyState.PropertyName, Property = propertyState, ExtensionData = dynamicProperty.ExtensionData, ControlPropertyState = dynamicProperty.ControlPropertyState };
         return (prop, state);
     }
 
@@ -358,8 +359,13 @@ internal static class IRStateHelpers
             var dynamicProperties = new List<DynamicPropertyJson>();
             foreach (var propIR in blockNode.Properties)
             {
-                // Dynamic properties could be null for the galleryTemplateTemplate
-                if (isInResponsiveLayout && state.DynamicProperties != null && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier))
+                // Dynamic properties could be null for the galleryTemplateTemplate                
+                var isDynamicProperty = state.DynamicProperties != null && 
+                    ((isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier)) ||
+                    // Check if property is dynamic (responsive layout or has metadata like ControlPropertyState)
+                    state.DynamicProperties.Any(dp => dp.PropertyName == propIR.Identifier));
+
+                if (isDynamicProperty)
                 {
                     dynamicProperties.Add(CombineDynamicPropertyIRAndState(propIR, state));
                 }
@@ -374,7 +380,7 @@ internal static class IRStateHelpers
                 // Add dummy dynamic output props in the state at the end
                 foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
                 {
-                    dynamicProperties.Add(new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });
+                    dynamicProperties.Add(new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });                    
                 }
 
                 // Reorder to preserve roundtripping
@@ -603,6 +609,7 @@ internal static class IRStateHelpers
             property.ExtensionData = propState.ExtensionData;
             property.NameMap = propState.NameMap;
             property.RuleProviderType = propState.RuleProviderType;
+            property.Category = propState.Category;
         }
         else
         {
@@ -634,18 +641,25 @@ internal static class IRStateHelpers
                 {
                     InvariantScript = expression,
                     Property = propName,
+                    Category = propState.Property.Category,
                     ExtensionData = propState.Property.ExtensionData,
                     NameMap = propState.Property.NameMap,
                     RuleProviderType = propState.Property.RuleProviderType
                 };
                 property.ExtensionData = propState.ExtensionData;
             }
+
+            // Preserve ControlPropertyState
+            if (propState.ControlPropertyState != null)
+            {
+                property.ControlPropertyState = JsonSerializer.SerializeToElement(propState.ControlPropertyState);
+            }
         }
         else
         {
             property.Rule = new RuleEntry()
             {
-                InvariantScript = expression,
+                InvariantScript = expression,                
                 RuleProviderType = "Unknown"
             };
         }
