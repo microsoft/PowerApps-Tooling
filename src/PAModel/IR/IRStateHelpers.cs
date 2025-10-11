@@ -360,7 +360,7 @@ internal static class IRStateHelpers
             foreach (var propIR in blockNode.Properties)
             {
                 // Dynamic properties could be null for the galleryTemplateTemplate                
-                var isDynamicProperty = state.DynamicProperties != null && 
+                var isDynamicProperty = state.DynamicProperties != null &&
                     ((isInResponsiveLayout && DynamicProperties.IsResponsiveLayoutProperty(propIR.Identifier)) ||
                     // Check if property is dynamic (responsive layout or has metadata like ControlPropertyState)
                     state.DynamicProperties.Any(dp => dp.PropertyName == propIR.Identifier));
@@ -380,7 +380,15 @@ internal static class IRStateHelpers
                 // Add dummy dynamic output props in the state at the end
                 foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
                 {
-                    dynamicProperties.Add(new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName });                    
+                    var dummyProp = new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName };
+
+                    // Preserve ControlPropertyState if it exists
+                    if (dynPropState.ControlPropertyState != null)
+                    {
+                        dummyProp.ControlPropertyState = JsonSerializer.SerializeToElement(dynPropState.ControlPropertyState);
+                    }
+
+                    dynamicProperties.Add(dummyProp);
                 }
 
                 // Reorder to preserve roundtripping
@@ -659,7 +667,7 @@ internal static class IRStateHelpers
         {
             property.Rule = new RuleEntry()
             {
-                InvariantScript = expression,                
+                InvariantScript = expression,
                 RuleProviderType = "Unknown"
             };
         }

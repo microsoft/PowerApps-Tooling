@@ -23,7 +23,7 @@ internal class ControlInfoJson
         public string RuleProviderType { get; set; } // = "Unknown";
 
         public string Category { get; set; }
-        
+
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtensionData { get; set; }
 
@@ -109,7 +109,7 @@ internal class ControlInfoJson
         public RuleEntry Rule { get; set; }
 
         // object with additional properties
-        public JsonElement ControlPropertyState { get; set; }
+        public JsonElement? ControlPropertyState { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
