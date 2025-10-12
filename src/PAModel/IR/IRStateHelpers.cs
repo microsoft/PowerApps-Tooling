@@ -5,7 +5,6 @@ using Microsoft.PowerPlatform.Formulas.Tools.IR;
 using Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 using Microsoft.PowerPlatform.Formulas.Tools.EditorState;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.AppMagic.Authoring.Persistence;
 using Microsoft.PowerPlatform.Formulas.Tools.Schemas;
 using static Microsoft.PowerPlatform.Formulas.Tools.ControlInfoJson;
@@ -376,13 +375,7 @@ internal static class IRStateHelpers
                 // Add dummy dynamic output props in the state at the end
                 foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
                 {
-                    var dummyProp = new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName };
-
-                    // Preserve ControlPropertyState if it exists
-                    if (dynPropState.ControlPropertyState != null)
-                    {
-                        dummyProp.ControlPropertyState = JsonSerializer.SerializeToElement(dynPropState.ControlPropertyState);
-                    }
+                    var dummyProp = new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName, ControlPropertyState = dynPropState.ControlPropertyState };
 
                     dynamicProperties.Add(dummyProp);
                 }
@@ -654,10 +647,7 @@ internal static class IRStateHelpers
             }
 
             // Preserve ControlPropertyState
-            if (propState.ControlPropertyState != null)
-            {
-                property.ControlPropertyState = JsonSerializer.SerializeToElement(propState.ControlPropertyState);
-            }
+            property.ControlPropertyState = propState.ControlPropertyState;
         }
         else
         {

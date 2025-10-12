@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.EditorState;
@@ -16,7 +17,7 @@ public class DynamicPropertyState
     public PropertyState Property { get; set; }
 
     // Object with additional properties like AFDDataSourceName, etc.
-    public object ControlPropertyState { get; set; }
+    public JsonElement? ControlPropertyState { get; set; }
 
     [JsonExtensionData]
     public Dictionary<string, object> ExtensionData { get; set; }
