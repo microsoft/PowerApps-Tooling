@@ -376,7 +376,6 @@ internal static class IRStateHelpers
                 foreach (var dynPropState in state.DynamicProperties.Where(propState => propState.Property == null))
                 {
                     var dummyProp = new DynamicPropertyJson() { PropertyName = dynPropState.PropertyName, ControlPropertyState = dynPropState.ControlPropertyState };
-
                     dynamicProperties.Add(dummyProp);
                 }
 
