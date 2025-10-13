@@ -174,7 +174,7 @@ csharp_style_prefer_extended_property_pattern = true:suggestion
 # ** Set Diagnostic Rule Category Defaults **
 # *******************************************
 # Any rule set to 'warning' will be turned into an 'error' during any official/PR build.
-# In local builds, this is preferrable as it allows development to be faster while code is being written.
+# In local builds, this is preferable as it allows development to be faster while code is being written.
 # This is why the default severity is usually warning here.
 # Set severity to 'error' when the fix indicates a breaking change or using insecure/unsafe APIs/patterns.
 [*.{cs,vb}]

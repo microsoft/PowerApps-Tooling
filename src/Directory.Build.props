@@ -21,8 +21,8 @@
     When building in VS IDE, we don't want to treat warnings as errors, because they randomize developer progress.
     Warnings will be treated as errors at command line and in build pipelines
     -->
-  <PropertyGroup Label="Code Analysis config for VS IDE"
-                 Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <PropertyGroup Label="Code Analysis config for VS IDE"
+                   Condition="'$(BuildingInsideVisualStudio)' == 'true'">
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
     </PropertyGroup>
