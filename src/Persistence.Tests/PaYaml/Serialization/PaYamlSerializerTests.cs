@@ -75,7 +75,7 @@ public class PaYamlSerializerTests : VSTestBase
     [TestMethod]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml", 2, 8, 14, 2, 3)]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml", 0, 1, 62, 0, 0)]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml", 0, 6, 6, 0, 0)]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/CanvasComponentsScreen4.pa.yaml", 0, 6, 6, 0, 0)]
     public void DeserializeExamplePaYamlScreen(string path, int expectedScreenPropertiesCount, int expectedScreenChildrenCount, int expectedDescendantsCount, int expectedScreenGroupsCount, int expectedTotalGroupsCount)
     {
         var paFileRoot = PaYamlSerializer.Deserialize<PaModule>(File.ReadAllText(path));
@@ -179,7 +179,8 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/App.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/Screen1.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/FormsScreen2.pa.yaml")]
-    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/ComponentsScreen4.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/CanvasComponentsScreen4.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Screens/CodeComponentsScreen5.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyHeaderComponent.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/MyComponentLibrary.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/Components/InputProperties-Default.pa.yaml")]
