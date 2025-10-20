@@ -10,4 +10,5 @@ public record ThemeDefinition
     public int? Vibrancy { get; init; }
     public bool ThemePrimaryColorLocked { get; init; }
     public string[]? ColorOverrides { get; init; }
+    public string? Font { get; init; }
 }
