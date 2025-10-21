@@ -9,7 +9,7 @@ public record ThemeDefinition
     public required string? BasePaletteColor { get; init; }
     public int? HueTorsion { get; init; }
     public int? Vibrancy { get; init; }
-    public bool? ThemePrimaryColorLocked { get; init; }
+    public bool? IsPrimaryColorLocked  { get; init; }
     public ColorOverrides? ColorOverrides { get; init; }
 }
 
