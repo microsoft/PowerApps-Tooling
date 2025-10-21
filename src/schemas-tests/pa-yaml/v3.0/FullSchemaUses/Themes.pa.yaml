@@ -1,0 +1,35 @@
+Themes:
+  Custom Theme 1:
+    Font: "'Segoe UI', 'Open Sans', sans-serif"
+    BasePaletteColor: "#FF5733"
+    HueTorsion: 15
+    Vibrancy: 20
+    IsPrimaryColorLocked : true
+    ColorOverrides:
+      Darker70: "#581845"
+      Darker50: "#581845"
+      PrimaryColor: "#C70039"
+      Lighter10: "#900C3F"
+  chaos theme:
+    Font: "'Great Vibes', sans-serif"
+    BasePaletteColor: '#914444'
+    HueTorsion: 0
+    Vibrancy: 0
+    IsPrimaryColorLocked : true
+    ColorOverrides:
+      Darker70: '#ffffff'
+      Darker60: '#000000'
+      Darker50: '#ffffff'
+      Darker40: '#000000'
+      Darker30: '#ffffff'
+      Darker20: '#7aff81'
+      Darker10: '#8c6700'
+      PrimaryColor: '#eaff00'
+      Lighter10: '#cf8300'
+      Lighter20: '#0c7a00'
+      Lighter30: '#d100b2'
+      Lighter40: '#ff00f2'
+      Lighter50: '#00fff2'
+      Lighter60: '#23eb1c'
+      Lighter70: '#ffffff'
+      Lighter80: '#000000'

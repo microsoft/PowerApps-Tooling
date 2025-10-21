@@ -192,6 +192,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/ComponentDefinitions.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Themes.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/_EditorState.pa.yaml")]
     public void RoundTripFromYaml(string path)
