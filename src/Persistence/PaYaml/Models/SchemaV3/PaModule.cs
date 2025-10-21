@@ -17,4 +17,6 @@ public record PaModule
     public NamedObjectMapping<DataSourceInstance>? DataSources { get; init; }
 
     public EditorStateInstance? EditorState { get; init; }
+
+    public NamedObjectMapping<ThemeDefinition>? Themes { get; init; }
 }
