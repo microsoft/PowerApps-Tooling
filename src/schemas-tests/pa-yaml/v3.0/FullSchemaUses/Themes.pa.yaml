@@ -4,7 +4,6 @@ Themes:
     BasePaletteColor: "#FF5733"
     HueTorsion: 15
     Vibrancy: 20
-    IsPrimaryColorLocked : true
     ColorOverrides:
       Darker70: "#581845"
       Darker50: "#581845"
@@ -13,8 +12,6 @@ Themes:
   chaos theme:
     Font: "'Great Vibes', sans-serif"
     BasePaletteColor: '#914444'
-    HueTorsion: 0
-    Vibrancy: 0
     IsPrimaryColorLocked : true
     ColorOverrides:
       Darker70: '#ffffff'
