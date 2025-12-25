@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -12,32 +11,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// </summary>
 public interface IMsappArchive : IDisposable
 {
-    /// <summary>
-    /// The app that is represented by the archive.
-    /// </summary>
-    App? App { get; set; }
-
-    Version Version { get; }
+    Version MSAppStructureVersion { get; }
 
     Version DocVersion { get; }
-
-    AppProperties? Properties { get; set; }
-
-    DataSources? DataSources { get; set; }
-
-    Resources? Resources { get; set; }
-
-    T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control;
-
-    /// <summary>
-    /// Saves control in the archive. Control can be App, Screen, or individual control.
-    /// </summary>
-    void Save(Control control, string? directory = null);
-
-    /// <summary>
-    /// Saves the archive to the given stream or file.
-    /// </summary>
-    void Save();
 
     /// <summary>
     /// Total sum of decompressed sizes of all entries in the archive.
@@ -50,10 +26,22 @@ public interface IMsappArchive : IDisposable
     long CompressedSize { get; }
 
     /// <summary>
-    /// Adds an image to the archive and registers it as a resource.
+    /// Provides access to the underlying zip archive.
+    /// Attention: This property might be removed in the future.
     /// </summary>
-    /// <returns>the name of the resource</returns>
-    string AddImage(string fileName, Stream imageStream);
+    ZipArchive ZipArchive { get; }
+
+    /// <summary>
+    /// Returns a new readonly dictionary instance containing of all entries in the archive.
+    /// The keys are normalized paths for the entry computed using <see cref="MsappArchive.CanonicalizePath"/>.
+    /// </summary>
+    IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries();
+
+    /// <summary>
+    /// Adds a default .gitignore file to the root of the archive.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the archive is opened in Read mode or if a .gitignore entry already exists.</exception>
+    void AddGitIgnore();
 
     /// <summary>
     /// Determine whether an entry with the given path exists in the archive.
@@ -90,7 +78,7 @@ public interface IMsappArchive : IDisposable
     /// </summary>
     /// <param name="entryName"></param>
     /// <returns>the entry or null when not found.</returns>
-    ZipArchiveEntry? GetEntry(string entryName);
+    ZipArchiveEntry? GetEntryOrDefault(string entryName);
 
     /// <summary>
     /// Returns the entry in the archive with the given name or null when not found.
@@ -109,16 +97,4 @@ public interface IMsappArchive : IDisposable
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
     IEnumerable<ZipArchiveEntry> GetDirectoryEntries(string directoryName, string? extension = null, bool recursive = true);
-
-    /// <summary>
-    /// Dictionary of all entries in the archive.
-    /// The keys are normalized paths for the entry computed using <see cref="MsappArchive.CanonicalizePath"/>.
-    /// </summary>
-    IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries { get; }
-
-    /// <summary>
-    /// Provides access to the underlying zip archive.
-    /// Attention: This property might be removed in the future.
-    /// </summary>
-    ZipArchive ZipArchive { get; }
 }

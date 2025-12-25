@@ -11,6 +11,8 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
 public class PFxExpressionYamlConverter : IYamlTypeConverter
 {
+    private static readonly char[] LineTerminators = ['\r', '\n', '\x85', '\x2028', '\x2029'];
+
     private readonly PFxExpressionYamlFormattingOptions _formattingOptions;
 
     public PFxExpressionYamlConverter(PFxExpressionYamlFormattingOptions formattingOptions)
@@ -55,9 +57,10 @@ public class PFxExpressionYamlConverter : IYamlTypeConverter
         // These char sequences are special to YAML parsers, so must be escaped or forced to literal block
         var forceLiteralBlock = expression.InvariantScript.Contains(" #")
             || expression.InvariantScript.Contains(": ");
+
         // Force multi-line scripts to be literal blocks
-        forceLiteralBlock |= expression.InvariantScript.Contains('\n')
-            || expression.InvariantScript.Contains('\r');
+        forceLiteralBlock |= LineTerminators.Any(expression.InvariantScript.Contains);
+
         // Force literal block for Unicode characters to preserve them without escaping
         forceLiteralBlock |= expression.InvariantScript.Any(char.IsSurrogate);
         if (!forceLiteralBlock && !_formattingOptions.ForceLiteralBlockIfContainsAny.IsDefaultOrEmpty)
