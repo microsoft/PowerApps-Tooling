@@ -1,5 +1,7 @@
 # Samples for Power Apps
 
+> NOTICE: This samples folder depends on the no longer supported 'Preview Schema' (aka PaYamlV2) and is no longer supported or built.
+
 Samples for creating, reading, and updating files containing Power Apps (*.msapp)
 
 ## Prerequisites
