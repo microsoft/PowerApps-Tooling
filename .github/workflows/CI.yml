@@ -9,11 +9,12 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.os != 'Windows' }}
     env:
       DOTNET_NOLOGO: true
 
@@ -25,7 +26,6 @@ jobs:
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          7.0.x
           8.0.x
 
     - run: dotnet --info
@@ -36,7 +36,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
 
       ## Only difference here is not forcing cmd
-    - name: Build (ubuntu & macos)
+    - name: Build (linux based)
       run: ./build ci
       if: ${{ runner.os != 'Windows' }}
 
@@ -45,14 +45,3 @@ jobs:
 
     - name: Test - PAModel
       run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
-
-    # - name: Restore workloads for samples
-    #   run: dotnet workload restore samples/MauiMsApp/MauiMsApp.csproj
-
-    # - name: Install maui-tizen workload
-    #   run: dotnet workload install maui-tizen
-
-    # These samples depend on PaYamlV2, which is no longer supported and has been removed from the product.
-    # - name: Build samples
-    #   run: dotnet build samples/samples.sln
-    #   if: ${{ runner.os == 'Windows' }}
