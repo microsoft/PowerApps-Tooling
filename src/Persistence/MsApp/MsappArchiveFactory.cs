@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
+using System.Text;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -11,12 +11,13 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// </summary>
 public class MsappArchiveFactory : IMsappArchiveFactory
 {
-    private readonly IYamlSerializationFactory _yamlSerializationFactory;
+    /// <summary>
+    /// Instance of MsappArchiveFactory where <see cref="EntryNameEncoding"/> is `null`.
+    /// Helps with using in tests where logging is not needed.
+    /// </summary>
+    public static readonly MsappArchiveFactory Default = new();
 
-    public MsappArchiveFactory(IYamlSerializationFactory yamlSerializationFactory)
-    {
-        _yamlSerializationFactory = yamlSerializationFactory ?? throw new ArgumentNullException(nameof(yamlSerializationFactory));
-    }
+    public Encoding? EntryNameEncoding { get; init; }
 
     public IMsappArchive Create(string path, bool overwrite = false)
     {
@@ -25,14 +26,14 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
         var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
-        return new MsappArchive(fileStream, ZipArchiveMode.Create, _yamlSerializationFactory);
+        return Create(fileStream, leaveOpen: false);
     }
 
     public IMsappArchive Create(Stream stream, bool leaveOpen = false)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, EntryNameEncoding);
     }
 
     public IMsappArchive Open(string path)
@@ -40,14 +41,16 @@ public class MsappArchiveFactory : IMsappArchiveFactory
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentNullException(nameof(path));
 
-        return new MsappArchive(path, _yamlSerializationFactory);
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+        return Open(fileStream, leaveOpen: false);
     }
 
     public IMsappArchive Open(Stream stream, bool leaveOpen = false)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, EntryNameEncoding);
     }
 
     public IMsappArchive Update(string path)
@@ -56,13 +59,14 @@ public class MsappArchiveFactory : IMsappArchiveFactory
             throw new ArgumentNullException(nameof(path));
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-        return new MsappArchive(fileStream, ZipArchiveMode.Update, leaveOpen: false, _yamlSerializationFactory);
+
+        return Update(fileStream, leaveOpen: false);
     }
 
     public IMsappArchive Update(Stream stream, bool leaveOpen = false)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, _yamlSerializationFactory);
+        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, EntryNameEncoding);
     }
 }

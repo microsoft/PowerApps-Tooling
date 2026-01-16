@@ -7,10 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Models;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -19,169 +16,34 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// </summary>
 public partial class MsappArchive : IMsappArchive, IDisposable
 {
-    #region Constants
+    private const string HeaderFileName = "Header.json";
 
-    public static class Directories
-    {
-        public const string Src = "Src";
-        public const string Controls = "Controls";
-        public const string Components = "Components";
-        public const string AppTests = "AppTests";
-        public const string Assets = "Assets";
-        public const string Images = "Images";
-        public const string References = "References";
-        public const string Resources = "Resources";
-    }
-
-    public const string MsappFileExtension = ".msapp";
-    public const string YamlFileExtension = ".yaml";
-    public const string YamlPaFileExtension = ".pa.yaml";
-    public const string JsonFileExtension = ".json";
-    public const string AppFileName = $"App{YamlPaFileExtension}";
-    public const string HeaderFileName = "Header.json";
-    public const string PropertiesFileName = "Properties.json";
-    public const string TemplatesFileName = $"{Directories.References}/Templates.json";
-    public const string ThemesFileName = $"{Directories.References}/Themes.json";
-    public const string DataSourcesFileName = $"{Directories.References}/DataSources.json";
-    public const string ResourcesFileName = $"{Directories.References}/Resources.json";
-
-    #endregion
-
-    #region Fields
-
-    private readonly Lazy<IDictionary<string, ZipArchiveEntry>> _canonicalEntries;
-    private App? _app;
-    private Header? _header;
-    private AppProperties? _appProperties;
-    private AppTemplates? _appTemplates;
-    private AppThemes? _appThemes;
-    private DataSources? _dataSources;
-    private Resources? _resources;
-
-    private bool _isDisposed;
-    private readonly ILogger<MsappArchive>? _logger;
-    private readonly Stream _stream;
-    private readonly bool _leaveOpen;
-
-    // Yaml serializer and deserializer
-    private readonly IYamlSerializer _yamlSerializer;
-    private readonly IYamlDeserializer _yamlDeserializer;
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    private static readonly JsonSerializerOptions JsonDeserializeOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        WriteIndented = true
-    };
-    private static readonly JsonWriterOptions JsonWriterOptions = new()
-    {
-        Indented = true
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip, // We don't want to fail if there are extra properties in the json
     };
 
-    #endregion
-
-    #region Internal classes
-
-    /// <summary>
-    /// Helper class for deserializing the top level control editor state.
-    /// </summary>
-    private sealed class TopParentJson
-    {
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-        public ControlEditorState? TopParent { get; set; }
-#pragma warning restore CS0649
-    }
-
-    #endregion
-
-    #region Constructors
-
-    public MsappArchive(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read, leaveOpen: false, yamlSerializationFactory, logger)
-    {
-    }
-
-    public MsappArchive(Stream stream, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
-    {
-    }
-
-    public MsappArchive(Stream stream, ZipArchiveMode mode, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen: false, entryNameEncoding: null, yamlSerializationFactory, logger)
-    {
-    }
+    private ZipArchive? _zipArchive;
+    private Dictionary<string, ZipArchiveEntry>? _canonicalEntries;
+    private HeaderJson? _header;
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="mode"></param>
-    /// <param name="leaveOpen">
-    ///     true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false
-    /// </param>
-    /// <param name="yamlSerializationFactory"></param>
-    /// <param name="logger"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-        : this(stream, mode, leaveOpen, null, yamlSerializationFactory, logger)
+    /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
+    /// <param name="entryNameEncoding"></param>
+    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen = false, Encoding? entryNameEncoding = null)
     {
+        _zipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
     }
-
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen, Encoding? entryNameEncoding, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-    {
-        _stream = stream;
-        _leaveOpen = leaveOpen;
-        _yamlSerializer = yamlSerializationFactory.CreateSerializer();
-        _yamlDeserializer = yamlSerializationFactory.CreateDeserializer();
-        _logger = logger;
-        ZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
-        CreateGitIgnore();
-        _canonicalEntries = new Lazy<IDictionary<string, ZipArchiveEntry>>
-        (() =>
-        {
-            var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
-            // If we're creating a new archive, there are no entries to canonicalize.
-            if (mode == ZipArchiveMode.Create)
-                return canonicalEntries;
-            foreach (var entry in ZipArchive.Entries)
-            {
-                if (!canonicalEntries.TryAdd(CanonicalizePath(entry.FullName), entry))
-                    _logger?.DuplicateEntry(entry.FullName);
-            }
-            return canonicalEntries;
-        });
-    }
-
-    #endregion
-
-    #region Factory Methods
-
-    public static IMsappArchive Create(string path, IYamlSerializationFactory yamlSerializationFactory, ILogger<MsappArchive>? logger = null)
-    {
-        var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
-
-        return new MsappArchive(fileStream, ZipArchiveMode.Create, yamlSerializationFactory, logger);
-    }
-
-    public static IMsappArchive Open(string path, IServiceProvider serviceProvider)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException(nameof(path), "Path cannot be null or whitespace.");
-        _ = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-
-        var yamlSerializationFactory = serviceProvider.GetRequiredService<IYamlSerializationFactory>();
-
-        return new MsappArchive(path, yamlSerializationFactory);
-    }
-
-    #endregion
-
-    #region Properties
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries => _canonicalEntries.Value.AsReadOnly();
-
-    /// <inheritdoc/>
-    public ZipArchive ZipArchive { get; private set; }
+    public ZipArchive ZipArchive => _zipArchive ?? throw new ObjectDisposedException(nameof(MsappArchive));
 
     /// <summary>
     /// Total sum of decompressed sizes of all entries in the archive.
@@ -193,166 +55,60 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
-    public App? App
+    private HeaderJson Header => _header ??= LoadHeader();
+
+    public Version MSAppStructureVersion => Header.MSAppStructureVersion;
+
+    public Version DocVersion => Header.DocVersion;
+
+    private Dictionary<string, ZipArchiveEntry> InnerCanonicalEntries
     {
         get
         {
-            _app ??= LoadApp();
-            return _app;
-        }
-        set
-        {
-            _app = value;
-            _header = _app != null ? new Header() : null;
-            _appProperties = _app != null ? new AppProperties() : null;
-            _appTemplates = _app != null ? new AppTemplates() : null;
-            _appThemes = _app != null ? new AppThemes() : null;
+            if (_canonicalEntries is null)
+            {
+                EnsureNotDisposed();
+
+                var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
+
+                // In Create mode, we don't have access to the Entries, so we create it as empty.
+                // This should be fine, as this property is only used when adding entries.
+                if (ZipArchive.Mode != ZipArchiveMode.Create)
+                {
+                    foreach (var entry in ZipArchive.Entries)
+                    {
+                        var canonicalizedPath = CanonicalizePath(entry.FullName);
+                        if (!canonicalEntries.TryAdd(canonicalizedPath, entry))
+                        {
+                            throw new InvalidDataException($"Duplicate canonicalized entry found in zip archive. EntryFullName: '{entry.FullName}'; CanonicalizedPath: '{canonicalizedPath}';");
+                        }
+                    }
+                }
+
+                _canonicalEntries = canonicalEntries;
+            }
+
+            return _canonicalEntries;
         }
     }
 
-    public Version Version
+    /// <inheritdoc/>
+    public IReadOnlyDictionary<string, ZipArchiveEntry> CanonicalEntries()
     {
-        get
-        {
-            _header ??= LoadHeader();
-
-            return _header.MSAppStructureVersion;
-        }
+        return InnerCanonicalEntries.AsReadOnly();
     }
 
-    public Version DocVersion
+    private void EnsureNotDisposed()
     {
-        get
-        {
-            _header ??= LoadHeader();
-
-            return _header.DocVersion;
-        }
+        ObjectDisposedException.ThrowIf(_zipArchive is null, this);
     }
-    public AppProperties? Properties
-    {
-        get
-        {
-            _appProperties ??= LoadProperties();
-
-            return _appProperties;
-        }
-        set => _appProperties = value;
-    }
-
-    public DataSources? DataSources
-    {
-        get
-        {
-            _dataSources ??= LoadDataSources();
-
-            return _dataSources;
-        }
-
-        set => _dataSources = value;
-    }
-
-    public Resources? Resources
-    {
-        get
-        {
-            _resources ??= LoadResources();
-
-            return _resources;
-        }
-
-        set => _resources = value;
-    }
-
-    public bool AddGitIgnore { get; init; } = true;
-
-    #endregion
-
-    #region Methods
 
     /// <inheritdoc/>
     public bool DoesEntryExist(string entryPath)
     {
         _ = entryPath ?? throw new ArgumentNullException(nameof(entryPath));
 
-        return CanonicalEntries.ContainsKey(CanonicalizePath(entryPath));
-    }
-
-    /// <inheritdoc/>
-    public string AddImage(string fileName, Stream imageStream)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-            throw new ArgumentNullException(nameof(fileName));
-        ArgumentNullException.ThrowIfNull(imageStream);
-
-        var imagePath = Path.Combine(Directories.Assets, Directories.Images, Path.GetFileName(fileName));
-        if (TryGetEntry(imagePath, out _))
-            throw new InvalidOperationException($"Image {fileName} already exists in the archive.");
-
-        var imageEntry = CreateEntry(imagePath);
-        using (var entryStream = imageEntry.Open())
-        {
-            imageStream.CopyTo(entryStream);
-        }
-
-        // Register the image as a resource
-        var resourceName = Path.GetFileNameWithoutExtension(fileName);
-        _resources ??= new Resources();
-        _resources.Items.Add(new Resource
-        {
-            Name = resourceName,
-            Schema = "i",
-            FileName = fileName,
-            Path = imagePath,
-            Content = "Image",
-        });
-
-        return resourceName;
-    }
-
-    /// <summary>
-    /// Deserializes the entry with the given name into an object of type T.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="entryName"></param>
-    /// <param name="ensureRoundTrip"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="InvalidOperationException"></exception>
-    /// <exception cref="PersistenceLibraryException"></exception>
-    public T Deserialize<T>(string entryName, bool ensureRoundTrip = true) where T : Control
-    {
-        if (string.IsNullOrWhiteSpace(entryName))
-            throw new ArgumentNullException(nameof(entryName));
-
-        var entry = GetRequiredEntry(entryName);
-        var result = Deserialize<T>(entry);
-
-        if (ensureRoundTrip)
-        {
-#if DEBUG
-            // Expected round trip serialization
-            using var stringWriter = new StringWriter();
-            _yamlSerializer.SerializeControl(stringWriter, result);
-#endif
-            // Ensure round trip serialization
-            using var roundTripWriter = new RoundTripWriter(entry);
-            _yamlSerializer.SerializeControl(roundTripWriter, result);
-        }
-
-        return result;
-    }
-
-    public T Deserialize<T>(ZipArchiveEntry archiveEntry) where T : Control
-    {
-        _ = archiveEntry ?? throw new ArgumentNullException(nameof(archiveEntry));
-
-        if (!archiveEntry.FullName.EndsWith(YamlFileExtension, StringComparison.OrdinalIgnoreCase))
-            throw new PersistenceLibraryException(PersistenceErrorCode.MsappArchiveError, $"Entry {archiveEntry} is not a yaml file.") { MsappEntryFullPath = archiveEntry.FullName };
-
-        using var textReader = new StreamReader(archiveEntry.Open());
-        return _yamlDeserializer.Deserialize<T>(textReader)
-            ?? throw new PersistenceLibraryException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of file resulted in null object.") { MsappEntryFullPath = archiveEntry.FullName };
+        return InnerCanonicalEntries.ContainsKey(CanonicalizePath(entryPath));
     }
 
     /// <summary>
@@ -363,28 +119,28 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         directoryName = CanonicalizePath(directoryName).TrimEnd('/');
 
-        foreach (var entry in CanonicalEntries)
+        foreach (var kvp in InnerCanonicalEntries)
         {
             // Do not return directories which some zip implementations include as entries
-            if (entry.Key.EndsWith('/'))
+            if (kvp.Key.EndsWith('/'))
                 continue;
 
-            if (directoryName != string.Empty && !entry.Key.StartsWith(directoryName + '/', StringComparison.InvariantCulture))
+            if (directoryName != string.Empty && !kvp.Key.StartsWith(directoryName + '/', StringComparison.InvariantCulture))
                 continue;
 
             // If not recursive, skip subdirectories
-            if (!recursive && entry.Key.IndexOf('/', directoryName.Length == 0 ? 0 : directoryName.Length + 1) > 0)
+            if (!recursive && kvp.Key.IndexOf('/', directoryName.Length == 0 ? 0 : directoryName.Length + 1) > 0)
                 continue;
 
-            if (extension != null && !entry.Key.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            if (extension != null && !kvp.Key.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            yield return entry.Value;
+            yield return kvp.Value;
         }
     }
 
     /// <inheritdoc/>
-    public ZipArchiveEntry? GetEntry(string entryName)
+    public ZipArchiveEntry? GetEntryOrDefault(string entryName)
     {
         return TryGetEntry(entryName, out var entry) ? entry : null;
     }
@@ -392,7 +148,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <inheritdoc/>
     public bool TryGetEntry(string entryName, [MaybeNullWhen(false)] out ZipArchiveEntry zipArchiveEntry)
     {
-        _ = entryName ?? throw new ArgumentNullException(nameof(entryName));
+        ArgumentNullException.ThrowIfNull(entryName);
 
         if (string.IsNullOrWhiteSpace(entryName))
         {
@@ -400,7 +156,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             return false;
         }
 
-        return CanonicalEntries.TryGetValue(CanonicalizePath(entryName), out zipArchiveEntry);
+        return InnerCanonicalEntries.TryGetValue(CanonicalizePath(entryName), out zipArchiveEntry);
     }
 
     /// <inheritdoc/>
@@ -414,41 +170,16 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <inheritdoc/>
     public ZipArchiveEntry CreateEntry(string entryName)
     {
-        if (string.IsNullOrWhiteSpace(entryName))
-            throw new ArgumentNullException(nameof(entryName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(entryName);
 
         var canonicalEntryName = CanonicalizePath(entryName);
-        if (_canonicalEntries.Value.ContainsKey(canonicalEntryName))
+        if (InnerCanonicalEntries.ContainsKey(canonicalEntryName))
             throw new InvalidOperationException($"Entry {entryName} already exists in the archive.");
 
         var entry = ZipArchive.CreateEntry(entryName);
-        _canonicalEntries.Value.Add(canonicalEntryName, entry);
+        InnerCanonicalEntries.Add(canonicalEntryName, entry);
 
         return entry;
-    }
-
-    /// <inheritdoc/>
-    public void Save(Control control, string? directory = null)
-    {
-        _ = control ?? throw new ArgumentNullException(nameof(control));
-
-        var controlDirectory = directory == null ? Directories.Src : Path.Combine(Directories.Src, directory);
-        var entry = CreateEntry(GetSafeEntryPath(controlDirectory, control.Name, YamlPaFileExtension));
-
-        using (var writer = new StreamWriter(entry.Open()))
-        {
-            _yamlSerializer.SerializeControl(writer, control);
-        }
-
-        SaveEditorState(control);
-    }
-
-    private string GetSafeEntryPath(string directory, string name, string extension)
-    {
-        if (!TryMakeSafeForEntryPathSegment(name, out var safeName, unsafeCharReplacementText: ""))
-            throw new ArgumentException("Control name is not valid.", nameof(name));
-
-        return GenerateUniqueEntryPath(directory.WhiteSpaceToNull(), safeName, extension);
     }
 
     /// <inheritdoc/>
@@ -491,35 +222,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         throw new InvalidOperationException("Failed to generate a unique name.");
     }
 
-    public void Save()
-    {
-        if (_app == null || _header == null)
-            throw new InvalidOperationException("App or header are not set.");
-
-        SaveHeader();
-        SaveProperties();
-        SaveTemplates();
-        SaveThemes();
-        SaveDataSources();
-        SaveResources();
-
-        var appEntry = CreateEntry(Path.Combine(Directories.Src, AppFileName));
-        using (var appWriter = new StreamWriter(appEntry.Open()))
-        {
-            _yamlSerializer.SerializeControl(appWriter, _app);
-        }
-
-        foreach (var screen in _app.Screens)
-        {
-            Save(screen);
-        }
-    }
-
     /// <summary>
     /// Canonicalizes an entry path to a value used in the canonical entries dictionary (<see cref="IMsappArchive.CanonicalEntries"/>).
     /// It removes leading and trailing slashes, converts backslashes to forward slashes, and makes the path lowercase.
     /// </summary>
-    public static string CanonicalizePath(string path)
+    public static string CanonicalizePath(string? path)
     {
         if (string.IsNullOrWhiteSpace(path))
             return string.Empty;
@@ -603,197 +310,20 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     [GeneratedRegex(@"[/\\]+")]
     private static partial Regex EntryPathDirectorySeparatorsRegex();
 
-    #endregion
-
-    #region Private Methods
-
-    private App? LoadApp()
-    {
-        // For app entry name is always "App.pa.yaml" now
-        if (!TryGetEntry(Path.Combine(Directories.Src, AppFileName), out var appEntry))
-            return null;
-
-        var app = Deserialize<App>(appEntry.FullName, ensureRoundTrip: false);
-
-        app.Screens = LoadScreens();
-
-        return app;
-    }
-
-    private List<Screen> LoadScreens()
-    {
-        _logger?.InfoMessage("Loading top level screens from Yaml.");
-
-        var screens = new Dictionary<string, Screen>();
-        foreach (var yamlEntry in GetDirectoryEntries(Directories.Src, YamlFileExtension, recursive: false))
-        {
-            // Skip the app file
-            if (yamlEntry.FullName.EndsWith(AppFileName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var screen = Deserialize<Screen>(yamlEntry.FullName, ensureRoundTrip: false);
-            screens.Add(screen.Name, screen);
-        }
-
-        _logger?.InfoMessage("Loading top level controls editor state.");
-        var controlEditorStates = new Dictionary<string, ControlEditorState>();
-        foreach (var editorStateEntry in GetDirectoryEntries(Path.Combine(Directories.Controls), JsonFileExtension))
-        {
-            var topParentJson = DeserializeMsappJsonFile<TopParentJson>(editorStateEntry);
-            controlEditorStates.Add(topParentJson!.TopParent!.Name, topParentJson.TopParent);
-        }
-
-        // Merge the editor state into the controls
-        foreach (var control in screens.Values)
-        {
-            if (controlEditorStates.TryGetValue(control.Name, out var editorState))
-            {
-                MergeControlEditorState(control, editorState);
-                controlEditorStates.Remove(control.Name);
-            }
-        }
-
-        return screens.Values.ToList();
-    }
-
-    private static void MergeControlEditorState(Control control, ControlEditorState controlEditorState)
-    {
-        control.EditorState = controlEditorState;
-        if (control.Children == null)
-            return;
-
-        foreach (var child in control.Children)
-        {
-            if (controlEditorState.Controls == null)
-                continue;
-
-            // Find the editor state for the child by name
-            var childEditorState = controlEditorState.Controls.FirstOrDefault(c => c.Name == child.Name);
-            if (childEditorState == null)
-                continue;
-
-            MergeControlEditorState(child, childEditorState);
-        }
-        controlEditorState.Controls = null;
-    }
-
-    private void SaveHeader()
-    {
-        var entry = CreateEntry(HeaderFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _header, JsonSerializerOptions);
-    }
-
-    private Header LoadHeader()
+    private HeaderJson LoadHeader()
     {
         var entry = GetRequiredEntry(HeaderFileName);
-        var header = DeserializeMsappJsonFile<Header>(entry);
+        var header = DeserializeMsappJsonFile<HeaderJson>(entry);
         return header;
     }
 
-    private AppProperties? LoadProperties()
+    /// <inheritdoc/>
+    public void AddGitIgnore()
     {
-        if (!TryGetEntry(PropertiesFileName, out var entry))
-            return null;
-
-        var appProperties = DeserializeMsappJsonFile<AppProperties>(entry);
-        return appProperties;
-    }
-
-    private DataSources? LoadDataSources()
-    {
-        if (!TryGetEntry(DataSourcesFileName, out var entry))
-            return null;
-
-        var dataSources = DeserializeMsappJsonFile<DataSources>(entry);
-        return dataSources;
-    }
-
-    private Resources? LoadResources()
-    {
-        if (!TryGetEntry(ResourcesFileName, out var entry))
-            return null;
-
-        var resources = DeserializeMsappJsonFile<Resources>(entry);
-        return resources;
-    }
-
-    private void SaveProperties()
-    {
-        var entry = CreateEntry(PropertiesFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _appProperties, JsonSerializerOptions);
-    }
-
-    private void SaveTemplates()
-    {
-        var entry = CreateEntry(TemplatesFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _appTemplates, JsonSerializerOptions);
-    }
-
-    private void SaveThemes()
-    {
-        var entry = CreateEntry(ThemesFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _appThemes, JsonSerializerOptions);
-    }
-
-    private void SaveDataSources()
-    {
-        if (_dataSources == null || _dataSources.Items == null || _dataSources.Items.Count == 0)
-            return;
-
-        var entry = CreateEntry(DataSourcesFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _dataSources, JsonSerializerOptions);
-    }
-
-    private void SaveResources()
-    {
-        if (_resources == null || _resources.Items == null || _resources.Items.Count == 0)
-            return;
-
-        var entry = CreateEntry(ResourcesFileName);
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, _resources, JsonSerializerOptions);
-    }
-
-    private void SaveEditorState(Control control)
-    {
-        if (control.EditorState == null)
-            return;
-        var entry = CreateEntry(GetSafeEntryPath(Directories.Controls, control.Name, JsonFileExtension));
-        var topParent = new TopParentJson
-        {
-            TopParent = MapEditorState(control)
-        };
-
-        using var entryStream = entry.Open();
-        using var writer = new Utf8JsonWriter(entryStream, JsonWriterOptions);
-        JsonSerializer.Serialize(writer, topParent, JsonSerializerOptions);
-    }
-
-    private static ControlEditorState MapEditorState(Control control)
-    {
-        var editorState = control.EditorState ?? new ControlEditorState(control);
-        if (control.Children == null || control.Children.Count == 0)
-            return editorState;
-
-        editorState.Controls = control.Children.Select(MapEditorState).ToList();
-        return editorState;
-    }
-
-    private void CreateGitIgnore()
-    {
-        if (!AddGitIgnore || ZipArchive.Mode != ZipArchiveMode.Create)
-            return;
+        if (ZipArchive.Mode == ZipArchiveMode.Read)
+            throw new InvalidOperationException("Cannot add .gitignore entry when the archive is opened in Read mode.");
+        if (DoesEntryExist(".gitignore"))
+            throw new InvalidOperationException("Cannot add .gitignore entry when it already exists.");
 
         var entry = ZipArchive.CreateEntry(".gitignore");
         using var entryStream = entry.Open();
@@ -810,7 +340,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         try
         {
-            return JsonSerializer.Deserialize<T>(entry.Open())
+            return JsonSerializer.Deserialize<T>(entry.Open(), JsonDeserializeOptions)
                  ?? throw new PersistenceLibraryException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of json file resulted in null object.") { MsappEntryFullPath = entry.FullName };
         }
         catch (JsonException ex)
@@ -825,24 +355,18 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         }
     }
 
-    #endregion
-
     #region IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_isDisposed)
+        if (disposing && _zipArchive != null)
         {
-            if (disposing)
-            {
-                ZipArchive.Dispose();
-                if (!_leaveOpen)
-                {
-                    _stream.Dispose();
-                }
-            }
-
-            _isDisposed = true;
+            // ZipArchive.Dispose() finishes writing the zip file with it's current contents when opened in Create or Update mode.
+            // It also disposes the underlying stream unless leaveOpen was set to true.
+            _zipArchive.Dispose();
+            _zipArchive = null;
+            _canonicalEntries = null;
+            _header = null;
         }
     }
 

@@ -4,45 +4,34 @@
 using System.IO.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
-using Microsoft.PowerPlatform.PowerApps.Persistence.Yaml;
-using Moq;
 
 namespace Persistence.Tests.MsApp;
 
 [TestClass]
 public class MsappArchiveTests : TestBase
 {
-    private readonly Mock<IYamlSerializationFactory> _mockYamlSerializationFactory;
+    private const string ResourcesDirectoryName = "Resources";
 
-    public MsappArchiveTests()
-    {
-        _mockYamlSerializationFactory = new(MockBehavior.Strict);
-        _mockYamlSerializationFactory.Setup(f => f.CreateSerializer(It.IsAny<YamlSerializationOptions>()))
-            .Returns(new Mock<IYamlSerializer>(MockBehavior.Strict).Object);
-        _mockYamlSerializationFactory.Setup(f => f.CreateDeserializer(It.IsAny<YamlSerializationOptions>()))
-            .Returns(new Mock<IYamlDeserializer>(MockBehavior.Strict).Object);
-    }
-
-    [DataRow(new string[] { "abc.txt" }, MsappArchive.Directories.Resources, null, 0, 0)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, null, 1, 2)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 1, 2)]
-    [DataRow(new string[] { "abc.txt", "def.txt", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 2, 3)]
-    [DataRow(new string[] { "abc.jpg", @$"{MsappArchive.Directories.Resources}\", @$"{MsappArchive.Directories.Resources}\abc.txt" }, null, ".txt", 0, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, MsappArchive.Directories.Resources, null, 1, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, $@"  {MsappArchive.Directories.Resources}/  ", ".txt", 1, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt", @$"{MsappArchive.Directories.Resources}/qwe.jpg" },
-        $@" {MsappArchive.Directories.Resources}/", ".jpg", 1, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt" }, $@" {MsappArchive.Directories.Resources}\", null, 1, 1)]
-    [DataRow(new string[] { "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" }, "NotFound", "*.txt", 0, 0)]
+    [DataRow(new string[] { "abc.txt" }, ResourcesDirectoryName, null, 0, 0)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, null, 1, 2)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, ".txt", 1, 2)]
+    [DataRow(new string[] { "abc.txt", "def.txt", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, ".txt", 2, 3)]
+    [DataRow(new string[] { "abc.jpg", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, ".txt", 0, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\abc.txt" }, ResourcesDirectoryName, null, 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\abc.txt" }, $@"  {ResourcesDirectoryName}/  ", ".txt", 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}/abc.txt", @$"{ResourcesDirectoryName}/qwe.jpg" },
+        $@" {ResourcesDirectoryName}/", ".jpg", 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}/abc.txt" }, $@" {ResourcesDirectoryName}\", null, 1, 1)]
+    [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\abc.txt" }, "NotFound", "*.txt", 0, 0)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.Resources}\abc.txt",
-        @$"ReSoUrCeS/efg.txt"}, MsappArchive.Directories.Resources, null, 2, 2)]
+        @$"{ResourcesDirectoryName}\abc.txt",
+        @$"ReSoUrCeS/efg.txt"}, ResourcesDirectoryName, null, 2, 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.Resources}\abc.txt",
-        @$"{MsappArchive.Directories.Resources}/efg.txt"}, "RESOURCES", null, 2, 2)]
+        @$"{ResourcesDirectoryName}\abc.txt",
+        @$"{ResourcesDirectoryName}/efg.txt"}, "RESOURCES", null, 2, 2)]
     [DataRow(new string[] {"abc.txt",
-        @$"{MsappArchive.Directories.Resources}New\abc.txt",
-        @$"{MsappArchive.Directories.Resources}/efg.txt"}, MsappArchive.Directories.Resources, null, 1, 1)]
+        @$"{ResourcesDirectoryName}New\abc.txt",
+        @$"{ResourcesDirectoryName}/efg.txt"}, ResourcesDirectoryName, null, 1, 1)]
     [TestMethod]
     public void GetDirectoryEntriesTests(string[] entries, string directoryName, string extension, int expectedCount, int expectedRecursiveCount)
     {
@@ -77,7 +66,7 @@ public class MsappArchiveTests : TestBase
         }
 
         // Assert
-        msappArchive.CanonicalEntries.Count.Should().Be(entries.Length);
+        msappArchive.CanonicalEntries().Count.Should().Be(entries.Length);
         foreach (var expectedEntry in expectedEntries)
         {
             msappArchive.DoesEntryExist(expectedEntry).Should().BeTrue($"Expected entry {expectedEntry} to exist in the archive");
@@ -96,46 +85,17 @@ public class MsappArchiveTests : TestBase
             [ "abc.txt" ]
         };
         yield return new string[][] {
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\abc.txt" ],
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/abc.txt".ToLowerInvariant() ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}\abc.txt" ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}/abc.txt".ToLowerInvariant() ],
         };
         yield return new string[][] {
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt" ],
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant() ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}\DEF.txt" ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}/DEF.txt".ToLowerInvariant() ],
         };
         yield return new string[][] {
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}\DEF.txt", @"\start-with-slash\test.json" ],
-            [ "abc.txt", @$"{MsappArchive.Directories.Resources}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}\DEF.txt", @"\start-with-slash\test.json" ],
+            [ "abc.txt", @$"{ResourcesDirectoryName}/DEF.txt".ToLowerInvariant(), @"start-with-slash/test.json" ],
         };
-    }
-
-    [TestMethod]
-    [DataRow(@"_TestData/AppsWithYaml/HelloWorld.msapp", 12, 1, "HelloScreen", "screen", 8)]
-    public void Msapp_ShouldHave_Screens(string testDirectory, int allEntriesCount, int controlsCount,
-        string topLevelControlName, string topLevelControlType,
-        int topLevelRulesCount)
-    {
-        // Zip archive in memory from folder
-        using var stream = new MemoryStream();
-        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-        {
-            var files = Directory.GetFiles(testDirectory, "*", SearchOption.AllDirectories);
-            foreach (var file in files)
-            {
-                zipArchive.CreateEntryFromFile(file, file.Substring(testDirectory.Length + 1));
-            }
-        }
-
-        // Arrange & Act
-        using var msappArchive = MsappArchiveFactory.Open(stream);
-
-        // Assert
-        msappArchive.CanonicalEntries.Count.Should().Be(allEntriesCount);
-        msappArchive.App.Should().NotBeNull();
-        msappArchive.App!.Screens.Count.Should().Be(controlsCount);
-        msappArchive.Version.Should().Be(Version.Parse("2.2"));
-
-        var screen = msappArchive.App.Screens.Single(c => c.Name == topLevelControlName);
     }
 
     [TestMethod]
@@ -168,7 +128,7 @@ public class MsappArchiveTests : TestBase
     {
         // Setup test archive with a couple entries in it already
         using var archiveMemStream = new MemoryStream();
-        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create);
         archive.CreateEntry("entryA");
         archive.CreateEntry("entryB");
         archive.CreateEntry("dir1/entryA");
@@ -202,7 +162,7 @@ public class MsappArchiveTests : TestBase
     {
         // Setup test archive with a couple entries in it already
         using var archiveMemStream = new MemoryStream();
-        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create);
         archive.CreateEntry("entryA");
         archive.CreateEntry("entryB");
         archive.CreateEntry("dir2/entryA");
@@ -219,7 +179,7 @@ public class MsappArchiveTests : TestBase
     {
         // Setup test archive with a couple entries in it already
         using var archiveMemStream = new MemoryStream();
-        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create);
         archive.CreateEntry("entryA.pa.yaml");
         archive.CreateEntry("entryB.pa.yaml");
         archive.CreateEntry("dir1/entryC.pa.yaml");
@@ -250,7 +210,7 @@ public class MsappArchiveTests : TestBase
     {
         // Setup test archive with a couple entries in it already
         using var archiveMemStream = new MemoryStream();
-        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create, _mockYamlSerializationFactory.Object);
+        using var archive = new MsappArchive(archiveMemStream, ZipArchiveMode.Create);
         archive.CreateEntry("entryA.pa.yaml");
         archive.CreateEntry("dir1/entryA.pa.yaml");
         archive.CreateEntry("dir1/dir2/entryA.pa.yaml");

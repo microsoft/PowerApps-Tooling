@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
@@ -33,13 +33,13 @@
         <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
         <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
         <PackageReference Include="Moq" Version="$(MoqVersion)" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup Label="Global usings">
         <Using Include="FluentAssertions" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
         <Using Include="Persistence.Tests.Extensions" />
-        <Using Include="Microsoft.Extensions.DependencyInjection" />
     </ItemGroup>
 
     <ItemGroup>
