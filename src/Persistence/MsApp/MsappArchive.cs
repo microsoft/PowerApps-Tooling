@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Converters;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -18,12 +19,22 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 {
     private const string HeaderFileName = "Header.json";
 
-    private static readonly JsonSerializerOptions JsonDeserializeOptions = new()
+    /// <summary>
+    /// This should match the options used in DocumentServer for deserializing msapp json files.
+    /// See: JsonDocumentSerializer.SerializerOptions in DocumentServer.Core.
+    /// </summary>
+    private static readonly JsonSerializerOptions DocumentJsonSerializeOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip, // We don't want to fail if there are extra properties in the json
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = false,
+        // We don't want to fail if there are extra properties in the json
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+        Converters =
+        {
+            new JsonDateTimeAssumesUtcConverter(),
+        },
     };
 
     private ZipArchive? _zipArchive;
@@ -39,6 +50,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <param name="entryNameEncoding"></param>
     public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen = false, Encoding? entryNameEncoding = null)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         _zipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
     }
 
@@ -55,9 +68,11 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// </summary>
     public long CompressedSize => ZipArchive.Entries.Sum(zipArchiveEntry => zipArchiveEntry.CompressedLength);
 
-    private HeaderJson Header => _header ??= LoadHeader();
+    internal HeaderJson Header => _header ??= LoadHeader();
 
-    public Version MSAppStructureVersion => Header.MSAppStructureVersion;
+    public Version MSAppStructureVersion => Header.MSAppStructureVersion
+        // When the header is missing the structure version, then it's semantically 1.0. i.e. legacy msapp.
+        ?? HeaderJson.MSAppV1_0Version;
 
     public Version DocVersion => Header.DocVersion;
 
@@ -340,7 +355,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     {
         try
         {
-            return JsonSerializer.Deserialize<T>(entry.Open(), JsonDeserializeOptions)
+            return JsonSerializer.Deserialize<T>(entry.Open(), DocumentJsonSerializeOptions)
                  ?? throw new PersistenceLibraryException(PersistenceErrorCode.EditorStateJsonEmptyOrNull, "Deserialization of json file resulted in null object.") { MsappEntryFullPath = entry.FullName };
         }
         catch (JsonException ex)

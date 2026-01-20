@@ -12,6 +12,7 @@ public class MsappArchiveTests : TestBase
 {
     private const string ResourcesDirectoryName = "Resources";
 
+    [TestMethod]
     [DataRow(new string[] { "abc.txt" }, ResourcesDirectoryName, null, 0, 0)]
     [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, null, 1, 2)]
     [DataRow(new string[] { "abc.txt", @$"{ResourcesDirectoryName}\", @$"{ResourcesDirectoryName}\abc.txt" }, null, ".txt", 1, 2)]
@@ -32,7 +33,6 @@ public class MsappArchiveTests : TestBase
     [DataRow(new string[] {"abc.txt",
         @$"{ResourcesDirectoryName}New\abc.txt",
         @$"{ResourcesDirectoryName}/efg.txt"}, ResourcesDirectoryName, null, 1, 1)]
-    [TestMethod]
     public void GetDirectoryEntriesTests(string[] entries, string directoryName, string extension, int expectedCount, int expectedRecursiveCount)
     {
         // Arrange: Create new ZipArchive in memory
@@ -384,5 +384,59 @@ public class MsappArchiveTests : TestBase
         {
             MsappArchive.IsSafeForEntryPathSegment($"Foo{c}Bar.pa.yaml").Should().BeFalse($"Invalid char '{c}' should not be allowed for path segments");
         }
+    }
+
+    [TestMethod]
+    [DataRow("Header-DocV-1.250.json", null)] // MSAppStructureVersion is not set for legacy docs, but we should normalize to correct semantic value
+    [DataRow("Header-DocV-1.285.json", "2.0")]
+    [DataRow("Header-DocV-1.347.json", "2.4.0")]
+    [DataRow("Header-DocV-1.347-SavedDate-missing.json", "2.4.0", true)]
+    [DataRow("Header-DocV-1.347-SavedDate-null.json", "2.4.0", true)]
+    [DataRow("Header-DocV-1.347-withUnexpectedProp.json", "2.4.0")] // This should parse, and not fail due to unexpected property
+    public void HeaderParseTests(string headerFileName, string? expectedMsappStructureVersionString, bool expectSavedDateNull = false)
+    {
+        var expectedMsappStructureVersion = expectedMsappStructureVersionString is null ? null : Version.Parse(expectedMsappStructureVersionString);
+        TestContext.WriteLine($"Expected ver: {expectedMsappStructureVersion};");
+        using var archiveStream = new MemoryStream();
+        SaveNewMinMsappWithHeaderOnly(archiveStream, headerFileName);
+
+        // Read the archive using MsappArchive
+        using var msappArchive = new MsappArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true);
+        var header = msappArchive.Header;
+        header.MSAppStructureVersion.Should().Be(expectedMsappStructureVersion);
+        if (expectSavedDateNull)
+        {
+            header.LastSavedDateTimeUTC.Should().BeNull();
+        }
+        else
+        {
+            header.LastSavedDateTimeUTC.Should().HaveValue()
+                .And.Subject!.Value.Kind.Should().Be(DateTimeKind.Utc);
+        }
+    }
+
+    [TestMethod]
+    [DataRow("Header-DocV-1.250.json", "1.0")] // MSAppStructureVersion is not set for legacy docs, but we should normalize to correct semantic value
+    [DataRow("Header-DocV-1.285.json", "2.0")]
+    [DataRow("Header-DocV-1.347.json", "2.4.0")]
+    [DataRow("Header-DocV-1.347-SavedDate-missing.json", "2.4.0")]
+    [DataRow("Header-DocV-1.347-SavedDate-null.json", "2.4.0")]
+    public void MSAppStructureVersionTests(string headerFileName, string expectedMsappStructureVersionString)
+    {
+        var expectedMsappStructureVersion = Version.Parse(expectedMsappStructureVersionString);
+        using var archiveStream = new MemoryStream();
+        SaveNewMinMsappWithHeaderOnly(archiveStream, headerFileName);
+
+        // Read the archive using MsappArchive
+        using var msappArchive = new MsappArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true);
+        msappArchive.MSAppStructureVersion.Should().Be(expectedMsappStructureVersion);
+    }
+
+    private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName)
+    {
+        // Create an msapp-like archive with minimum required content. For this test, it's just the header.json file.
+        using var writeToArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, leaveOpen: true);
+        var headerFilePath = Path.Combine("_TestData", "headers", headerFileName);
+        writeToArchive.CreateEntryFromFile(headerFilePath, "Header.json");
     }
 }
