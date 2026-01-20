@@ -21,8 +21,7 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Create(string path, bool overwrite = false)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException(nameof(path));
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
@@ -31,15 +30,12 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Create(Stream stream, bool leaveOpen = false)
     {
-        _ = stream ?? throw new ArgumentNullException(nameof(stream));
-
         return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, EntryNameEncoding);
     }
 
     public IMsappArchive Open(string path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException(nameof(path));
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
 
@@ -48,15 +44,12 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Open(Stream stream, bool leaveOpen = false)
     {
-        _ = stream ?? throw new ArgumentNullException(nameof(stream));
-
         return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, EntryNameEncoding);
     }
 
     public IMsappArchive Update(string path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentNullException(nameof(path));
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 
@@ -65,8 +58,6 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Update(Stream stream, bool leaveOpen = false)
     {
-        _ = stream ?? throw new ArgumentNullException(nameof(stream));
-
         return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, EntryNameEncoding);
     }
 }
