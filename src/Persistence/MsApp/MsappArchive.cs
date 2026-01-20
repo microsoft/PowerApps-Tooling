@@ -70,9 +70,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
 
     internal HeaderJson Header => _header ??= LoadHeader();
 
-    public Version MSAppStructureVersion => Header.MSAppStructureVersion
-        // When the header is missing the structure version, then it's semantically 1.0. i.e. legacy msapp.
-        ?? HeaderJson.MSAppV1_0Version;
+    // When the header is missing the structure version, then it's semantically 1.0. i.e. legacy msapp.
+    public Version MSAppStructureVersion => Header.MSAppStructureVersion ?? HeaderJson.MSAppV1_0Version;
 
     public Version DocVersion => Header.DocVersion;
 
