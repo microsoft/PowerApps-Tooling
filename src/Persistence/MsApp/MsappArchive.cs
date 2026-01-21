@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Converters;
 
@@ -37,6 +38,7 @@ public partial class MsappArchive : IMsappArchive, IDisposable
         },
     };
 
+    private readonly ILogger<MsappArchive>? _logger;
     private ZipArchive? _zipArchive;
     private Dictionary<string, ZipArchiveEntry>? _canonicalEntries;
     private HeaderJson? _header;
@@ -48,11 +50,17 @@ public partial class MsappArchive : IMsappArchive, IDisposable
     /// <param name="mode"></param>
     /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
     /// <param name="entryNameEncoding"></param>
-    public MsappArchive(Stream stream, ZipArchiveMode mode, bool leaveOpen = false, Encoding? entryNameEncoding = null)
+    public MsappArchive(
+        Stream stream,
+        ZipArchiveMode mode,
+        bool leaveOpen = false,
+        Encoding? entryNameEncoding = null,
+        ILogger<MsappArchive>? logger = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
         _zipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
+        _logger = logger;
     }
 
     /// <inheritdoc/>
@@ -83,27 +91,34 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             {
                 EnsureNotDisposed();
 
-                var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
-
-                // In Create mode, we don't have access to the Entries, so we create it as empty.
-                // This should be fine, as this property is only used when adding entries.
-                if (ZipArchive.Mode != ZipArchiveMode.Create)
-                {
-                    foreach (var entry in ZipArchive.Entries)
-                    {
-                        var canonicalizedPath = CanonicalizePath(entry.FullName);
-                        if (!canonicalEntries.TryAdd(canonicalizedPath, entry))
-                        {
-                            throw new InvalidDataException($"Duplicate canonicalized entry found in zip archive. EntryFullName: '{entry.FullName}'; CanonicalizedPath: '{canonicalizedPath}';");
-                        }
-                    }
-                }
-
-                _canonicalEntries = canonicalEntries;
+                _canonicalEntries = InitializeCanonicalEntries();
             }
 
             return _canonicalEntries;
         }
+    }
+
+    private Dictionary<string, ZipArchiveEntry> InitializeCanonicalEntries()
+    {
+        // In Create mode, we don't have access to the Entries, so we create it as empty.
+        // This should be fine, as this property is only used when adding entries.
+        if (ZipArchive.Mode == ZipArchiveMode.Create)
+        {
+            return [];
+        }
+
+        var canonicalEntries = new Dictionary<string, ZipArchiveEntry>();
+        foreach (var entry in ZipArchive.Entries)
+        {
+            var canonicalizedPath = CanonicalizePath(entry.FullName);
+            if (!canonicalEntries.TryAdd(canonicalizedPath, entry))
+            {
+                // Due to a 10yr old bug in WebAuth, the DocSvr chose to ignore duplicate entries and just pick one.
+                _logger?.LogDuplicateCanonicalizedEntryIgnored(entry.FullName, canonicalizedPath);
+            }
+        }
+
+        return canonicalEntries;
     }
 
     /// <inheritdoc/>

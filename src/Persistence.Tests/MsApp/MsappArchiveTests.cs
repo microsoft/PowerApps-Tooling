@@ -387,6 +387,35 @@ public class MsappArchiveTests : TestBase
     }
 
     [TestMethod]
+    public void OpenArchiveWithDuplicateEntriesTest()
+    {
+        using var archiveStream = new MemoryStream();
+        SaveNewMinMsappWithHeaderOnly(archiveStream);
+        // Manually add duplicate entries to the archive
+        using (var zipArchive = new ZipArchive(archiveStream, ZipArchiveMode.Update, leaveOpen: true))
+        {
+            zipArchive.CreateEntry("Assets/img1.jpg");
+            zipArchive.CreateEntry(@"assets\img1.jpg");
+
+            zipArchive.Entries.Should().HaveCount(3);
+        }
+
+        // Read the archive using MsappArchive
+        using var msappArchive = new MsappArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true);
+        msappArchive.DoesEntryExist("Assets/img1.jpg").Should().BeTrue();
+        msappArchive.DoesEntryExist("assets/img1.jpg").Should().BeTrue();
+        msappArchive.DoesEntryExist(@"assets\img1.jpg").Should().BeTrue();
+        msappArchive.CanonicalEntries().Keys.Should().Equal(["header.json", "assets/img1.jpg"], "keys should be normalized even if the entries had upper-case");
+
+        msappArchive.TryGetEntry("Assets/img1.jpg", out var entry1).Should().BeTrue();
+        entry1!.FullName.Should().Be("Assets/img1.jpg");
+        msappArchive.TryGetEntry(@"assets\img1.jpg", out var entry2).Should().BeTrue();
+        entry2!.FullName.Should().Be("Assets/img1.jpg");
+        entry2.Should().BeSameAs(entry1, "both paths should resolve to the same entry instance");
+    }
+
+
+    [TestMethod]
     [DataRow("Header-DocV-1.250.json", null)] // MSAppStructureVersion is not set for legacy docs, but we should normalize to correct semantic value
     [DataRow("Header-DocV-1.285.json", "2.0")]
     [DataRow("Header-DocV-1.347.json", "2.4.0")]
@@ -432,7 +461,7 @@ public class MsappArchiveTests : TestBase
         msappArchive.MSAppStructureVersion.Should().Be(expectedMsappStructureVersion);
     }
 
-    private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName)
+    private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName = "Header-DocV-1.347.json")
     {
         // Create an msapp-like archive with minimum required content. For this test, it's just the header.json file.
         using var writeToArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, leaveOpen: true);
