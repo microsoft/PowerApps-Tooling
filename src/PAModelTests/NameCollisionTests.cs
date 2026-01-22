@@ -62,7 +62,7 @@ public class NameCollisionTests
         Assert.IsTrue(newFileNames.Contains("image_2"));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     [DataRow("DuplicateScreen.msapp")]
     public void TestScreenRename(string appName)
@@ -111,11 +111,11 @@ public class NameCollisionTests
             }
 
             // There should be no expected files that were not found
-            Assert.AreEqual(expectedScreens.Count, 0, $"{expectedScreens.Count} screens not found in Src directory.");
+            Assert.IsEmpty(expectedScreens, $"{expectedScreens.Count} screens not found in Src directory.");
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     [DataRow("DuplicateScreen.msapp")]
     [DataRow("ComponentNameCollision.msapp")]
@@ -167,7 +167,7 @@ public class NameCollisionTests
             }
 
             // There should be no expected files that were not found
-            Assert.AreEqual(expectedControlsWithEditorState.Count, 0, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
+            Assert.IsEmpty(expectedControlsWithEditorState, $"{expectedControlsWithEditorState.Count} editor state files not found in EditorState directory.");
         }
     }
 
@@ -205,7 +205,7 @@ public class NameCollisionTests
         Assert.IsFalse(errorContainer.HasErrors);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("CollidingFilenames.msapp")]
     public void TestDataSourceNameCollision(string appName)
     {
@@ -267,6 +267,6 @@ public class NameCollisionTests
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
 
-        Assert.AreEqual(doc._assetFiles.Count(), 2);
+        Assert.AreEqual(2, doc._assetFiles.Count());
     }
 }

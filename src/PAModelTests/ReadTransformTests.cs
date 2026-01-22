@@ -11,7 +11,7 @@ namespace PAModelTests;
 [TestClass]
 public class ReadTransformTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
     [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
     [DataRow("GroupControlStateEmpty.msapp", false, true)]
@@ -50,6 +50,6 @@ public class ReadTransformTests
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
 
-        Assert.AreEqual(errorContainer.HasErrors, false);
+        Assert.IsFalse(errorContainer.HasErrors);
     }
 }

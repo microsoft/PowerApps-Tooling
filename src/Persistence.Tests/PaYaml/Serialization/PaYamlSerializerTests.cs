@@ -167,7 +167,7 @@ public class PaYamlSerializerTests : VSTestBase
     public void DeserializeDuplicateControlNamesShouldFail()
     {
         var path = @"_TestData/InvalidYaml-CI/duplicate-control-in-sequence.pa.yaml";
-        var ex = Assert.ThrowsException<PersistenceLibraryException>(() => PaYamlSerializer.Deserialize<NamedObjectSequence<ControlInstance>>(File.ReadAllText(path)));
+        var ex = Assert.ThrowsExactly<PersistenceLibraryException>(() => PaYamlSerializer.Deserialize<NamedObjectSequence<ControlInstance>>(File.ReadAllText(path)));
         ex.ErrorCode.Should().Be(PersistenceErrorCode.DuplicateNameInSequence);
     }
 

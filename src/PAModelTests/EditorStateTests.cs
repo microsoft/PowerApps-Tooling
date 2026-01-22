@@ -16,7 +16,7 @@ public class EditorStateTests
     /// <summary>
     /// Tests that the top parent name is set properly on the editor state file.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp", "Screen1")]
     [DataRow("DuplicateScreen.msapp", "Screen1")]
     public void TestTopParentSerialization(string appName, string topParentName)
@@ -57,7 +57,7 @@ public class EditorStateTests
     /// Tests that the `TopParentName` for each control is set to the correct
     /// value when the app is deserialized.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp", "Screen1")]
     [DataRow("DuplicateScreen.msapp", "Screen1")]
     public void TestTopParentNameLoad(string appName, string topParentName)
@@ -118,7 +118,7 @@ public class EditorStateTests
     /// 
     /// When SourceSerializer is updated past v24, this could be removed entirely.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp", "Screen1")]
     [DataRow("DuplicateScreen.msapp", "Screen1")]
     public void TestTopParentNameFallback(string appName, string topParentName)

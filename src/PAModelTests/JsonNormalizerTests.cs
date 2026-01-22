@@ -21,7 +21,7 @@ public class JsonNormalizerTests
     }
 
     // String escaping normalizing. \u is an escape, Multiple ways to encode the same char.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("\"a\\\"bc\"")]
     [DataRow("\"a\\u0022bc\"")]
     public void StringEncoding(string unescaped)

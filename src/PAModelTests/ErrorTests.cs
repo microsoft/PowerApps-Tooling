@@ -59,7 +59,7 @@ public class ErrorTests
         string path = null;
 
         // should throw on null
-        Assert.ThrowsException<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));
+        Assert.ThrowsExactly<DocumentException>(() => DirectoryWriter.EnsureFileDirExists(path));
     }
 
     [TestMethod]
@@ -105,7 +105,7 @@ public class ErrorTests
 
         // When there's a file content mismatch on non-JSON files,
         // we must throw an error and not use JSON to compare non JSON-files
-        var exception = Assert.ThrowsException<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
+        var exception = Assert.ThrowsExactly<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
         exception.Message.Should().Be("Mismatch detected in non-Json properties: Assets\\Images\\1556681b-11bd-4d72-9b17-4f884fb4b465.png");
     }
 }

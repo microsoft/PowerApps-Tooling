@@ -1,22 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="MSTest.Sdk">
+  <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
-    
+
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
-    <EnableMSTestRunner>true</EnableMSTestRunner>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="MSTest.TestAdapter" />
-    <PackageReference Include="MSTest" />
-    <PackageReference Include="coverlet.collector" />
     <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup Label="Global usings">
@@ -42,16 +40,6 @@
   <ItemGroup>
     <None Remove="TestData\simpleArray1.json" />
     <None Remove="TestData\SimpleArray2.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PAModel\Microsoft.PowerPlatform.Formulas.Tools.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="TestData\*.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

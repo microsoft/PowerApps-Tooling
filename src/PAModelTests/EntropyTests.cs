@@ -11,7 +11,7 @@ namespace PAModelTests;
 [TestClass]
 public class EntropyTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ComponentTest.msapp", true)]
     [DataRow("ComponentWithSameParam.msapp", false)]
     public void TestFunctionParameters(string filename, bool invariantScriptsOnInstancesExist)
@@ -38,7 +38,7 @@ public class EntropyTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestControlIdGuidParsing(string filename)
     {
@@ -48,11 +48,11 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.ControlUniqueGuids.Count > 0);
-        Assert.AreEqual(msapp._entropy.ControlUniqueIds.Count, 0);
+        Assert.IsNotEmpty(msapp._entropy.ControlUniqueGuids);
+        Assert.IsEmpty(msapp._entropy.ControlUniqueIds);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AppWithLabel.msapp")]
     public void TestControlIdIntParsing(string filename)
     {
@@ -62,13 +62,13 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.ControlUniqueIds.Count > 0);
-        Assert.AreEqual(msapp._entropy.ControlUniqueGuids.Count, 0);
+        Assert.IsNotEmpty(msapp._entropy.ControlUniqueIds);
+        Assert.IsEmpty(msapp._entropy.ControlUniqueGuids);
     }
 
     // Validate that the control template fields OverridaleProperties and PCFDynamicSchemaForIRRetrieval are stored in entropy while unpacking
     // The test app contains control instances with same template but different fields
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ControlInstancesWithDifferentTemplateFields.msapp")]
     public void TestControlInstancesWithSameTemplateDifferentFields(string appName)
     {
@@ -78,11 +78,11 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.OverridablePropertiesEntry.Count > 0);
-        Assert.IsTrue(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.OverridablePropertiesEntry);
+        Assert.IsNotEmpty(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestGetResourcesJSONIndicesKeyNullException(string filename)
     {
@@ -100,7 +100,7 @@ public class EntropyTests
 
     // Validate that the pcf control template is stored in entropy while unpacking
     // The test app contains control instances with same template but different fields
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PcfTemplates.msapp")]
     public void TestPCFControlInstancesWithSameTemplateDifferentFields(string appName)
     {
@@ -110,10 +110,10 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.PCFTemplateEntry);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("AnimationControlIdIsGuid.msapp")]
     public void TestAppWithNoPCFControlInstances(string appName)
     {
@@ -123,12 +123,12 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+        Assert.IsEmpty(msapp._entropy.PCFTemplateEntry);
     }
 
     // Validate that a PCF control will still resolve its template by falling back to
     // the template store if the control's specific template isn't in Entropy.
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PcfTemplates.msapp")]
     public void TestPCFControlWillFallBackToControlTemplate(string appName)
     {
@@ -138,11 +138,11 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.PCFTemplateEntry);
 
         // Clear out the PCF templates in entropy
         msapp._entropy.PCFTemplateEntry.Clear();
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+        Assert.IsEmpty(msapp._entropy.PCFTemplateEntry);
 
         // Repack the app and validate it matches the initial msapp
         using (var tempFile = new TempFile())

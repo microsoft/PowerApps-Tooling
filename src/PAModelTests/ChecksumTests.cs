@@ -11,7 +11,7 @@ namespace PAModelTests;
 [TestClass]
 public class ChecksumTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("MyWeather.msapp", "C8_ZXZwZAG3P0lmCkNAGjsIjYb503akWCyudsk8DEi2aX0=", 11, "References\\DataSources.json", "C8_2dpVudcymwNaHoHtQugF1MSpzsY1I6syuPiB0B+jTYc=")]
     public void TestChecksum(string filename, string expectedChecksum, int expectedFileCount, string file, string innerExpectedChecksum)
     {
@@ -21,7 +21,7 @@ public class ChecksumTests
         var actualChecksum = ChecksumMaker.GetChecksum(root);
 
         Assert.AreEqual(expectedChecksum, actualChecksum.wholeChecksum);
-        Assert.AreEqual(expectedFileCount, actualChecksum.perFileChecksum.Count);
+        Assert.HasCount(expectedFileCount, actualChecksum.perFileChecksum);
         Assert.IsTrue(actualChecksum.perFileChecksum.TryGetValue(file, out var perFileChecksum));
         Assert.AreEqual(innerExpectedChecksum, perFileChecksum);
 
@@ -29,7 +29,7 @@ public class ChecksumTests
         Assert.AreEqual(ChecksumMaker.GetChecksumVersion(expectedChecksum), ChecksumMaker.Version);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("a  bc", "a bc")]
     [DataRow("  a  b   ", "a b")] // leading, trailing 
     [DataRow("a\t\r\nb", "a b")] // other chars
@@ -80,7 +80,7 @@ public class ChecksumTests
     private const string C20 = "C8_2YUFpLVLEYtdFvV9iLN8F6TM+cWczemMx4m0VEIpfrg=";
 
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(C1, /*lang=json*/ @"' ab\r\ncd'")] // whitespace
     [DataRow(C1, /*lang=json*/ @"'ab\ncd'")] // same
     [DataRow(C2, /*lang=json*/ @"'ab\ncd  '")] // Trailing whitespace is not trimmed. 

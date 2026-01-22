@@ -9,7 +9,7 @@ namespace PAModelTests;
 [TestClass]
 public class UtilityTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("\r\t!$^%/\\", "%0d%09%21%24%5e%25%2f%5c")]
     [DataRow("одиндваодиндваодиндваодиндваодиндваодинд", "одиндваодиндваодиндваодиндваодиндваодинд")]
     [DataRow("İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg", "İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg")]
@@ -19,7 +19,7 @@ public class UtilityTests
         Assert.AreEqual(FilePath.UnEscapeFilename(escaped), unescaped);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("foo-%41", "foo-A")]
     [DataRow("[]_' ", "[]_' ")] // unescape only touches % character.
     [DataRow("İkşzlerA%e7ık芲偁ＡＢＣ巢f%fcr नमस्ते กุ้งจิ้яЧчŠš������  - Copy %282%29.jpg", "İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš������  - Copy (2).jpg")]
@@ -36,7 +36,7 @@ public class UtilityTests
         Assert.AreEqual(FilePath.EscapeFilename(a), a);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("C:\\Foo\\Bar\\file", "C:\\Foo", "Bar\\file")]
     [DataRow("C:\\Foo\\Bar\\file", "C:\\Foo\\", "Bar\\file")]
     [DataRow("C:\\Foo\\Bar.msapp", "C:\\Foo", "Bar.msapp")]
@@ -74,13 +74,13 @@ public class UtilityTests
         Assert.AreEqual(path, original);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Long*Control*Name*Truncation*Tests***", "Long%2aControl%2aName%2aTruncation%2aTests%2a_959")]
     [DataRow("TestReallyLoooooooooooooooooooooooooooooooooooongControlName", "TestReallyLooooooooooooooooooooooooooooooooooo_cad")]
     [DataRow("TestControlName", "TestControlName")]
     public void TestControlNameTruncation(string originalName, string expectedName)
     {
         var truncatedName = FilePath.TruncateNameIfTooLong(originalName);
-        Assert.AreEqual(truncatedName, expectedName);
+        Assert.AreEqual(expectedName, truncatedName);
     }
 }

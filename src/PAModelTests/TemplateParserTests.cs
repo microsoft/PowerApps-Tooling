@@ -28,7 +28,7 @@ public class TemplateParserTests
         var templateStore = new TemplateStore();
         Assert.IsTrue(ControlTemplateParser.TryParseTemplate(templateStore, galleryTemplateContents, AppType.DesktopOrTablet, parsedTemplates, out var topTemplate, out var name));
 
-        Assert.AreEqual(2, parsedTemplates.Count);
+        Assert.HasCount(2, parsedTemplates);
         Assert.AreEqual("gallery", name);
         Assert.AreEqual("http://microsoft.com/appmagic/gallery", topTemplate.Id);
 

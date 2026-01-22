@@ -39,7 +39,7 @@ Obj1:
     }
 
     // These values should get automatically multiline escaped. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Hi #There")] // Yaml comments are dangerous
     [DataRow("abc\r\ndef")]
     [DataRow("Patched({a : b})")]
@@ -53,11 +53,11 @@ Obj1:
         var text = sw.ToString();
 
         // We use a | escape. 
-        Assert.IsTrue(text.StartsWith("Foo: |"));
+        Assert.StartsWith("Foo: |", text);
     }
 
     // Different ending newlines will have different escapes. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("  1")] // leading whitespace
     [DataRow("  1\n2\n3")] // leading whitespace with multiline
     [DataRow("  1\r2\r3")] // leading whitespace with Mac style multiline
@@ -107,7 +107,7 @@ Obj1:
     }
 
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void WriteBool(bool value)
@@ -155,7 +155,7 @@ Obj1:
     }
 
     // Error on 1st token read
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo: 12")] // missing =
     [DataRow("Foo: |\r\n=12")] // missing = in newline
     [DataRow("Foo: =x #comment")] // comments not allowed in single line.
@@ -173,7 +173,7 @@ Obj1:
     }
 
     // Error on 2nd token read. 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Foo:\r\n  val\r\n")] // Must have escape if there's a newline
     public void ExpectedError2(string expr)
     {
@@ -458,9 +458,9 @@ P2: = ""hello"" & ""world""
         using var reader = new StringReader(expectedYaml);
 
         var props = YamlConverter.Read(reader);
-        Assert.AreEqual(props.Count, 2);
-        Assert.AreEqual(props["P1"], "123");
-        Assert.AreEqual(props["P2"], " \"hello\" & \"world\"");
+        Assert.HasCount(2, props);
+        Assert.AreEqual("123", props["P1"]);
+        Assert.AreEqual(" \"hello\" & \"world\"", props["P2"]);
 
     }
 
@@ -471,7 +471,7 @@ P2: = ""hello"" & ""world""
 @"P1:
     sub1: 123"); // error, not supported objects 
 
-        Assert.ThrowsException<InvalidOperationException>(
+        Assert.ThrowsExactly<InvalidOperationException>(
             () => YamlConverter.Read(reader));
     }
 
@@ -631,7 +631,7 @@ P2: = ""hello"" & ""world""
         {
             if (p.Kind == YamlTokenKind.Error)
             {
-                Assert.AreEqual(p.Value, expectedErrorMessage);
+                Assert.AreEqual(expectedErrorMessage, p.Value);
                 return;
             }
             p = y.ReadNext();
