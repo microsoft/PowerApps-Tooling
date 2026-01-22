@@ -3,6 +3,7 @@
 
 using System.IO.Compression;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -17,6 +18,13 @@ public class MsappArchiveFactory : IMsappArchiveFactory
     /// </summary>
     public static readonly MsappArchiveFactory Default = new();
 
+    private readonly ILogger<MsappArchive>? _logger;
+
+    public MsappArchiveFactory(ILogger<MsappArchive>? logger = null)
+    {
+        _logger = logger;
+    }
+
     public Encoding? EntryNameEncoding { get; init; }
 
     public IMsappArchive Create(string path, bool overwrite = false)
@@ -30,7 +38,7 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Create(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, EntryNameEncoding);
+        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, EntryNameEncoding, _logger);
     }
 
     public IMsappArchive Open(string path)
@@ -44,7 +52,7 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Open(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, EntryNameEncoding);
+        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, EntryNameEncoding, _logger);
     }
 
     public IMsappArchive Update(string path)
@@ -58,6 +66,6 @@ public class MsappArchiveFactory : IMsappArchiveFactory
 
     public IMsappArchive Update(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, EntryNameEncoding);
+        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, EntryNameEncoding, _logger);
     }
 }
