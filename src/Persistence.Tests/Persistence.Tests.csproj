@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EnableMSTestRunner>true</EnableMSTestRunner>
@@ -10,7 +9,6 @@
         <IsTestProject>true</IsTestProject>
 
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
         <PublicSign>true</PublicSign>
     </PropertyGroup>
 
@@ -28,12 +26,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestTestAdapterVersion)" />
-        <PackageReference Include="MSTest" Version="$(MSTest)" />
-        <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
-        <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
-        <PackageReference Include="Moq" Version="$(MoqVersion)" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+        <PackageReference Include="MSTest.TestAdapter" />
+        <PackageReference Include="MSTest" />
+        <PackageReference Include="coverlet.collector" />
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     </ItemGroup>
 
     <ItemGroup Label="Global usings">

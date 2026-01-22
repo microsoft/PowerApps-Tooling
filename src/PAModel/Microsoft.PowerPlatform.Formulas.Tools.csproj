@@ -1,28 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <LangVersion>12</LangVersion>
-    <AssemblyName>Microsoft.PowerPlatform.Formulas.Tools</AssemblyName>
-    <RootNamespace>Microsoft.PowerPlatform.Formulas.Tools</RootNamespace>
+
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
-  <PropertyGroup Label="Override Directory.Build.props Settings">
-    <!-- Clear the singular TargetFramework set by Directory.Build.props, so that it doesn't take precedence over the plural TargetFrameworks set above. -->
-    <TargetFramework></TargetFramework> 
-    <!-- Directory.Build.props sets paths assuming a single Target Framework.  Add the framework to the path to prevent overwriting one with the other -->
-    <OutDir>$(OutDir)\$(TargetFramework)</OutDir>
-  </PropertyGroup>
-
-  <!-- Nuget Properties -->
-  <PropertyGroup>
-    <PackageId>Microsoft.PowerPlatform.Formulas.Tools</PackageId>
-    <Authors>Microsoft</Authors>
-    <Company>crmsdk,Microsoft</Company>
+  <PropertyGroup Label="Nuget Properties">
     <Title>PowerPlatform Canvas App Tools</Title>
-    <PackageProjectUrl>https://github.com/microsoft/PowerApps-Tooling</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>Preview Release: This takes a Canvas App (.msapp file) and converts to and from text files that can be checked into source control.</Description>
     <PackageReleaseNotes>
         Notice:
@@ -32,14 +20,19 @@
 
         See https://github.com/microsoft/PowerApps-Tooling/releases for the latest release notes.
     </PackageReleaseNotes>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <PublicSign>true</PublicSign>
-    <!-- Workaround for version range https://github.com/NuGet/Home/issues/11842 -->
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <NoWarn>$(NoWarn);NU1601</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="System.Text.Encodings.Web" />
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PAModelTests" />
+    <InternalsVisibleTo Include="PASopa" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ControlTemplates/commonStyleProperties.xml" />
@@ -50,12 +43,5 @@
     <EmbeddedResource Include="../../obj/buildver.json">
       <Link>Build/BuildVer.json</Link>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,)" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
-    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
   </ItemGroup>
 </Project>

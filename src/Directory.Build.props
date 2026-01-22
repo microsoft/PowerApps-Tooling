@@ -1,36 +1,59 @@
 <Project>
-    <Import Project="Versions.props" />
+    <!-- See: https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets -->
+    <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup Label="Project output paths">
+        <RelativeProjectPath>$([MSBuild]::MakeRelative($(SrcPath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
+
+        <!-- Latest MSBuild tools uses the $(BaseOutputPath) and $(OutputPath) properties. Legacy properties are set based on them in Microsoft.Common.targets.
+        By default, we configure the BaseOutputPath to the drop folder. Other adaptations to the final OutputPath can be done after this occurs.
+        -->
+        <BaseOutputPath>$([MSBuild]::NormalizeDirectory($(RepoBinRoot), $(RelativeProjectPath)))</BaseOutputPath>
+        <!--
+        Since we won't know the target framework folder (if applicable) when this file gets evaluated, we can't set
+        the OutputPath correctly here. In general, this should be done in a Directory.Build.targets if needed.
+        But it's preferable to only change the BaseOutputPath and let the OutputPath be computed by standard MSBuild props/targets.
+        <OutputPath>$(BaseOutputPath)\$(TargetFramework)\</OutputPath> -->
+
+        <!-- WARNING: DO NOT use Configuration to change the base Intermediate path, as it circumvents common .net SDK build assets which do not depend on it. -->
+        <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory($(RepoIntermediateRoot), $(RelativeProjectPath)))</BaseIntermediateOutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Nuget defaults">
+        <!-- These settings allow projects to only need to include the properties unique to that project -->
+        <Authors>Microsoft</Authors>
+        <Company>crmsdk,Microsoft</Company>
+        <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+        <RepositoryUrl>https://github.com/microsoft/PowerApps-Tooling</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/microsoft/PowerApps-Tooling</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    </PropertyGroup>
 
     <PropertyGroup>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <NoWarn>1591</NoWarn>
+
+        <!-- 1591 - Missing XML comment for publicly visible type or member -->
+        <NoWarn>$(NoWarn);1591</NoWarn>
+
+        <!-- Address BA2004: https://github.com/microsoft/binskim/blob/main/docs/BinSkimRules.md#rule-BA2004EnableSecureSourceCodeHashing -->
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
     </PropertyGroup>
 
-    <PropertyGroup Label="Code Analysis config">
-        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <PropertyGroup Label="Versioning" Condition="!Exists('$(PipelineVersionAssemblyInfoFilePath)')">
+        <VersionPrefix Condition="'$(VersionPrefix)' == ''">0.1.0</VersionPrefix>
+        <VersionSuffix Condition="'$(VersionSuffix)' == ''">dev</VersionSuffix>
     </PropertyGroup>
 
-    <!--
-    When building in VS IDE, we don't want to treat warnings as errors, because they randomize developer progress.
-    Warnings will be treated as errors at command line and in build pipelines
-    -->
-    <PropertyGroup Label="Code Analysis config for VS IDE"
-                   Condition="'$(BuildingInsideVisualStudio)' == 'true'">
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <!-- When compiling in a pipeline, we don't want to generate assembly version attributes, as they will be generated from the pipeline versioning file -->
+    <PropertyGroup Label="Pipeline Versioning" Condition="Exists('$(PipelineVersionAssemblyInfoFilePath)')">
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Compile Include="..\..\.version\PipelineAssemblyInfo.cs">
-            <Link>Properties\PipelineAssemblyInfo.cs</Link>
-        </Compile>
+    <ItemGroup Label="Pipeline Versioning" Condition="Exists('$(PipelineVersionAssemblyInfoFilePath)')">
+        <Compile Include="$(PipelineVersionAssemblyInfoFilePath)" LinkRoot="Properties" />
     </ItemGroup>
 
     <ItemGroup Label="Global usings">
@@ -38,56 +61,4 @@
         <Using Include="System.Collections.Generic" />
         <Using Include="System.Diagnostics" />
     </ItemGroup>
-
-    <!-- If not otherwise specified, the project is building for Debug -->
-    <PropertyGroup Condition=" '$(Configuration)' == '' ">
-        <Configuration>Debug</Configuration>
-    </PropertyGroup>
-
-    <!-- Settings for the Debug configuration. -->
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <DefineConstants>TRACE;DEBUG</DefineConstants>
-    </PropertyGroup>
-
-    <!-- Settings for the Release configuration. -->
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <DefineConstants>TRACE</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <SourcePath>$(MSBuildThisFileDirectory)</SourcePath>
-        <BinPath Condition=" '$(BinPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\bin'))</BinPath>
-        <IntermediatePath Condition=" '$(IntermediatePath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\obj'))\</IntermediatePath>
-        <RelativeProjectPath>$([MSBuild]::MakeRelative($(SourcePath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
-
-        <RootOutputPath>$(BinPath)\$(Configuration)\</RootOutputPath>
-
-        <!-- Output path for the project -->
-        <ProjectOutputPath>$(RootOutputPath)$(RelativeProjectPath)\</ProjectOutputPath>
-
-        <!-- Output path for the project -->
-        <OutputPath Condition="'$(OutputPath)' == ''">$(ProjectOutputPath)</OutputPath>
-        <OutDir Condition="'$(OutDir)' == ''">$(OutputPath)</OutDir>
-
-        <!-- Intermediates path for the configuration/platform combination. -->
-        <RootIntermediateOutputPath>$(IntermediatePath)$(Configuration)\</RootIntermediateOutputPath>
-
-        <!-- Intermediates path for the project. -->
-        <ProjectIntermediateOutputPath>$(RootIntermediateOutputPath)$(RelativeProjectPath)\</ProjectIntermediateOutputPath>
-        <IntermediateOutputPath Condition="'$(IntermediateOutputPath)' == ''">$(ProjectIntermediateOutputPath)</IntermediateOutputPath>
-        <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(IntermediatePath)NugetRestore\$(RelativeProjectPath)</BaseIntermediateOutputPath>
-
-        <!-- Path to Nuget packages -->
-        <PackagesPath Condition=" '$(PackagesPath)' == '' ">$([System.IO.Path]::GetFullPath('$(SourcePath)..\pkg'))\</PackagesPath>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <RestorePackagesPath>$(PackagesPath)</RestorePackagesPath>
-        <RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
-        <RestoreOutputPath>$(BaseIntermediateOutputPath)</RestoreOutputPath>
-    </PropertyGroup>
 </Project>

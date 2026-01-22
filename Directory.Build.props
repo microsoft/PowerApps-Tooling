@@ -1,0 +1,48 @@
+<Project>
+    <!-- See: https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets -->
+    <!-- The top of the repo should not import Directory.Build.* above it's structure -->
+    <!-- At the root of the repo, it's best to only include repo-wide settings and defaults. -->
+    <PropertyGroup Label="Repository Paths">
+        <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
+        <SrcPath>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'src'))</SrcPath>
+        <RepoBinRoot>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'bin'))</RepoBinRoot>
+        <RepoIntermediateRoot>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'obj'))</RepoIntermediateRoot>
+
+        <!-- This file only exists during an official pipeline build -->
+        <PipelineVersionAssemblyInfoFilePath>$([MSBuild]::NormalizePath($(RepoRoot), '.version', 'PipelineAssemblyInfo.cs'))</PipelineVersionAssemblyInfoFilePath>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Project defaults and output paths">
+        <!-- If not otherwise specified, the project is building for Debug.
+         This allows us to compose custom output paths based on configuration below.
+         -->
+        <Configuration>Debug</Configuration>
+
+        <!-- Signing defaults: -->
+        <AssemblyOriginatorKeyFile>$(RepoRoot)35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+    
+    <PropertyGroup Label="Nuget Config">
+        <RestorePackagesPath>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'pkg'))</RestorePackagesPath>
+        <!-- <RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource> -->
+        <!-- <RestoreOutputPath>$(BaseIntermediateOutputPath)</RestoreOutputPath> -->
+    </PropertyGroup>
+
+    <PropertyGroup Label="Code Analysis config">
+        <!-- Without this, some code styling rules only execute in VS IDE, sometimes, only when the file is open -->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+    When building in VS IDE, we don't want to treat warnings as errors, because they randomize developer progress.
+    Warnings will be treated as errors at command line and in build pipelines
+    -->
+    <PropertyGroup Label="Code Analysis config for VS IDE"
+                   Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+</Project>

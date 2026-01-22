@@ -5,16 +5,9 @@
     <LangVersion>Latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <PublicSign>true</PublicSign>
-  </PropertyGroup>
 
-  <PropertyGroup Label="Override Directory.Build.props Settings">
-    <!-- Clear the singular TargetFramework set by Directory.Build.props, so that it doesn't take precedence over the plural TargetFrameworks set above. -->
-    <TargetFramework></TargetFramework> 
-    <!-- Directory.Build.props sets paths assuming a single Target Framework.  Add the framework to the path to prevent overwriting one with the other -->
-    <OutDir>$(OutDir)\$(TargetFramework)</OutDir>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
   </PropertyGroup>
 
   <ItemGroup Label="Global usings">
@@ -22,12 +15,11 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="JsonSchema.Net" Version="7.1.2" />
-    <PackageReference Include="Yaml2JsonNode" Version="2.1.1" />
-    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-    <!-- System.Text.Json is a transitive dependency of Yaml2JsonNode for netstandard2.0.  Pinning to 8.0.5 for CVE-2024-43485, but can be removed on update of Yaml2JsonNode -->
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="JsonSchema.Net" />
+    <PackageReference Include="Yaml2JsonNode" />
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <!-- Link schemas and build them into the assembly for the YamlValidator -->

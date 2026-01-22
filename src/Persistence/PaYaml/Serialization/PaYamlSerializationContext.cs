@@ -19,11 +19,9 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
     /// </summary>
     public PaYamlSerializerOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
 
-    // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-    public IValueSerializer? ValueSerializer { get; set; }
+    internal IValueSerializer? ValueSerializer { get; set; }
 
-    // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-    public IValueDeserializer? ValueDeserializer { get; set; }
+    internal IValueDeserializer? ValueDeserializer { get; set; }
 
     public ObjectDeserializer CreateObjectDeserializer(IParser parser)
     {
@@ -39,8 +37,7 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
         return (v, t) => valueSerializer.SerializeValue(emitter, v, t);
     }
 
-    // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-    public void OnDeserialization()
+    internal void OnDeserialization()
     {
         _serializerState.OnDeserialization();
     }
@@ -83,12 +80,11 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
         builder.WithTypeConverter(new NamedObjectYamlConverter<ComponentCustomPropertyParameter>(this));
     }
 
-    // BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
     /// <summary>
     /// Applies the formatting options on this instance to a serializer.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "TESTONLY")]
-    public void TESTONLY_ApplySerializerFormatting(SerializerBuilder builder)
+    internal void TESTONLY_ApplySerializerFormatting(SerializerBuilder builder)
     {
         ApplySerializerFormatting(builder);
     }

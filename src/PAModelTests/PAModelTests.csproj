@@ -1,21 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
+    
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <PublicSign>true</PublicSign>
     <EnableMSTestRunner>true</EnableMSTestRunner>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestTestAdapterVersion)" />
-    <PackageReference Include="MSTest" Version="$(MSTest)" />
-    <PackageReference Include="coverlet.collector" Version="1.2.0" />
-    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetVersion)" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
   <ItemGroup Label="Global usings">

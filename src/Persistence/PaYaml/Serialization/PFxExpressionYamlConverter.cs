@@ -8,8 +8,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-// BUG 27469059: Internal classes not accessible to test project. InternalsVisibleTo attribute added to csproj doesn't get emitted because GenerateAssemblyInfo is false.
-public class PFxExpressionYamlConverter : IYamlTypeConverter
+internal class PFxExpressionYamlConverter : IYamlTypeConverter
 {
     private static readonly char[] LineTerminators = ['\r', '\n', '\x85', '\x2028', '\x2029'];
 
