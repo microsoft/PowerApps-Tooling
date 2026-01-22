@@ -11,7 +11,7 @@ namespace PAModelTests;
 [TestClass]
 public class ReadTransformTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("GalleryTemplateNullChildren.msapp", false, false)]
     [DataRow("TestStepWithInvalidScreen.msapp", false, true)]
     [DataRow("GroupControlStateEmpty.msapp", false, true)]

@@ -53,8 +53,8 @@ public class MsappArchiveTests : TestBase
         msappArchive.GetDirectoryEntries(directoryName, extension, true).Count().Should().Be(expectedRecursiveCount);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(AddEntryTestsData), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(AddEntryTestsData))]
     public void AddEntryTests(string[] entries, string[] expectedEntries)
     {
         // Arrange: Create new ZipArchive in memory

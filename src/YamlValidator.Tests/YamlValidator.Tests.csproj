@@ -1,13 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="MSTest.Sdk">
+  <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
 
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
@@ -20,9 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-     <PackageReference Include="MSTest.TestAdapter" />
-     <PackageReference Include="MSTest" />
-     <PackageReference Include="coverlet.collector" />
   </ItemGroup>
 
   <ItemGroup Label="Global usings">
