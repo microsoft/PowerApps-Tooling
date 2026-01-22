@@ -394,6 +394,8 @@ public class MsappArchiveTests : TestBase
         // Manually add duplicate entries to the archive
         using (var zipArchive = new ZipArchive(archiveStream, ZipArchiveMode.Update, leaveOpen: true))
         {
+            zipArchive.Entries.Should().HaveCount(1, "only the Header.json should exist");
+
             zipArchive.CreateEntry("Assets/img1.jpg");
             zipArchive.CreateEntry(@"assets\img1.jpg");
 

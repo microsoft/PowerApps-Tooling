@@ -113,7 +113,8 @@ public partial class MsappArchive : IMsappArchive, IDisposable
             var canonicalizedPath = CanonicalizePath(entry.FullName);
             if (!canonicalEntries.TryAdd(canonicalizedPath, entry))
             {
-                // Due to a 10yr old bug in WebAuth, the DocSvr chose to ignore duplicate entries and just pick one.
+                // To prevent blocking of opening an app, in DocSvr we choose to ignore duplicate entries.
+                // To make it deterministic, this logic keeps the first entry and ignores subsequent ones.
                 _logger?.LogDuplicateCanonicalizedEntryIgnored(entry.FullName, canonicalizedPath);
             }
         }
