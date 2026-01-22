@@ -1,2 +1,0 @@
-#!/bin/sh
-dotnet run --project "./targets/targets.csproj" -- "$@"

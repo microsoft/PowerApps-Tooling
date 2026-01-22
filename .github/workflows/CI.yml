@@ -18,6 +18,11 @@ jobs:
     env:
       DOTNET_NOLOGO: true
 
+      # Pre-define global MSBuild properties
+      Configuration: Debug
+      # Ensure versioning is forced to a non-production version for CI builds
+      VersionSuffix: ${{ github.event_name == 'pull_request' && 'pr' || 'ci' }}
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -25,23 +30,22 @@ jobs:
 
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: |
-          8.0.x
+        # dotnet-version: '8.0.x'
+        global-json-file: 'global.json'
 
     - run: dotnet --info
 
-    - name: Build (win)
-      run: ./build ci
-      shell: cmd
-      if: ${{ runner.os == 'Windows' }}
+    - name: Build PASopa.sln
+      run: dotnet build src/PASopa.sln
 
-      ## Only difference here is not forcing cmd
-    - name: Build (linux based)
-      run: ./build ci
-      if: ${{ runner.os != 'Windows' }}
+    # Pack so we can validate there are no warnings/errors
+    # We must explicitly set the configuration parameter otherwise it defaults to Release
+    - name: Pack - Formulas.Tools
+      run: dotnet pack --no-build -c ${{ env.Configuration }} src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj
 
-    - name: Test - Persistence
-      run: dotnet bin/Debug/Persistence.Tests/Persistence.Tests.dll
+    - name: Pack - Persistence
+      run: dotnet pack --no-build -c ${{ env.Configuration }} src/Persistence/Microsoft.PowerPlatform.PowerApps.Persistence.csproj
 
-    - name: Test - PAModel
-      run: dotnet bin/Debug/PAModelTests/PAModelTests.dll
+    # Run tests
+    - name: Test - PASopa.sln
+      run: dotnet test --no-build src/PASopa.sln
