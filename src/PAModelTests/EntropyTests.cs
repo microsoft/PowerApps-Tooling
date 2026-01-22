@@ -48,8 +48,8 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.ControlUniqueGuids.Count > 0);
-        Assert.AreEqual(msapp._entropy.ControlUniqueIds.Count, 0);
+        Assert.IsNotEmpty(msapp._entropy.ControlUniqueGuids);
+        Assert.IsEmpty(msapp._entropy.ControlUniqueIds);
     }
 
     [TestMethod]
@@ -62,8 +62,8 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.ControlUniqueIds.Count > 0);
-        Assert.AreEqual(msapp._entropy.ControlUniqueGuids.Count, 0);
+        Assert.IsNotEmpty(msapp._entropy.ControlUniqueIds);
+        Assert.IsEmpty(msapp._entropy.ControlUniqueGuids);
     }
 
     // Validate that the control template fields OverridaleProperties and PCFDynamicSchemaForIRRetrieval are stored in entropy while unpacking
@@ -78,8 +78,8 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.OverridablePropertiesEntry.Count > 0);
-        Assert.IsTrue(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.OverridablePropertiesEntry);
+        Assert.IsNotEmpty(msapp._entropy.PCFDynamicSchemaForIRRetrievalEntry);
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.PCFTemplateEntry);
     }
 
     [TestMethod]
@@ -123,7 +123,7 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+        Assert.IsEmpty(msapp._entropy.PCFTemplateEntry);
     }
 
     // Validate that a PCF control will still resolve its template by falling back to
@@ -138,11 +138,11 @@ public class EntropyTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         errors.ThrowOnErrors();
 
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count > 0);
+        Assert.IsNotEmpty(msapp._entropy.PCFTemplateEntry);
 
         // Clear out the PCF templates in entropy
         msapp._entropy.PCFTemplateEntry.Clear();
-        Assert.IsTrue(msapp._entropy.PCFTemplateEntry.Count == 0);
+        Assert.IsEmpty(msapp._entropy.PCFTemplateEntry);
 
         // Repack the app and validate it matches the initial msapp
         using (var tempFile = new TempFile())

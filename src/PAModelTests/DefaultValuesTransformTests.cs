@@ -47,7 +47,7 @@ public class DefaultValuesTransformTests
         }
 
         // nodeProperties after BeforeWrite() contains only the SomeProp and none of the null dynamic properties
-        Assert.IsTrue(nodeProperties.Count == 1);
+        Assert.HasCount(1, nodeProperties);
     }
 
     private static EditorStateStore getEditorStateStore()

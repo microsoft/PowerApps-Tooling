@@ -21,7 +21,7 @@ public class ChecksumTests
         var actualChecksum = ChecksumMaker.GetChecksum(root);
 
         Assert.AreEqual(expectedChecksum, actualChecksum.wholeChecksum);
-        Assert.AreEqual(expectedFileCount, actualChecksum.perFileChecksum.Count);
+        Assert.HasCount(expectedFileCount, actualChecksum.perFileChecksum);
         Assert.IsTrue(actualChecksum.perFileChecksum.TryGetValue(file, out var perFileChecksum));
         Assert.AreEqual(innerExpectedChecksum, perFileChecksum);
 

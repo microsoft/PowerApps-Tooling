@@ -314,7 +314,7 @@ public class SmartMergeTests
         {
             resultDoc._screens.TryGetValue("Screen32", out var control);
             Assert.AreEqual(1, control.Properties.Count(item => item.Identifier == "SomeProp"));
-            Assert.IsTrue(resultDoc._screenOrder.Contains("Screen32"));
+            Assert.Contains("Screen32", resultDoc._screenOrder);
         });
     }
 

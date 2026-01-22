@@ -40,6 +40,10 @@
         <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
     </PropertyGroup>
 
+    <PropertyGroup Label="MSTest.Sdk project defaults">
+        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+    </PropertyGroup>
+
     <PropertyGroup Label="Versioning" Condition="!Exists('$(PipelineVersionAssemblyInfoFilePath)')">
         <VersionPrefix Condition="'$(VersionPrefix)' == ''">0.1.0</VersionPrefix>
         <VersionSuffix Condition="'$(VersionSuffix)' == ''">dev</VersionSuffix>

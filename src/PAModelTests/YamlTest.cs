@@ -53,7 +53,7 @@ Obj1:
         var text = sw.ToString();
 
         // We use a | escape. 
-        Assert.IsTrue(text.StartsWith("Foo: |"));
+        Assert.StartsWith("Foo: |", text);
     }
 
     // Different ending newlines will have different escapes. 
@@ -458,9 +458,9 @@ P2: = ""hello"" & ""world""
         using var reader = new StringReader(expectedYaml);
 
         var props = YamlConverter.Read(reader);
-        Assert.AreEqual(props.Count, 2);
-        Assert.AreEqual(props["P1"], "123");
-        Assert.AreEqual(props["P2"], " \"hello\" & \"world\"");
+        Assert.HasCount(2, props);
+        Assert.AreEqual("123", props["P1"]);
+        Assert.AreEqual(" \"hello\" & \"world\"", props["P2"]);
 
     }
 
@@ -631,7 +631,7 @@ P2: = ""hello"" & ""world""
         {
             if (p.Kind == YamlTokenKind.Error)
             {
-                Assert.AreEqual(p.Value, expectedErrorMessage);
+                Assert.AreEqual(expectedErrorMessage, p.Value);
                 return;
             }
             p = y.ReadNext();

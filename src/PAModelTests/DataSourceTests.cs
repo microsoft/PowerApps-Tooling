@@ -66,7 +66,7 @@ public class DataSourceTests
                                 {
                                     var dataSourcesFromMsapp = ToObject<DataSourcesJson>(entry);
                                     var last = dataSourcesFromMsapp.DataSources.LastOrDefault();
-                                    Assert.AreEqual(last.TableDefinition != null, true);
+                                    Assert.IsNotNull(last.TableDefinition);
                                     return;
                                 }
                             default:
@@ -95,7 +95,7 @@ public class DataSourceTests
         var loadedMsApp = SourceSerializer.LoadFromSource(sourcesTempDirPath, new ErrorContainer());
         Assert.IsTrue(loadedMsApp._entropy.WasLocalDatabaseReferencesEmpty.Value);
         Assert.IsFalse(loadedMsApp._entropy.LocalDatabaseReferencesAsEmpty);
-        Assert.IsTrue(loadedMsApp._dataSourceReferences.Count == 0);
+        Assert.IsEmpty(loadedMsApp._dataSourceReferences);
     }
 
     [TestMethod]
@@ -137,14 +137,14 @@ public class DataSourceTests
         Assert.AreEqual(msApp._dataSourceReferences.First().Key, msApp._dataSourceReferences.First().Key);
         var actualDataSources = msApp1._dataSourceReferences.First().Value.dataSources;
         var expectedDataSources = msApp._dataSourceReferences.First().Value.dataSources;
-        Assert.AreEqual(expectedDataSources.Count, actualDataSources.Count);
+        Assert.HasCount(expectedDataSources.Count, actualDataSources);
         Assert.IsTrue(actualDataSources.ContainsKey("environment_39a902ba"));
         foreach (var kvp in actualDataSources)
         {
             Assert.IsTrue(expectedDataSources.ContainsKey(kvp.Key));
             var expectedDataSource = expectedDataSources[kvp.Key];
             var actualDataSource = kvp.Value;
-            Assert.AreEqual(expectedDataSource.ExtensionData.Count, actualDataSource.ExtensionData.Count);
+            Assert.HasCount(expectedDataSource.ExtensionData.Count, actualDataSource.ExtensionData);
             foreach (var kvpExtension in actualDataSource.ExtensionData)
             {
                 Assert.IsTrue(expectedDataSource.ExtensionData.ContainsKey(kvpExtension.Key));
@@ -173,7 +173,7 @@ public class DataSourceTests
         errors1.ThrowOnErrors();
 
         var actualDataSources = msApp1._dataSourceReferences.First().Value.dataSources;
-        Assert.AreEqual(expectedDataSources.Count - actualDataSources.Count, 1);
+        Assert.AreEqual(1, expectedDataSources.Count - actualDataSources.Count);
         foreach (var key in expectedDataSources.Keys)
         {
             if (key == "environment_39a902ba")
@@ -235,7 +235,7 @@ public class DataSourceTests
         errors = msApp.SaveToSources(sources2.Dir, msAppTemp.FullPath);
         errors.ThrowOnErrors();
 
-        Assert.AreEqual(msApp._dataSourceReferences.First().Value.dataSources.Count, 0);
+        Assert.IsEmpty(msApp._dataSourceReferences.First().Value.dataSources);
     }
 
     [TestMethod]
@@ -255,7 +255,7 @@ public class DataSourceTests
         var (msApp1, errors1) = CanvasDocument.LoadFromSources(sourcesDir.Dir);
         errors1.ThrowOnErrors();
 
-        Assert.AreEqual(msApp._dataSourceReferences["default.cds"].dataSources.Count, msApp._dataSourceReferences["default.cds"].dataSources.Count);
+        Assert.HasCount(msApp._dataSourceReferences["default.cds"].dataSources.Count, msApp._dataSourceReferences["default.cds"].dataSources);
         foreach (var entry in msApp._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key).Zip(msApp1._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key)))
         {
             Assert.AreEqual(entry.First, entry.Second);

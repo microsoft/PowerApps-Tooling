@@ -81,6 +81,6 @@ public class UtilityTests
     public void TestControlNameTruncation(string originalName, string expectedName)
     {
         var truncatedName = FilePath.TruncateNameIfTooLong(originalName);
-        Assert.AreEqual(truncatedName, expectedName);
+        Assert.AreEqual(expectedName, truncatedName);
     }
 }

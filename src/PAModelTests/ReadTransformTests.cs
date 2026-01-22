@@ -50,6 +50,6 @@ public class ReadTransformTests
         var errorContainer = new ErrorContainer();
         doc.StabilizeAssetFilePaths(errorContainer);
 
-        Assert.AreEqual(errorContainer.HasErrors, false);
+        Assert.IsFalse(errorContainer.HasErrors);
     }
 }
