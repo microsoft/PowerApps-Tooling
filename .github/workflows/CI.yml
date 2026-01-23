@@ -48,4 +48,4 @@ jobs:
 
     # Run tests
     - name: Test - PASopa.sln
-      run: dotnet test --no-build src/PASopa.sln
+      run: dotnet test --no-build --solution src/PASopa.sln
