@@ -5,8 +5,6 @@
     <PropertyGroup Label="Repository Paths">
         <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
         <SrcPath>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'src'))</SrcPath>
-        <RepoBinRoot>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'bin'))</RepoBinRoot>
-        <RepoIntermediateRoot>$([MSBuild]::NormalizeDirectory($(RepoRoot), 'obj'))</RepoIntermediateRoot>
 
         <!-- This file only exists during an official pipeline build -->
         <PipelineVersionAssemblyInfoFilePath>$([MSBuild]::NormalizePath($(RepoRoot), '.version', 'PipelineAssemblyInfo.cs'))</PipelineVersionAssemblyInfoFilePath>
@@ -20,6 +18,20 @@
 
         <!-- Signing defaults: -->
         <AssemblyOriginatorKeyFile>$(RepoRoot)35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+    
+    <!--
+      Enable Artifacts output layout (https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output)
+      Benefits of using this layout:
+      - we no longer own customizing output paths
+      - The default layout meets most needs that called for custom output paths to begin with
+      - can be customized further if needed
+      - folder paths are also much more consistent and predictable
+      - ArtifactsPivots folder name is normalized to lowercase, allowing for cross-platform compatibility
+    -->
+    <PropertyGroup Label="Artifacts output config">
+      <!-- Allow pipeline to override ArtifactsPath -->
+      <ArtifactsPath Condition="'$(ArtifactsPath)' == ''">$([MSBuild]::NormalizeDirectory($(RepoRoot), 'artifacts'))</ArtifactsPath>
     </PropertyGroup>
     
     <PropertyGroup Label="Nuget Config">
