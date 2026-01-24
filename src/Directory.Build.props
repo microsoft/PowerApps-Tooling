@@ -2,23 +2,6 @@
     <!-- See: https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets -->
     <Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), '$(MSBuildThisFileDirectory)../'))" />
 
-    <PropertyGroup Label="Project output paths">
-        <RelativeProjectPath>$([MSBuild]::MakeRelative($(SrcPath), $(MSBuildProjectDirectory)))</RelativeProjectPath>
-
-        <!-- Latest MSBuild tools uses the $(BaseOutputPath) and $(OutputPath) properties. Legacy properties are set based on them in Microsoft.Common.targets.
-        By default, we configure the BaseOutputPath to the drop folder. Other adaptations to the final OutputPath can be done after this occurs.
-        -->
-        <BaseOutputPath>$([MSBuild]::NormalizeDirectory($(RepoBinRoot), $(RelativeProjectPath)))</BaseOutputPath>
-        <!--
-        Since we won't know the target framework folder (if applicable) when this file gets evaluated, we can't set
-        the OutputPath correctly here. In general, this should be done in a Directory.Build.targets if needed.
-        But it's preferable to only change the BaseOutputPath and let the OutputPath be computed by standard MSBuild props/targets.
-        <OutputPath>$(BaseOutputPath)\$(TargetFramework)\</OutputPath> -->
-
-        <!-- WARNING: DO NOT use Configuration to change the base Intermediate path, as it circumvents common .net SDK build assets which do not depend on it. -->
-        <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory($(RepoIntermediateRoot), $(RelativeProjectPath)))</BaseIntermediateOutputPath>
-    </PropertyGroup>
-
     <PropertyGroup Label="Nuget defaults">
         <!-- These settings allow projects to only need to include the properties unique to that project -->
         <Authors>Microsoft</Authors>
