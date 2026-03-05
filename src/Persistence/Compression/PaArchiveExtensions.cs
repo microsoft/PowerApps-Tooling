@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
-public static class PaArchiveEntryExtensions
+public static class PaArchiveExtensions
 {
     public static void ExtractToFile(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
     {

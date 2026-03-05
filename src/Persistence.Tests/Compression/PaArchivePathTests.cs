@@ -50,37 +50,32 @@ public class PaArchivePathTests : TestBase
         archivePath.IsDirectory.Should().Be(expectIsDirectory);
     }
 
-    private const string _expectedDir1RelativePath = @"dir1\";
-    private const string _expectedDir1Name = "dir1";
-    private const string _expectedDir1Dir2RelativePath = @"dir1\dir2\";
-    private const string _expectedDir2Name = "dir2";
-
     [TestMethod]
     // Single directory:
-    [DataRow(@"dir1", _expectedDir1RelativePath, _expectedDir1Name, true)]
-    [DataRow(@"dir1/", _expectedDir1RelativePath, _expectedDir1Name)]
-    [DataRow(@"/dir1", _expectedDir1RelativePath, _expectedDir1Name, true)]
-    [DataRow(@"/dir1/", _expectedDir1RelativePath, _expectedDir1Name)]
-    [DataRow(@"dir1\", _expectedDir1RelativePath, _expectedDir1Name)]
-    [DataRow(@"\dir1", _expectedDir1RelativePath, _expectedDir1Name, true)]
-    [DataRow(@"\dir1\", _expectedDir1RelativePath, _expectedDir1Name)]
+    [DataRow(@"dir1", @"dir1\", "dir1", true)]
+    [DataRow(@"dir1/", @"dir1\", "dir1")]
+    [DataRow(@"/dir1", @"dir1\", "dir1", true)]
+    [DataRow(@"/dir1/", @"dir1\", "dir1")]
+    [DataRow(@"dir1\", @"dir1\", "dir1")]
+    [DataRow(@"\dir1", @"dir1\", "dir1", true)]
+    [DataRow(@"\dir1\", @"dir1\", "dir1")]
     // Multiple directories:
-    [DataRow(@"dir1/dir2", _expectedDir1Dir2RelativePath, _expectedDir2Name, true)]
-    [DataRow(@"dir1/dir2/", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"/dir1/dir2", _expectedDir1Dir2RelativePath, _expectedDir2Name, true)]
-    [DataRow(@"/dir1/dir2/", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"dir1\dir2", _expectedDir1Dir2RelativePath, _expectedDir2Name, true)]
-    [DataRow(@"dir1\dir2\", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"\dir1\dir2", _expectedDir1Dir2RelativePath, _expectedDir2Name, true)]
-    [DataRow(@"\dir1\dir2\", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
+    [DataRow(@"dir1/dir2", @"dir1\dir2\", "dir2", true)]
+    [DataRow(@"dir1/dir2/", @"dir1\dir2\", "dir2")]
+    [DataRow(@"/dir1/dir2", @"dir1\dir2\", "dir2", true)]
+    [DataRow(@"/dir1/dir2/", @"dir1\dir2\", "dir2")]
+    [DataRow(@"dir1\dir2", @"dir1\dir2\", "dir2", true)]
+    [DataRow(@"dir1\dir2\", @"dir1\dir2\", "dir2")]
+    [DataRow(@"\dir1\dir2", @"dir1\dir2\", "dir2", true)]
+    [DataRow(@"\dir1\dir2\", @"dir1\dir2\", "dir2")]
     // middle directory separator chars are consolidated to one:
-    [DataRow(@"//dir1//", _expectedDir1RelativePath, _expectedDir1Name)]
-    [DataRow(@"\\dir1\\", _expectedDir1RelativePath, _expectedDir1Name)]
-    [DataRow(@"//dir1/dir2//", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"\\dir1\dir2\\", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"//dir1///dir2//", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"\\dir1\\\dir2\\", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
-    [DataRow(@"\/dir1/\dir2/\", _expectedDir1Dir2RelativePath, _expectedDir2Name)]
+    [DataRow(@"//dir1//", @"dir1\", "dir1")]
+    [DataRow(@"\\dir1\\", @"dir1\", "dir1")]
+    [DataRow(@"//dir1/dir2//", @"dir1\dir2\", "dir2")]
+    [DataRow(@"\\dir1\dir2\\", @"dir1\dir2\", "dir2")]
+    [DataRow(@"//dir1///dir2//", @"dir1\dir2\", "dir2")]
+    [DataRow(@"\\dir1\\\dir2\\", @"dir1\dir2\", "dir2")]
+    [DataRow(@"\/dir1/\dir2/\", @"dir1\dir2\", "dir2")]
     public void ValidDirectoryPathTest(string fullPath, string expectedRelativePathWindows, string expectedName, bool forceAsDirectory = false)
     {
         // To simplify test case inputs, we expect them to be specified using windows path separators and replace them with the current platform's chars
@@ -92,21 +87,61 @@ public class PaArchivePathTests : TestBase
         archivePath.IsDirectory.Should().BeTrue();
     }
 
+    /// <summary>
+    /// Zip entry paths are technically allowed to contain any chars.
+    /// This can cause security and cross-platform issues when these paths are interpreted by unzipping clients.
+    /// e.g. volume separators, relative path (..), wild card chars would need to be protected against by all callers.
+    /// For <see cref="PaArchivePath"/>s, we are explicitly dissallowing certain problematic path chars and even segments
+    /// which may cause these kinds of problems.
+    /// We also exclude other certain symbols as a means of minimiing other potential uses in the future.
+    /// e.g. chars that have special meaning in urls, code languages, etc.
+    /// </summary>
     [TestMethod]
+    // ASCII Control Chars
+    [DataRow("ascii-\0-null", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\t-tab", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\n-newline", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\r-carriage-return", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\b-backspace", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\u001b-esc", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Volume separators are potentially malicious
     [DataRow(@"C:\", PaArchivePathInvalidReason.InvalidPathChars)]
-    [DataRow(@"foo!bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Windows special path chars:
+    [DataRow(@"foo<bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo>bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo|>bar", PaArchivePathInvalidReason.InvalidPathChars)]
     [DataRow(@"foo?bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo*bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Url-special chars
     [DataRow(@"foo#bar", PaArchivePathInvalidReason.InvalidPathChars)]
     [DataRow(@"foo%bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Quotes
+    [DataRow(@"foo'bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo`bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo""bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Other chars which have meanings in some languages
+    [DataRow(@"foo!bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"foo~bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Whitespace in segments:
     [DataRow(@" ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
-    [DataRow(@" \dir1", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
-    [DataRow(@"dir1\ ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
-    [DataRow(@"dir1\   \dir2", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
-    [DataRow(@"dir1\ dir2", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
-    [DataRow(@"dir1 \dir2", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
-    [DataRow(@"dir1\  dir2  \dir3", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@" \dir1\", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow(@"dir1\  \dir2\", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow(@"dir1\ dir2\", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@"dir1\dir2 \", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@"dir1\  dir2  \", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@"dir1\  ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow(@"dir1\ file3", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@"dir1\file3 \", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow(@"dir1\  file3  ", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    // Relative directory segments are illegal (See: Zip Path Traversal vulnerability)
+    [DataRow(@"parent\..\dir", PaArchivePathInvalidReason.IllegalSegment)]
     [DataRow(@"malicious\..\..\..\path", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow(@"./illegal/path", PaArchivePathInvalidReason.IllegalSegment)]
+    [DataRow("""..\..\..\Windows\System32\drivers\etc\hosts""", PaArchivePathInvalidReason.IllegalSegment)]
+    [DataRow(@"./current/dir", PaArchivePathInvalidReason.IllegalSegment)]
+    [DataRow(@"current/./dir", PaArchivePathInvalidReason.IllegalSegment)]
+    [DataRow(@"illegal/win/filename.", PaArchivePathInvalidReason.IllegalSegment)] // Windows: cannot end with a period
+    // extended-length paths are not allowed:
+    [DataRow("""\\?\some\long\file\path""", PaArchivePathInvalidReason.InvalidPathChars)]
     public void InvalidPathTest(string fullName, PaArchivePathInvalidReason expectedReason)
     {
         var expectedExMessage = PaArchivePath.GetInvalidReasonExceptionMessage(expectedReason);

@@ -33,7 +33,7 @@ public class PaArchiveEntry
     public string OriginalFullName => ZipEntry.FullName;
 
     /// <summary>
-    /// The canonical path for this entry.
+    /// The normalized path for this entry.
     /// Used as a cross-platform safe key for the entry.
     /// </summary>
     public PaArchivePath NormalizedPath { get; }

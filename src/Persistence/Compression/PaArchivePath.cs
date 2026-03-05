@@ -321,7 +321,9 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
             {
                 if (string.IsNullOrWhiteSpace(segment))
                     return PaArchivePathInvalidReason.WhitespaceOnlySegment;
-                if (segment == ".." || segment == ".")
+                if (segment == ".." || segment == "."
+                    // In Windows, a filename cannot end with a period
+                    || segment.EndsWith('.'))
                     return PaArchivePathInvalidReason.IllegalSegment;
                 if (segment.Trim().Length != segment.Length)
                     return PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace;

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
+using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 using static Persistence.Tests.Compression.TestStringExtensions;
@@ -221,17 +222,26 @@ public class PaArchiveTests : TestBase
         }
 
         // Read the archive using MsappArchive
-        using var paArchive = new PaArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true);
+        var capturingLogger = new CapturingLogger<PaArchive>();
+        using var paArchive = new PaArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true, logger: capturingLogger);
         paArchive.ContainsEntry("Assets/img1.jpg").Should().BeTrue();
         paArchive.ContainsEntry("assets/img1.jpg").Should().BeTrue();
         paArchive.ContainsEntry(@"assets\img1.jpg").Should().BeTrue();
         paArchive.Entries.Select(e => e.FullName).Should().Equal(["Header.json", "Assets/img1.jpg".FixupSeparators()], "keys should be normalized even if the entries had upper-case");
+        paArchive.Entries.Select(e => e.ZipEntry.FullName).Should().Equal(["Header.json", "Assets/img1.jpg"], "verify which entry was kept by looking at ZipEntry.FullName");
 
         paArchive.TryGetEntry("assets/img1.jpg", out var entry1).Should().BeTrue();
         entry1!.FullName.Should().Be("Assets/img1.jpg".FixupSeparators());
         paArchive.TryGetEntry(@"assets\img1.jpg", out var entry2).Should().BeTrue();
         entry2!.FullName.Should().Be("Assets/img1.jpg".FixupSeparators());
         entry2.Should().BeSameAs(entry1, "both paths should resolve to the same entry instance");
+
+        // The duplicate entry should produce exactly one Warning
+        capturingLogger.Entries.Should().ContainSingle(
+            e => e.Level == LogLevel.Warning && e.Message.Contains(@"'assets\img1.jpg'"),
+            "the second case-insensitive duplicate should be logged as a warning")
+            .Which.Message.Should().Match("Duplicate normalized entry found in zip archive*");
+        capturingLogger.Entries.Should().HaveCount(1, "only the duplicate entry should produce a log entry");
     }
 
     [TestMethod]
@@ -246,24 +256,111 @@ public class PaArchiveTests : TestBase
             zipArchive.CreateEntry("Header.json");
             zipArchive.CreateEntry("Assets/img1.jpg");
 
-            // Malicious path traversal entries — should be silently skipped
+            // Malicious path traversal entries — should be ignored and logged as warnings
             zipArchive.CreateEntry("../escape.txt");
             zipArchive.CreateEntry("dir/../../escape.txt");
             zipArchive.CreateEntry(@"c:\System32\drivers\etc\hosts");
 
-            // Entries with invalid path characters — should be silently skipped
+            // Entries with invalid path characters — should be ignored and logged as warnings
             zipArchive.CreateEntry("file|bad.txt");
             zipArchive.CreateEntry("file*bad.txt");
         }
 
         // Act: Open the archive as PaArchive — must not throw even though some entries have invalid paths
         stream.Position = 0;
-        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
+        var capturingLogger = new CapturingLogger<PaArchive>();
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
         // Assert: Only entries with valid paths are exposed via Entries
         paArchive.Entries.Should().HaveCount(2, "only entries with valid paths should be loaded");
         paArchive.ContainsEntry("Header.json").Should().BeTrue();
         paArchive.ContainsEntry("Assets/img1.jpg").Should().BeTrue();
+
+        // Each invalid/malicious entry should produce exactly one Warning
+        capturingLogger.Entries.Should().AllSatisfy(e =>
+        {
+            e.Level.Should().Be(LogLevel.Warning);
+            e.Message.Should().Match("An entry found in zip archive has an invalid or malicious path and will be ignored*");
+        });
+        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'../escape.txt'"));
+        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'dir/../../escape.txt'"));
+        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains(@"'c:\System32\drivers\etc\hosts'"));
+        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'file|bad.txt'"));
+        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'file*bad.txt'"));
+        capturingLogger.Entries.Should().HaveCount(5, "one warning per invalid/malicious entry");
+    }
+
+    [TestMethod]
+    public void DirectoryEntriesIgnoredTest()
+    {
+        // Arrange: Create a ZipArchive directly with a mix of valid file entries and directory entries,
+        // including one directory entry that unexpectedly contains data (non-zero length).
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            zipArchive.CreateEntry("Header.json");
+            zipArchive.CreateEntry("Assets/img1.jpg");
+
+            // A normal empty directory entry — should be ignored (logged at Information level)
+            zipArchive.CreateEntry("Assets/");
+        }
+
+        stream.Position = 0;
+        var capturingLogger = new CapturingLogger<PaArchive>();
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
+
+        // Assert: directory entries are ignored regardless of whether they have data
+        paArchive.Should().ContainEntry("Header.json");
+        paArchive.Should().ContainEntry("Assets/img1.jpg");
+        paArchive.Entries.Should().HaveCount(2, "only file entries should be loaded");
+
+        // directory entries should produce a Warning that they are ignored
+        capturingLogger.Entries.Should().ContainSingle(
+            e => e.Level == LogLevel.Information && e.Message.Contains("'Assets/'"),
+            "all directory entries should produce a Warning when ignored")
+            .Which.Message.Should().Match("Directory entries found in zip archives are ignored.*");
+
+        // The directory entry with data should additionally produce a second Warning about the unexpected data
+        capturingLogger.Entries.Should().HaveCount(1, "1 ignored-directory warnings");
+    }
+
+    [TestMethod]
+    public void DirectoryEntryWithDataProducesWarningButStillIgnoredTest()
+    {
+        // Arrange: Create a ZipArchive directly with a mix of valid file entries and directory entries,
+        // including one directory entry that unexpectedly contains data (non-zero length).
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            zipArchive.CreateEntry("Header.json");
+
+            // A directory entry that has data — should still be ignored, but logged at Warning level
+            var dirEntryWithData = zipArchive.CreateEntry("DirEntryWithData/");
+            using var writer = new StreamWriter(dirEntryWithData.Open());
+            writer.Write("unexpected data in a directory entry");
+        }
+
+        stream.Position = 0;
+        var capturingLogger = new CapturingLogger<PaArchive>();
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
+
+        // Assert: directory entries are ignored regardless of whether they have data
+        paArchive.Should().ContainEntry("Header.json");
+        paArchive.Entries.Should().HaveCount(1, "only file entries should be loaded");
+
+        // directory entries should produce a Warning that they are ignored
+        capturingLogger.Entries.Should().ContainSingle(
+            e => e.Level == LogLevel.Information && e.Message.Contains("'DirEntryWithData/'"),
+            "all directory entries should produce a Warning when ignored")
+            .Which.Message.Should().Match("Directory entries found in zip archives are ignored.*");
+
+        // And an additional warning should be logged for the dir entry that has data
+        capturingLogger.Entries.Should().ContainSingle(
+            e => e.Level == LogLevel.Warning && e.Message.Contains("'DirEntryWithData/'"),
+            "all directory entries should produce a Warning when ignored")
+            .Which.Message.Should().Match("A directory entry with non-zero data length was found in zip archive.*");
+
+        capturingLogger.Entries.Should().HaveCount(2, "1 ignored-directory warnings + 1 extra warning for data in DirEntryWithData/");
     }
 
     private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName = "Header-DocV-1.347.json")

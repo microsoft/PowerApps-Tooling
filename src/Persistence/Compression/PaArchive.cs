@@ -20,6 +20,9 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 /// <summary>
 /// Represents a package of compressed files in zip format using normalized semantics for Power Apps tooling.
 /// </summary>
+/// <remarks>
+/// Warning: This class is NOT thread-safe, same as the underlying <see cref="ZipArchive"/> APIs.
+/// </remarks>
 public partial class PaArchive : IPaArchive, IDisposable
 {
     private readonly ILogger<PaArchive>? _logger;
@@ -112,6 +115,8 @@ public partial class PaArchive : IPaArchive, IDisposable
                 }
                 else if (normalizedPath.IsDirectory)
                 {
+                    if (zipEntry.Length > 0)
+                        _logger?.LogDirectoryEntryWithData(zipEntry.FullName, normalizedPath, zipEntry.Length);
                     _logger?.LogDirectoryEntryIgnored(zipEntry.FullName, normalizedPath);
                 }
                 else

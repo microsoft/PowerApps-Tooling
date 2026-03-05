@@ -10,11 +10,15 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence;
 internal static partial class PAPersistenceLog
 {
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning,
-        Message = "Duplicate canonicalized entry found in zip archive, and will be ignored. EntryFullName: '{EntryFullName}'; CanonicalizedPath: '{CanonicalizedPath}';")]
-    public static partial void LogDuplicateEntryIgnored(this ILogger<PaArchive> logger, string entryFullName, string canonicalizedPath);
+        Message = "Duplicate normalized entry found in zip archive, and will be ignored. EntryFullName: '{entryFullName}'; NormalizedPath: '{normalizedPath}';")]
+    public static partial void LogDuplicateEntryIgnored(this ILogger<PaArchive> logger, string entryFullName, string normalizedPath);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning,
+        Message = "A directory entry with non-zero data length was found in zip archive. EntryFullName: '{entryFullName}'; NormalizedPath: '{normalizedPath}'; DataLength: {dataLength};")]
+    public static partial void LogDirectoryEntryWithData(this ILogger<PaArchive> logger, string entryFullName, PaArchivePath normalizedPath, long dataLength);
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Information,
-        Message = "Directory entries found in zip archives are ignored. EntryFullName: '{entryFullName}'; CanonicalizedPath: '{normalizedPath}';")]
+        Message = "Directory entries found in zip archives are ignored. EntryFullName: '{entryFullName}'; NormalizedPath: '{normalizedPath}';")]
     public static partial void LogDirectoryEntryIgnored(this ILogger<PaArchive> logger, string entryFullName, PaArchivePath normalizedPath);
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Information,
