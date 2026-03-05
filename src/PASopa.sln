@@ -23,10 +23,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7361DB16-D534-4E0E-8597-BE22317DEF47}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
-		Versions.props = Versions.props
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlValidator", "YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj", "{296D952B-C284-4AAB-9A79-59538CA7BF38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.PowerPlatform.PowerApps.YamlValidator", "YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj", "{296D952B-C284-4AAB-9A79-59538CA7BF38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlValidator.Tests", "YamlValidator.Tests\YamlValidator.Tests.csproj", "{E6180C81-59C1-4B25-90E0-E4390D455518}"
 EndProject

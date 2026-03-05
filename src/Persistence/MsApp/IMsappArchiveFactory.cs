@@ -11,30 +11,30 @@ public interface IMsappArchiveFactory
     /// <summary>
     /// Creates a new msapp archive.
     /// </summary>
-    IMsappArchive Create(string path, bool overwrite = false);
+    MsappArchive Create(string path, bool overwrite = false);
 
     /// <summary>
     /// Creates a new msapp archive with the provided stream.
     /// </summary>
-    IMsappArchive Create(Stream stream, bool leaveOpen = false);
+    MsappArchive Create(Stream stream, bool leaveOpen = false);
 
     /// <summary>
     /// Opens existing msapp archive for read.
     /// </summary>
-    IMsappArchive Open(string path);
+    MsappArchive Open(string path);
 
     /// <summary>
     /// Opens existing msapp archive for read.
     /// </summary>
-    IMsappArchive Open(Stream stream, bool leaveOpen = false);
+    MsappArchive Open(Stream stream, bool leaveOpen = false);
 
     /// <summary>
     /// Opens existing msapp archive for update (read/write).
     /// </summary>
-    IMsappArchive Update(string path);
+    MsappArchive Update(string path);
 
     /// <summary>
     /// Opens existing msapp archive for update (read/write).
     /// </summary>
-    IMsappArchive Update(Stream stream, bool leaveOpen = false);
+    MsappArchive Update(Stream stream, bool leaveOpen = false);
 }

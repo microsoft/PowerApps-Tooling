@@ -10,24 +10,15 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// <summary>
 /// Msapp archive factory.
 /// </summary>
-public class MsappArchiveFactory : IMsappArchiveFactory
+public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsappArchiveFactory
 {
     /// <summary>
-    /// Instance of MsappArchiveFactory where <see cref="EntryNameEncoding"/> is `null`.
+    /// Instance of <see cref="MsappArchiveFactory"/> where no logger is available.
     /// Helps with using in tests where logging is not needed.
     /// </summary>
     public static readonly MsappArchiveFactory Default = new();
 
-    private readonly ILogger<MsappArchive>? _logger;
-
-    public MsappArchiveFactory(ILogger<MsappArchive>? logger = null)
-    {
-        _logger = logger;
-    }
-
-    public Encoding? EntryNameEncoding { get; init; }
-
-    public IMsappArchive Create(string path, bool overwrite = false)
+    public MsappArchive Create(string path, bool overwrite = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
@@ -36,26 +27,26 @@ public class MsappArchiveFactory : IMsappArchiveFactory
         return Create(fileStream, leaveOpen: false);
     }
 
-    public IMsappArchive Create(Stream stream, bool leaveOpen = false)
+    public MsappArchive Create(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, EntryNameEncoding, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, _logger);
     }
 
-    public IMsappArchive Open(string path)
+    public MsappArchive Open(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var fileStream = File.OpenRead(path);
 
         return Open(fileStream, leaveOpen: false);
     }
 
-    public IMsappArchive Open(Stream stream, bool leaveOpen = false)
+    public MsappArchive Open(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, EntryNameEncoding, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, _logger);
     }
 
-    public IMsappArchive Update(string path)
+    public MsappArchive Update(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
@@ -64,8 +55,8 @@ public class MsappArchiveFactory : IMsappArchiveFactory
         return Update(fileStream, leaveOpen: false);
     }
 
-    public IMsappArchive Update(Stream stream, bool leaveOpen = false)
+    public MsappArchive Update(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, EntryNameEncoding, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, _logger);
     }
 }
