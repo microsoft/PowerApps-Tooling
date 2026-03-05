@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Models;
 
 /// <summary>
 /// Model class for header.json file in msapp archive.
@@ -19,11 +23,8 @@ internal sealed record HeaderJson
     public Version? MSAppStructureVersion { get; init; }
     public DateTime? LastSavedDateTimeUTC { get; init; }
 
-    public AnalysisOptionsHeader? AnalysisOptions { get; init; }
+    public JsonElement? AnalysisOptions { get; init; }
 
-    public sealed record AnalysisOptionsHeader
-    {
-        public bool DataflowAnalysisEnabled { get; init; }
-        public bool DataflowAnalysisFlagStateToggledByUser { get; init; }
-    }
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
 }

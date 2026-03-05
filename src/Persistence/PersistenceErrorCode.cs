@@ -29,7 +29,10 @@ public enum PersistenceErrorCode
     DuplicateNameInSequence = 3503,
 
     //
-    MsappArchiveError = 5000,
+    PaArchiveError = 5000,
+    PaArchiveMissingRequiredEntry = 5001,
+    PaArchiveEntryDeserializedToJsonNull = 5002,
+    PaArchiveEntryDeserializedToJsonFailed = 5003,
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     _LastErrorExclusive,
@@ -66,40 +69,9 @@ public static class PersistenceErrorCodeExtensions
             PersistenceErrorCode.ControlInstanceInvalid => "A control instance object in YAML has an invalid state.",
             PersistenceErrorCode.RoundTripValidationFailed => "Round trip yaml validation failed.",
             PersistenceErrorCode.DuplicateNameInSequence => "An item name was duplicated.",
-            PersistenceErrorCode.MsappArchiveError => "An error was detected in an msapp file.",
+            PersistenceErrorCode.PaArchiveError => "An error was detected in a Power Apps archive file.",
             PersistenceErrorCode._LastErrorExclusive => throw new InvalidOperationException("The error code is out of range."),
             _ => "An exception occurred in the persistence library.",
         };
-    }
-
-    /// <summary>
-    /// Returns the general error code group for simpler classification handling.
-    /// </summary>
-    public static PersistenceErrorCode? GetErrorCodeGroup(this PersistenceErrorCode errorCode)
-    {
-        if (errorCode < PersistenceErrorCode.SystemError)
-        {
-            return null;
-        }
-        else if (errorCode < PersistenceErrorCode.SerializationError)
-        {
-            return PersistenceErrorCode.SystemError;
-        }
-        else if (errorCode < PersistenceErrorCode.DeserializationError)
-        {
-            return PersistenceErrorCode.SerializationError;
-        }
-        else if (errorCode < PersistenceErrorCode.MsappArchiveError)
-        {
-            return PersistenceErrorCode.DeserializationError;
-        }
-        else if (errorCode < PersistenceErrorCode._LastErrorExclusive)
-        {
-            return PersistenceErrorCode.MsappArchiveError;
-        }
-        else
-        {
-            return null;
-        }
     }
 }

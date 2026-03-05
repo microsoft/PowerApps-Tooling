@@ -18,14 +18,14 @@ public class PersistenceLibraryExceptionTests
         ThrowAndVerify(new PersistenceLibraryException(PersistenceErrorCode.SerializationError, "A test reason."))
             .WithErrorCode(PersistenceErrorCode.SerializationError)
             .WithReason("A test reason.");
-        ThrowAndVerify(new PersistenceLibraryException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
+        ThrowAndVerify(new PersistenceLibraryException(PersistenceErrorCode.PaArchiveError, "A test reason2.")
         {
             MsappEntryFullPath = "src/entry1.txt",
             LineNumber = 5,
             Column = 3,
             JsonPath = "some.json.path[0].value",
         })
-            .WithErrorCode(PersistenceErrorCode.MsappArchiveError)
+            .WithErrorCode(PersistenceErrorCode.PaArchiveError)
             .WithReason("A test reason2.");
     }
 
@@ -42,14 +42,14 @@ public class PersistenceLibraryExceptionTests
             Column = 3,
         })
             .WithMessage("[3001:YamlInvalidSyntax] Invalid YAML syntax was encountered during deserialization. Line: 5; Column: 3;");
-        ThrowAndVerify(new PersistenceLibraryException(PersistenceErrorCode.MsappArchiveError, "A test reason2.")
+        ThrowAndVerify(new PersistenceLibraryException(PersistenceErrorCode.PaArchiveError, "A test reason2.")
         {
             MsappEntryFullPath = "src/entry1.txt",
             LineNumber = 5,
             Column = 3,
             JsonPath = "some.json.path[0].value",
         })
-            .WithMessage("[5000:MsappArchiveError] An error was detected in an msapp file. A test reason2. Line: 5; Column: 3; MsappEntry: src/entry1.txt; JsonPath: some.json.path[0].value;");
+            .WithMessage("[5000:PaArchiveError] An error was detected in a Power Apps archive file. A test reason2. Line: 5; Column: 3; MsappEntry: src/entry1.txt; JsonPath: some.json.path[0].value;");
     }
 
     /// <summary>

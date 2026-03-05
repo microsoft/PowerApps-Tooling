@@ -4,11 +4,19 @@
 using System.Globalization;
 using System.Text.Json;
 
-namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Converters;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Serialization;
 
 /// <summary>
 /// This converter assumes all DataTime strings are in UTC format.
-/// This is the format used by the document for DateTime strings saved in json files in an msapp.
+/// This is the format used by the document for DateTime strings saved in json files in an msapp.<br/>
+/// <br/>
+/// Note: The format of the string written by this converter uses the ShortDatePattern and LongTimePattern of the InvariantCulture.
+/// It does NOT write in an otherwise standardized format. e.g. is not sortable.
+/// <br/>
+/// WARNING: this converter for the document has a bug when serializing that it doesn't
+/// force DateTime values into UTC time. So the serialized time may not actually be UTC time.
+/// But this may have impact on other code which depends on this property.
+/// It also serialized into a more friendly string format.
 /// </summary>
 public class JsonDateTimeAssumesUtcConverter : System.Text.Json.Serialization.JsonConverter<DateTime>
 {

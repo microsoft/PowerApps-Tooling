@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+
+# ** Repo-specific **
+# Ignore local Claude settings and temp files
+**/.claude/settings.local.json
+tmpclaude-*
