@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
@@ -37,5 +38,19 @@ public static class PaArchiveExtensions
                 JsonPath = ex.Path,
             };
         }
+    }
+
+    /// <summary>
+    /// Uses <see cref="SHA256"/> to compute a hash of the contents of te entry.
+    /// </summary>
+    /// <remarks>
+    /// The use of SHA-256 algorithm aligns with current Git hashing algorithm (see: https://git-scm.com/docs/hash-function-transition) along with modern security practices.
+    /// </remarks>
+    /// <returns>The hash as a string.</returns>
+    public static string ComputeHash(this PaArchiveEntry entry)
+    {
+        using var stream = entry.Open();
+        var hashBytes = SHA256.HashData(stream);
+        return BitConverter.ToString(hashBytes);
     }
 }

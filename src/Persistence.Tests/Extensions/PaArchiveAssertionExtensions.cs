@@ -23,7 +23,7 @@ public static class PaArchiveAssertionExtensions
 public class PaArchiveAssertions(PaArchive? value)
     : ObjectAssertions<PaArchive?, PaArchiveAssertions>(value)
 {
-    public AndConstraint<PaArchiveAssertions> ContainEntry(string fullPath, string? because = null, params object[] becauseArgs)
+    public AndWhichConstraint<PaArchiveAssertions, PaArchiveEntry> ContainEntry(string fullPath, string? because = null, params object[] becauseArgs)
     {
         Execute.Assertion
             .ForCondition(Subject != null && Subject.ContainsEntry(fullPath))
@@ -32,7 +32,7 @@ public class PaArchiveAssertions(PaArchive? value)
                 "Expected {context:archive} to contain entry with path {0}{reason}, but was not found.",
                 fullPath);
 
-        return new(this);
+        return new(this, Subject?.GetEntryOrDefault(fullPath)!);
     }
 
     public AndConstraint<PaArchiveAssertions> NotContainEntry(string fullPath, string? because = null, params object[] becauseArgs)

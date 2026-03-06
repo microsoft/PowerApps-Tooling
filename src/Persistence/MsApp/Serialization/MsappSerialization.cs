@@ -50,4 +50,20 @@ internal static class MsappSerialization
     {
         WriteIndented = false,
     };
+
+    /// <summary>
+    /// Serialization options used for the 'packed.json' file in the msapp archive.
+    /// </summary>
+    public static readonly JsonSerializerOptions PackedJsonSerializeOptions = new()
+    {
+        // Note: We explicitly don't derive rom the default, since this is a net-new file which is fully owned by this library.
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+        Converters =
+        {
+            new JsonDateTimeUtcConverter(),
+        },
+    };
 }
