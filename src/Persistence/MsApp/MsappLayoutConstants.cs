@@ -40,6 +40,12 @@ public static class MsappLayoutConstants
         public const string Properties = "Properties.json";
         public const string Themes = "Themes.json";
         public const string Resources = "Resources.json";
+
+        /// <summary>
+        /// This file is added to the root of the msapp when the app is packed via supported tooling.
+        /// It contains information about the packing operation and instructions for how the document server should load the app.
+        /// </summary>
+        public const string Packed = "packed.json";
     }
 
     /// <summary>

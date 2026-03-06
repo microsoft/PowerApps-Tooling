@@ -27,11 +27,19 @@ public partial class MsappArchive(
     : PaArchive(stream, mode, leaveOpen, entryNameEncoding: null, logger), IMsappArchive
 {
     private HeaderJson? _header;
+    private bool _packedJsonLoaded;
+    private PackedJson? _packedJson;
 
     /// <inheritdoc/>
     public ZipArchive ZipArchive => InnerZipArchive;
 
     internal HeaderJson Header => _header ??= LoadHeader();
+
+    /// <summary>
+    /// The contents of the <c>packed.json</c> file, or <c>null</c> if the archive does not contain one.
+    /// Loaded lazily on first access.
+    /// </summary>
+    public PackedJson? PackedJson => _packedJsonLoaded ? _packedJson : LoadPackedJson();
 
     // When the header is missing the structure version, then it's semantically 1.0. i.e. legacy msapp.
     public Version MSAppStructureVersion => Header.MSAppStructureVersion ?? HeaderJson.MSAppV1_0Version;
@@ -79,6 +87,14 @@ public partial class MsappArchive(
     {
         return GetRequiredEntry(MsappLayoutConstants.FileNames.Header)
             .DeserializeAsJson<HeaderJson>(MsappSerialization.HeaderJsonSerializeOptions);
+    }
+
+    private PackedJson? LoadPackedJson()
+    {
+        if (TryGetEntry(MsappLayoutConstants.FileNames.Packed, out var entry))
+            _packedJson = entry.DeserializeAsJson<PackedJson>(MsappSerialization.PackedJsonSerializeOptions);
+        _packedJsonLoaded = true;
+        return _packedJson;
     }
 
     /// <summary>

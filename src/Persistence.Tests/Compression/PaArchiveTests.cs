@@ -41,7 +41,6 @@ public class PaArchiveTests : TestBase
         zipArchive.Dispose();
 
         // Act: Open the archive as MsappArchive
-        stream.Position = 0;
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
         paArchive.Entries.Should().HaveCount(12, "only non-directory entries should be available");
 
@@ -144,7 +143,6 @@ public class PaArchiveTests : TestBase
             entry.Name.Should().Be("");
         }
 
-        stream.Position = 0;
         using var zipArchiveRead = new ZipArchive(stream, ZipArchiveMode.Read);
         zipArchiveRead.Entries.Select(e => e.FullName).Should().BeEquivalentTo([
             "dir/file1.txt",
@@ -267,7 +265,6 @@ public class PaArchiveTests : TestBase
         }
 
         // Act: Open the archive as PaArchive — must not throw even though some entries have invalid paths
-        stream.Position = 0;
         var capturingLogger = new CapturingLogger<PaArchive>();
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
@@ -305,7 +302,6 @@ public class PaArchiveTests : TestBase
             zipArchive.CreateEntry("Assets/");
         }
 
-        stream.Position = 0;
         var capturingLogger = new CapturingLogger<PaArchive>();
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
@@ -340,7 +336,6 @@ public class PaArchiveTests : TestBase
             writer.Write("unexpected data in a directory entry");
         }
 
-        stream.Position = 0;
         var capturingLogger = new CapturingLogger<PaArchive>();
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
