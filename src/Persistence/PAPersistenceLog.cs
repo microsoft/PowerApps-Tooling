@@ -28,4 +28,8 @@ internal static partial class PAPersistenceLog
     [LoggerMessage(EventId = 105, Level = LogLevel.Warning,
         Message = "An entry found in zip archive has an invalid or malicious path and will be ignored. InvalidReason: '{invalidReason}'; EntryFullName: '{entryFullName}';")]
     public static partial void LogInvalidPathEntryIgnored(this ILogger<PaArchive> logger, string entryFullName, PaArchivePathInvalidReason invalidReason);
+
+    [LoggerMessage(EventId = 106, Level = LogLevel.Error,
+        Message = $"Extracting {nameof(PaArchiveEntry)} would have resulted in a file outside the specified destination directory. EntryFullName: '{{entryFullName}}'; NormalizedPath: '{{normalizedPath}}';")]
+    public static partial void LogExtractingResultsInOutside(this ILogger<PaArchive> logger, string entryFullName, PaArchivePath normalizedPath);
 }

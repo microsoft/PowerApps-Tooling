@@ -34,7 +34,7 @@ public sealed class MsappPackingService(
     /// </summary>
     public static readonly Version MinSupportedDocVersion = new(1, 348);
 
-    public void UnpackToDirectory(
+    public async Task UnpackToDirectoryAsync(
         string msappPath,
         string outputDirectory,
         bool overwriteOutput = false,
@@ -110,21 +110,14 @@ public sealed class MsappPackingService(
         var referenceCount = 0;
         foreach (var entryInstruction in entryInstructions)
         {
-            if (entryInstruction.UnpackToRelativePath is not null)
+            if (entryInstruction.InstructionType is MsappUnpackInstructionType.UnpackToRelativeDirectory)
             {
-                var targetPath = Path.GetFullPath(Path.Combine(outputDirectory, entryInstruction.UnpackToRelativePath));
-                // REVIEW: the ZipArchiveEntry.FullName docs example indicates we should ensure the targetPath is actually still under the output path.
-                //   This could be that the relative dest path was maliciously formed.
-                if (!targetPath.StartsWith(outputDirectoryWithTrailingSlash, StringComparison.Ordinal))
-                    throw new InvalidOperationException($"Malicious msapp entry path found with FullName '{entryInstruction.MsappEntry.FullName}'.");
-
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-                entryInstruction.MsappEntry.ExtractToFile(targetPath);
-
+                await entryInstruction.MsappEntry.ExtractRelativeToDirectoryAsync(outputDirectory, overwrite: overwriteOutput).ConfigureAwait(false);
                 extractedCount++;
             }
-            else if (entryInstruction.CopyToMsaprEntryPath is not null)
+            else if (entryInstruction.InstructionType is MsappUnpackInstructionType.CopyToMsapr)
             {
+                Debug.Assert(entryInstruction.CopyToMsaprEntryPath is not null);
                 msaprArchive.AddEntryFrom(entryInstruction.CopyToMsaprEntryPath, entryInstruction.MsappEntry);
                 referenceCount++;
             }
@@ -183,15 +176,12 @@ public sealed class MsappPackingService(
             var contentType = GetContentType(entry.NormalizedPath);
             if (contentType is MsappContentType.PaYamlSourceCode && options.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode))
             {
-                yield return new(entry, contentType)
-                {
-                    UnpackToRelativePath = entry.FullName,
-                };
+                yield return new(entry, contentType, MsappUnpackInstructionType.UnpackToRelativeDirectory);
             }
             else
             {
                 // Default to copy entry into msapr as is under the 'msapp' folder
-                yield return new(entry, contentType)
+                yield return new(entry, contentType, MsappUnpackInstructionType.CopyToMsapr)
                 {
                     CopyToMsaprEntryPath = MsappDirPath.Combine(entry.NormalizedPath),
                 };
@@ -361,9 +351,14 @@ public sealed class MsappPackingService(
     }
 }
 
-internal record MsappUnpackEntryInstruction(PaArchiveEntry MsappEntry, MsappContentType ContentType)
+internal enum MsappUnpackInstructionType
 {
-    public string? UnpackToRelativePath { get; init; }
+    UnpackToRelativeDirectory,
+    CopyToMsapr
+}
+
+internal record MsappUnpackEntryInstruction(PaArchiveEntry MsappEntry, MsappContentType ContentType, MsappUnpackInstructionType InstructionType)
+{
     public PaArchivePath? CopyToMsaprEntryPath { get; init; }
 }
 

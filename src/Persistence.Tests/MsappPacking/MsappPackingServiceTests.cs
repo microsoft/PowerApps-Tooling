@@ -27,7 +27,7 @@ public class MsappPackingServiceTests : TestBase
     };
 
     [TestMethod]
-    public void UnpackToDirectoryWithDefaultConfig()
+    public async Task UnpackToDirectoryWithDefaultConfig()
     {
         // Arrange
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -36,7 +36,7 @@ public class MsappPackingServiceTests : TestBase
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
         // Act: unpack with default config (only PaYamlSourceCode is unpacked to disk)
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
 
         Directory.Exists(unpackedDir).Should().BeTrue("service should have created the output folder if it didn't already exist");
 
@@ -127,7 +127,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void PackFromMsappReferenceFile_RoundTrip_ProducesSameEntries()
+    public async Task PackFromMsappReferenceFile_RoundTrip_ProducesSameEntries()
     {
         // Arrange
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -137,7 +137,7 @@ public class MsappPackingServiceTests : TestBase
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
         // Act: unpack then pack
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
         service.PackFromMsappReferenceFile(msaprPath, repackedMsappPath, TestPackingClient);
 
@@ -170,7 +170,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void PackFromMsappReferenceFile_ThrowsWhenOutputExists_AndOverwriteIsFalse()
+    public async Task PackFromMsappReferenceFile_ThrowsWhenOutputExists_AndOverwriteIsFalse()
     {
         // Arrange
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -179,7 +179,7 @@ public class MsappPackingServiceTests : TestBase
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
 
         // Create a file at the output path to simulate a conflict
@@ -192,7 +192,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void PackFromMsappReferenceFile_Overwrites_WhenOverwriteIsTrue()
+    public async Task PackFromMsappReferenceFile_Overwrites_WhenOverwriteIsTrue()
     {
         // Arrange
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -201,7 +201,7 @@ public class MsappPackingServiceTests : TestBase
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
 
         // Create a file at the output path
@@ -216,7 +216,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void PackFromMsappReferenceFile_PreservesNonAsciiSrcFileNames()
+    public async Task PackFromMsappReferenceFile_PreservesNonAsciiSrcFileNames()
     {
         // Arrange: unpack, then add pa.yaml files with non-ASCII names
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -225,7 +225,7 @@ public class MsappPackingServiceTests : TestBase
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
 
         var srcDir = Path.Combine(unpackedDir, MsappLayoutConstants.DirectoryNames.Src);
         var nonAsciiFileNames = new[]
@@ -252,7 +252,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void PackFromMsappReferenceFile_IgnoresNonPaYamlFileInSrc()
+    public async Task PackFromMsappReferenceFile_IgnoresNonPaYamlFileInSrc()
     {
         // Arrange
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -261,7 +261,7 @@ public class MsappPackingServiceTests : TestBase
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
 
         // Add a non-.pa.yaml file to the Src folder
         File.WriteAllText(Path.Combine(unpackedDir, "Src", "notes.txt"), "This is not a pa.yaml file");
@@ -277,7 +277,7 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public void BuildPackInstructions_ProducesCorrectInstructions()
+    public async Task BuildPackInstructions_ProducesCorrectInstructions()
     {
         // Arrange: unpack to a temp dir, then verify BuildPackInstructions output
         var testDir = CreateTestOutputFolder(ensureEmpty: true);
@@ -285,7 +285,7 @@ public class MsappPackingServiceTests : TestBase
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
         var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
 
-        service.UnpackToDirectory(msappPath, unpackedDir);
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
 
         using var msaprArchive = MsappReferenceArchiveFactory.Default.Open(msaprPath);

@@ -7,23 +7,8 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
-public static class PaArchiveExtensions
+public static partial class PaArchiveExtensions
 {
-    public static void ExtractToFile(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
-    {
-        source.ZipEntry.ExtractToFile(destinationFileName, overwrite);
-    }
-
-    public static ValueTask ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
-    {
-#if NET10_0_OR_GREATER
-        // When we support .net 10, use ExtractToFileAsync
-#else
-        source.ZipEntry.ExtractToFile(destinationFileName, overwrite);
-        return ValueTask.CompletedTask;
-#endif
-    }
-
     public static T DeserializeAsJson<T>(this PaArchiveEntry entry, JsonSerializerOptions serializerOptions)
         where T : notnull
     {
