@@ -9,14 +9,14 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
 public class PaArchiveEntry
 {
-    internal PaArchiveEntry(PaArchive paArchive, ZipArchiveEntry zipEntry, PaArchivePath normalizedPath)
+    internal PaArchiveEntry(PaArchive paArchive, ZipArchiveEntry zipEntry, PaArchivePath normalizedPath, bool skipValidation = false)
     {
-        Debug.Assert(zipEntry.Archive == paArchive.InnerZipArchive, "The underlying zip archives do not match.");
-        Debug.Assert(
-            PaArchivePath.TryParse(zipEntry.FullName, out var reparsedPath, out _) && normalizedPath.Equals(reparsedPath),
+        Debug.Assert(skipValidation || zipEntry.Archive == paArchive.InnerZipArchive, "The underlying zip archives do not match.");
+        Debug.Assert(skipValidation ||
+            (PaArchivePath.TryParse(zipEntry.FullName, out var reparsedPath, out _) && normalizedPath.Equals(reparsedPath)),
             $"normalizedPath '{normalizedPath}' does not match the path parsed from zipEntry.FullName '{zipEntry.FullName}'.");
-        Debug.Assert(!normalizedPath.IsRoot, "PaArchiveEntry should never be created with a root path.");
-        Debug.Assert(!normalizedPath.IsDirectory, "PaArchiveEntry should never be created with a directory path.");
+        Debug.Assert(skipValidation || !normalizedPath.IsRoot, "PaArchiveEntry should never be created with a root path.");
+        Debug.Assert(skipValidation || !normalizedPath.IsDirectory, "PaArchiveEntry should never be created with a directory path.");
 
         PaArchive = paArchive;
         ZipEntry = zipEntry;

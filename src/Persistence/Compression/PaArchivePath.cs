@@ -259,6 +259,27 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         return path;
     }
 
+    /// <summary>
+    /// This method should ONLY be used for unit tests.
+    /// It allows us to simulate creation of an instance of <see cref="PaArchivePath"/> which has a characteristic which
+    /// could cause problems.
+    /// </summary>
+    [Obsolete("Only use within tests for this library")]
+    internal static PaArchivePath TestOnly_CreateInvalidPath(string invalidFullName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(invalidFullName);
+
+        if (TryValidatePath(invalidFullName, out _, out _, out _))
+            throw new ArgumentException($"This method should only be used to create known invalid paths");
+
+        // At a minimum, normalize path separators to current platform:
+        invalidFullName = invalidFullName
+            .Replace(SeparatorCharUnix, Path.DirectorySeparatorChar)
+            .Replace(SeparatorCharWindows, Path.DirectorySeparatorChar);
+
+        return new PaArchivePath(invalidFullName, Path.GetFileName(invalidFullName));
+    }
+
     private static bool TryValidatePath(
         string? origFullName,
         [NotNullWhen(true)] out string? validFullName,

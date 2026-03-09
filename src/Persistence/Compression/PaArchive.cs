@@ -58,6 +58,8 @@ public partial class PaArchive : IPaArchive, IDisposable
 
     internal ZipArchive InnerZipArchive => _innerZipArchive;
 
+    internal ILogger<PaArchive>? InnerLogger => _logger;
+
     public ZipArchiveMode Mode => _innerZipArchive.Mode;
 
     protected bool IsDisposed => _isDisposed;
