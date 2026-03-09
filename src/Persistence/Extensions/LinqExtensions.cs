@@ -7,7 +7,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Extensions;
 
 public static class LinqExtensions
 {
-    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
+    internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
         where T : class
     {
         return source

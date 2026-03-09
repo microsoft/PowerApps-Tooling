@@ -46,9 +46,31 @@ public class PaArchiveEntry
     public string Name => NormalizedPath.Name;
 
     /// <summary>
+    /// The compressed size of the entry.
+    /// If the archive that the entry belongs to is in Create mode, attempts to get this property will always throw an exception.
+    /// If the archive that the entry belongs to is in update mode, this property will only be valid if the entry has not been opened.
+    /// </summary>
+    public long CompressedLength => ZipEntry.CompressedLength;
+
+    /// <summary>
+    /// The uncompressed size of the entry.
+    /// This property is not valid in Create mode, and it is only valid in Update mode if the entry has not been opened.
+    /// </summary>
+    public long Length => ZipEntry.Length;
+
+    /// <summary>
     /// Opens the entry.
     /// See additional docs for <see cref="ZipArchiveEntry.Open"/>.
     /// </summary>
     /// <returns>A Stream that represents the contents of the entry.</returns>
     public Stream Open() => ZipEntry.Open();
+
+    /// <summary>
+    /// Deletes the entry from the <see cref="PaArchive"/>.
+    /// </summary>
+    public void Delete()
+    {
+        ZipEntry.Delete();
+        PaArchive.RemoveEntry(this);
+    }
 }

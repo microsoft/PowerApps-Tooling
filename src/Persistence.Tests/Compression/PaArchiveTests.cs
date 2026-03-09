@@ -358,6 +358,127 @@ public class PaArchiveTests : TestBase
         capturingLogger.Entries.Should().HaveCount(2, "1 ignored-directory warnings + 1 extra warning for data in DirEntryWithData/");
     }
 
+    [TestMethod]
+    public void DeleteEntryTests()
+    {
+        // Arrange: Create archive with several entries
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            createArchive.CreateEntry("file1.txt");
+            createArchive.CreateEntry("file2.txt");
+            createArchive.CreateEntry("dir1/file3.txt");
+        }
+
+        // Act: Open in Update mode and delete one entry
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Update);
+        paArchive.Entries.Should().HaveCount(3);
+
+        var entry = paArchive.GetRequiredEntry("file1.txt");
+        entry.Delete();
+
+        // Assert: Deleted entry no longer visible; others remain
+        paArchive.ContainsEntry("file1.txt").Should().BeFalse();
+        paArchive.ContainsEntry("file2.txt").Should().BeTrue();
+        paArchive.ContainsEntry("dir1/file3.txt").Should().BeTrue();
+        paArchive.Entries.Should().HaveCount(2);
+    }
+
+    [TestMethod]
+    public void DeleteAllEntriesTest()
+    {
+        // Arrange
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            createArchive.CreateEntry("file1.txt");
+            createArchive.CreateEntry("file2.txt");
+        }
+
+        // Act: Delete every entry
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Update);
+        foreach (var entry in paArchive.Entries.ToList())
+            entry.Delete();
+
+        // Assert
+        paArchive.Entries.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void ReadAllLinesTests()
+    {
+        // Arrange: Write a multi-line entry (no trailing newline on last line)
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var entry = createArchive.CreateEntry("file.txt");
+            using var writer = new StreamWriter(entry.Open());
+            writer.WriteLine("line1");
+            writer.WriteLine("line2");
+            writer.Write("line3");
+        }
+
+        // Act
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
+        var lines = paArchive.GetRequiredEntry("file.txt").ReadAllLines();
+
+        // Assert
+        lines.Should().Equal(["line1", "line2", "line3"]);
+    }
+
+    [TestMethod]
+    public void ReadAllLinesEmptyEntryTest()
+    {
+        // Arrange
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+            createArchive.CreateEntry("empty.txt");
+
+        // Act
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
+        var lines = paArchive.GetRequiredEntry("empty.txt").ReadAllLines();
+
+        // Assert
+        lines.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void ReadAllTextTests()
+    {
+        // Arrange
+        const string content = "Hello, World!\nThis is a test.";
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var entry = createArchive.CreateEntry("file.txt");
+            using var writer = new StreamWriter(entry.Open());
+            writer.Write(content);
+        }
+
+        // Act
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
+        var text = paArchive.GetRequiredEntry("file.txt").ReadAllText();
+
+        // Assert
+        text.Should().Be(content);
+    }
+
+    [TestMethod]
+    public void ReadAllTextEmptyEntryTest()
+    {
+        // Arrange
+        using var stream = new MemoryStream();
+        using (var createArchive = new PaArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+            createArchive.CreateEntry("empty.txt");
+
+        // Act
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read);
+        var text = paArchive.GetRequiredEntry("empty.txt").ReadAllText();
+
+        // Assert
+        text.Should().BeEmpty();
+    }
+
     private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName = "Header-DocV-1.347.json")
     {
         // Create an msapp-like archive with minimum required content. For this test, it's just the header.json file.

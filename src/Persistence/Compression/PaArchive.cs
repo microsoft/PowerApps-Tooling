@@ -162,6 +162,16 @@ public partial class PaArchive : IPaArchive, IDisposable
         return paEntry;
     }
 
+    /// <summary>
+    /// Internal use only!
+    /// Removes the entry from the items in this archie.
+    /// </summary>
+    internal void RemoveEntry(PaArchiveEntry entry)
+    {
+        _entriesDictionary.Remove(entry.NormalizedPath);
+        _entries.Remove(entry);
+    }
+
     public bool ContainsEntry(string fullName)
     {
         return ContainsEntry(PaArchivePath.ParseArgument(fullName));
@@ -208,6 +218,7 @@ public partial class PaArchive : IPaArchive, IDisposable
     /// <summary>
     /// Returns all entries in the archive that are in the given directory.
     /// </summary>
+    /// <param name="directoryName">The directory path. If directory separator does not exist, it will be added.</param>
     public IEnumerable<PaArchiveEntry> GetEntriesInDirectory(string directoryName, string? extension = null, bool recursive = false)
     {
         var directoryPath = PaArchivePath.AsDirectoryOrRoot(directoryName);
