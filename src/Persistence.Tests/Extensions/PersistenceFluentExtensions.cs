@@ -14,18 +14,18 @@ namespace Persistence.Tests.Extensions;
 /// <summary>
 /// Extensions for tests.
 /// </summary>
-internal static class PersistenceFluentExtensions
+internal static partial class PersistenceFluentExtensions
 {
     /// <summary>
     /// Asserts that the value is not null and gives the nullable assertion.
     /// Will result in a FluentAssertionException if the value is null.
     /// </summary>
-    public static void ShouldNotBeNull<T>([NotNull] this T? value)
+    public static void ShouldNotBeNull<T>([NotNull] this T? value, string because = "", params object[] becauseArgs)
         where T : notnull
     {
         if (value is null)
         {
-            value.Should().NotBeNull();
+            value.Should().NotBeNull(because, becauseArgs);
             throw new InvalidOperationException("Should().NotBeNull() should have thrown.");
         }
     }
@@ -62,7 +62,7 @@ internal static class PersistenceFluentExtensions
         _ = assertions ?? throw new ArgumentNullException(nameof(assertions));
         _ = expectedYaml ?? throw new ArgumentNullException(nameof(expectedYaml));
 
-        assertions.Subject.ShouldNotBeNull();
+        assertions.Subject.ShouldNotBeNull(because, becauseArgs);
 
         var actualYamlStream = new YamlStream();
         using (var actualTextReader = new StringReader(assertions.Subject))
@@ -105,11 +105,9 @@ internal static class PersistenceFluentExtensions
     {
         docContext ??= nameof(actualDoc);
 
-        using (var scope = new AssertionScope(docContext))
-        {
-            var nodePath = string.Empty; // document root
-            CompareYamlTree(actualDoc.RootNode, expectedDoc.RootNode, nodePath);
-        }
+        using var scope = new AssertionScope(docContext);
+        var nodePath = string.Empty; // document root
+        CompareYamlTree(actualDoc.RootNode, expectedDoc.RootNode, nodePath);
     }
 
     private static void CompareYamlTree(YamlNode actualNode, YamlNode expectedNode, string nodePath)
@@ -189,7 +187,8 @@ internal static class PersistenceFluentExtensions
         }
     }
 
-    private static readonly Regex RequiresEscapingRegex = new(@"[^a-zA-Z0-1_-]", RegexOptions.Compiled);
+    [GeneratedRegex(@"[^a-zA-Z0-1_-]", RegexOptions.Compiled)]
+    private static partial Regex RequiresEscapingRegex();
 
     private static string ToBreadcrumbPathSegment(this YamlScalarNode node)
     {
@@ -198,7 +197,7 @@ internal static class PersistenceFluentExtensions
             return "[~]";
         }
 
-        if (RequiresEscapingRegex.IsMatch(node.Value))
+        if (RequiresEscapingRegex().IsMatch(node.Value))
         {
             return $"[\"{node.Value}\"]";
         }

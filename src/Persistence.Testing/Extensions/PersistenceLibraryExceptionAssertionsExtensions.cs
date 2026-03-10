@@ -6,7 +6,7 @@ using FluentAssertions.Execution;
 using FluentAssertions.Specialized;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 
-namespace Persistence.Tests.Extensions;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.Testing.Extensions;
 
 public static class PersistenceLibraryExceptionAssertionsExtensions
 {

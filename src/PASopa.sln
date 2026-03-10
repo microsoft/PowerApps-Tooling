@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.PowerApps.Persistence", "Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj", "{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.PowerPlatform.PowerApps.Persistence.Testing", "Persistence.Testing\Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj", "{D4E5F6A1-B2C3-4D5E-8F90-1A2B3C4D5E6F}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.Tests", "Persistence.Tests\Persistence.Tests.csproj", "{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7361DB16-D534-4E0E-8597-BE22317DEF47}"
@@ -52,6 +54,10 @@ Global
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{906B4EA5-F287-4D0E-A511-0D89B2DD9C14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4E5F6A1-B2C3-4D5E-8F90-1A2B3C4D5E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4E5F6A1-B2C3-4D5E-8F90-1A2B3C4D5E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4E5F6A1-B2C3-4D5E-8F90-1A2B3C4D5E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4E5F6A1-B2C3-4D5E-8F90-1A2B3C4D5E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
