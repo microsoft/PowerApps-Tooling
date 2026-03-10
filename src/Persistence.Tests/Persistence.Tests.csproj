@@ -30,11 +30,14 @@
     <ItemGroup Label="Global usings">
         <Using Include="FluentAssertions" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+        <Using Include="Microsoft.PowerPlatform.PowerApps.Persistence.Testing" />
+        <Using Include="Microsoft.PowerPlatform.PowerApps.Persistence.Testing.Extensions" />
         <Using Include="Persistence.Tests.Extensions" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+        <ProjectReference Include="..\Persistence.Testing\Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj" />
     </ItemGroup>
 
 </Project>

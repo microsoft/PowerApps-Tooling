@@ -306,8 +306,8 @@ public class PaArchiveTests : TestBase
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
         // Assert: directory entries are ignored regardless of whether they have data
-        paArchive.Should().ContainEntry("Header.json");
-        paArchive.Should().ContainEntry("Assets/img1.jpg");
+        paArchive.Should().HaveEntry("Header.json");
+        paArchive.Should().HaveEntry("Assets/img1.jpg");
         paArchive.Entries.Should().HaveCount(2, "only file entries should be loaded");
 
         // directory entries should produce a Warning that they are ignored
@@ -340,7 +340,7 @@ public class PaArchiveTests : TestBase
         using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
 
         // Assert: directory entries are ignored regardless of whether they have data
-        paArchive.Should().ContainEntry("Header.json");
+        paArchive.Should().HaveEntry("Header.json");
         paArchive.Entries.Should().HaveCount(1, "only file entries should be loaded");
 
         // directory entries should produce a Warning that they are ignored

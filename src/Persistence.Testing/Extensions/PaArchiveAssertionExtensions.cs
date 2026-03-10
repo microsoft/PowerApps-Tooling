@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using FluentAssertions.Specialized;
@@ -8,7 +9,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
-namespace Persistence.Tests.Extensions;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.Testing.Extensions;
 
 [DebuggerNonUserCode]
 public static class PaArchiveAssertionExtensions
@@ -23,25 +24,25 @@ public static class PaArchiveAssertionExtensions
 public class PaArchiveAssertions(PaArchive? value)
     : ObjectAssertions<PaArchive?, PaArchiveAssertions>(value)
 {
-    public AndWhichConstraint<PaArchiveAssertions, PaArchiveEntry> ContainEntry(string fullPath, string? because = null, params object[] becauseArgs)
+    public AndWhichConstraint<PaArchiveAssertions, PaArchiveEntry> HaveEntry(string fullPath, string? because = null, params object[] becauseArgs)
     {
         Execute.Assertion
             .ForCondition(Subject != null && Subject.ContainsEntry(fullPath))
             .BecauseOf(because, becauseArgs)
             .FailWith(
-                "Expected {context:archive} to contain entry with path {0}{reason}, but was not found.",
+                "Expected {context:archive} to have an entry with path {0}{reason}, but was not found.",
                 fullPath);
 
         return new(this, Subject?.GetEntryOrDefault(fullPath)!);
     }
 
-    public AndConstraint<PaArchiveAssertions> NotContainEntry(string fullPath, string? because = null, params object[] becauseArgs)
+    public AndConstraint<PaArchiveAssertions> NotHaveEntry(string fullPath, string? because = null, params object[] becauseArgs)
     {
         Execute.Assertion
             .ForCondition(Subject != null && !Subject.ContainsEntry(fullPath))
             .BecauseOf(because, becauseArgs)
             .FailWith(
-                "Expected {context:archive} to NOT contain entry with path {0}{reason}, but it was found.",
+                "Expected {context:archive} to NOT have an entry with path {0}{reason}, but it was found.",
                 fullPath);
 
         return new(this);
@@ -64,7 +65,7 @@ public class PaArchiveAssertions(PaArchive? value)
             .ForCondition(actualCount == expectedCount)
             .BecauseOf(because, becauseArgs)
             .FailWith(
-                "Expected {context:archive} to contain {0} entries in directory {1}{2}{reason}, but {3} were found.",
+                "Expected {context:archive} to have {0} entries in directory {1}{2}{reason}, but {3} were found.",
                 expectedCount,
                 directoryPath,
                 recursive ? " recursive" : string.Empty,
@@ -72,24 +73,24 @@ public class PaArchiveAssertions(PaArchive? value)
         return new(this);
     }
 
-    public AndConstraint<PaArchiveAssertions> NotContainAnyEntriesInDirectory(string directoryPath, string? because = null, params object[] becauseArgs)
+    public AndConstraint<PaArchiveAssertions> NotHaveAnyEntriesInDirectory(string directoryPath, string? because = null, params object[] becauseArgs)
     {
-        return NotContainAnyEntriesInDirectory(directoryPath, recursive: false, because, becauseArgs);
+        return NotHaveAnyEntriesInDirectory(directoryPath, recursive: false, because, becauseArgs);
     }
 
-    public AndConstraint<PaArchiveAssertions> NotContainAnyEntriesInDirectoryRecursive(string directoryPath, string? because = null, params object[] becauseArgs)
+    public AndConstraint<PaArchiveAssertions> NotHaveAnyEntriesInDirectoryRecursive(string directoryPath, string? because = null, params object[] becauseArgs)
     {
-        return NotContainAnyEntriesInDirectory(directoryPath, recursive: true, because, becauseArgs);
+        return NotHaveAnyEntriesInDirectory(directoryPath, recursive: true, because, becauseArgs);
     }
 
-    public AndConstraint<PaArchiveAssertions> NotContainAnyEntriesInDirectory(string directoryPath, bool recursive, string? because = null, params object[] becauseArgs)
+    public AndConstraint<PaArchiveAssertions> NotHaveAnyEntriesInDirectory(string directoryPath, bool recursive, string? because = null, params object[] becauseArgs)
     {
         var actualCount = Subject?.GetEntriesInDirectory(directoryPath, recursive: recursive).Count();
         Execute.Assertion
             .ForCondition(actualCount == 0)
             .BecauseOf(because, becauseArgs)
             .FailWith(
-                "Expected {context:archive} to NOT contain any entries in directory {0}{1}{reason}, but {2} were found.",
+                "Expected {context:archive} to NOT have any entries in directory {0}{1}{reason}, but {2} were found.",
                 directoryPath,
                 recursive ? " recursive" : string.Empty,
                 actualCount);

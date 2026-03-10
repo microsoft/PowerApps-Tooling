@@ -3,12 +3,12 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Persistence.Tests;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.Testing;
 
 /// <summary>
 /// A logger implementation which captures log entries so they can be inspected in tests.
 /// </summary>
-internal sealed class CapturingLogger<T> : ILogger<T>
+public sealed class CapturingLogger<T> : ILogger<T>
 {
     public record LogEntry(LogLevel Level, string Message);
 

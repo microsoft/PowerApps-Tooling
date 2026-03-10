@@ -58,45 +58,45 @@ public class MsappPackingServiceTests : TestBase
             "Assets should remain in the .msapr, not be extracted to disk with default config");
 
         using var msaprArchive = MsappReferenceArchiveFactory.Default.Open(msaprPath);
-        msaprArchive.Should().ContainEntry(MsaprLayoutConstants.FileNames.MsaprHeader, "msapr header file should always be written");
+        msaprArchive.Should().HaveEntry(MsaprLayoutConstants.FileNames.MsaprHeader, "msapr header file should always be written");
 
         // Assert: .msapr contains the files from the msapp that were not extracted to disk.
         msaprArchive.Should()
-            .ContainEntry("msapp/Header.json")
-            .And.ContainEntry("msapp/Properties.json")
-            .And.ContainEntry("msapp/ComponentsMetadata.json")
-            .And.ContainEntry("msapp/AppCheckerResult.sarif")
+            .HaveEntry("msapp/Header.json")
+            .And.HaveEntry("msapp/Properties.json")
+            .And.HaveEntry("msapp/ComponentsMetadata.json")
+            .And.HaveEntry("msapp/AppCheckerResult.sarif")
 
             // editor state internal representation of controls and components
-            .And.ContainEntry("msapp/Components/7.json")
-            .And.ContainEntry("msapp/Controls/1.json")
-            .And.ContainEntry("msapp/Controls/4.json")
+            .And.HaveEntry("msapp/Components/7.json")
+            .And.HaveEntry("msapp/Controls/1.json")
+            .And.HaveEntry("msapp/Controls/4.json")
 
             // Hidden entities
-            .And.ContainEntry("msapp/References/Themes.json")
-            .And.ContainEntry("msapp/References/DataSources.json")
-            .And.ContainEntry("msapp/References/ModernThemes.json")
-            .And.ContainEntry("msapp/References/QualifiedValues.json")
-            .And.ContainEntry("msapp/References/Resources.json")
-            .And.ContainEntry("msapp/References/Templates.json")
+            .And.HaveEntry("msapp/References/Themes.json")
+            .And.HaveEntry("msapp/References/DataSources.json")
+            .And.HaveEntry("msapp/References/ModernThemes.json")
+            .And.HaveEntry("msapp/References/QualifiedValues.json")
+            .And.HaveEntry("msapp/References/Resources.json")
+            .And.HaveEntry("msapp/References/Templates.json")
 
             // Assets are not extracted with default config, so they should be in the .msapr
-            .And.ContainEntry("msapp/Assets/Images/e3a466bb-b793-4b1e-95a9-6b69efcd7b7b.jpg")
-            .And.ContainEntry("msapp/Assets/Images/d60d1b08-a1f6-46e7-b305-9c4b2d4d417c.png")
-            .And.ContainEntry("msapp/Assets/Images/fae39ff3-1276-4ea4-96d3-60ebee45b286.png")
+            .And.HaveEntry("msapp/Assets/Images/e3a466bb-b793-4b1e-95a9-6b69efcd7b7b.jpg")
+            .And.HaveEntry("msapp/Assets/Images/d60d1b08-a1f6-46e7-b305-9c4b2d4d417c.png")
+            .And.HaveEntry("msapp/Assets/Images/fae39ff3-1276-4ea4-96d3-60ebee45b286.png")
             ;
 
         // Assert: pa.yaml files were NOT copied into the .msapr (they live on disk)
-        msaprArchive.Should().NotContainAnyEntriesInDirectoryRecursive("msapp/Src");
+        msaprArchive.Should().NotHaveAnyEntriesInDirectoryRecursive("msapp/Src");
 
         // Assert other directories are empty
         msaprArchive.Should()
             .HaveCountEntriesInDirectory("", expectedCount: 1, "only msapr-header.json is expeted at the root currently")
-            .And.NotContainAnyEntriesInDirectoryRecursive("Assets")
-            .And.NotContainAnyEntriesInDirectoryRecursive("Components")
-            .And.NotContainAnyEntriesInDirectoryRecursive("Controls")
-            .And.NotContainAnyEntriesInDirectoryRecursive("References")
-            .And.NotContainAnyEntriesInDirectoryRecursive("Src")
+            .And.NotHaveAnyEntriesInDirectoryRecursive("Assets")
+            .And.NotHaveAnyEntriesInDirectoryRecursive("Components")
+            .And.NotHaveAnyEntriesInDirectoryRecursive("Controls")
+            .And.NotHaveAnyEntriesInDirectoryRecursive("References")
+            .And.NotHaveAnyEntriesInDirectoryRecursive("Src")
             ;
     }
 
@@ -155,13 +155,13 @@ public class MsappPackingServiceTests : TestBase
                 .ToList();
             foreach (var originalEntry in originalEntries)
             {
-                var repackedEntry = repackedMsapp.Should().ContainEntry(originalEntry.FullName, $"repacked msapp should contain original entry").Which;
+                var repackedEntry = repackedMsapp.Should().HaveEntry(originalEntry.FullName, $"repacked msapp should contain original entry").Which;
                 repackedEntry.ComputeHash().Should().Be(originalEntry.ComputeHash(), $"entry '{originalEntry.FullName}' content should be identical after round-trip");
             }
         }
 
         // Assert: packed.json is present and correctly populated
-        var packedJson = repackedMsapp.Should().ContainEntry(MsappLayoutConstants.FileNames.Packed)
+        var packedJson = repackedMsapp.Should().HaveEntry(MsappLayoutConstants.FileNames.Packed)
             .Which.DeserializeAsJson<PackedJson>(MsappSerialization.PackedJsonSerializeOptions);
         packedJson.PackedStructureVersion.Should().Be(PackedJson.CurrentPackedStructureVersion);
         packedJson.LastPackedDateTimeUtc.Should().NotBeNull();
@@ -246,7 +246,7 @@ public class MsappPackingServiceTests : TestBase
         foreach (var fileName in nonAsciiFileNames)
         {
             var expectedEntryPath = Path.Combine(MsappLayoutConstants.DirectoryNames.Src, fileName);
-            repackedMsapp.Should().ContainEntry(expectedEntryPath)
+            repackedMsapp.Should().HaveEntry(expectedEntryPath)
                 .Which.Name.Should().Be(fileName, "the file name should be preserved exactly as written to disk");
         }
     }
@@ -273,7 +273,7 @@ public class MsappPackingServiceTests : TestBase
 
         // Assert: notes.txt is NOT present in the output msapp
         using var repackedMsapp = MsappArchiveFactory.Default.Open(outputMsappPath);
-        repackedMsapp.Should().NotContainEntry(Path.Combine("Src", "notes.txt"), "notes.txt is not a .pa.yaml file and should not be included in the packed msapp");
+        repackedMsapp.Should().NotHaveEntry(Path.Combine("Src", "notes.txt"), "notes.txt is not a .pa.yaml file and should not be included in the packed msapp");
     }
 
     [TestMethod]

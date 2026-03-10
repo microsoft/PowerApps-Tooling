@@ -7,6 +7,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
+[DebuggerDisplay("NormalizedPath: {NormalizedPath}")]
 public class PaArchiveEntry
 {
     internal PaArchiveEntry(PaArchive paArchive, ZipArchiveEntry zipEntry, PaArchivePath normalizedPath, bool skipValidation = false)

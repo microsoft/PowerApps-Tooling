@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Persistence.Tests;
+namespace Microsoft.PowerPlatform.PowerApps.Persistence.Testing;
 
+/// <summary>
+/// An implementation of <see cref="IComparer{T}"/> that compares strings assuming they're file paths
+/// in a way that is consistent with how Windows file paths are ordered.
+/// Namely, so directories come before files in the same parent directory, and path separators are treated as significant but not as characters to sort on, and comparison is case-insensitive.
+/// </summary>
 public class FilePathComparer : IComparer<string>
 {
     public static readonly FilePathComparer Instance = new();

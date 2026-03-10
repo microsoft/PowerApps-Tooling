@@ -46,6 +46,9 @@ jobs:
     - name: Pack - Persistence
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/Persistence/Microsoft.PowerPlatform.PowerApps.Persistence.csproj
 
+    - name: Pack - Persistence.Testing
+      run: dotnet pack --no-build -c ${{ env.Configuration }} src/Persistence.Testing/Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj
+
     # Run tests
     - name: Test - PASopa.sln
       run: dotnet test --no-build --solution src/PASopa.sln

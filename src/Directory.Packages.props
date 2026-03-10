@@ -5,11 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Do not raise the FluentAssertions version above 7.x due to license changes -->
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
     <PackageVersion Include="JsonSchema.Net" Version="7.1.2" />
 
-    <!-- WARNING: Do not update Moq library past 4.20.0 due to privacy issues: https://github.com/devlooped/moq/issues/1372 
-    <PackageVersion Include="Moq" Version="4.16.0" />-->
+    <!-- WARNING:
+     Moq versions 4.20.0–4.20.69 should be avoided due to the inclusion of the SponsorLink analyzer,
+     which accessed local git configuration and made network calls during builds. The last pre‑issue
+     safe version is 4.18.x; SponsorLink was removed in 4.20.70.
+     See: https://github.com/devlooped/moq/issues/1372
+     -->
+    <!--<PackageVersion Include="Moq" Version="4.18.2" />-->
 
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />

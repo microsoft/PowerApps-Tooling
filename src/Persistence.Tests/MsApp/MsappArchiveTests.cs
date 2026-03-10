@@ -232,7 +232,12 @@ public class MsappArchiveTests : TestBase
         MsappArchive.IsSafeForEntryPathSegment("Foo\\Bar.pa.yaml").Should().BeFalse("separator chars should not be used for path segments");
         MsappArchive.IsSafeForEntryPathSegment("\\Foo.pa.yaml").Should().BeFalse("separator chars should not be used for path segments");
 
-        MsappArchive.IsSafeForEntryPathSegment("Foo/Bar.pa.yaml").Should().BeFalse("separator chars should not be used for path segments");
+        MsappArchive.IsSafeForEntryPathSegment("Foo/\t.pa.yaml").Should().BeFalse("control chars should not be allowed");
+
+        // Currently, chars outside of ascii range are not allowed
+        MsappArchive.IsSafeForEntryPathSegment("Foo/éñü.pa.yaml").Should().BeFalse("latin chars are currently not allowed");
+        MsappArchive.IsSafeForEntryPathSegment("Foo/あア.pa.yaml").Should().BeFalse("Japanese chars are currently not allowed");
+        MsappArchive.IsSafeForEntryPathSegment("Foo/中文.pa.yaml").Should().BeFalse("CJK chars are currently not allowed");
     }
 
     [TestMethod]
