@@ -56,11 +56,6 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         // We are explicitly only wanting to support valid relative paths, so we don't allow ':' for drive letters etc.
         '\"', '<', '>', '|',
         ':', '*', '?',
-
-        // Also adding chars which are significant to urls, PFx, yaml, json etc. to avoid issues when these paths are used in those contexts:
-        // Over time, we may remove some of these depending on user feedback, because they are not illegal from OS path perspectives.
-        '~', '!', '@', '#', '$', '%', '^', '&', ';', '+', '=',
-        '`', '\'', // additional quote chars
         ];
 
     private static readonly System.Buffers.SearchValues<char> _invalidPathCharsSearchValues = System.Buffers.SearchValues.Create(GetInvalidPathChars());

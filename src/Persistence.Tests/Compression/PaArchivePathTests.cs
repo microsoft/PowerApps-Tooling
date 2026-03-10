@@ -50,6 +50,41 @@ public class PaArchivePathTests : TestBase
         archivePath.IsDirectory.Should().Be(expectIsDirectory);
     }
 
+    // Chars which are valid in OS paths and allowed here:
+    [TestMethod]
+    [DataRow('~')]
+    [DataRow('!')]
+    [DataRow('@')]
+    [DataRow('#')]
+    [DataRow('$')]
+    [DataRow('%')]
+    [DataRow('^')]
+    [DataRow('&')]
+    [DataRow(';')]
+    [DataRow('+')]
+    [DataRow('=')]
+    [DataRow('`')]
+    [DataRow('\'')]
+    // Latin extended:
+    [DataRow('é')] // LATIN SMALL LETTER E WITH ACUTE
+    [DataRow('ñ')] // LATIN SMALL LETTER N WITH TILDE
+    [DataRow('ü')] // LATIN SMALL LETTER U WITH DIAERESIS
+    // Japanese:
+    [DataRow('あ')] // HIRAGANA LETTER A
+    [DataRow('ア')] // KATAKANA LETTER A
+    // CJK:
+    [DataRow('中')] // CJK UNIFIED IDEOGRAPH-4E2D
+    [DataRow('文')] // CJK UNIFIED IDEOGRAPH-6587
+    public void ValidPathWithSpecialCharsTest(char specialChar)
+    {
+        var fullPath = $"dir{Path.DirectorySeparatorChar}{specialChar}";
+
+        var archivePath = new PaArchivePath(fullPath);
+        archivePath.FullName.Should().Be(fullPath);
+        archivePath.Name.Should().Be(specialChar.ToString());
+        archivePath.IsDirectory.Should().BeFalse();
+    }
+
     [TestMethod]
     // Single directory:
     [DataRow(@"dir1", @"dir1\", "dir1", true)]
@@ -112,16 +147,8 @@ public class PaArchivePathTests : TestBase
     [DataRow(@"foo|>bar", PaArchivePathInvalidReason.InvalidPathChars)]
     [DataRow(@"foo?bar", PaArchivePathInvalidReason.InvalidPathChars)]
     [DataRow(@"foo*bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    // Url-special chars
-    [DataRow(@"foo#bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    [DataRow(@"foo%bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    // Quotes
-    [DataRow(@"foo'bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    [DataRow(@"foo`bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Quotes (double-quote is still invalid on Windows)
     [DataRow(@"foo""bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    // Other chars which have meanings in some languages
-    [DataRow(@"foo!bar", PaArchivePathInvalidReason.InvalidPathChars)]
-    [DataRow(@"foo~bar", PaArchivePathInvalidReason.InvalidPathChars)]
     // Whitespace in segments:
     [DataRow(@" ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
     [DataRow(@" \dir1\", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
