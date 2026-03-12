@@ -25,7 +25,7 @@ public sealed record MsaprHeaderJson
     /// In order to support forward-compatible deserialization, we alllow arbitrary additional properties.
     /// </summary>
     [JsonExtensionData]
-    public ImmutableDictionary<string, JsonElement>? AdditionalProperties { get; init; }
+    public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
 }
 
 public sealed record MsaprHeaderJsonUnpackedConfiguration
@@ -39,5 +39,5 @@ public sealed record MsaprHeaderJsonUnpackedConfiguration
     /// In order to support forward-compatible deserialization, we alllow arbitrary additional properties.
     /// </summary>
     [JsonExtensionData]
-    public ImmutableDictionary<string, JsonElement>? AdditionalProperties { get; init; }
+    public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
 }
