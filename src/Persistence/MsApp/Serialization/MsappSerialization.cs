@@ -38,10 +38,10 @@ public static class MsappSerialization
             // But this may have impact on other code which depends on this property.
             new JsonDateTimeAssumesUtcConverter(),
         },
-    }.ToReadOnly();
+    }.MakeReadOnlyFluent();
 
     internal static readonly JsonSerializerOptions DocumentJsonSerializeOptions = new JsonSerializerOptions(DefaultSharedJsonSerializeOptions)
-        .ToReadOnly();
+        .MakeReadOnlyFluent();
 
     /// <summary>
     /// This should match the options used in DocumentServer for deserializing msapp json files.
@@ -51,7 +51,7 @@ public static class MsappSerialization
     {
         // Note: The docsvr doesn't indent the Header.json file.
         WriteIndented = false,
-    }.ToReadOnly();
+    }.MakeReadOnlyFluent();
 
     /// <summary>
     /// Serialization options used for the 'packed.json' file in the msapp archive.
@@ -76,5 +76,5 @@ public static class MsappSerialization
         // In order to ensure forward-compatible deserialization, we ignore unknown members
         // Any object model that wants to also survive round-tripping, must use JsonExtensionData to capture those unknown members.
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-    }.ToReadOnly();
+    }.MakeReadOnlyFluent();
 }

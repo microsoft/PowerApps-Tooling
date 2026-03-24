@@ -39,5 +39,5 @@ public static class MsaprSerialization
         // In order to ensure forward-compatible deserialization, we ignore unknown members
         // Any object model that wants to also survive round-tripping, must use JsonExtensionData to capture those unknown members.
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-    }.ToReadOnly();
+    }.MakeReadOnlyFluent();
 }
