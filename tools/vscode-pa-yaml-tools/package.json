@@ -1,0 +1,40 @@
+{
+  "name": "vscode-pa-yaml-tools",
+  "displayName": "PA YAML Tools",
+  "description": "VS Code tools for working with Power Apps .pa.yaml files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pa-yaml.convertToBlockScalar",
+        "title": "PA YAML: Convert to block scalar..."
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "pa-yaml.convertToBlockScalar",
+          "when": "editorLangId == yaml",
+          "group": "1_modification"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test out/test/yamlScalarConverter.test.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
