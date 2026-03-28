@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { detectDoubleQuotedScalar, convertToBlockScalar, BlockScalarStyle } from './yamlScalarConverter';
+import { findJsonStringAtPosition, decodeStringifiedJson } from './jsonStringDecoder';
 
 export function activate(context: vscode.ExtensionContext): void {
     const disposable = vscode.commands.registerCommand('pa-yaml.convertToBlockScalar', async () => {
@@ -46,6 +47,52 @@ export function activate(context: vscode.ExtensionContext): void {
     });
 
     context.subscriptions.push(disposable);
+
+    const jsonDisposable = vscode.commands.registerCommand('pa-yaml.decodeStringifiedJson', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        if (editor.document.languageId !== 'json') {
+            vscode.window.showWarningMessage('PA JSON: This command only works in JSON files.');
+            return;
+        }
+
+        const cursor = editor.selection.active;
+        const line = editor.document.lineAt(cursor.line);
+        const token = findJsonStringAtPosition(line.text, cursor.character);
+
+        if (!token) {
+            vscode.window.showWarningMessage('PA JSON: Cursor is not inside a JSON string value.');
+            return;
+        }
+
+        const result = decodeStringifiedJson(token.rawContent);
+
+        if (!result.success) {
+            vscode.window.showErrorMessage('PA JSON: ' + result.error);
+            return;
+        }
+
+        // Indent all lines after the first to align with the start of the string token
+        const lineIndent = line.text.slice(0, line.firstNonWhitespaceCharacterIndex);
+        const indented = result.formatted
+            .split('\n')
+            .map((l, i) => (i === 0 ? l : lineIndent + l))
+            .join('\n');
+
+        const replaceRange = new vscode.Range(
+            cursor.line, token.start,
+            cursor.line, token.end
+        );
+
+        await editor.edit(editBuilder => {
+            editBuilder.replace(replaceRange, indented);
+        });
+    });
+
+    context.subscriptions.push(jsonDisposable);
 }
 
 export function deactivate(): void {

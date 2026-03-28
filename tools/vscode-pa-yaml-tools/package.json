@@ -15,6 +15,10 @@
       {
         "command": "pa-yaml.convertToBlockScalar",
         "title": "PA YAML: Convert to block scalar..."
+      },
+      {
+        "command": "pa-yaml.decodeStringifiedJson",
+        "title": "PA JSON: Decode stringified JSON"
       }
     ],
     "menus": {
@@ -23,6 +27,11 @@
           "command": "pa-yaml.convertToBlockScalar",
           "when": "editorLangId == yaml",
           "group": "1_modification"
+        },
+        {
+          "command": "pa-yaml.decodeStringifiedJson",
+          "when": "editorLangId == json",
+          "group": "1_modification"
         }
       ]
     }
@@ -30,7 +39,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node --test out/test/yamlScalarConverter.test.js"
+    "test": "npm run compile && node --test out/test/yamlScalarConverter.test.js out/test/jsonStringDecoder.test.js"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
