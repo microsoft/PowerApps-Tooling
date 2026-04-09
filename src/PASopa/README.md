@@ -51,7 +51,7 @@ Latest Yaml version is: https://github.com/microsoft/PowerApps-Language-Tooling/
 
 You can also use this functionality stand alone, using our test console app.
 
-Download and install the [.NET Core SDK v6.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) in order to build.
+Download and install the [.NET SDK 10.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (version specified in global.json) in order to build.
 Build the test console app by running: `\build.cmd`
 This will create: `\bin\Debug\PASopa\PASopa.exe`
 

@@ -30,16 +30,22 @@ jobs:
 
     - uses: actions/setup-dotnet@v4
       with:
-        # dotnet-version: '8.0.x'
+        dotnet-version: '8.0.x'
+
+    # Setup .NET SDK (installs .NET 10.0 via global.json)
+    - uses: actions/setup-dotnet@v4
+      with:
         global-json-file: 'global.json'
 
-    - run: dotnet --info
+    - name: Display .NET info
+      run: dotnet --info
 
     - name: Build PASopa.sln
       run: dotnet build src/PASopa.sln
 
     # Pack so we can validate there are no warnings/errors
     # We must explicitly set the configuration parameter otherwise it defaults to Release
+    # Packages will include all target frameworks (net8.0, net10.0 for Persistence projects)
     - name: Pack - Formulas.Tools
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj
 
@@ -49,6 +55,6 @@ jobs:
     - name: Pack - Persistence.Testing
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/Persistence.Testing/Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj
 
-    # Run tests
+    # Run tests for all target frameworks
     - name: Test - PASopa.sln
       run: dotnet test --no-build --solution src/PASopa.sln
