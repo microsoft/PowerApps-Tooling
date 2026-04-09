@@ -221,7 +221,7 @@ public class DataSourceTests
         Assert.IsTrue(File.Exists(pathToMsApp));
 
         var (msApp, errors) = CanvasDocument.LoadFromMsapp(pathToMsApp);
-        msApp._dataSourceReferences["default.cds"].dataSources = new Dictionary<string, LocalDatabaseReferenceDataSource>();
+        msApp._dataSourceReferences["default.cds"].dataSources = new();
         errors.ThrowOnErrors();
 
         using var sourcesTempDir = new TempDir();
@@ -256,7 +256,12 @@ public class DataSourceTests
         errors1.ThrowOnErrors();
 
         Assert.HasCount(msApp._dataSourceReferences["default.cds"].dataSources.Count, msApp._dataSourceReferences["default.cds"].dataSources);
-        foreach (var entry in msApp._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key).Zip(msApp1._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key)))
+        foreach (var entry in msApp._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key)
+            .Zip(msApp1._dataSourceReferences["default.cds"].dataSources.Keys.OrderBy(key => key)
+#if NET48 // in net48, Zip does not have an overload that has default result selector, so we need to create the tuple manually.
+                , resultSelector: (k1, k2) => (First: k1, Second: k2)
+#endif
+            ))
         {
             Assert.AreEqual(entry.First, entry.Second);
         }
