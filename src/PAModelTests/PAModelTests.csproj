@@ -1,8 +1,8 @@
 <Project Sdk="MSTest.Sdk">
   <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-
+    <TargetFrameworks>net48;net8.0;net10.0</TargetFrameworks>
+    <LangVersion Condition="'$(TargetFramework)' == 'net48'">10.0</LangVersion>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
   </PropertyGroup>

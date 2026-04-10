@@ -178,20 +178,28 @@ public class SmartMergeTests
         (var msapp, var errors) = CanvasDocument.LoadFromMsapp(root);
         Assert.IsFalse(errors.HasErrors);
 
+        const string screenName = "Home Screen";
         MergeTester(
-        msapp,
-        (branchADoc) =>
-        {
-            // Nothing
-        },
-        (branchBDoc) =>
-        {
-            branchBDoc._screens.Remove("Home Screen", out var control);
-        },
-        (resultDoc) =>
-        {
-            Assert.IsFalse(resultDoc._screens.ContainsKey("Home Screen"));
-        });
+            msapp,
+            (branchADoc) =>
+            {
+                // Nothing
+            },
+            (branchBDoc) =>
+            {
+#if NET48 // in net48, Remove does not have an overload that will return the item removed.
+                if (branchBDoc._screens.TryGetValue(screenName, out var control))
+                {
+                    branchBDoc._screens.Remove(screenName);
+                }
+#else
+                branchBDoc._screens.Remove(screenName, out var control);
+#endif
+            },
+            (resultDoc) =>
+            {
+                Assert.IsFalse(resultDoc._screens.ContainsKey(screenName));
+            });
     }
 
     [TestMethod]

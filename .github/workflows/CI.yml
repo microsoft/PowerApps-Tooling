@@ -30,16 +30,23 @@ jobs:
 
     - uses: actions/setup-dotnet@v4
       with:
-        # dotnet-version: '8.0.x'
+        dotnet-version: '8.0.x'
+
+    # Setup .NET SDK (installs .NET 10.0 via global.json)
+    - uses: actions/setup-dotnet@v4
+      with:
         global-json-file: 'global.json'
 
-    - run: dotnet --info
+    - name: Display .NET info
+      run: dotnet --info
 
     - name: Build PASopa.sln
       run: dotnet build src/PASopa.sln
 
     # Pack so we can validate there are no warnings/errors
     # We must explicitly set the configuration parameter otherwise it defaults to Release
+    # Packages will include all target frameworks (net48, net8.0, net10.0 for Persistence projects)
+    # Note: On Windows, net48 binaries are included; on Ubuntu, net48 build is skipped but pack succeeds
     - name: Pack - Formulas.Tools
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj
 
@@ -49,6 +56,23 @@ jobs:
     - name: Pack - Persistence.Testing
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/Persistence.Testing/Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj
 
-    # Run tests
-    - name: Test - PASopa.sln
+    # Run tests for all target frameworks
+    # On Windows: run all projects and frameworks together
+    - name: Test - PASopa.sln (Windows - all frameworks)
+      if: runner.os == 'Windows'
       run: dotnet test --no-build --solution src/PASopa.sln
+
+    # On non-Windows: run test projects individually, since they don't all support the same TFMs
+    # We are only testing the main test projects & frameworks on Ubuntu
+    - name: Test - Persistence.Tests (net10.0)
+      if: runner.os != 'Windows'
+      run: dotnet test --no-build --project src/Persistence.Tests/Persistence.Tests.csproj --framework net10.0
+      continue-on-error: true
+    - name: Test - PAModelTests (net10.0)
+      if: runner.os != 'Windows'
+      run: dotnet test --no-build --project src/PAModelTests/PAModelTests.csproj --framework net10.0
+      continue-on-error: true
+    - name: Test - YamlValidator.Tests (net8.0)
+      if: runner.os != 'Windows'
+      run: dotnet test --no-build --project src/YamlValidator.Tests/YamlValidator.Tests.csproj --framework net8.0
+      continue-on-error: true

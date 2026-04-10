@@ -22,7 +22,7 @@
 ![alt text](assets/images/yaml-redhat-settings.png)
 ```json
 "yaml.schemas": {
-    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "*.pa.yaml" 
+    "https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/master/docs/pa.yaml-schema.json": "*.pa.yaml"
 }
 ```
 
@@ -52,12 +52,14 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 For a developer machine (Windows 10, WSL, Linux, macOS), install:
 
 - [git](https://git-scm.com/downloads)
-- [.NET Core SDK v6.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- [.NET SDK 10.0.x (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (version specified in global.json)
 - [VS Code](https://code.visualstudio.com/Download)
-- if on Windows: [VS2019 or VS2022 (Community edition will do)](https://visualstudio.microsoft.com/downloads/).  Select at least the following workload: .NET Core cross-plat
+- if on Windows: [VS2022 (Community edition will do)](https://visualstudio.microsoft.com/downloads/).  Select at least the following workload: .NET desktop development (for .NET Framework 4.8 support)
 - recommended VSCode extensions:
   - [GitLens (eamodio.gitlens)](https://github.com/eamodio/vscode-gitlens)
   - [C# (ms-vscode.csharp)](https://github.com/OmniSharp/omnisharp-vscode)
+
+**Note:** Some projects target multiple frameworks. Building .NET Framework 4.8 targets requires Windows with the .NET Framework 4.8 Developer Pack installed.
 
 ### Building and running tests
 

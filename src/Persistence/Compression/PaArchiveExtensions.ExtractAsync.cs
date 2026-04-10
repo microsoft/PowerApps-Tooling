@@ -9,15 +9,19 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
 public static partial class PaArchiveExtensions
 {
+#if NET10_0_OR_GREATER
+    public static async Task ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
+    {
+        // .net 10 supports ExtractToFileAsync
+        await source.ZipEntry.ExtractToFileAsync(destinationFileName, overwrite).ConfigureAwait(false);
+    }
+#else
     public static ValueTask ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
     {
-#if NET10_0_OR_GREATER
-        // When we support .net 10, use ExtractToFileAsync
-#else
         source.ZipEntry.ExtractToFile(destinationFileName, overwrite);
         return ValueTask.CompletedTask;
-#endif
     }
+#endif
 
     /// <summary>
     /// Extracts the archive to a target directory, preserving relative paths.
