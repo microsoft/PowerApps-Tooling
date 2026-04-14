@@ -4,6 +4,8 @@
 using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking;
@@ -11,11 +13,13 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking;
 public static class MsappPackingServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the <see cref="MsappReferenceArchiveFactory"/> service.
+    /// Registers the <see cref="MsappPackingService"/> service and its dependencies.
     /// </summary>
-    /// <param name="services">the services collection instance.</param>
-    public static void AddMsappReferenceArchiveFactory(this IServiceCollection services)
+    public static void AddMsappPackingService(this IServiceCollection services)
     {
-        services.AddSingleton<MsappReferenceArchiveFactory>();
+        services.TryAddSingleton<MsappPackingService>();
+        // And register dependencies
+        services.AddMsappArchiveFactory();
+        services.TryAddSingleton<MsappReferenceArchiveFactory>();
     }
 }

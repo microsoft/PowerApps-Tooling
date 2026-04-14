@@ -38,7 +38,8 @@ public sealed class MsappPackingService(
         string msappPath,
         string outputDirectory,
         bool overwriteOutput = false,
-        UnpackedConfiguration? unpackedConfig = null)
+        UnpackedConfiguration? unpackedConfig = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(msappPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
@@ -103,7 +104,7 @@ public sealed class MsappPackingService(
 
         // Create/overwite .msapr
         Directory.CreateDirectory(outputDirectory);
-        using var msaprArchive = _msappReferenceFactory.CreateNew(msaprPath, CreateMsaprHeaderJson(unpackedConfig), overwrite: overwriteOutput);
+        using var msaprArchive = await _msappReferenceFactory.CreateNewAsync(msaprPath, CreateMsaprHeaderJson(unpackedConfig), overwrite: overwriteOutput, cancellationToken).ConfigureAwait(false);
 
         // Perform unpack instructions on msapp entries
         var extractedCount = 0;
@@ -112,13 +113,13 @@ public sealed class MsappPackingService(
         {
             if (entryInstruction.InstructionType is MsappUnpackInstructionType.UnpackToRelativeDirectory)
             {
-                await entryInstruction.MsappEntry.ExtractRelativeToDirectoryAsync(outputDirectory, overwrite: overwriteOutput).ConfigureAwait(false);
+                await entryInstruction.MsappEntry.ExtractRelativeToDirectoryAsync(outputDirectory, overwrite: overwriteOutput, cancellationToken).ConfigureAwait(false);
                 extractedCount++;
             }
             else if (entryInstruction.InstructionType is MsappUnpackInstructionType.CopyToMsapr)
             {
                 Debug.Assert(entryInstruction.CopyToMsaprEntryPath is not null);
-                msaprArchive.AddEntryFrom(entryInstruction.CopyToMsaprEntryPath, entryInstruction.MsappEntry);
+                await msaprArchive.AddEntryFromAsync(entryInstruction.CopyToMsaprEntryPath, entryInstruction.MsappEntry, cancellationToken).ConfigureAwait(false);
                 referenceCount++;
             }
         }
@@ -221,11 +222,13 @@ public sealed class MsappPackingService(
     /// </summary>
     /// <param name="packingClient">Information about the client performing the packing.</param>
     /// <param name="overwriteOutput">Indicates whether to allow overwriting the output if it already exists.</param>
-    public void PackFromMsappReferenceFile(
+    public async Task PackFromMsappReferenceFileAsync(
         string msaprPath,
         string outputMsappPath,
         PackedJsonPackingClient? packingClient = null,
-        bool overwriteOutput = false)
+        bool overwriteOutput = false,
+        bool enableLoadFromYaml = false,
+        CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(msaprPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputMsappPath);
@@ -256,29 +259,39 @@ public sealed class MsappPackingService(
 
             if (instruction.CopyFromMsaprEntry is not null)
             {
-                outputMsapp.AddEntryFrom(instruction.MsappEntryPath, instruction.CopyFromMsaprEntry);
+                await outputMsapp.AddEntryFromAsync(instruction.MsappEntryPath, instruction.CopyFromMsaprEntry, cancellationToken).ConfigureAwait(false);
                 copiedFromMsaprCount++;
             }
             else if (instruction.ReadFromFilePath is not null)
             {
                 var newEntry = outputMsapp.CreateEntry(instruction.MsappEntryPath);
                 using var srcStream = File.OpenRead(instruction.ReadFromFilePath);
-                using var destStream = newEntry.Open();
-                srcStream.CopyTo(destStream);
+                using var destStream = await newEntry.OpenAsync(cancellationToken).ConfigureAwait(false);
+                await srcStream.CopyToAsync(destStream, cancellationToken).ConfigureAwait(false);
                 addedFromDiskCount++;
             }
         }
 
-        outputMsapp.AddEntryFromJson(MsappLayoutConstants.FileNames.Packed, new PackedJson
+        if (enableLoadFromYaml && !unpackedConfig.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode))
         {
-            PackedStructureVersion = PackedJson.CurrentPackedStructureVersion,
-            LastPackedDateTimeUtc = DateTime.UtcNow,
-            PackingClient = packingClient,
-            LoadConfiguration = new PackedJsonLoadConfiguration
+            _logger?.LogWarning("enableLoadFromYaml is set to true, but the unpacked configuration does not indicate that PaYamlSourceCode was unpacked. Ignoring request to load from yaml.");
+            enableLoadFromYaml = false;
+        }
+
+        await outputMsapp.AddEntryFromJsonAsync(
+            MsappLayoutConstants.FileNames.Packed,
+            new PackedJson
             {
-                LoadFromYaml = unpackedConfig.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode),
+                PackedStructureVersion = PackedJson.CurrentPackedStructureVersion,
+                LastPackedDateTimeUtc = DateTime.UtcNow,
+                PackingClient = packingClient,
+                LoadConfiguration = new()
+                {
+                    LoadFromYaml = enableLoadFromYaml,
+                },
             },
-        }, MsappSerialization.PackedJsonSerializeOptions);
+            MsappSerialization.PackedJsonSerializeOptions,
+            cancellationToken).ConfigureAwait(false);
 
         _logger?.LogInformation(
             "Pack complete. Copied {CopiedFromMsapr} entries from msapr. Added {AddedFromDisk} files from disk. Output: {OutputMsappPath}.",

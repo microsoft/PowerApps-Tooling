@@ -244,6 +244,7 @@ public partial class PaArchive : IPaArchive, IDisposable
         }
     }
 
+    [Obsolete($"Use {nameof(AddEntryFromJsonAsync)} instead.")]
     public void AddEntryFromJson<T>(string fullName, T value, JsonSerializerOptions serializerOptions)
     {
         var entry = CreateEntry(fullName);
@@ -251,19 +252,30 @@ public partial class PaArchive : IPaArchive, IDisposable
         JsonSerializer.Serialize(stream, value, serializerOptions);
     }
 
-    public void AddEntryFrom(string fullName, PaArchiveEntry sourceEntry) => AddEntryFrom(PaArchivePath.ParseArgument(fullName), sourceEntry);
+    public async Task AddEntryFromJsonAsync<T>(string fullName, T value, JsonSerializerOptions serializerOptions, CancellationToken cancellationToken = default)
+    {
+        var entry = CreateEntry(fullName);
+        using var stream = entry.Open();
+        await JsonSerializer.SerializeAsync(stream, value, serializerOptions, cancellationToken).ConfigureAwait(false);
+    }
 
-    public void AddEntryFrom(PaArchivePath entryPath, PaArchiveEntry sourceEntry)
+    public async Task AddEntryFromAsync(string fullName, PaArchiveEntry sourceEntry, CancellationToken cancellationToken = default)
+    {
+        await AddEntryFromAsync(PaArchivePath.ParseArgument(fullName), sourceEntry, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task AddEntryFromAsync(PaArchivePath entryPath, PaArchiveEntry sourceEntry, CancellationToken cancellationToken = default)
     {
         if (sourceEntry.PaArchive.InnerZipArchive == InnerZipArchive)
         {
             throw new ArgumentException($"The {nameof(sourceEntry)} can not be from the same archive instance.", nameof(sourceEntry));
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         var newEntry = CreateEntry(entryPath);
         using var srcStream = sourceEntry.Open();
         using var destStream = newEntry.Open();
-        srcStream.CopyTo(destStream);
+        await srcStream.CopyToAsync(destStream, cancellationToken).ConfigureAwait(false);
     }
 
     #region IDisposable

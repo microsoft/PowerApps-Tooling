@@ -4,6 +4,7 @@
 using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
@@ -16,6 +17,6 @@ public static class MsAppServiceCollectionExtensions
     /// <param name="services">the services collection instance.</param>
     public static void AddMsappArchiveFactory(this IServiceCollection services)
     {
-        services.AddSingleton<IMsappArchiveFactory, MsappArchiveFactory>();
+        services.TryAddSingleton<IMsappArchiveFactory, MsappArchiveFactory>();
     }
 }
