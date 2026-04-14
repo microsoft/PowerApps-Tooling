@@ -20,21 +20,21 @@ public class MsappReferenceArchiveFactory(ILogger<MsappReferenceArchive>? _logge
     /// </summary>
     public static readonly MsappReferenceArchiveFactory Default = new();
 
-    internal MsappReferenceArchive CreateNew(string path, MsaprHeaderJson headerJson, bool overwrite = false)
+    internal async Task<MsappReferenceArchive> CreateNewAsync(string path, MsaprHeaderJson headerJson, bool overwrite = false, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
-        return CreateNew(fileStream, headerJson, leaveOpen: false);
+        return await CreateNewAsync(fileStream, headerJson, leaveOpen: false, cancellationToken).ConfigureAwait(false);
     }
 
-    internal MsappReferenceArchive CreateNew(Stream stream, MsaprHeaderJson headerJson, bool leaveOpen = false)
+    internal async Task<MsappReferenceArchive> CreateNewAsync(Stream stream, MsaprHeaderJson headerJson, bool leaveOpen = false, CancellationToken cancellationToken = default)
     {
         var msapr = new MsappReferenceArchive(stream, ZipArchiveMode.Create, leaveOpen, _logger);
 
         // The first thing that must exist in an msapp-ref file is the header; just like with an msapp
-        msapr.AddEntryFromJson(MsaprLayoutConstants.FileNames.MsaprHeader, headerJson, MsaprSerialization.DefaultJsonSerializeOptions);
+        await msapr.AddEntryFromJsonAsync(MsaprLayoutConstants.FileNames.MsaprHeader, headerJson, MsaprSerialization.DefaultJsonSerializeOptions, cancellationToken).ConfigureAwait(false);
 
         return msapr;
     }

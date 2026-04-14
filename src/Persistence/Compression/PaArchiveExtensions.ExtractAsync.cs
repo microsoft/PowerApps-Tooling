@@ -10,14 +10,15 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 public static partial class PaArchiveExtensions
 {
 #if NET10_0_OR_GREATER
-    public static async Task ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
+    public static async Task ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false, CancellationToken cancellationToken = default)
     {
         // .net 10 supports ExtractToFileAsync
-        await source.ZipEntry.ExtractToFileAsync(destinationFileName, overwrite).ConfigureAwait(false);
+        await source.ZipEntry.ExtractToFileAsync(destinationFileName, overwrite, cancellationToken).ConfigureAwait(false);
     }
 #else
-    public static ValueTask ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false)
+    public static ValueTask ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         source.ZipEntry.ExtractToFile(destinationFileName, overwrite);
         return ValueTask.CompletedTask;
     }
@@ -42,14 +43,18 @@ public static partial class PaArchiveExtensions
     /// <remarks>
     /// This method is protected against ZipSlip attacks.
     /// </remarks>
-    public static async Task ExtractToDirectoryAsync(this IEnumerable<PaArchiveEntry> entries, string destinationDirectoryName, bool overwrite = false)
+    public static async Task ExtractToDirectoryAsync(
+        this IEnumerable<PaArchiveEntry> entries,
+        string destinationDirectoryName,
+        bool overwrite = false,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entries);
         ArgumentNullException.ThrowIfNull(destinationDirectoryName);
 
         foreach (var entry in entries)
         {
-            await entry.ExtractRelativeToDirectoryAsync(destinationDirectoryName, overwrite).ConfigureAwait(false);
+            await entry.ExtractRelativeToDirectoryAsync(destinationDirectoryName, overwrite, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -61,7 +66,11 @@ public static partial class PaArchiveExtensions
     /// <remarks>
     /// This method is protected against ZipSlip attacks.
     /// </remarks>
-    public static async Task ExtractRelativeToDirectoryAsync(this PaArchiveEntry source, string destinationDirectoryName, bool overwrite = false)
+    public static async Task ExtractRelativeToDirectoryAsync(
+        this PaArchiveEntry source,
+        string destinationDirectoryName,
+        bool overwrite = false,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(destinationDirectoryName);
@@ -70,6 +79,6 @@ public static partial class PaArchiveExtensions
 
         // PaArchiveEntry's should always only ever represent a file
         Directory.CreateDirectory(Path.GetDirectoryName(fileDestinationPath)!);
-        await source.ExtractToFileAsync(fileDestinationPath, overwrite: overwrite).ConfigureAwait(false);
+        await source.ExtractToFileAsync(fileDestinationPath, overwrite: overwrite, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -67,6 +67,21 @@ public class PaArchiveEntry
     public Stream Open() => ZipEntry.Open();
 
     /// <summary>
+    /// Asynchronously opens the entry.
+    /// See additional docs for <see cref="ZipArchiveEntry.Open"/>.
+    /// </summary>
+    /// <returns>A Stream that represents the contents of the entry.</returns>
+    public async Task<Stream> OpenAsync(CancellationToken cancellationToken = default)
+    {
+#if NET10_0_OR_GREATER
+        return await ZipEntry.OpenAsync(cancellationToken).ConfigureAwait(false);
+#else
+        cancellationToken.ThrowIfCancellationRequested();
+        return Open();
+#endif
+    }
+
+    /// <summary>
     /// Deletes the entry from the <see cref="PaArchive"/>.
     /// </summary>
     public void Delete()

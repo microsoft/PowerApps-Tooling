@@ -15,6 +15,7 @@ using System.Reflection;
 namespace Persistence.Tests.MsappPacking;
 
 [TestClass]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "MSTEST0049:Flow TestContext.CancellationToken to async operations", Justification = "<Pending>")]
 public class MsappPackingServiceTests : TestBase
 {
     private const string AlmTestApp_asManyEntitiesAsPossible = "AlmTestApp-asManyEntitiesAsPossible.msapp";
@@ -127,10 +128,12 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
-    public async Task PackFromMsappReferenceFile_RoundTrip_ProducesSameEntries()
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task PackFromMsappReferenceFile_RoundTrip_ProducesSameEntries(bool enableLoadFromYaml)
     {
         // Arrange
-        var testDir = CreateTestOutputFolder(ensureEmpty: true);
+        var testDir = CreateTestCaseOutputFolder($"enableLoadFromYaml{enableLoadFromYaml}", ensureEmpty: true);
         var unpackedDir = Path.Combine(testDir, "unpacked");
         var repackedMsappPath = Path.Combine(testDir, "repacked.msapp");
         var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
@@ -139,7 +142,8 @@ public class MsappPackingServiceTests : TestBase
         // Act: unpack then pack
         await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
-        service.PackFromMsappReferenceFile(msaprPath, repackedMsappPath, TestPackingClient);
+        await service.PackFromMsappReferenceFileAsync(msaprPath, repackedMsappPath, TestPackingClient
+            , enableLoadFromYaml: enableLoadFromYaml);
 
         // Assert: output file exists
         File.Exists(repackedMsappPath).Should().BeTrue("the repacked .msapp file should be created");
@@ -165,7 +169,7 @@ public class MsappPackingServiceTests : TestBase
             .Which.DeserializeAsJson<PackedJson>(MsappSerialization.PackedJsonSerializeOptions);
         packedJson.PackedStructureVersion.Should().Be(PackedJson.CurrentPackedStructureVersion);
         packedJson.LastPackedDateTimeUtc.Should().NotBeNull();
-        packedJson.LoadConfiguration.LoadFromYaml.Should().BeTrue("PaYamlSourceCode was unpacked");
+        packedJson.LoadConfiguration.LoadFromYaml.Should().Be(enableLoadFromYaml);
         packedJson.PackingClient.Should().BeEquivalentTo(TestPackingClient);
     }
 
@@ -186,8 +190,8 @@ public class MsappPackingServiceTests : TestBase
         File.WriteAllText(outputMsappPath, "existing content");
 
         // Act & Assert
-        FluentActions.Invoking(() => service.PackFromMsappReferenceFile(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: false))
-            .Should().Throw<MsappPackException>()
+        await FluentActions.Invoking(() => service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: false))
+            .Should().ThrowAsync<MsappPackException>()
             .WithMessage($"*'{outputMsappPath}'*");
     }
 
@@ -208,7 +212,7 @@ public class MsappPackingServiceTests : TestBase
         File.WriteAllText(outputMsappPath, "existing content");
 
         // Act: should not throw
-        service.PackFromMsappReferenceFile(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: true);
+        await service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: true);
 
         // Assert: the file was overwritten with a valid msapp
         using var msapp = MsappArchiveFactory.Default.Open(outputMsappPath);
@@ -239,7 +243,7 @@ public class MsappPackingServiceTests : TestBase
 
         // Act
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
-        service.PackFromMsappReferenceFile(msaprPath, repackedMsappPath, TestPackingClient);
+        await service.PackFromMsappReferenceFileAsync(msaprPath, repackedMsappPath, TestPackingClient);
 
         // Assert: each non-ASCII entry name is preserved verbatim in the packed msapp
         using var repackedMsapp = MsappArchiveFactory.Default.Open(repackedMsappPath);
@@ -269,7 +273,7 @@ public class MsappPackingServiceTests : TestBase
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
 
         // Act: should not throw; behavior is Ignore
-        service.PackFromMsappReferenceFile(msaprPath, outputMsappPath, TestPackingClient);
+        await service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient);
 
         // Assert: notes.txt is NOT present in the output msapp
         using var repackedMsapp = MsappArchiveFactory.Default.Open(outputMsappPath);
