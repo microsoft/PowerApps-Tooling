@@ -37,15 +37,15 @@ public sealed class MsappPackingService(
     public async Task UnpackToDirectoryAsync(
         string msappPath,
         string outputDirectory,
-        bool overwriteOutput = false,
-        UnpackedConfiguration? unpackedConfig = null,
+        MsappUnpackOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(msappPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
-        unpackedConfig ??= new();
-        if (!unpackedConfig.ContentTypes.Any())
-            throw new ArgumentException($"{nameof(unpackedConfig)}.{nameof(unpackedConfig.ContentTypes)} should not be empty", nameof(unpackedConfig));
+        options ??= new();
+
+        if (!options.UnpackedConfig.ContentTypes.Any())
+            throw new ArgumentException($"{nameof(options)}.{nameof(options.UnpackedConfig)}.{nameof(options.UnpackedConfig.ContentTypes)} should not be empty", nameof(options));
 
         if (outputDirectory != Path.GetFullPath(outputDirectory))
             throw new ArgumentException($"{nameof(outputDirectory)} should be an absolute path.", nameof(outputDirectory));
@@ -55,13 +55,13 @@ public sealed class MsappPackingService(
             outputDirectoryWithTrailingSlash += Path.DirectorySeparatorChar;
 
         // Step 1: compute output paths
-        var msaprPath = Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(msappPath) + MsaprLayoutConstants.FileExtensions.Msapr);
+        var msaprPath = Path.Combine(outputDirectory, (options.MsaprName ?? Path.GetFileNameWithoutExtension(msappPath)) + MsaprLayoutConstants.FileExtensions.Msapr);
         var assetsOutputDirectoryPath = Path.Combine(outputDirectory, MsappLayoutConstants.DirectoryNames.Assets);
         var srcOutputDirectoryPath = Path.Combine(outputDirectory, MsappLayoutConstants.DirectoryNames.Src);
 
         // Step 2: check for conflicts with existing files/folders
         // Note: This logic doesn't require inspecting the msapp first, as the top-level output files/folders are replaced wholesale
-        if (!overwriteOutput)
+        if (!options.OverwriteOutput)
         {
             if (File.Exists(msaprPath))
                 throw new MsappUnpackException($"Output file '{msaprPath}' already exists and overwriting output is not enabled.");
@@ -88,7 +88,7 @@ public sealed class MsappPackingService(
 
         ValidateMsappUnpackIsSupported(sourceArchive);
 
-        var entryInstructions = BuildUnpackInstructions(sourceArchive, unpackedConfig);
+        var entryInstructions = BuildUnpackInstructions(sourceArchive, options.UnpackedConfig);
         _logger?.LogDebug(
             "Entry types: {SourceCode} source-code, {Asset} asset, {Header} header, {Other} other entries.",
             entryInstructions.Count(e => e.ContentType == MsappContentType.PaYamlSourceCode),
@@ -104,7 +104,7 @@ public sealed class MsappPackingService(
 
         // Create/overwite .msapr
         Directory.CreateDirectory(outputDirectory);
-        using var msaprArchive = await _msappReferenceFactory.CreateNewAsync(msaprPath, CreateMsaprHeaderJson(unpackedConfig), overwrite: overwriteOutput, cancellationToken).ConfigureAwait(false);
+        using var msaprArchive = await _msappReferenceFactory.CreateNewAsync(msaprPath, CreateMsaprHeaderJson(options.UnpackedConfig), overwrite: options.OverwriteOutput, cancellationToken).ConfigureAwait(false);
 
         // Perform unpack instructions on msapp entries
         var extractedCount = 0;
@@ -113,7 +113,7 @@ public sealed class MsappPackingService(
         {
             if (entryInstruction.InstructionType is MsappUnpackInstructionType.UnpackToRelativeDirectory)
             {
-                await entryInstruction.MsappEntry.ExtractRelativeToDirectoryAsync(outputDirectory, overwrite: overwriteOutput, cancellationToken).ConfigureAwait(false);
+                await entryInstruction.MsappEntry.ExtractRelativeToDirectoryAsync(outputDirectory, overwrite: options.OverwriteOutput, cancellationToken).ConfigureAwait(false);
                 extractedCount++;
             }
             else if (entryInstruction.InstructionType is MsappUnpackInstructionType.CopyToMsapr)
@@ -221,21 +221,20 @@ public sealed class MsappPackingService(
     /// The contents of the folder where the msapr file resides are inspected to be included in the msapp.
     /// </summary>
     /// <param name="packingClient">Information about the client performing the packing.</param>
-    /// <param name="overwriteOutput">Indicates whether to allow overwriting the output if it already exists.</param>
     public async Task PackFromMsappReferenceFileAsync(
         string msaprPath,
         string outputMsappPath,
-        PackedJsonPackingClient? packingClient = null,
-        bool overwriteOutput = false,
-        bool enableLoadFromYaml = false,
+        PackedJsonPackingClient packingClient,
+        MsappPackOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(msaprPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputMsappPath);
+        options ??= new();
 
         msaprPath = Path.GetFullPath(msaprPath);
 
-        if (!overwriteOutput && File.Exists(outputMsappPath))
+        if (!options.OverwriteOutput && File.Exists(outputMsappPath))
             throw new MsappPackException($"Output file '{outputMsappPath}' already exists and overwriting output is not enabled.");
 
         var unpackedFolderPath = Path.GetDirectoryName(msaprPath)!;
@@ -246,7 +245,7 @@ public sealed class MsappPackingService(
         // Materialize instructions before creating the output file so any errors (e.g. unsupported src files) are raised first.
         var packInstructions = BuildPackInstructions(msaprArchive, unpackedFolderPath, unpackedConfig, _logger).ToList();
 
-        using var outputMsapp = _msappFactory.Create(outputMsappPath, overwrite: overwriteOutput);
+        using var outputMsapp = _msappFactory.Create(outputMsappPath, overwrite: options.OverwriteOutput);
 
         var packedJsonPath = new PaArchivePath(MsappLayoutConstants.FileNames.Packed);
         var copiedFromMsaprCount = 0;
@@ -272,10 +271,10 @@ public sealed class MsappPackingService(
             }
         }
 
-        if (enableLoadFromYaml && !unpackedConfig.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode))
+        if (options.EnableLoadFromYaml && !unpackedConfig.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode))
         {
-            _logger?.LogWarning("enableLoadFromYaml is set to true, but the unpacked configuration does not indicate that PaYamlSourceCode was unpacked. Ignoring request to load from yaml.");
-            enableLoadFromYaml = false;
+            _logger?.LogWarning("EnableLoadFromYaml is set to true, but the unpacked configuration does not indicate that PaYamlSourceCode was unpacked. Ignoring request to load from yaml.");
+            options = options with { EnableLoadFromYaml = false };
         }
 
         await outputMsapp.AddEntryFromJsonAsync(
@@ -287,7 +286,7 @@ public sealed class MsappPackingService(
                 PackingClient = packingClient,
                 LoadConfiguration = new()
                 {
-                    LoadFromYaml = enableLoadFromYaml,
+                    LoadFromYaml = options.EnableLoadFromYaml,
                 },
             },
             MsappSerialization.PackedJsonSerializeOptions,

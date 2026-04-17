@@ -102,6 +102,25 @@ public class MsappPackingServiceTests : TestBase
     }
 
     [TestMethod]
+    public async Task UnpackToDirectoryWithMsaprName()
+    {
+        // Arrange
+        var testDir = CreateTestOutputFolder(ensureEmpty: true);
+        var unpackedDir = Path.Combine(testDir, "unpackedOut");
+        var msappPath = Path.Combine("_TestData", "AlmApps", AlmTestApp_asManyEntitiesAsPossible);
+        var service = new MsappPackingService(MsappArchiveFactory.Default, MsappReferenceArchiveFactory.Default);
+
+        // Act: unpack with default config (only PaYamlSourceCode is unpacked to disk)
+        await service.UnpackToDirectoryAsync(msappPath, unpackedDir, new() { MsaprName = "customMsaprName" });
+
+        Directory.Exists(unpackedDir).Should().BeTrue("service should have created the output folder if it didn't already exist");
+
+        // Assert: .msapr is created alongside the extracted source
+        Directory.GetFiles(unpackedDir, "*.msapr").Should().ContainSingle()
+            .Which.Should().Be(Path.Combine(unpackedDir, "customMsaprName.msapr"), "the .msapr file should be created with the custom name specified in options");
+    }
+
+    [TestMethod]
     [DataRow("Header-DocV-1.250.json")]  // MSAppStructureVersion is absent (normalizes to 1.0)
     [DataRow("Header-DocV-1.285.json")]  // MSAppStructureVersion 2.0
     [DataRow("Header-DocV-1.347.json", true)]  // DocVersion 1.347
@@ -143,7 +162,7 @@ public class MsappPackingServiceTests : TestBase
         await service.UnpackToDirectoryAsync(msappPath, unpackedDir);
         var msaprPath = Path.Combine(unpackedDir, AlmTestAppMsaprName);
         await service.PackFromMsappReferenceFileAsync(msaprPath, repackedMsappPath, TestPackingClient
-            , enableLoadFromYaml: enableLoadFromYaml);
+            , new() { EnableLoadFromYaml = enableLoadFromYaml });
 
         // Assert: output file exists
         File.Exists(repackedMsappPath).Should().BeTrue("the repacked .msapp file should be created");
@@ -190,7 +209,7 @@ public class MsappPackingServiceTests : TestBase
         File.WriteAllText(outputMsappPath, "existing content");
 
         // Act & Assert
-        await FluentActions.Invoking(() => service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: false))
+        await FluentActions.Invoking(() => service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, new() { OverwriteOutput = false }))
             .Should().ThrowAsync<MsappPackException>()
             .WithMessage($"*'{outputMsappPath}'*");
     }
@@ -212,7 +231,7 @@ public class MsappPackingServiceTests : TestBase
         File.WriteAllText(outputMsappPath, "existing content");
 
         // Act: should not throw
-        await service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, overwriteOutput: true);
+        await service.PackFromMsappReferenceFileAsync(msaprPath, outputMsappPath, TestPackingClient, new() { OverwriteOutput = true });
 
         // Assert: the file was overwritten with a valid msapp
         using var msapp = MsappArchiveFactory.Default.Open(outputMsappPath);
