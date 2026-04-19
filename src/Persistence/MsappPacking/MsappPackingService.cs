@@ -64,14 +64,14 @@ public sealed class MsappPackingService(
         if (!options.OverwriteOutput)
         {
             if (File.Exists(msaprPath))
-                throw new MsappUnpackException($"Output file '{msaprPath}' already exists and overwriting output is not enabled.");
+                throw new MsappUnpackException(MsappUnpackExceptionReason.OutputAlreadyExists, $"Output file '{msaprPath}' already exists and overwriting output is not enabled.");
 
             // Source code should all go into the same 'Src' folder, so we only need to see if it exists and has files inside
             // We will silently remove any empty 'Src' folder
             if (Directory.Exists(srcOutputDirectoryPath)
                 && Directory.EnumerateFiles(srcOutputDirectoryPath, "*", SearchOption.AllDirectories).Any())
             {
-                throw new MsappUnpackException($"Output folder '{srcOutputDirectoryPath}' is not empty and overwriting output is not enabled.");
+                throw new MsappUnpackException(MsappUnpackExceptionReason.OutputAlreadyExists, $"Output folder '{srcOutputDirectoryPath}' is not empty and overwriting output is not enabled.");
             }
 
             // Assets should all go into the same 'Assets' folder, so we only need to see if it exists and has files inside
@@ -79,7 +79,7 @@ public sealed class MsappPackingService(
             if (Directory.Exists(assetsOutputDirectoryPath)
                 && Directory.EnumerateFiles(assetsOutputDirectoryPath, "*", SearchOption.AllDirectories).Any())
             {
-                throw new MsappUnpackException($"Output folder '{assetsOutputDirectoryPath}' is not empty and overwriting output is not enabled.");
+                throw new MsappUnpackException(MsappUnpackExceptionReason.OutputAlreadyExists, $"Output folder '{assetsOutputDirectoryPath}' is not empty and overwriting output is not enabled.");
             }
         }
 
@@ -132,10 +132,10 @@ public sealed class MsappPackingService(
     internal static void ValidateMsappUnpackIsSupported(MsappArchive msappArchive)
     {
         if (msappArchive.MSAppStructureVersion < MinSupportedMSAppStructureVersion)
-            throw new MsappUnpackException($"MSAppStructureVersion {msappArchive.MSAppStructureVersion} is below the minimum supported version {MinSupportedMSAppStructureVersion}.");
+            throw new MsappUnpackException(MsappUnpackExceptionReason.UnsupportedMSAppStructureVersion, $"MSAppStructureVersion {msappArchive.MSAppStructureVersion} is below the minimum supported version {MinSupportedMSAppStructureVersion}.");
 
         if (msappArchive.DocVersion < MinSupportedDocVersion)
-            throw new MsappUnpackException($"DocVersion {msappArchive.DocVersion} is below the minimum supported version {MinSupportedDocVersion}.");
+            throw new MsappUnpackException(MsappUnpackExceptionReason.UnsupportedDocVersion, $"DocVersion {msappArchive.DocVersion} is below the minimum supported version {MinSupportedDocVersion}.");
     }
 
     private static MsaprHeaderJson CreateMsaprHeaderJson(UnpackedConfiguration unpackedConfig)
@@ -235,7 +235,7 @@ public sealed class MsappPackingService(
         msaprPath = Path.GetFullPath(msaprPath);
 
         if (!options.OverwriteOutput && File.Exists(outputMsappPath))
-            throw new MsappPackException($"Output file '{outputMsappPath}' already exists and overwriting output is not enabled.");
+            throw new MsappPackException(MsappPackExceptionReason.OutputAlreadyExists, $"Output file '{outputMsappPath}' already exists and overwriting output is not enabled.");
 
         var unpackedFolderPath = Path.GetDirectoryName(msaprPath)!;
 

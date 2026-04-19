@@ -8,13 +8,20 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking;
 /// </summary>
 public sealed class MsappUnpackException : Exception
 {
-    public MsappUnpackException(string message)
+    public MsappUnpackException(MsappUnpackExceptionReason reason, string message)
         : base(message)
     {
+        Reason = reason;
     }
 
-    public MsappUnpackException(string message, Exception innerException)
+    public MsappUnpackException(MsappUnpackExceptionReason reason, string message, Exception innerException)
         : base(message, innerException)
     {
+        Reason = reason;
     }
+
+    /// <summary>
+    /// Identifies the reason why this exception was thrown.
+    /// </summary>
+    public MsappUnpackExceptionReason Reason { get; }
 }
