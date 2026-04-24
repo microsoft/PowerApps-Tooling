@@ -22,7 +22,7 @@ public class MsappReferenceArchiveFactory(ILogger<MsappReferenceArchive>? _logge
 
     internal async Task<MsappReferenceArchive> CreateNewAsync(string path, MsaprHeaderJson headerJson, bool overwrite = false, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
@@ -41,7 +41,7 @@ public class MsappReferenceArchiveFactory(ILogger<MsappReferenceArchive>? _logge
 
     public MsappReferenceArchive Open(string path)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = File.OpenRead(path);
 
@@ -55,7 +55,7 @@ public class MsappReferenceArchiveFactory(ILogger<MsappReferenceArchive>? _logge
 
     public MsappReferenceArchive Update(string path)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 

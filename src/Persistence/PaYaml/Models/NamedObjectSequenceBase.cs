@@ -128,6 +128,17 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
         return true;
     }
 
+#if NETFRAMEWORK
+    // Default interface implementations are not supported on .NET Framework.
+    // Provide explicit implementations here so the type satisfies ICollection<TNamedObject>.
+    bool ICollection<TNamedObject>.IsReadOnly => false;
+
+    bool ICollection<TNamedObject>.Remove(TNamedObject item)
+    {
+        throw new NotSupportedException("Remove of a named object instance is not supported. Use Remove overload that takes the name of the item you want to remove instead.");
+    }
+#endif
+
     public bool TryGetNamedObject(TName name, [MaybeNullWhen(false)] out TNamedObject namedObject)
     {
         return InnerCollection.TryGetValue(name, out namedObject);
@@ -147,16 +158,9 @@ public abstract class NamedObjectSequenceBase<TName, TValue, TNamedObject> : INa
         }
     }
 
-    internal sealed class InnerKeyedCollection : KeyedCollection<TName, TNamedObject>
+    internal sealed class InnerKeyedCollection(IEqualityComparer<TName>? comparer) : KeyedCollection<TName, TNamedObject>(comparer)
     {
-        public InnerKeyedCollection(IEqualityComparer<TName>? comparer) : base(comparer)
-        {
-        }
-
-        protected override TName GetKeyForItem(TNamedObject namedObject)
-        {
-            return namedObject.Name;
-        }
+        protected override TName GetKeyForItem(TNamedObject namedObject) => namedObject.Name;
 
         public IEnumerable<TName> Names => Items.Select(namedObject => namedObject.Name);
     }

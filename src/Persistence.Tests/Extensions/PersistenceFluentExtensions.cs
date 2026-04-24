@@ -187,8 +187,13 @@ internal static partial class PersistenceFluentExtensions
         }
     }
 
+#if NET7_0_OR_GREATER
     [GeneratedRegex(@"[^a-zA-Z0-1_-]", RegexOptions.Compiled)]
     private static partial Regex RequiresEscapingRegex();
+#else
+    private static readonly Regex s_requiresEscapingRegex = new(@"[^a-zA-Z0-1_-]", RegexOptions.Compiled);
+    private static Regex RequiresEscapingRegex() => s_requiresEscapingRegex;
+#endif
 
     private static string ToBreadcrumbPathSegment(this YamlScalarNode node)
     {
@@ -263,13 +268,13 @@ internal static partial class PersistenceFluentExtensions
     //    }
     //}
 
-    public static IEnumerable<(int Index, T1 Left, T2 Right)> ZipWithIndex<T1, T2>(this IEnumerable<T1> first, IEnumerable<T2> second)
+    public static IEnumerable<(int Index, TFirst First, TSecond Second)> ZipWithIndex<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second)
     {
         _ = first ?? throw new ArgumentNullException(nameof(first));
         _ = second ?? throw new ArgumentNullException(nameof(second));
 
         return first.Zip(second)
-            .Select((item, index) => (index, item.First, item.Second));
+            .Select(static (item, index) => (index, item.First, item.Second));
     }
 
     public static void WriteTextWithLineNumbers(this TestContext testContext, string text, string? headerLine = null)

@@ -9,20 +9,19 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
 public static partial class PaArchiveExtensions
 {
+    public static Task ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false, CancellationToken cancellationToken = default)
+    {
 #if NET10_0_OR_GREATER
-    public static async Task ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false, CancellationToken cancellationToken = default)
-    {
         // .net 10 supports ExtractToFileAsync
-        await source.ZipEntry.ExtractToFileAsync(destinationFileName, overwrite, cancellationToken).ConfigureAwait(false);
-    }
+        return source.ZipEntry.ExtractToFileAsync(destinationFileName, overwrite, cancellationToken);
 #else
-    public static ValueTask ExtractToFileAsync(this PaArchiveEntry source, string destinationFileName, bool overwrite = false, CancellationToken cancellationToken = default)
-    {
+        ThrowIfNull(source);
+
         cancellationToken.ThrowIfCancellationRequested();
         source.ZipEntry.ExtractToFile(destinationFileName, overwrite);
-        return ValueTask.CompletedTask;
-    }
+        return Task.CompletedTask;
 #endif
+    }
 
     /// <summary>
     /// Extracts the archive to a target directory, preserving relative paths.
@@ -32,7 +31,7 @@ public static partial class PaArchiveExtensions
     /// </remarks>
     public static async Task ExtractToDirectoryAsync(this PaArchive source, string destinationDirectoryName, bool overwrite = false)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        ThrowIfNull(source);
 
         await source.Entries.ExtractToDirectoryAsync(destinationDirectoryName, overwrite).ConfigureAwait(false);
     }
@@ -49,8 +48,8 @@ public static partial class PaArchiveExtensions
         bool overwrite = false,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(entries);
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(entries);
+        ThrowIfNull(destinationDirectoryName);
 
         foreach (var entry in entries)
         {
@@ -72,8 +71,8 @@ public static partial class PaArchiveExtensions
         bool overwrite = false,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(source);
+        ThrowIfNull(destinationDirectoryName);
 
         var fileDestinationPath = ComputeAndValidateExtractToPathRelativeToDirectory(source, destinationDirectoryName);
 

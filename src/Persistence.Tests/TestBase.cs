@@ -17,6 +17,17 @@ public abstract class TestBase : VSTestBase
     }
 
     /// <summary>
+    /// Indicates whether the current target framework is .NET Framework.
+    /// </summary>
+    /// <remarks>This constant is defined only when compiling for .NET Framework. Use it to conditionally
+    /// execute code specific to this framework version.</remarks>
+#if NETFRAMEWORK
+    public static bool CurrentTfmIsNetFramework => true;
+#else
+    public static bool CurrentTfmIsNetFramework => false;
+#endif
+
+    /// <summary>
     /// Asserts that two JSON strings are structurally equivalent by comparing their <see cref="JsonNode"/> representations.
     /// </summary>
     protected static void JsonShouldBeEquivalentTo(string actualJson, string expectedJson)

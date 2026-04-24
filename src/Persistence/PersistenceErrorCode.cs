@@ -33,6 +33,7 @@ public enum PersistenceErrorCode
     PaArchiveMissingRequiredEntry = 5001,
     PaArchiveEntryDeserializedToJsonNull = 5002,
     PaArchiveEntryDeserializedToJsonFailed = 5003,
+    ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework = 5004,
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     _LastErrorExclusive,

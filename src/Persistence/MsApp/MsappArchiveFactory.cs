@@ -20,7 +20,7 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Create(string path, bool overwrite = false)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
@@ -34,7 +34,7 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Open(string path)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = File.OpenRead(path);
 
@@ -48,7 +48,7 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Update(string path)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ThrowIfNullOrWhiteSpace(path);
 
         var fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 

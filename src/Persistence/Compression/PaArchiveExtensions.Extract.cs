@@ -23,7 +23,7 @@ public static partial class PaArchiveExtensions
     /// </remarks>
     public static void ExtractToDirectory(this PaArchive source, string destinationDirectoryName, bool overwrite = false)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        ThrowIfNull(source);
 
         source.Entries.ExtractToDirectory(destinationDirectoryName, overwrite);
     }
@@ -36,8 +36,8 @@ public static partial class PaArchiveExtensions
     /// </remarks>
     public static void ExtractToDirectory(this IEnumerable<PaArchiveEntry> entries, string destinationDirectoryName, bool overwrite = false)
     {
-        ArgumentNullException.ThrowIfNull(entries);
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(entries);
+        ThrowIfNull(destinationDirectoryName);
 
         foreach (var entry in entries)
         {
@@ -55,8 +55,8 @@ public static partial class PaArchiveExtensions
     /// </remarks>
     public static void ExtractRelativeToDirectory(this PaArchiveEntry source, string destinationDirectoryName, bool overwrite = false)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(source);
+        ThrowIfNull(destinationDirectoryName);
 
         var fileDestinationPath = ComputeAndValidateExtractToPathRelativeToDirectory(source, destinationDirectoryName);
 
@@ -71,8 +71,8 @@ public static partial class PaArchiveExtensions
     /// <param name="destinationDirectoryName">The target directory into which the entry should be extracted. This directory does not need to exist, but will at the end of this call.</param>
     public static string ComputeAndValidateExtractToPathRelativeToDirectory(PaArchiveEntry source, string destinationDirectoryName)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(source);
+        ThrowIfNull(destinationDirectoryName);
 
         if (!TryComputeAndValidateExtractToPathRelativeToDirectory(destinationDirectoryName, source.NormalizedPath, out var validFullPath))
         {
@@ -101,8 +101,8 @@ public static partial class PaArchiveExtensions
     /// <returns>true if the computed path is valid to extract (and is contained in the target directory). otherwise, false, indicating the computed full path is invalid.</returns>
     public static bool TryComputeAndValidateExtractToPathRelativeToDirectory(string destinationDirectoryName, PaArchivePath entryPath, [NotNullWhen(true)] out string? validFullPath)
     {
-        ArgumentNullException.ThrowIfNull(destinationDirectoryName);
-        ArgumentNullException.ThrowIfNull(entryPath);
+        ThrowIfNull(destinationDirectoryName);
+        ThrowIfNull(entryPath);
 
         // Note that this will give us a good DirectoryInfo even if destinationDirectoryName exists:
         var di = Directory.CreateDirectory(destinationDirectoryName);

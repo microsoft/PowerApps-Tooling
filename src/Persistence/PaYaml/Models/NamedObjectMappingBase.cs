@@ -128,6 +128,17 @@ public abstract class NamedObjectMappingBase<TName, TValue, TNamedObject> : INam
         return InnerCollection.TryAdd(namedObject.Name, namedObject);
     }
 
+#if NETFRAMEWORK
+    // Default interface implementations are not supported on .NET Framework.
+    // Provide explicit implementations here so the type satisfies ICollection<TNamedObject>.
+    bool ICollection<TNamedObject>.IsReadOnly => false;
+
+    bool ICollection<TNamedObject>.Remove(TNamedObject item)
+    {
+        throw new NotSupportedException("Remove of a named object instance is not supported. Use Remove overload that takes the name of the item you want to remove instead.");
+    }
+#endif
+
     public bool TryGetNamedObject(TName name, [MaybeNullWhen(false)] out TNamedObject namedObject)
     {
         return InnerCollection.TryGetValue(name, out namedObject);
