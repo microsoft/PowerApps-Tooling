@@ -22,10 +22,14 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="PolySharp" Version="1.14.1" />
+    <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" />
     <PackageVersion Include="System.IO.Compression" Version="4.3.0" Condition="'$(TargetFramework)' == 'net48'" />
+    <PackageVersion Include="System.Memory" Version="4.5.5" />
     <!-- System.Text.Json is a transitive dependency of Yaml2JsonNode for netstandard2.0.  Pinning to 8.0.5 for CVE-2024-43485, but can be removed on update of Yaml2JsonNode -->
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageVersion Include="Yaml2JsonNode" Version="2.1.1" />
     <PackageVersion Include="YamlDotNet" Version="15.1.6" />
 

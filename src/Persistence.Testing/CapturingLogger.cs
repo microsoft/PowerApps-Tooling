@@ -10,11 +10,13 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.Testing;
 /// </summary>
 public sealed class CapturingLogger<T> : ILogger<T>
 {
-    public record LogEntry(LogLevel Level, string Message);
+    public record LogEntry(EventId EventId, LogLevel Level, string Message);
 
     private readonly List<LogEntry> _entries = [];
 
     public IReadOnlyList<LogEntry> Entries => _entries;
+
+    public IEnumerable<LogEntry> EntriesByName(string name) => _entries.Where(e => e.EventId.Name == name);
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
@@ -22,6 +24,6 @@ public sealed class CapturingLogger<T> : ILogger<T>
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        _entries.Add(new(logLevel, formatter(state, exception)));
+        _entries.Add(new(eventId, logLevel, formatter(state, exception)));
     }
 }

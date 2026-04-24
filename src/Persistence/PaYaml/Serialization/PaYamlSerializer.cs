@@ -141,7 +141,7 @@ public static class PaYamlSerializer
     /// <exception cref="ArgumentNullException">thrown when <paramref name="yaml"/> is null.</exception>
     public static bool CheckIsSequence(string yaml)
     {
-        ArgumentNullException.ThrowIfNull(yaml);
+        ThrowIfNull(yaml);
 
         using var reader = new StringReader(yaml);
         return CheckIsSequence(reader);
@@ -158,7 +158,7 @@ public static class PaYamlSerializer
     /// <exception cref="ArgumentNullException">thrown when <paramref name="reader"/> is null.</exception>
     public static bool CheckIsSequence(TextReader reader)
     {
-        ArgumentNullException.ThrowIfNull(reader);
+        ThrowIfNull(reader);
 
         var parser = new Parser(reader);
 

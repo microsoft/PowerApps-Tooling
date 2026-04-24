@@ -1,30 +1,29 @@
 ﻿<Project Sdk="MSTest.Sdk">
   <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net10.0;net48</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <LangVersion>13.0</LangVersion>
 
         <SignAssembly>true</SignAssembly>
         <PublicSign>true</PublicSign>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="_TestData\**\*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-
-      <None Include="..\schemas-tests\pa-yaml\v3.0\Examples\**\*.yaml" LinkBase="_TestData\SchemaV3_0\Examples\">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Include="..\schemas-tests\pa-yaml\v3.0\FullSchemaUses\**\*.yaml" LinkBase="_TestData\SchemaV3_0\FullSchemaUses\">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+        <PackageReference Include="PolySharp" PrivateAssets="all" />
+        <PackageReference Include="System.Memory" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
+        <ProjectReference Include="..\Persistence.Testing\Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj" />
     </ItemGroup>
 
     <ItemGroup Label="Global usings">
@@ -33,11 +32,20 @@
         <Using Include="Microsoft.PowerPlatform.PowerApps.Persistence.Testing" />
         <Using Include="Microsoft.PowerPlatform.PowerApps.Persistence.Testing.Extensions" />
         <Using Include="Persistence.Tests.Extensions" />
+        <Using Include="Microsoft.PowerPlatform.PowerApps.Persistence.TfmExtensions"/>
+        <Using Static="true" Include="Microsoft.PowerPlatform.PowerApps.Persistence.TfmAdapters.ThrowTfmAdapter"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Persistence\Microsoft.PowerPlatform.PowerApps.Persistence.csproj" />
-        <ProjectReference Include="..\Persistence.Testing\Microsoft.PowerPlatform.PowerApps.Persistence.Testing.csproj" />
+        <None Include="_TestData\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="..\schemas-tests\pa-yaml\v3.0\Examples\**\*.yaml" LinkBase="_TestData\SchemaV3_0\Examples\">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="..\schemas-tests\pa-yaml\v3.0\FullSchemaUses\**\*.yaml" LinkBase="_TestData\SchemaV3_0\FullSchemaUses\">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
-</Project>
+  </Project>

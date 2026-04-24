@@ -49,7 +49,7 @@ public partial class PaArchive : IPaArchive, IDisposable
         _logger = logger;
         _entries = [];
         _entriesCollection = new(_entries);
-        // Note: We don't need to use a custom comparer for the keys, as  PaArchivePath defines IEquitable<PaArchivePath>
+        // Note: We don't need to use a custom comparer for the keys, as  PaArchivePath defines IEquatable<PaArchivePath>
         _entriesDictionary = [];
 
         // Perf: When creating a new archive, there aren't any entries existing already
@@ -102,6 +102,25 @@ public partial class PaArchive : IPaArchive, IDisposable
     {
         if (!_isEntriesInitialized)
         {
+#if NETFRAMEWORK
+            // On .NET Framework 4.8, ZipArchive.Entries lazily reads the central directory.
+            // If any entry has a name containing a char in Path.GetInvalidPathChars() (e.g. '|'),
+            // the first access throws ArgumentException and NO entries can be enumerated at all.
+            // Do a cheap pre-check before entering the main loop so we don't have to reason about
+            // ArgumentException originating from the various other calls made inside the loop.
+            // The lazy initialization of FullPath for .NET implementations is more lenient on path chars,
+            // allowing better usability, and pushing the validation to other APIs.
+            try
+            {
+                _ = InnerZipArchive.Entries.FirstOrDefault();
+            }
+            catch (ArgumentException ex) when (ex.StackTrace.Contains("Path.CheckInvalidPathChars"))
+            {
+                _logger?.LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework(ex.Message);
+                throw new PersistenceLibraryException(PersistenceErrorCode.ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework, "The zip archive contains at least one entry with illegal path characters and cannot be loaded on Net Framework. Better support is available when using .NET 8.0 or later.", ex);
+            }
+#endif
+
             foreach (var zipEntry in InnerZipArchive.Entries)
             {
                 if (!PaArchivePath.TryParse(zipEntry.FullName, out var normalizedPath, out var invalidReason))
@@ -143,7 +162,7 @@ public partial class PaArchive : IPaArchive, IDisposable
 
     public PaArchiveEntry CreateEntry(string fullName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
+        ThrowIfNullOrWhiteSpace(fullName);
 
         return CreateEntry(PaArchivePath.ParseArgument(fullName));
     }
@@ -176,7 +195,11 @@ public partial class PaArchive : IPaArchive, IDisposable
 
     public bool ContainsEntry(string fullName)
     {
-        return ContainsEntry(PaArchivePath.ParseArgument(fullName));
+        ThrowIfNull(fullName);
+
+        // If the path is invalid, then we trivially know the entry isn't available
+        return PaArchivePath.TryParse(fullName, out var path, out _)
+            && ContainsEntry(path);
     }
 
     public bool ContainsEntry(PaArchivePath entryPath)
@@ -186,13 +209,21 @@ public partial class PaArchive : IPaArchive, IDisposable
 
     public bool TryGetEntry(string fullName, [NotNullWhen(true)] out PaArchiveEntry? paEntry)
     {
-        ArgumentNullException.ThrowIfNull(fullName);
-        return TryGetEntry(PaArchivePath.ParseArgument(fullName), out paEntry);
+        ThrowIfNull(fullName);
+
+        // If the path is invalid, then we trivially know the entry isn't available
+        if (!PaArchivePath.TryParse(fullName, out var path, out _))
+        {
+            paEntry = null;
+            return false;
+        }
+
+        return TryGetEntry(path, out paEntry);
     }
 
     public bool TryGetEntry(PaArchivePath entryPath, [NotNullWhen(true)] out PaArchiveEntry? paEntry)
     {
-        ArgumentNullException.ThrowIfNull(entryPath);
+        ThrowIfNull(entryPath);
 
         if (entryPath.IsRoot || entryPath.IsDirectory)
         {
@@ -237,7 +268,7 @@ public partial class PaArchive : IPaArchive, IDisposable
             if (!directoryPath.ContainsPath(entry.NormalizedPath, nonRecursive: !recursive))
                 continue;
 
-            if (!string.IsNullOrEmpty(extension) && !entry.NormalizedPath.MatchesFileExtension(extension))
+            if (!StringTfmAdapter.IsNullOrEmpty(extension) && !entry.NormalizedPath.MatchesFileExtension(extension))
                 continue;
 
             yield return entry;
@@ -282,7 +313,7 @@ public partial class PaArchive : IPaArchive, IDisposable
 
     private void ThrowIfDisposed()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        ThrowObjectDisposedIf(_isDisposed, this);
     }
 
     protected virtual void Dispose(bool disposing)

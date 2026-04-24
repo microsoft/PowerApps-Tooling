@@ -10,10 +10,9 @@ public static class TestingUtilities
     /// </summary>
     public static string[] GetFileNamesInDirectory(string folderPath)
     {
-        return Directory.GetFiles(folderPath)
+        return [.. Directory.GetFiles(folderPath)
             .Select(static p => Path.GetFileName(p))
-            .Order(FilePathComparer.Instance)
-            .ToArray();
+            .Order(FilePathComparer.Instance)];
     }
 
     /// <summary>
@@ -21,10 +20,9 @@ public static class TestingUtilities
     /// </summary>
     public static string[] GetSubDirectoryNamesInDirectory(string folderPath)
     {
-        return Directory.GetDirectories(folderPath)
+        return [.. Directory.GetDirectories(folderPath)
             .Select(static p => Path.GetFileName(p))
-            .Order(FilePathComparer.Instance)
-            .ToArray();
+            .Order(FilePathComparer.Instance)];
     }
 
     /// <summary>
@@ -33,10 +31,9 @@ public static class TestingUtilities
     /// </summary>
     public static string[] GetNormalizedFilePathsUnderDirectory(string folderPath)
     {
-        return Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)
+        return [.. Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)
             .Select(p => p[(folderPath.Length + 1)..].Replace('/', '\\')) // trim the testDir from the beginning of the paths.
-            .Order(FilePathComparer.Instance)
-            .ToArray();
+            .Order(FilePathComparer.Instance)];
     }
 
     /// <summary>
@@ -45,10 +42,9 @@ public static class TestingUtilities
     /// </summary>
     public static string[] GetNormalizedDirectoryPathsUnderDirectory(string folderPath)
     {
-        return Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories)
+        return [.. Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories)
             .Select(p => p[(folderPath.Length + 1)..].Replace('/', '\\')) // trim the testDir from the beginning of the paths.
-            .Order(FilePathComparer.Instance)
-            .ToArray();
+            .Order(FilePathComparer.Instance)];
     }
 
     /// <summary>
@@ -77,14 +73,14 @@ public static class TestingUtilities
         // Get the subdirectories for the specified directory.
         foreach (DirectoryInfo subdir in sourceDir.GetDirectories())
         {
-            CopyFolderRecursively(subdir.FullName, Path.Combine(destinationFolderPath, subdir.Name));
+            CopyFolderRecursively(subdir.FullName, Path.Combine(destinationFolderPath, subdir.Name), overwrite);
         }
     }
 
     public static int? FindIndexOfFirstNotEqual(string[] baselineLines, string[] actualLines)
     {
-        ArgumentNullException.ThrowIfNull(baselineLines);
-        ArgumentNullException.ThrowIfNull(actualLines);
+        ThrowIfNull(baselineLines);
+        ThrowIfNull(actualLines);
 
         for (int i = 0; i < baselineLines.Length; i++)
         {

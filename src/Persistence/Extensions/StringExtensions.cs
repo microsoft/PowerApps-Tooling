@@ -13,8 +13,11 @@ public static class StringExtensions
             return input;
 
         var first = char.ToUpper(input[0], CultureInfo.InvariantCulture);
-        var rest = input.AsSpan(1);
-        return string.Concat(new ReadOnlySpan<char>(in first), rest);
+#if NETFRAMEWORK
+        return string.Concat(first.ToString(), input[1..]);
+#else
+        return string.Concat(new ReadOnlySpan<char>(in first), input.AsSpan(1));
+#endif
     }
 
     public static bool StartsWithInvariant(this string input, string value)

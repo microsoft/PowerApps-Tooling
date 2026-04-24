@@ -83,13 +83,18 @@ public static partial class PaArchiveExtensions
     public static string ComputeHash(this PaArchiveEntry entry)
     {
         using var stream = entry.Open();
+#if NET5_0_OR_GREATER
         var hashBytes = SHA256.HashData(stream);
+#else
+        using var sha256 = SHA256.Create();
+        var hashBytes = sha256.ComputeHash(stream);
+#endif
         return BitConverter.ToString(hashBytes);
     }
 
     public static string[] ReadAllLines(this PaArchiveEntry entry)
     {
-        using var reader = new StreamReader(entry.Open(), leaveOpen: false);
+        using var reader = new StreamReader(entry.Open());
         var lines = new List<string>();
         string? line;
         while ((line = reader.ReadLine()) != null)
@@ -99,7 +104,7 @@ public static partial class PaArchiveExtensions
 
     public static string ReadAllText(this PaArchiveEntry entry)
     {
-        using var reader = new StreamReader(entry.Open(), leaveOpen: false);
+        using var reader = new StreamReader(entry.Open());
         return reader.ReadToEnd();
     }
 }

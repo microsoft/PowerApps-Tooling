@@ -54,7 +54,7 @@ public partial class MsappArchive(
         string uniqueSuffixSeparator = "")
     {
         var directoryPath = PaArchivePath.AsDirectoryOrRoot(directory);
-        ArgumentNullException.ThrowIfNull(fileNameNoExtension);
+        ThrowIfNull(fileNameNoExtension);
         if (!IsSafeForEntryPathSegment(fileNameNoExtension))
         {
             throw new ArgumentException($"The {nameof(fileNameNoExtension)} must be safe for use as an entry path segment. Prevalidate using {nameof(TryMakeSafeForEntryPathSegment)} first.", nameof(fileNameNoExtension));
@@ -101,8 +101,13 @@ public partial class MsappArchive(
     /// Regular expression that matches any characters that are unsafe for entry filenames.<br/>
     /// Note: we don't allow any sort of directory separator chars for filenames to remove cross-platform issues.
     /// </summary>
+#if NET7_0_OR_GREATER
     [GeneratedRegex("[^a-zA-Z0-9 ._-]")]
     private static partial Regex UnsafeFileNameCharactersRegex();
+#else
+    private static readonly Regex s_unsafeFileNameCharactersRegex = new("[^a-zA-Z0-9 ._-]", RegexOptions.Compiled);
+    private static Regex UnsafeFileNameCharactersRegex() => s_unsafeFileNameCharactersRegex;
+#endif
 
     /// <summary>
     /// Makes a user-provided name safe for use as an entry path segment in the archive.
@@ -118,8 +123,8 @@ public partial class MsappArchive(
         out string? safeName,
         string unsafeCharReplacementText = "")
     {
-        ArgumentNullException.ThrowIfNull(unsafeName);
-        ArgumentNullException.ThrowIfNull(unsafeCharReplacementText);
+        ThrowIfNull(unsafeName);
+        ThrowIfNull(unsafeCharReplacementText);
 
         safeName = UnsafeFileNameCharactersRegex()
             .Replace(unsafeName, unsafeCharReplacementText)
@@ -138,7 +143,7 @@ public partial class MsappArchive(
     /// <returns>false when <paramref name="name"/> is null, empty, whitespace only, has leading or trailing whitespace, contains path separator chars or contains any other invalid chars.</returns>
     public static bool IsSafeForEntryPathSegment(string name)
     {
-        ArgumentNullException.ThrowIfNull(name);
+        ThrowIfNull(name);
 
         return !string.IsNullOrWhiteSpace(name)
             && !UnsafeFileNameCharactersRegex().IsMatch(name)

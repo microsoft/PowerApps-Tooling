@@ -29,7 +29,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     public static readonly PaArchivePath Root = new(string.Empty);
 
     private static readonly StringComparison DefaultStringComparison = StringComparison.OrdinalIgnoreCase; // Ordinal is the most secure comparison to use for path comparisons
-    private static readonly StringComparer DefaultStringComparer = StringComparer.FromComparison(DefaultStringComparison);
+    private static readonly StringComparer DefaultStringComparer = StringComparer.OrdinalIgnoreCase;
 
     private const char SeparatorCharWindows = '\\';
     private const char SeparatorCharUnix = '/';
@@ -58,7 +58,11 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         ':', '*', '?',
         ];
 
-    private static readonly System.Buffers.SearchValues<char> _invalidPathCharsSearchValues = System.Buffers.SearchValues.Create(GetInvalidPathChars());
+#if NET8_0_OR_GREATER
+    private static readonly System.Buffers.SearchValues<char> _invalidPathChars = System.Buffers.SearchValues.Create(GetInvalidPathChars());
+#else
+    private static readonly char[] _invalidPathChars = GetInvalidPathChars();
+#endif
 
     /// <summary>
     /// Creates a new instance.
@@ -104,13 +108,13 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     /// <summary>
     /// Indicates whether this instance represents a directory entry, which some implementations support.
     /// </summary>
-    public bool IsDirectory => FullName.Length > 0 && FullName.EndsWith(Path.DirectorySeparatorChar);
+    public bool IsDirectory => FullName.EndsWith(Path.DirectorySeparatorChar);
 
     public static implicit operator string(PaArchivePath path) => path.FullName;
 
     public static bool operator ==(PaArchivePath? left, PaArchivePath? right)
     {
-        return EqualityComparer<PaArchivePath>.Default.Equals(left, right);
+        return EqualityComparer<PaArchivePath>.Default.Equals(left!, right!);
     }
 
     public static bool operator !=(PaArchivePath? left, PaArchivePath? right)
@@ -262,7 +266,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     [Obsolete("Only use within tests for this library")]
     internal static PaArchivePath TestOnly_CreateInvalidPath(string invalidFullName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(invalidFullName);
+        ThrowIfNullOrWhiteSpace(invalidFullName);
 
         if (TryValidatePath(invalidFullName, out _, out _, out _))
             throw new ArgumentException($"This method should only be used to create known invalid paths");
@@ -286,7 +290,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         name = null;
         reason = null;
 
-        if (string.IsNullOrEmpty(origFullName))
+        if (StringTfmAdapter.IsNullOrEmpty(origFullName))
         {
             // Root
             validFullName = name = string.Empty;
@@ -294,7 +298,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         }
 
         var origFullNameSpan = origFullName.AsSpan();
-        if (origFullNameSpan.IndexOfAny(_invalidPathCharsSearchValues) >= 0)
+        if (origFullNameSpan.IndexOfAny(_invalidPathChars) >= 0)
         {
             reason = PaArchivePathInvalidReason.InvalidPathChars;
             return false;
@@ -323,7 +327,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         }
 
         // Compose final relative path
-        validFullName = string.Join(Path.DirectorySeparatorChar, segments);
+        validFullName = StringTfmAdapter.Join(Path.DirectorySeparatorChar, segments);
         if (isDirectoryPath || forceAsDirectory)
             validFullName += Path.DirectorySeparatorChar;
 
@@ -339,7 +343,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
                     return PaArchivePathInvalidReason.WhitespaceOnlySegment;
                 if (segment == ".." || segment == "."
                     // In Windows, a filename cannot end with a period
-                    || segment.EndsWith('.'))
+                    || segment[^1] == '.')
                     return PaArchivePathInvalidReason.IllegalSegment;
                 if (segment.Trim().Length != segment.Length)
                     return PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace;

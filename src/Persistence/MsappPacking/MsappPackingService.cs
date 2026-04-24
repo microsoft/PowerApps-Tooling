@@ -9,6 +9,7 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.Serialization;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking.Models;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking.Serialization;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -40,8 +41,8 @@ public sealed class MsappPackingService(
         MsappUnpackOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(msappPath);
-        ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
+        ThrowIfNullOrWhiteSpace(msappPath);
+        ThrowIfNullOrWhiteSpace(outputDirectory);
         options ??= new();
 
         if (!options.UnpackedConfig.ContentTypes.Any())
@@ -51,7 +52,7 @@ public sealed class MsappPackingService(
             throw new ArgumentException($"{nameof(outputDirectory)} should be an absolute path.", nameof(outputDirectory));
 
         var outputDirectoryWithTrailingSlash = outputDirectory;
-        if (!Path.EndsInDirectorySeparator(outputDirectoryWithTrailingSlash))
+        if (!PathTfmAdapter.EndsInDirectorySeparator(outputDirectoryWithTrailingSlash))
             outputDirectoryWithTrailingSlash += Path.DirectorySeparatorChar;
 
         // Step 1: compute output paths
@@ -89,12 +90,14 @@ public sealed class MsappPackingService(
         ValidateMsappUnpackIsSupported(sourceArchive);
 
         var entryInstructions = BuildUnpackInstructions(sourceArchive, options.UnpackedConfig);
-        _logger?.LogDebug(
-            "Entry types: {SourceCode} source-code, {Asset} asset, {Header} header, {Other} other entries.",
-            entryInstructions.Count(e => e.ContentType == MsappContentType.PaYamlSourceCode),
-            entryInstructions.Count(e => e.ContentType == MsappContentType.Asset),
-            entryInstructions.Count(e => e.ContentType == MsappContentType.Header),
-            entryInstructions.Count(e => e.ContentType == MsappContentType.Other));
+        if (_logger?.IsEnabled(LogLevel.Debug) == true) // Don't compute counts unless logging is on
+        {
+            _logger.LogUnpackInstructionsSummary(
+                sourceCodeCount: entryInstructions.Count(e => e.ContentType == MsappContentType.PaYamlSourceCode),
+                assetCount: entryInstructions.Count(e => e.ContentType == MsappContentType.Asset),
+                headerCount: entryInstructions.Count(e => e.ContentType == MsappContentType.Header),
+                otherCount: entryInstructions.Count(e => e.ContentType == MsappContentType.Other));
+        }
 
         // Step 4: Clear existing output folders (even if the content type for the folder isn't being unpacked)
         if (Directory.Exists(srcOutputDirectoryPath))
@@ -118,15 +121,15 @@ public sealed class MsappPackingService(
             }
             else if (entryInstruction.InstructionType is MsappUnpackInstructionType.CopyToMsapr)
             {
-                Debug.Assert(entryInstruction.CopyToMsaprEntryPath is not null);
+                if (entryInstruction.CopyToMsaprEntryPath is null)
+                    throw new InvalidOperationException($"Instruction with type {MsappUnpackInstructionType.CopyToMsapr} must have a non-null {nameof(entryInstruction.CopyToMsaprEntryPath)}");
+
                 await msaprArchive.AddEntryFromAsync(entryInstruction.CopyToMsaprEntryPath, entryInstruction.MsappEntry, cancellationToken).ConfigureAwait(false);
                 referenceCount++;
             }
         }
 
-        _logger?.LogInformation(
-            "Unpack complete. Extracted {Extracted} files to disk. Wrote {Reference} reference entries to {MsaprPath}.",
-            extractedCount, referenceCount, msaprPath);
+        _logger?.LogUnpackComplete(extractedCount, referenceCount, msaprPath);
     }
 
     internal static void ValidateMsappUnpackIsSupported(MsappArchive msappArchive)
@@ -157,7 +160,7 @@ public sealed class MsappPackingService(
     /// </summary>
     internal static IEnumerable<MsappUnpackEntryInstruction> BuildUnpackInstructions(MsappArchive sourceArchive, UnpackedConfiguration options)
     {
-        ArgumentNullException.ThrowIfNull(sourceArchive);
+        ThrowIfNull(sourceArchive);
         options ??= new UnpackedConfiguration();
 
         if (options.EnablesContentType(MsappUnpackableContentType.Assets))
@@ -228,8 +231,8 @@ public sealed class MsappPackingService(
         MsappPackOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(msaprPath);
-        ArgumentException.ThrowIfNullOrWhiteSpace(outputMsappPath);
+        ThrowIfNullOrWhiteSpace(msaprPath);
+        ThrowIfNullOrWhiteSpace(outputMsappPath);
         options ??= new();
 
         msaprPath = Path.GetFullPath(msaprPath);
@@ -273,7 +276,7 @@ public sealed class MsappPackingService(
 
         if (options.EnableLoadFromYaml && !unpackedConfig.EnablesContentType(MsappUnpackableContentType.PaYamlSourceCode))
         {
-            _logger?.LogWarning("EnableLoadFromYaml is set to true, but the unpacked configuration does not indicate that PaYamlSourceCode was unpacked. Ignoring request to load from yaml.");
+            _logger?.LogPackEnableLoadFromYamlIgnored();
             options = options with { EnableLoadFromYaml = false };
         }
 
@@ -292,9 +295,7 @@ public sealed class MsappPackingService(
             MsappSerialization.PackedJsonSerializeOptions,
             cancellationToken).ConfigureAwait(false);
 
-        _logger?.LogInformation(
-            "Pack complete. Copied {CopiedFromMsapr} entries from msapr. Added {AddedFromDisk} files from disk. Output: {OutputMsappPath}.",
-            copiedFromMsaprCount, addedFromDiskCount, outputMsappPath);
+        _logger?.LogPackComplete(copiedFromMsaprCount, addedFromDiskCount, outputMsappPath);
     }
 
     private static UnpackedConfiguration ParseUnpackedConfiguration(MsaprHeaderJson header)
@@ -318,8 +319,8 @@ public sealed class MsappPackingService(
         UnpackedConfiguration unpackedConfig,
         ILogger? logger = null)
     {
-        ArgumentNullException.ThrowIfNull(msaprArchive);
-        ArgumentNullException.ThrowIfNull(unpackedFolderPath);
+        ThrowIfNull(msaprArchive);
+        ThrowIfNull(unpackedFolderPath);
         unpackedConfig ??= new UnpackedConfiguration();
 
         // Yield entries stored in the msapr (strip the leading "msapp/" prefix)
@@ -342,7 +343,7 @@ public sealed class MsappPackingService(
                 {
                     if (filePath.EndsWith(MsappLayoutConstants.FileExtensions.PaYaml, StringComparison.OrdinalIgnoreCase))
                     {
-                        var relPath = Path.GetRelativePath(unpackedFolderPath, filePath);
+                        var relPath = PathTfmAdapter.GetRelativePath(unpackedFolderPath, filePath);
                         yield return new(new PaArchivePath(relPath))
                         {
                             ReadFromFilePath = filePath

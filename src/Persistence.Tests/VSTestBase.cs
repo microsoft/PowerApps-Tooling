@@ -32,7 +32,7 @@ public abstract class VSTestBase
     /// <returns>The path to the folder that was created.</returns>
     protected string CreateTestCaseOutputFolder(string testCaseName, [CallerMemberName] string? testName = null, bool ensureEmpty = false)
     {
-        ArgumentException.ThrowIfNullOrEmpty(testCaseName);
+        ThrowIfNullOrEmpty(testCaseName);
         _ = testName ?? throw new ArgumentNullException(nameof(testName), "This argument should be specified by the compiler, or else pass the value in explicitly.");
 
         string testOutputFolderPath = Path.Combine(CreateTestOutputFolder(testName, ensureEmpty: false), testCaseName);

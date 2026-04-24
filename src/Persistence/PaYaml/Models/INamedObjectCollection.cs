@@ -35,6 +35,10 @@ public interface INamedObjectCollection<TName, TValue, TNamedObject> : ICollecti
 
     bool TryAdd(TNamedObject namedObject);
 
+#if !NETFRAMEWORK
+    // Default interface implementations are not supported on .NET Framework (CS8701).
+    // On net48 the concrete base classes provide explicit implementations instead.
+
     bool ICollection<TNamedObject>.IsReadOnly => throw new NotImplementedException();
 
     // TODO: Verify this actually hides the member from public API
@@ -43,6 +47,7 @@ public interface INamedObjectCollection<TName, TValue, TNamedObject> : ICollecti
     {
         throw new NotSupportedException("Remove of a named object instance is not supported. Use Remove overload that takes the name of the item you want to remove instead.");
     }
+#endif
 
     // CONSIDER: Also use default implementation for ICollection<T>.Contains(T) to discurage usage.
 }

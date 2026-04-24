@@ -243,10 +243,12 @@ public class PaArchiveTests : TestBase
     }
 
     [TestMethod]
-    public void OpenArchiveWithInvalidAndMaliciousEntryPathsTest()
+    public void OpenArchiveWithMaliciousEntryPathsTest()
     {
         // Arrange: Create a ZipArchive directly (bypassing PaArchive validation) with a mix of valid
         // entries and entries whose FullName is an invalid or malicious PaArchivePath.
+        // Note: only path-traversal entries are used here because they can be created on all TFMs.
+        // For entries with illegal path chars (e.g. '|', '*') see OpenArchiveWithIllegalPathCharEntryTest.
         using var stream = new MemoryStream();
         using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
         {
@@ -258,10 +260,6 @@ public class PaArchiveTests : TestBase
             zipArchive.CreateEntry("../escape.txt");
             zipArchive.CreateEntry("dir/../../escape.txt");
             zipArchive.CreateEntry(@"c:\System32\drivers\etc\hosts");
-
-            // Entries with invalid path characters — should be ignored and logged as warnings
-            zipArchive.CreateEntry("file|bad.txt");
-            zipArchive.CreateEntry("file*bad.txt");
         }
 
         // Act: Open the archive as PaArchive — must not throw even though some entries have invalid paths
@@ -282,9 +280,126 @@ public class PaArchiveTests : TestBase
         capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'../escape.txt'"));
         capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'dir/../../escape.txt'"));
         capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains(@"'c:\System32\drivers\etc\hosts'"));
-        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'file|bad.txt'"));
-        capturingLogger.Entries.Should().ContainSingle(e => e.Message.Contains("'file*bad.txt'"));
-        capturingLogger.Entries.Should().HaveCount(5, "one warning per invalid/malicious entry");
+        capturingLogger.Entries.Should().HaveCount(3, "one warning per malicious entry path");
+    }
+
+    private static IEnumerable<(string FileName, string IllegalEntryName, bool CheckInvalidPathCharsFailsOnNetFx)> IllegalPathCharZipTestDataTuples()
+    {
+        // The following chars are in Path.GetInvalidPathChars() on .NET Framework 4.8, so Path.CheckInvalidPathChars throws
+        yield return ("ContainsIllegalPathChar-pipe.zip", "file|bad.txt", true);
+
+        // The following are invalid chars for PaArchivePath's, but do NOT throw in Path.GetInvalidPathChars
+        yield return ("ContainsIllegalPathChar-asterisk.zip", "file*bad.txt", false);
+    }
+
+    /// <summary>
+    /// Generates the zip test data files used by <see cref="OpenArchiveWithIllegalPathCharEntryTest"/>.
+    /// Run this test on .NET (net8.0 or net10.0) when the test data files need to be regenerated,
+    /// then copy the output files from the output folder into the source code folder at <c>_TestData/MaliciousZips/</c>.
+    ///
+    /// Technically, this test doesn't test our product code, but does confirm the expectations we have found around the implementation
+    /// differences for ZipArchive for different TFMs.
+    /// </summary>
+    [TestMethod]
+    public void GenerateMaliciousZipTestData()
+    {
+        if (CurrentTfmIsNetFramework)
+        {
+            TestContext.WriteLine($"WARNING: DO NOT use the output files from NetFx, as they are expected to not have the required invalid entries");
+        }
+
+        var testDir = CreateTestOutputFolder(ensureEmpty: true);
+        TestContext.WriteLine($"Saving all zips to folder: {testDir}");
+
+        foreach (var testCase in IllegalPathCharZipTestDataTuples())
+        {
+            // on net48 CreateEntry calls Path.CheckInvalidPathChars
+            var expectCreateEntryToFail = CurrentTfmIsNetFramework && testCase.CheckInvalidPathCharsFailsOnNetFx;
+            var zipPath = Path.Combine(testDir, testCase.FileName);
+            CreateTestZip(testCase, zipPath, expectCreateEntryToFail);
+            CheckTestZip(zipPath, expectCreateEntryToFail);
+        }
+
+        void CreateTestZip((string FileName, string IllegalEntryName, bool CheckInvalidPathCharsFailsOnNetFx) testCase, string zipPath, bool expectCreateEntryToFail)
+        {
+            TestContext.WriteLine($"Saving to: {testCase.FileName}");
+            using var fs = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
+            using var zipArchive = new ZipArchive(fs, ZipArchiveMode.Create);
+
+            zipArchive.CreateEntry("validPath.txt");
+
+            if (expectCreateEntryToFail)
+            {
+                FluentActions.Invoking(() => zipArchive.CreateEntry(testCase.IllegalEntryName))
+                    .Should().ThrowExactly<ArgumentException>("CreateEntry on .NET Framework should throw for illegal OS path chars")
+                    .WithMessage("*Illegal characters in path*")
+                    .Which.StackTrace.Should().Contain("Path.CheckInvalidPathChars");
+            }
+            else
+            {
+                zipArchive.CreateEntry(testCase.IllegalEntryName).Should().NotBeNull();
+            }
+        }
+
+        void CheckTestZip(string zipPath, bool expectCreateEntryToFail)
+        {
+            using var fs = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
+            using var zipArchive = new ZipArchive(fs, ZipArchiveMode.Read);
+            TestContext.WriteLine($"Entries in {Path.GetFileName(zipPath)}:");
+            foreach (var entry in zipArchive.Entries)
+            {
+                TestContext.WriteLine($"- {entry.FullName}");
+            }
+
+            if (expectCreateEntryToFail)
+            {
+                zipArchive.Entries.Should().HaveCount(1, "CreateEntry on .NET Framework should should not add entry with invalid path chars");
+            }
+            else
+            {
+                zipArchive.Entries.Should().HaveCount(2);
+            }
+        }
+    }
+
+    [TestMethod]
+    [DynamicData(nameof(IllegalPathCharZipTestDataTuples))]
+    public void OpenArchiveWithIllegalPathCharEntryTest(string zipFileName, string illegalEntryName, bool checkInvalidPathCharsFailsOnNetFx)
+    {
+        // Entries with Windows-illegal path chars in a pre-existing zip are handled gracefully on all
+        // TFMs: PaArchive skips the entry and logs a warning. On .NET Framework 4.8, chars that are in
+        // Path.GetInvalidPathChars() (e.g. '|') cause ZipArchive.Entries to throw, effectively blocking
+        // the use of that zip archive on net48.
+        var zipPath = Path.Combine("_TestData", "MaliciousZips", zipFileName);
+        var capturingLogger = new CapturingLogger<PaArchive>();
+        using var stream = File.OpenRead(zipPath);
+        using var paArchive = new PaArchive(stream, ZipArchiveMode.Read, logger: capturingLogger);
+
+        if (CurrentTfmIsNetFramework && checkInvalidPathCharsFailsOnNetFx)
+        {
+            // When ZipArchive.Entries throws due to invalid path chars on NetFramework, we expect PaArchive to also throw.
+            // This is a limitation of the ZipArchive implementation on that platform.
+            // Essentially, it's all-or-nothing on NetFramework, but best made progress on .NET.
+            var exThrown = FluentActions.Invoking(() => { _ = paArchive.Entries; })
+                .Should().Throw<PersistenceLibraryException>()
+                .WithErrorCode(PersistenceErrorCode.ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework)
+                .Which;
+            exThrown.StackTrace.Should().Contain("PaArchive.EnsureEntriesInitialized");
+            exThrown.InnerException.Should().BeOfType<ArgumentException>()
+                .Which.StackTrace.Should().Contain("Path.CheckInvalidPathChars");
+            capturingLogger.EntriesByName(nameof(PAPersistenceLog.LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework)).Should().ContainSingle();
+            capturingLogger.EntriesByName(nameof(PAPersistenceLog.LogInvalidPathEntryIgnored)).Should().BeEmpty();
+        }
+        else
+        {
+            // Otherwise, we should be able to use the valid entries
+            paArchive.Should().HaveEntry("validPath.txt")
+                .And.NotHaveEntry(illegalEntryName);
+            paArchive.Entries.Should().HaveCount(1, "only the valid entry should be loaded; the illegal-path entry should be skipped");
+            capturingLogger.EntriesByName(nameof(PAPersistenceLog.LogInvalidPathEntryIgnored)).Should().ContainSingle()
+                .Which.Message.Should().Contain($"InvalidReason: 'InvalidPathChars';")
+                .And.Contain($"EntryFullName: '{illegalEntryName}'");
+        }
     }
 
     [TestMethod]
