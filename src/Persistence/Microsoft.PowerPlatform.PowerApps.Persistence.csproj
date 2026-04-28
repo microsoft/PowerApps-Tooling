@@ -8,6 +8,7 @@
 
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
   <PropertyGroup Label="Nuget Properties">
