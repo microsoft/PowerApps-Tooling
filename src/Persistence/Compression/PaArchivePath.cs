@@ -448,7 +448,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
             var proposed = ((ReadOnlySpan<char>)buffer[..writtenLen])
                 .TrimStart();
 
-            // Trip trailing whitespace and '.'
+            // Trim trailing whitespace and '.'
             var lenToKeep = proposed.Length;
             for (int i = proposed.Length - 1; i >= 0 && (proposed[i] == '.' || char.IsWhiteSpace(proposed[i])); i--)
             {
@@ -470,7 +470,7 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     {
         ThrowIfNull(segment);
 
-        if (char.IsWhiteSpace((char)replacementChar))
+        if (char.IsWhiteSpace(replacementChar))
             throw new ArgumentException("Replacement must not be a whitespace character.", nameof(replacementChar));
         if (IsInvalidSegmentChar(replacementChar))
             throw new ArgumentException("Replacement must be a valid segment character.", nameof(replacementChar));
