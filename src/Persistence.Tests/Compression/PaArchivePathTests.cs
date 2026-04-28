@@ -161,12 +161,13 @@ public class PaArchivePathTests : TestBase
     [DataRow(@"dir1\file3 \", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
     [DataRow(@"dir1\  file3  ", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
     // Relative directory segments are illegal (See: Zip Path Traversal vulnerability)
-    [DataRow(@"parent\..\dir", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow(@"malicious\..\..\..\path", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow("""..\..\..\Windows\System32\drivers\etc\hosts""", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow(@"./current/dir", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow(@"current/./dir", PaArchivePathInvalidReason.IllegalSegment)]
-    [DataRow(@"illegal/win/filename.", PaArchivePathInvalidReason.IllegalSegment)] // Windows: cannot end with a period
+    [DataRow(@"parent\..\dir", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow(@"malicious\..\..\..\path", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow("""..\..\..\Windows\System32\drivers\etc\hosts""", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow(@"./current/dir", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow(@"current/./dir", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow(@"illegal/win/filename.", PaArchivePathInvalidReason.SegmentEndsWithDot)] // Windows: cannot end with a period
+    [DataRow(@"illegal/win/segment./filename", PaArchivePathInvalidReason.SegmentEndsWithDot)] // Windows: cannot end with a period
     // extended-length paths are not allowed:
     [DataRow("""\\?\some\long\file\path""", PaArchivePathInvalidReason.InvalidPathChars)]
     public void InvalidPathTest(string fullName, PaArchivePathInvalidReason expectedReason)
@@ -189,6 +190,9 @@ public class PaArchivePathTests : TestBase
         invalidChars.Should().NotBeEmpty();
         invalidChars.Should().Contain(Path.GetInvalidPathChars(), "because all chars returned by Path.GetInvalidPathChars for the current platform should be included");
         invalidChars.Should().Contain(Path.GetInvalidFileNameChars().Where(c => !PaArchivePath.GetAllSeparatorChars().Contains(c)), "because all chars returned by Path.GetInvalidFileNameChars (except for separator chars) for the current platform should be included");
+        invalidChars.Should().Contain('\b', "BS char should not be allowed");
+        invalidChars.Should().Contain('\t', "HT char should not be allowed");
+        invalidChars.Should().Contain('\x007F', "DEL char should not be allowed, even though the Path.GetInvalidPathChars doesn't have it");
         PaArchivePath.GetInvalidPathChars().Should().NotBeSameAs(invalidChars, "because we should be returning a new array instance each time to prevent callers from modifying the cached array");
     }
 
@@ -202,6 +206,137 @@ public class PaArchivePathTests : TestBase
         PaArchivePath.GetAllSeparatorChars().Should().NotBeSameAs(allSeparatorChars, "because we should be returning a new array instance each time to prevent callers from modifying the cached array");
     }
 
+    [TestMethod]
+    public void GetInvalidSegmentCharsTest()
+    {
+        var invalidSegmentChars = PaArchivePath.GetInvalidSegmentChars();
+        invalidSegmentChars.Should().NotBeEmpty();
+        invalidSegmentChars.Should().Contain(PaArchivePath.GetInvalidPathChars(), "because all chars from GetInvalidPathChars should be included");
+        invalidSegmentChars.Should().Contain(PaArchivePath.GetAllSeparatorChars(), "because separator chars delimit segments and are therefore not valid within a segment");
+        invalidSegmentChars.Should().Contain(Path.GetInvalidPathChars(), "because all chars returned by Path.GetInvalidPathChars for the current platform should be included");
+        invalidSegmentChars.Should().Contain(Path.GetInvalidFileNameChars(), "because all chars returned by Path.GetInvalidFileNameChars for the current platform should be included");
+        PaArchivePath.GetInvalidSegmentChars().Should().NotBeSameAs(invalidSegmentChars, "because we should be returning a new array instance each time to prevent callers from modifying the cached array");
+    }
+
+    [TestMethod]
+    // Valid segments
+    [DataRow("file.txt")]
+    [DataRow("SomeName")]
+    [DataRow(".hidden")]
+    [DataRow("some-dir_with555.common.chars")]
+    // Whitespace only
+    [DataRow("", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow(" ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow("   ", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    [DataRow("\t", PaArchivePathInvalidReason.WhitespaceOnlySegment)]
+    // Invalid chars (including separator chars)
+    [DataRow("foo<bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("foo*bar", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("ascii-\0-null", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow("has/separator", PaArchivePathInvalidReason.InvalidPathChars)]
+    [DataRow(@"has\separator", PaArchivePathInvalidReason.InvalidPathChars)]
+    // Leading/trailing whitespace
+    [DataRow(" file", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow("file ", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    [DataRow("  file  ", PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace)]
+    // Illegal segments
+    [DataRow("..", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow(".", PaArchivePathInvalidReason.RelativeSegment)]
+    [DataRow("ends-with-dot.", PaArchivePathInvalidReason.SegmentEndsWithDot)]
+    public void TryValidateSegmentTest(string segment, PaArchivePathInvalidReason? expectedReason = null)
+    {
+        var expectIsValid = expectedReason is null;
+        PaArchivePath.TryValidateSegment(segment, out var reason)
+            .Should().Be(expectIsValid);
+        reason.Should().Be(expectedReason);
+
+        PaArchivePath.IsValidSegment(segment)
+            .Should().Be(expectIsValid, "because IsValidSegment should agree with TryValidateSegment");
+    }
+
+    [TestMethod]
+    // Already valid (returned as-is)
+    [DataRow("file.txt", "file.txt")]
+    [DataRow(".hidden", ".hidden")]
+    [DataRow("foo-  -bar.txt", "foo-  -bar.txt")]
+    [DataRow("foo-éñü-bar.txt", "foo-éñü-bar.txt")]
+    [DataRow("foo-あア-bar.txt", "foo-あア-bar.txt")]
+    [DataRow("foo-中文-bar.txt", "foo-中文-bar.txt")]
+    // Invalid chars are removed
+    [DataRow("foo<bar", "foobar")]
+    [DataRow("foo*bar", "foobar")]
+    [DataRow("foo\tbar", "foobar")]
+    [DataRow("has/separator", "hasseparator")]
+    [DataRow(@"has\separator", "hasseparator")]
+    // Whitespace trimming
+    [DataRow(" file ", "file")]
+    [DataRow("  file  ", "file")]
+    [DataRow(" \t file \t ", "file")]
+    [DataRow(" fi  le ", "fi  le")]
+    // Results in empty → false
+    [DataRow("", null)]
+    [DataRow(" ", null)]
+    [DataRow("\t", null)]
+    [DataRow("/", null)]
+    [DataRow("<>|", null)]
+    // Illegal segments
+    [DataRow(".", null)]
+    [DataRow("..", null)]
+    [DataRow("...", null)]
+    [DataRow(" . ", null)]
+    [DataRow(" .. ", null)]
+    [DataRow(" ... ", null)]
+    [DataRow("ends-with-dot.", "ends-with-dot")]
+    [DataRow("ends-with-dots...", "ends-with-dots")]
+    public void TryMakeValidSegmentTest(string segment, string? expectedValidSegment)
+    {
+        PaArchivePath.TryMakeValidSegment(segment, out var validSegment)
+            .Should().Be(expectedValidSegment is not null);
+        validSegment.Should().Be(expectedValidSegment);
+    }
+
+    [TestMethod]
+    // Already valid (returned as-is)
+    [DataRow("file.txt", "file.txt")]
+    [DataRow(".hidden", ".hidden")]
+    [DataRow("foo-  -bar.txt", "foo-  -bar.txt")]
+    [DataRow("foo-éñü-bar.txt", "foo-éñü-bar.txt")]
+    [DataRow("foo-あア-bar.txt", "foo-あア-bar.txt")]
+    [DataRow("foo-中文-bar.txt", "foo-中文-bar.txt")]
+    // Invalid chars are replaced
+    [DataRow("foo<bar", "foo_bar")]
+    [DataRow("foo*bar", "foo_bar")]
+    [DataRow("foo\tbar", "foo_bar")]
+    [DataRow("has/separator", "has_separator")]
+    [DataRow(@"has\separator", "has_separator")]
+    // Whitespace replaced (no longer trimmed when a replacement char is supplied)
+    [DataRow(" file ", "_file_")]
+    [DataRow("  file", "__file")]
+    [DataRow("  file  ", "__file__")]
+    [DataRow("file  ", "file__")]
+    [DataRow(" \t file \t ", "___file___")]
+    [DataRow(" fi  le ", "_fi  le_")]
+    // Results in empty/replacement-only
+    [DataRow("", null)]
+    [DataRow(" ", "_")]
+    [DataRow("\t", "_")]
+    [DataRow("/", "_")]
+    [DataRow("<>|", "___")]
+    // Illegal segments
+    [DataRow(".", "_")]
+    [DataRow("..", "._")]
+    [DataRow("...", ".._")]
+    [DataRow(" . ", "_._")]
+    [DataRow(" .. ", "_.._")]
+    [DataRow(" ... ", "_..._")]
+    [DataRow("ends-with-dot.", "ends-with-dot_")]
+    [DataRow("ends-with-dots...", "ends-with-dots.._")]
+    public void TryMakeValidSegment_WithReplacementCharTest(string segment, string? expectedValidSegment)
+    {
+        PaArchivePath.TryMakeValidSegment(segment, out var validSegment, invalidCharReplacement: "_")
+            .Should().Be(expectedValidSegment is not null);
+        validSegment.Should().Be(expectedValidSegment);
+    }
     [TestMethod]
     public void GetHashCodeTest()
     {

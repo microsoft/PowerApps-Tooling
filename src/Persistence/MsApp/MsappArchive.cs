@@ -19,19 +19,16 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// Represents a .msapp file.
 /// </summary>
 /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
-public partial class MsappArchive(
+public class MsappArchive(
     Stream stream,
     ZipArchiveMode mode,
     bool leaveOpen = false,
     ILogger<MsappArchive>? logger = null)
-    : PaArchive(stream, mode, leaveOpen, entryNameEncoding: null, logger), IMsappArchive
+    : PaArchive(stream, mode, leaveOpen, entryNameEncoding: null, logger)
 {
     private HeaderJson? _header;
     private bool _packedJsonLoaded;
     private PackedJson? _packedJson;
-
-    /// <inheritdoc/>
-    public ZipArchive ZipArchive => InnerZipArchive;
 
     internal HeaderJson Header => _header ??= LoadHeader();
 
@@ -55,13 +52,10 @@ public partial class MsappArchive(
     {
         var directoryPath = PaArchivePath.AsDirectoryOrRoot(directory);
         ThrowIfNull(fileNameNoExtension);
-        if (!IsSafeForEntryPathSegment(fileNameNoExtension))
+
+        if (!PaArchivePath.IsValidSegment($"{fileNameNoExtension}{extension}"))
         {
-            throw new ArgumentException($"The {nameof(fileNameNoExtension)} must be safe for use as an entry path segment. Prevalidate using {nameof(TryMakeSafeForEntryPathSegment)} first.", nameof(fileNameNoExtension));
-        }
-        if (extension != null && !IsSafeForEntryPathSegment(extension))
-        {
-            throw new ArgumentException("The extension can be null, but cannot be empty or whitespace only, and must be a valid entry path segment.", nameof(directory));
+            throw new ArgumentException($"The {nameof(fileNameNoExtension)} combined with {nameof(extension)} must be safe for use as an entry path segment. Prevalidate using {nameof(PaArchivePath)}.{nameof(PaArchivePath.TryMakeValidSegment)} first.", nameof(fileNameNoExtension));
         }
 
         var entryPathPrefix = $"{directoryPath.FullName}{fileNameNoExtension}";
@@ -95,58 +89,5 @@ public partial class MsappArchive(
             _packedJson = entry.DeserializeAsJson<PackedJson>(MsappSerialization.PackedJsonSerializeOptions);
         _packedJsonLoaded = true;
         return _packedJson;
-    }
-
-    /// <summary>
-    /// Regular expression that matches any characters that are unsafe for entry filenames.<br/>
-    /// Note: we don't allow any sort of directory separator chars for filenames to remove cross-platform issues.
-    /// </summary>
-#if NET7_0_OR_GREATER
-    [GeneratedRegex("[^a-zA-Z0-9 ._-]")]
-    private static partial Regex UnsafeFileNameCharactersRegex();
-#else
-    private static readonly Regex s_unsafeFileNameCharactersRegex = new("[^a-zA-Z0-9 ._-]", RegexOptions.Compiled);
-    private static Regex UnsafeFileNameCharactersRegex() => s_unsafeFileNameCharactersRegex;
-#endif
-
-    /// <summary>
-    /// Makes a user-provided name safe for use as an entry path segment in the archive.
-    /// After making the name safe, it will be trimmed and empty strings will result in a false return value.<br/>
-    /// Note: The set of allowed chars is currently more limited than what is actually allowed in a <see cref="PaArchivePath"/>.
-    /// </summary>
-    /// <param name="unsafeName">An unsafe name which may contain invalid chars for usage in an entry path segment (e.g. directory name or file name).</param>
-    /// <param name="unsafeCharReplacementText">Unsafe characters in the name will be replaced with this string. Default is empty string.</param>
-    /// <returns>true, when <paramref name="unsafeName"/> was converted to a safe, non-empty string; otherwise, false indicates that input could not be turned into a safe, non-empty string.</returns>
-    public static bool TryMakeSafeForEntryPathSegment(
-        string unsafeName,
-        [NotNullWhen(true)]
-        out string? safeName,
-        string unsafeCharReplacementText = "")
-    {
-        ThrowIfNull(unsafeName);
-        ThrowIfNull(unsafeCharReplacementText);
-
-        safeName = UnsafeFileNameCharactersRegex()
-            .Replace(unsafeName, unsafeCharReplacementText)
-            .Trim()
-            .EmptyToNull();
-
-        return safeName != null;
-    }
-
-    /// <summary>
-    /// Used to verify that a name is safe for use as a single path segment for an entry.
-    /// Directory separator chars are not allowed in a path segment.<br/>
-    /// Note: The set of allowed chars is currently more limited than what is actually allowed in a <see cref="PaArchivePath"/>.
-    /// </summary>
-    /// <param name="name">The proposed path segment name.</param>
-    /// <returns>false when <paramref name="name"/> is null, empty, whitespace only, has leading or trailing whitespace, contains path separator chars or contains any other invalid chars.</returns>
-    public static bool IsSafeForEntryPathSegment(string name)
-    {
-        ThrowIfNull(name);
-
-        return !string.IsNullOrWhiteSpace(name)
-            && !UnsafeFileNameCharactersRegex().IsMatch(name)
-            && name.Trim().Length == name.Length; // No leading or trailing whitespace
     }
 }

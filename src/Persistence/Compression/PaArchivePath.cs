@@ -45,12 +45,13 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     /// This list includes chars which are not valid for any platform's paths or file names, along with some symbols which can cause some issues in different applications.
     /// </summary>
     public static char[] GetInvalidPathChars() => [
-        // ASCII Control Chars:
+        // ASCII Control Chars (0x00-0x1F, 0x7F):
         '\0', // NULL
         (char)1, (char)2, (char)3, (char)4, (char)5, (char)6, (char)7, (char)8, (char)9, (char)10,
         (char)11, (char)12, (char)13, (char)14, (char)15, (char)16, (char)17, (char)18, (char)19, (char)20,
         (char)21, (char)22, (char)23, (char)24, (char)25, (char)26, (char)27, (char)28, (char)29, (char)30,
         (char)31,
+        (char)127, // DEL
 
         // non-control chars not allowed in Windows filenames are added here:
         // We are explicitly only wanting to support valid relative paths, so we don't allow ':' for drive letters etc.
@@ -58,11 +59,20 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         ':', '*', '?',
         ];
 
+    /// <summary>
+    /// Characters that are invalid for use within a single path segment (file or directory name) in a <see cref="PaArchive"/>.
+    /// </summary>
+    public static char[] GetInvalidSegmentChars() => [.. GetInvalidPathChars(), .. GetAllSeparatorChars()];
+
 #if NET8_0_OR_GREATER
     private static readonly System.Buffers.SearchValues<char> _invalidPathChars = System.Buffers.SearchValues.Create(GetInvalidPathChars());
+    private static readonly System.Buffers.SearchValues<char> _invalidSegmentChars = System.Buffers.SearchValues.Create(GetInvalidSegmentChars());
 #else
     private static readonly char[] _invalidPathChars = GetInvalidPathChars();
+    private static readonly char[] _invalidSegmentChars = GetInvalidSegmentChars();
 #endif
+    private static readonly char[] _whitespaceChars = [' ', '\t', '\n', '\v', '\f', '\r', '\u00A0', '\u0085'];
+    private static readonly char[] _whitespaceAndPeriodChars = [.. _whitespaceChars, '.'];
 
     /// <summary>
     /// Creates a new instance.
@@ -228,7 +238,8 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
             PaArchivePathInvalidReason.InvalidPathChars => $"The path contains invalid characters. Example invalid chars are ASCII control characters and {string.Join(string.Empty, GetInvalidPathChars().Where(static c => !Char.IsControl(c)))}.",
             PaArchivePathInvalidReason.WhitespaceOnlySegment => "The path contains a segment that is whitespace only, which is not allowed.",
             PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace => "The path contains a segment with leading or trailing whitespace, which is not allowed.",
-            PaArchivePathInvalidReason.IllegalSegment => "The path contains an illegal segment (e.g. '.' or '..'), which is not allowed.",
+            PaArchivePathInvalidReason.RelativeSegment => "The path contains an illegal relative segment (e.g. '.' or '..'), which is not allowed.",
+            PaArchivePathInvalidReason.SegmentEndsWithDot => "The path contains a segment that ends with a period ('.'), which is not allowed.",
             _ => $"The path is invalid. (Reason: {reason})"
         };
     }
@@ -339,17 +350,220 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
         {
             foreach (var segment in segments)
             {
-                if (string.IsNullOrWhiteSpace(segment))
-                    return PaArchivePathInvalidReason.WhitespaceOnlySegment;
-                if (segment == ".." || segment == "."
-                    // In Windows, a filename cannot end with a period
-                    || segment[^1] == '.')
-                    return PaArchivePathInvalidReason.IllegalSegment;
-                if (segment.Trim().Length != segment.Length)
-                    return PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace;
+                if (!TryValidateSegment(segment, out var reason2))
+                    return reason2;
             }
 
             return null;
         }
     }
+
+    /// <summary>
+    /// Determines whether a single path segment (file or directory name) is valid for use in a <see cref="PaArchivePath"/>.
+    /// </summary>
+    /// <param name="segment">The path segment to validate.</param>
+    /// <returns>true when the segment is valid; otherwise false.</returns>
+    public static bool IsValidSegment(string segment)
+    {
+        return TryValidateSegment(segment, out _);
+    }
+
+    /// <summary>
+    /// Validates that a single path segment (file or directory name) is valid for use in a <see cref="PaArchivePath"/>.
+    /// </summary>
+    /// <param name="segment">The path segment to validate.</param>
+    /// <param name="reason">When this method returns false, contains the reason why the segment is invalid; otherwise null.</param>
+    /// <returns>true when the segment is valid; otherwise false.</returns>
+    public static bool TryValidateSegment(string segment, [NotNullWhen(false)] out PaArchivePathInvalidReason? reason)
+    {
+        ThrowIfNull(segment);
+
+        return TryValidateSegment(segment.AsSpan(), out reason);
+    }
+
+    /// <summary>
+    /// Validates that a single path segment (file or directory name) is valid for use in a <see cref="PaArchivePath"/>.
+    /// </summary>
+    /// <param name="segment">The path segment to validate.</param>
+    /// <param name="reason">When this method returns false, contains the reason why the segment is invalid; otherwise null.</param>
+    /// <returns>true when the segment is valid; otherwise false.</returns>
+    public static bool TryValidateSegment(ReadOnlySpan<char> segment, [NotNullWhen(false)] out PaArchivePathInvalidReason? reason)
+    {
+        if (segment.IsWhiteSpace())
+        {
+            reason = PaArchivePathInvalidReason.WhitespaceOnlySegment;
+            return false;
+        }
+
+        if (segment.IndexOfAny(_invalidSegmentChars) >= 0)
+        {
+            reason = PaArchivePathInvalidReason.InvalidPathChars;
+            return false;
+        }
+
+        if (segment.Trim().Length != segment.Length)
+        {
+            reason = PaArchivePathInvalidReason.SegmentWithLeadingOrTrailingWhitespace;
+            return false;
+        }
+
+        // Detect relative segments
+        if (segment.SequenceEqual("..".AsSpan()) || segment.SequenceEqual(".".AsSpan()))
+        {
+            reason = PaArchivePathInvalidReason.RelativeSegment;
+            return false;
+        }
+
+        // In Windows, a filename cannot end with a period
+        if (segment[^1] == '.')
+        {
+            reason = PaArchivePathInvalidReason.SegmentEndsWithDot;
+            return false;
+        }
+
+        // REVIEW: Should we also limit path segments to 255 chars long?
+
+        reason = null;
+        return true;
+    }
+
+    /// <summary>
+    /// Attempts to make a path segment valid for use in a <see cref="PaArchivePath"/> by removing invalid chars or problematic segments.
+    /// </summary>
+    /// <param name="segment">The segment to make valid.</param>
+    /// <param name="validSegment">When this method returns true, contains the valid segment.</param>
+    /// <returns>true when the segment was converted to a valid segment; otherwise false.</returns>
+    public static bool TryMakeValidSegment(string segment, [NotNullWhen(true)] out string? validSegment)
+    {
+        ThrowIfNull(segment);
+
+        return TryMakeValidSegmentCore(segment, out validSegment, createProposedSegment: (segmentSpan, buffer) =>
+        {
+            var writtenLen = 0;
+            foreach (var c in segmentSpan)
+            {
+                if (IsValidSegmentChar(c))
+                    buffer[writtenLen++] = c;
+            }
+
+            // Slice to written length, then Trim returns another slice (no allocation)
+            var proposed = ((ReadOnlySpan<char>)buffer[..writtenLen])
+                .TrimStart()
+                .TrimEnd(_whitespaceAndPeriodChars);
+            return proposed;
+        });
+    }
+
+    /// <summary>
+    /// Attempts to make a path segment valid for use in a <see cref="PaArchivePath"/> by replacing invalid characters.
+    /// </summary>
+    /// <param name="segment">The segment to make valid.</param>
+    /// <param name="validSegment">When this method returns true, contains the valid segment.</param>
+    /// <param name="invalidCharReplacement">Invalid characters will be replaced with this string. null or empty string effectively just removes chars.</param>
+    /// <returns>true when the segment was converted to a valid segment; otherwise false.</returns>
+    public static bool TryMakeValidSegment(string segment, [NotNullWhen(true)] out string? validSegment, string? invalidCharReplacement)
+    {
+        ThrowIfNull(segment);
+
+        if (StringTfmAdapter.IsNullOrEmpty(invalidCharReplacement))
+            return TryMakeValidSegment(segment, out validSegment);
+        if (invalidCharReplacement.Length > 1)
+            throw new ArgumentException("Replacement text must be at most one character.", nameof(invalidCharReplacement));
+
+        var replacementChar = invalidCharReplacement[0];
+        if (char.IsWhiteSpace(replacementChar))
+            throw new ArgumentException("Replacement must not be a whitespace character.", nameof(invalidCharReplacement));
+        if (IsInvalidSegmentChar(replacementChar))
+            throw new ArgumentException("Replacement must be a valid segment character.", nameof(invalidCharReplacement));
+        if (replacementChar == '.')
+            throw new ArgumentException("Replacement must not be a period ('.').", nameof(invalidCharReplacement));
+
+        return TryMakeValidSegmentCore(segment, out validSegment, createProposedSegment: (segmentSpan, buffer) =>
+        {
+            // We know we'll have a string that's the same length as the output
+            // Set now, so we'll get some runtime validation if indexes get out of range.
+            var segmentLen = segmentSpan.Length;
+            buffer = buffer[..segmentLen];
+
+            // Replace trailing whitespace with replacementChar
+            var firstTrailingWhitespaceIdx = segmentLen;
+            for (int i = segmentLen - 1; i >= 0 && char.IsWhiteSpace(segmentSpan[i]); i--)
+            {
+                buffer[i] = replacementChar;
+                firstTrailingWhitespaceIdx = i;
+            }
+
+            var lastLeadingWhitespaceIdx = -1;
+            for (int i = 0; i < firstTrailingWhitespaceIdx && char.IsWhiteSpace(segmentSpan[i]); i++)
+            {
+                buffer[i] = replacementChar;
+                lastLeadingWhitespaceIdx = i;
+            }
+
+            // replace invalid chars not covered by leading/trailing whitespace
+            for (int i = lastLeadingWhitespaceIdx + 1; i < firstTrailingWhitespaceIdx; i++)
+            {
+                var c = segmentSpan[i];
+                buffer[i] = IsInvalidSegmentChar(c) ? replacementChar : c;
+            }
+
+            // Handle segment ending with a '.'
+            if (segmentSpan[^1] == '.')
+                buffer[^1] = replacementChar;
+
+            // return the full buffer
+            return buffer;
+        });
+    }
+
+    private delegate ReadOnlySpan<char> CreateProposedSegment(ReadOnlySpan<char> segmentSpan, Span<char> buffer);
+
+    private static bool TryMakeValidSegmentCore(string segment, [NotNullWhen(true)] out string? validSegment, CreateProposedSegment createProposedSegment)
+    {
+        var segmentSpan = segment.AsSpan();
+        if (TryValidateSegment(segmentSpan, out _))
+        {
+            validSegment = segment;
+            return true;
+        }
+
+        // Trivially handle when input segment is empty, as we can't fix it
+        if (segmentSpan.Length == 0)
+        {
+            validSegment = null;
+            return false;
+        }
+
+        // Filter invalid chars into a stack buffer (fall back to pooled array for large inputs)
+        const int StackThreshold = 256;
+        char[]? rented = null;
+        Span<char> buffer = segmentSpan.Length <= StackThreshold
+            ? stackalloc char[StackThreshold]
+            : (rented = System.Buffers.ArrayPool<char>.Shared.Rent(segmentSpan.Length));
+
+        try
+        {
+            var proposed = createProposedSegment(segmentSpan, buffer);
+
+            // If we're left with invalid segment still, then don't return anything
+            if (TryValidateSegment(proposed, out _))
+            {
+                validSegment = proposed.ToString();
+                return true;
+            }
+            else
+            {
+                validSegment = null;
+                return false;
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+                System.Buffers.ArrayPool<char>.Shared.Return(rented);
+        }
+    }
+
+    private static bool IsValidSegmentChar(char c) => !_invalidSegmentChars.Contains(c);
+    private static bool IsInvalidSegmentChar(char c) => _invalidSegmentChars.Contains(c);
 }

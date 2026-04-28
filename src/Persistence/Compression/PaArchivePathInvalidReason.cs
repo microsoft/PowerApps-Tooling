@@ -12,5 +12,12 @@ public enum PaArchivePathInvalidReason
     InvalidPathChars,
     WhitespaceOnlySegment,
     SegmentWithLeadingOrTrailingWhitespace,
-    IllegalSegment,
+    /// <summary>
+    /// Relative segments like "." or ".." are not allowed, as they can lead to confusion and potential security issues when extracting archives.
+    /// </summary>
+    RelativeSegment,
+    /// <summary>
+    /// On Windows, filenames cannot end with ".". So we exclude on all platforms.
+    /// </summary>
+    SegmentEndsWithDot,
 }
