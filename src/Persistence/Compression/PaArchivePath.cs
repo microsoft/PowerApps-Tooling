@@ -71,8 +71,6 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     private static readonly char[] _invalidPathChars = GetInvalidPathChars();
     private static readonly char[] _invalidSegmentChars = GetInvalidSegmentChars();
 #endif
-    private static readonly char[] _whitespaceChars = [' ', '\t', '\n', '\v', '\f', '\r', '\u00A0', '\u0085'];
-    private static readonly char[] _whitespaceAndPeriodChars = [.. _whitespaceChars, '.'];
 
     /// <summary>
     /// Creates a new instance.
@@ -448,9 +446,16 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
 
             // Slice to written length, then Trim returns another slice (no allocation)
             var proposed = ((ReadOnlySpan<char>)buffer[..writtenLen])
-                .TrimStart()
-                .TrimEnd(_whitespaceAndPeriodChars);
-            return proposed;
+                .TrimStart();
+
+            // Trip trailing whitespace and '.'
+            var lenToKeep = proposed.Length;
+            for (int i = proposed.Length - 1; i >= 0 && (proposed[i] == '.' || char.IsWhiteSpace(proposed[i])); i--)
+            {
+                lenToKeep = i;
+            }
+
+            return proposed[..lenToKeep];
         });
     }
 
