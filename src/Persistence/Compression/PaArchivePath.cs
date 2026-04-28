@@ -464,24 +464,18 @@ public partial class PaArchivePath : IEquatable<PaArchivePath>, IEquatable<strin
     /// </summary>
     /// <param name="segment">The segment to make valid.</param>
     /// <param name="validSegment">When this method returns true, contains the valid segment.</param>
-    /// <param name="invalidCharReplacement">Invalid characters will be replaced with this string. null or empty string effectively just removes chars.</param>
+    /// <param name="replacementChar">Invalid characters will be replaced with this character.</param>
     /// <returns>true when the segment was converted to a valid segment; otherwise false.</returns>
-    public static bool TryMakeValidSegment(string segment, [NotNullWhen(true)] out string? validSegment, string? invalidCharReplacement)
+    public static bool TryMakeValidSegment(string segment, [NotNullWhen(true)] out string? validSegment, char replacementChar)
     {
         ThrowIfNull(segment);
 
-        if (StringTfmAdapter.IsNullOrEmpty(invalidCharReplacement))
-            return TryMakeValidSegment(segment, out validSegment);
-        if (invalidCharReplacement.Length > 1)
-            throw new ArgumentException("Replacement text must be at most one character.", nameof(invalidCharReplacement));
-
-        var replacementChar = invalidCharReplacement[0];
-        if (char.IsWhiteSpace(replacementChar))
-            throw new ArgumentException("Replacement must not be a whitespace character.", nameof(invalidCharReplacement));
+        if (char.IsWhiteSpace((char)replacementChar))
+            throw new ArgumentException("Replacement must not be a whitespace character.", nameof(replacementChar));
         if (IsInvalidSegmentChar(replacementChar))
-            throw new ArgumentException("Replacement must be a valid segment character.", nameof(invalidCharReplacement));
+            throw new ArgumentException("Replacement must be a valid segment character.", nameof(replacementChar));
         if (replacementChar == '.')
-            throw new ArgumentException("Replacement must not be a period ('.').", nameof(invalidCharReplacement));
+            throw new ArgumentException("Replacement must not be a period ('.').", nameof(replacementChar));
 
         return TryMakeValidSegmentCore(segment, out validSegment, createProposedSegment: (segmentSpan, buffer) =>
         {

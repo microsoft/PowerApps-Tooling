@@ -333,7 +333,7 @@ public class PaArchivePathTests : TestBase
     [DataRow("ends-with-dots...", "ends-with-dots.._")]
     public void TryMakeValidSegment_WithReplacementCharTest(string segment, string? expectedValidSegment)
     {
-        PaArchivePath.TryMakeValidSegment(segment, out var validSegment, invalidCharReplacement: "_")
+        PaArchivePath.TryMakeValidSegment(segment, out var validSegment, replacementChar: '_')
             .Should().Be(expectedValidSegment is not null);
         validSegment.Should().Be(expectedValidSegment);
     }
