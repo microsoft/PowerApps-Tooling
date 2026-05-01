@@ -23,7 +23,7 @@ internal static class YamlDotNetExtensions
         // NullNodeDeserializer.Deserialize is undocumented, but here's a good summary of what it does:
         // Attempts to consume the current node event iif it represents a YAML null value. Otherwise, the current event stays.
         // Returns true if the current node was a null value and was consumed; otherwise, false.
-        return _nullNodeDeserializer.Deserialize(parser, _typeofObject, null!, out _);
+        return _nullNodeDeserializer.Deserialize(parser, _typeofObject, null!, out _, null!);
     }
 
     public static void EmitNull(this IEmitter emitter)

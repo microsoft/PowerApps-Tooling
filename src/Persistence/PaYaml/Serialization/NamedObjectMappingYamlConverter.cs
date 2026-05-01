@@ -9,16 +9,16 @@ using YamlDotNet.Serialization;
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 /// <summary>
-/// Converts any <see cref="NamedObject{TValue}"/> to and from YAML.
+/// Converts any <see cref="NamedObjectMapping{TValue}"/> to and from YAML.
 /// The converter is non-generic so a single registration handles all closed <c>TValue</c> types.
 /// </summary>
-internal sealed class NamedObjectYamlConverter : IYamlTypeConverter
+internal sealed class NamedObjectMappingYamlConverter : IYamlTypeConverter
 {
     private static readonly ConcurrentDictionary<Type, IYamlTypeConverter> ConverterCache = new();
 
     public bool Accepts(Type type)
     {
-        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(NamedObject<>);
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(NamedObjectMapping<>);
     }
 
     public object? ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
@@ -31,12 +31,12 @@ internal sealed class NamedObjectYamlConverter : IYamlTypeConverter
         GetConverter(type).WriteYaml(emitter, value, type, serializer);
     }
 
-    private static IYamlTypeConverter GetConverter(Type closedNamedObjectType)
+    private static IYamlTypeConverter GetConverter(Type closedMappingType)
     {
-        return ConverterCache.GetOrAdd(closedNamedObjectType, static t =>
+        return ConverterCache.GetOrAdd(closedMappingType, static t =>
         {
             var valueType = t.GetGenericArguments()[0];
-            var converterType = typeof(NamedObjectYamlConverter<>).MakeGenericType(valueType);
+            var converterType = typeof(NamedObjectMappingYamlConverter<>).MakeGenericType(valueType);
             return (IYamlTypeConverter)Activator.CreateInstance(converterType)!;
         });
     }

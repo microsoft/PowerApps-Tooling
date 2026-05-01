@@ -13,13 +13,13 @@ public class NamedObjectSequenceSerializationTests : SerializationTestBase
     protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializationContext context)
     {
         base.ConfigureYamlDotNetDeserializer(builder, context);
-        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(context));
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>());
     }
 
     protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializationContext context)
     {
         base.ConfigureYamlDotNetSerializer(builder, context);
-        builder.WithTypeConverter(new NamedObjectYamlConverter<string>(context));
+        builder.WithTypeConverter(new NamedObjectYamlConverter<string>());
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public class NamedObjectSequenceSerializationTests : SerializationTestBase
         var testObject = DeserializeViaYamlDotNet<TestOM<string>>(yaml);
         testObject.ShouldNotBeNull();
         testObject.TheSequence.ShouldNotBeNull();
-        testObject.TheSequence.Names.Should().Equal(new[] { "n1", "n3", "n2" }, "ordering of a sequence is by code order");
+        testObject.TheSequence.Names.Should().Equal(["n1", "n3", "n2"], "ordering of a sequence is by code order");
         testObject.TheSequence.GetNamedObject("n1").Should()
             .HaveValueEqual("v1")
             .And.HaveStartEqual(2, 5);
@@ -92,7 +92,7 @@ public class NamedObjectSequenceSerializationTests : SerializationTestBase
     {
         SerializeViaYamlDotNet(new TestOM<string> { TheSequence = null })
             .Should().Be("{}" + DefaultOptions.NewLine);
-        SerializeViaYamlDotNet(new TestOM<string> { TheSequence = new() })
+        SerializeViaYamlDotNet(new TestOM<string> { TheSequence = [] })
             .Should().Be("{}" + DefaultOptions.NewLine);
     }
 

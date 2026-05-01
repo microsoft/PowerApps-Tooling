@@ -52,7 +52,6 @@ public static class PaYamlSerializer
         using var context = new PaYamlSerializationContext(options);
         var builder = new SerializerBuilder();
         context.ApplyToSerializerBuilder(builder);
-        context.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
         try
@@ -104,15 +103,11 @@ public static class PaYamlSerializer
         using var context = new PaYamlSerializationContext(options);
         var builder = new DeserializerBuilder();
         context.ApplyToDeserializerBuilder(builder);
-        context.ValueDeserializer = builder.BuildValueDeserializer();
         var serializer = builder.Build();
 
         try
         {
             var value = serializer.Deserialize<TValue>(reader);
-
-            // Must call OnDeserialization to invoke any post-deserialization callbacks on the deserialized object tree.
-            context.OnDeserialization();
 
             return value;
         }

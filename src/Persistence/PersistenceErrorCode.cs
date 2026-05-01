@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 using System.ComponentModel;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence;
