@@ -2,12 +2,26 @@
 // Licensed under the MIT License.
 
 using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
+using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
+using YamlDotNet.Serialization;
 
 namespace Persistence.Tests.PaYaml.Serialization;
 
 [TestClass]
 public class NamedObjectMappingSerializationTests : SerializationTestBase
 {
+    protected override void ConfigureYamlDotNetDeserializer(DeserializerBuilder builder, PaYamlSerializationContext context)
+    {
+        base.ConfigureYamlDotNetDeserializer(builder, context);
+        builder.WithTypeConverter(new NamedObjectMappingYamlConverter());
+    }
+
+    protected override void ConfigureYamlDotNetSerializer(SerializerBuilder builder, PaYamlSerializationContext context)
+    {
+        base.ConfigureYamlDotNetSerializer(builder, context);
+        builder.WithTypeConverter(new NamedObjectMappingYamlConverter());
+    }
+
     [TestMethod]
     // Null literals
     [DataRow("TheMapping: ~", null)]

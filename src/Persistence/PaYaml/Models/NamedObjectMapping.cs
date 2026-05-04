@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models;
 
 /// <summary>
@@ -41,15 +37,5 @@ public class NamedObjectMapping<TValue> : NamedObjectMappingBase<string, TValue,
         _ = value ?? throw new ArgumentNullException(nameof(value));
 
         return new NamedObject<TValue>(name, value);
-    }
-
-    protected override NamedObject<TValue> ReadNamedObjectFromMappingEntryEvents(IParser parser, ObjectDeserializer nestedObjectDeserializer)
-    {
-        return NamedObjectYamlConverter<TValue>.ReadNameAndValueEventsCore(parser, nestedObjectDeserializer);
-    }
-
-    protected override void WriteNamedObjectToMappingEntryEvents(IEmitter emitter, NamedObject<TValue> namedObject, ObjectSerializer nestedObjectSerializer)
-    {
-        NamedObjectYamlConverter<TValue>.WriteNameAndValueEventsCore(emitter, namedObject, nestedObjectSerializer);
     }
 }

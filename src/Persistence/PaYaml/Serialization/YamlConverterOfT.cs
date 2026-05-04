@@ -9,14 +9,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
 public abstract class YamlConverter<T> : IYamlTypeConverter
 {
-    protected YamlConverter(PaYamlSerializationContext context)
-    {
-        SerializationContext = context ?? throw new ArgumentNullException(nameof(context));
-    }
-
     public Type Type { get; } = typeof(T);
-
-    public PaYamlSerializationContext SerializationContext { get; }
 
     /// <summary>
     /// The default implementation returns true when <paramref name="type"/> equals typeof(<typeparamref name="T"/>).
@@ -26,19 +19,19 @@ public abstract class YamlConverter<T> : IYamlTypeConverter
         return type == Type;
     }
 
-    public abstract T ReadYaml(IParser parser, Type typeToConvert);
+    public abstract T ReadYaml(IParser parser, Type typeToConvert, ObjectDeserializer rootDeserializer);
 
-    public abstract void WriteYaml(IEmitter emitter, T? value, Type typeToConvert);
+    public abstract void WriteYaml(IEmitter emitter, T? value, Type typeToConvert, ObjectSerializer serializer);
 
-    object? IYamlTypeConverter.ReadYaml(IParser parser, Type typeToConvert)
+    object? IYamlTypeConverter.ReadYaml(IParser parser, Type typeToConvert, ObjectDeserializer rootDeserializer)
     {
-        return ReadYaml(parser, typeToConvert);
+        return ReadYaml(parser, typeToConvert, rootDeserializer);
     }
 
-    void IYamlTypeConverter.WriteYaml(IEmitter emitter, object? value, Type typeToConvert)
+    void IYamlTypeConverter.WriteYaml(IEmitter emitter, object? value, Type typeToConvert, ObjectSerializer serializer)
     {
         var valueOfT = YamlSerialization.UnboxOnWrite<T>(value);
-        WriteYaml(emitter, valueOfT, typeToConvert);
+        WriteYaml(emitter, valueOfT, typeToConvert, serializer);
     }
 }
 

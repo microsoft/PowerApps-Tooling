@@ -21,7 +21,6 @@ public abstract class SerializationTestBase : VSTestBase
         using var serializationContext = new PaYamlSerializationContext(options);
         var builder = new SerializerBuilder();
         ConfigureYamlDotNetSerializer(builder, serializationContext);
-        serializationContext.ValueSerializer = builder.BuildValueSerializer();
         var serializer = builder.Build();
 
         return serializer.Serialize(testObject);
@@ -40,11 +39,9 @@ public abstract class SerializationTestBase : VSTestBase
         using var serializationContext = new PaYamlSerializationContext(options);
         var builder = new DeserializerBuilder();
         ConfigureYamlDotNetDeserializer(builder, serializationContext);
-        serializationContext.ValueDeserializer = builder.BuildValueDeserializer();
         var deserializer = builder.Build();
 
         var value = deserializer.Deserialize<T?>(yaml);
-        serializationContext.OnDeserialization();
         return value;
     }
 

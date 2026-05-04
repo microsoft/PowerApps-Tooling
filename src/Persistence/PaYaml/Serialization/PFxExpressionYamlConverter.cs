@@ -8,23 +8,18 @@ using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.PowerFx;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-internal class PFxExpressionYamlConverter : IYamlTypeConverter
+internal class PFxExpressionYamlConverter(PFxExpressionYamlFormattingOptions formattingOptions) : IYamlTypeConverter
 {
     private static readonly char[] LineTerminators = ['\r', '\n', '\x85', '\x2028', '\x2029'];
 
-    private readonly PFxExpressionYamlFormattingOptions _formattingOptions;
-
-    public PFxExpressionYamlConverter(PFxExpressionYamlFormattingOptions formattingOptions)
-    {
-        _formattingOptions = formattingOptions ?? throw new ArgumentNullException(nameof(formattingOptions));
-    }
+    private readonly PFxExpressionYamlFormattingOptions _formattingOptions = formattingOptions;
 
     public bool Accepts(Type type)
     {
         return type == typeof(PFxExpressionYaml);
     }
 
-    public object? ReadYaml(IParser parser, Type type)
+    public object? ReadYaml(IParser parser, Type type, ObjectDeserializer _)
     {
         if (parser.TryConsumeNull())
             return null;
@@ -41,7 +36,7 @@ internal class PFxExpressionYamlConverter : IYamlTypeConverter
         throw new YamlException(scalar.Start, scalar.End, $"Power Fx expressions must start with '{PFxExpressionYamlFormattingOptions.ScalarPrefix}'.");
     }
 
-    public void WriteYaml(IEmitter emitter, object? value, Type type)
+    public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer _)
     {
         var expression = (PFxExpressionYaml?)value;
         if (expression is null)

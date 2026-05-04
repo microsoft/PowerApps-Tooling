@@ -1,46 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization.Utilities;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Serialization;
 
-public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisposable
+public class PaYamlSerializationContext : IDisposable
 {
-    private readonly SerializerState _serializerState = new();
     private bool _isDisposed;
+
+    public PaYamlSerializationContext(PaYamlSerializerOptions options)
+    {
+        Options = options ?? throw new ArgumentNullException(nameof(options));
+    }
 
     /// <summary>
     /// The options used when creating this context.
     /// </summary>
-    public PaYamlSerializerOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
-
-    internal IValueSerializer? ValueSerializer { get; set; }
-
-    internal IValueDeserializer? ValueDeserializer { get; set; }
-
-    public ObjectDeserializer CreateObjectDeserializer(IParser parser)
-    {
-        var valueDeserializer = ValueDeserializer ?? throw new InvalidOperationException($"{nameof(ValueDeserializer)} is not set.");
-
-        return (t) => valueDeserializer.DeserializeValue(parser, t, _serializerState, valueDeserializer);
-    }
-
-    public ObjectSerializer CreateObjectSerializer(IEmitter emitter)
-    {
-        var valueSerializer = ValueSerializer ?? throw new InvalidOperationException($"{nameof(ValueSerializer)} is not set.");
-
-        return (v, t) => valueSerializer.SerializeValue(emitter, v, t);
-    }
-
-    internal void OnDeserialization()
-    {
-        _serializerState.OnDeserialization();
-    }
+    public PaYamlSerializerOptions Options { get; }
 
     internal void ApplyToDeserializerBuilder(DeserializerBuilder builder)
     {
@@ -48,6 +26,7 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
             .WithDuplicateKeyChecking()
             .IgnoreFields()
             ;
+
         AddTypeConverters(builder);
         Options.AdditionalDeserializerConfiguration?.Invoke(builder);
     }
@@ -76,8 +55,8 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
         where TBuilder : BuilderSkeleton<TBuilder>
     {
         builder.WithTypeConverter(new PFxExpressionYamlConverter(Options.PFxExpressionYamlFormatting));
-        builder.WithTypeConverter(new NamedObjectYamlConverter<ControlInstance>(this));
-        builder.WithTypeConverter(new NamedObjectYamlConverter<ComponentCustomPropertyParameter>(this));
+        builder.WithTypeConverter(new NamedObjectYamlConverter());
+        builder.WithTypeConverter(new NamedObjectMappingYamlConverter());
     }
 
     /// <summary>
@@ -93,11 +72,6 @@ public class PaYamlSerializationContext(PaYamlSerializerOptions options) : IDisp
     {
         if (!_isDisposed)
         {
-            if (disposing)
-            {
-                _serializerState.Dispose();
-            }
-
             _isDisposed = true;
         }
     }
