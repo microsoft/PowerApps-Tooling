@@ -114,7 +114,9 @@ public static class PaYamlSerializer
         catch (YamlException ex)
         {
             var errorCode = PersistenceErrorCode.YamlInvalidSyntax;
-            if (ex.InnerException is ArgumentException && ex.InnerException.Message.Contains("An item with the same key has already been added"))
+            if (ex is MaximumRecursionLevelReachedException)
+                errorCode = PersistenceErrorCode.MaximumRecursionLevelReached;
+            else if (ex.InnerException is ArgumentException && ex.InnerException.Message.Contains("An item with the same key has already been added"))
                 errorCode = PersistenceErrorCode.DuplicateNameInSequence;
 
             throw PersistenceLibraryException.FromYamlException(ex, errorCode);
