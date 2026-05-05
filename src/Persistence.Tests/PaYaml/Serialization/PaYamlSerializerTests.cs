@@ -304,4 +304,47 @@ public class PaYamlSerializerTests : VSTestBase
             Default: =true
             """.Replace("\r\n", "\n"));
     }
+
+    [TestMethod]
+    public void DeserializeRespectsConfiguredMaximumRecursion()
+    {
+        // Arrange: build a deeply-nested mapping that exceeds the configured recursion limit.
+        var options = new PaYamlSerializerOptions { MaximumRecursion = 5 };
+        var yaml = BuildNestedMappingYaml(depth: 20);
+
+        // Act
+        Action act = () => PaYamlSerializer.Deserialize<Dictionary<string, object>>(yaml, options);
+
+        // Assert: the exception is wrapped as PersistenceLibraryException with the
+        // YamlDotNet MaximumRecursionLevelReachedException as the inner exception.
+        act.Should().Throw<PersistenceLibraryException>()
+            .WithErrorCode(PersistenceErrorCode.MaximumRecursionLevelReached)
+            .WithInnerException<YamlDotNet.Core.MaximumRecursionLevelReachedException>();
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(55)]
+    public void DeserializeSucceedsWhenMaximumRecursionRaisedOrNull(int? maxRecursion)
+    {
+        // Arrange: same depth-20 input that fails with default recursion, raised limit.
+        var options = new PaYamlSerializerOptions { MaximumRecursion = maxRecursion };
+        var yaml = BuildNestedMappingYaml(depth: 20);
+
+        // Act
+        FluentActions.Invoking(() => PaYamlSerializer.Deserialize<Dictionary<string, object>>(yaml, options))
+            .Should().NotThrow()
+            .Which.Should().NotBeNull();
+    }
+
+    private static string BuildNestedMappingYaml(int depth)
+    {
+        var sb = new System.Text.StringBuilder();
+        for (var i = 0; i < depth; i++)
+        {
+            sb.Append(new string(' ', i * 2)).Append("k:").AppendLine();
+        }
+        sb.Append(new string(' ', depth * 2)).Append("k: leaf").AppendLine();
+        return sb.ToString();
+    }
 }
