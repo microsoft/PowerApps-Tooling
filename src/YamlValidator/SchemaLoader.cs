@@ -14,18 +14,12 @@ internal class SchemaLoader
     public JsonSchema Load()
     {
         var assembly = typeof(SchemaLoader).Assembly;
+        var assemblyName = assembly.GetName().Name;
 
         JsonSchema? node = null;
         foreach (var file in assembly.GetManifestResourceNames())
         {
-            var fileStream = assembly.GetManifestResourceStream(file);
-            var assemblyName = assembly.GetName().Name;
-            if (fileStream == null)
-            {
-                throw new YamlValidatorLibraryException($"The schema could not be loaded from assembly.");
-            }
-            using var streamReader = new StreamReader(fileStream);
-            var jsonSchemaString = streamReader.ReadToEnd();
+            string jsonSchemaString = ReadSchemaFromManifestFile(assembly, file);
             var schema = JsonSchema.FromText(jsonSchemaString);
 
             // assembly name is Microsoft.PowerPlatform.PowerApps.Persistence
@@ -48,6 +42,14 @@ internal class SchemaLoader
             throw new YamlValidatorLibraryException("The schema could not be serialized from the assembly.");
         }
         return node;
+
+        static string ReadSchemaFromManifestFile(System.Reflection.Assembly assembly, string file)
+        {
+            var fileStream = assembly.GetManifestResourceStream(file)
+                ?? throw new YamlValidatorLibraryException($"The schema could not be loaded from assembly.");
+            using var streamReader = new StreamReader(fileStream);
+            return streamReader.ReadToEnd();
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0</TargetFrameworks>
     <LangVersion>Latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -19,7 +19,6 @@
     <PackageReference Include="Yaml2JsonNode" />
     <PackageReference Include="YamlDotNet" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <!-- Link schemas and build them into the assembly for the YamlValidator -->

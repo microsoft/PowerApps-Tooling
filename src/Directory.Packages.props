@@ -4,10 +4,17 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
+  <!-- These packages should only be directly included for TFM net48. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+  </ItemGroup>
+
   <ItemGroup>
-    <!-- Do not raise the FluentAssertions version above 7.x due to license changes -->
+    <!-- WARNING: Do not raise the FluentAssertions version above 7.x due to license changes -->
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
+    <!-- WARNING: Do not raise the JsonSchema.Net version above 8.0.5 due to license changes -->
     <PackageVersion Include="JsonSchema.Net" Version="7.1.2" />
+    <!-- WARNING: Do not raise the Yaml2JsonNode version above 2.4.0 due to license changes -->
+    <PackageVersion Include="Yaml2JsonNode" Version="2.2.0" />
 
     <!-- WARNING:
      Moq versions 4.20.0–4.20.69 should be avoided due to the inclusion of the SponsorLink analyzer,
@@ -17,21 +24,18 @@
      -->
     <!--<PackageVersion Include="Moq" Version="4.18.2" />-->
 
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="PolySharp" Version="1.14.1" />
-    <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageVersion Include="System.IO.Compression" Version="4.3.0" Condition="'$(TargetFramework)' == 'net48'" />
-    <PackageVersion Include="System.Memory" Version="4.5.5" />
-    <!-- System.Text.Json is a transitive dependency of Yaml2JsonNode for netstandard2.0.  Pinning to 8.0.5 for CVE-2024-43485, but can be removed on update of Yaml2JsonNode -->
-    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
-    <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
-    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageVersion Include="Yaml2JsonNode" Version="2.1.1" />
-    <PackageVersion Include="YamlDotNet" Version="16.1.3" />
-
+    <PackageVersion Include="PolySharp" Version="1.15.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="10.0.7" />
+    <PackageVersion Include="System.IO.Compression" Version="4.3.0" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.7" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.7" />
+    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+    <PackageVersion Include="YamlDotNet" Version="17.1.0" />
   </ItemGroup>
 </Project>

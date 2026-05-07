@@ -12,12 +12,14 @@ internal class Validator : IValidator
 {
     private readonly EvaluationOptions _verbosityOptions;
     private readonly JsonSchema _schema;
+
     public Validator(EvaluationOptions options, JsonSchema schema)
     {
         // to do: add verbosity flag and allow users to choose verbosity of evaluation
         _verbosityOptions = options;
         _schema = schema;
     }
+
     public ValidatorResults Validate(string yamlFileData)
     {
         YamlStream yamlStream;
@@ -27,36 +29,30 @@ internal class Validator : IValidator
         }
         catch (YamlException)
         {
-            return new ValidatorResults(false, new List<ValidatorError> { new(Constants.notYamlError) });
+            return new ValidatorResults(false, [new(Constants.notYamlError)]);
         }
-
-        var jsonData = yamlStream.Documents.Count > 0 ? yamlStream.Documents[0].ToJsonNode() : null;
 
         // here we say that empty yaml is serialized as null json
-        if (jsonData == null)
+        if (yamlStream.Documents.Count <= 0)
         {
-            return new ValidatorResults(false, new List<ValidatorError> { new(Constants.emptyYamlError) });
+            return new(false, [new(Constants.emptyYamlError)]);
         }
+
+        var jsonData = yamlStream.Documents[0].ToJsonNode();
         var results = _schema.Evaluate(jsonData, _verbosityOptions);
 
-        var schemaValidity = results.IsValid;
         var yamlValidatorErrors = new List<ValidatorError>();
-        if (!schemaValidity)
+        if (!results.IsValid && results.Details is not null)
         {
-            IReadOnlyList<EvaluationResults> traceList = results.Details.Where(
-             node => !node.IsValid &&
-             node.HasErrors).ToList();
+            var traceList = results.Details.Where(node => !node.IsValid);
             foreach (var trace in traceList)
             {
                 var instanceLocation = trace.InstanceLocation.ToString();
                 var schemaPath = trace.EvaluationPath.ToString();
-                var errors = trace.Errors;
-                yamlValidatorErrors.Add(new ValidatorError(instanceLocation, schemaPath, errors));
+                yamlValidatorErrors.Add(new(instanceLocation, schemaPath, trace.Errors));
             }
         }
 
-        IReadOnlyList<ValidatorError> fileErrors = yamlValidatorErrors;
-        var finalResults = new ValidatorResults(results.IsValid, fileErrors);
-        return finalResults;
+        return new(results.IsValid, yamlValidatorErrors);
     }
 }

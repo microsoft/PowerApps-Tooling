@@ -22,6 +22,12 @@ public enum PersistenceErrorCode
     // 3xxx - Deserialization errors
     DeserializationError = 3000,
     YamlInvalidSyntax = 3001,
+    /// <summary>
+    /// Indicates that the deserializer exceeded the maximum recursion depth when processing the YAML document.
+    /// This can be caused by excessively deep or circular references in the object graph represented by the YAML.
+    /// The default maximum recursion depth can be configured through <see cref="PaYamlSerializerOptions.MaximumRecursion"/>.
+    /// </summary>
+    MaximumRecursionLevelReached = 3002,
     YamlInvalidSchema = 3101,
     EditorStateJsonEmptyOrNull = 3102,
     InvalidEditorStateJson = 3300,

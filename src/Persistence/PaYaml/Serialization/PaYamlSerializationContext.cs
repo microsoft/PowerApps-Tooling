@@ -13,6 +13,10 @@ public class PaYamlSerializationContext : IDisposable
     public PaYamlSerializationContext(PaYamlSerializerOptions options)
     {
         Options = options ?? throw new ArgumentNullException(nameof(options));
+        if (Options.MaximumRecursion.HasValue && Options.MaximumRecursion.Value <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "MaximumRecursion must be an integer greater than 0 or null.");
+        }
     }
 
     /// <summary>
@@ -26,6 +30,11 @@ public class PaYamlSerializationContext : IDisposable
             .WithDuplicateKeyChecking()
             .IgnoreFields()
             ;
+
+        if (Options.MaximumRecursion.HasValue)
+        {
+            builder.WithMaximumRecursion(Options.MaximumRecursion.Value);
+        }
 
         AddTypeConverters(builder);
         Options.AdditionalDeserializerConfiguration?.Invoke(builder);
