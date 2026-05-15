@@ -223,6 +223,8 @@ _pkginfo.txt
 *.[Cc]ache
 # but keep track of directories ending in .cache
 !?*.[Cc]ache/
+# C# Dev Kit cache files
+*.lscache
 
 # Others
 ClientBin/
