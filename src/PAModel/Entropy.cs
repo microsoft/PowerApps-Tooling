@@ -90,12 +90,12 @@ internal class Entropy
     public bool? WasLocalDatabaseReferencesEmpty { get; set; }
 
     /// <summary>
-    /// Tracks whether TestStepsMetadata is empty or not.
+    /// Indicates when a Test has missing steps metadata property; which happens UX creates a new test, but the user doesn't add a step.
     /// </summary>
-    public bool? DoesTestStepsMetadataExist { get; set; }
+    public HashSet<string> AppTestsMissingStepsMetadata { get; set; } = new HashSet<string>(StringComparer.Ordinal);
 
     // Key is connection id, value is connection instance id
-    public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+    public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = new Dictionary<string, string>();
 
     // Key is test rule, value is test screen id without Screen name
     public Dictionary<string, string> RuleScreenIdWithoutScreen { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);

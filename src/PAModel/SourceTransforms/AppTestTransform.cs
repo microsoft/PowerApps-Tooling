@@ -57,16 +57,18 @@ internal class AppTestTransform : IControlTemplateTransform
         if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
         {
             // If the test studio is opened, but no tests are created, it's possible for a test case to exist without any
-            // steps or teststepmetadata. In that case, write only the base properties.
-            if (properties.Count == 2)
-                return;
+            // steps or teststepmetadata. Save to entropy if this is the case.
+            // This is only needed for round-trip validation; when packing, we'll always create an empty-array property if no steps exist.
+            _entropy.AppTestsMissingStepsMetadata.Add(control.Name.Identifier);
 
-            _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
-            throw new DocumentException();
-        }
-        else
-        {
-            _entropy.DoesTestStepsMetadataExist = true;
+            if (properties.Count != 2)
+            {
+                _errors.ValidationError($"Unable to find TestStepsMetadata property for TestCase {control.Name.Identifier}");
+                throw new DocumentException();
+            }
+
+            // No steps, so we can exit this method early
+            return;
         }
 
         properties.Remove(_metadataPropName);
@@ -146,7 +148,6 @@ internal class AppTestTransform : IControlTemplateTransform
     public void BeforeWrite(BlockNode control)
     {
         var testStepsMetadata = new List<TestStepsMetadataJson>();
-        var doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? false;
 
         foreach (var child in control.Children)
         {
@@ -207,24 +208,22 @@ internal class AppTestTransform : IControlTemplateTransform
                 }
             }
 
-            if (doesTestStepsMetadataExist)
+            testStepsMetadata.Add(new TestStepsMetadataJson()
             {
-                testStepsMetadata.Add(new TestStepsMetadataJson()
-                {
-                    Description = descriptionProp.Expression.Expression.UnEscapePAString(),
-                    Rule = propName,
-                    ScreenId = screenId
-                });
+                Description = descriptionProp.Expression.Expression.UnEscapePAString(),
+                Rule = propName,
+                ScreenId = screenId
+            });
 
-                control.Properties.Add(new PropertyNode()
-                {
-                    Expression = valueProp.Expression,
-                    Identifier = propName
-                });
-            }
+            control.Properties.Add(new PropertyNode()
+            {
+                Expression = valueProp.Expression,
+                Identifier = propName
+            });
         }
 
-        if (doesTestStepsMetadataExist)
+        if (testStepsMetadata.Count > 0
+            || !_entropy.AppTestsMissingStepsMetadata.Contains(control.Name.Identifier))
         {
             /* When Canvas creates the TestStepsMetadata value, it does so using Newtonsoft, creating a JArray of JObjects and calling
              * the ToString method on that JArray with no special formatting. This skips escaping on a number of Unicode characters
@@ -232,7 +231,7 @@ internal class AppTestTransform : IControlTemplateTransform
              * certain Unicode characters to be escaped in all cases. As such, we use Newtonsoft for TestStepsMetadata to match the
              * behavior in Canvas and prevent roundtrip errors. The appropriate encoding will ultimately happen when the full document
              * is serialized to JSON during the creation of the msapp, and will be consistent with how Canvas serializes an msapp.
-             * 
+             *
              * See: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-character-encoding#global-block-list
              */
             var testStepMetadataStr = JsonConvert.SerializeObject(testStepsMetadata, Formatting.None);
