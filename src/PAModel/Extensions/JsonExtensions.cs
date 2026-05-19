@@ -23,6 +23,9 @@ public static class JsonExtensions
         opts.Converters.Add(new JsonDateTimeConverter());
         opts.Converters.Add(new JsonVersionConverter());
 
+        // TODO: Add a converter that will ensure Dictionary<>'s are serialized with a consistent key order, to avoid unnecessary diffs.
+        // e.g. checksum.json and Entropy.json - seems to be different between `pac canvas unpack` and `PASopa -unpack`.
+
         opts.WriteIndented = true;
         opts.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 
