@@ -1,5 +1,5 @@
-Error   PA3015: Property Removed: Words.Adverb
-Error   PA3015: Property Removed: Numbers.Single
-Error   PA3015: Property Removed: Numbers.Double
-Error   PA3015: Property Removed: Numbers.Triple
+simpleRemoved1.json: Error   PA3015: Property Removed: Words.Adverb
+simpleRemoved1.json: Error   PA3015: Property Removed: Numbers.Single
+simpleRemoved1.json: Error   PA3015: Property Removed: Numbers.Double
+simpleRemoved1.json: Error   PA3015: Property Removed: Numbers.Triple
 4 errors, 0 warnings.

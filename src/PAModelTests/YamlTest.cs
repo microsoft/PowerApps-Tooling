@@ -240,10 +240,10 @@ Obj2:
         using var sr = new StringReader(text);
         using var y = new YamlLexer(sr, "test.yaml");
 
-        AssertLex("Obj1:", y, "test.yaml:1,1-1,6");
-        AssertLex("P1=456", y, "test.yaml:2,4-2,12");
+        AssertLex("Obj1:", y, "test.yaml(1,1,1,6)");
+        AssertLex("P1=456", y, "test.yaml(2,4,2,12)");
         AssertLexEndObj(y);
-        AssertLex("Obj2:", y, "test.yaml:4,1-4,6");
+        AssertLex("Obj2:", y, "test.yaml(4,1,4,6)");
         AssertLexEndObj(y);
         AssertLexEndFile(y);
     }

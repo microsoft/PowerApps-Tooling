@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
@@ -30,7 +31,37 @@ internal readonly struct SourceLocation
 
     public override string ToString()
     {
-        return $"{FileName}:{StartLine},{StartChar}-{EndLine},{EndChar}";
+        var sb = new StringBuilder();
+        WriteTo(sb);
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Writes this location to the given StringBuilder in the format "filename(startLine,startChar,endLine,endChar)".
+    /// If the filename is empty, it is omitted.
+    /// If the start and end positions are all zeros, the end position is omitted.
+    /// </summary>
+    internal void WriteTo(StringBuilder sb)
+    {
+        // Format using VS error format
+        // 1>src\PAModel\PAConvert\Error.cs(42,11,42,11): error CS1002: ; expected
+        if (FileName is not null)
+        {
+            sb.Append(FileName);
+        }
+
+        if (StartLine != default || StartChar != default || EndLine != default || EndChar != default)
+        {
+            sb.Append('(');
+            sb.Append(StartLine);
+            sb.Append(',');
+            sb.Append(StartChar);
+            sb.Append(',');
+            sb.Append(EndLine);
+            sb.Append(',');
+            sb.Append(EndChar);
+            sb.Append(')');
+        }
     }
 
     public static SourceLocation FromChildren(List<SourceLocation> locations)

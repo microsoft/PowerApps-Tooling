@@ -178,32 +178,29 @@ public class CanvasDocument
         var errors = new ErrorContainer();
         Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
 
-
         // Test that we can repack
         if (!errors.HasErrors && verifyOriginalPath != null)
         {
-            (var msApp2, var errors2) = LoadFromSources(pathToSourceDirectory);
+            var (msApp2, errors2) = LoadFromSources(pathToSourceDirectory);
             if (errors2.HasErrors)
             {
                 errors2.PostUnpackValidationFailed();
                 return errors2;
             }
 
-            using (var temp = new TempFile())
+            using var temp = new TempFile();
+            errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
+            if (errors2.HasErrors)
             {
-                errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
-                if (errors2.HasErrors)
-                {
-                    errors2.PostUnpackValidationFailed();
-                    return errors2;
-                }
+                errors2.PostUnpackValidationFailed();
+                return errors2;
+            }
 
-                var ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null, errors2);
-                if (!ok)
-                {
-                    errors2.PostUnpackValidationFailed();
-                    return errors2;
-                }
+            var ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, errors2);
+            if (!ok)
+            {
+                errors2.PostUnpackValidationFailed();
+                return errors2;
             }
         }
 

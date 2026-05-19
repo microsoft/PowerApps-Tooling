@@ -56,9 +56,6 @@ internal class AppTestTransform : IControlTemplateTransform
         var properties = control.Properties.ToDictionary(prop => prop.Identifier);
         if (!properties.TryGetValue(_metadataPropName, out var metadataProperty))
         {
-            // If no metadata props, TestStepsMetadata nonexistent
-            _entropy.DoesTestStepsMetadataExist = false;
-
             // If the test studio is opened, but no tests are created, it's possible for a test case to exist without any
             // steps or teststepmetadata. In that case, write only the base properties.
             if (properties.Count == 2)
@@ -71,6 +68,7 @@ internal class AppTestTransform : IControlTemplateTransform
         {
             _entropy.DoesTestStepsMetadataExist = true;
         }
+
         properties.Remove(_metadataPropName);
         var metadataJsonString = metadataProperty.Expression.Expression.UnEscapePAString();
         var testStepsMetadata = JsonConvert.DeserializeObject<List<TestStepsMetadataJson>>(metadataJsonString);
@@ -148,7 +146,7 @@ internal class AppTestTransform : IControlTemplateTransform
     public void BeforeWrite(BlockNode control)
     {
         var testStepsMetadata = new List<TestStepsMetadataJson>();
-        var doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? true;
+        var doesTestStepsMetadataExist = _entropy.DoesTestStepsMetadataExist ?? false;
 
         foreach (var child in control.Children)
         {

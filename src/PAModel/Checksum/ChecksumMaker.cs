@@ -70,8 +70,7 @@ public class ChecksumMaker
         if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
             filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
         {
-            var key = ChecksumJsonFile<T>(filename, bytes);
-            return key;
+            return ChecksumJsonFile<T>(filename, bytes);
         }
         else
         {
@@ -164,20 +163,14 @@ public class ChecksumMaker
         where T : IHashMaker, new()
     {
         var s = new ReadOnlyMemory<byte>(bytes);
-        using (var doc = JsonDocument.Parse(s))
-        {
-            var je = doc.RootElement;
+        using var doc = JsonDocument.Parse(s);
+        var je = doc.RootElement;
 
-            var ctx = new Context { Filename = filename };
+        var ctx = new Context { Filename = filename };
 
-            using (var hash = new T())
-            {
-                ChecksumJson(ctx, hash, je);
-
-                var key = hash.GetFinalValue();
-                return key;
-            }
-        }
+        using var hash = new T();
+        ChecksumJson(ctx, hash, je);
+        return hash.GetFinalValue();
     }
 
     internal static string ChecksumToString(byte[] bytes)

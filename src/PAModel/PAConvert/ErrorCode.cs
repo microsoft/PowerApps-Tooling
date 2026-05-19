@@ -168,19 +168,19 @@ internal static class ErrorCodeExtensions
         errors.AddError(ErrorCode.CantReadMsApp, default, $"MsApp is corrupted: {message}");
     }
 
-    public static void JSONValueChanged(this ErrorContainer errors, string message)
+    public static void JSONValueChanged(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONValueChanged, default, $"Property Value Changed: {message}");
+        errors.AddError(ErrorCode.JSONValueChanged, SourceLocation.FromFile(entryPath), $"Property Value Changed: {jsonPath}");
     }
 
-    public static void JSONPropertyAdded(this ErrorContainer errors, string message)
+    public static void JSONPropertyAdded(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONPropertyAdded, default, $"Property Added: {message}");
+        errors.AddError(ErrorCode.JSONPropertyAdded, SourceLocation.FromFile(entryPath), $"Property Added: {jsonPath}");
     }
 
-    public static void JSONPropertyRemoved(this ErrorContainer errors, string message)
+    public static void JSONPropertyRemoved(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONPropertyRemoved, default, $"Property Removed: {message}");
+        errors.AddError(ErrorCode.JSONPropertyRemoved, SourceLocation.FromFile(entryPath), $"Property Removed: {jsonPath}");
     }
     public static void UnsupportedError(this ErrorContainer errors, string message)
     {
