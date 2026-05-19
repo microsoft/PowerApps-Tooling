@@ -11,16 +11,29 @@ namespace PAModelTests;
 [TestClass]
 public class RoundtripTests
 {
-    private static IEnumerable<object[]> TestAppFilePaths => Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "Apps"), "*.msapp").Select(p => new[] { p });
+    private static IEnumerable<object[]> TestAppFilePaths
+    {
+        get
+        {
+            var appsDirectory = new DirectoryInfo("Apps");
+            foreach (var file in appsDirectory.EnumerateFiles("*.msapp", SearchOption.AllDirectories))
+            {
+                var testAppRelativePath = file.FullName.Substring(Environment.CurrentDirectory.Length + 1);
+
+                yield return new object[] { testAppRelativePath };
+            }
+        }
+    }
 
     // Apps live in the "Apps" folder, and should have a build action of "Copy to output"
     [TestMethod]
     [DynamicData(nameof(TestAppFilePaths))]
     public void StressTestApps(string msappPath)
     {
-        MsAppTest.StressTest(msappPath).Should().BeTrue();
+        var msappFullPath = Path.GetFullPath(msappPath);
+        MsAppTest.StressTest(msappFullPath).Should().BeTrue();
 
         // If this fails, to debug it, rerun and set a breakpoint in DebugChecksum().
-        MsAppTest.TestClone(msappPath).Should().BeTrue();
+        MsAppTest.TestClone(msappFullPath).Should().BeTrue();
     }
 }
