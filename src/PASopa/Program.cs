@@ -116,16 +116,9 @@ internal class Program
                 throw new InvalidOperationException("must be path to .msapp file");
             }
 
-            string outDir;
-            if (args.Length == 2)
-            {
-                outDir = msAppPath.Substring(0, msAppPath.Length - 6) + "_src"; // chop off ".msapp";
-            }
-            else
-            {
-                outDir = args[2];
-            }
-
+            string outDir = args.Length >= 3
+                ? Path.GetFullPath(args[2])
+                : Path.Combine(Path.GetDirectoryName(msAppPath), Path.GetFileNameWithoutExtension(msAppPath) + "_src");
             Console.WriteLine($"Unpack: {msAppPath} --> {outDir} ");
 
             (var msApp, var errors) = TryOperation(() => CanvasDocument.LoadFromMsapp(msAppPath));

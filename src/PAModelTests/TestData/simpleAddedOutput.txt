@@ -1,5 +1,5 @@
-Error   PA3014: Property Added: Words.Adverb
-Error   PA3014: Property Added: Numbers.Single
-Error   PA3014: Property Added: Numbers.Double
-Error   PA3014: Property Added: Numbers.Triple
+simpleAdded1.json: Error   PA3014: Property Added: Words.Adverb
+simpleAdded1.json: Error   PA3014: Property Added: Numbers.Single
+simpleAdded1.json: Error   PA3014: Property Added: Numbers.Double
+simpleAdded1.json: Error   PA3014: Property Added: Numbers.Triple
 4 errors, 0 warnings.

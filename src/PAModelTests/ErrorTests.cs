@@ -15,6 +15,8 @@ public class ErrorTests
     public static string PathMissingDir = Path.Combine(Environment.CurrentDirectory, "MissingDirectory");
     public static int counter;
 
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public void OpenCorruptedMsApp()
     {
@@ -88,11 +90,13 @@ public class ErrorTests
         var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
 
         // IsMismatched on mismatched files
-        MsAppTest.CheckPropertyChangedRemoved(jsonDictionary1, jsonDictionary2, errorContainer, "");
-        MsAppTest.CheckPropertyAdded(jsonDictionary1, jsonDictionary2, errorContainer, "");
+        MsAppTest.CheckPropertyChangedRemoved(file1, jsonDictionary1, jsonDictionary2, errorContainer);
+        MsAppTest.CheckPropertyAdded(file1, jsonDictionary1, jsonDictionary2, errorContainer);
 
         // Confirm that the unit tests have the expected output
-        File.ReadAllText(path3).Should().Be(errorContainer.ToString());
+        var errorContainerString = errorContainer.ToString();
+        TestContext.WriteLine(errorContainerString);
+        errorContainerString.Should().Be(File.ReadAllText(path3));
     }
 
     [TestMethod]
@@ -105,7 +109,7 @@ public class ErrorTests
 
         // When there's a file content mismatch on non-JSON files,
         // we must throw an error and not use JSON to compare non JSON-files
-        var exception = Assert.ThrowsExactly<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2, Console.Out));
+        var exception = Assert.ThrowsExactly<ArgumentException>(() => MsAppTest.Compare(pathToZip1, pathToZip2));
         exception.Message.Should().Be("Mismatch detected in non-Json properties: Assets\\Images\\1556681b-11bd-4d72-9b17-4f884fb4b465.png");
     }
 }

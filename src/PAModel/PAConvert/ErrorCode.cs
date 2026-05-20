@@ -67,6 +67,8 @@ internal enum ErrorCode
     // JSON Property was removed
     JSONPropertyRemoved = 3015,
 
+    ArchiveEntryAdded = 3101,
+
     // Catch-all.  Should review and make these more specific. 
     Generic = 3999,
 
@@ -168,20 +170,26 @@ internal static class ErrorCodeExtensions
         errors.AddError(ErrorCode.CantReadMsApp, default, $"MsApp is corrupted: {message}");
     }
 
-    public static void JSONValueChanged(this ErrorContainer errors, string message)
+    public static void JSONValueChanged(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONValueChanged, default, $"Property Value Changed: {message}");
+        errors.AddError(ErrorCode.JSONValueChanged, SourceLocation.FromFile(entryPath), $"Property Value Changed: {jsonPath}");
     }
 
-    public static void JSONPropertyAdded(this ErrorContainer errors, string message)
+    public static void JSONPropertyAdded(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONPropertyAdded, default, $"Property Added: {message}");
+        errors.AddError(ErrorCode.JSONPropertyAdded, SourceLocation.FromFile(entryPath), $"Property Added: {jsonPath}");
     }
 
-    public static void JSONPropertyRemoved(this ErrorContainer errors, string message)
+    public static void JSONPropertyRemoved(this ErrorContainer errors, string entryPath, string jsonPath)
     {
-        errors.AddError(ErrorCode.JSONPropertyRemoved, default, $"Property Removed: {message}");
+        errors.AddError(ErrorCode.JSONPropertyRemoved, SourceLocation.FromFile(entryPath), $"Property Removed: {jsonPath}");
     }
+
+    public static void AddedZipEntry(this ErrorContainer errors, string entryPath)
+    {
+        errors.AddError(ErrorCode.ArchiveEntryAdded, SourceLocation.FromFile(entryPath), "Archive entry added.");
+    }
+
     public static void UnsupportedError(this ErrorContainer errors, string message)
     {
         errors.AddError(ErrorCode.UnsupportedError, default, $"Not Supported: {message}");

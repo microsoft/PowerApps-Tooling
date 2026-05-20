@@ -16,22 +16,22 @@ using System.Linq;
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
 /// <summary>
-/// Represents a PowerApps document.  This can be save/loaded from a MsApp or Source representation. 
-/// This is a full in-memory representation of the msapp file. 
+/// Represents a PowerApps document.  This can be save/loaded from a MsApp or Source representation.
+/// This is a full in-memory representation of the msapp file.
 /// </summary>
 public class CanvasDocument
 {
     /// <summary>
-    /// Current source format version. 
+    /// Current source format version.
     /// </summary>
     public static Version CurrentSourceVersion => SourceSerializer.CurrentSourceVersion;
 
     // Rules for CanvasDocument
-    // - Save/Load must faithfully roundtrip an msapp exactly. 
-    // - this is an in-memory representation - so it must parse/shard everything on load. 
-    // - Save should not mutate any state. 
+    // - Save/Load must faithfully roundtrip an msapp exactly.
+    // - this is an in-memory representation - so it must parse/shard everything on load.
+    // - Save should not mutate any state.
 
-    // Track all unknown "files". Ensures round-tripping isn't lossy.         
+    // Track all unknown "files". Ensures round-tripping isn't lossy.
     // Only contains files of FileKind.Unknown
     internal Dictionary<FilePath, FileEntry> _unknownFiles = new();
 
@@ -42,7 +42,7 @@ public class CanvasDocument
     internal EditorStateStore _editorStateStore;
     internal TemplateStore _templateStore;
 
-    // Various data sources        
+    // Various data sources
     // This is references\dataSources.json
     // Also includes entries for DataSources made from a DataComponent
     // Key is parent entity name (datasource name for non cds data sources)
@@ -76,7 +76,7 @@ public class CanvasDocument
     internal IDictionary<string, LocalDatabaseReferenceJson> _dataSourceReferences;
 
     // Extracted from _properties.LibraryDependencies
-    // Must preserve server ordering. 
+    // Must preserve server ordering.
     internal ComponentDependencyInfo[] _libraryReferences;
 
     internal FileEntry _logoFile;
@@ -84,7 +84,7 @@ public class CanvasDocument
     // Save for roundtripping.
     internal Entropy _entropy = new();
 
-    // Checksum from existing msapp. 
+    // Checksum from existing msapp.
     internal ChecksumJson _checksum;
 
     // Track all asset files, key is file name
@@ -102,7 +102,7 @@ public class CanvasDocument
     #region Save/Load
 
     /// <summary>
-    /// Load an .msapp file for a Canvas Document. 
+    /// Load an .msapp file for a Canvas Document.
     /// </summary>
     /// <param name="fullPathToMsApp">path to an .msapp file</param>
     /// <returns>A tuple of the document and errors and warnings. If there are errors, the document is null.  </returns>
@@ -178,32 +178,28 @@ public class CanvasDocument
         var errors = new ErrorContainer();
         Wrapper(() => SourceSerializer.SaveAsSource(this, pathToSourceDirectory, errors), errors);
 
-
         // Test that we can repack
         if (!errors.HasErrors && verifyOriginalPath != null)
         {
-            (var msApp2, var errors2) = LoadFromSources(pathToSourceDirectory);
+            var (msApp2, errors2) = LoadFromSources(pathToSourceDirectory);
             if (errors2.HasErrors)
             {
                 errors2.PostUnpackValidationFailed();
                 return errors2;
             }
 
-            using (var temp = new TempFile())
+            using var temp = new TempFile();
+            errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
+            if (errors2.HasErrors)
             {
-                errors2 = msApp2.SaveToMsAppValidation(temp.FullPath);
-                if (errors2.HasErrors)
-                {
-                    errors2.PostUnpackValidationFailed();
-                    return errors2;
-                }
+                errors2.PostUnpackValidationFailed();
+                return errors2;
+            }
 
-                var ok = MsAppTest.Compare(verifyOriginalPath, temp.FullPath, TextWriter.Null, errors2);
-                if (!ok)
-                {
-                    errors2.PostUnpackValidationFailed();
-                    return errors2;
-                }
+            if (!MsAppTest.Compare(verifyOriginalPath, temp.FullPath, errors2))
+            {
+                errors2.PostUnpackValidationFailed();
+                return errors2;
             }
         }
 
@@ -218,7 +214,7 @@ public class CanvasDocument
 
     #endregion
 
-    // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors. 
+    // Wrapper to ensure consistent invariants between loading a document, exception handling, and returning errors.
     private static CanvasDocument Wrapper(Func<CanvasDocument> worker, ErrorContainer errors)
     {
         try
@@ -320,7 +316,7 @@ public class CanvasDocument
         _localAssetInfoJson = other._localAssetInfoJson.JsonClone();
     }
 
-    // iOrder is used to preserve ordering value for round-tripping. 
+    // iOrder is used to preserve ordering value for round-tripping.
     internal void AddDataSourceForLoad(DataSourceEntry ds, int? order = null)
     {
         // Key is parent entity name
@@ -376,7 +372,7 @@ public class CanvasDocument
         var componentInstanceTransform = new ComponentInstanceTransform(errors);
         var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
-        // Transform component definitions and populate template set of component instances that need updates 
+        // Transform component definitions and populate template set of component instances that need updates
         foreach (var ctrl in _components)
         {
             AddComponentDefaults(ctrl.Value, templateDefaults);
@@ -433,7 +429,7 @@ public class CanvasDocument
         var componentInstanceTransform = new ComponentInstanceTransform(errors);
         var componentDefTransform = new ComponentDefinitionTransform(errors, _templateStore, componentInstanceTransform);
 
-        // Transform component definitions and populate template set of component instances that need updates 
+        // Transform component definitions and populate template set of component instances that need updates
         foreach (var ctrl in _components)
         {
             componentDefTransform.BeforeWrite(ctrl.Value);
@@ -466,15 +462,16 @@ public class CanvasDocument
     }
 
 
-    // Called after loading. This will check internal fields and fill in consistency data. 
+    // Called after loading. This will check internal fields and fill in consistency data.
     internal void OnLoadComplete(ErrorContainer errors)
     {
-        // Do integrity checks. 
+        // Do integrity checks.
         if (_header == null)
         {
             errors.FormatNotSupported("Missing header file");
             throw new DocumentException();
         }
+
         if (_properties == null)
         {
             errors.FormatNotSupported("Missing properties file");
@@ -487,7 +484,6 @@ public class CanvasDocument
         {
             uniqueVisitor.Visit(control);
         }
-
 
         // Integrity checks.
         foreach (var kv in _connections.NullOk())
@@ -502,7 +498,7 @@ public class CanvasDocument
         }
     }
 
-    // Get ComponentIds for components we've imported. 
+    // Get ComponentIds for components we've imported.
     internal HashSet<string> GetImportedComponents()
     {
         var set = new HashSet<string>();
@@ -679,10 +675,10 @@ public class CanvasDocument
         }
     }
 
-    // Helper for traversing and ensuring unique control names. 
+    // Helper for traversing and ensuring unique control names.
     internal class UniqueControlNameVisitor
     {
-        // Control names are case sensitive. 
+        // Control names are case sensitive.
         private readonly Dictionary<string, SourceLocation?> _names = new(StringComparer.Ordinal);
         private readonly ErrorContainer _errors;
 
@@ -693,7 +689,7 @@ public class CanvasDocument
 
         public void Visit(BlockNode node)
         {
-            // Ignore test templates here. 
+            // Ignore test templates here.
             // Test templates have control-like syntax, but allowed to repeat names:
             //    Step4 As TestStep:
             if (AppTestTransform.IsTestSuite(node.Name.Kind.TypeName))

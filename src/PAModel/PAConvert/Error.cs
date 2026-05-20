@@ -29,6 +29,21 @@ public class Error
     public override string ToString()
     {
         var sb = new StringBuilder();
+        WriteTo(sb);
+        return sb.ToString();
+    }
+
+    internal void WriteTo(StringBuilder sb)
+    {
+        // Format using VS error format
+        // 1>E:\repos\github\microsoft\PA-Tooling\src\PAModel\PAConvert\Error.cs(42,11,42,11): error CS1002: ; expected
+        var origLen = sb.Length;
+        Span.WriteTo(sb);
+        if (sb.Length != origLen)
+        {
+            sb.Append(": ");
+        }
+
         if (IsError)
         {
             sb.Append("Error   ");
@@ -37,9 +52,8 @@ public class Error
         {
             sb.Append("Warning ");
         }
+
         sb.Append($"PA{(int)Code}: ");
         sb.Append(Message);
-
-        return sb.ToString();
     }
 }

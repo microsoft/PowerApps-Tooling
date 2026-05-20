@@ -41,7 +41,7 @@ public class TemplateStoreTests
         using (var tempFile = new TempFile())
         {
             MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-            Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+            Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath));
         }
     }
 
@@ -68,7 +68,7 @@ public class TemplateStoreTests
         using (var tempFile = new TempFile())
         {
             MsAppSerializer.SaveAsMsApp(msapp, tempFile.FullPath, new ErrorContainer());
-            Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath, Console.Out));
+            Assert.IsTrue(MsAppTest.Compare(root, tempFile.FullPath));
         }
     }
 }
