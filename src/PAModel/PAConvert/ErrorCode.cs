@@ -67,6 +67,8 @@ internal enum ErrorCode
     // JSON Property was removed
     JSONPropertyRemoved = 3015,
 
+    ArchiveEntryAdded = 3101,
+
     // Catch-all.  Should review and make these more specific. 
     Generic = 3999,
 
@@ -182,6 +184,12 @@ internal static class ErrorCodeExtensions
     {
         errors.AddError(ErrorCode.JSONPropertyRemoved, SourceLocation.FromFile(entryPath), $"Property Removed: {jsonPath}");
     }
+
+    public static void AddedZipEntry(this ErrorContainer errors, string entryPath)
+    {
+        errors.AddError(ErrorCode.ArchiveEntryAdded, SourceLocation.FromFile(entryPath), "Archive entry added.");
+    }
+
     public static void UnsupportedError(this ErrorContainer errors, string message)
     {
         errors.AddError(ErrorCode.UnsupportedError, default, $"Not Supported: {message}");

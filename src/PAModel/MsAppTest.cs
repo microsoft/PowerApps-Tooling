@@ -26,27 +26,19 @@ internal class MsAppTest
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public static bool MergeStressTest(string pathToMsApp1, string pathToMsApp2)
     {
-        try
-        {
-            (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp1);
-            errors.ThrowOnErrors();
+        (var doc1, var errors) = CanvasDocument.LoadFromMsapp(pathToMsApp1);
+        errors.ThrowOnErrors();
 
-            (var doc2, var errors2) = CanvasDocument.LoadFromMsapp(pathToMsApp2);
-            errors2.ThrowOnErrors();
+        (var doc2, var errors2) = CanvasDocument.LoadFromMsapp(pathToMsApp2);
+        errors2.ThrowOnErrors();
 
-            var doc1New = CanvasMerger.Merge(doc1, doc2, doc2);
-            var ok1 = HasNoDeltas(doc1, doc1New);
+        var doc1New = CanvasMerger.Merge(doc1, doc2, doc2);
+        var ok1 = HasNoDeltas(doc1, doc1New);
 
-            var doc2New = CanvasMerger.Merge(doc2, doc1, doc1);
-            var ok2 = HasNoDeltas(doc2, doc2New);
+        var doc2New = CanvasMerger.Merge(doc2, doc1, doc1);
+        var ok2 = HasNoDeltas(doc2, doc2New);
 
-            return ok1 && ok2;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return false;
-        }
+        return ok1 && ok2;
     }
 
     public static bool TestClone(string pathToMsApp)
@@ -78,10 +70,6 @@ internal class MsAppTest
 
         if (ourDeltas.Any())
         {
-            foreach (var diff in ourDeltas)
-            {
-                Console.WriteLine($"  {diff.GetType().Name}");
-            }
             // Error! app shouldn't have any diffs with itself.
             return false;
         }
@@ -137,60 +125,55 @@ internal class MsAppTest
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public static bool StressTest(string pathToMsApp)
     {
-        try
+        using (var temp1 = new TempFile())
         {
-            using (var temp1 = new TempFile())
+            var outFile = temp1.FullPath;
+
+            // MsApp --> Model
+            CanvasDocument msapp;
+            var errors = new ErrorContainer();
+            try
             {
-                var outFile = temp1.FullPath;
-
-                // MsApp --> Model
-                CanvasDocument msapp;
-                var errors = new ErrorContainer();
-                try
+                using (var stream = new FileStream(pathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    using (var stream = new FileStream(pathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        msapp = MsAppSerializer.Load(stream, errors);
-                    }
-                    errors.ThrowOnErrors();
-
-                    // We can still get warnings here. Commonly:
-                    // - PA2001, checksum mismatch
-                    // - PA2999, colliding asset names
+                    msapp = MsAppSerializer.Load(stream, errors);
                 }
-                catch (NotSupportedException)
-                {
-                    errors.FormatNotSupported($"Too old: {pathToMsApp}");
-                    return false;
-                }
-
-                // Model --> MsApp
-                errors = msapp.SaveToMsApp(outFile);
                 errors.ThrowOnErrors();
-                var ok = Compare(pathToMsApp, outFile);
-                if (!ok) { return false; }
 
-
-                // Model --> Source
-                using var tempDir = new TempDir();
-                var outSrcDir = tempDir.Dir;
-                errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath: pathToMsApp);
-                errors.ThrowOnErrors();
-            } // end using
-
-            if (!TestClone(pathToMsApp))
+                // We can still get warnings here. Commonly:
+                // - PA2001, checksum mismatch
+                // - PA2999, colliding asset names
+            }
+            catch (NotSupportedException)
             {
+                errors.FormatNotSupported($"Too old: {pathToMsApp}");
                 return false;
             }
 
-            if (!DiffStressTest(pathToMsApp))
+            // Model --> MsApp
+            errors = msapp.SaveToMsApp(outFile);
+            errors.ThrowOnErrors();
+
+            if (!Compare(pathToMsApp, outFile, errors))
             {
+                errors.ThrowOnErrors();
                 return false;
             }
+
+            // Model --> Source
+            using var tempDir = new TempDir();
+            var outSrcDir = tempDir.Dir;
+            errors = msapp.SaveToSources(outSrcDir, verifyOriginalPath: pathToMsApp);
+            errors.ThrowOnErrors();
+        } // end using
+
+        if (!TestClone(pathToMsApp))
+        {
+            return false;
         }
-        catch (Exception e)
+
+        if (!DiffStressTest(pathToMsApp))
         {
-            Console.WriteLine(e.ToString());
             return false;
         }
 
@@ -262,7 +245,7 @@ internal class MsAppTest
                 else
                 {
                     // Missing file!
-                    Console.WriteLine("FAIL: 2nd has added file: " + entryFullName);
+                    errorContainer.AddedZipEntry(entryFullName);
                 }
             }
         }
@@ -390,7 +373,7 @@ internal class MsAppTest
     public static void DebugMismatch(ZipArchiveEntry entry, byte[] originalContents, byte[] newContents, string normFormDir)
     {
         // Fail! Mismatch
-        Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
+        //Console.WriteLine("FAIL: hash mismatch: " + entry.FullName);
 
         // Paths to current diff files
         var aPath = normFormDir + "\\" + Path.ChangeExtension(entry.Name, null) + "-A.json";
