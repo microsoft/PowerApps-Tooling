@@ -18,7 +18,7 @@ using System.Text.Json;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools;
 
-// Read/Write to a source format. 
+// Read/Write to a source format.
 internal static partial class SourceSerializer
 {
     // 1 - .pa1 format
@@ -37,20 +37,22 @@ internal static partial class SourceSerializer
     // 14 - Yaml DoubleQuote escape
     // 15 - Use dictionary for templates
     // 16 - Group Control transform
-    // 17 - Moved PublishOrderIndex entirely to Entropy 
-    // 18 - AppChecker result is not part of entropy (See change 0.5 in this list) 
-    // 19 - Switch extension to .fx.yaml  
+    // 17 - Moved PublishOrderIndex entirely to Entropy
+    // 18 - AppChecker result is not part of entropy (See change 0.5 in this list)
+    // 19 - Switch extension to .fx.yaml
     // 20 - Only load themes that match the specified theme name
     // 21 - Resources.json is sharded into individual json files for non-local resources.
     // 22 - AppTest is sharded into individual TestSuite.fx.yaml files in Src/Tests directory.
-    // 23 - Unicodes are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
+    // 23 - Unicode chars are allowed to be part of filename and the filename is limited to 60 characters length, if it's more then it gets truncated.
     // 24 - Sharding PCF control templates in pkgs/PcfControlTemplates directory and checksum update.
-    public static Version CurrentSourceVersion = new(0, 24);
+    // 25 - accounting for changes not tracked
+    // 30 - Fixed TestCases w/o steps metadata causing round trip validation to fail
+    public static Version CurrentSourceVersion = new(0, 30);
 
     // Layout is:
     //  src\
     //  DataSources\
-    //  Other\  (all unrecognized files)         
+    //  Other\  (all unrecognized files)
     public const string CodeDir = "Src";
     public const string AssetsDir = "Assets";
     public static readonly string TestDir = Path.Combine("Src", "Tests");
@@ -98,8 +100,8 @@ internal static partial class SourceSerializer
         var app = new CanvasDocument();
         string appInsightsInstrumentationKey = null;
 
-        // Do the manifest check (and version check) first. 
-        // MAnifest lives in top-level directory. 
+        // Do the manifest check (and version check) first.
+        // Manifest lives in top-level directory.
         foreach (var file in dir.EnumerateFiles("", "*.json"))
         {
             switch (file.Kind)
@@ -237,7 +239,7 @@ internal static partial class SourceSerializer
 
         foreach (var file in dir.EnumerateFiles(OtherDir))
         {
-            // Special files like Header / Properties 
+            // Special files like Header / Properties
             switch (file.Kind)
             {
                 case FileKind.Unknown:
@@ -251,14 +253,14 @@ internal static partial class SourceSerializer
                     break;
 
             }
-        } // each loose file in '\other' 
+        } // each loose file in '\other'
 
         LoadDataSources(app, dir, errors);
         LoadSourceFiles(app, dir, templateDefaults, errors);
 
         foreach (var file in dir.EnumerateFiles(ConnectionDir))
         {
-            // Special files like Header / Properties 
+            // Special files like Header / Properties
             switch (file.Kind)
             {
                 case FileKind.Connections:
@@ -272,7 +274,7 @@ internal static partial class SourceSerializer
         }
 
 
-        // Defaults. 
+        // Defaults.
         // - DynamicTypes.Json, Resources.Json , Templates.Json - could all be empty
         // - Themes.json- default to
 
@@ -357,10 +359,10 @@ internal static partial class SourceSerializer
         }
     }
 
-    // The publish info points to the logo file. Grab it from the unknowns. 
+    // The publish info points to the logo file. Grab it from the unknowns.
     private static void GetLogoFile(this CanvasDocument app)
     {
-        // Logo file. 
+        // Logo file.
         if (!string.IsNullOrEmpty(app._publishInfo?.LogoFileName))
         {
             var key = FilePath.FromMsAppPath(app._publishInfo.LogoFileName);
@@ -503,7 +505,7 @@ internal static partial class SourceSerializer
         }
         catch (DocumentException)
         {
-            // On DocumentException, continue looking for errors in other files. 
+            // On DocumentException, continue looking for errors in other files.
         }
     }
 
@@ -512,7 +514,7 @@ internal static partial class SourceSerializer
         throw new NotImplementedException();
     }
 
-    // Write out to a directory (this shards it) 
+    // Write out to a directory (this shards it)
     public static void SaveAsSource(CanvasDocument app, string directory2, ErrorContainer errors)
     {
         var dir = new DirectoryWriter(directory2);
@@ -622,7 +624,7 @@ internal static partial class SourceSerializer
 
         WriteDataSources(dir, app, errors);
 
-        // Loose files. 
+        // Loose files.
         foreach (var file in app._unknownFiles.Values)
         {
             // Standardize the .json files so they're deterministic and comparable
@@ -675,14 +677,14 @@ internal static partial class SourceSerializer
     {
         var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
 
-        // Data Sources  - write out each individual source. 
+        // Data Sources  - write out each individual source.
         var filenames = new HashSet<string>();
         var dataSourceDefinitions = new Dictionary<string, List<(FilePath filePath, DataSourceDefinition dataSourceDef)>>();
 
         foreach (var kvp in app.GetDataSources())
         {
-            // Filename doesn't actually matter, but careful to avoid collisions and overwriting. 
-            // Also be deterministic. 
+            // Filename doesn't actually matter, but careful to avoid collisions and overwriting.
+            // Also be deterministic.
             var filename = kvp.Key + ".json";
 
             if (!filenames.Add(filename.ToLower()))
@@ -866,7 +868,7 @@ internal static partial class SourceSerializer
                 }
                 else
                 {
-                    // create a new one in case UnusedDataSources is not of type Dictionary 
+                    // create a new one in case UnusedDataSources is not of type Dictionary
                     localDatabaseReferenceJson.dataSources = tableDef.UnusedDataSources.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                 }
 
@@ -962,7 +964,7 @@ internal static partial class SourceSerializer
 
     // CDS View entities have Names that start with the environment guid (datasetname)
     // This trims that from the start of the name so that all the environment-specific info
-    // can be moved to the /pkg directory 
+    // can be moved to the /pkg directory
     private static void TrimViewNames(IEnumerable<DataSourceEntry> dataSourceEntries, string dataSetName)
     {
         foreach (var ds in dataSourceEntries.Where(ds => ds.Type == "ViewInfo"))
