@@ -1,0 +1,2 @@
+rulesChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Rules['Fill'].InvariantScript
+1 errors, 0 warnings.

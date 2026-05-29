@@ -277,9 +277,9 @@ internal class MsAppTest
         }
     }
 
-    public static Dictionary<string, JsonElement> FlattenJson(byte[] json)
+    public static Dictionary<string, JsonElement> FlattenJson(byte[] json, JsonDocumentOptions options = default)
     {
-        using var document = JsonDocument.Parse(json);
+        using var document = JsonDocument.Parse(json, options);
         return FlattenJson(string.Empty, document.RootElement)
             .ToDictionary(t => t.Path, t => t.Value.Clone());
     }

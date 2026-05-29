@@ -1,0 +1,26 @@
+{
+  "TopParent": {
+    "Screen1": {
+      "Name": "Screen1",
+      "Template": "screen",
+      "Rules": [
+        {
+          "Property": "Text",
+          "InvariantScript": "\"Hello World\"",
+          "RuleProviderType": "Unknown"
+        },
+        // changed and out of order
+        {
+          "Property": "Fill",
+          "InvariantScript": "RGBA(0, 0, 255, 1)",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Property": "Width",
+          "InvariantScript": "1024",
+          "RuleProviderType": "Unknown"
+        }
+      ]
+    }
+  }
+}
