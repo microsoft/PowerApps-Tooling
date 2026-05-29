@@ -76,6 +76,7 @@ public class ErrorTests
     [DataRow("simpleArray1.json", "simpleArray2.json", "simpleArrayOutput.txt")]
     [DataRow("rulesChanged1.json", "rulesChanged2.json", "rulesChangedOutput.txt")]
     [DataRow("dynamicPropertiesChanged1.json", "dynamicPropertiesChanged2.json", "dynamicPropertiesChangedOutput.txt")]
+    [DataRow("childrenChanged1.json", "childrenChanged2.json", "childrenChangedOutput.txt")]
 
     public void TestJSONValueChanged(string file1, string file2, string file3)
     {

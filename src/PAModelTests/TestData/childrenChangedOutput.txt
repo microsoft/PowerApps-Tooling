@@ -1,0 +1,8 @@
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[0].Name
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[0].Template
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[0].Rules['Text'].InvariantScript
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[1].Name
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[1].Template
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[1].Rules['Text'].InvariantScript
+childrenChanged1.json: Error   PA3013: Property Value Changed: TopParent.Screen1.Children[2].Rules['Text'].InvariantScript
+7 errors, 0 warnings.
