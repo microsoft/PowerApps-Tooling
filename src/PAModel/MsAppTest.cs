@@ -324,17 +324,22 @@ internal class MsAppTest
         Debug.Assert(path is not null);
         Debug.Assert(jsonArray.ValueKind == JsonValueKind.Array);
 
-        var isRulesArray = path.StartsWith("TopParent.") && path.EndsWith(".Rules");
+        // For some arrays, it's better to use a named sub-property as the indexer when ordering of the items in the array is not significant.
+        var namedIndexPropertyName = path switch
+        {
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".Rules") => "Property",
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".DynamicProperties") => "PropertyName",
+            _ => null
+        };
 
         return jsonArray.EnumerateArray()
             .SelectMany((arrayItem, index) =>
             {
                 var arraySubPath = $"{path}[{index}]";
 
-                // For Rules arrays, use the Property name as the key instead of the index, since order doesn't matter and Property is (likely) unique
-                if (isRulesArray && arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty("Property", out var propertyName))
+                if (namedIndexPropertyName != null && arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty(namedIndexPropertyName, out var namedIndex))
                 {
-                    arraySubPath = $"{path}['{propertyName.GetString()}']";
+                    arraySubPath = $"{path}['{namedIndex.GetString()}']";
                 }
 
                 return FlattenJson(arraySubPath, arrayItem);
