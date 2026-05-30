@@ -325,11 +325,12 @@ internal class MsAppTest
         Debug.Assert(jsonArray.ValueKind == JsonValueKind.Array);
 
         // For some arrays, it's better to use a named sub-property as the indexer when ordering of the items in the array is not significant.
-        var namedIndexPropertyName = path switch
+        var (namedIndexPropertyName, isOrderSignificant) = path switch
         {
-            _ when path.StartsWith("TopParent.") && path.EndsWith(".Rules") => "Property",
-            _ when path.StartsWith("TopParent.") && path.EndsWith(".DynamicProperties") => "PropertyName",
-            _ => null
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".Rules") => ("Property", false),
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".DynamicProperties") => ("PropertyName", false),
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".Children") => ("Name", true),
+            _ => (null, true)
         };
 
         return jsonArray.EnumerateArray()
@@ -337,12 +338,26 @@ internal class MsAppTest
             {
                 var arraySubPath = $"{path}[{index}]";
 
-                if (namedIndexPropertyName != null && arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty(namedIndexPropertyName, out var namedIndex))
+                (string Path, JsonElement Value)? namedItemOrderResult = null;
+                if (namedIndexPropertyName != null)
                 {
-                    arraySubPath = $"{path}['{namedIndex.GetString()}']";
+                    if (arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty(namedIndexPropertyName, out var namedIndex))
+                    {
+                        if (isOrderSignificant)
+                        {
+                            namedItemOrderResult = (arraySubPath + "." + namedIndexPropertyName, namedIndex);
+                        }
+
+                        arraySubPath = $"{path}['{namedIndex.GetString()}']";
+                    }
                 }
 
-                return FlattenJson(arraySubPath, arrayItem);
+                var flattened = FlattenJson(arraySubPath, arrayItem);
+                if (namedItemOrderResult.HasValue)
+                {
+                    flattened = flattened.Prepend(namedItemOrderResult.Value);
+                }
+                return flattened;
             });
     }
 
