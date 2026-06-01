@@ -33,7 +33,7 @@ internal class YamlToken
 
     public static YamlToken NewStartObj(SourceLocation span, string name)
     {
-        return new YamlToken
+        return new()
         {
             Kind = YamlTokenKind.StartObj,
             Span = span,
@@ -43,7 +43,7 @@ internal class YamlToken
 
     public static YamlToken NewProperty(SourceLocation span, string name, string value)
     {
-        return new YamlToken
+        return new()
         {
             Kind = YamlTokenKind.Property,
             Span = span,
@@ -55,7 +55,7 @@ internal class YamlToken
 
     public static YamlToken NewError(SourceLocation span, string message)
     {
-        return new YamlToken
+        return new()
         {
             Kind = YamlTokenKind.Error,
             Span = span,
@@ -65,13 +65,12 @@ internal class YamlToken
 
     public override string ToString()
     {
-        switch (Kind)
+        return Kind switch
         {
-            case YamlTokenKind.Property: return $"{Property}={Value}";
-            case YamlTokenKind.StartObj: return $"{Property}:";
-            case YamlTokenKind.Error: return $"Yaml error: {Span.FileName}:{Span.StartLine},{Span.StartChar} {Value}";
-            default:
-                return $"<{Kind}>";
-        }
+            YamlTokenKind.Property => $"{Property}={Value}",
+            YamlTokenKind.StartObj => $"{Property}:",
+            YamlTokenKind.Error => $"Yaml error: {Span.FileName}:{Span.StartLine},{Span.StartChar} {Value}",
+            _ => $"<{Kind}>",
+        };
     }
 }

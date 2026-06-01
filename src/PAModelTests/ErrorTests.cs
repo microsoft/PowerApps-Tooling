@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using Microsoft.PowerPlatform.Formulas.Tools;
 using Microsoft.PowerPlatform.Formulas.Tools.IO;
+using System.IO;
+using System.Text.Json;
 
 namespace PAModelTests;
 
@@ -73,9 +74,16 @@ public class ErrorTests
     [DataRow("simpleRemoved1.json", "simpleRemoved2.json", "simpleRemovedOutput.txt")]
     [DataRow("emptyNestedArray1.json", "emptyNestedArray2.json", "emptyNestedArrayOutput.txt")]
     [DataRow("simpleArray1.json", "simpleArray2.json", "simpleArrayOutput.txt")]
+    [DataRow("rulesChanged1.json", "rulesChanged2.json", "rulesChangedOutput.txt")]
+    [DataRow("dynamicPropertiesChanged1.json", "dynamicPropertiesChanged2.json", "dynamicPropertiesChangedOutput.txt")]
+    [DataRow("childrenChanged1.json", "childrenChanged2.json", "childrenChangedOutput.txt")]
 
     public void TestJSONValueChanged(string file1, string file2, string file3)
     {
+        var jsonOptions = new JsonDocumentOptions()
+        {
+            CommentHandling = JsonCommentHandling.Skip, // so we can add comments in the test files to explain the test case
+        };
 
         var path1 = Path.Combine(Environment.CurrentDirectory, "TestData", file1);
         var path2 = Path.Combine(Environment.CurrentDirectory, "TestData", file2);
@@ -86,8 +94,8 @@ public class ErrorTests
         var jsonString1 = File.ReadAllBytes(path1);
         var jsonString2 = File.ReadAllBytes(path2);
 
-        var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1);
-        var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2);
+        var jsonDictionary1 = MsAppTest.FlattenJson(jsonString1, jsonOptions);
+        var jsonDictionary2 = MsAppTest.FlattenJson(jsonString2, jsonOptions);
 
         // IsMismatched on mismatched files
         MsAppTest.CheckPropertyChangedRemoved(file1, jsonDictionary1, jsonDictionary2, errorContainer);

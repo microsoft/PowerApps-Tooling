@@ -1,0 +1,34 @@
+{
+  "TopParent": {
+    "Canvas1": {
+      "Name": "Canvas1",
+      "Template": "groupContainer",
+      "DynamicProperties": [
+        {
+          "PropertyName": "LayoutX",
+          "Rule": {
+            "Property": "LayoutX",
+            "InvariantScript": "10",
+            "RuleProviderType": "Unknown"
+          }
+        },
+        {
+          "PropertyName": "LayoutY",
+          "Rule": {
+            "Property": "LayoutY",
+            "InvariantScript": "20",
+            "RuleProviderType": "Unknown"
+          }
+        },
+        {
+          "PropertyName": "LayoutWidth",
+          "Rule": {
+            "Property": "LayoutWidth",
+            "InvariantScript": "640",
+            "RuleProviderType": "Unknown"
+          }
+        }
+      ]
+    }
+  }
+}

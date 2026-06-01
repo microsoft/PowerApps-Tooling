@@ -157,33 +157,34 @@ Obj1:
     // Error on 1st token read
     [TestMethod]
     [DataRow("Foo: 12")] // missing =
-    [DataRow("Foo: |\r\n=12")] // missing = in newline
+    [DataRow("Foo: |\r\n=12", 2)] // missing = in newline
     [DataRow("Foo: =x #comment")] // comments not allowed in single line.
     [DataRow("Foo: |x\n  =next")] // chars on same line after |
     [DataRow("Foo: >\n  =next")] // > multiline not supported
-    [DataRow("Foo: |\nBar: =next")] // empty multiline
+    [DataRow("Foo: |\nBar: =next", 2)] // empty multiline
     [DataRow("'Foo: \n Bar:")] // unclosed \' escape
     [DataRow("---")] // multi docs not supported
-    public void ExpectedError(string expr)
+    public void ExpectedError(string expr, int expectedLine = 1)
     {
         using var sr = new StringReader(expr);
-        using var y = new YamlLexer(sr);
+        using var y = new YamlLexer(sr, "expr.fx.yaml");
 
-        AssertLexError(y);
+        AssertLexError(y, expectedLine, expectedFileName: "expr.fx.yaml");
+
     }
 
     // Error on 2nd token read. 
     [TestMethod]
-    [DataRow("Foo:\r\n  val\r\n")] // Must have escape if there's a newline
-    public void ExpectedError2(string expr)
+    [DataRow("Foo:\r\n  val\r\n", 2)] // Must have escape if there's a newline
+    public void ExpectedError2(string expr, int expectedLine)
     {
         using var sr = new StringReader(expr);
-        using var y = new YamlLexer(sr);
+        using var y = new YamlLexer(sr, "expr.fx.yaml");
 
         var tokenOk = y.ReadNext();
-        Assert.AreNotEqual(YamlTokenKind.Error, tokenOk.Kind);
+        tokenOk.Kind.Should().NotBe(YamlTokenKind.Error);
 
-        AssertLexError(y);
+        AssertLexError(y, expectedLine, expectedFileName: "expr.fx.yaml");
     }
 
     // Yaml ignores duplicate properties. This could lead to data loss!
@@ -200,7 +201,7 @@ P2: =456
 P1: =duplicate!
 ";
         using var sr = new StringReader(text);
-        using var y = new YamlLexer(sr);
+        using var y = new YamlLexer(sr, filenameHint: "testCase.fx.yaml");
 
         AssertLex("P1=123", y);
         AssertLex("Obj1:", y);
@@ -209,7 +210,7 @@ P1: =duplicate!
         AssertLex("p1=Casing Different, not duplicate", y);
         AssertLex("P2=456", y);
 
-        AssertLexError(y);
+        AssertLexError(y, expectedLine: 6, expectedFileName: "testCase.fx.yaml");
     }
 
     [TestMethod]
@@ -377,12 +378,12 @@ Obj1:
  ErrorObj3:
 ";
         using var sr = new StringReader(text);
-        using var y = new YamlLexer(sr);
+        using var y = new YamlLexer(sr, "test.yaml");
 
         AssertLex("P0=1", y);
         AssertLex("Obj1:", y);
         AssertLex("Obj2:", y);
-        AssertLexError(y); // Obj3 is at a bad indent. 
+        AssertLexError(y, expectedLine: 4, expectedFileName: "test.yaml"); // Obj3 is at a bad indent. 
     }
 
     [TestMethod]
@@ -492,51 +493,6 @@ P2: = ""hello"" & ""world""
         Assert.AreEqual(expectedYaml, writer.ToString());
     }
 
-
-    #region Helpers
-    private static void AssertLexEndFile(YamlLexer y)
-    {
-        AssertLex("<EndOfFile>", y);
-    }
-
-    private static void AssertLexEndObj(YamlLexer y)
-    {
-        AssertLex("<EndObj>", y);
-    }
-
-    private static void AssertLexError(YamlLexer y)
-    {
-        var p = y.ReadNext();
-        Assert.AreEqual(YamlTokenKind.Error, p.Kind);
-    }
-
-    private static void AssertLex(string expected, YamlLexer y)
-    {
-        var p = y.ReadNext();
-        Assert.AreEqual(NormNewlines(expected), p.ToString());
-    }
-
-    private static void AssertLex(string expected, YamlLexer y, string sourceSpan)
-    {
-        var p = y.ReadNext();
-        Assert.AreEqual(expected, p.ToString());
-        Assert.AreEqual(sourceSpan, p.Span.ToString());
-    }
-
-    // Parse a single property "Foo" expression with YamlDotNet. 
-    private static string ParseSinglePropertyViaYamlDotNot(string text)
-    {
-        var deserializer = new DeserializerBuilder().Build();
-        var o2 = (Dictionary<object, object>)deserializer.Deserialize(new StringReader(text));
-        var val = (string)o2["Foo"];
-        // Strip the '=' that we add.
-        if (val[0] == '=')
-        {
-            val = val.Substring(1);
-        }
-        return val;
-    }
-
     [TestMethod]
     public void MissingClosingQuoteComponentError()
     {
@@ -624,19 +580,68 @@ P2: = ""hello"" & ""world""
         AssertLexErrorMessage(y, YamlLexer.MissingSingleQuoteProperty);
     }
 
+    #region Helpers
+    private static void AssertLexEndFile(YamlLexer y)
+    {
+        AssertLex("<EndOfFile>", y);
+    }
+
+    private static void AssertLexEndObj(YamlLexer y)
+    {
+        AssertLex("<EndObj>", y);
+    }
+
+    private static void AssertLexError(YamlLexer y, int? expectedLine = null, string expectedFileName = null)
+    {
+        var nextToken = y.ReadNext();
+        nextToken.Kind.Should().Be(YamlTokenKind.Error);
+        if (expectedLine.HasValue)
+        {
+            nextToken.Span.StartLine.Should().Be(expectedLine.Value);
+        }
+        if (expectedFileName != null)
+        {
+            nextToken.Span.FileName.Should().Be(expectedFileName);
+        }
+    }
+
     private static void AssertLexErrorMessage(YamlLexer y, string expectedErrorMessage)
     {
         var p = y.ReadNext();
-        while (p.Kind != YamlTokenKind.EndOfFile)
+        while (p.Kind is not (YamlTokenKind.EndOfFile or YamlTokenKind.Error))
         {
-            if (p.Kind == YamlTokenKind.Error)
-            {
-                Assert.AreEqual(expectedErrorMessage, p.Value);
-                return;
-            }
             p = y.ReadNext();
         }
-        Assert.Fail();
+
+        p.Kind.Should().Be(YamlTokenKind.Error);
+        p.Value.Should().Be(expectedErrorMessage);
+    }
+
+    private static void AssertLex(string expected, YamlLexer y)
+    {
+        var p = y.ReadNext();
+        Assert.AreEqual(NormNewlines(expected), p.ToString());
+    }
+
+    private static void AssertLex(string expected, YamlLexer y, string sourceSpan)
+    {
+        var p = y.ReadNext();
+        Assert.AreEqual(expected, p.ToString());
+        Assert.AreEqual(sourceSpan, p.Span.ToString());
+    }
+
+    // Parse a single property "Foo" expression with YamlDotNet. 
+    private static string ParseSinglePropertyViaYamlDotNot(string text)
+    {
+        var deserializer = new DeserializerBuilder().Build();
+        var o2 = (Dictionary<object, object>)deserializer.Deserialize(new StringReader(text));
+        var val = (string)o2["Foo"];
+        // Strip the '=' that we add.
+        if (val[0] == '=')
+        {
+            val = val.Substring(1);
+        }
+        return val;
     }
 
     #endregion

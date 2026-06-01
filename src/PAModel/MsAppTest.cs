@@ -277,9 +277,9 @@ internal class MsAppTest
         }
     }
 
-    public static Dictionary<string, JsonElement> FlattenJson(byte[] json)
+    public static Dictionary<string, JsonElement> FlattenJson(byte[] json, JsonDocumentOptions options = default)
     {
-        using var document = JsonDocument.Parse(json);
+        using var document = JsonDocument.Parse(json, options);
         return FlattenJson(string.Empty, document.RootElement)
             .ToDictionary(t => t.Path, t => t.Value.Clone());
     }
@@ -324,20 +324,40 @@ internal class MsAppTest
         Debug.Assert(path is not null);
         Debug.Assert(jsonArray.ValueKind == JsonValueKind.Array);
 
-        var isRulesArray = path.StartsWith("TopParent.") && path.EndsWith(".Rules");
+        // For some arrays, it's better to use a named sub-property as the indexer when ordering of the items in the array is not significant.
+        var (namedIndexPropertyName, isOrderSignificant) = path switch
+        {
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".Rules") => ("Property", false),
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".DynamicProperties") => ("PropertyName", false),
+            _ when path.StartsWith("TopParent.") && path.EndsWith(".Children") => ("Name", true),
+            _ => (null, true)
+        };
 
         return jsonArray.EnumerateArray()
             .SelectMany((arrayItem, index) =>
             {
                 var arraySubPath = $"{path}[{index}]";
 
-                // For Rules arrays, use the Property name as the key instead of the index, since order doesn't matter and Property is (likely) unique
-                if (isRulesArray && arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty("Property", out var propertyName))
+                (string Path, JsonElement Value)? namedItemOrderResult = null;
+                if (namedIndexPropertyName != null)
                 {
-                    arraySubPath = $"{path}['{propertyName.GetString()}']";
+                    if (arrayItem.ValueKind == JsonValueKind.Object && arrayItem.TryGetProperty(namedIndexPropertyName, out var namedIndex))
+                    {
+                        if (isOrderSignificant)
+                        {
+                            namedItemOrderResult = (arraySubPath + "." + namedIndexPropertyName, namedIndex);
+                        }
+
+                        arraySubPath = $"{path}['{namedIndex.GetString()}']";
+                    }
                 }
 
-                return FlattenJson(arraySubPath, arrayItem);
+                var flattened = FlattenJson(arraySubPath, arrayItem);
+                if (namedItemOrderResult.HasValue)
+                {
+                    flattened = flattened.Prepend(namedItemOrderResult.Value);
+                }
+                return flattened;
             });
     }
 

@@ -1,0 +1,2 @@
+dynamicPropertiesChanged1.json: Error   PA3013: Property Value Changed: TopParent.Canvas1.DynamicProperties['LayoutY'].Rule.InvariantScript
+1 errors, 0 warnings.

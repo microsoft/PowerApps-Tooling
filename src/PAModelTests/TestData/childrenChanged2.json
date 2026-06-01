@@ -1,0 +1,43 @@
+{
+  "TopParent": {
+    "Screen1": {
+      "Name": "Screen1",
+      "Template": "screen",
+      "Children": [
+        {
+          "Name": "Control2",
+          "Template": "label",
+          "Rules": [
+            {
+              "Property": "Text",
+              "InvariantScript": "\"Label 2\"",
+              "RuleProviderType": "Unknown"
+            }
+          ]
+        },
+        {
+          "Name": "Control1",
+          "Template": "button",
+          "Rules": [
+            {
+              "Property": "Text",
+              "InvariantScript": "\"Button 1 Modified\"",
+              "RuleProviderType": "Unknown"
+            }
+          ]
+        },
+        {
+          "Name": "Control3",
+          "Template": "label",
+          "Rules": [
+            {
+              "Property": "Text",
+              "InvariantScript": "\"Label 3 Modified\"",
+              "RuleProviderType": "Unknown"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
