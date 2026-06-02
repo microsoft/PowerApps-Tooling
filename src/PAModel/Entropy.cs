@@ -95,7 +95,7 @@ internal class Entropy
     public HashSet<string> AppTestsMissingStepsMetadata { get; set; } = new HashSet<string>(StringComparer.Ordinal);
 
     // Key is connection id, value is connection instance id
-    public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> LocalConnectionIDReferences { get; set; } = [];
 
     // Key is test rule, value is test screen id without Screen name
     public Dictionary<string, string> RuleScreenIdWithoutScreen { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -192,8 +192,8 @@ internal class Entropy
     // Removing the 'ContentKind-' gives the resource name
     public static string GetResourceNameFromKey(string key)
     {
-        var prefix = key.Split(new char[] { '-' }).First();
-        return key.Substring(prefix.Length + 1);
+        var prefix = key.Split(['-']).First();
+        return key[(prefix.Length + 1)..];
     }
 
     public void SetHeaderLastSaved(DateTime? x)
@@ -274,7 +274,7 @@ internal class Entropy
 
     public void AddDataTableControlJson(string controlName, string json)
     {
-        DataTableCustomControlTemplateJsons ??= new Dictionary<string, string>();
+        DataTableCustomControlTemplateJsons ??= [];
 
         DataTableCustomControlTemplateJsons.Add(controlName, json);
     }

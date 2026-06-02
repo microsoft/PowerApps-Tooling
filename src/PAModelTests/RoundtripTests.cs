@@ -18,7 +18,7 @@ public class RoundtripTests
             var appsDirectory = new DirectoryInfo("Apps");
             foreach (var file in appsDirectory.EnumerateFiles("*.msapp", SearchOption.AllDirectories))
             {
-                var testAppRelativePath = file.FullName.Substring(Environment.CurrentDirectory.Length + 1);
+                var testAppRelativePath = file.FullName[(Environment.CurrentDirectory.Length + 1)..];
 
                 yield return new object[] { testAppRelativePath };
             }

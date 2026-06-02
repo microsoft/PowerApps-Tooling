@@ -6,27 +6,14 @@ using System.Text;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IR;
 
-internal readonly struct SourceLocation
+/// <summary>
+/// Indices into file are 1-based.
+/// </summary>
+internal readonly record struct SourceLocation(int StartLine, int StartChar, int EndLine, int EndChar, string FileName)
 {
-    public readonly int StartLine;
-    public readonly int StartChar;
-    public readonly int EndLine;
-    public readonly int EndChar;
-    public readonly string FileName;
-
-    // Indices into file are 1-based.
-    public SourceLocation(int startLine, int startChar, int endLine, int endChar, string fileName)
-    {
-        StartLine = startLine;
-        StartChar = startChar;
-        EndLine = endLine;
-        EndChar = endChar;
-        FileName = fileName;
-    }
-
     public static SourceLocation FromFile(string filename)
     {
-        return new SourceLocation(0, 0, 0, 0, filename);
+        return new(0, 0, 0, 0, filename);
     }
 
     public override string ToString()
@@ -83,20 +70,5 @@ internal readonly struct SourceLocation
         }
 
         return new SourceLocation(minLoc.StartLine, minLoc.StartChar, maxLoc.EndLine, maxLoc.EndChar, maxLoc.FileName);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is SourceLocation other &&
-            other.FileName == FileName &&
-            other.StartChar == StartChar &&
-            other.StartLine == StartLine &&
-            other.EndChar == EndChar &&
-            other.EndLine == EndLine;
-    }
-
-    public override int GetHashCode()
-    {
-        return (FileName, StartChar, EndChar, StartLine, EndLine).GetHashCode();
     }
 }

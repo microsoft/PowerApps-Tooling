@@ -12,7 +12,7 @@ internal class TemplateStore
 
     public TemplateStore()
     {
-        Contents = new Dictionary<string, CombinedTemplateState>();
+        Contents = [];
     }
 
     public TemplateStore(TemplateStore other)

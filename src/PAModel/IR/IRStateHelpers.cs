@@ -50,8 +50,8 @@ internal static class IRStateHelpers
                         customProp.PropertyScopeKey.PropertyScopeRulesKey);
 
                 // Skip component property params on instances
-                customPropsToHide = new HashSet<string>(customPropScopeRules
-                           .Select(propertyScopeRule => propertyScopeRule.Name));
+                customPropsToHide = [.. customPropScopeRules
+                           .Select(propertyScopeRule => propertyScopeRule.Name)];
 
                 foreach (var arg in customPropScopeRules)
                 {
@@ -61,7 +61,7 @@ internal static class IRStateHelpers
                     if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                     {
                         var argKey = $"{control.Name}.{arg.Name}";
-                        entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                        entropy.FunctionParamsInvariantScriptsOnInstances.Add(argKey, [arg.ScopeVariableInfo.DefaultRule, invariantScript]);
                     }
                 }
             }
@@ -111,7 +111,7 @@ internal static class IRStateHelpers
                         if (invariantScript != null && invariantScript != arg.ScopeVariableInfo.DefaultRule)
                         {
                             var argKey = $"{control.Name}.{arg.Name}";
-                            entropy.FunctionParamsInvariantScripts.Add(argKey, new string[] { arg.ScopeVariableInfo.DefaultRule, invariantScript });
+                            entropy.FunctionParamsInvariantScripts.Add(argKey, [arg.ScopeVariableInfo.DefaultRule, invariantScript]);
                         }
 
                         arg.ScopeVariableInfo.DefaultRule = null;
@@ -258,7 +258,7 @@ internal static class IRStateHelpers
             Name = control.Name,
             TopParentName = topParentName,
             Properties = propStates,
-            DynamicProperties = dynPropStates.Any() ? dynPropStates : null,
+            DynamicProperties = dynPropStates.Count != 0 ? dynPropStates : null,
             HasDynamicProperties = control.HasDynamicProperties,
             StyleName = control.StyleName,
             IsGroupControl = control.IsGroupControl,
@@ -433,7 +433,7 @@ internal static class IRStateHelpers
                 ControlUniqueId = uniqueId.ToString(),
                 VariantName = variantName ?? string.Empty,
                 Rules = properties.ToArray(),
-                DynamicProperties = (isInResponsiveLayout && dynamicProperties.Any()) ? dynamicProperties.ToArray() : null,
+                DynamicProperties = (isInResponsiveLayout && dynamicProperties.Count != 0) ? dynamicProperties.ToArray() : null,
                 HasDynamicProperties = state.HasDynamicProperties,
                 StyleName = state.StyleName,
                 ExtensionData = state.ExtensionData,
@@ -483,7 +483,7 @@ internal static class IRStateHelpers
                 }
             }
             resultControlInfo.Rules = properties.ToArray();
-            var hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Any();
+            var hasDynamicProperties = isInResponsiveLayout && dynamicProperties.Count != 0;
             resultControlInfo.DynamicProperties = hasDynamicProperties ? dynamicProperties.ToArray() : null;
             resultControlInfo.HasDynamicProperties = hasDynamicProperties;
             resultControlInfo.AllowAccessToGlobals = templateState?.ComponentManifest?.AllowAccessToGlobals;

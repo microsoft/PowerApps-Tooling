@@ -15,11 +15,17 @@ public class FilePath
     public const int MaxNameLength = 50;
     private const string yamlExtension = ".fx.yaml";
     private const string editorStateExtension = ".editorstate.json";
+
     private readonly string[] _pathSegments;
 
     public FilePath(params string[] segments)
     {
-        _pathSegments = segments ?? (new string[] { });
+        _pathSegments = segments ?? [];
+    }
+
+    public FilePath(IEnumerable<string> segments)
+    {
+        _pathSegments = segments?.ToArray() ?? [];
     }
 
     public static bool IsYamlFile(FilePath path)
@@ -52,7 +58,7 @@ public class FilePath
         var path = string.Join("\\", _pathSegments);
 
         // Some paths mistakenly start with DirectorySepChar in the msapp,
-        // We replaced it with `_/` when writing, remove that now. 
+        // We replaced it with `_/` when writing, remove that now.
         if (path.StartsWith(FileEntry.FilenameLeadingUnderscore.ToString()))
         {
             path = path.TrimStart(FileEntry.FilenameLeadingUnderscore);
@@ -75,19 +81,14 @@ public class FilePath
     /// </summary>
     public static string GetResourceRelativePath(ContentKind contentType)
     {
-        switch (contentType)
+        return contentType switch
         {
-            case ContentKind.Image:
-                return @"Assets\Images";
-            case ContentKind.Audio:
-                return @"Assets\Audio";
-            case ContentKind.Video:
-                return @"Assets\Video";
-            case ContentKind.Pdf:
-                return @"Assets\Pdf";
-            default:
-                throw new NotSupportedException("Unrecognized Content Kind for local resource");
-        }
+            ContentKind.Image => @"Assets\Images",
+            ContentKind.Audio => @"Assets\Audio",
+            ContentKind.Video => @"Assets\Video",
+            ContentKind.Pdf => @"Assets\Pdf",
+            _ => throw new NotSupportedException("Unrecognized Content Kind for local resource"),
+        };
     }
 
     /// <summary>
@@ -103,7 +104,7 @@ public class FilePath
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="relativeTo"/> or path is <c>null</c> or an empty string.</exception>
     /// <remarks>
     /// Want to use Path.GetRelativePath() from Net 2.1. But since we target netstandard 2.0, we need to shim it.
-    /// Convert to URIs and make the relative path. 
+    /// Convert to URIs and make the relative path.
     /// see https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
     /// For reference, see Core's impl at: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/IO/Path.cs#L861
     /// </remarks>
@@ -277,7 +278,7 @@ public class FilePath
     private static string TruncateName(string name, int length)
     {
         var removeTrailingCharsLength = name[length - 1] == EscapeChar ? 1 : (name[length - 2] == EscapeChar ? 2 : 0);
-        return name.Substring(0, length - removeTrailingCharsLength);
+        return name[..(length - removeTrailingCharsLength)];
     }
 
     /// <summary>
@@ -299,7 +300,7 @@ public class FilePath
 
     public string ToPlatformPath()
     {
-        return Path.Combine(_pathSegments.Select(EscapeFilename).ToArray());
+        return Path.Combine([.. _pathSegments.Select(EscapeFilename)]);
     }
 
     public static FilePath FromPlatformPath(string path)
@@ -307,7 +308,7 @@ public class FilePath
         if (path == null)
             return new FilePath();
         var segments = path.Split(Path.DirectorySeparatorChar).Select(UnEscapeFilename);
-        return new FilePath(segments.ToArray());
+        return new FilePath(segments);
     }
 
     public static FilePath FromMsAppPath(string path)
@@ -323,21 +324,17 @@ public class FilePath
         if (path == null)
             return new FilePath();
         var segments = path.Split(Path.DirectorySeparatorChar).Select(x => x);
-        return new FilePath(segments.ToArray());
+        return new FilePath(segments);
     }
 
     public static FilePath RootedAt(string root, FilePath remainder)
     {
-        var segments = new List<string>() { root };
-        segments.AddRange(remainder._pathSegments);
-        return new FilePath(segments.ToArray());
+        return new FilePath(remainder._pathSegments.Prepend(root));
     }
 
     public FilePath Append(string segment)
     {
-        var newSegments = new List<string>(_pathSegments);
-        newSegments.Add(segment);
-        return new FilePath(newSegments.ToArray());
+        return new FilePath(_pathSegments.Append(segment));
     }
 
     public bool StartsWith(string root, StringComparison stringComparison)
@@ -402,8 +399,8 @@ public class FilePath
         var suffixCounter = 0;
         var fileName = GetFileName();
         var extension = GetCustomExtension(fileName);
-        var fileNameWithoutExtension = fileName.Substring(0, fileName.Length - extension.Length);
-        var pathWithoutFileName = path.Substring(0, path.Length - fileName.Length);
+        var fileNameWithoutExtension = fileName[..^extension.Length];
+        var pathWithoutFileName = path[..^fileName.Length];
         while (File.Exists(path))
         {
             var filename = fileNameWithoutExtension + '_' + ++suffixCounter + extension;

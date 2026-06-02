@@ -29,10 +29,12 @@ internal class SourceTransformer
         TemplateStore templateStore,
         Entropy entropy)
     {
-        _templateTransforms = new List<IControlTemplateTransform>();
-        _templateTransforms.Add(new GalleryTemplateTransform(defaultValueTemplates, stateStore));
-        _templateTransforms.Add(new AppTestTransform(app, errors, templateStore, stateStore, entropy));
-        _templateTransforms.Add(componentInstanceTransform);
+        _templateTransforms =
+        [
+            new GalleryTemplateTransform(defaultValueTemplates, stateStore),
+            new AppTestTransform(app, errors, templateStore, stateStore, entropy),
+            componentInstanceTransform,
+        ];
 
         _groupControlTransform = new GroupControlTransform(errors, stateStore, entropy);
 

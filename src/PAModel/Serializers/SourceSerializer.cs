@@ -307,12 +307,12 @@ internal static partial class SourceSerializer
 
     private static void LoadTemplateFiles(ErrorContainer errors, CanvasDocument app, string packagesPath, out Dictionary<string, ControlTemplate> loadedTemplates)
     {
-        loadedTemplates = new Dictionary<string, ControlTemplate>();
+        loadedTemplates = [];
         var templateList = new List<TemplatesJson.TemplateJson>();
         foreach (var file in new DirectoryReader(packagesPath).EnumerateFiles(string.Empty, "*.xml", searchSubdirectories: false))
         {
             var xmlContents = file.GetContents();
-            var templateNameFromFile = file._relativeName.Substring(0, file._relativeName.LastIndexOf('_'));
+            var templateNameFromFile = file._relativeName[..file._relativeName.LastIndexOf('_')];
             if (!ControlTemplateParser.TryParseTemplate(new TemplateStore(), xmlContents, app._properties.DocumentAppType, loadedTemplates, out var parsedTemplate, out var templateName, templateNameFromFile))
             {
                 errors.GenericError($"Unable to parse template file {file._relativeName}");
@@ -675,7 +675,7 @@ internal static partial class SourceSerializer
 
     private static void WriteDataSources(DirectoryWriter dir, CanvasDocument app, ErrorContainer errors)
     {
-        var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? new List<string>();
+        var untrackedLdr = app._dataSourceReferences?.Select(x => x.Key)?.ToList() ?? [];
 
         // Data Sources  - write out each individual source.
         var filenames = new HashSet<string>();
@@ -751,7 +751,7 @@ internal static partial class SourceSerializer
                     }
                     if (ds.WadlMetadata.SwaggerJson != null)
                     {
-                        dir.WriteAllJson(SwaggerPackageDir, new FilePath(filename), JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, JsonExtensions._jsonOpts));
+                        dir.WriteAllJson(SwaggerPackageDir, new FilePath(filename), JsonSerializer.Deserialize<SwaggerDefinition>(ds.WadlMetadata.SwaggerJson, JsonExtensions.JsonOpts));
                     }
                     ds.WadlMetadata = null;
                 }
@@ -890,7 +890,7 @@ internal static partial class SourceSerializer
                 // now that we have seen first non null LocalReferenceDSJson
                 // we know for sure that dataSources for the localDatabaseReferenceJson was not null
                 // in that case, no longer assume dataSource to be null
-                localDatabaseReferenceJson.dataSources ??= new Dictionary<string, LocalDatabaseReferenceDataSource>();
+                localDatabaseReferenceJson.dataSources ??= [];
                 localDatabaseReferenceJson.dataSources?.Add(tableDef.EntityName, tableDef.LocalReferenceDSJson);
             }
         }
@@ -926,7 +926,7 @@ internal static partial class SourceSerializer
                     {
                         case "NativeCDSDataSourceInfo":
                             ds.DatasetName = definition.DatasetName;
-                            ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, JsonExtensions._jsonOpts);
+                            ds.TableDefinition = JsonSerializer.Serialize(definition.TableDefinition, JsonExtensions.JsonOpts);
                             break;
                         case "ConnectedDataSourceInfo":
                             ds.DataEntityMetadataJson = definition.DataEntityMetadataJson;
@@ -971,7 +971,7 @@ internal static partial class SourceSerializer
         {
             if (ds.Name.StartsWith(dataSetName))
             {
-                ds.Name = ds.Name.Substring(dataSetName.Length);
+                ds.Name = ds.Name[dataSetName.Length..];
                 ds.TrimmedViewName = true;
             }
         }
@@ -1012,7 +1012,7 @@ internal static partial class SourceSerializer
         {
             foreach (var child in ir.Children)
             {
-                WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(new char[] { '"' }), child, subDir, controlName);
+                WriteTopParent(dir, app, child.Properties.FirstOrDefault(x => x.Identifier == "DisplayName").Expression.Expression.Trim(['"']), child, subDir, controlName);
             }
 
             // Clear the children since they have already been sharded into their individual files.
@@ -1059,7 +1059,7 @@ internal static partial class SourceSerializer
 
         var jsonString = reader.ReadToEnd();
 
-        app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, JsonExtensions._jsonOpts);
+        app._themes = JsonSerializer.Deserialize<ThemesJson>(jsonString, JsonExtensions.JsonOpts);
     }
 
     private static BuildVerJson GetBuildDetails()
@@ -1076,7 +1076,7 @@ internal static partial class SourceSerializer
             using var reader = new StreamReader(stream);
             var jsonString = reader.ReadToEnd();
 
-            return JsonSerializer.Deserialize<BuildVerJson>(jsonString, JsonExtensions._jsonOpts);
+            return JsonSerializer.Deserialize<BuildVerJson>(jsonString, JsonExtensions.JsonOpts);
         }
         catch (Exception)
         {

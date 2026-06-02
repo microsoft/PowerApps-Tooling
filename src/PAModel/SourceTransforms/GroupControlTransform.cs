@@ -34,7 +34,7 @@ internal class GroupControlTransform
     public void AfterRead(BlockNode control)
     {
         var groupControls = GetGroupControlChildren(control);
-        if (!groupControls.Any())
+        if (groupControls.Count == 0)
             return;
 
         var peerControlsDict = control.Children.ToDictionary(peer => peer.Name.Identifier, peer => peer);
@@ -74,7 +74,7 @@ internal class GroupControlTransform
     public void BeforeWrite(BlockNode control)
     {
         var groupControls = GetGroupControlChildren(control);
-        if (!groupControls.Any())
+        if (groupControls.Count == 0)
             return;
 
         foreach (var groupControl in groupControls)
@@ -102,7 +102,7 @@ internal class GroupControlTransform
             {
                 control.Children.Add(child);
             }
-            groupControl.Children = new List<BlockNode>();
+            groupControl.Children = [];
             groupControlState.GroupedControlsKey = groupedControlNames.ToList();
         }
     }

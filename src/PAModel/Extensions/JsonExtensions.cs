@@ -29,35 +29,35 @@ public static class JsonExtensions
         return opts;
     }
 
-    public static JsonSerializerOptions _jsonOpts = GetJsonOptions();
+    internal static JsonSerializerOptions JsonOpts = GetJsonOptions();
 
     // https://stackoverflow.com/questions/58138793/system-text-json-jsonelement-toobject-workaround
 
     public static string JsonSerialize<T>(T obj)
     {
-        return JsonSerializer.Serialize(obj, _jsonOpts);
+        return JsonSerializer.Serialize(obj, JsonOpts);
     }
 
     public static T JsonParse<T>(string json)
     {
-        return JsonSerializer.Deserialize<T>(json, _jsonOpts);
+        return JsonSerializer.Deserialize<T>(json, JsonOpts);
     }
 
 
     public static T ToObject<T>(this JsonElement element)
     {
         var json = element.GetRawText();
-        return JsonSerializer.Deserialize<T>(json, _jsonOpts);
+        return JsonSerializer.Deserialize<T>(json, JsonOpts);
     }
     public static T ToObject<T>(this JsonDocument document)
     {
         var json = document.RootElement.GetRawText();
-        return JsonSerializer.Deserialize<T>(json, _jsonOpts);
+        return JsonSerializer.Deserialize<T>(json, JsonOpts);
     }
 
     public static byte[] ToBytes(this JsonElement e)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(e, _jsonOpts);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(e, JsonOpts);
         return bytes;
     }
 
@@ -65,8 +65,8 @@ public static class JsonExtensions
     // but don't want to mutate the original.
     public static T JsonClone<T>(this T obj)
     {
-        var str = JsonSerializer.Serialize(obj, _jsonOpts);
-        var obj2 = JsonSerializer.Deserialize<T>(str, _jsonOpts);
+        var str = JsonSerializer.Serialize(obj, JsonOpts);
+        var obj2 = JsonSerializer.Deserialize<T>(str, JsonOpts);
         return obj2;
     }
 

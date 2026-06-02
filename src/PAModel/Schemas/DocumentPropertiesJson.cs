@@ -71,7 +71,7 @@ internal class DocumentPropertiesJson
             Author = "",
             FileID = Guid.NewGuid().ToString(),
             Id = Guid.NewGuid().ToString(),
-            ControlCount = new Dictionary<SomeEnum, int>(),
+            ControlCount = [],
             DefaultConnectedDataSourceMaxGetRowsCount = 500,
             DocumentAppType = AppType.DesktopOrTablet,
 
@@ -96,8 +96,8 @@ internal class DocumentPropertiesJson
 
     private static string[] GetAppPreviewFlagDefault()
     {
-        return new string[]
-        {
+        return
+        [
           "delayloadscreens",
           "blockmovingcontrol",
           "projectionmapping",
@@ -116,7 +116,7 @@ internal class DocumentPropertiesJson
           "aibuilderserviceenrollment",
           "enablesummerlandgeospatialfeatures",
           "enablesummerlandmixedrealityfeatures"
-        };
+        ];
     }
 }
 

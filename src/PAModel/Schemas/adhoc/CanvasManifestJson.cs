@@ -21,5 +21,5 @@ internal class CanvasManifestJson
     // Logo file
     // $$$ Other files?
     public PublishInfoJson PublishInfo { get; set; }
-    public List<string> ScreenOrder { get; set; } = new List<string>();
+    public List<string> ScreenOrder { get; set; } = [];
 }

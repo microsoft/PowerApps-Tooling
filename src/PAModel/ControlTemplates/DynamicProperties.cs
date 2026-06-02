@@ -21,8 +21,8 @@ internal static class DynamicProperties
     }
 
 
-    private static readonly HashSet<string> _supportsNestedControls = new()
-    {
+    private static readonly HashSet<string> _supportsNestedControls =
+    [
         "dataCard",
         "dataGrid",
         "dataTable",
@@ -38,7 +38,7 @@ internal static class DynamicProperties
         "layoutContainer",
         "pcfDataField",
         "typedDataCard",
-    };
+    ];
 
     private static readonly IReadOnlyDictionary<string, Func<string, DefaultRuleHelper, string>>
         PropertyDefaultScriptGetters = new Dictionary<string, Func<string, DefaultRuleHelper, string>>() {

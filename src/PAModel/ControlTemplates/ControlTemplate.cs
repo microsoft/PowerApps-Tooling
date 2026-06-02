@@ -20,7 +20,7 @@ internal sealed class ControlTemplate
         Name = name;
         Version = version;
         Id = id;
-        InputDefaults = new Dictionary<string, string>();
-        VariantDefaultValues = new Dictionary<string, Dictionary<string, string>>();
+        InputDefaults = [];
+        VariantDefaultValues = [];
     }
 }

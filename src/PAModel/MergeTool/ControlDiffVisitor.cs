@@ -19,14 +19,14 @@ internal class ControlDiffVisitor : DefaultVisitor<ControlDiffContext>
     public static IEnumerable<IDelta> GetControlDelta(BlockNode ours, BlockNode parent, EditorStateStore childStateStore, TemplateStore parentTemplateStore, TemplateStore childTemplateStore, bool isInComponent)
     {
         var visitor = new ControlDiffVisitor(childStateStore, parentTemplateStore, childTemplateStore);
-        visitor.Visit(ours, new ControlDiffContext(new ControlPath(new List<string>()), parent, isInComponent));
+        visitor.Visit(ours, new ControlDiffContext(new ControlPath([]), parent, isInComponent));
 
         return visitor._deltas;
     }
 
     private ControlDiffVisitor(EditorStateStore childStateStore, TemplateStore parentTemplateStore, TemplateStore childTemplateStore)
     {
-        _deltas = new List<IDelta>();
+        _deltas = [];
         _childStateStore = childStateStore;
         _parentTemplateStore = parentTemplateStore;
         _childTemplateStore = childTemplateStore;
