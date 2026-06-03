@@ -25,7 +25,7 @@ public class ChecksumMaker
     public const string ChecksumName = "checksum.json";
 
     // Track a checksum per file and then merge into a single one at the end.
-    private readonly Dictionary<string, byte[]> _files = new();
+    private readonly Dictionary<string, byte[]> _files = [];
 
     public static (string wholeChecksum, Dictionary<string, string> perFileChecksum) GetChecksum(string fullpathToMsApp)
     {
@@ -80,8 +80,8 @@ public class ChecksumMaker
     }
 
     // These paths are json double-encoded and need a different comparer.
-    private static readonly HashSet<string> _jsonDouble = new()
-    {
+    private static readonly HashSet<string> _jsonDouble =
+    [
         "LocalConnectionReferences",
         "LocalDatabaseReferences",
         "LibraryDependencies",
@@ -95,21 +95,21 @@ public class ChecksumMaker
         "Template\\DynamicControlDefinitionJson\\Properties",
         "Template\\DynamicControlDefinitionJson\\Resources",
         "Template\\DynamicControlDefinitionJson\\SubscribedFunctionalities",
-    };
+    ];
 
     // These paths are xml double-encoded and need a different comparer.
-    private static readonly HashSet<string> _xmlDouble = new()
-    {
+    private static readonly HashSet<string> _xmlDouble =
+    [
         "UsedTemplates\\Template",
         "DataSources\\WadlMetadata\\WadlXml",
-    };
+    ];
 
     // Helper for identifying which paths are double encoded.
     // All of these should be resolved and fixed by the server.
     private class Context
     {
         public string Filename;
-        public Stack<string> s = new();
+        public Stack<string> s = [];
 
         public void Push(string path)
         {
@@ -187,7 +187,7 @@ public class ChecksumMaker
     internal static int GetChecksumVersion(string checksum)
     {
         var version = checksum.Split('_').First();
-        return int.Parse(version.Substring(1));
+        return int.Parse(version[1..]);
     }
 
     /// <summary>

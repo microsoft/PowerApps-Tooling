@@ -2,10 +2,14 @@
   <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
   <PropertyGroup>
     <TargetFrameworks>net48;net8.0;net10.0</TargetFrameworks>
-    <LangVersion Condition="'$(TargetFramework)' == 'net48'">10.0</LangVersion>
+    <LangVersion>13</LangVersion>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="PolySharp" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />

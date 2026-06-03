@@ -37,11 +37,11 @@ internal class Sha256HashMaker : IHashMaker, IDisposable
     private static readonly byte[] _endObj = "}"u8.ToArray();
     private static readonly byte[] _startArray = "["u8.ToArray();
     private static readonly byte[] _endArray = "]"u8.ToArray();
-    private static readonly byte[] _null = new byte[] { 254 };
-    private static readonly byte[] _true = new byte[] { 1 };
-    private static readonly byte[] _false = new byte[] { 0 };
+    private static readonly byte[] _null = [254];
+    private static readonly byte[] _true = [1];
+    private static readonly byte[] _false = [0];
 
-    private static readonly byte[] _marker = new byte[] { 255 };
+    private static readonly byte[] _marker = [255];
 
     public Sha256HashMaker()
     {

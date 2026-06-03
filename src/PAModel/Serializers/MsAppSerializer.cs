@@ -122,7 +122,7 @@ internal static class MsAppSerializer
                         break;
 
                     case FileKind.Asset:
-                        app.AddAssetFile(FileEntry.FromZip(entry, name: fullName.Substring("Assets\\".Length)));
+                        app.AddAssetFile(FileEntry.FromZip(entry, name: fullName["Assets\\".Length..]));
                         break;
 
                     case FileKind.Checksum:
@@ -675,7 +675,7 @@ internal static class MsAppSerializer
 
 
         var idRestorer = new UniqueIdRestorer(app._entropy);
-        var maxPublishOrderIndex = app._entropy.PublishOrderIndices.Any() ? app._entropy.PublishOrderIndices.Values.Max() : 0;
+        var maxPublishOrderIndex = app._entropy.PublishOrderIndices.Count != 0 ? app._entropy.PublishOrderIndices.Values.Max() : 0;
         // Rehydrate sources before yielding any to be written, processing component definitions first
         foreach (var controlData in app._screens.Concat(app._components)
             .OrderBy(source =>
@@ -724,7 +724,7 @@ internal static class MsAppSerializer
             }
         }
 
-        RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? new Dictionary<string, double>(), sourceFiles);
+        RepairComponentInstanceIndex(app._entropy?.ComponentIndexes ?? [], sourceFiles);
 
 
         // This ordering is essential, we need to match the order in which Studio writes the files to replicate certain order-dependent behavior.
@@ -746,7 +746,7 @@ internal static class MsAppSerializer
         var pcfTemplates = app._templates.PcfTemplates ?? Array.Empty<PcfTemplateJson>();
         app._templates = new TemplatesJson()
         {
-            ComponentTemplates = componentTemplates.Any() ? componentTemplates.OrderBy(app._entropy.GetComponentOrder).ToArray() : null,
+            ComponentTemplates = componentTemplates.Count != 0 ? componentTemplates.OrderBy(app._entropy.GetComponentOrder).ToArray() : null,
             UsedTemplates = app._templates.UsedTemplates.OrderBy(app._entropy.GetOrder).ToArray(),
             PcfTemplates = pcfTemplates.Any() ? pcfTemplates.OrderBy(app._entropy.GetPcfVersioning).ToArray() : null
         };
@@ -921,7 +921,7 @@ internal static class MsAppSerializer
         }
         else
         {
-            var jsonStr = JsonSerializer.Serialize(value, JsonExtensions._jsonOpts);
+            var jsonStr = JsonSerializer.Serialize(value, JsonExtensions.JsonOpts);
 
             output = JsonNormalizer.Normalize(jsonStr);
         }

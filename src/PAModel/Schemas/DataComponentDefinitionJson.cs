@@ -88,8 +88,10 @@ internal class ComponentDefinitionInfoJson
         // Once ControlPropertyState has an actual schema, this can be cleaned up.
         if (item.ExtensionData.ContainsKey("ControlPropertyState"))
         {
-            ExtensionData = new Dictionary<string, object>();
-            ExtensionData["ControlPropertyState"] = item.ExtensionData["ControlPropertyState"];
+            ExtensionData = new Dictionary<string, object>
+            {
+                ["ControlPropertyState"] = item.ExtensionData["ControlPropertyState"]
+            };
         }
     }
 }

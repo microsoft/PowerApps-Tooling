@@ -23,9 +23,9 @@ internal abstract class IRNode
 internal class BlockNode : IRNode, ICloneable<BlockNode>, IEquatable<BlockNode>
 {
     public TypedNameNode Name;
-    public IList<PropertyNode> Properties = new List<PropertyNode>();
-    public IList<FunctionNode> Functions = new List<FunctionNode>();
-    public IList<BlockNode> Children = new List<BlockNode>();
+    public IList<PropertyNode> Properties = [];
+    public IList<FunctionNode> Functions = [];
+    public IList<BlockNode> Children = [];
 
     public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
     {
@@ -196,8 +196,8 @@ internal class PropertyNode : IRNode, ICloneable<PropertyNode>, IEquatable<Prope
 internal class FunctionNode : IRNode, ICloneable<FunctionNode>, IEquatable<FunctionNode>
 {
     public string Identifier;
-    public IList<TypedNameNode> Args = new List<TypedNameNode>();
-    public IList<ArgMetadataBlockNode> Metadata = new List<ArgMetadataBlockNode>();
+    public IList<TypedNameNode> Args = [];
+    public IList<ArgMetadataBlockNode> Metadata = [];
 
     public override void Accept<Context>(IRNodeVisitor<Context> visitor, Context context)
     {

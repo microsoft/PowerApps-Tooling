@@ -58,8 +58,8 @@ internal class DefaultValuesTransform
         if (_controlStore.TryGetControlState(controlName, out var controlState) && controlState.Properties != null)
         {
             styleName = controlState.StyleName;
-            propNames = new HashSet<string>(controlState.Properties.Select(state => state.PropertyName)
-                .Concat(controlState.DynamicProperties?.Where(state => state.Property != null).Select(state => state.PropertyName) ?? Enumerable.Empty<string>()));
+            propNames = [.. controlState.Properties.Select(state => state.PropertyName)
+                .Concat(controlState.DynamicProperties?.Where(state => state.Property != null).Select(state => state.PropertyName) ?? Enumerable.Empty<string>())];
         }
 
         if (!_templateStore.TryGetValue(templateName, out var template))

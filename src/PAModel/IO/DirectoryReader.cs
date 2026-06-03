@@ -64,7 +64,7 @@ internal class DirectoryReader
             else
             {
                 var str = File.ReadAllText(_fullpath);
-                return JsonSerializer.Deserialize<T>(str, JsonExtensions._jsonOpts);
+                return JsonSerializer.Deserialize<T>(str, JsonExtensions.JsonOpts);
             }
         }
 
@@ -81,7 +81,7 @@ internal class DirectoryReader
 
         if (!Directory.Exists(root))
         {
-            return new Entry[0];
+            return [];
         }
 
         var fullPaths = Directory.EnumerateFiles(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -104,7 +104,7 @@ internal class DirectoryReader
 
         if (!Directory.Exists(root))
         {
-            return new DirectoryReader[0];
+            return [];
         }
 
         var fullPaths = Directory.EnumerateDirectories(root, pattern, searchSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);

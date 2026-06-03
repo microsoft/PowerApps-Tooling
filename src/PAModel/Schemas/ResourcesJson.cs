@@ -66,7 +66,7 @@ internal class ResourceJson
 
     public FilePath GetPath()
     {
-        var resourceName = Path.Substring("Assets\\".Length);
+        var resourceName = Path["Assets\\".Length..];
         var path = FilePath.FromMsAppPath(resourceName);
         return path;
     }

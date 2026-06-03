@@ -16,7 +16,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 /// </summary>
 internal class YamlLexer : IDisposable
 {
-    private const string NewLine = "\n";
+    private const char NewLine = '\n';
 
     // The actual contents to read.
     private readonly TextReader _reader;
@@ -49,13 +49,12 @@ internal class YamlLexer : IDisposable
 
         // We pretend the file is wrapped in a "object:" tag.
         _lastPair = YamlToken.NewStartObj(SourceLocation.FromFile(_currentFileName), null);
-        _currentIndent =
-        [
+        _currentIndent = new([
             new() {
                 LineStart = 0,
                 OldIndentLevel = -1,
             }
-        ];
+        ]);
     }
 
     /// <summary>
@@ -264,7 +263,7 @@ internal class YamlLexer : IDisposable
         line.MaybeEat(':'); // skip colon.
 
         // Prop name could have spaces, but no colons.
-        var propName = line._line.Substring(indentLen, line._idx - indentLen - 1).Trim();
+        var propName = line.Line.Substring(indentLen, line._idx - indentLen - 1).Trim();
 
         if (requiresClosingDoubleQuote)
         {
@@ -321,7 +320,7 @@ internal class YamlLexer : IDisposable
             // Single line. Property doesn't include \n at end.
             value = line.RestOfLine;
 
-            if (value.IndexOf('#') >= 0)
+            if (value.Contains('#'))
             {
                 return UnsupportedComment(line);
             }
@@ -392,7 +391,7 @@ internal class YamlLexer : IDisposable
                 return Unsupported(line, "Property value must start with an '='");
             }
 
-            value = value.Substring(1); // move past '='
+            value = value[1..]; // move past '='
         }
         else if (Options.HasFlag(YamlLexerOptions.EnforceLeadingEquals))
         {
@@ -406,7 +405,7 @@ internal class YamlLexer : IDisposable
             MoveNextLine();
         }
 
-        var endIndex = line._line.Length + 1;
+        var endIndex = line.Line.Length + 1;
         return YamlToken.NewProperty(LocWorker(startColumn, endIndex), propName, value);
     }
 
@@ -419,7 +418,7 @@ internal class YamlLexer : IDisposable
 
     private YamlToken UnsupportedSingleQuote(LineParser line, bool isComponent)
     {
-        var lineSplit = line._line.ToString().ToLower().Split(new string[] { " as " }, StringSplitOptions.None);
+        var lineSplit = line.Line.ToLower().Split(" as ", StringSplitOptions.None);
 
         if (lineSplit.Length > 2)
         {
@@ -543,46 +542,19 @@ internal class YamlLexer : IDisposable
     // Helper for reading through a single line.
     // This treats EOL as (char) 0.
     [DebuggerDisplay("{DebuggerToString()}")]
-    private class LineParser
+    private class LineParser(string line)
     {
         // 0-based character index into line
         public int _idx;
 
-        public readonly string _line;
-
-        public LineParser(string line)
-        {
-            _line = line;
-        }
+        public readonly string Line = line;
 
         // Helper to handle eol.
-        public char Current
-        {
-            get
-            {
-                if (_idx >= _line.Length) { return (char)0; }
-                return _line[_idx];
-            }
-        }
-        public char Previous
-        {
-            get
-            {
-                if (_idx - 1 >= _line.Length || _idx - 1 < 0) { return (char)0; }
-                return _line[_idx - 1];
-            }
-        }
+        public char Current => _idx >= Line.Length ? (char)0 : Line[_idx];
 
+        public char Previous => _idx - 1 >= Line.Length || _idx - 1 < 0 ? (char)0 : Line[_idx - 1];
 
-        public string RestOfLine
-        {
-            get
-            {
-                if (_idx >= _line.Length) return string.Empty;
-                return _line.Substring(_idx);
-            }
-        }
-
+        public string RestOfLine => _idx >= Line.Length ? string.Empty : Line[_idx..];
 
         public bool MaybeEat(char ch)
         {
@@ -605,8 +577,8 @@ internal class YamlLexer : IDisposable
         // Show '|' at _idx position
         private string DebuggerToString()
         {
-            var idx = Math.Min(_line.Length, _idx);
-            return _line.Substring(0, idx) + "¤" + _line.Substring(idx);
+            var idx = Math.Min(Line.Length, _idx);
+            return $"{Line[..idx]}¤{Line[idx..]}";
         }
     }
 

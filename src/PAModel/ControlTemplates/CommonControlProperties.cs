@@ -10,7 +10,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates;
 internal class CommonControlProperties
 {
     // Key is property name
-    private readonly Dictionary<string, ControlProperty> _properties = new();
+    private readonly Dictionary<string, ControlProperty> _properties = [];
 
     private const string FileName = "Microsoft.PowerPlatform.Formulas.Tools.ControlTemplates.commonStyleProperties.xml";
     private static CommonControlProperties _instance;

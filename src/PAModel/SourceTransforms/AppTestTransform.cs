@@ -241,6 +241,6 @@ internal class AppTestTransform : IControlTemplateTransform
                 Identifier = _metadataPropName
             });
         }
-        control.Children = new List<BlockNode>();
+        control.Children = [];
     }
 }

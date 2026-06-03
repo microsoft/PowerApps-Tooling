@@ -68,7 +68,7 @@ public class DirectoryWriter
         }
         else
         {
-            var text = JsonSerializer.Serialize(obj, JsonExtensions._jsonOpts);
+            var text = JsonSerializer.Serialize(obj, JsonExtensions.JsonOpts);
             text = JsonNormalizer.Normalize(text);
             WriteAllText(subdir, filename, text);
         }
@@ -77,7 +77,7 @@ public class DirectoryWriter
     // Use this if the filename is already escaped.
     public void WriteAllJson<T>(string subdir, string filename, T obj)
     {
-        var text = JsonSerializer.Serialize(obj, JsonExtensions._jsonOpts);
+        var text = JsonSerializer.Serialize(obj, JsonExtensions.JsonOpts);
         text = JsonNormalizer.Normalize(text);
         WriteAllText(subdir, filename, text);
     }

@@ -33,7 +33,7 @@ public class CanvasDocument
 
     // Track all unknown "files". Ensures round-tripping isn't lossy.
     // Only contains files of FileKind.Unknown
-    internal Dictionary<FilePath, FileEntry> _unknownFiles = new();
+    internal Dictionary<FilePath, FileEntry> _unknownFiles = [];
 
     // Key is Top Parent Control Name for both _screens and _components
     internal Dictionary<string, BlockNode> _screens = new(StringComparer.Ordinal);
@@ -47,7 +47,7 @@ public class CanvasDocument
     // Also includes entries for DataSources made from a DataComponent
     // Key is parent entity name (datasource name for non cds data sources)
     internal Dictionary<string, List<DataSourceEntry>> _dataSources = new(StringComparer.Ordinal);
-    internal List<string> _screenOrder = new();
+    internal List<string> _screenOrder = [];
 
     internal HeaderJson _header;
     internal DocumentPropertiesJson _properties;
@@ -88,7 +88,7 @@ public class CanvasDocument
     internal ChecksumJson _checksum;
 
     // Track all asset files, key is file name
-    internal Dictionary<FilePath, FileEntry> _assetFiles = new();
+    internal Dictionary<FilePath, FileEntry> _assetFiles = [];
 
     internal UniqueIdRestorer _idRestorer;
 
@@ -96,7 +96,7 @@ public class CanvasDocument
     // This dictionary stores the metadata information for that file - like OriginalName, NewFileName, Path...
     // Key is a (case-insensitive) new fileName of the resource.
     // Reason for using FileName of the resource as the key is to avoid name collision across different types eg. Images/close.png, Videos/close.mp4.
-    internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = new();
+    internal Dictionary<string, LocalAssetInfoJson> _localAssetInfoJson = [];
     internal static string AssetFilePathPrefix = @"Assets\";
 
     #region Save/Load
@@ -123,11 +123,9 @@ public class CanvasDocument
             return (null, errors);
         }
 
-        using (var stream = new FileStream(fullPathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
-            var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors);
-            return (doc, errors);
-        }
+        using var stream = new FileStream(fullPathToMsApp, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var doc = Wrapper(() => MsAppSerializer.Load(stream, errors), errors);
+        return (doc, errors);
     }
 
     public static (CanvasDocument, ErrorContainer) LoadFromMsapp(Stream streamToMsapp)
@@ -287,7 +285,7 @@ public class CanvasDocument
         _templateStore = new TemplateStore(other._templateStore);
 
         _dataSources = other._dataSources.JsonClone();
-        _screenOrder = new List<string>(other._screenOrder);
+        _screenOrder = [.. other._screenOrder];
 
         _header = other._header.JsonClone();
         _properties = other._properties.JsonClone();
@@ -323,7 +321,7 @@ public class CanvasDocument
         var key = ds.RelatedEntityName ?? ds.Name;
         if (!_dataSources.TryGetValue(key, out var list))
         {
-            list = new List<DataSourceEntry>();
+            list = [];
             _dataSources.Add(key, list);
         }
 
@@ -486,14 +484,17 @@ public class CanvasDocument
         }
 
         // Integrity checks.
-        foreach (var kv in _connections.NullOk())
+        if (_connections is not null)
         {
-            var connection = kv.Value;
-
-            if (kv.Key != connection.id)
+            foreach (var kv in _connections)
             {
-                errors.FormatNotSupported($"Document consistency error. Connection id mismatch");
-                throw new DocumentException();
+                var connection = kv.Value;
+
+                if (kv.Key != connection.id)
+                {
+                    errors.FormatNotSupported($"Document consistency error. Connection id mismatch");
+                    throw new DocumentException();
+                }
             }
         }
     }
@@ -514,7 +515,7 @@ public class CanvasDocument
 
     private static FilePath GetAssetFilePathWithoutPrefix(string path)
     {
-        return FilePath.FromMsAppPath(path.Substring(AssetFilePathPrefix.Length));
+        return FilePath.FromMsAppPath(path[AssetFilePathPrefix.Length..]);
     }
 
     internal void StabilizeAssetFilePaths(ErrorContainer errors)
@@ -676,16 +677,11 @@ public class CanvasDocument
     }
 
     // Helper for traversing and ensuring unique control names.
-    internal class UniqueControlNameVisitor
+    internal class UniqueControlNameVisitor(ErrorContainer errors)
     {
+        private readonly ErrorContainer _errors = errors;
         // Control names are case sensitive.
         private readonly Dictionary<string, SourceLocation?> _names = new(StringComparer.Ordinal);
-        private readonly ErrorContainer _errors;
-
-        public UniqueControlNameVisitor(ErrorContainer errors)
-        {
-            _errors = errors;
-        }
 
         public void Visit(BlockNode node)
         {

@@ -10,6 +10,11 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.TfmExtensions;
 public static class StringTfmExtensions
 {
 #if NETFRAMEWORK
+    public static bool Contains(this string source, char value)
+    {
+        return source.Contains(value.ToString());
+    }
+
     public static string Replace(this string source, string oldValue, string? newValue, StringComparison comparisonType)
     {
         // For now, looks like NetFx only supports the Ordinal comparison for Replace
@@ -25,6 +30,11 @@ public static class StringTfmExtensions
     public static bool EndsWith(this string source, char value)
     {
         return source.Length > 0 && source[^1] == value;
+    }
+
+    public static string[] Split(this string source, string? separator, StringSplitOptions options = StringSplitOptions.None)
+    {
+        return source.Split([separator], options);
     }
 #endif
 

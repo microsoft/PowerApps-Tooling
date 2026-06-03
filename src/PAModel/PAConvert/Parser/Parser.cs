@@ -55,7 +55,7 @@ internal class Parser : IDisposable
             return false;
         ctrlName = parsedIdent;
 
-        line = line.Substring(length);
+        line = line[length..];
         if (!line.StartsWith(" "))
             return false;
         line = line.TrimStart();
@@ -63,7 +63,7 @@ internal class Parser : IDisposable
         if (!line.StartsWith("As "))
             return false;
 
-        line = line.Substring(2).TrimStart();
+        line = line[2..].TrimStart();
 
         if (!TryParseIdent(line, out parsedIdent, out length))
             return false;
@@ -73,10 +73,10 @@ internal class Parser : IDisposable
         if (length == line.Length)
             return true;
 
-        line = line.Substring(length);
+        line = line[length..];
         if (!line.StartsWith("."))
             return false;
-        line = line.Substring(1);
+        line = line[1..];
 
         if (!TryParseIdent(line, out parsedIdent, out length))
             return false;
@@ -258,7 +258,7 @@ internal class Parser : IDisposable
         var funcName = m.Groups[1].Value;
         var functionNode = new FunctionNode() { Identifier = funcName };
 
-        line = line.Substring(m.Length);
+        line = line[m.Length..];
 
         m = paramRegex.Match(line);
         while (m.Success)
@@ -275,7 +275,7 @@ internal class Parser : IDisposable
                 }
             });
 
-            line = line.Substring(m.Length).TrimStart(',', ' ');
+            line = line[m.Length..].TrimStart(',', ' ');
             m = paramRegex.Match(line);
         }
 
@@ -343,7 +343,7 @@ internal class Parser : IDisposable
     {
         if (!TryParseIdent(line, out _, out var length))
             return false;
-        line = line.Substring(length).TrimStart();
+        line = line[length..].TrimStart();
         return line.StartsWith("As");
     }
 

@@ -65,8 +65,8 @@ internal class GalleryTemplateTransform : IControlTemplateTransform
                     TypeName = _childTemplateName
                 }
             },
-            Children = new List<BlockNode>(),
-            Functions = new List<FunctionNode>(),
+            Children = [],
+            Functions = [],
             Properties = childRules
         };
 

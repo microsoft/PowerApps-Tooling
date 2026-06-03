@@ -639,7 +639,7 @@ P2: = ""hello"" & ""world""
         // Strip the '=' that we add.
         if (val[0] == '=')
         {
-            val = val.Substring(1);
+            val = val[1..];
         }
         return val;
     }

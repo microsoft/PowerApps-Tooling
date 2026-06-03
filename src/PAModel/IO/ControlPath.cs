@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
@@ -10,17 +11,19 @@ namespace Microsoft.PowerPlatform.Formulas.Tools.IO;
 /// Each segment is a control name
 /// </summary>
 [DebuggerDisplay("{string.Join('.', _segments)}")]
-internal class ControlPath
+internal class ControlPath(IEnumerable<string> segments)
 {
+    public static ControlPath Empty => new([]);
+
     // switch this to be a queue?
-    private readonly List<string> _segments;
-    public string Current => _segments.Any() ? _segments[0] : null;
-    public static ControlPath Empty => new(new List<string>());
+    private readonly ImmutableArray<string> _segments = [.. segments];
+
+    public string Current => _segments.Length != 0 ? _segments[0] : null;
 
     public ControlPath Next()
     {
         var newSegments = new List<string>();
-        for (var i = 1; i < _segments.Count; ++i)
+        for (var i = 1; i < _segments.Length; ++i)
         {
             newSegments.Add(_segments[i]);
         }
@@ -36,11 +39,6 @@ internal class ControlPath
         return new ControlPath(newPath);
     }
 
-    public ControlPath(List<string> segments)
-    {
-        _segments = segments;
-    }
-
     public static bool operator ==(ControlPath left, ControlPath right)
     {
         return left?.Equals(right) ?? right is null;
@@ -54,7 +52,7 @@ internal class ControlPath
     public override bool Equals(object obj)
     {
         return obj is ControlPath other &&
-            other._segments.Count == _segments.Count &&
+            other._segments.Length == _segments.Length &&
             _segments.SequenceEqual(other._segments);
     }
 

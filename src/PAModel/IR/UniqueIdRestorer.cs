@@ -15,7 +15,7 @@ internal class UniqueIdRestorer
     {
         _controlUniqueIds = entropy.ControlUniqueIds;
         _controlUniqueGuids = entropy.ControlUniqueGuids;
-        _nextId = (_controlUniqueIds.Any() ? Math.Max(2, _controlUniqueIds.Values.Max()) : 2) + 1;
+        _nextId = (_controlUniqueIds.Count != 0 ? Math.Max(2, _controlUniqueIds.Values.Max()) : 2) + 1;
     }
 
     public string GetControlId(string controlName)

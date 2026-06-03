@@ -14,7 +14,7 @@ namespace Microsoft.PowerPlatform.Formulas.Tools;
 /// </summary>
 public class ErrorContainer : IEnumerable<Error>
 {
-    private readonly List<Error> _errors = new();
+    private readonly List<Error> _errors = [];
 
     internal void AddError(ErrorCode code, SourceLocation span, string errorMessage)
     {

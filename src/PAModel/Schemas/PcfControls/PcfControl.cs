@@ -95,7 +95,7 @@ internal class PcfControl
         _dynamicControlDefinition.SubscribedFunctionalities = control.SubscribedFunctionalities != null ? JsonSerializer.Serialize(control.SubscribedFunctionalities, jsonOptions) : null;
         _dynamicControlDefinition.AuthConfigProperties = control.AuthConfigProperties != null ? JsonSerializer.Serialize(control.AuthConfigProperties, jsonOptions) : null;
         _dynamicControlDefinition.DataConnectors = control.DataConnectors != null ? JsonSerializer.Serialize(control.DataConnectors, jsonOptions) : null;
-        _dynamicControlDefinition.ExtensionData = control.ExtensionData ?? new Dictionary<string, object>();
+        _dynamicControlDefinition.ExtensionData = control.ExtensionData ?? [];
 
         return JsonExtensions.JsonSerialize(_dynamicControlDefinition);
     }

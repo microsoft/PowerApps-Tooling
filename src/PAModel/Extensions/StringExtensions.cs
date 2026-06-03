@@ -9,7 +9,7 @@ public static class StringExtensions
 {
     public static string UnEscapePAString(this string text)
     {
-        return text.Substring(1, text.Length - 2).Replace("\"\"", "\"");
+        return text[1..^1].Replace("\"\"", "\"");
     }
 
     public static string EscapePAString(this string text)
@@ -19,11 +19,8 @@ public static class StringExtensions
 
     public static string FirstCharToUpper(this string input)
     {
-        return input switch
-        {
-            null => throw new ArgumentNullException(nameof(input)),
-            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
-            _ => input.First().ToString().ToUpper() + input.Substring(1)
-        };
+        ThrowIfNullOrEmpty(input);
+
+        return $"{char.ToUpper(input[0])}{input[1..]}";
     }
 }
