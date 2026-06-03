@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34407.89
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11806.211 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PASopa", "PASopa\PASopa.csproj", "{C707D2F5-55B6-4EEC-9C7C-35DD5F0E3FEA}"
 EndProject
@@ -27,10 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7361DB16-D53
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.PowerPlatform.PowerApps.YamlValidator", "YamlValidator\Microsoft.PowerPlatform.PowerApps.YamlValidator.csproj", "{296D952B-C284-4AAB-9A79-59538CA7BF38}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlValidator.Tests", "YamlValidator.Tests\YamlValidator.Tests.csproj", "{E6180C81-59C1-4B25-90E0-E4390D455518}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,14 +58,6 @@ Global
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{296D952B-C284-4AAB-9A79-59538CA7BF38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{296D952B-C284-4AAB-9A79-59538CA7BF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{296D952B-C284-4AAB-9A79-59538CA7BF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{296D952B-C284-4AAB-9A79-59538CA7BF38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6180C81-59C1-4B25-90E0-E4390D455518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6180C81-59C1-4B25-90E0-E4390D455518}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6180C81-59C1-4B25-90E0-E4390D455518}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6180C81-59C1-4B25-90E0-E4390D455518}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,7 +66,6 @@ Global
 		{8AD94CC0-7330-4880-A8E0-177B37CDB27B} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 		{8AB1C901-FE5E-44BF-AA21-B8F20A9D7CDD} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 		{7361DB16-D534-4E0E-8597-BE22317DEF47} = {794D8C68-BF6F-49C8-BCA5-AA52D8F45EF4}
-		{E6180C81-59C1-4B25-90E0-E4390D455518} = {4993E606-484B-46D9-892E-7AE9CE8D4423}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C936F8B1-DE7A-4401-95D5-5E199210F960}

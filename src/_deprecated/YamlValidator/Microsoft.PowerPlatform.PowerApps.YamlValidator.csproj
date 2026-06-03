@@ -21,11 +21,12 @@
     <PackageReference Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
 
-  <!-- Link schemas and build them into the assembly for the YamlValidator -->
+  <!-- Link schemas and build them into the assembly for the YamlValidator 
+   TODO: These schemas no longer exist in the repo, as they were only used for the old PaYamlV2 format. Need to update to PaYamlV3 schemas.
   <ItemGroup>
     <EmbeddedResource Include="..\..\docs\**\*.json">
         <Link>schema\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>
