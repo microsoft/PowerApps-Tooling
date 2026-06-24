@@ -16,14 +16,6 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.PaYaml.Models.SchemaV3;
 /// </remarks>
 public record ControlStyleDefinition
 {
-    public ControlStyleDefinition() { }
-
-    [SetsRequiredMembers]
-    public ControlStyleDefinition(string controlType)
-    {
-        ControlType = controlType ?? throw new ArgumentNullException(nameof(controlType));
-    }
-
     /// <summary>
     /// The target control type that this style applies to (e.g. "Button"). Matches <see cref="ControlInstance.ControlType"/>.
     /// </summary>
