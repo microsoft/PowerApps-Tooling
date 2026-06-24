@@ -29,6 +29,47 @@ public class PaYamlSerializerTests : VSTestBase
         paModule.App.Properties.Should().ContainName("Bar").WhoseNamedObject.Start.Should().Be(new(4, 9));
     }
 
+    [TestMethod]
+    public void DeserializeControlStyles()
+    {
+        var paModule = PaYamlSerializer.Deserialize<PaModule>("""
+            ControlStyles:
+              PrimaryButton:
+                Control: Button
+                Properties:
+                  Fill: =Color.Blue
+              Emphasis:
+                Control: Label
+                Properties:
+                  Color: =Color.Red
+            """);
+
+        paModule.ShouldNotBeNull();
+        paModule.ControlStyles.ShouldNotBeNull();
+        paModule.ControlStyles.Should().HaveCount(2);
+
+        // Each style is keyed by its (unique) name and targets a single control type.
+        paModule.ControlStyles["PrimaryButton"].ControlType.Should().Be("Button");
+        paModule.ControlStyles["PrimaryButton"].Properties.Should().ContainName("Fill");
+
+        paModule.ControlStyles["Emphasis"].ControlType.Should().Be("Label");
+        paModule.ControlStyles["Emphasis"].Properties.Should().ContainName("Color");
+
+        // Round-trips back to equivalent YAML.
+        var roundTrippedYaml = PaYamlSerializer.Serialize(paModule);
+        roundTrippedYaml.Should().BeYamlEquivalentTo("""
+            ControlStyles:
+              PrimaryButton:
+                Control: Button
+                Properties:
+                  Fill: =Color.Blue
+              Emphasis:
+                Control: Label
+                Properties:
+                  Color: =Color.Red
+            """);
+    }
+
     #region Deserialize Examples
 
     [TestMethod]
@@ -193,6 +234,7 @@ public class PaYamlSerializerTests : VSTestBase
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-general-controls.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Screens-with-components.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/Themes.pa.yaml")]
+    [DataRow(@"_TestData/SchemaV3_0/FullSchemaUses/ControlStyles.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/DataSources/Dataversedatasources1.pa.yaml")]
     [DataRow(@"_TestData/SchemaV3_0/Examples/Src/_EditorState.pa.yaml")]
     public void RoundTripFromYaml(string path)
