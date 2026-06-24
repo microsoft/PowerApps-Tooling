@@ -1,0 +1,18 @@
+ControlStyles:
+  PrimaryButton:
+    Control: Button
+    Properties:
+      Fill: =Color.Blue
+      Color: =Color.White
+      BorderThickness: =2
+
+  Emphasis:
+    Control: Label@1.2.3
+    Properties:
+      Color: =Color.Red
+      Bold: =true
+
+  SubtleLabel:
+    Control: Label
+    Properties:
+      Color: =Color.Gray

@@ -19,4 +19,6 @@ public record PaModule
     public EditorStateInstance? EditorState { get; init; }
 
     public NamedObjectMapping<ThemeDefinition>? Themes { get; init; }
+
+    public NamedObjectMapping<ControlStyleDefinition>? ControlStyles { get; init; }
 }
