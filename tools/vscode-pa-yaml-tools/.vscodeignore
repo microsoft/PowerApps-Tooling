@@ -1,0 +1,30 @@
+# Source files
+src/**
+tsconfig.json
+
+# Build artifacts
+out/test/**
+*.map
+
+# Development files
+.vscode/**
+.vscode-test/**
+.gitignore
+**/*.md
+!README.md
+
+# Plan documents
+*-plan.md
+
+# Dependencies
+node_modules/**
+
+# Test files
+**/*.test.js
+
+# Lock files (optional - some keep these)
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db

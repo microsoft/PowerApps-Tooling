@@ -3,6 +3,12 @@
   "displayName": "PA YAML Tools",
   "description": "VS Code tools for working with Power Apps .pa.yaml files",
   "version": "0.0.1",
+  "publisher": "microsoft",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/PowerApps-Tooling"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -37,13 +43,17 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node --test out/test/yamlScalarConverter.test.js out/test/jsonStringDecoder.test.js"
+    "test": "npm run compile && node --test out/test/yamlScalarConverter.test.js out/test/jsonStringDecoder.test.js",
+    "package": "vsce package --pre-release",
+    "package:prerelease": "vsce package --pre-release"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.2",
     "typescript": "^5.0.0"
   }
 }
