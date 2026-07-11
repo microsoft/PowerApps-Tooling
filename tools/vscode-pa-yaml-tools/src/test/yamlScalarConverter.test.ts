@@ -111,4 +111,21 @@ describe('convertToBlockScalar', () => {
         assert.ok(result !== null);
         assert.match(result, /^key: \|[0-9]+\+/);
     });
+
+    test('value with Unicode escape \\uXXXX (4 digits) decoded correctly', () => {
+        const result = convertToBlockScalar('key: "Hello \\u2764 World"', '|-');
+        assert.equal(result, 'key: |-\n  Hello ❤ World');
+    });
+
+    test('value with Unicode escape \\UXXXXXXXX (8 digits) decoded correctly', () => {
+        const result = convertToBlockScalar('key: "\\U0001F389 Party time!"', '|-');
+        assert.equal(result, 'key: |-\n  🎉 Party time!');
+    });
+
+    test('complex value with Unicode and escaped quotes', () => {
+        const input = 'z: "={ Message: \\"\\U0001F389 Checklist has been successfully submitted\\",\\n                    Message2: \\"Great work! Small achievements lead to big victories. Keep going!\\"\\n                }\\n"';
+        const result = convertToBlockScalar(input, '|-');
+        assert.ok(result !== null);
+        assert.ok(result.includes('🎉 Checklist'));
+    });
 });
