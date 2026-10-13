@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
@@ -201,12 +202,20 @@ public class YamlWriter : IDisposable
         return x.Replace("\r\n", "\n").Replace("\r", "\n");
     }
 
-    // YamlLexer is line based and can't represent line breaks in property names, so they can't round-trip.
+    // Property names can't contain line terminators. YamlLexer is line based, and other YAML readers and editors may also treat them as line breaks.
     private static void ThrowIfInvalidPropertyName(string propertyName)
     {
-        if (propertyName != null && propertyName.IndexOfAny(['\r', '\n']) >= 0)
+        if (propertyName == null)
         {
-            throw new ArgumentException("Yaml property names cannot contain line breaks.", nameof(propertyName));
+            return;
+        }
+
+        foreach (var ch in propertyName)
+        {
+            if (CharacterUtils.IsLineTerm(ch))
+            {
+                throw new ArgumentException("Yaml property names cannot contain line breaks.", nameof(propertyName));
+            }
         }
     }
 

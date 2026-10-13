@@ -70,6 +70,9 @@ public class PAWriterVisitorTests
     [DataRow("a\r\nb")]
     [DataRow("a\rb")]
     [DataRow("a:\nb")]
+    [DataRow("a\u0085b")]
+    [DataRow("a\u2028b")]
+    [DataRow("a\u2029b")]
     public void ArgMetadataBlock_IdentifierWithLineBreaks_IsRejected(string identifier)
     {
         var ir = CreateComponentWithFunction(
@@ -80,12 +83,15 @@ public class PAWriterVisitorTests
     }
 
     [TestMethod]
-    public void ArgMetadataBlock_EmptyIdentifier_ReportsParseError()
+    [DataRow("")]
+    [DataRow("''")]
+    [DataRow("\"'\"")]
+    public void ArgMetadataBlock_EmptyIdentifier_ReportsParseError(string key)
     {
         var yaml = string.Join("\n",
             "Component1 As CanvasComponent:",
             "    ValidateDates(StartDate As DateTime):",
-            "        :",
+            $"        {key}:",
             "            Default: =Now()",
             "");
 

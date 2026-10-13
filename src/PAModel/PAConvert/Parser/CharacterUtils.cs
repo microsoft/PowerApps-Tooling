@@ -130,7 +130,7 @@ internal static class CharacterUtils
 
         if (IsIdentDelimiter(name[0]))
         {
-            if (!IsIdentDelimiter(name[name.Length - 1]))
+            if (name.Length < 2 || !IsIdentDelimiter(name[name.Length - 1]))
             {
                 // Must match
                 errors.ParseError(default, $"Unmatched escape delimeter in {name}");
@@ -148,6 +148,13 @@ internal static class CharacterUtils
                 sb.Append(ch);
                 i++;
             }
+
+            if (sb.Length == 0)
+            {
+                errors.ParseError(default, "Identifier cannot be empty");
+                throw new DocumentException();
+            }
+
             return sb.ToString();
 
         }

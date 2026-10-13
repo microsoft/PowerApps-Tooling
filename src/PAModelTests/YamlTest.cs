@@ -62,6 +62,9 @@ Obj1:
     [DataRow("a\rb")]
     [DataRow("a\r\nb")]
     [DataRow("a:\nb")]
+    [DataRow("a\u0085b")]
+    [DataRow("a\u2028b")]
+    [DataRow("a\u2029b")]
     public void WriteRejectsLineBreaksInPropertyNames(string propertyName)
     {
         var sw = new StringWriter();
