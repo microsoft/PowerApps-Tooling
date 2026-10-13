@@ -122,6 +122,12 @@ internal static class CharacterUtils
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Not available in netstandard2.0")]
     public static string UnEscapeName(string name, ErrorContainer errors)
     {
+        if (string.IsNullOrEmpty(name))
+        {
+            errors.ParseError(default, "Identifier cannot be empty");
+            throw new DocumentException();
+        }
+
         if (IsIdentDelimiter(name[0]))
         {
             if (!IsIdentDelimiter(name[name.Length - 1]))

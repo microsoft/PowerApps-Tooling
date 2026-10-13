@@ -30,6 +30,7 @@ public class YamlWriter : IDisposable
 
     public void WriteStartObject(string propertyName)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
 
         if (propertyName.AsSpan().ContainsAny("\"'"))
@@ -52,6 +53,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, bool value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -64,6 +66,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, int value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -76,6 +79,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, double value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -95,6 +99,8 @@ public class YamlWriter : IDisposable
     /// <param name="includeEquals"></param>
     public void WriteProperty(string propertyName, string value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
+
         if (value == null)
         {
             WriteIndent();
@@ -193,6 +199,15 @@ public class YamlWriter : IDisposable
     private static string NormalizeNewlines(string x)
     {
         return x.Replace("\r\n", "\n").Replace("\r", "\n");
+    }
+
+    // YamlLexer is line based and can't represent line breaks in property names, so they can't round-trip.
+    private static void ThrowIfInvalidPropertyName(string propertyName)
+    {
+        if (propertyName != null && propertyName.IndexOfAny(['\r', '\n']) >= 0)
+        {
+            throw new ArgumentException("Yaml property names cannot contain line breaks.", nameof(propertyName));
+        }
     }
 
     #region IDisposable

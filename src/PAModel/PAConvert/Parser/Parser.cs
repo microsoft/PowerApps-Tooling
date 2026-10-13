@@ -310,7 +310,7 @@ internal class Parser : IDisposable
 
     private ArgMetadataBlockNode ParseArgMetadataBlock(YamlToken p)
     {
-        var argNode = new ArgMetadataBlockNode() { Identifier = p.Property };
+        var argNode = new ArgMetadataBlockNode() { Identifier = CharacterUtils.UnEscapeName(p.Property, _errorContainer) };
         while (true)
         {
             p = _yaml.ReadNext();

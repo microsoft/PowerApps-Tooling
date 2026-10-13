@@ -139,7 +139,7 @@ internal class PAWriterVisitor : IRNodeVisitor<PAWriterVisitor.Context>
 
     public override void Visit(ArgMetadataBlockNode node, Context context)
     {
-        context._yaml.WriteStartObject(node.Identifier);
+        context._yaml.WriteStartObject(CharacterUtils.EscapeName(node.Identifier));
         context._sb.Clear();
         node.Default.Accept(this, context);
         context._yaml.WriteProperty("Default", context._sb.ToString());
