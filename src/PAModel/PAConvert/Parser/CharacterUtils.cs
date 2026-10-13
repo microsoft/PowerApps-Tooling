@@ -122,9 +122,15 @@ internal static class CharacterUtils
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Not available in netstandard2.0")]
     public static string UnEscapeName(string name, ErrorContainer errors)
     {
+        if (string.IsNullOrEmpty(name))
+        {
+            errors.ParseError(default, "Identifier cannot be empty");
+            throw new DocumentException();
+        }
+
         if (IsIdentDelimiter(name[0]))
         {
-            if (!IsIdentDelimiter(name[name.Length - 1]))
+            if (name.Length < 2 || !IsIdentDelimiter(name[name.Length - 1]))
             {
                 // Must match
                 errors.ParseError(default, $"Unmatched escape delimeter in {name}");
@@ -142,6 +148,13 @@ internal static class CharacterUtils
                 sb.Append(ch);
                 i++;
             }
+
+            if (sb.Length == 0)
+            {
+                errors.ParseError(default, "Identifier cannot be empty");
+                throw new DocumentException();
+            }
+
             return sb.ToString();
 
         }

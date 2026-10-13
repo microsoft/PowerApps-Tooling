@@ -56,6 +56,30 @@ Obj1:
         Assert.StartsWith("Foo: |", text);
     }
 
+    // Property names can't be escaped across lines, so line breaks must be rejected rather than written.
+    [TestMethod]
+    [DataRow("a\nb")]
+    [DataRow("a\rb")]
+    [DataRow("a\r\nb")]
+    [DataRow("a:\nb")]
+    [DataRow("a\u0085b")]
+    [DataRow("a\u2028b")]
+    [DataRow("a\u2029b")]
+    public void WriteRejectsLineBreaksInPropertyNames(string propertyName)
+    {
+        var sw = new StringWriter();
+        using var yw = new YamlWriter(sw);
+
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteStartObject(propertyName));
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteProperty(propertyName, "value"));
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteProperty(propertyName, (string)null));
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteProperty(propertyName, true));
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteProperty(propertyName, 1));
+        Assert.ThrowsExactly<ArgumentException>(() => yw.WriteProperty(propertyName, 1.5));
+
+        Assert.AreEqual(string.Empty, sw.ToString());
+    }
+
     // Different ending newlines will have different escapes. 
     [TestMethod]
     [DataRow("  1")] // leading whitespace

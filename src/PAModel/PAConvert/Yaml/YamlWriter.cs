@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using Microsoft.PowerPlatform.Formulas.Tools.Parser;
 
 namespace Microsoft.PowerPlatform.Formulas.Tools.Yaml;
 
@@ -30,6 +31,7 @@ public class YamlWriter : IDisposable
 
     public void WriteStartObject(string propertyName)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
 
         if (propertyName.AsSpan().ContainsAny("\"'"))
@@ -52,6 +54,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, bool value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -64,6 +67,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, int value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -76,6 +80,7 @@ public class YamlWriter : IDisposable
 
     public void WriteProperty(string propertyName, double value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
         WriteIndent();
         _textWriter.Write(propertyName);
         _textWriter.Write(": ");
@@ -95,6 +100,8 @@ public class YamlWriter : IDisposable
     /// <param name="includeEquals"></param>
     public void WriteProperty(string propertyName, string value, bool includeEquals = true)
     {
+        ThrowIfInvalidPropertyName(propertyName);
+
         if (value == null)
         {
             WriteIndent();
@@ -193,6 +200,23 @@ public class YamlWriter : IDisposable
     private static string NormalizeNewlines(string x)
     {
         return x.Replace("\r\n", "\n").Replace("\r", "\n");
+    }
+
+    // Property names can't contain line terminators. YamlLexer is line based, and other YAML readers and editors may also treat them as line breaks.
+    private static void ThrowIfInvalidPropertyName(string propertyName)
+    {
+        if (propertyName == null)
+        {
+            return;
+        }
+
+        foreach (var ch in propertyName)
+        {
+            if (CharacterUtils.IsLineTerm(ch))
+            {
+                throw new ArgumentException("Yaml property names cannot contain line breaks.", nameof(propertyName));
+            }
+        }
     }
 
     #region IDisposable
