@@ -18,14 +18,26 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 /// <summary>
 /// Represents a .msapp file.
 /// </summary>
+/// <param name="limits">Optional limits checked when an existing archive is opened. See <see cref="PaArchive(Stream, ZipArchiveMode, PaArchiveLimits?, bool, System.Text.Encoding?, ILogger{PaArchive}?)"/>.</param>
 /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
 public class MsappArchive(
     Stream stream,
     ZipArchiveMode mode,
+    PaArchiveLimits? limits,
     bool leaveOpen = false,
     ILogger<MsappArchive>? logger = null)
-    : PaArchive(stream, mode, leaveOpen, entryNameEncoding: null, logger)
+    : PaArchive(stream, mode, limits, leaveOpen, entryNameEncoding: null, logger)
 {
+    /// <param name="leaveOpen">true to leave the stream open after the System.IO.Compression.ZipArchive object is disposed; otherwise, false</param>
+    public MsappArchive(
+        Stream stream,
+        ZipArchiveMode mode,
+        bool leaveOpen = false,
+        ILogger<MsappArchive>? logger = null)
+        : this(stream, mode, limits: null, leaveOpen, logger)
+    {
+    }
+
     private HeaderJson? _header;
     private bool _packedJsonLoaded;
     private PackedJson? _packedJson;
