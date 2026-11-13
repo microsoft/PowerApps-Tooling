@@ -44,9 +44,40 @@ public partial class PaArchive : IPaArchive, IDisposable
         bool leaveOpen = false,
         Encoding? entryNameEncoding = null,
         ILogger<PaArchive>? logger = null)
+        : this(stream, mode, limits: null, leaveOpen, entryNameEncoding, logger)
     {
-        _innerZipArchive = new ZipArchive(stream, mode, leaveOpen, entryNameEncoding);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="PaArchive"/> on the given stream in the specified mode, with optional limits
+    /// that are checked when an existing archive is opened.
+    /// </summary>
+    /// <param name="limits">
+    /// When not null, opening an archive in <see cref="ZipArchiveMode.Read"/> or <see cref="ZipArchiveMode.Update"/> mode checks
+    /// the sizes and entry count recorded in the archive's central directory, before any entry is read, and throws
+    /// <see cref="PaArchiveLimitExceededException"/> when a limit is exceeded. Archives in <see cref="ZipArchiveMode.Create"/> mode,
+    /// and empty streams in <see cref="ZipArchiveMode.Update"/> mode, are not checked.
+    /// When null, the archive is opened without any checks.
+    /// </param>
+    /// <param name="leaveOpen">
+    /// true to leave the stream open after the <see cref="PaArchive"/> object is disposed; otherwise, false.
+    /// When <paramref name="limits"/> is not null and this constructor throws, the stream is disposed unless this is true.
+    /// </param>
+    /// <param name="entryNameEncoding">See docs for same parameter in <see cref="ZipArchive.ZipArchive(Stream, ZipArchiveMode, bool, Encoding?)"/>.</param>
+    /// <exception cref="PaArchiveLimitExceededException">The archive exceeds one of the <paramref name="limits"/>.</exception>
+    public PaArchive(
+        Stream stream,
+        ZipArchiveMode mode,
+        PaArchiveLimits? limits,
+        bool leaveOpen = false,
+        Encoding? entryNameEncoding = null,
+        ILogger<PaArchive>? logger = null)
+    {
+        _innerZipArchive = limits is null || mode == ZipArchiveMode.Create
+            ? new ZipArchive(stream, mode, leaveOpen, entryNameEncoding)
+            : OpenZipArchiveWithLimits(stream, mode, leaveOpen, entryNameEncoding, limits, logger);
         _logger = logger;
+        Limits = limits;
         _entries = [];
         _entriesCollection = new(_entries);
         // Note: We don't need to use a custom comparer for the keys, as  PaArchivePath defines IEquatable<PaArchivePath>
@@ -102,26 +133,7 @@ public partial class PaArchive : IPaArchive, IDisposable
     {
         if (!_isEntriesInitialized)
         {
-#if NETFRAMEWORK
-            // On .NET Framework 4.8, ZipArchive.Entries lazily reads the central directory.
-            // If any entry has a name containing a char in Path.GetInvalidPathChars() (e.g. '|'),
-            // the first access throws ArgumentException and NO entries can be enumerated at all.
-            // Do a cheap pre-check before entering the main loop so we don't have to reason about
-            // ArgumentException originating from the various other calls made inside the loop.
-            // The lazy initialization of FullPath for .NET implementations is more lenient on path chars,
-            // allowing better usability, and pushing the validation to other APIs.
-            try
-            {
-                _ = InnerZipArchive.Entries.FirstOrDefault();
-            }
-            catch (ArgumentException ex) when (ex.StackTrace.Contains("Path.CheckInvalidPathChars"))
-            {
-                _logger?.LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework(ex.Message);
-                throw new PersistenceLibraryException(PersistenceErrorCode.ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework, "The zip archive contains at least one entry with illegal path characters and cannot be loaded on Net Framework. Better support is available when using .NET 8.0 or later.", ex);
-            }
-#endif
-
-            foreach (var zipEntry in InnerZipArchive.Entries)
+            foreach (var zipEntry in GetZipEntries(InnerZipArchive, _logger))
             {
                 if (!PaArchivePath.TryParse(zipEntry.FullName, out var normalizedPath, out var invalidReason))
                 {

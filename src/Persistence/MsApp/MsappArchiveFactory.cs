@@ -4,6 +4,7 @@
 using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 
 namespace Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
 
@@ -18,6 +19,14 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
     /// </summary>
     public static readonly MsappArchiveFactory Default = new();
 
+    /// <summary>
+    /// Optional limits checked when existing archives are opened by <see cref="Open(Stream, bool)"/> or <see cref="Update(Stream, bool)"/>
+    /// (and their path overloads). See <see cref="PaArchive(Stream, ZipArchiveMode, PaArchiveLimits?, bool, Encoding?, ILogger{PaArchive}?)"/>.
+    /// Null (the default) opens archives without limits.
+    /// </summary>
+    /// <example><c>new MsappArchiveFactory(logger) { Limits = PaArchiveLimits.Default }</c></example>
+    public PaArchiveLimits? Limits { get; init; }
+
     public MsappArchive Create(string path, bool overwrite = false)
     {
         ThrowIfNullOrWhiteSpace(path);
@@ -29,7 +38,7 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Create(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Create, leaveOpen, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Create, Limits, leaveOpen, _logger);
     }
 
     public MsappArchive Open(string path)
@@ -43,7 +52,7 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Open(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Read, leaveOpen, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Read, Limits, leaveOpen, _logger);
     }
 
     public MsappArchive Update(string path)
@@ -57,6 +66,6 @@ public class MsappArchiveFactory(ILogger<MsappArchive>? _logger = null) : IMsapp
 
     public MsappArchive Update(Stream stream, bool leaveOpen = false)
     {
-        return new MsappArchive(stream, ZipArchiveMode.Update, leaveOpen, _logger);
+        return new MsappArchive(stream, ZipArchiveMode.Update, Limits, leaveOpen, _logger);
     }
 }

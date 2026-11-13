@@ -38,7 +38,7 @@ Warnings are treated as errors at the command line (`TreatWarningsAsErrors` is s
 
 ### Persistence library structure
 
-- **`Compression/`** — Cross-platform archive abstraction (`PaArchive`, `PaArchiveEntry`, `PaArchivePath`) with both sync and async extract APIs.
+- **`Compression/`** — Cross-platform archive abstraction (`PaArchive`, `PaArchiveEntry`, `PaArchivePath`) with both sync and async extract APIs. Optional `PaArchiveLimits` (opt-in; none by default) bound archive sizes and entry count when opening in Read/Update mode, throwing `PaArchiveLimitExceededException`; `PaArchive.GetStats()` and `PaArchiveLimits.Evaluate()` work without limits too.
 - **`MsApp/`** — Archive model: `MsappArchive` wraps `ZipArchive` to read/write `.msapp` files. `MsappLayoutConstants` centralizes all archive entry paths. Factory pattern via `IMsappArchiveFactory`.
 - **`MsappPacking/`** — Core pack/unpack orchestration: `MsappPackingService` converts between `.msapp` archives and unpacked source directory structures. Unpack validates version constraints (`MinSupportedMSAppStructureVersion`, `MinSupportedDocVersion`) before extracting. Pack reads `.msapr` reference files and `Src/**/*.pa.yaml` to rebuild archives.
 - **`PaYaml/`** — YAML serialization layer: `PaYamlSerializer` is the central entry point, built on YamlDotNet. Uses strongly-typed models like `NamedObject<T>` for YAML document structure. The models in `src\Persistence\PaYaml\Models\SchemaV3\**` represent the 'Source Code' schema of canvas YAML (PaYamlV3). These models should match the schema defined in `src/schemas/pa-yaml/v3.0/` and are used for both serialization and deserialization.
@@ -48,12 +48,12 @@ Warnings are treated as errors at the command line (`TreatWarningsAsErrors` is s
 ### Dependency injection
 
 Services are registered via `IServiceCollection` extension methods using `TryAddSingleton`:
-- `services.AddMsappArchiveFactory()` — registers `IMsappArchiveFactory`
+- `services.AddMsappArchiveFactory()` — registers `IMsappArchiveFactory` (no limits); the `AddMsappArchiveFactory(PaArchiveLimits)` overload registers one that checks limits
 - `services.AddMsappPackingService()` — registers `MsappPackingService` and its dependencies
 
 ### Error handling
 
-`PersistenceLibraryException` with categorized `PersistenceErrorCode` (1xxx = System, 2xxx = Serialization, 3xxx = Deserialization, 4xxx = Archive). Exceptions carry optional context: `MsappEntryFullPath`, `LineNumber`, `Column`, `JsonPath`.
+`PersistenceLibraryException` with categorized `PersistenceErrorCode` (1xxx = System, 2xxx = Serialization, 3xxx = Deserialization, 5xxx = Archive). Exceptions carry optional context: `MsappEntryFullPath`, `LineNumber`, `Column`, `JsonPath`.
 
 ### Schemas
 

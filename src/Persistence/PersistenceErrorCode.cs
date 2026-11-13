@@ -41,6 +41,7 @@ public enum PersistenceErrorCode
     PaArchiveEntryDeserializedToJsonNull = 5002,
     PaArchiveEntryDeserializedToJsonFailed = 5003,
     ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework = 5004,
+    PaArchiveLimitExceeded = 5005,
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     _LastErrorExclusive,
@@ -78,6 +79,7 @@ public static class PersistenceErrorCodeExtensions
             PersistenceErrorCode.RoundTripValidationFailed => "Round trip yaml validation failed.",
             PersistenceErrorCode.DuplicateNameInSequence => "An item name was duplicated.",
             PersistenceErrorCode.PaArchiveError => "An error was detected in a Power Apps archive file.",
+            PersistenceErrorCode.PaArchiveLimitExceeded => "The archive exceeds a configured size or entry count limit.",
             PersistenceErrorCode._LastErrorExclusive => throw new InvalidOperationException("The error code is out of range."),
             _ => "An exception occurred in the persistence library.",
         };
