@@ -35,7 +35,7 @@ internal static partial class PAPersistenceLog
     public static partial void LogExtractingResultsInOutside(this ILogger<PaArchive> logger, string entryFullName, PaArchivePath normalizedPath);
 
     [LoggerMessage(EventId = 107, Level = LogLevel.Error,
-        Message = "ZipArchive blocked on Net Framework due to an entry path containing invalid characters for the current OS. On Net Framework, this is a blocking condition when accessing any entries on the archive. Recommendation is to prefer .NET 8.0 or higher to get a better experience. Exception message: {exMessage}")]
+        Message = "ZipArchive blocked on Net Framework due to an entry path containing invalid characters for the current OS. On Net Framework, this is a blocking condition when accessing any entries on the archive. Recommendation is to prefer .NET 10.0 or higher to get a better experience. Exception message: {exMessage}")]
     public static partial void LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework(this ILogger<PaArchive> logger, string exMessage);
 
 

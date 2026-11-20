@@ -5,8 +5,8 @@
 Samples for creating, reading, and updating files containing Power Apps (*.msapp)
 
 ## Prerequisites
-- .NET 8.0
-- Visual Studio 2022
+- .NET 10.0
+- Visual Studio with .NET 10 support
 - MAUI workload (note: may require install through the Visual Studio installer)
 
 ## Getting Started
@@ -14,7 +14,7 @@ Samples for creating, reading, and updating files containing Power Apps (*.msapp
 
 ### Test.AppWriter
 - To build the Test.AppWriter, you may build through Visual Studio or on commandline with `dotnet build` in the root Test.AppWriter folder.
-- To run the Test.AppWriter, the executable should be located in `\Test.AppWriter\bin\Debug\net8.0`.  Invoke the .exe from the commandline with no arguments for a list of commands, or invoke a specific command for a list of specific options for that command.  Commandline arguments can also be supplied in Visual Studio debugger in the debug profile properties.
+- To run the Test.AppWriter, the executable should be located at `\artifacts\bin\Test.AppWriter\debug\Test.AppWriter.exe`.  Invoke the .exe from the commandline with no arguments for a list of commands, or invoke a specific command for a list of specific options for that command.  Commandline arguments can also be supplied in Visual Studio debugger in the debug profile properties.
 - A typical usage may look something like:
 `.\Test.AppWriter.exe create --filepath my\output\path --numscreens 2 --controls Button Label`
 

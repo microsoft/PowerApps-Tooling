@@ -117,7 +117,7 @@ public partial class PaArchive : IPaArchive, IDisposable
             catch (ArgumentException ex) when (ex.StackTrace.Contains("Path.CheckInvalidPathChars"))
             {
                 _logger?.LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework(ex.Message);
-                throw new PersistenceLibraryException(PersistenceErrorCode.ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework, "The zip archive contains at least one entry with illegal path characters and cannot be loaded on Net Framework. Better support is available when using .NET 8.0 or later.", ex);
+                throw new PersistenceLibraryException(PersistenceErrorCode.ZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework, "The zip archive contains at least one entry with illegal path characters and cannot be loaded on Net Framework. Better support is available when using .NET 10.0 or later.", ex);
             }
 #endif
 

@@ -25,7 +25,7 @@ dotnet test --no-build --project src/Persistence.Tests/Persistence.Tests.csproj 
 scorch.cmd
 ```
 
-Multi-targeting: Projects target `net8.0`, `net10.0`, and `net48`. Building `net48` requires Windows with .NET Framework 4.8 Developer Pack. On Linux/macOS, `net48` targets are skipped automatically.
+Multi-targeting: Projects target `net10.0` and `net48`. Building `net48` requires Windows with .NET Framework 4.8 Developer Pack. On Linux/macOS, `net48` targets are skipped automatically.
 
 Warnings are treated as errors at the command line (`TreatWarningsAsErrors` is set in `Directory.Build.props`), but suppressed in VS IDE to avoid blocking development flow.
 

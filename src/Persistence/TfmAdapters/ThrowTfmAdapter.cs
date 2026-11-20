@@ -9,7 +9,7 @@ namespace Microsoft.PowerPlatform.PowerApps.Persistence.TfmAdapters;
 
 /// <summary>
 /// Guard-clause helpers that provide a uniform call pattern across all target frameworks.
-/// On .NET 6+/.NET 8+, the BCL equivalents (ArgumentNullException.ThrowIfNull,
+/// On .NET 10+, the BCL equivalents (ArgumentNullException.ThrowIfNull,
 /// ArgumentException.ThrowIfNullOrEmpty, ArgumentException.ThrowIfNullOrWhiteSpace) are
 /// available but require qualified syntax.  Using this class lets all TFMs — including net48 —
 /// share the same unqualified call sites via the project-level global using static import.
