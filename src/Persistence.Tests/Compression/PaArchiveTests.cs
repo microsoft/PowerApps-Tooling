@@ -294,7 +294,7 @@ public class PaArchiveTests : TestBase
 
     /// <summary>
     /// Generates the zip test data files used by <see cref="OpenArchiveWithIllegalPathCharEntryTest"/>.
-    /// Run this test on .NET (net8.0 or net10.0) when the test data files need to be regenerated,
+    /// Run this test on .NET (net10.0) when the test data files need to be regenerated,
     /// then copy the output files from the output folder into the source code folder at <c>_TestData/MaliciousZips/</c>.
     ///
     /// Technically, this test doesn't test our product code, but does confirm the expectations we have found around the implementation

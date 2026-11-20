@@ -31,11 +31,7 @@ jobs:
       with:
         lfs: true
 
-    - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
-      with:
-        dotnet-version: '8.0.x'
-
-    # Setup .NET SDK (installs .NET 10.0 via global.json)
+    # Setup .NET SDK from global.json
     - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
       with:
         global-json-file: 'global.json'
@@ -48,7 +44,7 @@ jobs:
 
     # Pack so we can validate there are no warnings/errors
     # We must explicitly set the configuration parameter otherwise it defaults to Release
-    # Packages will include all target frameworks (net48, net8.0, net10.0 for Persistence projects)
+    # Packages will include all target frameworks (net48 and net10.0 for Persistence projects)
     # Note: On Windows, net48 binaries are included; on Ubuntu, net48 build is skipped but pack succeeds
     - name: Pack - Formulas.Tools
       run: dotnet pack --no-build -c ${{ env.Configuration }} src/PAModel/Microsoft.PowerPlatform.Formulas.Tools.csproj

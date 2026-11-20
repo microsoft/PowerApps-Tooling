@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSTest.Sdk">
   <!-- https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net10.0;net48</TargetFrameworks>
+        <TargetFrameworks>net10.0;net48</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>13.0</LangVersion>
