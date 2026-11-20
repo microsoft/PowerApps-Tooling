@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.PowerPlatform.PowerApps.Persistence;
 using Microsoft.PowerPlatform.PowerApps.Persistence.Compression;
 using Microsoft.PowerPlatform.PowerApps.Persistence.MsApp;
+using Microsoft.PowerPlatform.PowerApps.Persistence.MsappPacking;
 using System.IO.Compression;
+using MsappArchiveFactoryImpl = Microsoft.PowerPlatform.PowerApps.Persistence.MsApp.MsappArchiveFactory;
 
 namespace Persistence.Tests.MsApp;
 
@@ -124,6 +127,105 @@ public class MsappArchiveTests : TestBase
         // Read the archive using MsappArchive
         using var msappArchive = new MsappArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: true);
         msappArchive.MSAppStructureVersion.Should().Be(expectedMsappStructureVersion);
+    }
+
+    [TestMethod]
+    public void FactoryWithoutLimitsDoesNotCheckLimits()
+    {
+        using var archiveStream = new MemoryStream();
+        SaveNewMinMsappWithHeaderOnly(archiveStream);
+
+        MsappArchiveFactory.Should().BeOfType<MsappArchiveFactoryImpl>().Which.Limits.Should().BeNull("AddMsappArchiveFactory() registers a factory without limits");
+        MsappArchiveFactoryImpl.Default.Limits.Should().BeNull();
+        using var msappArchive = MsappArchiveFactoryImpl.Default.Open(archiveStream, leaveOpen: true);
+        msappArchive.Limits.Should().BeNull();
+        msappArchive.DocVersion.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void FactoryWithLimitsChecksOpenAndUpdateButNotCreate()
+    {
+        var limits = PaArchiveLimits.Default with { MaxTextEntrySize = 1 };
+        var factory = new MsappArchiveFactoryImpl { Limits = limits };
+        factory.Limits.Should().BeSameAs(limits);
+
+        using var archiveStream = new MemoryStream();
+        SaveNewMinMsappWithHeaderOnly(archiveStream);
+        var archiveBytes = archiveStream.ToArray();
+
+        factory.Invoking(f => f.Open(archiveStream, leaveOpen: true))
+            .Should().ThrowExactly<PaArchiveLimitExceededException>()
+            .Which.Limit.Should().Be(PaArchiveLimit.TextEntrySize);
+        factory.Invoking(f => f.Update(archiveStream, leaveOpen: true))
+            .Should().ThrowExactly<PaArchiveLimitExceededException>()
+            .Which.Limit.Should().Be(PaArchiveLimit.TextEntrySize);
+        archiveStream.ToArray().Should().Equal(archiveBytes);
+
+        using var created = factory.Create(new MemoryStream());
+        created.Limits.Should().BeSameAs(limits);
+        using var writer = new StreamWriter(created.CreateEntry("Header.json").Open());
+        writer.Write("{}");
+    }
+
+    [TestMethod]
+    public void FactoryWithLimitsRejectsFileWithoutModifyingOrLockingIt()
+    {
+        var path = Path.Combine(CreateTestOutputFolder(ensureEmpty: true), "app.msapp");
+        using (var fileStream = File.Create(path))
+        using (var writeToArchive = new ZipArchive(fileStream, ZipArchiveMode.Create))
+        {
+            writeToArchive.CreateEntryFromFile(Path.Combine("_TestData", "headers", "Header-DocV-1.347.json"), "Header.json");
+        }
+        var originalBytes = File.ReadAllBytes(path);
+        var factory = new MsappArchiveFactoryImpl { Limits = PaArchiveLimits.Default with { MaxTextEntrySize = 1 } };
+
+        factory.Invoking(f => f.Update(path)).Should().ThrowExactly<PaArchiveLimitExceededException>();
+        File.ReadAllBytes(path).Should().Equal(originalBytes, "a rejected update should not rewrite the file");
+        using (File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            // The file is no longer in use by the rejected archive
+        }
+
+        factory.Invoking(f => f.Open(path)).Should().ThrowExactly<PaArchiveLimitExceededException>();
+        using (File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            // The file is no longer in use by the rejected archive
+        }
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AddMsappArchiveFactoryWithLimitsRegistersFactoryWithLimits(bool addPackingServiceFirst)
+    {
+        var limits = PaArchiveLimits.Default with { MaxEntryCount = 5 };
+        var services = new ServiceCollection();
+        if (addPackingServiceFirst)
+            services.AddMsappPackingService();
+        services.AddMsappArchiveFactory(limits);
+        if (!addPackingServiceFirst)
+            services.AddMsappPackingService();
+        using var serviceProvider = services.BuildServiceProvider();
+
+        serviceProvider.GetRequiredService<IMsappArchiveFactory>()
+            .Should().BeOfType<MsappArchiveFactoryImpl>()
+            .Which.Limits.Should().BeSameAs(limits, "limits passed explicitly should apply regardless of registration order");
+        services.Where(d => d.ServiceType == typeof(IMsappArchiveFactory)).Should().ContainSingle();
+    }
+
+    [TestMethod]
+    public void AddMsappArchiveFactoryIgnoresRegisteredLimits()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(PaArchiveLimits.Default);
+        services.AddMsappArchiveFactory();
+        services.TryAddSingleton<MsappArchiveFactoryImpl>();
+        using var serviceProvider = services.BuildServiceProvider();
+
+        serviceProvider.GetRequiredService<IMsappArchiveFactory>()
+            .Should().BeOfType<MsappArchiveFactoryImpl>()
+            .Which.Limits.Should().BeNull("limits are only applied when passed explicitly");
+        serviceProvider.GetRequiredService<MsappArchiveFactoryImpl>().Limits.Should().BeNull("limits are only applied when passed explicitly");
     }
 
     private static void SaveNewMinMsappWithHeaderOnly(MemoryStream archiveStream, string headerFileName = "Header-DocV-1.347.json")

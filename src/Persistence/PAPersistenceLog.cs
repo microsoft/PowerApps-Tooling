@@ -38,6 +38,10 @@ internal static partial class PAPersistenceLog
         Message = "ZipArchive blocked on Net Framework due to an entry path containing invalid characters for the current OS. On Net Framework, this is a blocking condition when accessing any entries on the archive. Recommendation is to prefer .NET 8.0 or higher to get a better experience. Exception message: {exMessage}")]
     public static partial void LogZipArchiveBlockedDueToInvalidEntryPathCharsOnNetFramework(this ILogger<PaArchive> logger, string exMessage);
 
+    [LoggerMessage(EventId = 108, Level = LogLevel.Warning,
+        Message = "The zip archive exceeds a configured limit and will not be opened. Limit: '{limit}'; EntryCount: {entryCount}; CompressedSize: {compressedSize}; ExpandedSize: {expandedSize}; LargestEntrySize: {largestEntrySize}; LargestTextEntrySize: {largestTextEntrySize};")]
+    public static partial void LogArchiveLimitExceeded(this ILogger<PaArchive> logger, PaArchiveLimit limit, int entryCount, long compressedSize, long expandedSize, long largestEntrySize, long largestTextEntrySize);
+
 
     [LoggerMessage(EventId = 211, Level = LogLevel.Debug,
         Message = "Entry types: {sourceCodeCount} source-code, {assetCount} asset, {headerCount} header, {otherCount} other entries.")]
